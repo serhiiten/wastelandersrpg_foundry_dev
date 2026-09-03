@@ -165,7 +165,7 @@ export class WastelandersActor extends Actor {
 
     if (this.type === "character") {
       // Save automatically counted fate points recover before disabling
-      if (changed.system.fate?.countAutomatically === false) {
+      if (changed.system?.fate?.countAutomatically === false) {
         changed.system.fate = changed.system.fate || {};
         changed.system.fate.recover = this.system.fate.recover;
       }
