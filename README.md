@@ -21,7 +21,7 @@
 [Foundry URL]: https://foundryvtt.com
 
 [Version]: https://img.shields.io/badge/Version-1.0.1-informational?style=flat-square
-[Version URL]: https://github.com/serhiiten/wastelandersrpg_foundry/releases/tag/v1.0.0
+[Version URL]: https://github.com/serhiiten/wastelandersrpg_foundry/releases/tag/v1.0.1
 
 [GNU License]: https://img.shields.io/badge/License-GNU-green?style=flat-square
 [GNU URL]: https://github.com/serhiiten/wastelandersrpg_foundry/blob/main/LICENSE.md
