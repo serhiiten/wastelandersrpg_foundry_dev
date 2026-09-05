@@ -121,6 +121,7 @@ export class WastelandersActor extends Actor {
     );
 
     if (game.user.id != userId) return;
+    if (this.type != "character") return;
 
     for (const changeData of changes) {
       const item = this.items.get(changeData._id);
@@ -153,6 +154,7 @@ export class WastelandersActor extends Actor {
       userId,
     );
 
+    if (this.type != "character") return;
     this._updateActorHP();
     this._updateActorArmor();
   }
