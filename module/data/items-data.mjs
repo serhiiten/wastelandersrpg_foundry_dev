@@ -91,7 +91,7 @@ export class WeaponData extends foundry.abstract.TypeDataModel {
       description: new fields.HTMLField(),
       heavy: new fields.BooleanField({ initial: false }),
       price: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 0,
       }),
       damage: new fields.StringField(),
@@ -109,11 +109,11 @@ export class ArmorData extends foundry.abstract.TypeDataModel {
       description: new fields.HTMLField(),
       heavy: new fields.BooleanField({ initial: false }),
       price: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 0,
       }),
       protection: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 0,
       }),
       equipped: new fields.BooleanField({ initial: false }),
@@ -131,7 +131,7 @@ export class ToolData extends foundry.abstract.TypeDataModel {
       description: new fields.HTMLField(),
       heavy: new fields.BooleanField({ initial: false }),
       price: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 0,
       }),
     };
@@ -147,11 +147,11 @@ export class DrugData extends foundry.abstract.TypeDataModel {
     return {
       description: new fields.HTMLField(),
       price: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 0,
       }),
       addiction: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 0,
       }),
     };
@@ -168,11 +168,11 @@ export class UpgradeData extends foundry.abstract.TypeDataModel {
       description: new fields.HTMLField(),
       active: new fields.SchemaField({
         value: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 0,
         }),
         max: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 1,
         }),
       }),
@@ -189,11 +189,11 @@ export class CargoData extends foundry.abstract.TypeDataModel {
     return {
       description: new fields.HTMLField(),
       price: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 0,
       }),
       quantity: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 1,
       }),
     };

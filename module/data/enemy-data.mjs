@@ -8,16 +8,16 @@ export default class EnemyData extends foundry.abstract.TypeDataModel {
       type: new fields.StringField(),
       hp: new fields.SchemaField({
         value: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 0,
         }),
         max: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 0,
         }),
       }),
       armor: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 2,
       }),
 

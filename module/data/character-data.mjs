@@ -15,41 +15,42 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
 
       hp: new fields.SchemaField({
         value: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 15,
         }),
         max: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 15,
         }),
         bonus: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 0,
         }),
         perkBonus: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredInteger,
           initial: 0,
         }),
       }),
 
       fate: new fields.SchemaField({
         value: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 2,
         }),
         recover: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
+          initial: 2,
         }),
         countAutomatically: new fields.BooleanField({ initial: true }),
       }),
 
       armor: new fields.SchemaField({
         bonus: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 0,
         }),
         itemBonus: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 0,
         }),
       }),
@@ -64,111 +65,111 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
 
       attributes: new fields.SchemaField({
         strength: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         perception: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         endurance: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         attractiveness: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         intelligence: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         dexterity: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         luck: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
       }),
 
       skills: new fields.SchemaField({
         athletics: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         thievery: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         marksmanship: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         dueling: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         medicine: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         mechanics: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         knowledge: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         survival: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         manipulation: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
         intimidation: new fields.NumberField({
-          requiredInteger,
+          ...requiredInteger,
           initial: 0,
         }),
       }),
 
       supplies: new fields.SchemaField({
         value: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 3,
         }),
         max: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 3,
         }),
       }),
       caps: new fields.NumberField({
-        requiredPositiveInteger,
+        ...requiredPositiveInteger,
         initial: 15,
       }),
 
       exp: new fields.SchemaField({
         value: new fields.NumberField({
-          requiredPositiveInteger,
+          ...requiredPositiveInteger,
           initial: 0,
         }),
         options: new fields.ArrayField(
           new fields.SchemaField({
             name: new fields.StringField(),
             price: new fields.NumberField({
-              requiredPositiveInteger,
+              ...requiredPositiveInteger,
               initial: 10,
             }),
             active: new fields.NumberField({
-              requiredPositiveInteger,
+              ...requiredPositiveInteger,
               initial: 0,
             }),
             max: new fields.NumberField({
-              requiredPositiveInteger,
+              ...requiredPositiveInteger,
               initial: 3,
             }),
           }),
