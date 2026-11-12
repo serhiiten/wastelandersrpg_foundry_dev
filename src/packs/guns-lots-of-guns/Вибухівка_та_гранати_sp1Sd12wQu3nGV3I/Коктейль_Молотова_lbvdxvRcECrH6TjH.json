@@ -3,7 +3,7 @@
   "name": "Коктейль Молотова",
   "type": "weapon",
   "_id": "lbvdxvRcECrH6TjH",
-  "img": "systems/wastelanders/assets/grenade.svg",
+  "img": "systems/wastelanders-dev/assets/grenade.svg",
   "system": {
     "description": "<p>Дальність: 1 зона</p><p>Властивість: Завдає шкоди по площині. Підпалює супротивників. На початку дії Доглядача супротивник, що горить, отримує 1d8 шкоди вогнем, після чого цей аспект зникає.</p>",
     "price": 2,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768609044391,
     "modifiedTime": 1768827196413,

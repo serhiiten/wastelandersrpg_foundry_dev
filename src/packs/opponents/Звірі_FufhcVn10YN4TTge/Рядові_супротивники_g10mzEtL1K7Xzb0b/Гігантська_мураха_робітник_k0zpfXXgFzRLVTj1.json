@@ -3,7 +3,7 @@
   "name": "Гігантська мураха-робітник",
   "type": "enemy",
   "_id": "k0zpfXXgFzRLVTj1",
-  "img": "systems/wastelanders/assets/hihants-ka-murakha.png",
+  "img": "systems/wastelanders-dev/assets/hihants-ka-murakha.png",
   "system": {
     "hp": {
       "value": 6,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/hihants-ka-murakha.png",
+      "src": "systems/wastelanders-dev/assets/hihants-ka-murakha.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768836308336,
         "modifiedTime": 1768848633885,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768836296724,
     "modifiedTime": 1769782005278,

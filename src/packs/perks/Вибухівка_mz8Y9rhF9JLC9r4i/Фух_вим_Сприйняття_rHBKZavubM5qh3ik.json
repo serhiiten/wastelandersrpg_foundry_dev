@@ -3,7 +3,7 @@
   "name": "Фух (вим. Сприйняття)",
   "type": "perk",
   "_id": "rHBKZavubM5qh3ik",
-  "img": "systems/wastelanders/assets/mine-explosion.svg",
+  "img": "systems/wastelanders-dev/assets/mine-explosion.svg",
   "system": {
     "description": "<p>Твоя вибухівка ніколи не спрацьовує прямо у тебе в руках. При невдачах перевірки використання вибухівки чи метання гранат ти все ще їх витрачаєш, але вони просто виявляються несправними, замість того щоб вибухати в твоїй зоні.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768662522820,
     "modifiedTime": 1769783299422,

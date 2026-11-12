@@ -3,7 +3,7 @@
   "name": "Точний удар",
   "type": "perk",
   "_id": "VoE3M0yzxXKRUlb2",
-  "img": "systems/wastelanders/assets/high-punch.svg",
+  "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
     "description": "<p>Ти завдаєш ударів з хірургічною точністю. При частковому успіху перевірок атаки в ближньому бою ти можеш вибрати 1 звичайний ефект на додачу до завдання шкоди.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768660085169,
     "modifiedTime": 1768827159592,

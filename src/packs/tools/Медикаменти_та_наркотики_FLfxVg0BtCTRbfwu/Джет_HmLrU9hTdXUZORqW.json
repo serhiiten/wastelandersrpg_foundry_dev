@@ -3,7 +3,7 @@
   "name": "Джет",
   "type": "drug",
   "_id": "HmLrU9hTdXUZORqW",
-  "img": "systems/wastelanders/assets/chem-jet.webp",
+  "img": "systems/wastelanders-dev/assets/chem-jet.webp",
   "system": {
     "price": 2,
     "addiction": 7,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648561732,
     "modifiedTime": 1769781830080,

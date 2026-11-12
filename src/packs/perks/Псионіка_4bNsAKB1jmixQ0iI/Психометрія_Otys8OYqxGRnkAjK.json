@@ -3,7 +3,7 @@
   "name": "Психометрія",
   "type": "perk",
   "_id": "Otys8OYqxGRnkAjK",
-  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
     "description": "<p>Раз за сцену ти можеш доторкнутися до речі та поставити Доглядачеві два запитання з переліку: <br>● Хто був її останнім власником? <br>● Навіщо її використовували востаннє? <br>● Де, ким і коли вона була зроблена? <br>● Хто хотів би отримати цю річ? <br><br>Доглядач повинен відповісти максимально чесно. Цей перк можна застосовувати потай.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768672146935,
     "modifiedTime": 1768827159592,

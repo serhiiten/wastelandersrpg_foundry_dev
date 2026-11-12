@@ -20,7 +20,7 @@ export class WastelandersItemSheet extends foundry.appv1.sheets.ItemSheet {
 
   /** @override */
   get template() {
-    const sheetTemplate = `systems/wastelanders/templates/item/${this.item.type}-sheet.hbs`;
+    const sheetTemplate = `systems/wastelanders-dev/templates/item/${this.item.type}-sheet.hbs`;
 
     return sheetTemplate;
   }

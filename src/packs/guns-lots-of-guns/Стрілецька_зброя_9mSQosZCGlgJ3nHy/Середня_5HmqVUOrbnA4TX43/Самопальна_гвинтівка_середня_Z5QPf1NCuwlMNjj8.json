@@ -2,7 +2,7 @@
   "name": "Самопальна гвинтівка (середня)",
   "type": "weapon",
   "_id": "Z5QPf1NCuwlMNjj8",
-  "img": "systems/wastelanders/assets/winchester-rifle.svg",
+  "img": "systems/wastelanders-dev/assets/winchester-rifle.svg",
   "system": {
     "description": "<p>Дальність: 2 зони </p><p>Властивість: Одиночна.</p>",
     "price": 3,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768606393594,
     "modifiedTime": 1768827196413,

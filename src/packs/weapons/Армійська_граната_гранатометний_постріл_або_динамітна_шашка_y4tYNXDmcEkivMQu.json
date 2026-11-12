@@ -1,7 +1,7 @@
 {
   "name": "Армійська граната, гранатометний постріл або динамітна шашка",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fo1-frag-grenade.webp",
+  "img": "systems/wastelanders-dev/assets/fo1-frag-grenade.webp",
   "system": {
     "description": "<p>Завдає шкоди по площині.</p>",
     "price": 2,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565519396,
     "modifiedTime": 1769781830042,

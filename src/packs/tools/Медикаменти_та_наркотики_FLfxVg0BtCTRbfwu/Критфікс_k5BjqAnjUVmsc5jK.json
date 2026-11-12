@@ -3,7 +3,7 @@
   "name": "Критфікс",
   "type": "drug",
   "_id": "k5BjqAnjUVmsc5jK",
-  "img": "systems/wastelanders/assets/scrap-electronics.webp",
+  "img": "systems/wastelanders-dev/assets/scrap-electronics.webp",
   "system": {
     "price": 5,
     "addiction": 0,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648996257,
     "modifiedTime": 1769781830080,

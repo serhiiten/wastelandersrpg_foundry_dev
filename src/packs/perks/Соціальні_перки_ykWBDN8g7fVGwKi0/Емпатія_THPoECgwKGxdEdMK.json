@@ -3,7 +3,7 @@
   "name": "Емпатія",
   "type": "perk",
   "_id": "THPoECgwKGxdEdMK",
-  "img": "systems/wastelanders/assets/talk.svg",
+  "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
     "description": "<p>Ти завжди точно відчуваєш настрій співрозмовника. До того ж отримай бонус +2 на всі перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>СПР + Маніпуляція</strong></span>, щоб розпізнати брехню або замовчування.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668215728,
     "modifiedTime": 1768827159592,

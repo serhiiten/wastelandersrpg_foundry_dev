@@ -2,7 +2,7 @@
   "folder": "TgGn39nm1DTKWQ7X",
   "name": "Спеціалізація: Крадіж (злам замків)",
   "type": "perk",
-  "img": "systems/wastelanders/assets/gift-of-knowledge.svg",
+  "img": "systems/wastelanders-dev/assets/gift-of-knowledge.svg",
   "system": {
     "description": "<p>Вибери одну навичку яку ти маєш як мінімум на рівні учня та одну досить вузьку область її застосування. Обговори цю область з Доглядачем. Отримай +1 на всі перевірки, пов'язані з цією сферою застосування навички. Цей перк можна брати кілька разів для різних сфер застосування навичок.</p>",
     "attributes": {
@@ -39,7 +39,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1769783132645,
     "modifiedTime": 1769783248487,

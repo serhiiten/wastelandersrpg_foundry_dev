@@ -2,7 +2,7 @@
   "name": "Голкостріл (легкий)",
   "type": "weapon",
   "_id": "niNa30ObHAF8Umrg",
-  "img": "systems/wastelanders/assets/pistol-gun-1.svg",
+  "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
     "description": "<p>Дальність: Макс. </p><p>Властивість: Одиночний. Ігнорує 2 броні. Стріляє голками, які можуть доставити отруту, медикамент чи наркотик.</p>",
     "price": 15,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768605109962,
     "modifiedTime": 1769781830184,

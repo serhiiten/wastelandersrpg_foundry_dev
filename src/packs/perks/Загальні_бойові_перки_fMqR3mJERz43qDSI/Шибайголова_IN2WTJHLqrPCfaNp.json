@@ -3,7 +3,7 @@
   "name": "Шибайголова",
   "type": "perk",
   "_id": "IN2WTJHLqrPCfaNp",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Коли ти свідомо втрапляєш в небезпечну ситуацію без огляду на власну безпеку та безпеку оточуючих, ти отримуєш Посилення до наступної перевірки. Доглядач визначає, чи достатньо дія небезпечна чи ні.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768663800516,
     "modifiedTime": 1768827159592,

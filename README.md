@@ -1,4 +1,10 @@
-# Пустельники для Foundry VTT
+# Пустельники для Foundry VTT — DEV
+
+> **Тестова збірка.** Система має окремий ID `wastelanders-dev` і ставиться поруч зі стабільною, не зачіпаючи ваших світів. Для тестів створіть новий світ із системою «Пустельники (DEV)».
+>
+> Manifest URL: https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry_dev/main/system.json
+>
+> Повернення до стабільного ID перед релізом: `node tools/set-system-id.mjs wastelanders`.
 
 [![Foundry Shield]][Foundry URL]
 [![Version]][Version URL]
@@ -12,7 +18,7 @@
 
 1. Усередині екрану "Configuration and Setup" лаучера натисніть "Systems".
 2. Натисніть "Install System".
-3. В полі "Manifest URL" вставте наступне посилання: https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry/main/system.json або знайдіть цю систему в пошуку за назвою Пустельники
+3. В полі "Manifest URL" вставте наступне посилання: https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry_dev/main/system.json
 4. Натисніть 'Install' і дочекайтеся завершення встановлення.
 
 Тепер ви можете створити світ з цією системою і використовувати аркуші персонажів та компендіуми для неї у Foundry VTT!

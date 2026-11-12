@@ -3,7 +3,7 @@
   "name": "Прицільний постріл",
   "type": "perk",
   "_id": "CK4mUljoHWnqXY0K",
-  "img": "systems/wastelanders/assets/human-target.svg",
+  "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
     "description": "<p>Ти завжди славився своєю влучністю. При частковому успіху перевірок атаки у бою на відстані ти можеш вибрати 1 звичайний ефект на додачу до завдання шкоди.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768659480118,
     "modifiedTime": 1768827159592,

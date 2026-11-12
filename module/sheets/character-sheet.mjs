@@ -20,7 +20,7 @@ export class WastelandersCharacterSheet extends WastelandersActorSheet {
       );
 
     // Build the archetypes list dynamically from settings
-    const archetypesStr = game.settings.get("wastelanders", "archetypesList");
+    const archetypesStr = game.settings.get(game.system.id, "archetypesList");
     const archetypesObj = {};
     if (archetypesStr) {
       const archetypesArray = archetypesStr

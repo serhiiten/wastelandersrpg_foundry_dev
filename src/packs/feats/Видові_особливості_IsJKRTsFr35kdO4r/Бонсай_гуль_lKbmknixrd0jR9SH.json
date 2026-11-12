@@ -2,7 +2,7 @@
   "name": "Бонсай (гуль)",
   "type": "feat",
   "_id": "lKbmknixrd0jR9SH",
-  "img": "systems/wastelanders/assets/dna1.svg",
+  "img": "systems/wastelanders-dev/assets/dna1.svg",
   "system": {
     "active": false,
     "description": "<p>У тебе з тіла росте корисна рослина. Дай їй ім'я, а якщо ти достатньо дивакуватий, вигадай їй особистість. Щодня, якщо ти добре відпочив, рослина дає тобі фрукт, який за своїми властивостями аналогічний стимпаку, і до того ж добре втамовує голод.</p><p>Фрукт швидко псується, тому продати або зберегти його довше ніж на день не вийде. <strong>З мінусів:</strong> рослина відбирає в тебе поживні речовини, тому ти маєш на 3 ОЗ менше.</p>",
@@ -22,7 +22,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.360",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.4.2",
     "createdTime": 1768569586173,
     "modifiedTime": 1777149785961,

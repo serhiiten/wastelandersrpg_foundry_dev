@@ -3,7 +3,7 @@
   "name": "Спрямована дія (Вправність)",
   "type": "perk",
   "_id": "BxCvqTvSrol0wWsI",
-  "img": "systems/wastelanders/assets/mine-explosion.svg",
+  "img": "systems/wastelanders-dev/assets/mine-explosion.svg",
   "system": {
     "description": "<p>Твої власні гранати та вибухівка завжди завдають тобі та твоїм спільникам лише половину шкоди (округлюючи вгору).</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768662482180,
     "modifiedTime": 1768827159592,

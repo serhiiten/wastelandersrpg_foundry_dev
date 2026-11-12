@@ -3,7 +3,7 @@
   "name": "Я — швидкість",
   "type": "perk",
   "_id": "vM8tD8a3Q9kn0oUe",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Раз за сцену відразу після перевірки атаки ти можеш негайно атакувати ще раз, якщо в тебе немає особливостей «Вибивайло» або «Точність».</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768666939955,
     "modifiedTime": 1768827159592,

@@ -59,12 +59,12 @@ Hooks.once("init", async function () {
     foundry.appv1.sheets.ActorSheet,
   );
   foundry.documents.collections.Actors.registerSheet(
-    "wastelanders",
+    game.system.id,
     WastelandersActorSheet,
     { makeDefault: true },
   );
   foundry.documents.collections.Actors.registerSheet(
-    "wastelanders",
+    game.system.id,
     WastelandersCharacterSheet,
     {
       types: ["character"],
@@ -72,7 +72,7 @@ Hooks.once("init", async function () {
     },
   );
   foundry.documents.collections.Actors.registerSheet(
-    "wastelanders",
+    game.system.id,
     WastelandersCaravanSheet,
     {
       types: ["caravan"],
@@ -80,7 +80,7 @@ Hooks.once("init", async function () {
     },
   );
   foundry.documents.collections.Actors.registerSheet(
-    "wastelanders",
+    game.system.id,
     WastelandersEnemySheet,
     {
       types: ["enemy"],
@@ -88,7 +88,7 @@ Hooks.once("init", async function () {
     },
   );
   foundry.documents.collections.Actors.registerSheet(
-    "wastelanders",
+    game.system.id,
     WastelandersCounterSheet,
     {
       types: ["counter"],
@@ -101,12 +101,12 @@ Hooks.once("init", async function () {
     foundry.appv1.sheets.ItemSheet,
   );
   foundry.documents.collections.Items.registerSheet(
-    "wastelanders",
+    game.system.id,
     WastelandersItemSheet,
     { makeDefault: true },
   );
   foundry.documents.collections.Items.registerSheet(
-    "wastelanders",
+    game.system.id,
     WastelandersSpeciesSheet,
     {
       types: ["species"],

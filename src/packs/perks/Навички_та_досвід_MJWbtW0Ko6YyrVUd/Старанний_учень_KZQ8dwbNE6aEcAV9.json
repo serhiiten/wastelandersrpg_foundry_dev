@@ -3,7 +3,7 @@
   "name": "Старанний учень",
   "type": "perk",
   "_id": "KZQ8dwbNE6aEcAV9",
-  "img": "systems/wastelanders/assets/gift-of-knowledge.svg",
+  "img": "systems/wastelanders-dev/assets/gift-of-knowledge.svg",
   "system": {
     "description": "<p>При перших трьох невдачах перевірок на кожній ігровій сесії ти отримуєш 2 ОД замість 1.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671452418,
     "modifiedTime": 1768827159592,

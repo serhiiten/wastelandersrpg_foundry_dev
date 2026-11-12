@@ -3,7 +3,7 @@
   "name": "Кіберпес",
   "type": "enemy",
   "_id": "idQGq3hVyMS5XxX6",
-  "img": "systems/wastelanders/assets/kiberpes.png",
+  "img": "systems/wastelanders-dev/assets/kiberpes.png",
   "system": {
     "hp": {
       "value": 12,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/kiberpes.png",
+      "src": "systems/wastelanders-dev/assets/kiberpes.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768849378845,
         "modifiedTime": 1768849395959,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768849365748,
     "modifiedTime": 1769782005278,

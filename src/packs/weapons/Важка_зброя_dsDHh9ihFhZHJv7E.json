@@ -1,7 +1,7 @@
 {
   "name": "Важка зброя",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fo2-m60.webp",
+  "img": "systems/wastelanders-dev/assets/fo2-m60.webp",
   "system": {
     "description": "<p>Суперкувалди, кулемети, великокаліберні снайперські гвинтівки, суперсилові кулаки, автоматичні дробовики. <em><strong>Важка.</strong></em> Займає обидві руки.</p>",
     "price": 10,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565522429,
     "modifiedTime": 1769781830042,

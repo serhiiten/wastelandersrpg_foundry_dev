@@ -3,7 +3,7 @@
   "name": "Контрабандист",
   "type": "perk",
   "_id": "Zdx3292RequOL4fF",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p>Якщо ти сховаєш невеликий об'єкт на своєму тілі (наприклад, легку зброю) або великий об'єкт у каравані, то ніхто не зможе його виявити, крім тебе.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668764975,
     "modifiedTime": 1768827159592,

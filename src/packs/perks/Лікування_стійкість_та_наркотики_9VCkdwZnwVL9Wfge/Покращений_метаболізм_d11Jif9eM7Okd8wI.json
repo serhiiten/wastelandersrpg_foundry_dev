@@ -3,7 +3,7 @@
   "name": "Покращений метаболізм",
   "type": "perk",
   "_id": "d11Jif9eM7Okd8wI",
-  "img": "systems/wastelanders/assets/heart-plus.svg",
+  "img": "systems/wastelanders-dev/assets/heart-plus.svg",
   "system": {
     "description": "<p>Усі наркотики діють на тебе на одну сцену довше. Це не впливає на шанс залежності. <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>Роботи не можуть взяти цей перк.</strong></span></p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671367284,
     "modifiedTime": 1768827159592,

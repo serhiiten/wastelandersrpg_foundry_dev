@@ -3,7 +3,7 @@
   "name": "Спеціалізація",
   "type": "perk",
   "_id": "tWmueO2oclOwdNAC",
-  "img": "systems/wastelanders/assets/gift-of-knowledge.svg",
+  "img": "systems/wastelanders-dev/assets/gift-of-knowledge.svg",
   "system": {
     "description": "<p>Вибери одну навичку яку ти маєш як мінімум на рівні учня та одну досить вузьку область її застосування. Обговори цю область з Доглядачем. Отримай +1 на всі перевірки, пов'язані з цією сферою застосування навички. Цей перк можна брати кілька разів для різних сфер застосування навичок.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671485889,
     "modifiedTime": 1768827159592,

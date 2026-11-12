@@ -3,7 +3,7 @@
   "name": "Шишкебаб (важкий)",
   "type": "weapon",
   "_id": "iYdRE8STTKDB2TBL",
-  "img": "systems/wastelanders/assets/hammer-drop.svg",
+  "img": "systems/wastelanders-dev/assets/hammer-drop.svg",
   "system": {
     "description": "<p>Дальність: Ближ. </p><p>Властивість: Підпалює супротивників, якщо завдає хоча б 1 шкоди після вирахування броні. На початку дії Доглядача супротивник, що горить, отримує 1d6 шкоди вогнем, після чого цей аспект зникає. Гострий.</p>",
     "price": 35,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768608795774,
     "modifiedTime": 1768827196413,

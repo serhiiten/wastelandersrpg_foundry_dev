@@ -3,7 +3,7 @@
   "name": "Брамін",
   "type": "enemy",
   "_id": "vqiElcmKsfGV56eh",
-  "img": "systems/wastelanders/assets/bramin.png",
+  "img": "systems/wastelanders-dev/assets/bramin.png",
   "system": {
     "hp": {
       "value": 5,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/bramin.png",
+      "src": "systems/wastelanders-dev/assets/bramin.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768836448590,
         "modifiedTime": 1768848639046,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768836430485,
     "modifiedTime": 1769782005278,

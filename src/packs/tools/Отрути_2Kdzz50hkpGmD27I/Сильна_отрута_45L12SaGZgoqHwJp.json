@@ -2,7 +2,7 @@
   "name": "Сильна отрута",
   "type": "tool",
   "_id": "45L12SaGZgoqHwJp",
-  "img": "systems/wastelanders/assets/poison-bottle.svg",
+  "img": "systems/wastelanders-dev/assets/poison-bottle.svg",
   "system": {
     "description": "<p>Шкода: +2d6</p><p>Отрута касадора. Рідкісна річ.</p>",
     "price": 3
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768567821826,
     "modifiedTime": 1768827150524,

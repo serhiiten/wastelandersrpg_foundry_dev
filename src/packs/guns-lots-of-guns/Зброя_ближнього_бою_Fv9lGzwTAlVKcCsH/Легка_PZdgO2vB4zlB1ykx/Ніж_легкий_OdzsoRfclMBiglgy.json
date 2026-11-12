@@ -3,7 +3,7 @@
   "name": "Ніж (легкий)",
   "type": "weapon",
   "_id": "OdzsoRfclMBiglgy",
-  "img": "systems/wastelanders/assets/bowie-knife.svg",
+  "img": "systems/wastelanders-dev/assets/bowie-knife.svg",
   "system": {
     "description": "<p>Дальність: Ближ. </p><p>Властивість: Гострий.</p>",
     "price": 1,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768608264058,
     "modifiedTime": 1768827196413,

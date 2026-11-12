@@ -3,7 +3,7 @@
   "name": "Залізячник (вим. Знання)",
   "type": "perk",
   "_id": "QOK8nx1rihTT90oO",
-  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "img": "systems/wastelanders-dev/assets/auto-repair.svg",
   "system": {
     "description": "<p>Раз за сцену витрати одиницю Припасів, щоб швидко створити гранату або невеликий механічний чи електронний пристрій, аналогічний такому вартістю до 3 кришок. Дай пристрою назву та обговори з Доглядачем його функції та можливі недоліки. Створений пристрій тримається буквально на соплях, тому його неможливо продати, і він розвалюється в кінці сцени. Витративши вечір відпочинку та сировину на половину звичайної вартості пристрою (округлюючи вгору), ти можеш створити щось надійніше.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768670304500,
     "modifiedTime": 1769783182098,

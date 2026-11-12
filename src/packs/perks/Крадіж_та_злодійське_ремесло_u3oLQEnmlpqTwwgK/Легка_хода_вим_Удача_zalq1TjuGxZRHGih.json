@@ -3,7 +3,7 @@
   "name": "Легка хода (вим. Удача)",
   "type": "perk",
   "_id": "zalq1TjuGxZRHGih",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p>Раз за сцену, коли через тебе спрацьовує пастка або звучить тривога, ти можеш скасувати її спрацьовування, навіть при невдачах перевірок.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668808417,
     "modifiedTime": 1769783167528,

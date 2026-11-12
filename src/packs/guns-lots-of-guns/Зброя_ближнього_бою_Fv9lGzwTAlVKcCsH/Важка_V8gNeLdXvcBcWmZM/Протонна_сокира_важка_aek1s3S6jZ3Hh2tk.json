@@ -3,7 +3,7 @@
   "name": "Протонна сокира (важка)",
   "type": "weapon",
   "_id": "aek1s3S6jZ3Hh2tk",
-  "img": "systems/wastelanders/assets/hammer-drop.svg",
+  "img": "systems/wastelanders-dev/assets/hammer-drop.svg",
   "system": {
     "description": "<p>Дальність: Ближ. </p><p>Властивість: Повністю ігнорує фізичну броню. Гостра. Дуже рідкісна річ.</p>",
     "price": 60,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768608855526,
     "modifiedTime": 1768827196413,

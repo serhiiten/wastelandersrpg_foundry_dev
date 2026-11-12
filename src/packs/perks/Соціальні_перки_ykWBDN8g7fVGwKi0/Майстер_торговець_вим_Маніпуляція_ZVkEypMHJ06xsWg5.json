@@ -3,7 +3,7 @@
   "name": "Майстер-торговець (вим: Маніпуляція)",
   "type": "perk",
   "_id": "ZVkEypMHJ06xsWg5",
-  "img": "systems/wastelanders/assets/talk.svg",
+  "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
     "description": "<p>Ти вмієш бути страшенно переконливим під час торгів, коли захочеш. Раз за сесію при перевірках <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ПВ + Маніпуляція</strong></span> або <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>Примус</strong></span> вкупі зі звичайним ефектом перевірки за часткового успіху вибери 1, за успіху — 2, за критичного успіху — 3 з переліку: <br>● Вони про це нікому не розкажуть. <br>● Вони зроблять це на чверть дешевше. <br>● Вони зроблять це на чверть швидше. <br>● Вони не ставитимуть зайвих питань.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668318115,
     "modifiedTime": 1769782789157,

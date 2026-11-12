@@ -3,7 +3,7 @@
   "name": "Локомотив (Сила)",
   "type": "perk",
   "_id": "DiQAPdrJJTQdHmsv",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Тебе практично неможливо зупинити. Ніщо, крім повного <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>знерухомлення, приголомшення</strong></em></span> або кайданів на руках і ногах не здатне завадити тобі переміщатися між зонами у битві.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768665706553,
     "modifiedTime": 1768827159592,

@@ -3,7 +3,7 @@
   "name": "Залізні кулаки",
   "type": "perk",
   "_id": "ysQtlCcpjD6yudCu",
-  "img": "systems/wastelanders/assets/high-punch.svg",
+  "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
     "description": "<p>Удари твоїх кулаків завдають шкоди як середня зброя (1d10). Візьми цей перк вдруге, і вони будуть завдавати шкоди як важка зброя (2d6). Ти навіть можеш офіційно зареєструвати їх як смертельну зброю.   </p><p><span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>Примітка:</strong></span> якщо ти граєш за розумного Пазура Смерті та візьмеш цей перк — твої пазурі будуть завдавати шкоди як важка зброя (2d6). Ти можеш взяти його лише один раз.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768662261926,
     "modifiedTime": 1768827159592,

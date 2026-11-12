@@ -3,7 +3,7 @@
   "name": "Бісова штуковина! (вим. Крадіж)",
   "type": "perk",
   "_id": "JY5BUGgxV5RK6MP2",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p>Раз за сцену ти можеш повністю перекинути будь-яку перевірку, пов'язану зі зламом замків або взаємодією з комп'ютерами, якщо добряче копнеш те, що зламуєш. Це буде гучно.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668608185,
     "modifiedTime": 1769783095315,

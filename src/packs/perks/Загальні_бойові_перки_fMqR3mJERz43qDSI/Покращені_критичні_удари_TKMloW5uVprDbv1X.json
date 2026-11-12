@@ -3,7 +3,7 @@
   "name": "Покращені критичні удари",
   "type": "perk",
   "_id": "TKMloW5uVprDbv1X",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>При критичному успіху будь-яких перевірок атаки ти можеш вибрати додатково ще 1 критичний ефект.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768663784981,
     "modifiedTime": 1768827159592,

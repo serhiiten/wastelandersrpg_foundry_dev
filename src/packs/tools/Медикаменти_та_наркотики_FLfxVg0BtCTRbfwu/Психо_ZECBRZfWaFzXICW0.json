@@ -3,7 +3,7 @@
   "name": "Психо",
   "type": "drug",
   "_id": "ZECBRZfWaFzXICW0",
-  "img": "systems/wastelanders/assets/chem-psycho.webp",
+  "img": "systems/wastelanders-dev/assets/chem-psycho.webp",
   "system": {
     "price": 4,
     "addiction": 5,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648749330,
     "modifiedTime": 1769781830080,

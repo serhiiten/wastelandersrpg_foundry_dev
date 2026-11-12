@@ -3,7 +3,7 @@
   "name": "Азартний гравець",
   "type": "perk",
   "_id": "JjfhEZ63HX8Pcv48",
-  "img": "systems/wastelanders/assets/dice-fire.svg",
+  "img": "systems/wastelanders-dev/assets/dice-fire.svg",
   "system": {
     "description": "<p>Ти отримуєш Посилення на всі перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>УДЧ</strong></span>, пов'язані з азартними іграми та схожими розвагами.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671526088,
     "modifiedTime": 1768827159592,

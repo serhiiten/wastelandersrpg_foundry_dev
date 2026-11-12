@@ -3,7 +3,7 @@
   "name": "Нічний мисливець",
   "type": "enemy",
   "_id": "X6eC6jxvLw2VYDbG",
-  "img": "systems/wastelanders/assets/nichnyy-myslyvets.png",
+  "img": "systems/wastelanders-dev/assets/nichnyy-myslyvets.png",
   "system": {
     "hp": {
       "value": 12,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/nichnyy-myslyvets.png",
+      "src": "systems/wastelanders-dev/assets/nichnyy-myslyvets.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768866626857,
         "modifiedTime": 1768866662010,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768866614484,
     "modifiedTime": 1769782005278,

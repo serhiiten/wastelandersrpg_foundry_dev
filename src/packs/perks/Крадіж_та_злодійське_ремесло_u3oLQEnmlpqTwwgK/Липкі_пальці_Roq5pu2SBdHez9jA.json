@@ -3,7 +3,7 @@
   "name": "Липкі пальці",
   "type": "perk",
   "_id": "Roq5pu2SBdHez9jA",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p>Ти можеш обікрасти будь-кого і будь-коли — наприклад, у бою, при особистій розмові і навіть якщо за тобою спостерігають. При цьому ти не отримуєш Послаблення та штрафи на такі перевірки, пов’язані з тим, що за тобою спостерігають.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668650400,
     "modifiedTime": 1768827159592,

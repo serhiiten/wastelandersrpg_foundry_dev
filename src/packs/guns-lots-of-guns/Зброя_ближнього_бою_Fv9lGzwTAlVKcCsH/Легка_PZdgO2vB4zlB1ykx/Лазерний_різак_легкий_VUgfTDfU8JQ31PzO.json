@@ -3,7 +3,7 @@
   "name": "Лазерний різак (легкий)",
   "type": "weapon",
   "_id": "VUgfTDfU8JQ31PzO",
-  "img": "systems/wastelanders/assets/bowie-knife.svg",
+  "img": "systems/wastelanders-dev/assets/bowie-knife.svg",
   "system": {
     "description": "<p>Дальність: Ближ. </p><p>Властивість: Лазерний. Ігнорує 1 броні.</p>",
     "price": 6,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768608337462,
     "modifiedTime": 1768827196413,

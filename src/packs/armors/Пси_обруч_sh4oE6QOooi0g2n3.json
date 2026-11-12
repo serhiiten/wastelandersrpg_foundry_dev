@@ -2,7 +2,7 @@
   "name": "Пси-обруч",
   "type": "armor",
   "_id": "sh4oE6QOooi0g2n3",
-  "img": "systems/wastelanders/assets/psychic-nullifier.webp",
+  "img": "systems/wastelanders-dev/assets/psychic-nullifier.webp",
   "system": {
     "description": "<p>Цікавий і рідкісний довоєнний пристрій, що створює навколо носія поле, яке захищає його розум від впливу. <strong>Захищає від психічної шкоди.</strong> Можна носити разом із звичайною бронею.</p>",
     "price": 25,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768566155833,
     "modifiedTime": 1769781830058,

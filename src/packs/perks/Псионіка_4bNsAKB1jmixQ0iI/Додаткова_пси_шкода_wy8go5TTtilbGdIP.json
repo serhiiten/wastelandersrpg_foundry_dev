@@ -3,7 +3,7 @@
   "name": "Додаткова пси-шкода",
   "type": "perk",
   "_id": "wy8go5TTtilbGdIP",
-  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
     "description": "<p>Ти завдаєш +2 шкоди своїм «Пси-ударом».</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671745108,
     "modifiedTime": 1768827159592,

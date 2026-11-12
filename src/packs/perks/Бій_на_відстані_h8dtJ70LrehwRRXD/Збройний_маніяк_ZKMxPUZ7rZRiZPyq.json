@@ -3,7 +3,7 @@
   "name": "Збройний маніяк",
   "type": "perk",
   "_id": "ZKMxPUZ7rZRiZPyq",
-  "img": "systems/wastelanders/assets/human-target.svg",
+  "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
     "description": "<p>Боєприпаси для твоєї зброї у тебе не закінчуються доти, доки ти маєш хоча б одиницю Припасів.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768659410842,
     "modifiedTime": 1768827159592,

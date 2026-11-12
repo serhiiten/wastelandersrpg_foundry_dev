@@ -3,7 +3,7 @@
   "name": "Улюблена зброя (вим: Стрільба)",
   "type": "perk",
   "_id": "zpIIUJjhq7r9K5iD",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Вибери одну зброю з тих, що в тебе є, і дай їй круте ім'я. Ти отримуєш +1 до всіх перевірок атаки чи створення переваг, зроблених за допомогою цієї зброї. Улюблена зброя в тебе може бути тільки одна, і якщо ти її втратиш, тобі доведеться взяти цей перк ще раз, щоб вибрати іншу улюблену зброю. Твоя улюблена зброя автоматично стає <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>особливою</strong></em></span>, коли ти береш цей перк. Придумай їй слушний аспект.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768666988262,
     "modifiedTime": 1769782733189,

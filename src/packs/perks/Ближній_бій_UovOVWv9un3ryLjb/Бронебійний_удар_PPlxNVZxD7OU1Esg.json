@@ -3,7 +3,7 @@
   "name": "Бронебійний удар",
   "type": "perk",
   "_id": "PPlxNVZxD7OU1Esg",
-  "img": "systems/wastelanders/assets/high-punch.svg",
+  "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
     "description": "<p>У ближньому бою твої удари ігнорують 1 фізичної броні.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768662291699,
     "modifiedTime": 1768827159592,

@@ -3,7 +3,7 @@
   "name": "Розпад",
   "type": "perk",
   "_id": "zPfibLkfHRnUu08W",
-  "img": "systems/wastelanders/assets/human-target.svg",
+  "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
     "description": "<p>Коли ти вбиваєш противника будь-якою <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>енергетичною</strong></em></span> зброєю, ти завдаєш всім істотам, які знаходяться в одній з ним зоні 1d6 фізичної шкоди, яка ігнорує броню. Будь обережним — це поширюється і на твоїх спільників, і на тебе самого!</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768659444139,
     "modifiedTime": 1768827159592,

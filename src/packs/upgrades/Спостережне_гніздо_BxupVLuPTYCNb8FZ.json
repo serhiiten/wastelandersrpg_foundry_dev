@@ -2,7 +2,7 @@
   "name": "Спостережне гніздо",
   "type": "upgrade",
   "_id": "BxupVLuPTYCNb8FZ",
-  "img": "systems/wastelanders/assets/upgrade.svg",
+  "img": "systems/wastelanders-dev/assets/upgrade.svg",
   "system": {
     "description": "<p>При подорожах той, хто робить перевірку подорожі, отримує +1, якщо він знаходиться у гнізді.</p>",
     "active": {
@@ -23,7 +23,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768567233073,
     "modifiedTime": 1768827166260,

@@ -3,7 +3,7 @@
   "name": "Бойовий пес",
   "type": "enemy",
   "_id": "s1UoMdHBiDIdt1Jo",
-  "img": "systems/wastelanders/assets/boyovyy-pes.png",
+  "img": "systems/wastelanders-dev/assets/boyovyy-pes.png",
   "system": {
     "hp": {
       "value": 4,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/boyovyy-pes.png",
+      "src": "systems/wastelanders-dev/assets/boyovyy-pes.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768836163090,
         "modifiedTime": 1768848621816,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768836149165,
     "modifiedTime": 1769782005278,

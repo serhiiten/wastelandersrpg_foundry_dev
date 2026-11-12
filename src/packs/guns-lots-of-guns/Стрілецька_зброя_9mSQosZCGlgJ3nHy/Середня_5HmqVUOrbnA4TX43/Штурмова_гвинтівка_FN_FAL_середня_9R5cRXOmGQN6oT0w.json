@@ -2,7 +2,7 @@
   "name": "Штурмова гвинтівка FN FAL (середня)",
   "type": "weapon",
   "_id": "9R5cRXOmGQN6oT0w",
-  "img": "systems/wastelanders/assets/winchester-rifle.svg",
+  "img": "systems/wastelanders-dev/assets/winchester-rifle.svg",
   "system": {
     "description": "<p>Дальність: Макс. </p><p>Властивість: Автоматична.</p>",
     "price": 7,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768606363438,
     "modifiedTime": 1768827196413,

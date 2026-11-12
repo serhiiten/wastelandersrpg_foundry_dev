@@ -3,7 +3,7 @@
   "name": "Свинцева шкіра",
   "type": "perk",
   "_id": "7J0GUS3YsIdpgxXe",
-  "img": "systems/wastelanders/assets/heart-plus.svg",
+  "img": "systems/wastelanders-dev/assets/heart-plus.svg",
   "system": {
     "description": "<p>Радіація завдає тобі лише половину шкоди (округлюючи вгору). Якщо ти вже маєш щось, що зменшує шкоду від радіації на половину — ти отримуєш повний імунітет.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671313914,
     "modifiedTime": 1768827159592,

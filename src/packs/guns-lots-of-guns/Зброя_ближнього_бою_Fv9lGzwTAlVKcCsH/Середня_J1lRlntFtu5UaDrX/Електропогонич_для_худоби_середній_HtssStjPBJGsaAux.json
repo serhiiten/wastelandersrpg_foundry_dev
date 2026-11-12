@@ -3,7 +3,7 @@
   "name": "Електропогонич для худоби (середній)",
   "type": "weapon",
   "_id": "HtssStjPBJGsaAux",
-  "img": "systems/wastelanders/assets/spiked-bat-1.svg",
+  "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
     "description": "<p>Дальність: Ближ. </p><p>Властивість: Електричний. Завдає роботам та техніці додатково 1d6 шкоди.</p>",
     "price": 9,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768608462598,
     "modifiedTime": 1769781830184,

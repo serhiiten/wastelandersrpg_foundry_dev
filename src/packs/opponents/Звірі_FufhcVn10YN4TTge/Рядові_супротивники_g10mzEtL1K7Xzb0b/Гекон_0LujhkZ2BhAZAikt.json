@@ -3,7 +3,7 @@
   "name": "Гекон",
   "type": "enemy",
   "_id": "0LujhkZ2BhAZAikt",
-  "img": "systems/wastelanders/assets/hekon.png",
+  "img": "systems/wastelanders-dev/assets/hekon.png",
   "system": {
     "hp": {
       "value": 5,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/hekon.png",
+      "src": "systems/wastelanders-dev/assets/hekon.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768836359050,
         "modifiedTime": 1768848627883,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768836348636,
     "modifiedTime": 1769782005278,

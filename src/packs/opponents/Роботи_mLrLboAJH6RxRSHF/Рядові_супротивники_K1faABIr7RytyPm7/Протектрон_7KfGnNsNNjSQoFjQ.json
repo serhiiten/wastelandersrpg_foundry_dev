@@ -3,7 +3,7 @@
   "name": "Протектрон",
   "type": "enemy",
   "_id": "7KfGnNsNNjSQoFjQ",
-  "img": "systems/wastelanders/assets/protektron.png",
+  "img": "systems/wastelanders-dev/assets/protektron.png",
   "system": {
     "hp": {
       "value": 8,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/protektron.png",
+      "src": "systems/wastelanders-dev/assets/protektron.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768938121348,
         "modifiedTime": 1768938143204,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768938090868,
     "modifiedTime": 1769782005278,

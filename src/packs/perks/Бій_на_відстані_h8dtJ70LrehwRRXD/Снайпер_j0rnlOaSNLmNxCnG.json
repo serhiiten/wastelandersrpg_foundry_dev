@@ -3,7 +3,7 @@
   "name": "Снайпер",
   "type": "perk",
   "_id": "j0rnlOaSNLmNxCnG",
-  "img": "systems/wastelanders/assets/human-target.svg",
+  "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
     "description": "<p>За всіх перевірок бою на відстані критичним успіхом для тебе вважається результат 18+.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768659361019,
     "modifiedTime": 1768827159592,

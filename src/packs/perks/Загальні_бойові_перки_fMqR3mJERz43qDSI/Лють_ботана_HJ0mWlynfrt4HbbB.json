@@ -3,7 +3,7 @@
   "name": "Лють ботана",
   "type": "perk",
   "_id": "HJ0mWlynfrt4HbbB",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Раз за сесію ти можеш впасти в лють ботана. Негайно віднови 1d6 ОЗ та отримай +1 до Сили, Вправності (аж до видового максимуму) та всіх перевірок атаки до кінця сцени. Наприкінці сцени ти отримуєш 1d10 фізичної шкоди, яка не може бути зменшена жодним способом. Якщо ти вибув з бою під час дії люті ботана — ти не отримуєш шкоди наприкінці сцени, але відразу автоматично отримуєш додатковий легкий наслідок.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768663875051,
     "modifiedTime": 1768827159592,

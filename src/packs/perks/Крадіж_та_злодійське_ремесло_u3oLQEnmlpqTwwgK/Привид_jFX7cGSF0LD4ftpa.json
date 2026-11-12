@@ -3,7 +3,7 @@
   "name": "Привид",
   "type": "perk",
   "_id": "jFX7cGSF0LD4ftpa",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p>Тебе практично неможливо помітити, якщо ти перебуваєш у тіні і стоїш нерухомо.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668690493,
     "modifiedTime": 1768827159592,

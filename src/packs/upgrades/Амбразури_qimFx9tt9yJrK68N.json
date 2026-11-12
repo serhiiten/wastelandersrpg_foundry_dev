@@ -2,7 +2,7 @@
   "name": "Амбразури",
   "type": "upgrade",
   "_id": "qimFx9tt9yJrK68N",
-  "img": "systems/wastelanders/assets/upgrade.svg",
+  "img": "systems/wastelanders-dev/assets/upgrade.svg",
   "system": {
     "description": "<p>Ваш караван можна використовувати як укриття у бою. Якщо ви ховаєтеся за амбразурами, коли отримуєте шкоду, можете вибрати, хто отримає шкоду — ви чи караван.</p>",
     "active": {
@@ -23,7 +23,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768567221233,
     "modifiedTime": 1768827166260,

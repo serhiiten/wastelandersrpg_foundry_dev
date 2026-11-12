@@ -1,7 +1,7 @@
 {
   "name": "Саморобна граната",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fo1-plastic-explosives-armed.webp",
+  "img": "systems/wastelanders-dev/assets/fo1-plastic-explosives-armed.webp",
   "system": {
     "description": "<p>Завдає шкоди по площині.</p>",
     "price": 1,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565530529,
     "modifiedTime": 1769781830042,

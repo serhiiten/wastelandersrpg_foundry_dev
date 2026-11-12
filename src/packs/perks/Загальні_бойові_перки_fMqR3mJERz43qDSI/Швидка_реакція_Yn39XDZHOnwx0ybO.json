@@ -3,7 +3,7 @@
   "name": "Швидка реакція",
   "type": "perk",
   "_id": "Yn39XDZHOnwx0ybO",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>У будь-якій сцені ти завжди дієш першим, якщо ти взагалі можеш діяти. Також тебе неможливо застати зненацька у звичайних умовах. Якщо в партії такий самий перк є в іншого персонажа — киньте 1d10. У кого більше — той і перший. Продовжуйте кидати, доки не визначиться переможець.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768663752094,
     "modifiedTime": 1768827159592,

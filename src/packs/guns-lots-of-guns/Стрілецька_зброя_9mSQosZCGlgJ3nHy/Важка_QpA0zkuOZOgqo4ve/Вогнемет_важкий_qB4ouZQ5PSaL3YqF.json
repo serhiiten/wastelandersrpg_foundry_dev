@@ -2,7 +2,7 @@
   "name": "Вогнемет (важкий)",
   "type": "weapon",
   "_id": "qB4ouZQ5PSaL3YqF",
-  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Дальність: 1 зона </p><p>Властивість: Б'є по площині. Завдає шкоди вогнем. Каністра палива на один постріл коштує 1 кришку. Використовує перевірку СПР + Стрільба.</p>",
     "price": 10,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768606924893,
     "modifiedTime": 1769781830184,

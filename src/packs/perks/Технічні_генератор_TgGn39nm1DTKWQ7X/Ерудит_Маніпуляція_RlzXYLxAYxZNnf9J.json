@@ -2,7 +2,7 @@
   "folder": "TgGn39nm1DTKWQ7X",
   "name": "Ерудит (Маніпуляція)",
   "type": "perk",
-  "img": "systems/wastelanders/assets/gift-of-knowledge.svg",
+  "img": "systems/wastelanders-dev/assets/gift-of-knowledge.svg",
   "system": {
     "description": "<p>Отримай ще одну навичку на рівні учня або поліпши навичку з рівня учня до підмайстра.</p>",
     "attributes": {
@@ -39,7 +39,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1769782949553,
     "modifiedTime": 1769783248487,

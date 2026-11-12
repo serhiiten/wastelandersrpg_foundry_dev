@@ -3,7 +3,7 @@
   "name": "Бустер",
   "type": "drug",
   "_id": "vQ9LuH0wyqlSPPDK",
-  "img": "systems/wastelanders/assets/chem-buffout.webp",
+  "img": "systems/wastelanders-dev/assets/chem-buffout.webp",
   "system": {
     "price": 2,
     "addiction": 3,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648428591,
     "modifiedTime": 1769781830080,

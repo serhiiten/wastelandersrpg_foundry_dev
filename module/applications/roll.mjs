@@ -30,7 +30,7 @@ export default class WastelandersRollerApp extends HandlebarsApplicationMixin(
 
   static PARTS = {
     form: {
-      template: "systems/wastelanders/templates/apps/rollDialog.hbs",
+      template: "systems/wastelanders-dev/templates/apps/rollDialog.hbs",
     },
   };
 

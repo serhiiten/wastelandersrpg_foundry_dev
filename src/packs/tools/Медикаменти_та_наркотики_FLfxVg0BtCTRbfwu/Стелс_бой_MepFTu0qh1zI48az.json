@@ -3,7 +3,7 @@
   "name": "Стелс-бой",
   "type": "drug",
   "_id": "MepFTu0qh1zI48az",
-  "img": "systems/wastelanders/assets/stlthboy.webp",
+  "img": "systems/wastelanders-dev/assets/stlthboy.webp",
   "system": {
     "price": 15,
     "addiction": 3,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768649028860,
     "modifiedTime": 1769781830080,

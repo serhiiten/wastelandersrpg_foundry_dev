@@ -2,7 +2,7 @@
   "name": "Альфа-супермутант",
   "type": "feat",
   "_id": "TJE7Y30yawvGdWV8",
-  "img": "systems/wastelanders/assets/dna1.svg",
+  "img": "systems/wastelanders-dev/assets/dna1.svg",
   "system": {
     "active": false,
     "description": "<p>Ти супермутант першого покоління із забрудненого радіацією генетичного матеріалу. Ти сильніший за звичайних супермутантів, але разом з великою силою ти отримав велику безвідповідальність. На старті гри твоя СЛ може бути аж до +4 включно, проте твій видовий максимум ІН знижується на 1.</p>",
@@ -22,7 +22,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.360",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.4.2",
     "createdTime": 1768569653686,
     "modifiedTime": 1777149797454,

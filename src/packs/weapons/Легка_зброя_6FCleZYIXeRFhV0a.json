@@ -1,7 +1,7 @@
 {
   "name": "Легка зброя",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fo1-10mm-pistol.webp",
+  "img": "systems/wastelanders-dev/assets/fo1-10mm-pistol.webp",
   "system": {
     "description": "<p>Ножі, кастети, списи, дрібнокаліберні пістолети та самопали. <em><strong>Легко сховати.</strong></em></p><p>Ще таку шкоду завдають удари прикладом середньої, важкої та рідкісної зброї.</p>",
     "price": 1,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565526680,
     "modifiedTime": 1769781830042,

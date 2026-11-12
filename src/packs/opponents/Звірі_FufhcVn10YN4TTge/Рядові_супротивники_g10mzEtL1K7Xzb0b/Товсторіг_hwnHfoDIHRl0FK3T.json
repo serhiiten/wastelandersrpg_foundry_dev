@@ -3,7 +3,7 @@
   "name": "Товсторіг",
   "type": "enemy",
   "_id": "hwnHfoDIHRl0FK3T",
-  "img": "systems/wastelanders/assets/tovstorih.png",
+  "img": "systems/wastelanders-dev/assets/tovstorih.png",
   "system": {
     "hp": {
       "value": 5,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/tovstorih.png",
+      "src": "systems/wastelanders-dev/assets/tovstorih.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768848426739,
         "modifiedTime": 1768848644135,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768837904770,
     "modifiedTime": 1769782005278,

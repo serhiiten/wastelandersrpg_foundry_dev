@@ -3,7 +3,7 @@
   "name": "Савант",
   "type": "perk",
   "_id": "m80PTy3znN8MeU7W",
-  "img": "systems/wastelanders/assets/gift-of-knowledge.svg",
+  "img": "systems/wastelanders-dev/assets/gift-of-knowledge.svg",
   "system": {
     "description": "<p>Ти отримуєш 1 ОД щоразу, коли отримуєш критичний успіх на перевірці, де в тебе не було відповідної навички.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671467672,
     "modifiedTime": 1768827159592,

@@ -3,7 +3,7 @@
   "name": "Дуелянт",
   "type": "perk",
   "_id": "cO8bBo5ejiFpomt8",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Раз за сцену вибери собі одного супротивника для поєдинку сам-на-сам. Всі твої перевірки атаки та уникнення шкоди проти нього одержують +1, але всі перевірки атаки та уникнення шкоди проти інших супротивників одержують -1. Ефект триває доти, доки ти чи обраний противник не досягнете 0 ОЗ.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768663821338,
     "modifiedTime": 1768827159592,

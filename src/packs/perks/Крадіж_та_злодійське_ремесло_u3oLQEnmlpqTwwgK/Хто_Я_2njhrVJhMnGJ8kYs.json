@@ -3,7 +3,7 @@
   "name": "Хто? Я?",
   "type": "perk",
   "_id": "2njhrVJhMnGJ8kYs",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p>Раз за сесію при невдачі або частковому успіху перевірки на крадіжку чогось ти автоматично успішно вдаєш, що не робив нічого поганого. Однак повторна невдача у присутності тих самих персонажів призведе до того, що битимуть тебе з особливою старанністю та натхненням.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668729435,
     "modifiedTime": 1768827159592,

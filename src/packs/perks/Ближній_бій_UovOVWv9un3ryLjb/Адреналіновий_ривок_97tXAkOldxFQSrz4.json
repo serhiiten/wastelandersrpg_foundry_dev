@@ -3,7 +3,7 @@
   "name": "Адреналіновий ривок",
   "type": "perk",
   "_id": "97tXAkOldxFQSrz4",
-  "img": "systems/wastelanders/assets/high-punch.svg",
+  "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
     "description": "<p>Коли ти маєш менше половини ОЗ (округлюючи вгору), отримай +1 до Сили (не вище +4).</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768660026861,
     "modifiedTime": 1768827159592,

@@ -3,7 +3,7 @@
   "name": "Бонусна шкода у бою на відстані",
   "type": "perk",
   "_id": "9D1Tlu1TJiNtRvms",
-  "img": "systems/wastelanders/assets/human-target.svg",
+  "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
     "description": "<p>Ти завдаєш +2 шкоди у бою на відстані.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768659279605,
     "modifiedTime": 1768827159592,

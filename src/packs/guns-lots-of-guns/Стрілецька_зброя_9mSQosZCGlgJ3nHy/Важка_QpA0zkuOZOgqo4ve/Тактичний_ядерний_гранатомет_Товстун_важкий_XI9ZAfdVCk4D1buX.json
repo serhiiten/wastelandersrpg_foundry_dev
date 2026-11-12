@@ -2,7 +2,7 @@
   "name": "Тактичний ядерний гранатомет \"Товстун\" (важкий)",
   "type": "weapon",
   "_id": "XI9ZAfdVCk4D1buX",
-  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Шкода: 4d6+2d6 радіацією (ігнорує броню)</p><p>Дальність: Макс.</p><p>Властивість: Б'є по площині. Міні-ядерні заряди коштують по 10 кришок за штуку. Дуже рідкісна річ. Використовує перевірку СПР + Стрільба.</p>",
     "price": 40,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768607022178,
     "modifiedTime": 1769781830184,

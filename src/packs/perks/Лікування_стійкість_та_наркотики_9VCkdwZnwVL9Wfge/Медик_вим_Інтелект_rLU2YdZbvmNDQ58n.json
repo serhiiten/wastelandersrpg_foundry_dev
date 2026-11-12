@@ -3,7 +3,7 @@
   "name": "Медик (вим. Інтелект)",
   "type": "perk",
   "_id": "rLU2YdZbvmNDQ58n",
-  "img": "systems/wastelanders/assets/heart-plus.svg",
+  "img": "systems/wastelanders-dev/assets/heart-plus.svg",
   "system": {
     "description": "<p>Коли ти надаєш першу допомогу, ти відновлюєш на 2 ОЗ більше. Також ти можеш надати одному й тому ж пацієнтові допомогу <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>двічі </strong></span>на день. Якщо поранені персонажі проводять відпочинок у твоїй присутності, і ти приділяєш їм час, вони додатково відновлюють 1d6 ОЗ. Останній ефект не поширюється на тебе.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671273005,
     "modifiedTime": 1769783577784,

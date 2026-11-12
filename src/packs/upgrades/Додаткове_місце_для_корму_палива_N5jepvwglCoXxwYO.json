@@ -2,7 +2,7 @@
   "name": "Додаткове місце для корму (палива)",
   "type": "upgrade",
   "_id": "N5jepvwglCoXxwYO",
-  "img": "systems/wastelanders/assets/upgrade.svg",
+  "img": "systems/wastelanders-dev/assets/upgrade.svg",
   "system": {
     "description": "<p>Збільшує запас ходу на 5 клітин.</p>",
     "active": {
@@ -23,7 +23,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768567175744,
     "modifiedTime": 1768827166260,

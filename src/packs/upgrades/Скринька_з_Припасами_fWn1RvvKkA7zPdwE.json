@@ -2,7 +2,7 @@
   "name": "Скринька з Припасами",
   "type": "upgrade",
   "_id": "fWn1RvvKkA7zPdwE",
-  "img": "systems/wastelanders/assets/upgrade.svg",
+  "img": "systems/wastelanders-dev/assets/upgrade.svg",
   "system": {
     "description": "<p>Дає вашому каравану місце для зберігання 3 одиниць Припасів.</p>",
     "active": {
@@ -23,7 +23,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768567286084,
     "modifiedTime": 1768827166260,

@@ -3,7 +3,7 @@
   "name": "Підлабузник",
   "type": "perk",
   "_id": "1tlHIwl0YCJwWCGH",
-  "img": "systems/wastelanders/assets/talk.svg",
+  "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
     "description": "<p>Ти отримуєш бонус +2 на перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ПВ + Маніпуляція</strong></span>, коли підлизуєшся до тих, хто має владу, і тих, хто набагато вищий від тебе за статусом.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668236093,
     "modifiedTime": 1768827159592,

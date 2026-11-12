@@ -3,7 +3,7 @@
   "name": "Борис-Кулю-минає (вим: Вправність)",
   "type": "perk",
   "_id": "5wDn3WL8kp06iko1",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Ти отримуєш +1 на всі перевірки уникнення шкоди.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768666893112,
     "modifiedTime": 1769782985648,

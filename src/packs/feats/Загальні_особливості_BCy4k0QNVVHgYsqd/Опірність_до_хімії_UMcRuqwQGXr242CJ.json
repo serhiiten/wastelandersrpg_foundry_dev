@@ -2,7 +2,7 @@
   "name": "Опірність до хімії",
   "type": "feat",
   "_id": "UMcRuqwQGXr242CJ",
-  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "img": "systems/wastelanders-dev/assets/body-swapping.svg",
   "system": {
     "active": false,
     "description": "<p>Лікувальні медикаменти діють на тебе лише наполовину (округлюючи вгору), але ти отримуєш -2 до шансу <a href=\"https://www.notion.so/21de66cd8c788032b133f9e3a215a445?pvs=21\">залежності</a> при вживанні наркотиків (мінімум 1). </p><p>Ти не можеш взяти перк «Покращений метаболізм» або «Електрохімічний жокей».</p><p>Роботи не можуть взяти цю особливість.</p>"
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768569128889,
     "modifiedTime": 1768827073324,

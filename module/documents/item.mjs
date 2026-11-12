@@ -23,7 +23,7 @@ export class WastelandersItem extends Item {
     };
 
     const message = await foundry.applications.handlebars.renderTemplate(
-      "systems/wastelanders/templates/apps/rollItem.hbs",
+      "systems/wastelanders-dev/templates/apps/rollItem.hbs",
       renderData,
     );
     const chatData = {

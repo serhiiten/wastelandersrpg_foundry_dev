@@ -2,7 +2,7 @@
   "name": "Гаус-пістолет (легкий)",
   "type": "weapon",
   "_id": "l7cC6mX8ikmHBrys",
-  "img": "systems/wastelanders/assets/pistol-gun-1.svg",
+  "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
     "description": "<p>Дальність: Макс. </p><p>Властивість: Одиночний. Ігнорує 3 броні.</p>",
     "price": 35,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768605443809,
     "modifiedTime": 1769781830184,

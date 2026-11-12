@@ -3,7 +3,7 @@
   "name": "Друг тварин",
   "type": "perk",
   "_id": "pO7qTenTge2jUJE7",
-  "img": "systems/wastelanders/assets/talk.svg",
+  "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
     "description": "<p>Отримай +2 до перевірок, пов'язаних із спілкуванням з тваринами (у тому числі мутованими), яке може включати в себе як спроби приручити їх, так і продемонструвати, що ти не становиш загрози.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668170482,
     "modifiedTime": 1768827159592,

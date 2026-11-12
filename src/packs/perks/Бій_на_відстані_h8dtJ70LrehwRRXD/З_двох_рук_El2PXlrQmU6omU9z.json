@@ -3,7 +3,7 @@
   "name": "З двох рук",
   "type": "perk",
   "_id": "El2PXlrQmU6omU9z",
-  "img": "systems/wastelanders/assets/human-target.svg",
+  "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
     "description": "<p>Є щось по-справжньому круте у тому, щоб тримати по стволу в кожній руці. Звичайним людям тримати хоч по три пістолі марно — вони все одно атакуватимуть лише одним. А ось коли ти тримаєш два зразки зброї для бою на відстані однакової категорії по одному у кожній руці, вони вважаються однією зброєю на категорію вище. Так, наприклад, два зразки легкої зброї будуть завдавати 1d10 шкоди, а два середньої — 2d6 і при цьому не вважатися <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>важкими</strong></em></span>! Носити по <span style=\"font-style:italic;font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><em><strong>важкій</strong></em></span> гарматі в кожній руці, як і раніше, не вийде, проте якщо ти знайдеш два варіанти легшої зброї, що завдають по 2d6 шкоди, ти зможеш завдавати ними 3d6 шкоди за атаку.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768659500190,
     "modifiedTime": 1768827159592,

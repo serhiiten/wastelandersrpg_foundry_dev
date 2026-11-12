@@ -3,7 +3,7 @@
   "name": "Біосканер",
   "type": "perk",
   "_id": "lJtGZH0ElUgusWrD",
-  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
     "description": "<p>Ти завжди точно знаєш, чи знаходяться в радіусі кількох десятків метрів від тебе живі істоти та їхнє приблизне розташування. Ти можеш спробувати визначити їх точне розташування та біологічний вид за допомогою перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>СПР</strong></span>. Цей перк можна застосовувати потай.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768672132327,
     "modifiedTime": 1768827159592,

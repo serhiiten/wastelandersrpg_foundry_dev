@@ -3,7 +3,7 @@
   "name": "Плазмовий різак (середній)",
   "type": "weapon",
   "_id": "j5vjDxPsbl38xGvr",
-  "img": "systems/wastelanders/assets/spiked-bat-1.svg",
+  "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
     "description": "<p>Дальність: Ближ. </p><p>Властивість: Плазмовий. Ігнорує 2 броні.</p>",
     "price": 15,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768608630836,
     "modifiedTime": 1769781830184,

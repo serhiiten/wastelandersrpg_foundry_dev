@@ -1,7 +1,7 @@
 {
   "name": "Середня зброя",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fo1-assault-rifle.webp",
+  "img": "systems/wastelanders-dev/assets/fo1-assault-rifle.webp",
   "system": {
     "description": "<p>Мечі, кувалди, ланцюгові ножі, силові кулаки, дробовики, гвинтівки, великокаліберні пістолети, пістолети-кулемети.</p>",
     "price": 5,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565531426,
     "modifiedTime": 1769781830042,

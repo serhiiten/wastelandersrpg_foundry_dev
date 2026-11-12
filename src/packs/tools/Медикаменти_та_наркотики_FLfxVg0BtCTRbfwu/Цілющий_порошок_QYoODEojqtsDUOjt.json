@@ -3,7 +3,7 @@
   "name": "Цілющий порошок",
   "type": "drug",
   "_id": "QYoODEojqtsDUOjt",
-  "img": "systems/wastelanders/assets/chem-powder.webp",
+  "img": "systems/wastelanders-dev/assets/chem-powder.webp",
   "system": {
     "price": 1,
     "addiction": 0,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648849518,
     "modifiedTime": 1769781830080,

@@ -3,7 +3,7 @@
   "name": "Адреналін",
   "type": "drug",
   "_id": "hS3W2UJYNJn4cgIr",
-  "img": "systems/wastelanders/assets/chem-poison.webp",
+  "img": "systems/wastelanders-dev/assets/chem-poison.webp",
   "system": {
     "price": 5,
     "addiction": 0,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648961111,
     "modifiedTime": 1769781830080,

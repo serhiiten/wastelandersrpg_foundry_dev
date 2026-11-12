@@ -3,7 +3,7 @@
   "name": "Пси-удар",
   "type": "perk",
   "_id": "rqvOWXJonlPE2e4u",
-  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
     "description": "<p>Ти можеш використовувати свої пси-сили як легку зброю для бою на відстані. Пси-удари працюють тільки на живих істот і завдають психічної шкоди, яка ігнорує фізичну броню. Для перевірки атаки ти використовуєш атрибут <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ІН</strong></span>. <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>Візьми цей перк ще раз, і твій пси-удар стане середньою зброєю.</strong></span> Ти не можеш завдавати фізичної шкоди цією здатністю.<br><br><span style=\"font-weight:600\" data-token-index=\"5\" class=\"notion-enable-hover\"><strong>Альтернативно</strong></span>, ти можеш відмовитися від психічної шкоди на користь енергетичної. Вибери <span style=\"font-style:italic;font-weight:600\" data-token-index=\"7\" class=\"notion-enable-hover\"><em><strong>вогонь</strong></em></span>, <span style=\"font-style:italic;font-weight:600\" data-token-index=\"9\" class=\"notion-enable-hover\"><em><strong>електрику </strong></em></span>чи <span style=\"font-style:italic;font-weight:600\" data-token-index=\"11\" class=\"notion-enable-hover\"><em><strong>холод</strong></em></span>. Твій пси-удар більше не завдає психічної шкоди, однак отримує відповідний аспект як енергетична зброя, а також стає середньою зброєю. <span style=\"font-weight:600\" data-token-index=\"13\" class=\"notion-enable-hover\"><strong>Візьми цей перк ще раз, і він стане важкою зброєю</strong></span>. Ти також можеш створювати відповідні переваги за допомогою своїх сил, наприклад, <span style=\"font-style:italic;font-weight:600\" data-token-index=\"15\" class=\"notion-enable-hover\"><em><strong>підпалювати </strong></em></span>або <span style=\"font-style:italic;font-weight:600\" data-token-index=\"17\" class=\"notion-enable-hover\"><em><strong>заморожувати</strong></em></span> предмети, або бити їх розрядами струму.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671720092,
     "modifiedTime": 1769783832108,

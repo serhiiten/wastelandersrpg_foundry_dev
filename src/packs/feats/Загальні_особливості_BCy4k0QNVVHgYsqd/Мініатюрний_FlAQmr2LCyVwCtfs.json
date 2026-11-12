@@ -2,7 +2,7 @@
   "name": "Мініатюрний",
   "type": "feat",
   "_id": "FlAQmr2LCyVwCtfs",
-  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "img": "systems/wastelanders-dev/assets/body-swapping.svg",
   "system": {
     "active": false,
     "description": "<p>Твій видовий та стартовий максимум ВП збільшується на 1 (максимум до +4), але видовий максимум СЛ знижується на 1. Пурхай, як метелик, жаль, що ти такий маленький.</p>"
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768569184992,
     "modifiedTime": 1768827073324,

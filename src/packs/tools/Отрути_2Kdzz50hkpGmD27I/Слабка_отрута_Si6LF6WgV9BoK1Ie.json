@@ -2,7 +2,7 @@
   "name": "Слабка отрута",
   "type": "tool",
   "_id": "Si6LF6WgV9BoK1Ie",
-  "img": "systems/wastelanders/assets/poison-bottle.svg",
+  "img": "systems/wastelanders-dev/assets/poison-bottle.svg",
   "system": {
     "description": "<p>Шкода: +1d6</p><p>Отрута радскорпіона або хижої рослини.</p>",
     "price": 1
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768567731114,
     "modifiedTime": 1768827150524,

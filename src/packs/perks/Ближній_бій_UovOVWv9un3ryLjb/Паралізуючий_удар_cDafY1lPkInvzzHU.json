@@ -3,7 +3,7 @@
   "name": "Паралізуючий удар",
   "type": "perk",
   "_id": "cDafY1lPkInvzzHU",
-  "img": "systems/wastelanders/assets/high-punch.svg",
+  "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
     "description": "<p>При успіху та критичному успіху в ближньому бою ти можеш повністю відмовитися від завдання противнику шкоди, щоб <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>паралізувати</strong></em></span> його на кілька хвилин. З елітними супротивниками таке спрацьовує лише на критичному успіху. Цей перк не працює на босів.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768662316961,
     "modifiedTime": 1768827159592,

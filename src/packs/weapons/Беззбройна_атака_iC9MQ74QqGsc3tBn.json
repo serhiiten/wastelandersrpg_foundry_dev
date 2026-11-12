@@ -1,7 +1,7 @@
 {
   "name": "Беззбройна атака",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fist-1.svg",
+  "img": "systems/wastelanders-dev/assets/fist-1.svg",
   "system": {
     "description": "<p>Удари руками та ногами, імпровізованою зброєю, а також удари прикладом легкої зброї.</p>",
     "price": 0,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768565520997,
     "modifiedTime": 1769781830042,

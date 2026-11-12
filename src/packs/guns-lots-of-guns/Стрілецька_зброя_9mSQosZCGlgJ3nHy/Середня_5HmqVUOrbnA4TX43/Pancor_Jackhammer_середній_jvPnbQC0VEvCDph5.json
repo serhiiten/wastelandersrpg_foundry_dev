@@ -2,7 +2,7 @@
   "name": "Pancor Jackhammer (середній)",
   "type": "weapon",
   "_id": "jvPnbQC0VEvCDph5",
-  "img": "systems/wastelanders/assets/winchester-rifle.svg",
+  "img": "systems/wastelanders-dev/assets/winchester-rifle.svg",
   "system": {
     "description": "<p>Дальність: 2 зони </p><p>Властивість: Автоматичний.</p>",
     "price": 15,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768605727610,
     "modifiedTime": 1768827196413,

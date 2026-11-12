@@ -3,7 +3,7 @@
   "name": "Верткість (вим: Удача)",
   "type": "perk",
   "_id": "3boEXXD1de5hERyp",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Ти просто добре вмієш не підставлятися. Раз за сцену відміни будь-яку заподіяну фізичну шкоду від супротивника чи пастки.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768665633910,
     "modifiedTime": 1769783063535,

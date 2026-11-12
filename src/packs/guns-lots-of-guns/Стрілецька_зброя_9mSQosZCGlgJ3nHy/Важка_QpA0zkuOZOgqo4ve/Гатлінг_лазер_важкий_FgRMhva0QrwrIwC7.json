@@ -2,7 +2,7 @@
   "name": "Гатлінг-лазер (важкий)",
   "type": "weapon",
   "_id": "FgRMhva0QrwrIwC7",
-  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Дальність: 2 зони </p><p>Властивість: Автоматичний. Лазерний. Ігнорує 1 броні.</p>",
     "price": 45,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768606887317,
     "modifiedTime": 1769781830184,

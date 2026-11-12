@@ -3,7 +3,7 @@
   "name": "Значущий вигляд",
   "type": "perk",
   "_id": "79wiBkLVnPg7gj8t",
-  "img": "systems/wastelanders/assets/talk.svg",
+  "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
     "description": "<p>При першій зустрічі з будь-яким персонажем ти отримуєш Посилення на першу перевірку <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>Маніпуляції</strong></span> або <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>Примусу</strong></span> проти нього. Кожен ще здалеку бачить, що ти серйозна людина.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668184966,
     "modifiedTime": 1768827159592,

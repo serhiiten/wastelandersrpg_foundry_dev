@@ -3,7 +3,7 @@
   "name": "Рад-Ікс",
   "type": "drug",
   "_id": "8lN4EnzxiWmAlf9J",
-  "img": "systems/wastelanders/assets/chem-rad-x.webp",
+  "img": "systems/wastelanders-dev/assets/chem-rad-x.webp",
   "system": {
     "price": 3,
     "addiction": 2,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648705486,
     "modifiedTime": 1769781830080,

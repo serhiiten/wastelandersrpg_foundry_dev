@@ -1,6 +1,6 @@
 {
-  "id": "wastelanders",
-  "title": "Пустельники",
+  "id": "wastelanders-dev",
+  "title": "Пустельники (DEV)",
   "description": "Система для Пустельники (автор: Сергій Тен) від GMonline",
   "version": "1.0.1",
   "compatibility": {
@@ -44,7 +44,7 @@
       "type": "Item",
       "name": "species",
       "path": "packs/species",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -55,7 +55,7 @@
       "type": "Item",
       "name": "feats",
       "path": "packs/feats",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -66,7 +66,7 @@
       "type": "Item",
       "name": "perks",
       "path": "packs/perks",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -77,7 +77,7 @@
       "type": "Item",
       "name": "weapons",
       "path": "packs/weapons",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -88,7 +88,7 @@
       "type": "Item",
       "name": "armors",
       "path": "packs/armors",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -99,7 +99,7 @@
       "type": "Item",
       "name": "tools",
       "path": "packs/tools",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -110,7 +110,7 @@
       "type": "Item",
       "name": "upgrades",
       "path": "packs/upgrades",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -121,7 +121,7 @@
       "type": "JournalEntry",
       "name": "rules",
       "path": "packs/rules",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -132,7 +132,7 @@
       "label": "Guns. Lots of Guns (доповнення)",
       "path": "packs/guns-lots-of-guns",
       "type": "Item",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -143,7 +143,7 @@
       "label": "Супротивники",
       "path": "packs/opponents",
       "type": "Actor",
-      "system": "wastelanders",
+      "system": "wastelanders-dev",
       "ownership": {
         "PLAYER": "LIMITED",
         "ASSISTANT": "OWNER"
@@ -153,8 +153,8 @@
   "socket": true,
   "packFolders": [],
   "primaryTokenAttribute": "hp",
-  "url": "https://github.com/serhiiten/wastelandersrpg_foundry",
-  "manifest": "https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry/main/system.json",
-  "download": "https://github.com/serhiiten/wastelandersrpg_foundry/releases/download/v1.0.1/foundry.zip",
-  "license": "https://github.com/serhiiten/wastelandersrpg_foundry/blob/main/LICENSE.md"
+  "url": "https://github.com/serhiiten/wastelandersrpg_foundry_dev",
+  "manifest": "https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry_dev/main/system.json",
+  "download": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/releases/download/v1.0.1/foundry.zip",
+  "license": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/blob/main/LICENSE.md"
 }

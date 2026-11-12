@@ -3,7 +3,7 @@
   "name": "Мастак-ремонтник",
   "type": "perk",
   "_id": "WzkvW1Ri5XGDjzQJ",
-  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "img": "systems/wastelanders-dev/assets/auto-repair.svg",
   "system": {
     "description": "<p>Ти отримуєш +1 до всіх перевірок, коли ремонтуєш механізми, електроніку та роботів. Також ти можеш намагатися ремонтувати один і той же механізм<span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong> двічі </strong></span>на день. При всіх результатах перевірки крім невдачі ти відновлюєш механізмам на 1d6 ОЗ більше.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768670485988,
     "modifiedTime": 1768827159592,

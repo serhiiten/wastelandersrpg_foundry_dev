@@ -3,7 +3,7 @@
   "name": "Матка ванамінго",
   "type": "enemy",
   "_id": "MbQQOMmY4Tswce1J",
-  "img": "systems/wastelanders/assets/vanaminho.png",
+  "img": "systems/wastelanders-dev/assets/vanaminho.png",
   "system": {
     "hp": {
       "value": 35,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/vanaminho.png",
+      "src": "systems/wastelanders-dev/assets/vanaminho.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768867120597,
         "modifiedTime": 1768867146059,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768867103324,
     "modifiedTime": 1769782005278,

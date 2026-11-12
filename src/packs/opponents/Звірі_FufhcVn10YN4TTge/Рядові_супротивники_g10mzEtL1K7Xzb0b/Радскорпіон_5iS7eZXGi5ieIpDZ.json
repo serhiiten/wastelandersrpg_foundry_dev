@@ -3,7 +3,7 @@
   "name": "Радскорпіон",
   "type": "enemy",
   "_id": "5iS7eZXGi5ieIpDZ",
-  "img": "systems/wastelanders/assets/radskorpion.png",
+  "img": "systems/wastelanders-dev/assets/radskorpion.png",
   "system": {
     "hp": {
       "value": 8,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/radskorpion.png",
+      "src": "systems/wastelanders-dev/assets/radskorpion.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768848670797,
         "modifiedTime": 1768865754163,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768848654687,
     "modifiedTime": 1769782005278,

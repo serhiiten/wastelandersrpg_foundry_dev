@@ -3,7 +3,7 @@
   "name": "Дитинча Пазура Смерті",
   "type": "enemy",
   "_id": "6NHEYx5i4pESh7UJ",
-  "img": "systems/wastelanders/assets/dytyncha-pazurya-smerti.png",
+  "img": "systems/wastelanders-dev/assets/dytyncha-pazurya-smerti.png",
   "system": {
     "hp": {
       "value": 15,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/dytyncha-pazurya-smerti.png",
+      "src": "systems/wastelanders-dev/assets/dytyncha-pazurya-smerti.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768866993820,
         "modifiedTime": 1768867012032,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768866985749,
     "modifiedTime": 1769782005278,

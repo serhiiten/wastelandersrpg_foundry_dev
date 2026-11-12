@@ -3,7 +3,7 @@
   "name": "Лоботоміт Анклаву",
   "type": "enemy",
   "_id": "xhfJFEwd6slTrTXW",
-  "img": "systems/wastelanders/assets/lobotomit.png",
+  "img": "systems/wastelanders-dev/assets/lobotomit.png",
   "system": {
     "hp": {
       "value": 8,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/lobotomit.png",
+      "src": "systems/wastelanders-dev/assets/lobotomit.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768953385093,
         "modifiedTime": 1768953410141,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768953374774,
     "modifiedTime": 1769782005278,

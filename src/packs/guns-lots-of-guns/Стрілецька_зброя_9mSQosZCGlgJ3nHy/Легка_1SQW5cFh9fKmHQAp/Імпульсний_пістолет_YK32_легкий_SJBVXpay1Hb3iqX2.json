@@ -2,7 +2,7 @@
   "name": "Імпульсний пістолет YK32 (легкий)",
   "type": "weapon",
   "_id": "SJBVXpay1Hb3iqX2",
-  "img": "systems/wastelanders/assets/pistol-gun-1.svg",
+  "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
     "description": "<p>Дальність: 2 зони </p><p>Властивість: Одиночний. Електричний. Завдає роботам та техніці додатково 1d6 шкоди.</p>",
     "price": 20,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768605259275,
     "modifiedTime": 1769781830184,

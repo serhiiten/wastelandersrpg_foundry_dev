@@ -3,7 +3,7 @@
   "name": "Обраний",
   "type": "perk",
   "_id": "Kmcq259a0YY5Trvk",
-  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
     "description": "<p>Своєю силою ти можеш зупиняти навіть кулі, що летять у тебе. Раз за сцену повністю відміни будь-яку фізичну або психічну шкоду, якої тобі щойно завдали.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768672182332,
     "modifiedTime": 1768827159592,

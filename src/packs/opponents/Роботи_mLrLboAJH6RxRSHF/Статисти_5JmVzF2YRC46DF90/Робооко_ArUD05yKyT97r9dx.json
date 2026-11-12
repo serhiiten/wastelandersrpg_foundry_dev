@@ -3,7 +3,7 @@
   "name": "Робооко",
   "type": "enemy",
   "_id": "ArUD05yKyT97r9dx",
-  "img": "systems/wastelanders/assets/robooko.png",
+  "img": "systems/wastelanders-dev/assets/robooko.png",
   "system": {
     "hp": {
       "value": 5,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/robooko.png",
+      "src": "systems/wastelanders-dev/assets/robooko.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768936010836,
         "modifiedTime": 1768936081863,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768935968640,
     "modifiedTime": 1769782005278,

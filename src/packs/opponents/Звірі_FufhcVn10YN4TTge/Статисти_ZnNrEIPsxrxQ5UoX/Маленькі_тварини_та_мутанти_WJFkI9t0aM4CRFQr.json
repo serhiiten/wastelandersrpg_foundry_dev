@@ -3,7 +3,7 @@
   "name": "Маленькі тварини та мутанти",
   "type": "enemy",
   "_id": "WJFkI9t0aM4CRFQr",
-  "img": "systems/wastelanders/assets/duten.png",
+  "img": "systems/wastelanders-dev/assets/duten.png",
   "system": {
     "hp": {
       "value": 2,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/duten.png",
+      "src": "systems/wastelanders-dev/assets/duten.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768836085034,
         "modifiedTime": 1768848606399,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768836058912,
     "modifiedTime": 1769782005278,

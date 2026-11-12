@@ -3,7 +3,7 @@
   "name": "Передбачення",
   "type": "perk",
   "_id": "W4I2cLpdxzqtWgFN",
-  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
     "description": "<p>Раз за сесію постав Доглядачеві питання про результат однієї дії, яка відбудеться в найближчому майбутньому, наприклад, «що на мене чекає, якщо я відкрию ці двері?» Доглядач повинен описати можливий результат максимально чесно. Цей перк можна застосовувати потай.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671791023,
     "modifiedTime": 1768827159592,

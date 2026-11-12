@@ -1,5 +1,5 @@
 export function registerSystemSettings() {
-  game.settings.register("wastelanders", "archetypesList", {
+  game.settings.register(game.system.id, "archetypesList", {
     name: "Список Архетипів",
     hint: "Введіть доступні архетипи через кому.",
     scope: "world",

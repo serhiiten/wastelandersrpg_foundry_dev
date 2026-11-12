@@ -3,7 +3,7 @@
   "name": "Тунельник",
   "type": "enemy",
   "_id": "u0V7vHgFlXpN4Ih3",
-  "img": "systems/wastelanders/assets/tunel-nyk.png",
+  "img": "systems/wastelanders-dev/assets/tunel-nyk.png",
   "system": {
     "hp": {
       "value": 7,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/tunel-nyk.png",
+      "src": "systems/wastelanders-dev/assets/tunel-nyk.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768866074652,
         "modifiedTime": 1768866089642,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768866065691,
     "modifiedTime": 1769782005278,

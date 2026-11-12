@@ -23,7 +23,7 @@ export class WastelandersActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @override */
   get template() {
-    const sheetTemplate = `systems/wastelanders/templates/actor/${this.actor.type}-sheet.hbs`;
+    const sheetTemplate = `systems/wastelanders-dev/templates/actor/${this.actor.type}-sheet.hbs`;
 
     return sheetTemplate;
   }

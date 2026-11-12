@@ -3,7 +3,7 @@
   "name": "Слизький тип",
   "type": "perk",
   "_id": "v2n2ZCRoOexY5ElE",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p>Чи це мутація твоєї шкіри, чи ти навчився цього у мандрівного факіра, але тебе неможливо <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>схопити, зв'язати</strong></em></span> чи <span style=\"font-style:italic;font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><em><strong>обплутати</strong></em></span>. Витративши кілька хвилин часу, ти можеш вислизнути навіть із наручників, кайданів або нашийника з вибухівкою, хоч би як туго їх затягували на тобі. Гудіні бісів.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668710203,
     "modifiedTime": 1768827159592,

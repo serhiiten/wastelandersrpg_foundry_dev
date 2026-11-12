@@ -3,7 +3,7 @@
   "name": "Невидимість (Вправність)",
   "type": "perk",
   "_id": "Jkwtv7x1fDmNfBq0",
-  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
     "description": "<p>Раз за сесію ти можеш на кілька хвилин стати <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>цілком непомітним</strong></em></span> для розумних істот. Якщо ти якось із ними взаємодієш, ефект невидимості негайно припиняється. Цей перк можна застосовувати потай, але тільки якщо ти не зникаєш буквально на очах у людей.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671939787,
     "modifiedTime": 1768827159592,

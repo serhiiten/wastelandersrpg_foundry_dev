@@ -2,7 +2,7 @@
   "name": "10мм пістолет (легкий)",
   "type": "weapon",
   "_id": "4fL2BqbjTR3EkkZt",
-  "img": "systems/wastelanders/assets/pistol-gun-1.svg",
+  "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматичний.</p>",
     "price": 2,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768597814395,
     "modifiedTime": 1769781830184,

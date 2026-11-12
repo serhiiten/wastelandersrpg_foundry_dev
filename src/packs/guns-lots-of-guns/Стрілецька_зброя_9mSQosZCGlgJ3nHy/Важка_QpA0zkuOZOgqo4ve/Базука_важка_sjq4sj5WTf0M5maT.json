@@ -2,7 +2,7 @@
   "name": "Базука (важка)",
   "type": "weapon",
   "_id": "sjq4sj5WTf0M5maT",
-  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Дальність: Макс. </p><p>Властивість: Б'є по площині. Одна ракета коштує 3 кришки. Використовує перевірку СПР + Стрільба.</p>",
     "price": 20,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768606964509,
     "modifiedTime": 1769781830184,

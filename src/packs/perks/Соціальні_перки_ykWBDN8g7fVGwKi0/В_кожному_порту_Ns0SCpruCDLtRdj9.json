@@ -3,7 +3,7 @@
   "name": "В кожному порту",
   "type": "perk",
   "_id": "Ns0SCpruCDLtRdj9",
-  "img": "systems/wastelanders/assets/talk.svg",
+  "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
     "description": "<p>Раз за сесію коли ви відвідуєте нове поселення, в якому ваш караван ніколи не був раніше, ти можеш оголосити, що в цьому поселенні в тебе є знайомий НІП. Потім за кожне очко атрибуту ПВ твого персонажа вище 0 вибери 1 із наступного переліку: <br>● Ваші відносини з НІПом дружні. <br>● Ти не в боргах перед НІПом. <br>● НІП багатий або впливовий. <br>● НІП винен тобі послугу. <br>Разом з Доглядачем дайте НІПу ім’я та опишіть його аспектом.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668493450,
     "modifiedTime": 1768827159592,

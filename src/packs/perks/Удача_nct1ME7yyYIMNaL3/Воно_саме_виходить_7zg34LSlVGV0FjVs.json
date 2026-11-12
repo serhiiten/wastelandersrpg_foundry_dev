@@ -3,7 +3,7 @@
   "name": "Воно саме виходить",
   "type": "perk",
   "_id": "7zg34LSlVGV0FjVs",
-  "img": "systems/wastelanders/assets/dice-fire.svg",
+  "img": "systems/wastelanders-dev/assets/dice-fire.svg",
   "system": {
     "description": "<p>Вибери одну навичку та одну досить вузьку область її застосування. Обговори цю область з Доглядачем. Надалі при перевірках, пов'язаних з цією сферою застосування навички, ти можеш замість відповідного атрибута використовувати своє значення Удачі.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671566250,
     "modifiedTime": 1768827159592,

@@ -2,7 +2,7 @@
   "name": "Турель",
   "type": "upgrade",
   "_id": "Ms0UsjwKwggVfAi7",
-  "img": "systems/wastelanders/assets/upgrade.svg",
+  "img": "systems/wastelanders-dev/assets/upgrade.svg",
   "system": {
     "description": "<p>У вашого каравану є стаціонарна турель. Вона вважається важкою зброєю (2d6 шкоди в бою на відстані), але її може використовувати будь-який персонаж, навіть той, хто й підняти цю гармату не міг би.</p>",
     "active": {
@@ -23,7 +23,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768567203626,
     "modifiedTime": 1768827166260,

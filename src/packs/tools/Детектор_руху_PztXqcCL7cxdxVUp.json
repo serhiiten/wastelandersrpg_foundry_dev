@@ -2,7 +2,7 @@
   "name": "Детектор руху",
   "type": "tool",
   "_id": "PztXqcCL7cxdxVUp",
-  "img": "systems/wastelanders/assets/motion.webp",
+  "img": "systems/wastelanders-dev/assets/motion.webp",
   "system": {
     "description": "<p>Визначає чи в вашій зоні та сусідніх зонах є рухомі об'єкти. Є аспектом.</p>",
     "price": 5
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768568429979,
     "modifiedTime": 1769781830080,

@@ -3,7 +3,7 @@
   "name": "Цивільний",
   "type": "enemy",
   "_id": "dtmrnhz5jSHfaROT",
-  "img": "systems/wastelanders/assets/tsyvil-1.png",
+  "img": "systems/wastelanders-dev/assets/tsyvil-1.png",
   "system": {
     "hp": {
       "value": 3,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/tsyvil-1.png",
+      "src": "systems/wastelanders-dev/assets/tsyvil-1.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768950518418,
         "modifiedTime": 1768950541981,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768950499862,
     "modifiedTime": 1769782005278,

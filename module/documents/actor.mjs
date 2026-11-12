@@ -21,10 +21,10 @@ export class WastelandersActor extends Actor {
     const data = super.getDefaultArtwork(actorData);
 
     const icons = {
-      character: "systems/wastelanders/assets/vault-boy.webp",
-      caravan: "systems/wastelanders/assets/cartwheel.png",
-      enemy: "systems/wastelanders/assets/daemon-skull.png",
-      counter: "systems/wastelanders/assets/time-bomb.png",
+      character: "systems/wastelanders-dev/assets/vault-boy.webp",
+      caravan: "systems/wastelanders-dev/assets/cartwheel.png",
+      enemy: "systems/wastelanders-dev/assets/daemon-skull.png",
+      counter: "systems/wastelanders-dev/assets/time-bomb.png",
     };
 
     const defaultIcon = icons[actorData.type] || "icons/svg/mystery-man.svg";

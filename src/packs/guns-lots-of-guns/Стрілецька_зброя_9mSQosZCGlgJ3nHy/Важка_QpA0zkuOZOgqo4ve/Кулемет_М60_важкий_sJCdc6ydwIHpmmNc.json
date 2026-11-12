@@ -2,7 +2,7 @@
   "name": "Кулемет М60 (важкий)",
   "type": "weapon",
   "_id": "sJCdc6ydwIHpmmNc",
-  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Дальність: 2 зони </p><p>Властивість: Автоматичний.</p>",
     "price": 10,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768606711980,
     "modifiedTime": 1769781830184,

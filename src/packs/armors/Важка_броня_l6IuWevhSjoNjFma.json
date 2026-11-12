@@ -2,7 +2,7 @@
   "name": "Важка броня",
   "type": "armor",
   "_id": "l6IuWevhSjoNjFma",
-  "img": "systems/wastelanders/assets/cbtarmor.webp",
+  "img": "systems/wastelanders-dev/assets/cbtarmor.webp",
   "system": {
     "description": "<p>Композитна технологічна броня, на зразок бойової броні. Захищає від фізичної шкоди. <em><strong>Важка.</strong></em></p>",
     "price": 20,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565896690,
     "modifiedTime": 1769781830058,

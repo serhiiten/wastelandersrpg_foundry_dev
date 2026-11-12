@@ -2,7 +2,7 @@
   "name": "Покращена силова броня",
   "type": "armor",
   "_id": "0HGuYDDfB6xkIwiH",
-  "img": "systems/wastelanders/assets/parmor2.webp",
+  "img": "systems/wastelanders-dev/assets/parmor2.webp",
   "system": {
     "description": "<p>Моделі APA, APA Mk II</p><p>А ось ця штука є вершиною технологій серед силової броні. Має всі властивості звичайної силової броні, але виготовлена з міцніших композитів.</p><p><span style=\"color: rgb(25, 24, 19); font-family: Scada, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(238, 238, 238); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none\">Дає +1 до Сили (аж до максимуму в +4), має автономний запас повітря на кілька годин, зменшує шкоду від радіації та отрут наполовину (округлюючи вгору). Поки ти носиш цю броню, твої удари кулаками у ближньому бою вважаються середньою зброєю та завдають 1d10 шкоди. </span><span style=\"box-sizing: border-box; user-select: text; scrollbar-width: thin; scrollbar-color: rgb(120, 46, 34) rgba(0, 0, 0, 0); color: rgb(25, 24, 19); font-family: Scada, sans-serif; font-size: 14px; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(238, 238, 238); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial\"><em><strong style=\"box-sizing: border-box; user-select: text; scrollbar-width: thin; scrollbar-color: rgb(120, 46, 34) rgba(0, 0, 0, 0);\">Важка. Значуща.</strong></em></span><span style=\"color: rgb(25, 24, 19); font-family: Scada, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(238, 238, 238); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none\"> Захищає від фізичної шкоди.</span></p><p>Єдина фракція Пустки, яка виробляє та користується такою бронею — це Анклав.</p><p>Для використання силової броні потрібен перк «Вміння носити силову броню». Особлива версія такої броні не коштує більше кришок.</p>",
     "price": 150,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768566096120,
     "modifiedTime": 1769781830058,

@@ -3,7 +3,7 @@
   "name": "Бісова штуковина! (вим. Знання)",
   "type": "perk",
   "_id": "LoEny1fcdxSGZWtr",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p><span style=\"color: rgb(25, 24, 19); font-family: Scada, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(238, 238, 238); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none\">Раз за сцену ти можеш повністю перекинути будь-яку перевірку, пов'язану зі зламом замків або взаємодією з комп'ютерами, якщо добряче копнеш те, що зламуєш. Це буде гучно.</span></p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668631586,
     "modifiedTime": 1769783105279,

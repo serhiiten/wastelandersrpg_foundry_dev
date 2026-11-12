@@ -2,7 +2,7 @@
   "name": "Лічильник Гейгера",
   "type": "tool",
   "_id": "I8xF4S09VGxG4fOh",
-  "img": "systems/wastelanders/assets/geiger4.webp",
+  "img": "systems/wastelanders-dev/assets/geiger4.webp",
   "system": {
     "description": "<p>Визначає рівень радіаційного забруднення місцевості та предметів. Є аспектом.</p>",
     "price": 5
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768568387666,
     "modifiedTime": 1769781830080,

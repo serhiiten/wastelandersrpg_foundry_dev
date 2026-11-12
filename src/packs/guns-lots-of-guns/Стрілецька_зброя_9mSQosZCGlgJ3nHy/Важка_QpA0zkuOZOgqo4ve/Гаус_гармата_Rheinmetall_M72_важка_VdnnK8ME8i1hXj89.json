@@ -2,7 +2,7 @@
   "name": "Гаус-гармата Rheinmetall M72 (важка)",
   "type": "weapon",
   "_id": "VdnnK8ME8i1hXj89",
-  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Дальність: Макс. </p><p>Властивість: Одиночна. Ігнорує 3 броні.</p>",
     "price": 55,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768607244047,
     "modifiedTime": 1769781830184,

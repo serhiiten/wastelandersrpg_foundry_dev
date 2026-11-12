@@ -3,7 +3,7 @@
   "name": "Тиха смерть",
   "type": "perk",
   "_id": "O4Qv0USCHGbXlExl",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>Якщо ти атакуєш ворога, який цього не очікує, то завдаєш йому максимальної можливої шкоди своєї зброї і додатково 1d6 шкоди (якщо ти вибрав завдавати йому шкоди). З одним і тим же супротивником такий трюк спрацює максимум один раз в одній сцені.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768663937949,
     "modifiedTime": 1768827159592,

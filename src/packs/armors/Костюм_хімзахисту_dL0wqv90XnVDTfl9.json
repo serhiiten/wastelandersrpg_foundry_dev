@@ -2,7 +2,7 @@
   "name": "Костюм хімзахисту",
   "type": "armor",
   "_id": "dL0wqv90XnVDTfl9",
-  "img": "systems/wastelanders/assets/radiation-resistance.webp",
+  "img": "systems/wastelanders-dev/assets/radiation-resistance.webp",
   "system": {
     "description": "<p>Гумовий костюм із шоломом, який добре захищає від впливу зовнішнього середовища. </p><p>Має автономний запас повітря на кілька годин, а також зменшує шкоду від радіації та отрут наполовину (округлюючи вгору).</p>",
     "price": 15,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768566204640,
     "modifiedTime": 1769781830058,

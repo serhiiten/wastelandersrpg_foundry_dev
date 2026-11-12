@@ -3,7 +3,7 @@
   "name": "Бензопила (важка)",
   "type": "weapon",
   "_id": "aPwNuW5fZ8tVO31A",
-  "img": "systems/wastelanders/assets/hammer-drop.svg",
+  "img": "systems/wastelanders-dev/assets/hammer-drop.svg",
   "system": {
     "description": "<p>Дальність: Ближ. </p><p>Властивість: Ігнорує 1 броні. Гостра.</p>",
     "price": 20,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768608689145,
     "modifiedTime": 1768827196413,

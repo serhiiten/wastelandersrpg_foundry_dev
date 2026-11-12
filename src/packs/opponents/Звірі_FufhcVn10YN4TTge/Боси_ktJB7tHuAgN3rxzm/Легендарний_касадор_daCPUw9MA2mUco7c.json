@@ -3,7 +3,7 @@
   "name": "Легендарний касадор",
   "type": "enemy",
   "_id": "daCPUw9MA2mUco7c",
-  "img": "systems/wastelanders/assets/kasador.png",
+  "img": "systems/wastelanders-dev/assets/kasador.png",
   "system": {
     "hp": {
       "value": 35,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/kasador.png",
+      "src": "systems/wastelanders-dev/assets/kasador.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768849869585,
         "modifiedTime": 1768865804168,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768849855070,
     "modifiedTime": 1769782005278,

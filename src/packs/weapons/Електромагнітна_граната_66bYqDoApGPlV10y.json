@@ -1,7 +1,7 @@
 {
   "name": "Електромагнітна граната",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fo1-pulse-grenade.webp",
+  "img": "systems/wastelanders-dev/assets/fo1-pulse-grenade.webp",
   "system": {
     "description": "<p>Завдає шкоди по площині і лише роботам та електроніці. Додатковий 1d6 шкоди вже врахований. Рідкісна річ.</p>",
     "price": 5,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565523940,
     "modifiedTime": 1769781830042,

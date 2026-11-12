@@ -2,7 +2,7 @@
   "name": "Супермутант",
   "type": "species",
   "_id": "BqFg9EQLLP8lAjRQ",
-  "img": "systems/wastelanders/assets/vitruvian-man.svg",
+  "img": "systems/wastelanders-dev/assets/vitruvian-man.svg",
   "system": {
     "skills": 2,
     "perks": 2,
@@ -76,7 +76,7 @@
   "flags": {},
   "_stats": {
     "coreVersion": "14.360",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.4.2",
     "createdTime": 1777144630956,
     "modifiedTime": 1777151211505,

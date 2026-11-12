@@ -1,7 +1,7 @@
 {
   "name": "Рідкісна зброя",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fo2-m72-gauss-rifle.webp",
+  "img": "systems/wastelanders-dev/assets/fo2-m72-gauss-rifle.webp",
   "system": {
     "description": "<p>Найкраща зброя для найкрутіших хлопців та дівчат Пустки. Мінігани, антиматеріальні гвинтівки, реактивні суперкувалди тощо. <em><strong>Важка. Крута.</strong></em> Завжди займає обидві руки. Особливі версії такої зброї не коштують більше кришок.</p><p></p>",
     "price": 40,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565529397,
     "modifiedTime": 1769781830042,

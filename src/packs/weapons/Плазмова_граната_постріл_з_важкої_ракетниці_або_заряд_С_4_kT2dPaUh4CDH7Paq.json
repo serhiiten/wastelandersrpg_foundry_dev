@@ -1,7 +1,7 @@
 {
   "name": "Плазмова граната, постріл з важкої ракетниці або заряд С-4",
   "type": "weapon",
-  "img": "systems/wastelanders/assets/fo1-plasma-grenade.webp",
+  "img": "systems/wastelanders-dev/assets/fo1-plasma-grenade.webp",
   "system": {
     "description": "<p>Завдає шкоди по площині. Продається лише у великих поселеннях.</p>",
     "price": 4,
@@ -19,7 +19,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768565528032,
     "modifiedTime": 1769781830042,

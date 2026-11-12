@@ -3,7 +3,7 @@
   "name": "Хотфікс",
   "type": "drug",
   "_id": "OtFL27pR7UqalJnu",
-  "img": "systems/wastelanders/assets/scrap-electronics.webp",
+  "img": "systems/wastelanders-dev/assets/scrap-electronics.webp",
   "system": {
     "price": 3,
     "addiction": 0,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648980014,
     "modifiedTime": 1769781830080,

@@ -2,7 +2,7 @@
   "name": "Однорукий",
   "type": "feat",
   "_id": "8b7MbBQlvqncmL5l",
-  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "img": "systems/wastelanders-dev/assets/body-swapping.svg",
   "system": {
     "active": false,
     "description": "<p>Погана новина: ти зовсім не вмієш користуватися <em><strong>важкою</strong></em> зброєю. Хороша: ти отримуєш +1 до всіх перевірок атаки, коли користуєшся легкою та середньою одноручною зброєю, а також метаєш гранати. Ні, це не означає, що в тебе буквально одна рука. Просто твоя ліва рука не дружить із правою, коли справа доходить до зброї.</p><p>Розумні Пазурі Смерті не можуть взяти цю особливість.</p>"
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768569250792,
     "modifiedTime": 1768827073324,

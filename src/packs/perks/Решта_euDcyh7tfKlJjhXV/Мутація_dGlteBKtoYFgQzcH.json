@@ -3,7 +3,7 @@
   "name": "Мутація",
   "type": "perk",
   "_id": "dGlteBKtoYFgQzcH",
-  "img": "systems/wastelanders/assets/dna2.svg",
+  "img": "systems/wastelanders-dev/assets/dna2.svg",
   "system": {
     "description": "<p>Коли береш цей перк, можеш відмовитися від однієї або двох своїх особливостей і взяти замість них інші або повністю відмовитися від них.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671681133,
     "modifiedTime": 1768827159592,

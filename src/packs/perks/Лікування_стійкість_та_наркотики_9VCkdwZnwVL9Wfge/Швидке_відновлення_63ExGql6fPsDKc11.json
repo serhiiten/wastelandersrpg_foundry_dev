@@ -3,7 +3,7 @@
   "name": "Швидке відновлення",
   "type": "perk",
   "_id": "63ExGql6fPsDKc11",
-  "img": "systems/wastelanders/assets/heart-plus.svg",
+  "img": "systems/wastelanders-dev/assets/heart-plus.svg",
   "system": {
     "description": "<p>На тобі заживає, як на собаці. За кожного відпочинку ти додатково відновлюєш 1d6 ОЗ або замість цього ти можеш вибрати один наслідок від фізичної шкоди, що в тебе є, і відмітити його як пролікований.<br>Також якщо ти вибув з бою з 0 ОЗ, в кінці бою ти автоматично приходиш до тями з 1 ОЗ. Ти отримуєш наслідки як зазвичай. <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>Роботи не можуть взяти цей перк.</strong></span></p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671212822,
     "modifiedTime": 1768827159592,

@@ -3,7 +3,7 @@
   "name": "Тварини побільше",
   "type": "enemy",
   "_id": "NPBFc3q5uJRdGHlj",
-  "img": "systems/wastelanders/assets/krotoshchur.png",
+  "img": "systems/wastelanders-dev/assets/krotoshchur.png",
   "system": {
     "hp": {
       "value": 3,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/krotoshchur.png",
+      "src": "systems/wastelanders-dev/assets/krotoshchur.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768836219491,
         "modifiedTime": 1768848615954,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768836207999,
     "modifiedTime": 1769782005278,

@@ -3,7 +3,7 @@
   "name": "Кушнір",
   "type": "perk",
   "_id": "yTDhEpqFq430gYKZ",
-  "img": "systems/wastelanders/assets/binoculars.svg",
+  "img": "systems/wastelanders-dev/assets/binoculars.svg",
   "system": {
     "description": "<p>Ти вмієш майстерно знімати шкури з різних істот (відпусти фантазію!) Якщо шкіра істоти не була незворотно зіпсована (вогнем, кислотою або влучанням з <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>плазмової</strong></em></span> рушниці), ти можеш зняти її, витративши трохи часу. Після кожного бою з істотами, чия шкура становить хоч якусь цінність (такими вважаються рядові супротивники і вище), кинь 1d6. На 1-2 ти збираєш шкур на 1 кришку, на 3-4 — 2 кришки, 5-6 — 3 кришки. Можеш продати їх у найближчому поселенні.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668108457,
     "modifiedTime": 1768827159592,

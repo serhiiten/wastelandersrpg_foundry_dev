@@ -3,7 +3,7 @@
   "name": "Ремонтні протоколи",
   "type": "perk",
   "_id": "t7i48cEI5RDPLeSW",
-  "img": "systems/wastelanders/assets/heart-plus.svg",
+  "img": "systems/wastelanders-dev/assets/heart-plus.svg",
   "system": {
     "description": "<p>Тільки для роботів.</p><p>Ти можеш відновлювати ОЗ за відпочинок та витрату одиниці Припасів як живі істоти.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671385929,
     "modifiedTime": 1768827159592,

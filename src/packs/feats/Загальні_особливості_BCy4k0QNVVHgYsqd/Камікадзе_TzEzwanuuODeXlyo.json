@@ -2,7 +2,7 @@
   "name": "Камікадзе",
   "type": "feat",
   "_id": "TzEzwanuuODeXlyo",
-  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "img": "systems/wastelanders-dev/assets/body-swapping.svg",
   "system": {
     "active": false,
     "description": "<p>Ти завдаєш на 2 шкоди більше будь-якою зброєю, але якщо ти отримуєш хоча б 1 шкоди (після вирахування броні) з будь-яких джерел — вона збільшується на 2. Ауч.</p>"
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768569289747,
     "modifiedTime": 1768827073324,

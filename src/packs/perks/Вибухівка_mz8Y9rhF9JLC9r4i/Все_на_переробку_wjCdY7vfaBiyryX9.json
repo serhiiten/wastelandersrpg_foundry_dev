@@ -3,7 +3,7 @@
   "name": "Все на переробку",
   "type": "perk",
   "_id": "wjCdY7vfaBiyryX9",
-  "img": "systems/wastelanders/assets/mine-explosion.svg",
+  "img": "systems/wastelanders-dev/assets/mine-explosion.svg",
   "system": {
     "description": "<p>Витративши одиницю Припасів та кілька хвилин ти можеш полагодити несправні гранату або заряд вибухівки, щоб використати їх знову.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768663496153,
     "modifiedTime": 1768827159592,

@@ -3,7 +3,7 @@
   "name": "Бігун (Вправність)",
   "type": "perk",
   "_id": "xmIVoNvj43yjIi0S",
-  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
     "description": "<p>«Швидкі ноги прочухана не бояться» — ось твій девіз. За одне переміщення в бою ти можеш переміститися на відстань до двох зон, якщо тобі нічого не заважає.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768665754301,
     "modifiedTime": 1768827159592,

@@ -2,7 +2,7 @@
   "name": "Снайперська гвинтівка .50 калібру (важка)",
   "type": "weapon",
   "_id": "hjNQcZj6XRzeKDqd",
-  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Дальність: Макс. </p><p>Властивість: Одиночна.</p>",
     "price": 40,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768607139737,
     "modifiedTime": 1769781830184,

@@ -26,7 +26,7 @@ export default class WastelandersSheetSettings extends FormApplication {
   /** @override */
   get template() {
     const type = this.object.type;
-    const sheetTemplate = `systems/wastelanders/templates/settings/${type}-settings.hbs`;
+    const sheetTemplate = `systems/wastelanders-dev/templates/settings/${type}-settings.hbs`;
 
     return sheetTemplate;
   }

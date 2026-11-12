@@ -3,7 +3,7 @@
   "name": "Навіювання (Інтелект)",
   "type": "perk",
   "_id": "vCScsp9ZmBgPArRz",
-  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
     "description": "<p>Раз за сцену ти можеш навіяти живій розумній істоті якусь думку або навести на неї ілюзію. Успішність цієї дії визначається перевіркою <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ІН + Примус</strong></span>. Наприкінці сцени ефект припиняється. Цей перк можна застосовувати потай, проте ціль впливу в кінці сцени зрозуміє, що з нею сталося щось дуже дивне.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671966672,
     "modifiedTime": 1768827159592,

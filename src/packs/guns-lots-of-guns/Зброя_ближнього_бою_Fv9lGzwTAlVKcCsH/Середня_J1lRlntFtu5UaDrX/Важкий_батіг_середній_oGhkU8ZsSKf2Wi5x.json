@@ -3,7 +3,7 @@
   "name": "Важкий батіг (середній)",
   "type": "weapon",
   "_id": "oGhkU8ZsSKf2Wi5x",
-  "img": "systems/wastelanders/assets/spiked-bat-1.svg",
+  "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
     "description": "<p>Дальність: 1 зона</p>",
     "price": 5,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768608575240,
     "modifiedTime": 1769781830184,

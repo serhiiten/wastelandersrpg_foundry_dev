@@ -2,7 +2,7 @@
   "name": "Електронна відмичка",
   "type": "tool",
   "_id": "OvSTwpDcaopPyQFu",
-  "img": "systems/wastelanders/assets/elecpic.webp",
+  "img": "systems/wastelanders-dev/assets/elecpic.webp",
   "system": {
     "description": "<p>Дозволяє робити перевірки на злам високотехнологічних замків без Послаблень.</p>",
     "price": 5
@@ -20,7 +20,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768568478935,
     "modifiedTime": 1769781830080,

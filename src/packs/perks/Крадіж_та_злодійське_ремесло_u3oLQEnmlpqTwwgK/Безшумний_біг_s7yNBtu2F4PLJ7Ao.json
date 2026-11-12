@@ -3,7 +3,7 @@
   "name": "Безшумний біг",
   "type": "perk",
   "_id": "s7yNBtu2F4PLJ7Ao",
-  "img": "systems/wastelanders/assets/robber.svg",
+  "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
     "description": "<p>Рух крадькома тебе не сповільнює. Зазвичай, якщо ти намагаєшся бути непомітним, спроби переміщення із зони в зону роблять тебе помітним і вимагають перевірки для збереження непомітності. З цим перком ти можеш пересуватися між зонами крадькома не порушуючи непомітності. До того ж ти вмієш бігати, як ніндзя, з руками позаду.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668672175,
     "modifiedTime": 1768827159592,

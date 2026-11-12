@@ -3,7 +3,7 @@
   "name": "Дикий гуль",
   "type": "enemy",
   "_id": "ylt0dl9NL10e7SQP",
-  "img": "systems/wastelanders/assets/dykyy-hul.png",
+  "img": "systems/wastelanders-dev/assets/dykyy-hul.png",
   "system": {
     "hp": {
       "value": 5,
@@ -20,7 +20,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "systems/wastelanders/assets/dykyy-hul.png",
+      "src": "systems/wastelanders-dev/assets/dykyy-hul.png",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -128,7 +128,7 @@
         "duplicateSource": null,
         "exportSource": null,
         "coreVersion": "14.359",
-        "systemId": "wastelanders",
+        "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
         "createdTime": 1768939585503,
         "modifiedTime": 1768939626383,
@@ -149,7 +149,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.359",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.3",
     "createdTime": 1768939572117,
     "modifiedTime": 1769782005278,

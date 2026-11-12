@@ -3,7 +3,7 @@
   "name": "Чим більша шафа",
   "type": "perk",
   "_id": "nqmi6xkbsic1Gr3U",
-  "img": "systems/wastelanders/assets/high-punch.svg",
+  "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
     "description": "<p>При успіху та критичному успіху на перевірці ближнього бою ти завжди <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збиваєш супротивника з ніг</strong></em></span>, якщо ти цього хочеш, і якщо у нього взагалі є ноги.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768660047005,
     "modifiedTime": 1768827159592,

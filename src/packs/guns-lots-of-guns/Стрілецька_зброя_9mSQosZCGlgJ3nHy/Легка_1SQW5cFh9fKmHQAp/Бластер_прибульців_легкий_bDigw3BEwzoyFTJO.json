@@ -2,7 +2,7 @@
   "name": "Бластер прибульців (легкий)",
   "type": "weapon",
   "_id": "bDigw3BEwzoyFTJO",
-  "img": "systems/wastelanders/assets/pistol-gun-1.svg",
+  "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
     "description": "<p>Дальність: Макс. </p><p>Властивість: Напівавтоматичний. Ігнорує 4 броні. Енергетичний. Має 3 постріли на день.</p>",
     "price": 0,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768605472105,
     "modifiedTime": 1769781830184,

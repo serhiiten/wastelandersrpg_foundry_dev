@@ -2,7 +2,7 @@
   "name": "Експериментальна модель (робот)",
   "type": "feat",
   "_id": "MOLFOTsTg0tB6IIC",
-  "img": "systems/wastelanders/assets/dna1.svg",
+  "img": "systems/wastelanders-dev/assets/dna1.svg",
   "system": {
     "active": false,
     "description": "<p>Ти прототип модельного ряду та був зроблений у одиничному екземплярі. Через це в тебе є особливі здібності, які недоступні іншим роботам, але ти частіше ламаєшся, і тебе важче лагодити. Отримай додатково на твій вибір або 1 очко атрибутів, <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>або</strong></span> 1 перк на старті гри. Натомість у тебе на 5 ОЗ менше, а всі перевірки навички Техніка для твого ремонту отримують -1 через рідкісність деталей.</p>",
@@ -22,7 +22,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "14.360",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.4.2",
     "createdTime": 1768569708824,
     "modifiedTime": 1777149805022,

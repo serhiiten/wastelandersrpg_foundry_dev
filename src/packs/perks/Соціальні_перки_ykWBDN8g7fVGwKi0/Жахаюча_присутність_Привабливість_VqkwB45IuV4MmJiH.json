@@ -3,7 +3,7 @@
   "name": "Жахаюча присутність (Привабливість)",
   "type": "perk",
   "_id": "VqkwB45IuV4MmJiH",
-  "img": "systems/wastelanders/assets/talk.svg",
+  "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
     "description": "<p>У твоєму зовнішньому вигляді та манері триматися є щось, що змушує людей почуватися незатишно. Ти отримуєш +1 до всіх перевірок навички <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>Примусу</strong></span>, пов'язаних із залякуванням. Цей бонус зростає до Посилення, якщо ти щойно на їхніх очах зробив щось таке, що вони вважають достатньо моторошним.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768668297938,
     "modifiedTime": 1768827159592,

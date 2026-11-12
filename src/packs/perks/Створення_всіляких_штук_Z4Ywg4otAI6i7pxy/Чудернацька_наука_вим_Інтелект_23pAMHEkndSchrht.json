@@ -3,7 +3,7 @@
   "name": "Чудернацька наука (вим. Інтелект)",
   "type": "perk",
   "_id": "23pAMHEkndSchrht",
-  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "img": "systems/wastelanders-dev/assets/auto-repair.svg",
   "system": {
     "description": "<p>Коли ти здійснюєш небезпечні та неперевірені «наукові» експерименти або створюєш чудернацькі приблуди без огляду на власну безпеку та безпеку оточуючих, ти отримуєш Посилення на перевірки успішності своїх експериментів чи створення речі. Доглядач визначає, чи достатньо це небезпечно чи ні.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768670330239,
     "modifiedTime": 1769783524161,

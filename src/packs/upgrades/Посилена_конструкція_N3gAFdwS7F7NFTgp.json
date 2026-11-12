@@ -2,7 +2,7 @@
   "name": "Посилена конструкція",
   "type": "upgrade",
   "_id": "N3gAFdwS7F7NFTgp",
-  "img": "systems/wastelanders/assets/upgrade.svg",
+  "img": "systems/wastelanders-dev/assets/upgrade.svg",
   "system": {
     "description": "<p>Дає каравану +10 ОЗ.</p>",
     "active": {
@@ -23,7 +23,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.1",
     "createdTime": 1768567151870,
     "modifiedTime": 1768827166260,

@@ -3,7 +3,7 @@
   "name": "М'ясник",
   "type": "perk",
   "_id": "Ud9E2pVF5OWHCdpb",
-  "img": "systems/wastelanders/assets/high-punch.svg",
+  "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
     "description": "<p>За всіх перевірок ближнього бою критичним успіхом для тебе вважається результат 18+.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768661142344,
     "modifiedTime": 1768827159592,

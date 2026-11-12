@@ -3,7 +3,7 @@
   "name": "Канібал",
   "type": "perk",
   "_id": "K96A7hL5VJ87uDBu",
-  "img": "systems/wastelanders/assets/swallow.svg",
+  "img": "systems/wastelanders-dev/assets/swallow.svg",
   "system": {
     "description": "<p>М-м-м, цей неперевершений смак… Споживання плоті розумних істот дозволяє тобі раз на день миттєво відновити 1d10 ОЗ і отримати бонус +1 до Сили та Вправності (до видового максимуму) до кінця наступної сцени. Однак це, як і раніше, вважається жахливим злочином у більшості цивілізованих місць, так що тобі доведеться це приховувати, якщо ти не хочеш нажити собі великих неприємностей.</p>",
     "attributes": {
@@ -40,7 +40,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768671692256,
     "modifiedTime": 1768827159592,

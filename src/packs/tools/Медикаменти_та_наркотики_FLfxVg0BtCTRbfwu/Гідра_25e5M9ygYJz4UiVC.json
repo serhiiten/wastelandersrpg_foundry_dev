@@ -3,7 +3,7 @@
   "name": "Гідра",
   "type": "drug",
   "_id": "25e5M9ygYJz4UiVC",
-  "img": "systems/wastelanders/assets/chem-poison.webp",
+  "img": "systems/wastelanders-dev/assets/chem-poison.webp",
   "system": {
     "price": 10,
     "addiction": 2,
@@ -21,7 +21,7 @@
     "duplicateSource": null,
     "exportSource": null,
     "coreVersion": "13.351",
-    "systemId": "wastelanders",
+    "systemId": "wastelanders-dev",
     "systemVersion": "0.2",
     "createdTime": 1768648797052,
     "modifiedTime": 1769781830080,
