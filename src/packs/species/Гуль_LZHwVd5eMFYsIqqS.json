@@ -1,0 +1,65 @@
+{
+  "name": "Гуль",
+  "type": "species",
+  "_id": "LZHwVd5eMFYsIqqS",
+  "img": "systems/wastelanders/assets/vitruvian-man.svg",
+  "system": {
+    "skills": 2,
+    "perks": 2,
+    "feats": [
+      {
+        "id": "F75mVDMKHjdx3qfb",
+        "uuid": "Compendium.wastelanders.feats.Item.F75mVDMKHjdx3qfb",
+        "name": "На вигляд не дуже (гуль)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "WppNsVKjc6Ce73th",
+        "uuid": "Compendium.wastelanders.feats.Item.WppNsVKjc6Ce73th",
+        "name": "Стійкість до отрут (гуль)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "dIsRqVPI3xSRM1xp",
+        "uuid": "Compendium.wastelanders.feats.Item.dIsRqVPI3xSRM1xp",
+        "name": "Цілюще випромінювання (гуль)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "mqureHJQgf55RS7x",
+        "uuid": "Compendium.wastelanders.feats.Item.mqureHJQgf55RS7x",
+        "type": "feat",
+        "name": "Довголіття (гуль)",
+        "title": "Особливість",
+        "docType": "Item"
+      }
+    ],
+    "description": "<blockquote><p>Колись давно цим бідолахам дуже не пощастило. Або пощастило, тут ще як подивитися. Гулі — це люди, які зазнали надмірного впливу радіації. Це зробило їх надзвичайно потворними за людськими мірками, буквально ходячими трупами. Більшість з цих бідаків внаслідок мутацій втратили розум і перетворилися на агресивних диких гулів. Проте деяким вдалося зберегти свідомість і навіть якось вписатися в людський соціум, хоча людям і не до душі товариство «мертв'яків».</p></blockquote><h3>Особливості атрибутів гулів</h3><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><table id=\"21ee66cd-8c78-80eb-ae5e-ede522b19e14\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-80e7-9d75-e617df4be4ae\"><th id=\"r^Ik\"><p><strong>Атрибут</strong></p></th><th id=\"hri`\"><p><strong>Мінімум</strong></p></th><th id=\"Plai\"><p><strong>Стартовий максимум</strong></p></th><th id=\"yzcT\"><p><strong>Максимум</strong></p></th></tr></thead><tbody><tr id=\"21ee66cd-8c78-80c2-b382-f30311af1cf3\"><th id=\"r^Ik\"><p>Сила</p></th><td id=\"hri`\"><p>-1</p></td><td id=\"Plai\"><p>+1</p></td><td id=\"yzcT\"><p>+2</p></td></tr><tr id=\"21ee66cd-8c78-80cb-8f46-e33e5a06c659\"><th id=\"r^Ik\"><p>Сприйняття</p></th><td id=\"hri`\"><p>-1</p></td><td id=\"Plai\"><p>+3</p></td><td id=\"yzcT\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-8033-b4b5-eaadfd7261b4\"><th id=\"r^Ik\"><p>Витривалість</p></th><td id=\"hri`\"><p>-1</p></td><td id=\"Plai\"><p>+2</p></td><td id=\"yzcT\"><p>+2</p></td></tr><tr id=\"21ee66cd-8c78-80d5-aa4e-d18d14bcf3f0\"><th id=\"r^Ik\"><p>Привабливість</p></th><td id=\"hri`\"><p>-2</p></td><td id=\"Plai\"><p>+1</p></td><td id=\"yzcT\"><p>+2</p></td></tr><tr id=\"21ee66cd-8c78-8037-b20d-e724e5e9b1b4\"><th id=\"r^Ik\"><p>Інтелект</p></th><td id=\"hri`\"><p>-1</p></td><td id=\"Plai\"><p>+3</p></td><td id=\"yzcT\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-80ef-952d-f92537b82148\"><th id=\"r^Ik\"><p>Вправність</p></th><td id=\"hri`\"><p>-1</p></td><td id=\"Plai\"><p>+2</p></td><td id=\"yzcT\"><p>+2</p></td></tr><tr id=\"21ee66cd-8c78-809e-862f-c3348a9a1241\"><th id=\"r^Ik\"><p>Удача</p></th><td id=\"hri`\"><p>-1</p></td><td id=\"Plai\"><p>+2</p></td><td id=\"yzcT\"><p>+4</p></td></tr></tbody></table>"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777144531557,
+    "modifiedTime": 1777151048613,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!LZHwVd5eMFYsIqqS"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Саморобна граната",
+  "type": "weapon",
+  "img": "systems/wastelanders/assets/fo1-plastic-explosives-armed.webp",
+  "system": {
+    "description": "<p>Завдає шкоди по площині.</p>",
+    "price": 1,
+    "damage": "1d6"
+  },
+  "effects": [],
+  "folder": null,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768565530529,
+    "modifiedTime": 1769781830042,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_id": "wgcomIMjB4kVhxx7",
+  "sort": 300000,
+  "_key": "!items!wgcomIMjB4kVhxx7"
+}

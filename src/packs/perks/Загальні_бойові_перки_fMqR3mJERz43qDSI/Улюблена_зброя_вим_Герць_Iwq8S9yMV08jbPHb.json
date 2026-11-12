@@ -1,0 +1,50 @@
+{
+  "folder": "fMqR3mJERz43qDSI",
+  "name": "Улюблена зброя (вим: Герць)",
+  "type": "perk",
+  "_id": "Iwq8S9yMV08jbPHb",
+  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "system": {
+    "description": "<p>Вибери одну зброю з тих, що в тебе є, і дай їй круте ім'я. Ти отримуєш +1 до всіх перевірок атаки чи створення переваг, зроблених за допомогою цієї зброї. Улюблена зброя в тебе може бути тільки одна, і якщо ти її втратиш, тобі доведеться взяти цей перк ще раз, щоб вибрати іншу улюблену зброю. Твоя улюблена зброя автоматично стає <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>особливою</strong></em></span>, коли ти береш цей перк. Придумай їй слушний аспект.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 6,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768666956645,
+    "modifiedTime": 1769782689799,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!Iwq8S9yMV08jbPHb"
+}

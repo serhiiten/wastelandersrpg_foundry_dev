@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": null,
+  "name": "Стрілецька зброя",
+  "color": "#d12323",
+  "sorting": "m",
+  "_id": "9mSQosZCGlgJ3nHy",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.350",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768607666959,
+    "modifiedTime": 1768607666959,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!9mSQosZCGlgJ3nHy"
+}

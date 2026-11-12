@@ -1,0 +1,50 @@
+{
+  "folder": "9VCkdwZnwVL9Wfge",
+  "name": "Медик (вим. Вправність)",
+  "type": "perk",
+  "_id": "IzVMgocC22chbGOy",
+  "img": "systems/wastelanders/assets/heart-plus.svg",
+  "system": {
+    "description": "<p>Коли ти надаєш першу допомогу, ти відновлюєш на 2 ОЗ більше. Також ти можеш надати одному й тому ж пацієнтові допомогу <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>двічі </strong></span>на день. Якщо поранені персонажі проводять відпочинок у твоїй присутності, і ти приділяєш їм час, вони додатково відновлюють 1d6 ОЗ. Останній ефект не поширюється на тебе.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": 1,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 6,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671255096,
+    "modifiedTime": 1769783572257,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!IzVMgocC22chbGOy"
+}

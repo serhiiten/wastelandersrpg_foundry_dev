@@ -1,0 +1,32 @@
+{
+  "name": "Сяючий (гуль)",
+  "type": "feat",
+  "_id": "kNflRRTT6m2mr35i",
+  "img": "systems/wastelanders/assets/dna1.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Тебе опромінило настільки сильно, що ти почав світитися яскраво-зеленим. З гарного: ти безкоштовно отримуєш перк «Регенерація», навіть якщо не відповідаєш вимогам. Також ти не отримуєш Послаблень на перевірки від темряви навколо. З поганого: ти, бляха, світишся. Ти дуже помітний, особливо у темряві, і отримуєш Послаблення на будь-які спроби бути візуально непомітним.</p>",
+    "isSpecies": true,
+    "hpBonus": null
+  },
+  "effects": [],
+  "folder": "IsJKRTsFr35kdO4r",
+  "sort": 500000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1768569570408,
+    "modifiedTime": 1777149783956,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!items!kNflRRTT6m2mr35i"
+}

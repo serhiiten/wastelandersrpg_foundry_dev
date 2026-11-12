@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Хотфікс",
+  "type": "drug",
+  "_id": "OtFL27pR7UqalJnu",
+  "img": "systems/wastelanders/assets/scrap-electronics.webp",
+  "system": {
+    "price": 3,
+    "addiction": 0,
+    "description": "<p>Набір універсальних деталей, скотчу і бісової матері, призначений для польового ремонту роботів. Аналог стимпака, але працює лише на механізми.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648980014,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!OtFL27pR7UqalJnu"
+}

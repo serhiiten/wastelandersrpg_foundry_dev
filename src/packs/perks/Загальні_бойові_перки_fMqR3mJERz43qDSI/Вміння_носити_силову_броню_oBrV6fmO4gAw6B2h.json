@@ -1,0 +1,50 @@
+{
+  "folder": "fMqR3mJERz43qDSI",
+  "name": "Вміння носити силову броню",
+  "type": "perk",
+  "_id": "oBrV6fmO4gAw6B2h",
+  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "system": {
+    "description": "<p>Без цього перку силова броня для тебе лише купа дуже коштовного заліза. А ось із ним (і за наявності в тебе цієї самої силової броні) ти можеш стати справжньою ходячою машиною руйнування.<br><br>Ти повинен бути людиною або гулем, тому що силову броню для супермутанта робили в історії всього один раз, а для роботів і тим паче розумних Пазурів Смерті її не роблять взагалі. Також ти маєш по ходу гри знайти персонажа, який навчить тебе цьому перку. За цим, швидше за все, доведеться звернутися до Братства Сталі або, гірше того, до представників Анклаву, а після цього витратити стандартну кількість ОД на отримання перку. Інших способів отримати цей перк без окремого дозволу Доглядача не існує.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768667594455,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!oBrV6fmO4gAw6B2h"
+}

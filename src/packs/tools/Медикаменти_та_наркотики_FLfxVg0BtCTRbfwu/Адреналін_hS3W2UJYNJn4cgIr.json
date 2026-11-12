@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Адреналін",
+  "type": "drug",
+  "_id": "hS3W2UJYNJn4cgIr",
+  "img": "systems/wastelanders/assets/chem-poison.webp",
+  "system": {
+    "price": 5,
+    "addiction": 0,
+    "description": "<p>Укол цієї цікавої речовини (бажано прямо в серце) змусить прийти до тями всіх, крім мертвих і неживих. Витративши дію, персонаж може вколоти іншому персонажу з 0 ОЗ адреналін, і той негайно прийде до тями з 1 ОЗ. Таким чином можна повернути у сцену персонажів, що вибули з неї. Не діє на тих, хто <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>приречений </strong></span>померти.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648961111,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!hS3W2UJYNJn4cgIr"
+}

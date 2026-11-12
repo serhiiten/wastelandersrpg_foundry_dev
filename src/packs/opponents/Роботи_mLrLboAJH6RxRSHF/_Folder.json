@@ -1,0 +1,23 @@
+{
+  "type": "Actor",
+  "folder": null,
+  "name": "Роботи",
+  "color": null,
+  "sorting": "m",
+  "_id": "mLrLboAJH6RxRSHF",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768935945285,
+    "modifiedTime": 1768935945285,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!mLrLboAJH6RxRSHF"
+}

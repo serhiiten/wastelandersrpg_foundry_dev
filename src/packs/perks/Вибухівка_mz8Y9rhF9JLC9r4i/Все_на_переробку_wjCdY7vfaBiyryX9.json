@@ -1,0 +1,50 @@
+{
+  "folder": "mz8Y9rhF9JLC9r4i",
+  "name": "Все на переробку",
+  "type": "perk",
+  "_id": "wjCdY7vfaBiyryX9",
+  "img": "systems/wastelanders/assets/mine-explosion.svg",
+  "system": {
+    "description": "<p>Витративши одиницю Припасів та кілька хвилин ти можеш полагодити несправні гранату або заряд вибухівки, щоб використати їх знову.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 0,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 6,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768663496153,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!wjCdY7vfaBiyryX9"
+}

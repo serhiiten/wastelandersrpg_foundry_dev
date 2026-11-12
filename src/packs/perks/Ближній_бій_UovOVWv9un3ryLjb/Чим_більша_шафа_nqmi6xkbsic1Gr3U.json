@@ -1,0 +1,50 @@
+{
+  "folder": "UovOVWv9un3ryLjb",
+  "name": "Чим більша шафа",
+  "type": "perk",
+  "_id": "nqmi6xkbsic1Gr3U",
+  "img": "systems/wastelanders/assets/high-punch.svg",
+  "system": {
+    "description": "<p>При успіху та критичному успіху на перевірці ближнього бою ти завжди <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збиваєш супротивника з ніг</strong></em></span>, якщо ти цього хочеш, і якщо у нього взагалі є ноги.</p>",
+    "attributes": {
+      "strength": 1,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 6,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768660047005,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!nqmi6xkbsic1Gr3U"
+}

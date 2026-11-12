@@ -1,0 +1,189 @@
+{
+  "folder": "jPeOQDR8AHE82YwV",
+  "name": "Елітний рейнджер НКР",
+  "type": "enemy",
+  "_id": "hIZndK1vwFPbwTGA",
+  "img": "systems/wastelanders/assets/elitnyy-reyndzher-nkr.png",
+  "system": {
+    "hp": {
+      "value": 30,
+      "max": 30
+    },
+    "armor": 4,
+    "description": "<p>Найкращі і найдосвідченіші з рейнджерів НКР (найчастіше це розумні гулі через їхнє довголіття) можуть заслужити звання елітного рейнджера. Їм довіряють найнебезпечніші завдання. Один такий боєць вартий цілої армії. Трапляються поодинці, іноді парами. Зазвичай такі бійці приходять за вами самі, коли ви стаєте <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>реально великою проблемою</strong></em></span> для НКР.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти: </strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>елітний спецпризначенець НКР, найкращий воїн Республіки, майстер маскування та виживання.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Ультрастимпак:</strong> раз за сцену відновлює 3d6 ОЗ.</li><li><p><strong>Прицільний постріл: Вибери 1</strong> з наступного переліку, на додачу до шкоди, коли елітний рейнджер стріляє:</p><ul><li>Елітний рейнджер завдає додатково 1d6 шкоди.</li><li>Елітний рейнджер вибиває зброю з рук супротивника (якщо той має зброю). супротивник буде змушений витратити своє пересування, щоб підняти її.</li><li>Елітний рейнджер ненадовго <em><strong>приголомшує</strong></em> супротивника. Той буде змушений пропустити свою наступну дію. Після цього <em><strong>приголомшення</strong></em> минається. Одного супротивника елітний рейнджер може <em><strong>приголомшити</strong></em> тільки раз за сцену.</li><li>Елітний рейнджер <em><strong>збиває супротивника з ніг.</strong></em> Той буде змушений витратити своє пересування, щоб підвестися.</li><li>Шкода повністю ігнорує броню супротивника.</li></ul></li><li><strong>Стелс-бой:</strong> раз за сцену може стати <em><strong>невидимим</strong></em> і переміститися на відстань до двох зон без жодних перешкод, після чого завдати противнику шкоди (від чого одразу знову стане видимим) або просто втекти з безнадійної сутички.</li></ul><hr /></li><li><p>Нагородою за вбивство елітного рейнджера є його сигнатурна рідкісна важка рейнджерська бойова броня (4 фізичної броні) та рідкісна зброя (3d6 шкоди).</p></li><li><p>Вбивство елітного рейнджера — визначний вчинок, який обов’язково позначиться на репутації персонажів гравців. Також це призведе до того, що НКР запише вас у вороги держави.</p></li></ul>",
+    "type": "boss"
+  },
+  "prototypeToken": {
+    "name": "Елітний рейнджер НКР",
+    "displayName": 50,
+    "actorLink": true,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "systems/wastelanders/assets/elitnyy-reyndzher-nkr.png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "hp"
+    },
+    "bar2": {
+      "attribute": null
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": {},
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "turnMarker": {
+      "mode": 1,
+      "animation": null,
+      "src": null,
+      "disposition": false
+    },
+    "movementAction": null,
+    "flags": {},
+    "randomImg": false,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "depth": 1
+  },
+  "items": [
+    {
+      "name": "Рідкісна плазмова зброя",
+      "type": "attack",
+      "_id": "6jYxin5qdokQCgoL",
+      "img": "assets/bayonet.svg",
+      "system": {
+        "description": "<p>Ігнорує 2 броні. Ближній бій або бій на відстані.</p>",
+        "damage": "3d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768952118309,
+        "modifiedTime": 1768952145362,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!hIZndK1vwFPbwTGA.6jYxin5qdokQCgoL"
+    },
+    {
+      "name": "Плазмова граната",
+      "type": "attack",
+      "_id": "ygKk08mCNWl5AWUJ",
+      "img": "assets/grenade.svg",
+      "system": {
+        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "damage": "3d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768952118587,
+        "modifiedTime": 1768952168099,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!hIZndK1vwFPbwTGA.ygKk08mCNWl5AWUJ"
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.359",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768952110163,
+    "modifiedTime": 1769782005278,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!actors!hIZndK1vwFPbwTGA"
+}

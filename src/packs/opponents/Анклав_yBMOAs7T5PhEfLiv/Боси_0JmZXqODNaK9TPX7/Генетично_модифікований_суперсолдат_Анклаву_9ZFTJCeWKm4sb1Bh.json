@@ -1,0 +1,249 @@
+{
+  "folder": "0JmZXqODNaK9TPX7",
+  "name": "Генетично модифікований суперсолдат Анклаву",
+  "type": "enemy",
+  "_id": "9ZFTJCeWKm4sb1Bh",
+  "img": "systems/wastelanders/assets/henetychno-modyfikovanyy-supersoldat.png",
+  "system": {
+    "hp": {
+      "value": 50,
+      "max": 50
+    },
+    "armor": 6,
+    "description": "<p>Чомусь від одного його вигляду у вас виникає враження, що тепер ви точно догралися і прийшов час помирати. Охороняє головні бази Анклаву.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> великий злий бос, гора м’язів та силової броні, жахаючий вигляд.</strong></em></span></p><hr /><p>Покращена і збільшена силова броня, знижує наполовину шкоду від радіації та отрут.</p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Це не моя фінальна форма:</strong> коли його ОЗ зменшуються до половини (25 ОЗ або нижче), шкода, яку він завдає, збільшується на 2 до кінця сцени.</li><li><p><strong>Точний удар: Вибери 1</strong> з наступного переліку, на додачу до шкоди, коли суперсолдат завдає удару чи стріляє:</p><ul><li>Суперсолдат завдає додатково 1d6 шкоди.</li><li>Суперсолдат вибиває зброю з рук супротивника (якщо той має зброю). Супротивник буде змушений витратити своє пересування, щоб підняти її.</li><li>Суперсолдат ненадовго <em><strong>приголомшує</strong></em> супротивника. Той буде змушений пропустити свою наступну дію. Після цього <em><strong>приголомшення</strong></em> минається. Одного супротивника суперсолдат може <em><strong>приголомшити</strong></em> тільки раз за сцену.</li><li>Суперсолдат <em><strong>збиває супротивника з ніг.</strong></em> Той буде змушений витратити своє пересування, щоб підвестися.</li><li>Шкода повністю ігнорує броню супротивника.</li></ul></li><li><strong>Неймовірна живучість:</strong> раз за сцену, коли завдана шкода зменшує ОЗ суперсолдата до 0, замість цього він залишається живим з 10 ОЗ.</li><li><strong>Космічна програма Анклаву:</strong> суперсолдат може жбурнути одного супротивника зі своєї зони в іншого, що знаходиться в сусідній зоні. Обидва отримують 2d6 шкоди.</li><li><strong>Невпинність:</strong> ніщо не може завадити суперсолдату пересуватися.</li></ul><hr /></li><li><p>Смерть суперсолдата зазвичай означає, що цю базу Анклаву більше немає кому охороняти. Ви отримуєте все що в ній було (на розсуд Доглядача), а також можете перетворити її на свою фортецю.</p></li><li><p>Чи варто навіть казати, що такий вчинок принесе вам величезну славу та зробить вас відомими? Також, найбільш імовірно, що якщо ви знищили найкращого бійця Анклаву, вони вирішать що ви занадто небезпечні, і відвалять від вас. Якщо там ще залишилось кому приймати такі рішення.</p></li></ul>",
+    "type": "boss"
+  },
+  "prototypeToken": {
+    "name": "Генетично модифікований суперсолдат Анклаву",
+    "displayName": 50,
+    "actorLink": true,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "systems/wastelanders/assets/henetychno-modyfikovanyy-supersoldat.png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "hp"
+    },
+    "bar2": {
+      "attribute": null
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": {},
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "turnMarker": {
+      "mode": 1,
+      "animation": null,
+      "src": null,
+      "disposition": false
+    },
+    "movementAction": null,
+    "flags": {},
+    "randomImg": false,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "depth": 1
+  },
+  "items": [
+    {
+      "name": "Рідкісна гаус-зброя",
+      "type": "attack",
+      "_id": "P2dMg0MaOmu7q9Xl",
+      "img": "assets/bayonet.svg",
+      "system": {
+        "description": "<p>Ігнорує 3 броні. Ближній бій або бій на відстані.</p>",
+        "damage": "3d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768954001914,
+        "modifiedTime": 1768954022978,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!9ZFTJCeWKm4sb1Bh.P2dMg0MaOmu7q9Xl"
+    },
+    {
+      "name": "Важка ракетниця",
+      "type": "attack",
+      "_id": "M1phZOzHUf2R3IeM",
+      "img": "assets/grenade.svg",
+      "system": {
+        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "damage": "3d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768954002137,
+        "modifiedTime": 1768954048008,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!9ZFTJCeWKm4sb1Bh.M1phZOzHUf2R3IeM"
+    },
+    {
+      "name": "Космічна програма Анклаву",
+      "type": "attack",
+      "_id": "s6UJStl1CXswBNEj",
+      "img": "assets/bowie-knife.svg",
+      "system": {
+        "description": "<p>Cуперсолдат може жбурнути одного супротивника зі своєї зони в іншого, що знаходиться в сусідній зоні. Обидва отримують 2d6 шкоди.</p>",
+        "damage": "2d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768954049401,
+        "modifiedTime": 1768954072909,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!9ZFTJCeWKm4sb1Bh.s6UJStl1CXswBNEj"
+    },
+    {
+      "name": "Суперсиловий кулак",
+      "type": "attack",
+      "_id": "p17NUDsW81fjBPre",
+      "img": "assets/bowie-knife.svg",
+      "system": {
+        "description": "<p>Ближній бій.</p>",
+        "damage": "2d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768954115165,
+        "modifiedTime": 1768954131697,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!9ZFTJCeWKm4sb1Bh.p17NUDsW81fjBPre"
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.359",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768953989724,
+    "modifiedTime": 1769782005278,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!actors!9ZFTJCeWKm4sb1Bh"
+}

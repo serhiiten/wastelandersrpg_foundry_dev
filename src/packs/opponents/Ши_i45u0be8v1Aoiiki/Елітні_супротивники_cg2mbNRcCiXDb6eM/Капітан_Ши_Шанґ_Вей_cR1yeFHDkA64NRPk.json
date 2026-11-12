@@ -1,0 +1,189 @@
+{
+  "folder": "cg2mbNRcCiXDb6eM",
+  "name": "Капітан Ши (Шанґ Вей)",
+  "type": "enemy",
+  "_id": "cR1yeFHDkA64NRPk",
+  "img": "systems/wastelanders/assets/kapitan-shy.png",
+  "system": {
+    "hp": {
+      "value": 15,
+      "max": 15
+    },
+    "armor": 3,
+    "description": "<p>Досвідчений офіцер Ши у бойовій броні їх власного виробництва та з якісною зброєю. Командує загонами рядових бійців (2-4) та має доступ до кращого спорядження.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>досвідчений офіцер Ши, відданість Імператору</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Розпад:</strong> коли капітан Ши своєю шкодою знижує ОЗ супротивника до 0, всі супротивники в його зоні отримують 1d10 <em><strong>енергетичної</strong></em> шкоди, яка ігнорує броню.</li></ul></li></ul>",
+    "type": "elite"
+  },
+  "prototypeToken": {
+    "name": "Супротивник",
+    "displayName": 50,
+    "actorLink": true,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "systems/wastelanders/assets/kapitan-shy.png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "hp"
+    },
+    "bar2": {
+      "attribute": null
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": {},
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "turnMarker": {
+      "mode": 1,
+      "animation": null,
+      "src": null,
+      "disposition": false
+    },
+    "movementAction": null,
+    "flags": {},
+    "randomImg": false,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "depth": 1
+  },
+  "items": [
+    {
+      "name": "Лазерна середня зброя",
+      "type": "attack",
+      "_id": "NpR6L4pWfqmHi5zC",
+      "img": "assets/bayonet.svg",
+      "system": {
+        "description": "<p>Ігнорує 1 броні. Ближній бій або бій на відстані.</p>",
+        "damage": "1d10"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768952402629,
+        "modifiedTime": 1768952432725,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!cR1yeFHDkA64NRPk.NpR6L4pWfqmHi5zC"
+    },
+    {
+      "name": "Плазмова граната",
+      "type": "attack",
+      "_id": "EdhEkelxS7EZgtye",
+      "img": "assets/grenade.svg",
+      "system": {
+        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "damage": "3d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768952402929,
+        "modifiedTime": 1768952460602,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!cR1yeFHDkA64NRPk.EdhEkelxS7EZgtye"
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.359",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768952389991,
+    "modifiedTime": 1769782005278,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!actors!cR1yeFHDkA64NRPk"
+}

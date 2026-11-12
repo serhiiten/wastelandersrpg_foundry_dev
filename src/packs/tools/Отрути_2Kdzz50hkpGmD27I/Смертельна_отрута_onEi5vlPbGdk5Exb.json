@@ -1,0 +1,30 @@
+{
+  "name": "Смертельна отрута",
+  "type": "tool",
+  "_id": "onEi5vlPbGdk5Exb",
+  "img": "systems/wastelanders/assets/poison-bottle.svg",
+  "system": {
+    "description": "<p>Шкода: +3d6</p><p>Отрута легендарного касадора. Дуже рідкісна річ.</p>",
+    "price": 5
+  },
+  "effects": [],
+  "folder": "2Kdzz50hkpGmD27I",
+  "sort": 500000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768567847644,
+    "modifiedTime": 1768827150524,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!onEi5vlPbGdk5Exb"
+}

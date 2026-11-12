@@ -1,0 +1,31 @@
+{
+  "folder": "YDX9RRpC1W6HpLld",
+  "name": "На вигляд не дуже (гуль)",
+  "type": "feat",
+  "_id": "F75mVDMKHjdx3qfb",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Гулі отримують штраф -2 під час соціальних перевірок, пов'язаних з людьми, які негативно ставляться до не-людей.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150174291,
+    "modifiedTime": 1777150187246,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!F75mVDMKHjdx3qfb"
+}

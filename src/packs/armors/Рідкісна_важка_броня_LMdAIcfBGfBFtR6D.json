@@ -1,0 +1,31 @@
+{
+  "name": "Рідкісна важка броня",
+  "type": "armor",
+  "_id": "LMdAIcfBGfBFtR6D",
+  "img": "systems/wastelanders/assets/teslaarmor.webp",
+  "system": {
+    "description": "<p>Рідкісні екземпляри <em><strong>важкої</strong></em> броні на зразок бойової броні рейнджерів НКР або силової броні без каркасу. Особлива версія такої броні не коштує більше кришок. Захищає від фізичної шкоди.</p><p></p>",
+    "price": 50,
+    "protection": 4
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 500000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768565987017,
+    "modifiedTime": 1769781830058,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!LMdAIcfBGfBFtR6D"
+}

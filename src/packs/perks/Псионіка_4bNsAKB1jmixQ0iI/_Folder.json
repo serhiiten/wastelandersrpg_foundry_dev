@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": null,
+  "name": "Псионіка",
+  "color": null,
+  "sorting": "m",
+  "_id": "4bNsAKB1jmixQ0iI",
+  "description": "",
+  "sort": 541798,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671706191,
+    "modifiedTime": 1768671709674,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!4bNsAKB1jmixQ0iI"
+}

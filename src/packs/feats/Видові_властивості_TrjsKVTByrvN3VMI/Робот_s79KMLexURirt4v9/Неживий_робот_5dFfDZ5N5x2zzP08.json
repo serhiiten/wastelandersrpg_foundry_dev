@@ -1,0 +1,31 @@
+{
+  "folder": "s79KMLexURirt4v9",
+  "name": "Неживий (робот)",
+  "type": "feat",
+  "_id": "5dFfDZ5N5x2zzP08",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Роботи повністю невразливі до отрут та психічної шкоди, їм не потрібно їсти, пити, спати та дихати. Радіація завдає їм лише половину шкоди. Наркотики та медикаменти не мають жодного ефекту, як і алкоголь.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150665662,
+    "modifiedTime": 1777150676172,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!5dFfDZ5N5x2zzP08"
+}

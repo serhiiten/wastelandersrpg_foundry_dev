@@ -1,7 +1,12 @@
 {
   "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^3.0.5",
     "prettier": "3.6.2",
     "prettier-plugin-css-order": "^2.1.2",
     "prettier-plugin-hbs": "^1.0.1"
+  },
+  "scripts": {
+    "packs:unpack": "node tools/packs.mjs unpack",
+    "packs:pack": "node tools/packs.mjs pack"
   }
 }

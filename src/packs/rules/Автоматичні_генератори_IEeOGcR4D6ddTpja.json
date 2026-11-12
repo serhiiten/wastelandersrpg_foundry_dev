@@ -1,0 +1,104 @@
+{
+  "name": "Автоматичні генератори",
+  "_id": "IEeOGcR4D6ddTpja",
+  "pages": [
+    {
+      "sort": 100000,
+      "name": "Для гравців",
+      "type": "text",
+      "_id": "p9X6wolJbeMJAW7b",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<ul><li><p><a href=\"https://serhiiten.github.io/wastelanders/wasteland-character-generator.html\">Генератор персонажів</a></p></li><li><p><a href=\"https://serhiiten.github.io/wastelanders/caravan_generator.html\">Генератор каравану</a></p></li></ul>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768658367243,
+        "modifiedTime": 1768658486553,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!IEeOGcR4D6ddTpja.p9X6wolJbeMJAW7b"
+    },
+    {
+      "sort": 200000,
+      "name": "Для Доглядача",
+      "type": "text",
+      "_id": "polGrAGInO7iHNg2",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<ul><li><p><a href=\"https://serhiiten.github.io/wastelanders/wasteland_travel_generator.html\">Генератор подорожей</a></p></li><li><p><a href=\"https://serhiiten.github.io/wastelanders/wastelanders_case_generator.html\">Генератор справ</a></p></li><li><p><a href=\"https://serhiiten.github.io/wastelanders/wasteland_battle_generator.html\">Генератор битв</a></p></li><li><p><a href=\"https://serhiiten.github.io/wastelanders/wasteland_tables.html\">Генератори натхнення</a></p></li></ul>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768658423730,
+        "modifiedTime": 1768658478823,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!IEeOGcR4D6ddTpja.polGrAGInO7iHNg2"
+    }
+  ],
+  "folder": null,
+  "categories": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768658361084,
+    "modifiedTime": 1768658495468,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!journal!IEeOGcR4D6ddTpja"
+}

@@ -1,0 +1,50 @@
+{
+  "folder": "mz8Y9rhF9JLC9r4i",
+  "name": "Спрямована дія (Удача)",
+  "type": "perk",
+  "_id": "x4yp9Rg24V9fSt64",
+  "img": "systems/wastelanders/assets/mine-explosion.svg",
+  "system": {
+    "description": "<p>Твої власні гранати та вибухівка завжди завдають тобі та твоїм спільникам лише половину шкоди (округлюючи вгору).</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": 1
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768662500436,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!x4yp9Rg24V9fSt64"
+}

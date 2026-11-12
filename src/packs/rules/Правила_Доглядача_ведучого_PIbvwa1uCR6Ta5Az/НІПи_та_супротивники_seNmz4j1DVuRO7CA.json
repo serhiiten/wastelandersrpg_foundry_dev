@@ -1,0 +1,65 @@
+{
+  "folder": "PIbvwa1uCR6Ta5Az",
+  "name": "НІПи та супротивники",
+  "_id": "seNmz4j1DVuRO7CA",
+  "pages": [
+    {
+      "sort": 100000,
+      "name": "Правила створення НІПів",
+      "type": "text",
+      "_id": "q7ZNdGlKZloFSamy",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>Робити неігрових персонажів легко. Для рядових НІПів достатньо одного простого аспекту, і то, якщо вони на нього заслуговують. Елітні НІПи повинні мати один-два найпростіші аспекти. Боси обов'язково мають ім'я та два-три аспекти.</p><hr /><p>Не забувай давати НІПам імена, коли вони стають досить значущими, щоб був сенс їх запам'ятовувати.</p><hr /><p>Також дай неігровим персонажам свої власні цілі та не забувай яскраво описувати, як вони виглядають. Відштовхуйся при цьому від їхніх аспектів.</p><h2>Приблизні характеристики НІПів</h2><table id=\"21ee66cd-8c78-8057-b500-e6462054f32c\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-80b8-a6c4-d76c2223f112\"><th id=\"xhJ_\" class=\"simple-table-header-color simple-table-header\" style=\"width:170.99268341064453px\"><strong>Категорія</strong></th><th id=\"W=qN\" class=\"simple-table-header-color simple-table-header\"><strong>ОЗ</strong></th><th id=\"ET@o\" class=\"simple-table-header-color simple-table-header\"><strong>Броня</strong></th><th id=\":eNR\" class=\"simple-table-header-color simple-table-header\"><strong>Шкода</strong></th><th id=\"F^mu\" class=\"simple-table-header-color simple-table-header\"><strong>Аспекти</strong></th><th id=\"hnrj\" class=\"simple-table-header-color simple-table-header\"><strong>Ходи</strong></th></tr></thead><tbody><tr id=\"21ee66cd-8c78-8015-9144-ed56390fa3a1\"><th id=\"xhJ_\" class=\"simple-table-header-color simple-table-header\" style=\"width:170.99268341064453px\">Статисти (прості люди, невеликі тварини та мутанти)</th><td id=\"W=qN\">2-4</td><td id=\"ET@o\">0</td><td id=\":eNR\">Менший з 2d6, максимум 1d6</td><td id=\"F^mu\">0</td><td id=\"hnrj\">0</td></tr><tr id=\"21ee66cd-8c78-80f5-bef0-c1ed61c02366\"><th id=\"xhJ_\" class=\"simple-table-header-color simple-table-header\" style=\"width:170.99268341064453px\">Рядові супротивники (прості солдати, розбійники, рейдери, великі тварини та мутанти)</th><td id=\"W=qN\">5-10</td><td id=\"ET@o\">1</td><td id=\":eNR\">1d6, максимум 1d10</td><td id=\"F^mu\">1</td><td id=\"hnrj\">0-1</td></tr><tr id=\"21ee66cd-8c78-8071-aa49-d56e15f33b21\"><th id=\"xhJ_\" class=\"simple-table-header-color simple-table-header\" style=\"width:170.99268341064453px\">Елітні супротивники (капітани загонів, центуріони, ватажки рейдерів, небезпечні мутанти)</th><td id=\"W=qN\">12-20</td><td id=\"ET@o\">2-3</td><td id=\":eNR\"><p>1d10 <br />(найзліші — 2d6), може ігнорувати 1 броні</p></td><td id=\"F^mu\">1-2</td><td id=\"hnrj\">1-2</td></tr><tr id=\"21ee66cd-8c78-8023-9903-e9bcdf8c082f\"><th id=\"xhJ_\" class=\"simple-table-header-color simple-table-header\" style=\"width:170.99268341064453px\">Боси (легенди Пустки, легати Легіону, генетично модифіковані суперсолдати, Пазурі Смерті, яо-ґаї)</th><td id=\"W=qN\">25-50</td><td id=\"ET@o\"><p>3-4 <br />(5-6 для супротивників у силовій броні)</p></td><td id=\":eNR\"><p>2d6 <br />(найзліші — 3d6), може ігнорувати 1-3 броні</p></td><td id=\"F^mu\">3</td><td id=\"hnrj\">3-4</td></tr></tbody></table><p></p><h2>Ходи супротивників</h2><p>Крім стандартного списку ходів майстра, свої ходи також можуть бути у неігрових персонажів. У рядових супротивників своїх ходів зазвичай немає. У елітних може бути один хід, у босів — два-три ходи. Ти можеш застосовувати ходи НІПів проти персонажів гравців при невдачах і часткових успіхах перевірок атак, а також при невдачах перевірок уникнення небезпеки.</p><hr /><p>Деякі ходи супротивників автоматично спрацьовують за якоїсь умови, наприклад, за досягнення ними певної кількості ОЗ.</p><p></p><h3>Гранати і ракети</h3><p>Якщо у супротивника у графі «шкода» вказані гранати, ракети або подібна невибіркова зброя, це означає, що вони можуть використовувати її замість нанесення звичайної шкоди, коли ти робиш хід. Така зброя завдає шкоди <strong>всім</strong> істотам у зоні, куди вона влучила. У супротивників також зазначено кількість такої зброї в арсеналі.</p><hr /><p>Не перестарайся з такими ходами, тому що вони завдають шкоди одразу кільком персонажам, і для них битва може закінчитися дуже швидко.</p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768658042246,
+        "modifiedTime": 1768658089933,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!seNmz4j1DVuRO7CA.q7ZNdGlKZloFSamy"
+    }
+  ],
+  "categories": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768658034322,
+    "modifiedTime": 1768658034322,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!journal!seNmz4j1DVuRO7CA"
+}

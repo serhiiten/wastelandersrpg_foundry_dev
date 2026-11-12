@@ -1,0 +1,31 @@
+{
+  "name": "Томмі-ган (середній)",
+  "type": "weapon",
+  "_id": "Whdn6DoFCIYKDMBD",
+  "img": "systems/wastelanders/assets/winchester-rifle.svg",
+  "system": {
+    "description": "<p>Дальність: 2 зони </p><p>Властивість: Автоматичний.</p>",
+    "price": 8,
+    "damage": "1d8+2"
+  },
+  "effects": [],
+  "folder": "5HmqVUOrbnA4TX43",
+  "sort": 1300000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768605805537,
+    "modifiedTime": 1768827196413,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!Whdn6DoFCIYKDMBD"
+}

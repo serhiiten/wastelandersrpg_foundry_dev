@@ -1,0 +1,50 @@
+{
+  "folder": "UovOVWv9un3ryLjb",
+  "name": "Точний удар",
+  "type": "perk",
+  "_id": "VoE3M0yzxXKRUlb2",
+  "img": "systems/wastelanders/assets/high-punch.svg",
+  "system": {
+    "description": "<p>Ти завдаєш ударів з хірургічною точністю. При частковому успіху перевірок атаки в ближньому бою ти можеш вибрати 1 звичайний ефект на додачу до завдання шкоди.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": 1,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 6,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768660085169,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!VoE3M0yzxXKRUlb2"
+}

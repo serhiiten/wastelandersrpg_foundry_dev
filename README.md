@@ -25,3 +25,12 @@
 
 [GNU License]: https://img.shields.io/badge/License-GNU-green?style=flat-square
 [GNU URL]: https://github.com/serhiiten/wastelandersrpg_foundry/blob/main/LICENSE.md
+
+## Розробка: компендіуми
+
+Компендіуми зберігаються у двох видах: `packs/` (база даних Foundry, йде в реліз) і `src/packs/` (JSON-вихідники для перегляду змін у git).
+
+- Змінили компендіум у Foundry → закрийте Foundry і виконайте `npm run packs:unpack`, потім закомітьте обидві теки.
+- Змінили JSON вручну → виконайте `npm run packs:pack`.
+
+Перед першим запуском: `npm install`.

@@ -1,0 +1,33 @@
+{
+  "name": "Дефібрилятор",
+  "type": "upgrade",
+  "_id": "lsrRcL4oAklMzjz1",
+  "img": "systems/wastelanders/assets/upgrade.svg",
+  "system": {
+    "description": "<p>Можна взяти тільки якщо у вас є <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ліжко для хворого</strong></span>.<br>Раз за сцену ціною одиниці Припасів дозволяє повернути персонажа з 0 ОЗ назад у сцену з 1 ОЗ, якщо його затягнуть на ліжко для хворого, і якщо він не <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>приречений</strong></span> і не мертвий. Пацієнт отримує наслідки як завжди.</p>",
+    "active": {
+      "value": 0,
+      "max": 1
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768567426658,
+    "modifiedTime": 1768827166260,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!lsrRcL4oAklMzjz1"
+}

@@ -1,0 +1,21 @@
+{
+  "type": "Actor",
+  "folder": "pd9wSihoiu8B9ZqH",
+  "name": "Статисти",
+  "color": null,
+  "sorting": "a",
+  "_id": "192gkDwQpvMS7Bgm",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!192gkDwQpvMS7Bgm"
+}

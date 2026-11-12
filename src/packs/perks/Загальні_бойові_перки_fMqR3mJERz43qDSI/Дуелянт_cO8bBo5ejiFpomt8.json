@@ -1,0 +1,50 @@
+{
+  "folder": "fMqR3mJERz43qDSI",
+  "name": "Дуелянт",
+  "type": "perk",
+  "_id": "cO8bBo5ejiFpomt8",
+  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "system": {
+    "description": "<p>Раз за сцену вибери собі одного супротивника для поєдинку сам-на-сам. Всі твої перевірки атаки та уникнення шкоди проти нього одержують +1, але всі перевірки атаки та уникнення шкоди проти інших супротивників одержують -1. Ефект триває доти, доки ти чи обраний противник не досягнете 0 ОЗ.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": 0,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768663821338,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!cO8bBo5ejiFpomt8"
+}

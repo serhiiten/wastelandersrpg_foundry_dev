@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Пси-Ікс",
+  "type": "drug",
+  "_id": "5IZJWZyhWWQgzJA2",
+  "img": "systems/wastelanders/assets/chem-rad-x.webp",
+  "system": {
+    "price": 4,
+    "addiction": 2,
+    "description": "<p>Пси-блокатор. Дає 2 психічної броні до кінця сцени.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648687019,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!5IZJWZyhWWQgzJA2"
+}

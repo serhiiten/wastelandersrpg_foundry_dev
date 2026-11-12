@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Джет",
+  "type": "drug",
+  "_id": "HmLrU9hTdXUZORqW",
+  "img": "systems/wastelanders/assets/chem-jet.webp",
+  "system": {
+    "price": 2,
+    "addiction": 7,
+    "description": "<p>Чиста швидкість, запакована в інгалятор. Дає +1 ВП, а також ефекти перків «Верткість» та «Я — швидкість» до кінця сцени. </p><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Верткість: </strong></span>Раз за сцену відміни будь-яку заподіяну фізичну шкоду від супротивника чи пастки.</p><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Я — швидкість: </strong></span>Раз за сцену відразу після перевірки атаки ти можеш негайно атакувати ще раз, якщо в тебе немає особливостей «Вибивайло» або «Точність».</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648561732,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!HmLrU9hTdXUZORqW"
+}

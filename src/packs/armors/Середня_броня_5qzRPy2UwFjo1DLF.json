@@ -1,0 +1,31 @@
+{
+  "name": "Середня броня",
+  "type": "armor",
+  "_id": "5qzRPy2UwFjo1DLF",
+  "img": "systems/wastelanders/assets/metalarmor.webp",
+  "system": {
+    "description": "<p>Металева броня. Захищає від фізичної шкоди.</p>",
+    "price": 10,
+    "protection": 2
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 300000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768565876757,
+    "modifiedTime": 1769781830058,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!5qzRPy2UwFjo1DLF"
+}

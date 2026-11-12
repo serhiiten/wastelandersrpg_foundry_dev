@@ -1,0 +1,31 @@
+{
+  "name": "Кріогармата (важка)",
+  "type": "weapon",
+  "_id": "A4rW3EQJKq7jYxqg",
+  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "system": {
+    "description": "<p>Дальність: 2 зони </p><p>Властивість: Напівавтоматична. Кріо. При критичних влучаннях дозволяє заморозити супротивника елітної категорії чи нижче до кінця сцени замість завдання шкоди.</p>",
+    "price": 50,
+    "damage": "2d6"
+  },
+  "effects": [],
+  "folder": "QpA0zkuOZOgqo4ve",
+  "sort": 200000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768607217533,
+    "modifiedTime": 1769781830184,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!A4rW3EQJKq7jYxqg"
+}

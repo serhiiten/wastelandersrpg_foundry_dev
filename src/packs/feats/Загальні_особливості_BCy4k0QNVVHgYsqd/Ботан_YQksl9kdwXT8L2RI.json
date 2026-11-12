@@ -1,0 +1,30 @@
+{
+  "name": "Ботан",
+  "type": "feat",
+  "_id": "YQksl9kdwXT8L2RI",
+  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Твій видовий та стартовий максимум ІН підвищується на 1 (максимум до +4), але видовий максимум ВТР знижується на 1. Треба було хоч іноді відриватися від своїх книжок та виходити назовні.</p>"
+  },
+  "effects": [],
+  "folder": "BCy4k0QNVVHgYsqd",
+  "sort": 600000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768569210544,
+    "modifiedTime": 1768827073324,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!YQksl9kdwXT8L2RI"
+}

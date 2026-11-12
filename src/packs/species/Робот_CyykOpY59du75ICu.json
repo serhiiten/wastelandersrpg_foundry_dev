@@ -1,0 +1,81 @@
+{
+  "name": "Робот",
+  "type": "species",
+  "_id": "CyykOpY59du75ICu",
+  "img": "systems/wastelanders/assets/vitruvian-man.svg",
+  "system": {
+    "skills": 2,
+    "perks": 2,
+    "feats": [
+      {
+        "id": "5dFfDZ5N5x2zzP08",
+        "uuid": "Compendium.wastelanders.feats.Item.5dFfDZ5N5x2zzP08",
+        "name": "Неживий (робот)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "8Yn8h9yQKuBVAzQD",
+        "uuid": "Compendium.wastelanders.feats.Item.8Yn8h9yQKuBVAzQD",
+        "name": "Сіла батарейка (робот)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "CBuSenUtJJyzIDL9",
+        "uuid": "Compendium.wastelanders.feats.Item.CBuSenUtJJyzIDL9",
+        "name": "Майже безсмертя (робот)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "l8OH9qU6XdEkgsyZ",
+        "uuid": "Compendium.wastelanders.feats.Item.l8OH9qU6XdEkgsyZ",
+        "name": "Бляшанка (робот)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "pjvV8Lhw8iiSEIjR",
+        "uuid": "Compendium.wastelanders.feats.Item.pjvV8Lhw8iiSEIjR",
+        "name": "Вразливість до електрики (робот)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "t9oloyEVBfhXt7dh",
+        "uuid": "Compendium.wastelanders.feats.Item.t9oloyEVBfhXt7dh",
+        "type": "feat",
+        "name": "Техпідтримка (робот)",
+        "title": "Особливість",
+        "docType": "Item"
+      }
+    ],
+    "description": "<blockquote><p>До Війни деяким корпораціям, на зразок RobCo, вдалося створити роботів з інтелектом близьким до людського або навіть вищим за нього. І хоча це викликало обурення серед населення, оскільки роботи забирали у людей роботу, ситуація просто не встигла вилитися у повномасштабне повстання машин. Люди знищили себе самі. А роботи, що втратили своїх володарів, залишилися пам'ятником величі та марнославства Старого світу. Ті з них, хто мав достатній рівень самосвідомості, вирушили досліджувати Пустку в пошуках знань, нових господарів або просто сенсу існування. Багато хто продовжує блукати й досі.</p></blockquote><h3>Особливості атрибутів роботів</h3><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><table id=\"21ee66cd-8c78-80fb-baa5-dd3b563038c1\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-8045-8c71-e53415105a9d\"><th id=\"qBgO\"><p><strong>Атрибут</strong></p></th><th id=\"OcG`\"><p><strong>Мінімум</strong></p></th><th id=\"er:W\"><p><strong>Стартовий максимум</strong></p></th><th id=\"rSr_\"><p><strong>Максимум</strong></p></th></tr></thead><tbody><tr id=\"21ee66cd-8c78-80e3-9a47-e301c29a3c79\"><th id=\"qBgO\"><p>Сила</p></th><td id=\"OcG`\"><p>-1</p></td><td id=\"er:W\"><p>+2</p></td><td id=\"rSr_\"><p>+3</p></td></tr><tr id=\"21ee66cd-8c78-8078-8ae4-cd676d3ea7d3\"><th id=\"qBgO\"><p>Сприйняття</p></th><td id=\"OcG`\"><p>-1</p></td><td id=\"er:W\"><p>+3</p></td><td id=\"rSr_\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-80a1-b080-c874557aa3f4\"><th id=\"qBgO\"><p>Витривалість</p></th><td id=\"OcG`\"><p>-1</p></td><td id=\"er:W\"><p>+2</p></td><td id=\"rSr_\"><p>+3</p></td></tr><tr id=\"21ee66cd-8c78-803e-bab9-ef664baeccb7\"><th id=\"qBgO\"><p>Привабливість</p></th><td id=\"OcG`\"><p>-1</p></td><td id=\"er:W\"><p>+1</p></td><td id=\"rSr_\"><p>+2</p></td></tr><tr id=\"21ee66cd-8c78-80c2-950e-e00b763cc4e4\"><th id=\"qBgO\"><p>Інтелект</p></th><td id=\"OcG`\"><p>0</p></td><td id=\"er:W\"><p>+3</p></td><td id=\"rSr_\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-8085-9725-fbaa1a4d04c8\"><th id=\"qBgO\"><p>Вправність</p></th><td id=\"OcG`\"><p>-2</p></td><td id=\"er:W\"><p>+2</p></td><td id=\"rSr_\"><p>+2</p></td></tr><tr id=\"21ee66cd-8c78-80cb-a561-c0ab25e3bb82\"><th id=\"qBgO\"><p>Удача</p></th><td id=\"OcG`\"><p>-1</p></td><td id=\"er:W\"><p>+1</p></td><td id=\"rSr_\"><p>+2</p></td></tr></tbody></table>"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777144699928,
+    "modifiedTime": 1777151126908,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!CyykOpY59du75ICu"
+}

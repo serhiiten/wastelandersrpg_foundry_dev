@@ -1,0 +1,50 @@
+{
+  "folder": "h8dtJ70LrehwRRXD",
+  "name": "Нагляд",
+  "type": "perk",
+  "_id": "FjwkoGe5x1v7obfD",
+  "img": "systems/wastelanders/assets/human-target.svg",
+  "system": {
+    "description": "<p>Раз за сцену ти можеш витратити дію, щоб встановити нагляд за одним супротивником. Поки ти наглядаєш за ним (тобто не атакуєш нікого іншого і продовжуєш за ним спостерігати), ти можеш витратити цю збережену дію щоб в будь-який момент відмінити шкоду, яку супротивник завдає своєю зброєю, перервати його хід (його ефект не відбувається) або заборонити йому пересуватися влучним пострілом. Якщо ти атакуєш когось іншого або втрачаєш супротивника з поля зору більш ніж на одне коло дій - нагляд зникає.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": 1,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 8,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768659980091,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!FjwkoGe5x1v7obfD"
+}

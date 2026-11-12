@@ -1,0 +1,30 @@
+{
+  "name": "Обдарований",
+  "type": "feat",
+  "_id": "qnEFpxcIpHLiopht",
+  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Отримай 1 пункт атрибутів, але в тебе на 1 перк менше.</p>"
+  },
+  "effects": [],
+  "folder": "BCy4k0QNVVHgYsqd",
+  "sort": 1400000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768569332070,
+    "modifiedTime": 1768827073324,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!qnEFpxcIpHLiopht"
+}

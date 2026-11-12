@@ -1,0 +1,219 @@
+{
+  "folder": "3D5rBv6K9DCWe3vA",
+  "name": "Містер Сміливець",
+  "type": "enemy",
+  "_id": "3Ur6IH1eMBniiAkR",
+  "img": "systems/wastelanders/assets/mister-smilyvets.png",
+  "system": {
+    "hp": {
+      "value": 15,
+      "max": 15
+    },
+    "armor": 2,
+    "description": "<p>Бойова версія Містера Помічника. Обладнаний посиленою бронею, плазмовим пістолетом та потужнішим вогнеметом, а також більш досконалим бойовим штучним інтелектом. Зустрічається на старих військових базах по 1-2 штуки.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>бойовий робот, характер та знання суворого сержанта.</strong></em></span></p><hr /><p>Летючий, тому його не можна <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збити з ніг</strong></em></span>.</p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Перегрів ядра:</strong> коли Містер Сміливець досягає 0 ОЗ, він вибухає, завдаючи всім істотам у своїй зоні 1d10 шкоди <em><strong>вогнем</strong></em>.</li></ul></li></ul>",
+    "type": "elite"
+  },
+  "prototypeToken": {
+    "name": "Містер Сміливець",
+    "displayName": 50,
+    "actorLink": true,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "systems/wastelanders/assets/mister-smilyvets.png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "hp"
+    },
+    "bar2": {
+      "attribute": null
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": {},
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "turnMarker": {
+      "mode": 1,
+      "animation": null,
+      "src": null,
+      "disposition": false
+    },
+    "movementAction": null,
+    "flags": {},
+    "randomImg": false,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "depth": 1
+  },
+  "items": [
+    {
+      "name": "Плазмовий пістолет",
+      "type": "attack",
+      "_id": "ErqXL9XQpsQOj0gW",
+      "img": "assets/laser-blast.svg",
+      "system": {
+        "description": "<p>Ігнорує 2 броні. Бій на відстані.</p>",
+        "damage": "1d6+3"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768938464884,
+        "modifiedTime": 1768938487871,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!3Ur6IH1eMBniiAkR.ErqXL9XQpsQOj0gW"
+    },
+    {
+      "name": "Вогнемет",
+      "type": "attack",
+      "_id": "RBG8wnrIOR0DUcCa",
+      "img": "assets/grenade.svg",
+      "system": {
+        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "damage": "2d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768938465436,
+        "modifiedTime": 1768938513480,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!3Ur6IH1eMBniiAkR.RBG8wnrIOR0DUcCa"
+    },
+    {
+      "name": "Перегрів ядра",
+      "type": "attack",
+      "_id": "Rb65vvTCSvbra51N",
+      "img": "assets/grenade.svg",
+      "system": {
+        "description": "<p>Коли Містер Сміливець досягає 0 ОЗ, він вибухає, завдаючи всім істотам у своїй зоні 1d10 шкоди <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>вогнем</strong></em></span>.</p>",
+        "damage": "1d10"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768938465791,
+        "modifiedTime": 1768938541198,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!3Ur6IH1eMBniiAkR.Rb65vvTCSvbra51N"
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.359",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768938441209,
+    "modifiedTime": 1769782005278,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!actors!3Ur6IH1eMBniiAkR"
+}

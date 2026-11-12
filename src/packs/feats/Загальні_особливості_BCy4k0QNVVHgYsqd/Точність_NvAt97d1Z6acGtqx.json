@@ -1,0 +1,30 @@
+{
+  "name": "Точність",
+  "type": "feat",
+  "_id": "NvAt97d1Z6acGtqx",
+  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Ти не можеш атакувати у бою на відстані два рази поспіль, проте під час перевірок атаки у такому бою критичним успіхом для тебе вважається 18+ (або 17+ із перком «Снайпер»).</p>"
+  },
+  "effects": [],
+  "folder": "BCy4k0QNVVHgYsqd",
+  "sort": 1000000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768569269341,
+    "modifiedTime": 1768827073324,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!NvAt97d1Z6acGtqx"
+}

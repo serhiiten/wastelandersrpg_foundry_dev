@@ -1,0 +1,50 @@
+{
+  "folder": "fMqR3mJERz43qDSI",
+  "name": "Верткість (вим: Удача)",
+  "type": "perk",
+  "_id": "3boEXXD1de5hERyp",
+  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "system": {
+    "description": "<p>Ти просто добре вмієш не підставлятися. Раз за сцену відміни будь-яку заподіяну фізичну шкоду від супротивника чи пастки.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": 1
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768665633910,
+    "modifiedTime": 1769783063535,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!3boEXXD1de5hERyp"
+}

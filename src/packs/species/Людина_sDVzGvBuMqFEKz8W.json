@@ -1,0 +1,32 @@
+{
+  "name": "Людина",
+  "type": "species",
+  "_id": "sDVzGvBuMqFEKz8W",
+  "img": "systems/wastelanders/assets/vitruvian-man.svg",
+  "system": {
+    "skills": 3,
+    "perks": 3,
+    "feats": [],
+    "description": "<blockquote><p>Найпростіша людина, здавалося б, нічим не примітна. Проте все ж таки є якась причина, чому люди і досі залишаються домінуючим видом у Пустці.</p></blockquote><ul><li><p>Усі атрибути людей мають <strong>мінімальне значення -1</strong>, максимальне значення <strong>на старті гри +2</strong> та максимальне <strong>значення +3 взагалі</strong>.</p></li></ul><p></p>"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777144212180,
+    "modifiedTime": 1777144617019,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!sDVzGvBuMqFEKz8W"
+}

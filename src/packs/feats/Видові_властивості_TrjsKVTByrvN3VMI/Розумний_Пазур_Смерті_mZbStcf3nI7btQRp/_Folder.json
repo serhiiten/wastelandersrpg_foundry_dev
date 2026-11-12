@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": "TrjsKVTByrvN3VMI",
+  "name": "Розумний Пазур Смерті",
+  "color": null,
+  "sorting": "m",
+  "_id": "mZbStcf3nI7btQRp",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150739760,
+    "modifiedTime": 1777150739760,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!folders!mZbStcf3nI7btQRp"
+}

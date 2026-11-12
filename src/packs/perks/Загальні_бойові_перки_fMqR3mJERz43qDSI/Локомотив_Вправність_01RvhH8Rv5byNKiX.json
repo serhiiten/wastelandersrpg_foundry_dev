@@ -1,0 +1,50 @@
+{
+  "folder": "fMqR3mJERz43qDSI",
+  "name": "Локомотив (Вправність)",
+  "type": "perk",
+  "_id": "01RvhH8Rv5byNKiX",
+  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "system": {
+    "description": "<p>Тебе практично неможливо зупинити. Ніщо, крім повного <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>знерухомлення, приголомшення</strong></em></span> або кайданів на руках і ногах не здатне завадити тобі переміщатися між зонами у битві.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": 1,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 6,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768665668652,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!01RvhH8Rv5byNKiX"
+}

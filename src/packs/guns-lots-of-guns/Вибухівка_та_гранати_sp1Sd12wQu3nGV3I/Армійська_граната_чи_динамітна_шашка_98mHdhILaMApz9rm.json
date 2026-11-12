@@ -1,0 +1,31 @@
+{
+  "folder": "sp1Sd12wQu3nGV3I",
+  "name": "Армійська граната чи динамітна шашка",
+  "type": "weapon",
+  "_id": "98mHdhILaMApz9rm",
+  "img": "systems/wastelanders/assets/grenade.svg",
+  "system": {
+    "description": "<p>Дальність: 1 зона</p><p>Властивість: Завдає шкоди по площині.</p>",
+    "price": 2,
+    "damage": "2d6"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768609087500,
+    "modifiedTime": 1768827196413,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!98mHdhILaMApz9rm"
+}

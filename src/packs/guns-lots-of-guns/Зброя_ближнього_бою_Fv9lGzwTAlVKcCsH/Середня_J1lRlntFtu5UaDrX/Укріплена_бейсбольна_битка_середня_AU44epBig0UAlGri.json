@@ -1,0 +1,31 @@
+{
+  "folder": "J1lRlntFtu5UaDrX",
+  "name": "Укріплена бейсбольна битка (середня)",
+  "type": "weapon",
+  "_id": "AU44epBig0UAlGri",
+  "img": "systems/wastelanders/assets/spiked-bat-1.svg",
+  "system": {
+    "description": "<p>Дальність: Ближ.</p>",
+    "price": 5,
+    "damage": "1d10"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768608490151,
+    "modifiedTime": 1769781830184,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!AU44epBig0UAlGri"
+}

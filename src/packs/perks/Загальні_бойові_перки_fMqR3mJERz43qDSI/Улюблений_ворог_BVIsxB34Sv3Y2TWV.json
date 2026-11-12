@@ -1,0 +1,50 @@
+{
+  "folder": "fMqR3mJERz43qDSI",
+  "name": "Улюблений ворог",
+  "type": "perk",
+  "_id": "BVIsxB34Sv3Y2TWV",
+  "img": "systems/wastelanders/assets/crossed-axes.svg",
+  "system": {
+    "description": "<p>Вибери одну досить вузьку категорію істот: люди, супермутанти, гулі, роботи, звірі, комахи або мутанти. Якщо вибираєш людей, потрібно додатково уточнити фракцію — НКР, Анклав, Легіон, дикуни, рейдери, работоргівці тощо. Варто узгодити категорію з Доглядачем. Ти отримуєш +1 до всіх бойових перевірок під час сутички зі своїми улюбленими ворогами. Цей перк можна брати кілька разів на різні категорії істот.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 0,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768667531807,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!BVIsxB34Sv3Y2TWV"
+}

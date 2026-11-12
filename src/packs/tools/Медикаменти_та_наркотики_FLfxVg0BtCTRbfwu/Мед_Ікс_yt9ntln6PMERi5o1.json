@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Мед-Ікс",
+  "type": "drug",
+  "_id": "yt9ntln6PMERi5o1",
+  "img": "systems/wastelanders/assets/chem-poison.webp",
+  "system": {
+    "price": 4,
+    "addiction": 3,
+    "description": "<p>Знеболювальне. Дає 1 фізичної броні до кінця сцени.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648656289,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!yt9ntln6PMERi5o1"
+}

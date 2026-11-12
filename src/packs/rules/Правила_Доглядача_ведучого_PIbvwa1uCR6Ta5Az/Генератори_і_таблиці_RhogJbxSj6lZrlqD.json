@@ -1,0 +1,182 @@
+{
+  "folder": "PIbvwa1uCR6Ta5Az",
+  "name": "Генератори і таблиці",
+  "_id": "RhogJbxSj6lZrlqD",
+  "pages": [
+    {
+      "sort": 100000,
+      "name": "Генератори натхнення",
+      "type": "text",
+      "_id": "BEfzrWtwwwp2h1NT",
+      "system": {},
+      "title": {
+        "show": false,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p><a href=\"https://serhiiten.github.io/wastelanders/wasteland_tables.html\">Генератори натхнення</a></p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768658216370,
+        "modifiedTime": 1768658349073,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!RhogJbxSj6lZrlqD.BEfzrWtwwwp2h1NT"
+    },
+    {
+      "sort": 200000,
+      "name": "Таблиці натхнення",
+      "type": "text",
+      "_id": "0Zqw1rWEyBFcCvMn",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>Ці таблиці допоможуть тобі створити найбільш різноманітні речі для твоєї гри. Для великих таблиць використовуй 2d6. Перший кубик визначає стовпчик, другий — ряд. Для малих таблиць використовуй 1d10.</p><h2>Вантажі</h2><table><thead><tr><th><strong>2d6</strong></th><th><strong>1</strong></th><th><strong>2</strong></th><th><strong>3</strong></th><th><strong>4</strong></th><th><strong>5</strong></th><th><strong>6</strong></th></tr></thead><tbody><tr><td><strong>1</strong></td><td>Медикаменти</td><td>Їжа</td><td>Екзотичні тварини</td><td>Артефакти Старого світу</td><td>Іграшки</td><td>Документи</td></tr><tr><td><strong>2</strong></td><td>Одяг</td><td>Вода</td><td>Мутанти</td><td>Паливо</td><td>Саджанці</td><td>Важлива персона</td></tr><tr><td><strong>3</strong></td><td>Боєприпаси</td><td>Будівельне обладнання</td><td>Наркотики</td><td>Уранова руда</td><td>Зброя та броня</td><td>Роботи</td></tr><tr><td><strong>4</strong></td><td>Вибухівка</td><td>Біологічні зразки</td><td>Бухло</td><td>Ядерні відходи</td><td>Спеції</td><td>Будматеріали</td></tr><tr><td><strong>5</strong></td><td>Предмети розкошу</td><td>Раби</td><td>Предмети мистецтва</td><td>Органи для трансплантації</td><td>Кольорові метали</td><td>Нюка-кола</td></tr><tr><td><strong>6</strong></td><td>Електроніка</td><td>Голодиски з інформацією</td><td>Фермерське обладнання</td><td>Біженці</td><td>Лабораторне обладнання</td><td>Отрута та хімікати</td></tr></tbody></table><p></p><h2>Об’єкти та місця в Пустці</h2><table><thead><tr><th><strong>2d6</strong></th><th><strong>1</strong></th><th><strong>2</strong></th><th><strong>3</strong></th><th><strong>4</strong></th><th><strong>5</strong></th><th><strong>6</strong></th></tr></thead><tbody><tr><td><strong>1</strong></td><td>Ферма</td><td>Трейлерний парк</td><td>Бункер</td><td>Зруйнована заправка</td><td>Залишки каравану</td><td>Оаза</td></tr><tr><td><strong>2</strong></td><td>Заметений піском хмарочос</td><td>Каньйон</td><td>Сховище номер (d100)</td><td>Шахта</td><td>Тунель метро</td><td>Закинутий науково-дослідницький центр</td></tr><tr><td><strong>3</strong></td><td>Радіоактивна печера</td><td>Висохле гирло річки</td><td>Каменоломня</td><td>Військовий табір</td><td>Руїни одної з церков Повелителя</td><td>Священне місце культу</td></tr><tr><td><strong>4</strong></td><td>Завод Нюка-коли</td><td>Залишки гайвею</td><td>Стоянка рейдерів</td><td>Руїни містечка</td><td>Монастир</td><td>Болото</td></tr><tr><td><strong>5</strong></td><td>Супермаркет</td><td>Напівзруйнований міст</td><td>Залишки автокінотеатру</td><td>Мотель з баром</td><td>Вхід до катакомб</td><td>Звалище</td></tr><tr><td><strong>6</strong></td><td>Автостоянка</td><td>Покинута військова база</td><td>Згорілий радіоактивний ліс</td><td>Водойма, що світиться від радіації</td><td>Електростанція</td><td>Могильник токсичних відходів</td></tr></tbody></table><p></p><h2>Небезпеки Пустки</h2><table><thead><tr><th><strong>2d6</strong></th><th><strong>1</strong></th><th><strong>2</strong></th><th><strong>3</strong></th><th><strong>4</strong></th><th><strong>5</strong></th><th><strong>6</strong></th></tr></thead><tbody><tr><td><strong>1</strong></td><td>Пилова буря</td><td>Радіаційний шторм</td><td>Гон мутантів</td><td>Сипучі піски</td><td>Обвали та зсуви</td><td>Хмара отрути</td></tr><tr><td><strong>2</strong></td><td>Ураган</td><td>Розлам в землі</td><td>Землетрус</td><td>Кислотна хмара</td><td>Ненадійні старі конструкції</td><td>Кратер від атомної бомби</td></tr><tr><td><strong>3</strong></td><td>Божевільний проповідник з паствою</td><td>Розлив хімікатів</td><td>Ядерний могильник</td><td>Стародавні охоронні системи</td><td>Ядучо-зелені блискавки з неба</td><td>Работорговці</td></tr><tr><td><strong>4</strong></td><td>Ядучі гейзери з-під землі</td><td>Агресивні дикуни</td><td>Пастки на людей</td><td>Канібали</td><td>Провалля під ногами, що веде в довоєнні руїни</td><td>Мінне поле</td></tr><tr><td><strong>5</strong></td><td>Хижі підземні хробаки</td><td>Заражена радіацією місцина</td><td>Розплавлений мікроядерний реактор</td><td>Психоактивний газ</td><td>Задушливе болото</td><td>Руїни лабораторії з ФЕВ</td></tr><tr><td><strong>6</strong></td><td>Нерозірвана атомна боєголовка</td><td>Кислотний дощ</td><td>Хаща хижих рослин</td><td>Викид ФЕВ</td><td>Вибухонебезпечний газ</td><td>Торнадо</td></tr></tbody></table><p></p><h2>Теми</h2><table><thead><tr><th><strong>2d6</strong></th><th><strong>1</strong></th><th><strong>2</strong></th><th><strong>3</strong></th><th><strong>4</strong></th><th><strong>5</strong></th><th><strong>6</strong></th></tr></thead><tbody><tr><td><strong>1</strong></td><td>Олігархія</td><td>Тоталітаризм</td><td>Мілітаризм</td><td>Нема дітей</td><td>Чудернацька наука</td><td>Торгові гільдії</td></tr><tr><td><strong>2</strong></td><td>Клептократія</td><td>Імперіалізм</td><td>Перенаселення</td><td>Нема старих</td><td>Права мутантів</td><td>Рада старійшин</td></tr><tr><td><strong>3</strong></td><td>Неминуча загроза вторгнення</td><td>Феодальний устрій</td><td>Пацифізм</td><td>Демократія</td><td>Ксенофобія</td><td>Примітивний устрій</td></tr><tr><td><strong>4</strong></td><td>Хвороби</td><td>Таємниці Старого світу</td><td>Релігійність</td><td>Работоргівля</td><td>Фанатизм</td><td>Розумні не-люди</td></tr><tr><td><strong>5</strong></td><td>Радіація</td><td>Штучний інтелект</td><td>Тиранія</td><td>Шпіонаж</td><td>Ізоляціонізм</td><td>Нелюдські експерименти</td></tr><tr><td><strong>6</strong></td><td>Мутації</td><td>Анархізм</td><td>Закони військового часу</td><td>Карантин</td><td>Право сильного</td><td>Зубожіння</td></tr></tbody></table><p></p><h2>Люди</h2><table><thead><tr><th><strong>2d6</strong></th><th><strong>1</strong></th><th><strong>2</strong></th><th><strong>3</strong></th><th><strong>4</strong></th><th><strong>5</strong></th><th><strong>6</strong></th></tr></thead><tbody><tr><td><strong>1</strong></td><td>Фермери</td><td>Шахтарі</td><td>Дикуни</td><td>Роботи</td><td>Агенти Братства Сталі</td><td>Чужоземці</td></tr><tr><td><strong>2</strong></td><td>Жебраки</td><td>Заводські робітники</td><td>Рейдери</td><td>Супермутанти</td><td>Рейнджери</td><td>Окупанти</td></tr><tr><td><strong>3</strong></td><td>П’яниці</td><td>Страйкарі</td><td>Наркомани</td><td>Гулі</td><td>Легіонери легіону Цезаря</td><td>Сміттярі</td></tr><tr><td><strong>4</strong></td><td>Азартні гравці</td><td>Законники</td><td>Релігійні фанатики</td><td>Розумні Пазурі Смерті</td><td>Протестувальники</td><td>Мафіозі</td></tr><tr><td><strong>5</strong></td><td>Торговці</td><td>Солдати</td><td>Раби</td><td>Хабологи</td><td>Паломники</td><td>Вчені</td></tr><tr><td><strong>6</strong></td><td>Рабовласники</td><td>Повії та жиголо</td><td>Біженці</td><td>Ши</td><td>Шпигуни</td><td>Безхатьки</td></tr></tbody></table><p></p><h2>Рейдери та дикуни</h2><p>Кидай на кожен стовпчик окремий куб.</p><table><thead><tr><th><strong>d10</strong></th><th><strong>Які</strong></th><th><strong>Хто</strong></th><th><strong>Деталь</strong></th><th><strong>Лідер</strong></th></tr></thead><tbody><tr><td><strong>1</strong></td><td>Криваві</td><td>Пазурі</td><td>Поклоняються духам</td><td>Агресивний психопат</td></tr><tr><td><strong>2</strong></td><td>Безжалісні</td><td>Леза</td><td>Матріархат</td><td>Рада старійшин</td></tr><tr><td><strong>3</strong></td><td>Темні</td><td>Стріли</td><td>Фанати Старого світу</td><td>Премудрий старигань</td></tr><tr><td><strong>4</strong></td><td>Вправні</td><td>Щури</td><td>Закінчені торчки</td><td>Славетний герой</td></tr><tr><td><strong>5</strong></td><td>Техно</td><td>Змії</td><td>Працюють на більше плем’я/банду</td><td>Робот/штучний інтелект</td></tr><tr><td><strong>6</strong></td><td>Ядерні</td><td>Мутанти</td><td>Складаються виключно з мутантів</td><td>Голова релігійного культу</td></tr><tr><td><strong>7</strong></td><td>Дикі</td><td>Гармати</td><td>Ненавидять мутантів</td><td>Найсильніший воїн</td></tr><tr><td><strong>8</strong></td><td>Пустельні</td><td>Волоцюги</td><td>Поклоняються технологіям</td><td>Торгаш</td></tr><tr><td><strong>9</strong></td><td>Смертоносні</td><td>Стиляги</td><td>Зневажають технології</td><td>Вчений/інженер</td></tr><tr><td><strong>10</strong></td><td>Радіоактивні</td><td>Грабіжники</td><td>Мають кревну ворожнечу з іншою бандою</td><td>Розумний Пазур Смерті</td></tr></tbody></table><p></p><h2>Епітети</h2><table id=\"21ee66cd-8c78-80cb-823f-d36a29912c44\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-807d-bdbe-c92897d9da1f\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>d10</strong></th><th id=\"G=Te\" class=\"simple-table-header-color simple-table-header\"><strong>Технологія</strong></th><th id=\"nMs=\" class=\"simple-table-header-color simple-table-header\"><strong>Зброя</strong></th><th id=\"Eg\\g\" class=\"simple-table-header-color simple-table-header\"><strong>Броня</strong></th><th id=\"KYmJ\" class=\"simple-table-header-color simple-table-header\" style=\"width:130.9857406616211px\"><strong>Ворог</strong></th><th id=\"u:fr\" class=\"simple-table-header-color simple-table-header\" style=\"width:122.99726104736328px\"><strong>НІП</strong></th><th id=\"M[NF\" class=\"simple-table-header-color simple-table-header\"><strong>Місце</strong></th></tr></thead><tbody><tr id=\"21ee66cd-8c78-8028-be72-c8eae6fc41ac\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>1</strong></th><td id=\"G=Te\">Стародавня</td><td id=\"nMs=\">Шипована</td><td id=\"Eg\\g\">Іржава</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Безжалісний</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Жадібний</td><td id=\"M[NF\">Задушливе</td></tr><tr id=\"21ee66cd-8c78-8071-8d81-e3a8f209abaf\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>2</strong></th><td id=\"G=Te\">Вибухонебезпечна</td><td id=\"nMs=\">Блискуча</td><td id=\"Eg\\g\">Розцяцькована</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Хитрий</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Доброзичливий</td><td id=\"M[NF\">Недоглянуте</td></tr><tr id=\"21ee66cd-8c78-806c-ba81-de7c923e19ec\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>3</strong></th><td id=\"G=Te\">Радіоактивна</td><td id=\"nMs=\">Гостра</td><td id=\"Eg\\g\">З уламків</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Безпринципний</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Дотепний</td><td id=\"M[NF\">Розкішне</td></tr><tr id=\"21ee66cd-8c78-809f-bc60-cd7d0451fa4a\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>4</strong></th><td id=\"G=Te\">Плазмова</td><td id=\"nMs=\">Іржава</td><td id=\"Eg\\g\">З дірками</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Самовпевнений</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Заздрісний</td><td id=\"M[NF\">Квітуче</td></tr><tr id=\"21ee66cd-8c78-80b2-9cd2-f0d6667c3999\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>5</strong></th><td id=\"G=Te\">Ненадійна</td><td id=\"nMs=\">Енергетична</td><td id=\"Eg\\g\">Технологічна</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Розважливий</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Скнарий</td><td id=\"M[NF\">Зруйноване</td></tr><tr id=\"21ee66cd-8c78-8019-b350-fb2a4a7d2996\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>6</strong></th><td id=\"G=Te\">Медична</td><td id=\"nMs=\">Пошарпана</td><td id=\"Eg\\g\">Доглянута</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Боягуз</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Таємничий</td><td id=\"M[NF\">Радіоактивне</td></tr><tr id=\"21ee66cd-8c78-80c1-81e8-c458b47775f5\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>7</strong></th><td id=\"G=Te\">Космічна</td><td id=\"nMs=\">З зарубками</td><td id=\"Eg\\g\">З історією</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Брехун</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Недовірливий</td><td id=\"M[NF\">Отруйне</td></tr><tr id=\"21ee66cd-8c78-8028-a380-d4996dd18568\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>8</strong></th><td id=\"G=Te\">Ядерна</td><td id=\"nMs=\">Значуща</td><td id=\"Eg\\g\">В одному екземплярі</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Мстивий</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Йолоп</td><td id=\"M[NF\">Нещодавно покинуте</td></tr><tr id=\"21ee66cd-8c78-8066-89d4-e59b603ce226\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>9</strong></th><td id=\"G=Te\">Кібернетична</td><td id=\"nMs=\">Закривавлена</td><td id=\"Eg\\g\">Жахаюча</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Божевільний</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Мудрий</td><td id=\"M[NF\">Дике</td></tr><tr id=\"21ee66cd-8c78-802c-a5be-dab20aa80630\"><th id=\"DK:J\" class=\"simple-table-header-color simple-table-header\" style=\"width:46.99268341064453px\"><strong>10</strong></th><td id=\"G=Te\">Біологічна</td><td id=\"nMs=\">Брутальна</td><td id=\"Eg\\g\">Масивна</td><td id=\"KYmJ\" style=\"width:130.9857406616211px\">Холоднокровний</td><td id=\"u:fr\" style=\"width:122.99726104736328px\">Зарозумілий</td><td id=\"M[NF\">Загадкове</td></tr></tbody></table>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768658244168,
+        "modifiedTime": 1768658277889,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!RhogJbxSj6lZrlqD.0Zqw1rWEyBFcCvMn"
+    },
+    {
+      "sort": 300000,
+      "name": "Таблиця битв",
+      "type": "text",
+      "_id": "VFHkVWkI3xvB6UAx",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<table id=\"21ee66cd-8c78-8017-9364-c49bdad054d4\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-807f-bc70-ecf8890b4223\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>d10</strong></th><th id=\"GtlF\" class=\"block-color-teal_background simple-table-header\" style=\"width:190.9923095703125px\"><strong>Легка</strong></th><th id=\"Q&gt;lM\" class=\"block-color-yellow_background simple-table-header\" style=\"width:205.99268341064453px\"><strong>Середня</strong></th><th id=\"Iabe\" class=\"block-color-orange_background simple-table-header\" style=\"width:184.99268341064453px\"><strong>Важка</strong></th><th id=\"qU|D\" class=\"block-color-red_background simple-table-header\" style=\"width:211.5599365234375px\"><strong>Смертельна</strong></th></tr></thead><tbody><tr id=\"21ee66cd-8c78-80aa-84cb-e2b24a126f08\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>1</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Виводок радскорпіонів (3-5) доїдає труп якогось невдахи. Наступні невдахи в їх меню — ви.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Зграя геконів (3-5) та вогнедишних ящірок (1-2) люто захищають своє гніздо, куди ви помилково втрапили.</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\">Гігантська мурашина матка в супроводі пари мурах-робітників мігрує в пошуках нового дому.</td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Руїни, де ви вирішили спинитися, відмічені на карті як «безпечні». Але їх уже встиг зробити своїм гніздом легендарний касадор та пара його самиць.</td></tr><tr id=\"21ee66cd-8c78-809e-9773-dabbb647a6b0\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>2</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Зграя (2d6) кротощурів з’являється з-під землі, щоб зігнати вас зі своєї території.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Парі касадорів сподобалися ваші тіла в якості розплідника для свого потомства.</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\">Це звучить як сюжет голофільма категорії «Б», але вас намагаються викрасти інопланетяни (4-5 ванамінго).</td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Самиця Пазуря Смерті з виводком (2-3) дитинчат мандрує в пошуках нового самця. Або свіжого м’яса.</td></tr><tr id=\"21ee66cd-8c78-8026-84f3-d76c315c3ae5\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>3</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Гігантські мурахи-робітники (2-4) вирішили, що ви станете непоганою поживою для мурашника.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Ви натрапляєте на моторошне нагадування про Повелителя — зграю літунів (3-5) та кентавра (1).</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\">Супермутант-майстер та його ручні песики (2-3 звичайних рейдери) вирішують, що ви станете відмінними рабами для втіх.</td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Вжух! Над вашими головами пролітає вертиберд. З нього десантується пара солдатів бійців Анклаву в супроводі ще пари польових дослідників. Вас намагаються взяти у полон для нелюдських експериментів.</td></tr><tr id=\"21ee66cd-8c78-80e6-9fea-f8b22cc99676\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>4</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Ви й самі не помітили, як заїхали до гаю (3-5) хижих рослин.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Вночі ваш табір оточує група нічних мисливців (2-3).</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\">Племінний вождь людожерів зі своїм племенем (1d6+3 дикунів) жадає вами поласувати.</td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Ви помітили загін елітних убивць Легіону (3 фрументарія + преторіанець). А вони помітили вас.</td></tr><tr id=\"21ee66cd-8c78-8019-89a5-e96b66c0b698\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>5</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Вашу увагу привернула оаза в Пустці. В свою чергу ви привернули увагу місцевих озерників (3-5).</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Схиблений проповідник (цивільний) з покірними йому робомозками (2-3) бажає силоміць приєднати вас до своєї пастви.</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\"><p>Татко з сином мандрують Пусткою. <br /> <br />Це було б дуже мило, якщо б вони не були Пазурями Смерті (самець Пазуря Смерті та дитинча).</p></td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\"><p>Пара супермутантів-майстрів пропонує вам помірятися силою в армреслінгу. <br /> <br />Хто програв — того з’їдають.</p></td></tr><tr id=\"21ee66cd-8c78-8076-94de-ff3211925dd1\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>6</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Група робоочей (1d6+3) оточує вас і змушує слухати Поплавського. Спроба покинути концерт закінчується бійкою.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Пара супермутантів-рейдерів (жорстокий, але хитрий Горкі та хитрий, але жорстокий Моркі) вирішує розлучити вас з вашим мотлохом.</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\">Група сяючих гулів (4-5) намагається затягти вас прямо до кратера від ядерної бомби. Починайте метушитися, якщо не хочете почати світитися.</td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Ви застали пару яо-ґаїв в розпалі шлюбного танцю. Солодка парочка очевидно зраділа такій святковій вечері.</td></tr><tr id=\"21ee66cd-8c78-80ce-94d9-ea61462f5f97\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>7</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Божевільні містери Помічники (2-4) пропонують вам спробувати рагу з вашої плоті.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Загін солдат НКР (3-5 рядових та 2 лейтенанти) «реквізують» ваше майно на потреби армії Республіки.</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\"><p>Ви вирішуєте зупинитися на ніч в непримітній печері. <br /> <br />Опівночі туди повертається її хазяїн — яо-ґай.</p></td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Група ватажків рейдерів (4 + великий бос) вирішує, що новим ватажком об’єднаної банди стане той, хто зробить вам найбільш боляче.</td></tr><tr id=\"21ee66cd-8c78-807f-9039-f80d06303872\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>8</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Дикі гулі (3-5) , що спали під піском, вилазять, щоб вами поласувати.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Ви встрягаєте в суперечку між двома бандами рейдерів (1d6+1) + 2 ватажки). Вони разом вирішують, що взяти вас в рабство краще, ніж сваритися.</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\">Цей елітний рейнджер НКР явно був у дуже поганому місці і геть з’їхав з глузду. Вбийте його перш ніж він уб’є вас.</td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Ви зустрічаєте патруль Анклаву (штурмовик та пара солдатів), що давно заблукав у Пустці. Божевільні анклавівці радіють тому, що нарешті відзначать дуже нудний день хорошою бійкою.</td></tr><tr id=\"21ee66cd-8c78-80fe-a1c0-ff1d118085c8\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>9</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Банда рейдерів (1d6+1 + ватажок) бере вас на гоп-стоп.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Загону Братства Сталі (2-3 писарі та 1-2 лицарі) не подобається завелика кількість технологічних штучок у вашому володінні. Вони вирішують це виправити.</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\">Ви випадково активуєте якісь стародавні захисні системи. Робот-вартовий та його помічник містер Сміливець пояснюють вам усю необачність вашого рішення.</td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Паладин Братства Сталі домовляється з мафіозним босом. До чого тут ви? Та до того, що тепер ви знаєте про  їх темні справи занадто багато і вас треба прибрати.</td></tr><tr id=\"21ee66cd-8c78-80b9-a7bc-d4e92a19b690\"><th id=\"k}hs\" class=\"simple-table-header-color simple-table-header\" style=\"width:42.99268341064453px\"><strong>10</strong></th><td id=\"GtlF\" class=\"block-color-teal_background\" style=\"width:190.9923095703125px\">Передовий загін Легіону (3-5 легіонерів) вважає, що ви станете корисними рабами Легіону.</td><td id=\"Q&gt;lM\" class=\"block-color-yellow_background\" style=\"width:205.99268341064453px\">Пара дідуганів (солдати Анклаву) хоче померти достойно в променях слави. Ваш караван — їх квиток до Вальгалли.</td><td id=\"Iabe\" class=\"block-color-orange_background\" style=\"width:184.99268341064453px\">Вигнанці Братства Сталі (паладин та пара писарів) вирішують почати з вас свою нову кар’єру в якості рейдерів.</td><td id=\"qU|D\" class=\"block-color-red_background\" style=\"width:211.5599365234375px\">Привіт з минулого! Хтось відтворив генетично модифікованого суперсолдата Анклаву. Ви візьмете участь в його польових випробуваннях, подобається вам це чи ні.</td></tr></tbody></table>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768658291818,
+        "modifiedTime": 1768658301120,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!RhogJbxSj6lZrlqD.VFHkVWkI3xvB6UAx"
+    },
+    {
+      "sort": 400000,
+      "name": "Таблиця імен",
+      "type": "text",
+      "_id": "Ovri6oxDLWRHNPBQ",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<h2>Імена</h2><p>Залежать від виду (та іноді статі) персонажа. Кинь d6 щоб визначити стовпчик та d10 на рядок.</p><table id=\"21ee66cd-8c78-800f-8c6b-c5ef325b4752\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-8005-a091-dfd9c0f84ddc\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>d10/d6</strong></th><th id=\"Q[=Y\" class=\"simple-table-header-color simple-table-header\"><strong>1-3</strong></th><th id=\"=sJ;\" class=\"simple-table-header-color simple-table-header\"><strong>4-6</strong></th><th id=\"w{Gr\" class=\"simple-table-header-color simple-table-header\"><strong>1-3</strong></th><th id=\"zN`M\" class=\"simple-table-header-color simple-table-header\"><strong>4-6</strong></th><th id=\"YPTC\" class=\"simple-table-header-color simple-table-header\"><strong>Роботи</strong></th><th id=\"in|o\" class=\"simple-table-header-color simple-table-header\">Супермутанти</th><th id=\"GUCg\" class=\"simple-table-header-color simple-table-header\">1-3</th><th id=\"kTpx\" class=\"simple-table-header-color simple-table-header\">4-6</th></tr></thead><tbody><tr id=\"21ee66cd-8c78-80ca-8f11-ce5420085e50\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>Тип</strong></th><td id=\"Q[=Y\"><strong>Люди Чоловіки</strong></td><td id=\"=sJ;\"><strong>Люди або гулі Чоловіки</strong></td><td id=\"w{Gr\"><strong>Люди або гулі Жінки</strong></td><td id=\"zN`M\"><strong>Люди або гулі Жінки</strong></td><td id=\"YPTC\"><strong>Можуть мати людські імена</strong></td><td id=\"in|o\"><strong>Можуть мати людські імена</strong></td><td id=\"GUCg\"><strong>Самці Пазурів Смерті</strong></td><td id=\"kTpx\"><strong>Самиці Пазурів Смерті</strong></td></tr><tr id=\"21ee66cd-8c78-807b-9706-f49e19801716\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>1</strong></th><td id=\"Q[=Y\">Джонні Мексиканець</td><td id=\"=sJ;\"><p>Міккі Ракета</p></td><td id=\"w{Gr\">Влучна Саллі</td><td id=\"zN`M\">Ворожка Грейс</td><td id=\"YPTC\">Сержант Гатсі</td><td id=\"in|o\">Грязюка</td><td id=\"GUCg\">Равр</td><td id=\"kTpx\">Згуба</td></tr><tr id=\"21ee66cd-8c78-80a7-bd9f-e2ab480801ef\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>2</strong></th><td id=\"Q[=Y\">Генрі М’ясник</td><td id=\"=sJ;\">Кріс Батя</td><td id=\"w{Gr\">Солодкоголоса Елла</td><td id=\"zN`M\">Санні Торчок</td><td id=\"YPTC\">Спаркі</td><td id=\"in|o\">Біллі-Боб</td><td id=\"GUCg\">Догміт</td><td id=\"kTpx\">Бритва</td></tr><tr id=\"21ee66cd-8c78-8076-a30d-ce3946d021c7\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>3</strong></th><td id=\"Q[=Y\">Вінс Раз-Два</td><td id=\"=sJ;\">Джош Лісоруб</td><td id=\"w{Gr\">Стара Джилл</td><td id=\"zN`M\">Фіфі Модниця</td><td id=\"YPTC\">Анігіляторна Гармата</td><td id=\"in|o\">Лисий Дідько</td><td id=\"GUCg\">Грутар</td><td id=\"kTpx\">Азура</td></tr><tr id=\"21ee66cd-8c78-8024-9130-ea078a668578\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>4</strong></th><td id=\"Q[=Y\">Командор Ґрін</td><td id=\"=sJ;\">Веш Тайфун</td><td id=\"w{Gr\">Джин Три Пальці</td><td id=\"zN`M\">Бідова Рамона</td><td id=\"YPTC\">X-AA-E-12 (Зей-12)</td><td id=\"in|o\">Лу-Тенант</td><td id=\"GUCg\">Грогнак</td><td id=\"kTpx\">Срібна Тінь</td></tr><tr id=\"21ee66cd-8c78-80f7-9bb6-f2ebbae34357\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>5</strong></th><td id=\"Q[=Y\">Лірой Ботан</td><td id=\"=sJ;\">Луї Трубач</td><td id=\"w{Gr\">Віккі Кулемет</td><td id=\"zN`M\">Кеті Лезо</td><td id=\"YPTC\">R2-D2</td><td id=\"in|o\">Кнур</td><td id=\"GUCg\">Максиміліан</td><td id=\"kTpx\">Афіна</td></tr><tr id=\"21ee66cd-8c78-809e-8c94-d345d6aedd8b\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>6</strong></th><td id=\"Q[=Y\">Вік Барига</td><td id=\"=sJ;\">Алекс Цвинтар</td><td id=\"w{Gr\">Кайлі Брехло</td><td id=\"zN`M\">Петсі Нокаут</td><td id=\"YPTC\">Сокет LGA 1337</td><td id=\"in|o\">Дакка</td><td id=\"GUCg\">Пожирач</td><td id=\"kTpx\">Кривава Паща</td></tr><tr id=\"21ee66cd-8c78-805f-ab15-c6880887da52\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>7</strong></th><td id=\"Q[=Y\">Гарольд Старий Хрін</td><td id=\"=sJ;\">НепереможнийВалеріан</td><td id=\"w{Gr\">Сінді Череп</td><td id=\"zN`M\">Кесс Гвинтівка</td><td id=\"YPTC\">Спиздивтрон</td><td id=\"in|o\">Горбатий</td><td id=\"GUCg\">Якого-Біса</td><td id=\"kTpx\">Твоя-Мамця</td></tr><tr id=\"21ee66cd-8c78-80fc-87e8-d24e48c6daa0\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>8</strong></th><td id=\"Q[=Y\">Багз Доміно</td><td id=\"=sJ;\">Забий-Піт</td><td id=\"w{Gr\">Божевільна Енні</td><td id=\"zN`M\">Меріл Парабелум</td><td id=\"YPTC\">Джонні-бой</td><td id=\"in|o\">Псюра</td><td id=\"GUCg\">Горіс</td><td id=\"kTpx\">Шеліна</td></tr><tr id=\"21ee66cd-8c78-80cd-990a-dd6519bf54d7\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>9</strong></th><td id=\"Q[=Y\">Чарлі Загадка</td><td id=\"=sJ;\">Клінт Блондинчик</td><td id=\"w{Gr\">Табіта Садівниця</td><td id=\"zN`M\">Вишукана Естер</td><td id=\"YPTC\">Відро-З-Гайками</td><td id=\"in|o\">Джебедая Ентоні Герст Третій (Джеб)</td><td id=\"GUCg\">Варга</td><td id=\"kTpx\">Флемет</td></tr><tr id=\"21ee66cd-8c78-8028-bd4b-c819869ef58d\"><th id=\"gdEC\" class=\"simple-table-header-color simple-table-header\" style=\"width:64.99268341064453px\"><strong>10</strong></th><td id=\"Q[=Y\">Товстий Нельсон</td><td id=\"=sJ;\"><p>Вінні <br />Великий Ствол</p></td><td id=\"w{Gr\">Геріет Потопельниця</td><td id=\"zN`M\">Корнелія Суперкувалда</td><td id=\"YPTC\">10001110101 (Клатч)</td><td id=\"in|o\">Громовий Кулак</td><td id=\"GUCg\">Крег</td><td id=\"kTpx\">Карна</td></tr></tbody></table>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768658314187,
+        "modifiedTime": 1768658326960,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!RhogJbxSj6lZrlqD.Ovri6oxDLWRHNPBQ"
+    }
+  ],
+  "categories": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768658209695,
+    "modifiedTime": 1768658209695,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!journal!RhogJbxSj6lZrlqD"
+}

@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": null,
+  "name": "Загальні бойові перки",
+  "color": null,
+  "sorting": "m",
+  "_id": "fMqR3mJERz43qDSI",
+  "description": "",
+  "sort": 400000,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768663642121,
+    "modifiedTime": 1768668597033,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!fMqR3mJERz43qDSI"
+}

@@ -1,0 +1,50 @@
+{
+  "folder": "ykWBDN8g7fVGwKi0",
+  "name": "Талановитий митець",
+  "type": "perk",
+  "_id": "JVUK1sQOx1F4mIbF",
+  "img": "systems/wastelanders/assets/talk.svg",
+  "system": {
+    "description": "<p>На щастя, не всі після Війни забули цінність мистецтва. Ти один з таких. Обери один вид мистецтва, в якому твій персонаж має талант (найчастіше це певний музичний інструмент). Ти отримуєш необхідні інструменти щоб практикувати свої таланти: музичний інструмент, мольберт та фарби, записник з поезією, тощо. Раз за сесію перебуваючи в поселенні ти можеш витратити кілька годин і зробити перевірку <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ПВ + Маніпуляція</strong></span>, щоб підзаробити трохи кришок своїм талантом. <br>● При невдачі ти отримуєш легкий ментальний наслідок. Кожен може образити митця. <br>● При частковому успіху ти заробляєш 1d6 кришок, але отримуєш 1d6 психічної шкоди від руйнівної самокритики. Всім наче сподобалось, але не тобі. <br>● При успіху ти заробляєш 1d6 кришок. <br>● При критичному успіху ти заробляєш 1d6+3 кришок. <br><br>Також, раз за сесію витративши кілька годин ти можеш намагатись вилікувати іншому персонажу ментальний наслідок за допомогою перевірки <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>ПВ + Маніпуляція</strong></span>, підбадьорюючи його своїм мистецтвом.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": 1,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 6,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668530569,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!JVUK1sQOx1F4mIbF"
+}

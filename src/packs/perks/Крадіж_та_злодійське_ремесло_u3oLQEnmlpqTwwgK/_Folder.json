@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": null,
+  "name": "Крадіж та злодійське ремесло",
+  "color": null,
+  "sorting": "m",
+  "_id": "u3oLQEnmlpqTwwgK",
+  "description": "",
+  "sort": 512500,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668592832,
+    "modifiedTime": 1768671192417,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!u3oLQEnmlpqTwwgK"
+}

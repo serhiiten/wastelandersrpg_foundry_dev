@@ -1,0 +1,50 @@
+{
+  "folder": "GV0LDBK7RFVXTWMn",
+  "name": "Спостережливість",
+  "type": "perk",
+  "_id": "diY8nfGjWobC7ZzG",
+  "img": "systems/wastelanders/assets/binoculars.svg",
+  "system": {
+    "description": "<p>Раз за сцену, коли ти зустрічаєшся з новим персонажем, ситуацією або локацією, ти можеш заявити, що помітив невелику деталь і створити відповідний ситуативний <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>аспект</strong></span>, якщо Доглядач погодиться з твоєю пропозицією. Також ти завжди знаєш точну кількість ОЗ противників і чим вони озброєні (якщо ти взагалі розумієш, що це таке у них у руках). Для цього тобі може бути потрібна додаткова перевірка <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>ІН + Знання</strong></span>.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": 1,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768667810464,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!diY8nfGjWobC7ZzG"
+}

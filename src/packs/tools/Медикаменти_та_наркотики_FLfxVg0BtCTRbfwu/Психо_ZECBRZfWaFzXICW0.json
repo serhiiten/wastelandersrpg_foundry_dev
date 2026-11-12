@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Психо",
+  "type": "drug",
+  "_id": "ZECBRZfWaFzXICW0",
+  "img": "systems/wastelanders/assets/chem-psycho.webp",
+  "system": {
+    "price": 4,
+    "addiction": 5,
+    "description": "<p>Бойовий стимулятор, розроблений для солдатів. Ти завдаєш на 2 шкоди більше будь-якою зброєю, але маєш -1 ВТР та -1 ІН до кінця сцени.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648749330,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!ZECBRZfWaFzXICW0"
+}

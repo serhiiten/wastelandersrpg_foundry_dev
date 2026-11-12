@@ -1,0 +1,23 @@
+{
+  "type": "Actor",
+  "folder": null,
+  "name": "Анклав",
+  "color": null,
+  "sorting": "m",
+  "_id": "yBMOAs7T5PhEfLiv",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768953362838,
+    "modifiedTime": 1768953362838,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!yBMOAs7T5PhEfLiv"
+}

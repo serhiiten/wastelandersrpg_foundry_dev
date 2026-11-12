@@ -1,0 +1,260 @@
+{
+  "name": "Караван",
+  "_id": "OY8amJTsVCUSLrHl",
+  "pages": [
+    {
+      "sort": 100000,
+      "name": "Створення каравану",
+      "type": "text",
+      "_id": "zmM5qDdWJAzk9uWu",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>Персонажі гравців починають із невеликим караваном та парою тяглових брамінів. Їхній караван — це невеликий віз, зазвичай зроблений з тієї половини кузова машини, яка ще мала вісь і колеса. Караван має укриття від негоди для всіх персонажів, але на відпочинку ви зазвичай ставите намет. Також ви можете взяти з собою пару пасажирів, якщо це буде потрібно.</p><h2>Створюємо караван</h2><p>Якщо ви хочете швидко створити готовий для гри караван - візьміть лист каравану (<a href=\"https://drive.google.com/file/d/1B41WiF0cnhuLhkIUwdg9JTp83jPThXf4/view\">звичайний</a> або <a href=\"https://docs.google.com/spreadsheets/d/1KKqDXjAmMUKjtcFexrJzDoofTBzWUo9SfnD3-aojpho/edit?usp=sharing\">електронний</a>) та скористайтесь <a href=\"https://www.notion.so/257e66cd8c7880d8a060d87b9478ef77?pvs=21\"><strong>автоматичним генератором каравану</strong></a>. 1 клік і готово!</p><p>Якщо хочете створити караван самостійно - читайте далі.</p><hr /><p>За замовчуванням ваш караван — це чистий лист. Він має 25 ОЗ (на випадок, якщо по ньому стрілятимуть), 1 броні від фізичної шкоди, запас ходу на 10 одиниць та місце для вантажу та пари пасажирів.</p><p>Щоб створити караван на старті гри, просто оберіть для нього <strong>два покращення</strong> з <a href=\"https://www.notion.so/21de66cd8c788077b06edec94f85c3cc?pvs=21\">переліку</a>. Більшість покращень будуть відкривати вам нові можливості, наприклад, <strong>поліпшена кабіна для пасажирів</strong> дозволить вам залучати більш платоспроможну публіку, а <strong>збільшений багажник</strong> дозволить перевозити більше вантажу або вантаж нестандартних розмірів.</p><h2>Караванна компанія</h2><p>Ваш караван — це не просто віз. Насамперед караван — це люди, тобто ваша партія персонажів. Щоб придумати свою караванну компанію, <strong>після створення персонажів</strong> виконайте наступні кроки:</p><ol><li><strong>Візьміть</strong> <a href=\"https://drive.google.com/file/d/1B41WiF0cnhuLhkIUwdg9JTp83jPThXf4/view?usp=sharing\"><strong>лист каравану.</strong></a></li><li>Дайте відповідь на питання: <strong>Як ви познайомилися?</strong></li><li>Дайте відповідь на питання: <strong>Хто з вас є обличчям компанії?</strong> Вам потрібно вибрати персонажа, який відповідатиме за бюджет каравану, закуповуватиме для нього всякі штуки, буде записувати вантажі і просто вестиме лист каравану. Також цей персонаж буде офіційним представником вашої компанії, коли це буде потрібно. Тому краще вибрати самого красномовного або значущого на вигляд.</li><li>Дайте відповідь на питання: <strong>Яку останню справу ви провернули разом?</strong></li><li>Дайте відповідь на питання: <strong>Що пішло не так у вашій останній справі і як це вас згуртувало?</strong> Придумайте якусь цікаву колотнечу і опишіть, як вона об'єднала вас, поки ви з неї вибиралися.</li><li><strong>Скільки кришок у вас залишилося з останньої справи?</strong> Киньте 1d6+4. Саме стільки кришок зараз є у вашому бюджеті каравану. Запишіть це на лист.</li><li>Оберіть каравану 2 <a href=\"https://www.notion.so/21de66cd8c788077b06edec94f85c3cc?pvs=21\">покращення</a>.</li><li><p>Яке значення вашої <a href=\"https://www.notion.so/21de66cd8c7880ae80a1eacd514fdf03?pvs=21\">карми</a>? Запишіть відповідний кармічний аспект: <em><strong>темні особи</strong></em> (карма -5)<em><strong>,</strong></em> або <em><strong>прості волоцюги</strong></em> (карма 0), або <em><strong>гідні люди</strong></em> (карма +5), на ваш вибір.</p><ol><li>Можете кинути замість цього d6: 1: <em><strong>темні особи</strong></em>, 2-4: <em><strong>прості волоцюги</strong></em>, 5-6: <em><strong>гідні люди</strong></em>.</li></ol></li><li>Запишіть ваш початковий репутаційний аспект: <em><strong>ніхто й звати ніяк</strong></em>. Якщо Доглядач не скаже інакше.</li><li>Вирахуйте Удачу партії. Запишіть її на лист.</li><li><strong>І останнє, найголовніше.</strong> Придумайте відповідну назву своїй караванній компанії.</li></ol><p>Альтернативно, ви можете кинути кубик d6 на кожен стовпчик окремо по таблиці знизу.</p><hr /><h3>Таблиця генерації деталей каравану</h3><table id=\"21de66cd-8c78-80c1-9792-f438ff793557\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21de66cd-8c78-80db-8742-f06e16509720\"><th id=\"[&gt;IZ\" class=\"simple-table-header-color simple-table-header\"><strong>d6</strong></th><th id=\"=GmH\" class=\"simple-table-header-color simple-table-header\"><strong>Як ви познайомились?</strong></th><th id=\"[:|e\" class=\"simple-table-header-color simple-table-header\" style=\"width:152.87974548339844px\"><strong>Яку останню справу ви провернули разом?</strong></th><th id=\"eX{r\" class=\"simple-table-header-color simple-table-header\"><strong>Що пішло не так в останній справі?</strong></th><th id=\"DVuC\" class=\"simple-table-header-color simple-table-header\"><strong>Назва караванної компанії</strong></th></tr></thead><tbody><tr id=\"21de66cd-8c78-80b0-a25e-eb1300fbd8d3\"><th id=\"[&gt;IZ\" class=\"simple-table-header-color simple-table-header\"><strong>1</strong></th><td id=\"=GmH\">Після бурхливої пиятики в барі, що завершилася грандіозною бійкою та набуттям кревної ворожнечі (з ким?)</td><td id=\"[:|e\" style=\"width:152.87974548339844px\">Ми доставили небезпечний вантаж (який?) у рекордний строк.</td><td id=\"eX{r\">Нам не заплатили, замовник змився. Він все ще винен нам грошей.</td><td id=\"DVuC\">Баба-З-Возу</td></tr><tr id=\"21de66cd-8c78-8057-bb1d-ec6ab249585e\"><th id=\"[&gt;IZ\" class=\"simple-table-header-color simple-table-header\"><strong>2</strong></th><td id=\"=GmH\">Власник каравану (один з персонажів гравців) підібрав нас у Пустці. Інакше ми б померли.</td><td id=\"[:|e\" style=\"width:152.87974548339844px\">Ми пограбували впливову шишку однієї з фракцій (кого?).</td><td id=\"eX{r\">Проста справа обернулася битвою, з якої ми ледве врятувались.</td><td id=\"DVuC\">Стара Пошта</td></tr><tr id=\"21de66cd-8c78-8080-81f3-e0eef4e0efa5\"><th id=\"[&gt;IZ\" class=\"simple-table-header-color simple-table-header\"><strong>3</strong></th><td id=\"=GmH\">Ми напали на тих, на кого не слід (на кого?)</td><td id=\"[:|e\" style=\"width:152.87974548339844px\">Ми влаштували полювання на небезпечного мутанта (якого?).</td><td id=\"eX{r\">Замовник намагався нас підставити.</td><td id=\"DVuC\">Смерть на Колесах</td></tr><tr id=\"21de66cd-8c78-80f6-b87b-e5ddde013398\"><th id=\"[&gt;IZ\" class=\"simple-table-header-color simple-table-header\"><strong>4</strong></th><td id=\"=GmH\">Разом ми програли в казино все до останньої копійчини і тепер повинні відпрацювати борг (який?)</td><td id=\"[:|e\" style=\"width:152.87974548339844px\">Ми проникли на покинутий довоєнний об’єкт (який?).</td><td id=\"eX{r\">Ми вкрали щось важливе і тепер на нас полюють.</td><td id=\"DVuC\">Джагернаут</td></tr><tr id=\"21de66cd-8c78-8099-ad6b-c6255bd23fe0\"><th id=\"[&gt;IZ\" class=\"simple-table-header-color simple-table-header\"><strong>5</strong></th><td id=\"=GmH\">У нас усіх є спільний друг (хто?)</td><td id=\"[:|e\" style=\"width:152.87974548339844px\">Ми взялися за перевезення важливої особи (кого?).</td><td id=\"eX{r\">Ми дізнались щось, чого нам не слід було знати.</td><td id=\"DVuC\">П’яте Колесо</td></tr><tr id=\"21de66cd-8c78-809a-96e7-f02dd1b64a94\"><th id=\"[&gt;IZ\" class=\"simple-table-header-color simple-table-header\"><strong>6</strong></th><td id=\"=GmH\">Нас разом найняли виконати справу (яку?). Після неї ми вирішили стати командою.</td><td id=\"[:|e\" style=\"width:152.87974548339844px\">Нам замовили знайти і доставити одну рідкісну річ (яку?).</td><td id=\"eX{r\">Ми натрапили на найманців, яким заплатили, щоб нас здихатися.</td><td id=\"DVuC\">Голво</td></tr></tbody></table>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768653781671,
+        "modifiedTime": 1768653939819,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!OY8amJTsVCUSLrHl.zmM5qDdWJAzk9uWu"
+    },
+    {
+      "sort": 200000,
+      "name": "Карма та репутація",
+      "type": "text",
+      "_id": "J1DunpUETdKkNjAS",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>У вашого каравану як групи персонажів, є два аспекти, які впливають на вас усіх: <strong>кармічний аспект та репутаційний.</strong></p><h2>Карма</h2><p>Кармічний аспект залежить від значення вашої карми. Очки карми видаються Доглядачем за моральні та аморальні вчинки будь-кого з вас або всієї групи в цілому.</p><hr /><p>Ваша караванна компанія починає гру з показником карми від <strong>-5 до +5</strong> на ваш вибір, якщо Доглядач не скаже інакше.</p><table><thead><tr><th><strong>Кармічний аспект</strong></th><th><strong>Значення карми</strong></th></tr></thead><tbody><tr><td><em><strong>Втілення зла</strong></em></td><td>-20 і нижче</td></tr><tr><td><em><strong>Запеклі негідники</strong></em></td><td>-10</td></tr><tr><td><em><strong>Темні особи</strong></em></td><td>-5</td></tr><tr><td><em><strong>Прості волоцюги</strong></em></td><td>0</td></tr><tr><td><em><strong>Гідні люди</strong></em></td><td>+5</td></tr><tr><td><em><strong>Поборники добра</strong></em></td><td>+10</td></tr><tr><td><em><strong>Чемпіони Пустки</strong></em></td><td>+20 і вище</td></tr></tbody></table><p>Кармічний аспект використовується як будь-який інший аспект. Він може давати вам Посилення в певних ситуаціях і Послаблення в інших. Кожен із вас може викликати кармічний аспект вашої групи або нав'язувати його своєму персонажу чи іншим персонажам групи.</p><h2>Репутація</h2><p>Репутаційний аспект також видається Доглядачем і визначається значущими чи просто помітними діями ваших персонажів у Пустці. Наприклад, <em><strong>найшвидша доставка у Пустці,</strong></em> <em><strong>завзяті работоргівці</strong></em> або <em><strong>відчайдухи, що вбили Цезаря</strong></em> і т.д.</p><hr /><p>Ваша караванна компанія починає гру з репутаційним аспектом <em><strong>ніхто й звати ніяк</strong></em>, якщо Доглядач не скаже інакше.</p><hr /><p>Репутаційний аспект використовується як будь-який інший аспект, а також змінюється в залежності від ваших дій у грі.</p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768654476799,
+        "modifiedTime": 1768654497371,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!OY8amJTsVCUSLrHl.J1DunpUETdKkNjAS"
+    },
+    {
+      "sort": 300000,
+      "name": "Покращення каравану",
+      "type": "text",
+      "_id": "FpGerR6PSzuDkz4M",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>На старті гри <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>виберіть 2 покращення </strong></span>для свого каравану. Позначте їх на <span style=\"text-decoration:underline;text-decoration-thickness:0.05em;text-decoration-color:rgba(55, 53, 47, 0.4);text-underline-offset:10%;opacity:0.7\" class=\"link-annotation-unknown-block-id--1345692033\">листі каравану.</span></p><hr /><p>Покращення для каравану можна встановити у будь-якому поселенні, де є кваліфікований технік. Вони коштуватимуть по <strong>25 кришок.</strong> Якщо караван було пошкоджено, кваліфікований технік може полагодити його за ціною в 1 кришку за 5 ОЗ.</p><hr /><p>Запас ходу поповнюється у будь-якому поселенні за ціною в <strong>1 кришку за 3 одиниці.</strong></p><hr /><p>Караван не може завдати нікому шкоди сам по собі — браміни просто не пристосовані для того, щоб пересуватися швидко чи агресивно.</p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768654515526,
+        "modifiedTime": 1768654613734,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!OY8amJTsVCUSLrHl.FpGerR6PSzuDkz4M"
+    },
+    {
+      "sort": 400000,
+      "name": "Доставка вантажів та заробіток",
+      "type": "text",
+      "_id": "7jqJiVR7i36gAwi7",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>За замовчуванням до каравану влазить добра на суму до 10 кришок. Можете купити корисний вантаж у поселенні та записати його у свій лист каравану. Якщо ви довезете його цілим та неушкодженим в інше поселення — можете продати його там за ціною <strong>на половину</strong> більше, ніж ціна покупки (округлюючи вгору). Таким чином, з добра на 10 кришок ви зможете наварити 15 кришок.</p><p>Якщо в подорожі ваш караван отримає шкоди більше, ніж половина його ОЗ (округлюючи вгору) — вантаж постраждає і ви зможете продати його <strong>лише на чверть</strong> дорожче, ніж купили (округлюючи вгору). Якщо ОЗ каравану досягає 0 — вантаж вважається знищеним повністю.</p><hr /><p>Особливо дальні доставки (більше 15 клітин) оплачуються дорожче — додайте до ціни продажу <strong>ще половину</strong> (округлюючи вгору).</p><hr /><p>Зі <strong>збільшеним багажником</strong> ви можете взяти добра на суму до 20 кришок (30, якщо ви взяли це покращення двічі), але будьте обережні — набитий товарами караван точно стане ласою здобиччю для усіляких рейдерів.</p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768654561732,
+        "modifiedTime": 1768654571320,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!OY8amJTsVCUSLrHl.7jqJiVR7i36gAwi7"
+    },
+    {
+      "sort": 500000,
+      "name": "Тачки",
+      "type": "text",
+      "_id": "M51vAPWoBU4AhE13",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>Якщо вам вдалося роздобути автомобіль або інший автотранспорт на ходу — вам дуже пощастило. Чорт знає, де ви його відкопали, але тепер ваш караван має <strong>35 ОЗ, 2 броні від фізичної шкоди, запас ходу на 10 одиниць</strong> та трохи місця для вантажу чи пари пасажирів.</p><p>Також тачкою можна чавити супротивників, звісно, якщо вона влізе в ту зону, де вони перебувають. Вона завдає шкоди як важка зброя (2d6), для атаки використовуй перевірку <strong>ВП + Герць</strong> або <strong>Техніка</strong> (що краще). При невдачі та частковому успіху такої перевірки шкоду отримує тачка.</p><hr /><p>Головна новина — за день та одиницю запасу ходу ви тепер проїжджаєте <strong>три</strong> клітини. Але пам'ятайте — робочий автомобіль <em><strong>привертає реально багато уваги</strong></em>, на щастя або на лихо. <em>Врум-врум.</em></p><p></p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768654625945,
+        "modifiedTime": 1768654652352,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!OY8amJTsVCUSLrHl.M51vAPWoBU4AhE13"
+    },
+    {
+      "sort": 150000,
+      "name": "Автоматичний генератор каравану",
+      "type": "text",
+      "_id": "mFVpIo12tLWGd4sg",
+      "system": {},
+      "title": {
+        "show": false,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p><a href=\"https://serhiiten.github.io/wastelanders/caravan_generator.html\">Автоматичний генератор каравану</a></p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768656183517,
+        "modifiedTime": 1768656201741,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!OY8amJTsVCUSLrHl.mFVpIo12tLWGd4sg"
+    }
+  ],
+  "folder": "PChcqDh1muRk5Xsi",
+  "categories": [],
+  "sort": 50000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768653773035,
+    "modifiedTime": 1768655991321,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!journal!OY8amJTsVCUSLrHl"
+}

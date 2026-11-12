@@ -1,0 +1,31 @@
+{
+  "folder": "J1lRlntFtu5UaDrX",
+  "name": "Ріппер (пилоніж) - середній",
+  "type": "weapon",
+  "_id": "D8BTAFx403V79EIx",
+  "img": "systems/wastelanders/assets/spiked-bat-1.svg",
+  "system": {
+    "description": "<p>Дальність: Ближ. </p><p>Властивість: Ігнорує 1 броні. Гострий.</p>",
+    "price": 10,
+    "damage": "1d10"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768608597534,
+    "modifiedTime": 1769781830184,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!D8BTAFx403V79EIx"
+}

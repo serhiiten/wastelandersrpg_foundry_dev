@@ -1,0 +1,21 @@
+{
+  "type": "Item",
+  "folder": "Fv9lGzwTAlVKcCsH",
+  "name": "Важка",
+  "color": null,
+  "sorting": "a",
+  "_id": "V8gNeLdXvcBcWmZM",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.350",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!V8gNeLdXvcBcWmZM"
+}

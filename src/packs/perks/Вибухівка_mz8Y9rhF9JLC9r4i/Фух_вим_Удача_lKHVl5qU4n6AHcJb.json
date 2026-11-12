@@ -1,0 +1,50 @@
+{
+  "folder": "mz8Y9rhF9JLC9r4i",
+  "name": "Фух (вим. Удача)",
+  "type": "perk",
+  "_id": "lKHVl5qU4n6AHcJb",
+  "img": "systems/wastelanders/assets/mine-explosion.svg",
+  "system": {
+    "description": "<p>Твоя вибухівка ніколи не спрацьовує прямо у тебе в руках. При невдачах перевірки використання вибухівки чи метання гранат ти все ще їх витрачаєш, але вони просто виявляються несправними, замість того щоб вибухати в твоїй зоні.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": 1
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 6,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768663232475,
+    "modifiedTime": 1769783296930,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!lKHVl5qU4n6AHcJb"
+}

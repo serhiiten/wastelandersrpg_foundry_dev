@@ -1,0 +1,30 @@
+{
+  "name": "Тренований",
+  "type": "feat",
+  "_id": "nGKQAGjfdRlYphgB",
+  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Ти легше опановуєш навички, але нові перки даються тобі важче. Придбання та покращення навичок для тебе коштує на 5 ОД менше, але отримання перків коштує на 5 ОД дорожче.</p>"
+  },
+  "effects": [],
+  "folder": "BCy4k0QNVVHgYsqd",
+  "sort": 1300000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768569318033,
+    "modifiedTime": 1768827073324,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!nGKQAGjfdRlYphgB"
+}

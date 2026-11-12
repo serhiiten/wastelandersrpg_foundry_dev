@@ -1,0 +1,32 @@
+{
+  "name": "Бета-супермутант",
+  "type": "feat",
+  "_id": "iSeRdfu63ZeWDN9x",
+  "img": "systems/wastelanders/assets/dna1.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Ти супермутант другого покоління з чистого генетичного матеріалу (наприклад, колишній мешканець Сховища) і, як наслідок, розумніший за інших супермутантів. Твій видовий та стартовий максимум ІН підвищується на 1, але видовий максимум ВТР знижується на 1.</p>",
+    "isSpecies": true,
+    "hpBonus": null
+  },
+  "effects": [],
+  "folder": "IsJKRTsFr35kdO4r",
+  "sort": 900000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1768569667454,
+    "modifiedTime": 1777149800818,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!items!iSeRdfu63ZeWDN9x"
+}

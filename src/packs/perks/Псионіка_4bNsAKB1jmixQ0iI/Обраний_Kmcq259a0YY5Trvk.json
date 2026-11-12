@@ -1,0 +1,50 @@
+{
+  "folder": "4bNsAKB1jmixQ0iI",
+  "name": "Обраний",
+  "type": "perk",
+  "_id": "Kmcq259a0YY5Trvk",
+  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "system": {
+    "description": "<p>Своєю силою ти можеш зупиняти навіть кулі, що летять у тебе. Раз за сцену повністю відміни будь-яку фізичну або психічну шкоду, якої тобі щойно завдали.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 2,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768672182332,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!Kmcq259a0YY5Trvk"
+}

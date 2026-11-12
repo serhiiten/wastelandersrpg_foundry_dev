@@ -1,0 +1,31 @@
+{
+  "folder": "mZbStcf3nI7btQRp",
+  "name": "Живи швидко (Пазур Смерті)",
+  "type": "feat",
+  "_id": "AweZ6D6hPeREuuHV",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Пазурі Смерті живуть до 20 років і досягають зрілості біля 5-річного віку.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150754166,
+    "modifiedTime": 1777150792823,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!AweZ6D6hPeREuuHV"
+}

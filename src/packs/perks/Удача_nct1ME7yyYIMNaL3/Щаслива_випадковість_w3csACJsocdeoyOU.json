@@ -1,0 +1,50 @@
+{
+  "folder": "nct1ME7yyYIMNaL3",
+  "name": "Щаслива випадковість",
+  "type": "perk",
+  "_id": "w3csACJsocdeoyOU",
+  "img": "systems/wastelanders/assets/dice-fire.svg",
+  "system": {
+    "description": "<p>Доля завжди сама приводить тебе у потрібне місце у потрібний час. Раз за сесію ти можеш опинитися будь-якої миті на твій розсуд у будь-якій сцені, де беруть участь два чи більше інших персонажів гравців. Також на твій вибір за кожне очко атрибуту УДЧ твого персонажа вище 0 вибери 1 із наступного переліку: <br>● Твоя поява у сцені супроводжується створенням ситуативного аспекту на твій вибір. Обговори його з Доглядачем. <br>● Твоя поява у сцені супроводжується усуненням одного негативного ситуативного аспекту на твій вибір. <br>● Ти отримуєш +1 до своєї першої перевірки у сцені. <br>● Один твій спільник отримує +1 до наступної перевірки в сцені.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": 1
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671622112,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!w3csACJsocdeoyOU"
+}

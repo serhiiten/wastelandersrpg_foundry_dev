@@ -1,0 +1,50 @@
+{
+  "folder": "ykWBDN8g7fVGwKi0",
+  "name": "Друг тварин",
+  "type": "perk",
+  "_id": "pO7qTenTge2jUJE7",
+  "img": "systems/wastelanders/assets/talk.svg",
+  "system": {
+    "description": "<p>Отримай +2 до перевірок, пов'язаних із спілкуванням з тваринами (у тому числі мутованими), яке може включати в себе як спроби приручити їх, так і продемонструвати, що ти не становиш загрози.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 6,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668170482,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!pO7qTenTge2jUJE7"
+}

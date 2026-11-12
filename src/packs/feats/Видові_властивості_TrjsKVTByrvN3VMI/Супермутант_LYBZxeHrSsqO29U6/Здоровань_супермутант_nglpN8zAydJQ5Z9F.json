@@ -1,0 +1,31 @@
+{
+  "folder": "LYBZxeHrSsqO29U6",
+  "name": "Здоровань (супермутант)",
+  "type": "feat",
+  "_id": "nglpN8zAydJQ5Z9F",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Супермутанти одержують більше ОЗ на старті гри.</p>",
+    "hpBonus": 5
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150344369,
+    "modifiedTime": 1777150373748,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!nglpN8zAydJQ5Z9F"
+}

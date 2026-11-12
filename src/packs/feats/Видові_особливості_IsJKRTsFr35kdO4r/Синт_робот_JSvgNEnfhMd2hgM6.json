@@ -1,0 +1,32 @@
+{
+  "name": "Синт (робот)",
+  "type": "feat",
+  "_id": "JSvgNEnfhMd2hgM6",
+  "img": "systems/wastelanders/assets/dna1.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Ти робот специфічної моделі - синтетична людина. На вигляд ти нічим не відрізняєшся від звичайних людей, ти можеш майстерно імітувати процеси життєдіяльності і навіть (на твій розсуд) не знати що ти - робот. Ти втрачаєш видову властивість “Бляшанка”, тобто більше не маєш 2 фізичної броні. З іншого боку, ти можеш користуватися звичайною людською бронею, а також тобі більше не треба споживати батарейки щотижня. На твій розсуд, ти також можеш взяти Проблему <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>На мене полюють мисливці за синтами</strong></em></span>. Твої колишні хазяї дуже хочуть повернути тебе.</p>",
+    "isSpecies": true,
+    "hpBonus": null
+  },
+  "effects": [],
+  "folder": "IsJKRTsFr35kdO4r",
+  "sort": 1400000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1768569798894,
+    "modifiedTime": 1777149814651,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!items!JSvgNEnfhMd2hgM6"
+}

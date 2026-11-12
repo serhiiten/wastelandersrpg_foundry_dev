@@ -1,0 +1,31 @@
+{
+  "name": "Револьвер .44 (легкий)",
+  "type": "weapon",
+  "_id": "SooYBqj6ve1liWhc",
+  "img": "systems/wastelanders/assets/pistol-gun-1.svg",
+  "system": {
+    "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматичний.</p>",
+    "price": 3,
+    "damage": "1d8"
+  },
+  "effects": [],
+  "folder": "1SQW5cFh9fKmHQAp",
+  "sort": 1300000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768597960235,
+    "modifiedTime": 1769781830184,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!SooYBqj6ve1liWhc"
+}

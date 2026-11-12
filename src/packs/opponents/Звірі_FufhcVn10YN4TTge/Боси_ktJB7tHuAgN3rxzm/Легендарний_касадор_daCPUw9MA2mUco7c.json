@@ -1,0 +1,159 @@
+{
+  "folder": "ktJB7tHuAgN3rxzm",
+  "name": "Легендарний касадор",
+  "type": "enemy",
+  "_id": "daCPUw9MA2mUco7c",
+  "img": "systems/wastelanders/assets/kasador.png",
+  "system": {
+    "hp": {
+      "value": 35,
+      "max": 35
+    },
+    "armor": 3,
+    "description": "<p>На випадок, якщо звичайних касадорів вам було мало. Більше, зліше, швидше, отруйніше. Зустрічається виключно поодинці, але в супроводі 2-3 інших касадорів-самиць.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти: </strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>надзвичайно зла летюча комаха, потужна отрута, страхітливий вигляд.</strong></em></span></p><hr /><p><span style=\"color:rgb(25, 24, 19);font-family:Scada, sans-serif;font-size:14px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:normal;orphans:2;text-align:start;text-indent:0px;text-transform:none;widows:2;word-spacing:0px;-webkit-text-stroke-width:0px;white-space:normal;background-color:rgb(238, 238, 238);text-decoration-thickness:initial;text-decoration-style:initial;text-decoration-color:initial;display:inline !important;float:none\">Летючий, тому його не можна </span><span data-token-index=\"1\" class=\"notion-enable-hover\" style=\"box-sizing:border-box;user-select:text;scrollbar-width:thin;scrollbar-color:rgb(120, 46, 34) rgba(0, 0, 0, 0);color:rgb(25, 24, 19);font-family:Scada, sans-serif;font-size:14px;font-variant-ligatures:normal;font-variant-caps:normal;letter-spacing:normal;orphans:2;text-align:start;text-indent:0px;text-transform:none;widows:2;word-spacing:0px;-webkit-text-stroke-width:0px;white-space:normal;background-color:rgb(238, 238, 238);text-decoration-thickness:initial;text-decoration-style:initial;text-decoration-color:initial;font-style:italic;font-weight:600\"><em style=\"box-sizing:border-box;user-select:text;scrollbar-width:thin;scrollbar-color:rgb(120, 46, 34) rgba(0, 0, 0, 0)\"><strong style=\"box-sizing:border-box;user-select:text;scrollbar-width:thin;scrollbar-color:rgb(120, 46, 34) rgba(0, 0, 0, 0)\">збити з ніг</strong></em></span><span style=\"color:rgb(25, 24, 19);font-family:Scada, sans-serif;font-size:14px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:normal;orphans:2;text-align:start;text-indent:0px;text-transform:none;widows:2;word-spacing:0px;-webkit-text-stroke-width:0px;white-space:normal;background-color:rgb(238, 238, 238);text-decoration-thickness:initial;text-decoration-style:initial;text-decoration-color:initial;display:inline !important;float:none\">.</span></p><hr /><p><strong>Ходи:</strong></p><ul><li><strong>Отруйне жало:</strong> раз за сцену вражає супротивника отруйним жалом. Жертва отримує 1d10 шкоди отрутою щоразу, коли доходить її черга діяти, протягом 3 кіл. Ця шкода ігнорує броню.</li><li><strong>Політ:</strong> касадор злітає і може переміститися на відстань до двох зон без жодних перешкод. Також його не можна збити з ніг.</li><li><strong>Регенерація:</strong> один раз за сцену відновлює 2d6 ОЗ.</li></ul><hr /><p>З легендарного касадора можна зцідити його отруту. Киньте 1d6, якщо випало 1-2 ви знаходите одну дозу, 3-4 — 2 дози, 5-6 — 3 дози. Отрута легендарного касадора вважається <span style=\"text-decoration:underline;text-decoration-thickness:0.05em;text-decoration-color:rgba(55, 53, 47, 0.4);text-underline-offset:10%;opacity:0.7\" class=\"link-annotation-unknown-block-id-1603543801\"><a href=\"/21de66cd8c7880ce8f72dbd763b7183c?pvs=25\" style=\"cursor:pointer;color:inherit;word-wrap:break-word;text-decoration:inherit\" class=\"notion-link-token notion-focusable-token notion-enable-hover\" rel=\"noopener noreferrer\" data-token-index=\"1\" tabindex=\"0\">смертельною отрутою</a></span>. Деяким племенам дикунів можна продати таку отруту по 10 кришок, оскільки вони використовують її у шаманських обрядах посвяти.</p>",
+    "type": "boss"
+  },
+  "prototypeToken": {
+    "name": "Легенадрний касадор",
+    "displayName": 50,
+    "actorLink": true,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "systems/wastelanders/assets/kasador.png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "hp"
+    },
+    "bar2": {
+      "attribute": null
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": {},
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "turnMarker": {
+      "mode": 1,
+      "animation": null,
+      "src": null,
+      "disposition": false
+    },
+    "movementAction": null,
+    "flags": {},
+    "randomImg": false,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "depth": 1
+  },
+  "items": [
+    {
+      "name": "Легендарне жало",
+      "type": "attack",
+      "_id": "Z7lCG5oZwm4dwzN2",
+      "img": "assets/bowie-knife.svg",
+      "system": {
+        "description": "<p>+ 1d6 шкоди отрутою (ігнорує броню). Ближній бій.</p>",
+        "damage": "2d6+1d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768849869585,
+        "modifiedTime": 1768865804168,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!daCPUw9MA2mUco7c.Z7lCG5oZwm4dwzN2"
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.359",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768849855070,
+    "modifiedTime": 1769782005278,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!actors!daCPUw9MA2mUco7c"
+}

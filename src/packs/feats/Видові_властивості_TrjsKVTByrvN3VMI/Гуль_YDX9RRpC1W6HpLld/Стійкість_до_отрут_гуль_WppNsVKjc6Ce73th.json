@@ -1,0 +1,31 @@
+{
+  "folder": "YDX9RRpC1W6HpLld",
+  "name": "Стійкість до отрут (гуль)",
+  "type": "feat",
+  "_id": "WppNsVKjc6Ce73th",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Отрути завдають гулям лише половину шкоди (округлюючи вгору).</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150146360,
+    "modifiedTime": 1777150167474,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!WppNsVKjc6Ce73th"
+}

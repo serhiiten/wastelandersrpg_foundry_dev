@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Отрута-Ікс",
+  "type": "drug",
+  "_id": "sHCsrHGjr3WK1lj9",
+  "img": "systems/wastelanders/assets/chem-antidote.webp",
+  "system": {
+    "price": 3,
+    "addiction": 2,
+    "description": "<p>Молочно-біла гидка жижа, яка ефективно нейтралізує отрути у твоєму організмі. Цілий день після прийому отрути завдають тобі лише половину шкоди (округлюючи вгору).</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648727796,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!sHCsrHGjr3WK1lj9"
+}

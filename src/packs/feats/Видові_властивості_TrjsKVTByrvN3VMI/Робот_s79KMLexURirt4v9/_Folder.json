@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": "TrjsKVTByrvN3VMI",
+  "name": "Робот",
+  "color": null,
+  "sorting": "m",
+  "_id": "s79KMLexURirt4v9",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150495771,
+    "modifiedTime": 1777150495771,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!folders!s79KMLexURirt4v9"
+}

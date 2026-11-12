@@ -1,0 +1,22 @@
+{
+  "type": "Actor",
+  "folder": "FufhcVn10YN4TTge",
+  "name": "Рядові супротивники",
+  "color": null,
+  "sorting": "m",
+  "_id": "g10mzEtL1K7Xzb0b",
+  "description": "",
+  "sort": 100000,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "modifiedTime": 1768866451405
+  },
+  "_key": "!folders!g10mzEtL1K7Xzb0b"
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Звичайний раб",
+  "type": "passenger",
+  "_id": "KKZbJSFTtQ1Y7pj2",
+  "img": "systems/wastelanders/assets/slaver.webp",
+  "system": {
+    "description": "<p><strong>Ціна: 5 кришок</strong></p><p>Звичайний бідолаха з Пустки, якого забрали в рабство.</p>"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 700000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768568755299,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!KKZbJSFTtQ1Y7pj2"
+}

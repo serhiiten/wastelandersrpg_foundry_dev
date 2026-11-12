@@ -1,0 +1,30 @@
+{
+  "name": "Комплект розкішного довоєнного одягу",
+  "type": "tool",
+  "_id": "4HKIe8H8H8jg9APc",
+  "img": "systems/wastelanders/assets/fnv-pre-war-business-outfit-render.webp",
+  "system": {
+    "description": "<p>Раз за сесію дає Посилення при перевірках зваблення. На одного персонажа діє лише один раз.</p>",
+    "price": 5
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 500000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768568529563,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!4HKIe8H8H8jg9APc"
+}

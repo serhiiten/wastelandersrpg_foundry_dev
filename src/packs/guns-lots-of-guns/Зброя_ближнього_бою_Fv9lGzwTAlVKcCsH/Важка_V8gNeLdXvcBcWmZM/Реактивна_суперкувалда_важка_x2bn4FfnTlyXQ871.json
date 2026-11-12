@@ -1,0 +1,31 @@
+{
+  "folder": "V8gNeLdXvcBcWmZM",
+  "name": "Реактивна суперкувалда (важка)",
+  "type": "weapon",
+  "_id": "x2bn4FfnTlyXQ871",
+  "img": "systems/wastelanders/assets/hammer-drop.svg",
+  "system": {
+    "description": "<p>Дальність: Ближ. </p><p>Властивість: При виборі варіанту «відкинути супротивника» дозволяє відкинути його на дві зони замість одної, якщо йому є куди стільки летіти.</p>",
+    "price": 40,
+    "damage": "3d6"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768608819612,
+    "modifiedTime": 1768827196413,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!x2bn4FfnTlyXQ871"
+}

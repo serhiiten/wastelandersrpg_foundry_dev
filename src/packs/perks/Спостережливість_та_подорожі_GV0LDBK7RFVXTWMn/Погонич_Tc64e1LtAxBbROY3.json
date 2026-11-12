@@ -1,0 +1,50 @@
+{
+  "folder": "GV0LDBK7RFVXTWMn",
+  "name": "Погонич",
+  "type": "perk",
+  "_id": "Tc64e1LtAxBbROY3",
+  "img": "systems/wastelanders/assets/binoculars.svg",
+  "system": {
+    "description": "<p>Ти кермуєш, як ніхто інший. Якщо ти здійснював перевірку подорожі, то караван отримує лише половину шкоди від будь-яких потенційних небезпек, які ви можете зустріти на цьому відрізку шляху. Це не стосується прямих атак на караван у битвах.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": 1,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 6,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668128563,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!Tc64e1LtAxBbROY3"
+}

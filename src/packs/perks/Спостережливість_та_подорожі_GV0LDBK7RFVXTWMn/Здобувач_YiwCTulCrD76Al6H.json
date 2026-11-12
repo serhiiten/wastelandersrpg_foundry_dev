@@ -1,0 +1,50 @@
+{
+  "folder": "GV0LDBK7RFVXTWMn",
+  "name": "Здобувач",
+  "type": "perk",
+  "_id": "YiwCTulCrD76Al6H",
+  "img": "systems/wastelanders/assets/binoculars.svg",
+  "system": {
+    "description": "<p>Раз за сесію кинь 1d6 і вирушай на полювання на кілька годин. На 1–2 ти знаходиш одиницю Припасів, на 3–5 ти знаходиш 2 одиниці Припасів, на 6 ти знаходиш 3 одиниці Припасів.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 6,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668087206,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!YiwCTulCrD76Al6H"
+}

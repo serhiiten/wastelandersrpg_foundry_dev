@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Міцне бухло",
+  "type": "drug",
+  "_id": "Q89IKipxW1FaNWLN",
+  "img": "systems/wastelanders/assets/chem-rotgut.webp",
+  "system": {
+    "price": 1,
+    "addiction": 3,
+    "description": "<p>Дає +1d6 максимуму ОЗ, які зникають наприкінці сцени. Наприкінці сцени відніми це число від своїх поточних ОЗ.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648528573,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!Q89IKipxW1FaNWLN"
+}

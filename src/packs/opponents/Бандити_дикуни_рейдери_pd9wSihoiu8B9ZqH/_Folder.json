@@ -1,0 +1,23 @@
+{
+  "type": "Actor",
+  "folder": null,
+  "name": "Бандити, дикуни, рейдери",
+  "color": null,
+  "sorting": "m",
+  "_id": "pd9wSihoiu8B9ZqH",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768950477387,
+    "modifiedTime": 1768950477387,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!pd9wSihoiu8B9ZqH"
+}

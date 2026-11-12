@@ -1,0 +1,50 @@
+{
+  "folder": "ykWBDN8g7fVGwKi0",
+  "name": "Майстер-торговець (вим: Маніпуляція)",
+  "type": "perk",
+  "_id": "ZVkEypMHJ06xsWg5",
+  "img": "systems/wastelanders/assets/talk.svg",
+  "system": {
+    "description": "<p>Ти вмієш бути страшенно переконливим під час торгів, коли захочеш. Раз за сесію при перевірках <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ПВ + Маніпуляція</strong></span> або <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>Примус</strong></span> вкупі зі звичайним ефектом перевірки за часткового успіху вибери 1, за успіху — 2, за критичного успіху — 3 з переліку: <br>● Вони про це нікому не розкажуть. <br>● Вони зроблять це на чверть дешевше. <br>● Вони зроблять це на чверть швидше. <br>● Вони не ставитимуть зайвих питань.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": 1,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 8,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668318115,
+    "modifiedTime": 1769782789157,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!ZVkEypMHJ06xsWg5"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Мініган \"Vindicator\" (важкий)",
+  "type": "weapon",
+  "_id": "s86hvCksV2eOO7RC",
+  "img": "systems/wastelanders/assets/minigun-1.svg",
+  "system": {
+    "description": "<p>Дальність: 2 зони </p><p>Властивість: Автоматичний.</p>",
+    "price": 40,
+    "damage": "3d6"
+  },
+  "effects": [],
+  "folder": "QpA0zkuOZOgqo4ve",
+  "sort": 1300000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768606827636,
+    "modifiedTime": 1769781830184,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!s86hvCksV2eOO7RC"
+}

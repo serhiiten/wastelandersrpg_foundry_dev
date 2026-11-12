@@ -1,0 +1,189 @@
+{
+  "folder": "StdRF2BrPy3bMZVD",
+  "name": "Сяючий дикий гуль",
+  "type": "enemy",
+  "_id": "AbI7JmanZVsQeOpu",
+  "img": "systems/wastelanders/assets/syayuchyy-dykyy-hul.png",
+  "system": {
+    "hp": {
+      "value": 12,
+      "max": 12
+    },
+    "armor": 2,
+    "description": "<p>Дикий гуль, якого опромінило настільки сильно, що він став світитися. Швидше, витриваліше і небезпечніше своїх родичів, що не світяться, до того ж страшенно фонить. Одне добре — цих хлопців видно здалеку. Найчастіше зустрічається поодинці, але як ватажок групи звичайних диких гулів.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>божевільний гуль, світиться від радіації.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Прощальний подарунок:</strong> коли сяючий дикий гуль вмирає, він вибухає, завдаючи всім істотам у своїй зоні 1d6+3 шкоди радіацією (ігнорує броню).</li></ul></li></ul>",
+    "type": "elite"
+  },
+  "prototypeToken": {
+    "name": "Сяючий дикий гуль",
+    "displayName": 50,
+    "actorLink": true,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "systems/wastelanders/assets/syayuchyy-dykyy-hul.png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "hp"
+    },
+    "bar2": {
+      "attribute": null
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": {},
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "turnMarker": {
+      "mode": 1,
+      "animation": null,
+      "src": null,
+      "disposition": false
+    },
+    "movementAction": null,
+    "flags": {},
+    "randomImg": false,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "depth": 1
+  },
+  "items": [
+    {
+      "name": "Лапи",
+      "type": "attack",
+      "_id": "QG7fKBBPNOAXrkjK",
+      "img": "assets/bowie-knife.svg",
+      "system": {
+        "description": "<p>+3 шкоди радіацією (ігнорує броню). Ближній бій.</p>",
+        "damage": "1d6+3"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768939665871,
+        "modifiedTime": 1768939688957,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!AbI7JmanZVsQeOpu.QG7fKBBPNOAXrkjK"
+    },
+    {
+      "name": "Прощальний подарунок",
+      "type": "attack",
+      "_id": "8SiW5oYLeP9CMtO1",
+      "img": "assets/grenade.svg",
+      "system": {
+        "description": "<p>Коли сяючий дикий гуль вмирає, він вибухає, завдаючи всім істотам у своїй зоні 1d6+3 шкоди радіацією (ігнорує броню).</p>",
+        "damage": "1d6+3"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768939666158,
+        "modifiedTime": 1768939709557,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!AbI7JmanZVsQeOpu.8SiW5oYLeP9CMtO1"
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.359",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768939655843,
+    "modifiedTime": 1769782005278,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!actors!AbI7JmanZVsQeOpu"
+}

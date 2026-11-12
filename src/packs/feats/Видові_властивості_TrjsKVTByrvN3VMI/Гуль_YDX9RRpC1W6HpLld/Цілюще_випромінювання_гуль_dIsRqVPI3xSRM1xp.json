@@ -1,0 +1,31 @@
+{
+  "folder": "YDX9RRpC1W6HpLld",
+  "name": "Цілюще випромінювання (гуль)",
+  "type": "feat",
+  "_id": "dIsRqVPI3xSRM1xp",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Радіація лікує гулів замість того, аби вбивати. Щоразу, коли гуль має отримати шкоду від радіації, натомість він відновлює по 1 ОЗ за кожен кубик шкоди. Більш того, якщо гуль відпочиває поруч із досить сильним джерелом радіації, він відновлює на 1d10 ОЗ більше.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 100000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777149887413,
+    "modifiedTime": 1777150134912,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!dIsRqVPI3xSRM1xp"
+}

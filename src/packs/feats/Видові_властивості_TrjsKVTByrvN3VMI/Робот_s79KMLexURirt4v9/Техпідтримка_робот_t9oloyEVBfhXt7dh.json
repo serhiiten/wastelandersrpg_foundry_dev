@@ -1,0 +1,31 @@
+{
+  "folder": "s79KMLexURirt4v9",
+  "name": "Техпідтримка (робот)",
+  "type": "feat",
+  "_id": "t9oloyEVBfhXt7dh",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Щоб відновити ОЗ або вилікувати наслідок, роботу потрібен ремонт за допомогою перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ІН + Техніка. </strong></span>Також роботи <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>не можуть відновлювати ОЗ за відпочинок</strong></span>.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150538489,
+    "modifiedTime": 1777150548643,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!t9oloyEVBfhXt7dh"
+}

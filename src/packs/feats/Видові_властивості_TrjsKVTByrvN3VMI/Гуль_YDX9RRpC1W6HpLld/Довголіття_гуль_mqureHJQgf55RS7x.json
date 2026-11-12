@@ -1,0 +1,31 @@
+{
+  "folder": "YDX9RRpC1W6HpLld",
+  "name": "Довголіття (гуль)",
+  "type": "feat",
+  "_id": "mqureHJQgf55RS7x",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Гулі можуть прожити неймовірно довго. Достатньо сказати, що ще жоден гуль не помер від старості.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 200000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150080965,
+    "modifiedTime": 1777150136147,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!mqureHJQgf55RS7x"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Проклятий",
+  "type": "feat",
+  "_id": "ayBLYis9iWWfLcDq",
+  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Знаєш вираз «улюбленець долі?» Так ось, це не про тебе. Тобі настільки не щастить, що твоя погана вдача поширюється навколо тебе. Як же ти й досі не помер? Справа в тому, що це працює і на твоїх супротивників, а мінус на мінус дає тобі плюс.</p><p><strong>Твоя УДЧ не може бути вищою за -1</strong>, а також <strong>ти не можеш отримати критичний успіх</strong> на будь-яких перевірках. Всі значення 19+ для тебе є просто успіхами.</p><p>Натомість, ти можеш витрачати свої жетони Долі, щоб звертати ходи супротивників проти них самих, пояснюючи це поганою вдачею. Наприклад, граната, яку кидає в тебе рейдер, вибухає в нього в руках. Шкоду або інший негативний ефект, який противник заподіяв би своїм ходом, він отримує сам.</p>"
+  },
+  "effects": [],
+  "folder": "BCy4k0QNVVHgYsqd",
+  "sort": 1500000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768569346499,
+    "modifiedTime": 1768827073324,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!ayBLYis9iWWfLcDq"
+}

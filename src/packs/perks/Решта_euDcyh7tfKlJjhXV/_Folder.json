@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": null,
+  "name": "Решта",
+  "color": null,
+  "sorting": "m",
+  "_id": "euDcyh7tfKlJjhXV",
+  "description": "",
+  "sort": 541603,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671667181,
+    "modifiedTime": 1768671712313,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!euDcyh7tfKlJjhXV"
+}

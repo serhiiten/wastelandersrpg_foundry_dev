@@ -1,0 +1,50 @@
+{
+  "folder": "ykWBDN8g7fVGwKi0",
+  "name": "В кожному порту",
+  "type": "perk",
+  "_id": "Ns0SCpruCDLtRdj9",
+  "img": "systems/wastelanders/assets/talk.svg",
+  "system": {
+    "description": "<p>Раз за сесію коли ви відвідуєте нове поселення, в якому ваш караван ніколи не був раніше, ти можеш оголосити, що в цьому поселенні в тебе є знайомий НІП. Потім за кожне очко атрибуту ПВ твого персонажа вище 0 вибери 1 із наступного переліку: <br>● Ваші відносини з НІПом дружні. <br>● Ти не в боргах перед НІПом. <br>● НІП багатий або впливовий. <br>● НІП винен тобі послугу. <br>Разом з Доглядачем дайте НІПу ім’я та опишіть його аспектом.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": 1,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": 0
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668493450,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!Ns0SCpruCDLtRdj9"
+}

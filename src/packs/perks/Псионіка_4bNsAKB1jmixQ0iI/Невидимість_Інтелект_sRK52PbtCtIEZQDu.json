@@ -1,0 +1,50 @@
+{
+  "folder": "4bNsAKB1jmixQ0iI",
+  "name": "Невидимість (Інтелект)",
+  "type": "perk",
+  "_id": "sRK52PbtCtIEZQDu",
+  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "system": {
+    "description": "<p>Раз за сесію ти можеш на кілька хвилин стати <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>цілком непомітним</strong></em></span> для розумних істот. Якщо ти якось із ними взаємодієш, ефект невидимості негайно припиняється. Цей перк можна застосовувати потай, але тільки якщо ти не зникаєш буквально на очах у людей.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 1,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 6,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671920524,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!sRK52PbtCtIEZQDu"
+}

@@ -1,0 +1,31 @@
+{
+  "folder": "mZbStcf3nI7btQRp",
+  "name": "Гострі кігті (Пазур Смерті)",
+  "type": "feat",
+  "_id": "QcNRF32PrHB86Ops",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Лапи Пазурів Смерті є середньою зброєю ближнього бою (1d10 шкоди) та ігнорують 1 фізичної броні.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150830698,
+    "modifiedTime": 1777150865453,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!QcNRF32PrHB86Ops"
+}

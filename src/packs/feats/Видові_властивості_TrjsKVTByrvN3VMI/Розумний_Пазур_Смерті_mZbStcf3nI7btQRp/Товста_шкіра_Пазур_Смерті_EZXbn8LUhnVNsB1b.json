@@ -1,0 +1,31 @@
+{
+  "folder": "mZbStcf3nI7btQRp",
+  "name": "Товста шкіра (Пазур Смерті)",
+  "type": "feat",
+  "_id": "EZXbn8LUhnVNsB1b",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Пазурі Смерті мають броню 1 від фізичної шкоди. Відчайдушний умілець може виготовити для них особливу броню, проте вона обійдеться вдвічі дорожче за звичайну.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150902537,
+    "modifiedTime": 1777150908686,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!EZXbn8LUhnVNsB1b"
+}

@@ -1,0 +1,31 @@
+{
+  "folder": "sp1Sd12wQu3nGV3I",
+  "name": "Міні-ядерний заряд",
+  "type": "weapon",
+  "_id": "7qs3jJ6i3onhmNEc",
+  "img": "systems/wastelanders/assets/grenade.svg",
+  "system": {
+    "description": "<p>Шкода: 4d6+2d6 радіацією (ігнорує броню)</p><p>Дальність: 1 зона</p><p>Властивість: Завдає шкоди по площині. Дуже рідкісна річ.</p>",
+    "price": 10,
+    "damage": "4d6+2d6"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768609248956,
+    "modifiedTime": 1768827196413,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!7qs3jJ6i3onhmNEc"
+}

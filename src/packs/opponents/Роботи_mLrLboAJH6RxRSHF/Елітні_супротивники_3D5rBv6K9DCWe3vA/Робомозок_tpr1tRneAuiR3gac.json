@@ -1,0 +1,189 @@
+{
+  "folder": "3D5rBv6K9DCWe3vA",
+  "name": "Робомозок",
+  "type": "enemy",
+  "_id": "tpr1tRneAuiR3gac",
+  "img": "systems/wastelanders/assets/robomozok.png",
+  "system": {
+    "hp": {
+      "value": 12,
+      "max": 12
+    },
+    "armor": 2,
+    "description": "<p>Продукт збоченого генія інженерної думки. Робот на гусеничній тязі з живим людським мозком у якості центрального процесора. Найчастіше вони наглухо божевільні. Зустрічаються на покинутих військових базах та в експериментальних центрах по 1-2 штуки.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> гусеничний бойовий робот, божевільний.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Пси-вибух:</strong> раз за сцену завдає всім живим істотам у вибраній зоні 1d10 психічної шкоди. Ігнорує фізичну броню.</li></ul></li></ul>",
+    "type": "elite"
+  },
+  "prototypeToken": {
+    "name": "Робомозок",
+    "displayName": 50,
+    "actorLink": true,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "systems/wastelanders/assets/robomozok.png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "hp"
+    },
+    "bar2": {
+      "attribute": null
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": {},
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "turnMarker": {
+      "mode": 1,
+      "animation": null,
+      "src": null,
+      "disposition": false
+    },
+    "movementAction": null,
+    "flags": {},
+    "randomImg": false,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "depth": 1
+  },
+  "items": [
+    {
+      "name": "Психічний удар",
+      "type": "attack",
+      "_id": "1nXXmR7ONDApkZrE",
+      "img": "assets/psychic-waves.svg",
+      "system": {
+        "description": "<p>Завдає психічну шкоду. Ігнорує фізичну броню.</p>",
+        "damage": "1d10"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768938969362,
+        "modifiedTime": 1768939003973,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!tpr1tRneAuiR3gac.1nXXmR7ONDApkZrE"
+    },
+    {
+      "name": "Пси-вибух",
+      "type": "attack",
+      "_id": "qXXJgCijBDTA8163",
+      "img": "assets/psychic-waves.svg",
+      "system": {
+        "description": "<p>Раз за сцену завдає всім живим істотам у вибраній зоні 1d10 психічної шкоди. Ігнорує фізичну броню. Бій на відстані.</p>",
+        "damage": "1d10"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768938969625,
+        "modifiedTime": 1768939035958,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!tpr1tRneAuiR3gac.qXXJgCijBDTA8163"
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.359",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768938959236,
+    "modifiedTime": 1769782005278,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!actors!tpr1tRneAuiR3gac"
+}

@@ -1,0 +1,89 @@
+{
+  "name": "Супермутант",
+  "type": "species",
+  "_id": "BqFg9EQLLP8lAjRQ",
+  "img": "systems/wastelanders/assets/vitruvian-man.svg",
+  "system": {
+    "skills": 2,
+    "perks": 2,
+    "feats": [
+      {
+        "id": "1hBsrgnxZ5ZUpQ2v",
+        "uuid": "Compendium.wastelanders.feats.Item.1hBsrgnxZ5ZUpQ2v",
+        "name": "Жахливий вигляд (супермутант)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "1vsoVlHSmcMO1zr3",
+        "uuid": "Compendium.wastelanders.feats.Item.1vsoVlHSmcMO1zr3",
+        "name": "Невразливість до радіації (супермутант)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "hTLnmbuWBbX3JDAK",
+        "uuid": "Compendium.wastelanders.feats.Item.hTLnmbuWBbX3JDAK",
+        "name": "Довголіття (супермутант)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "nglpN8zAydJQ5Z9F",
+        "uuid": "Compendium.wastelanders.feats.Item.nglpN8zAydJQ5Z9F",
+        "name": "Здоровань (супермутант)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "qjoJH8BaIx7O69Tj",
+        "uuid": "Compendium.wastelanders.feats.Item.qjoJH8BaIx7O69Tj",
+        "name": "Безстатевий (супермутант)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "u7D9PxPv5z6z7pXK",
+        "uuid": "Compendium.wastelanders.feats.Item.u7D9PxPv5z6z7pXK",
+        "name": "Стерильність (супермутант)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "vMNPecye8vHk6vmI",
+        "uuid": "Compendium.wastelanders.feats.Item.vMNPecye8vHk6vmI",
+        "type": "feat",
+        "name": "З чистого листа (супермутант)",
+        "title": "Особливість",
+        "docType": "Item"
+      }
+    ],
+    "description": "<blockquote><p>Завжди мріяв бути надзвичайно дужим зеленошкірим здорованем? Тоді супермутант — для тебе. Супермутанти — результат впливу на людину ФЕВ (Віруса Форсованої Еволюції), ще довоєнного експерименту зі створення панацеї від усіх хвороб та впливу радіації одночасно. Після війни гігантські запаси виробленого ФЕВ потрапили у довкілля, змушуючи активно мутувати всю флору та фауну Пустки. Однак і цього було замало для того, щоб з'явилися супермутанти. Їх справжнім творцем був Повелитель — нині напівзабутий божевільний учений, який прагнув поліпшити рід людський шляхом занурення людей у чани з ФЕВ. Однак його планам не судилося здійснитися — його зупинив легендарний Виходець зі Сховища, який знищив і центр виробництва супермутантів, і храм Повелителя разом із ним самим. З того часу супермутанти продовжують блукати Пусткою. Деякі стали рейдерами, багацько були просто знищені, а найрозумнішим (або найстійкішим) з них навіть знайшлося місце серед людей. І все ж навіть через стільки років люди продовжують ставитися до них з цілком зрозумілим страхом та недовірою.</p></blockquote><h3>Особливості атрибутів супермутантів</h3><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><table id=\"21ee66cd-8c78-801a-8c41-c90028b21586\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-809b-9609-c49d46a4de54\"><th id=\"~CI_\"><p><strong>Атрибут</strong></p></th><th id=\"COni\"><p><strong>Мінімум</strong></p></th><th id=\"e:Cf\"><p><strong>Стартовий максимум</strong></p></th><th id=\"`K{s\"><p><strong>Максимум</strong></p></th></tr></thead><tbody><tr id=\"21ee66cd-8c78-80e5-951e-d0f38a056e00\"><th id=\"~CI_\"><p>Сила</p></th><td id=\"COni\"><p>0</p></td><td id=\"e:Cf\"><p>+3</p></td><td id=\"`K{s\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-80f1-a38f-d56d523f41fa\"><th id=\"~CI_\"><p>Сприйняття</p></th><td id=\"COni\"><p>-1</p></td><td id=\"e:Cf\"><p>+2</p></td><td id=\"`K{s\"><p>+3</p></td></tr><tr id=\"21ee66cd-8c78-80f9-bf82-facc7eec1483\"><th id=\"~CI_\"><p>Витривалість</p></th><td id=\"COni\"><p>0</p></td><td id=\"e:Cf\"><p>+3</p></td><td id=\"`K{s\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-80f3-9b20-cdf2b99ceb2a\"><th id=\"~CI_\"><p>Привабливість</p></th><td id=\"COni\"><p>-2</p></td><td id=\"e:Cf\"><p>+1</p></td><td id=\"`K{s\"><p>+2</p></td></tr><tr id=\"21ee66cd-8c78-8028-b48f-cb5a91ca3a24\"><th id=\"~CI_\"><p>Інтелект</p></th><td id=\"COni\"><p>-2</p></td><td id=\"e:Cf\"><p>0</p></td><td id=\"`K{s\"><p>+1</p></td></tr><tr id=\"21ee66cd-8c78-80dd-88e1-d61ab0e229c5\"><th id=\"~CI_\"><p>Вправність</p></th><td id=\"COni\"><p>-1</p></td><td id=\"e:Cf\"><p>+2</p></td><td id=\"`K{s\"><p>+3</p></td></tr><tr id=\"21ee66cd-8c78-80d3-994f-d45419020de1\"><th id=\"~CI_\"><p>Удача</p></th><td id=\"COni\"><p>-1</p></td><td id=\"e:Cf\"><p>+2</p></td><td id=\"`K{s\"><p>+3</p></td></tr></tbody></table>"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777144630956,
+    "modifiedTime": 1777151211505,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!BqFg9EQLLP8lAjRQ"
+}

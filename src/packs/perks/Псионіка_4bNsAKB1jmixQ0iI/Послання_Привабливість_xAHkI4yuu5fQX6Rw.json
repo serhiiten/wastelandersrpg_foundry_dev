@@ -1,0 +1,50 @@
+{
+  "folder": "4bNsAKB1jmixQ0iI",
+  "name": "Послання (Привабливість)",
+  "type": "perk",
+  "_id": "xAHkI4yuu5fQX6Rw",
+  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "system": {
+    "description": "<p>Ти можеш передавати живим розумним істотам телепатичні послання на відстані. З істотами в твоєму полі зору ти можеш спілкуватися без обмежень, щоправда вони не можуть відповідати тобі телепатично (звісно, якщо у них нема такого ж перка).   Для встановлення контакту з істотами поза полем твого зору тобі треба знати три факти: <br>● Їх ім’я, <br>● Їх зовнішність, <br>● Приблизно де вони знаходяться (достатньо знати хоча б регіон, наприклад в якому вони місті). <br><br>Потім ти повинен зробити перевірку <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ІН + Маніпуляція</strong></span>. За кожен факт, котрого ти не знаєш, ти отримуєш -1 до перевірки. При провалі ти більше <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>не можеш користуватися </strong></span>цією здібністю до наступного дня. Далекі послання надходять адресатам у формі віщих снів, таємничого шепоту, що доноситься вітром, або іншим достатньо містичним чином, на твій розсуд. Цей перк можна застосовувати потай.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": 1,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 6,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768672064535,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!xAHkI4yuu5fQX6Rw"
+}

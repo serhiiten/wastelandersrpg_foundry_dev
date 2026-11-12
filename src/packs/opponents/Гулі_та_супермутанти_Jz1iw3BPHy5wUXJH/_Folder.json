@@ -1,0 +1,23 @@
+{
+  "type": "Actor",
+  "folder": null,
+  "name": "Гулі та супермутанти",
+  "color": null,
+  "sorting": "m",
+  "_id": "Jz1iw3BPHy5wUXJH",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768939549308,
+    "modifiedTime": 1768939549308,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!Jz1iw3BPHy5wUXJH"
+}

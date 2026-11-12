@@ -1,0 +1,21 @@
+{
+  "type": "Item",
+  "folder": "9mSQosZCGlgJ3nHy",
+  "name": "Легка",
+  "color": null,
+  "sorting": "m",
+  "_id": "1SQW5cFh9fKmHQAp",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.350",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!1SQW5cFh9fKmHQAp"
+}

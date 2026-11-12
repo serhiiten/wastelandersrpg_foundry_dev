@@ -1,0 +1,30 @@
+{
+  "name": "Середня отрута",
+  "type": "tool",
+  "_id": "AomfqsU77fFh84T7",
+  "img": "systems/wastelanders/assets/poison-bottle.svg",
+  "system": {
+    "description": "<p>Шкода: +1d10</p><p>Отрута деревного радскорпіона або нічного мисливця.</p>",
+    "price": 2
+  },
+  "effects": [],
+  "folder": "2Kdzz50hkpGmD27I",
+  "sort": 300000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768567792612,
+    "modifiedTime": 1768827150524,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!AomfqsU77fFh84T7"
+}

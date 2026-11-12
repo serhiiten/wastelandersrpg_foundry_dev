@@ -1,0 +1,51 @@
+{
+  "folder": "TgGn39nm1DTKWQ7X",
+  "name": "Ерудит (Техніка)",
+  "type": "perk",
+  "img": "systems/wastelanders/assets/gift-of-knowledge.svg",
+  "system": {
+    "description": "<p>Отримай ще одну навичку на рівні учня або поліпши навичку з рівня учня до підмайстра.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 0,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3,
+    "CXn23KOmyfe6wBkg": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1769783248465,
+    "modifiedTime": 1769783248487,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_id": "HyKcR5R15kD03Ssu",
+  "sort": 300000,
+  "_key": "!items!HyKcR5R15kD03Ssu"
+}

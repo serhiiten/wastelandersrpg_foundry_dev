@@ -1,0 +1,21 @@
+{
+  "type": "Item",
+  "folder": "9mSQosZCGlgJ3nHy",
+  "name": "Середня",
+  "color": null,
+  "sorting": "a",
+  "_id": "5HmqVUOrbnA4TX43",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.350",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!5HmqVUOrbnA4TX43"
+}

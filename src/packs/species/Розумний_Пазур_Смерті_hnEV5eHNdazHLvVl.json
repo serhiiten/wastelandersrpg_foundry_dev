@@ -1,0 +1,81 @@
+{
+  "name": "Розумний Пазур Смерті",
+  "type": "species",
+  "_id": "hnEV5eHNdazHLvVl",
+  "img": "systems/wastelanders/assets/vitruvian-man.svg",
+  "system": {
+    "skills": 2,
+    "perks": 2,
+    "feats": [
+      {
+        "id": "0Ilm0dVJ3E1TGGvC",
+        "uuid": "Compendium.wastelanders.feats.Item.0Ilm0dVJ3E1TGGvC",
+        "name": "У мене кігті (Пазур Смерті)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "AweZ6D6hPeREuuHV",
+        "uuid": "Compendium.wastelanders.feats.Item.AweZ6D6hPeREuuHV",
+        "name": "Живи швидко (Пазур Смерті)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "EZXbn8LUhnVNsB1b",
+        "uuid": "Compendium.wastelanders.feats.Item.EZXbn8LUhnVNsB1b",
+        "name": "Товста шкіра (Пазур Смерті)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "QcNRF32PrHB86Ops",
+        "uuid": "Compendium.wastelanders.feats.Item.QcNRF32PrHB86Ops",
+        "name": "Гострі кігті (Пазур Смерті)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "ZvIzbI4gTNZSnyAP",
+        "uuid": "Compendium.wastelanders.feats.Item.ZvIzbI4gTNZSnyAP",
+        "name": "Змушений ховатися (Пазур Смерті)",
+        "type": "feat",
+        "title": "Особливість",
+        "docType": "Item"
+      },
+      {
+        "id": "odz9KlGFbx9ZdJoK",
+        "uuid": "Compendium.wastelanders.feats.Item.odz9KlGFbx9ZdJoK",
+        "type": "feat",
+        "name": "Здоровань (Пазур Смерті)",
+        "title": "Особливість",
+        "docType": "Item"
+      }
+    ],
+    "description": "<blockquote><p>Пазурі Смерті — це хамелеони Джексона, що мутували до повної невпізнаваності. Це величезні злостиві прямоходячі ящірки з жахливими кігтями, які здатні розітнути майже будь-яку броню. Вони відзначаються агресивністю, територіальністю і в цілому не набагато розумніші за інших тварин.</p></blockquote><blockquote><p>Проте в результаті експериментів учених Анклаву деякі з них набули самосвідомості, інтелекту, подібного до людського, і навіть навчилися людської мови. Їм вдалося перехитрити своїх творців, які вирощували їх як живу зброю, і здобути свободу. І хоч Анклав згодом знищив більшу частину розумних Пазурів Смерті, деяким вдалося вижити та наплодити нащадків, невелика частина яких успадкувала інтелектуальні здібності батьків.</p></blockquote><blockquote><p>Втім, розумні Пазурі Смерті все ще дуже рідкісні у Пустці і є чимось на зразок міської легенди. Воно і не дивно: коли ти виглядаєш як Пазур Смерті, зазвичай ніхто не стане розбиратися в тому, наскільки ти дружньо налаштований чи розумний, перш ніж почати стріляти.</p></blockquote><p></p><p>Обов'язково обговори з Доглядачем, чи доречно грати за розумного Пазура Смерті в його кампанії.</p><p></p><h3>Особливості атрибутів розумних Пазурів Смерті</h3><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><div style=\"display:contents\" dir=\"ltr\"></div><table id=\"21ee66cd-8c78-802c-a046-fb0725dea7a3\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-8028-bb73-c417b25d848b\"><th id=\"c[\\n\"><p><strong>Атрибут</strong></p></th><th id=\"fmlc\"><p><strong>Мінімум</strong></p></th><th id=\"oz_x\"><p><strong>Стартовий максимум</strong></p></th><th id=\";sVW\"><p><strong>Максимум</strong></p></th></tr></thead><tbody><tr id=\"21ee66cd-8c78-8085-8e92-cb8677815a92\"><th id=\"c[\\n\"><p>Сила</p></th><td id=\"fmlc\"><p>0</p></td><td id=\"oz_x\"><p>+3</p></td><td id=\";sVW\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-8048-9a64-d7f24f020e3e\"><th id=\"c[\\n\"><p>Сприйняття</p></th><td id=\"fmlc\"><p>-1</p></td><td id=\"oz_x\"><p>+2</p></td><td id=\";sVW\"><p>+3</p></td></tr><tr id=\"21ee66cd-8c78-80a0-9ac3-fd75e56eed50\"><th id=\"c[\\n\"><p>Витривалість</p></th><td id=\"fmlc\"><p>-1</p></td><td id=\"oz_x\"><p>+2</p></td><td id=\";sVW\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-806d-92a3-fa1b8edc169b\"><th id=\"c[\\n\"><p>Привабливість</p></th><td id=\"fmlc\"><p>-2</p></td><td id=\"oz_x\"><p>+1</p></td><td id=\";sVW\"><p>+1</p></td></tr><tr id=\"21ee66cd-8c78-8046-951c-dc280cab81fe\"><th id=\"c[\\n\"><p>Інтелект</p></th><td id=\"fmlc\"><p>-2</p></td><td id=\"oz_x\"><p>+1</p></td><td id=\";sVW\"><p>+2</p></td></tr><tr id=\"21ee66cd-8c78-80a4-881d-def574eb0456\"><th id=\"c[\\n\"><p>Вправність</p></th><td id=\"fmlc\"><p>0</p></td><td id=\"oz_x\"><p>+3</p></td><td id=\";sVW\"><p>+4</p></td></tr><tr id=\"21ee66cd-8c78-8061-9516-f8b0eaf19fa6\"><th id=\"c[\\n\"><p>Удача</p></th><td id=\"fmlc\"><p>-1</p></td><td id=\"oz_x\"><p>+2</p></td><td id=\";sVW\"><p>+2</p></td></tr></tbody></table>"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777144784452,
+    "modifiedTime": 1777151162983,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!hnEV5eHNdazHLvVl"
+}

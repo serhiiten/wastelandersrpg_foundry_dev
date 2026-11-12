@@ -1,0 +1,30 @@
+{
+  "name": "Добра душа",
+  "type": "feat",
+  "_id": "2saFUlOHAOhqtK84",
+  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Ти отримуєш одну додаткову навичку на твій вибір на рівні учня або покращуєш навичку на рівні учня до підмайстра, окрім Герцю, Стрільби та Примусу. Ти ніколи не зможеш підняти ці три навички вище за рівень учня. Крім того, ти вважаєш за краще не вбивати розумних істот, окрім виняткових випадків.</p>"
+  },
+  "effects": [],
+  "folder": "BCy4k0QNVVHgYsqd",
+  "sort": 1200000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768569305912,
+    "modifiedTime": 1768827073324,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!2saFUlOHAOhqtK84"
+}

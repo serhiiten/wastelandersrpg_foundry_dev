@@ -1,0 +1,50 @@
+{
+  "folder": "u3oLQEnmlpqTwwgK",
+  "name": "Бісова штуковина! (вим. Крадіж)",
+  "type": "perk",
+  "_id": "JY5BUGgxV5RK6MP2",
+  "img": "systems/wastelanders/assets/robber.svg",
+  "system": {
+    "description": "<p>Раз за сцену ти можеш повністю перекинути будь-яку перевірку, пов'язану зі зламом замків або взаємодією з комп'ютерами, якщо добряче копнеш те, що зламуєш. Це буде гучно.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 6,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668608185,
+    "modifiedTime": 1769783095315,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!JY5BUGgxV5RK6MP2"
+}

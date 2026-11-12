@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Меланжева кислота",
+  "type": "drug",
+  "_id": "1TPqlVMN9dDu759p",
+  "img": "systems/wastelanders/assets/chem-poison.webp",
+  "system": {
+    "price": 10,
+    "addiction": 2,
+    "description": "<p>Сильний антидепресант та заспокійливе в одному флаконі. Після застосування обери один будь-який наслідок від психічної шкоди. Відзнач його як вилікуваний, та перейменуй його відповідним чином.</p><p>Легкі наслідки після застосування проходять відразу ж, середні — до кінця наступної сцени, тяжкі — до кінця поточної сесії. Продається лише у великих поселеннях.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648825754,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!1TPqlVMN9dDu759p"
+}

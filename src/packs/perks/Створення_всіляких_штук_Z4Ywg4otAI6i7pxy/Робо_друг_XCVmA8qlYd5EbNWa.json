@@ -1,0 +1,50 @@
+{
+  "folder": "Z4Ywg4otAI6i7pxy",
+  "name": "Робо-друг",
+  "type": "perk",
+  "_id": "XCVmA8qlYd5EbNWa",
+  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "system": {
+    "description": "<p>У тебе є вірний друг-робооко, якого ти можеш використовувати для розвідки місцевості, невеликих доставок або щоб грав як радіо. Дай йому ім'я та опиши його одним аспектом. Якщо тобі потрібно здійснити перевірку, щоб дізнатися, чи вийшло у твого робоока що-небудь, ти робиш це за допомогою перевірки подолання труднощів ІН + Техніка. Ти можеш витратити свою дію в битві, щоб компаньйон завдав комусь шкоди, здійснивши перевірку атаки за допомогою ІН + Техніка. Якщо робооко виведуть з ладу, ти можеш відремонтувати його як і будь-якого іншого робота. <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>Параметри робоока:</strong></span> <br>● <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>Категорія:</strong></span> статист <br>● <span style=\"font-weight:600\" data-token-index=\"5\" class=\"notion-enable-hover\"><strong>ОЗ:</strong></span> 5 <br>● <span style=\"font-weight:600\" data-token-index=\"7\" class=\"notion-enable-hover\"><strong>Броня:</strong></span> 1, летючий, тому його не можна <span style=\"font-style:italic;font-weight:600\" data-token-index=\"9\" class=\"notion-enable-hover\"><em><strong>збити з ніг</strong></em></span>. <br>● <span style=\"font-weight:600\" data-token-index=\"11\" class=\"notion-enable-hover\"><strong>Шкода:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"13\" class=\"notion-enable-hover\"><em><strong>лазер</strong></em></span> (ігнорує 1 броні) 1d6</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 0,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 6,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671113675,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!XCVmA8qlYd5EbNWa"
+}

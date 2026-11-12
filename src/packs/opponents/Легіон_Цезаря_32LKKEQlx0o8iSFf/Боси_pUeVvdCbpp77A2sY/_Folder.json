@@ -1,0 +1,22 @@
+{
+  "type": "Actor",
+  "folder": "32LKKEQlx0o8iSFf",
+  "name": "Боси",
+  "color": null,
+  "sorting": "m",
+  "_id": "pUeVvdCbpp77A2sY",
+  "description": "",
+  "sort": 175000,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "modifiedTime": 1768951408643
+  },
+  "_key": "!folders!pUeVvdCbpp77A2sY"
+}

@@ -1,0 +1,50 @@
+{
+  "folder": "4bNsAKB1jmixQ0iI",
+  "name": "Цілющий дотик",
+  "type": "perk",
+  "_id": "ch4Jj0LojeuWqcRJ",
+  "img": "systems/wastelanders/assets/psychic-waves.svg",
+  "system": {
+    "description": "<p>Ти можеш зцілювати дотиком. Раз за сцену витрати дію, торкнись персонажа, і він негайно відновить 1d10 ОЗ. Раз за сесію ти можеш використати цей перк, щоб повернути персонажа, що вибув зі сцени (але не <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>приреченого</strong></span> і не мертвого), з 0 ОЗ назад у сцену. Він отримує наслідки як завжди.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 1,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 6,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671775702,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!ch4Jj0LojeuWqcRJ"
+}

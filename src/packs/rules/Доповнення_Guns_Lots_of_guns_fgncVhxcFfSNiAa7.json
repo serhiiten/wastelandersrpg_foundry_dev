@@ -1,0 +1,143 @@
+{
+  "name": "Доповнення Guns. Lots of guns",
+  "_id": "fgncVhxcFfSNiAa7",
+  "pages": [
+    {
+      "sort": 100000,
+      "name": "Додаткові властивості зброї",
+      "type": "text",
+      "_id": "4P2DcFRwiNw9M8pQ",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<h3>Дальність</h3><ul><li><strong>Ближ.</strong> – ближній бій. Вимагає знаходитися з супротивником у одній зоні.</li><li><strong>1</strong> — дістає до сусідньої зони.</li><li><strong>2</strong> — дістає до 2 зон відстані.</li><li><strong>Макс.</strong> — зброя максимальної дальності. Дозволяє поцілити в будь-якого видимого супротивника наскільки далеко він би не знаходився.</li></ul><h3>Швидкострільність</h3><ul><li><strong>Одиночний</strong> — дозволяє стріляти лише по одній цілі.</li><li><strong>Напівавтоматичний</strong> — дозволяє поділяти завдану шкоду по декількох супротивниках, що знаходяться в одній зоні.</li><li><strong>Автоматичний</strong> — дозволяє поділяти завдану шкоду по декількох видимих супротивниках в різних зонах.</li><li><strong>Зброя ближнього бою</strong> дозволяє ділити шкоду між всіма супротивниками в одній з вами зоні.</li></ul><h3>Інше</h3><ul><li><strong>Гострий</strong> — дозволяє змащувати лезо отрутою.</li><li>Легку зброю можна тримати однією рукою та сховати на тілі.</li><li>Середня зброя займає обидві руки. На тілі вже не сховаєш, але не дає інших штрафів.</li><li><em><strong>Важку</strong></em> зброю сховати не вийде. Вона привертає увагу.</li></ul>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768651910943,
+        "modifiedTime": 1768651923634,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!fgncVhxcFfSNiAa7.4P2DcFRwiNw9M8pQ"
+    },
+    {
+      "sort": 200000,
+      "name": "Модифікації зброї та броні",
+      "type": "text",
+      "_id": "Oi9CsvFK4aXDMMx9",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>Будь-яку зброю чи броню, окрім гранат та вибухівки, можна модифікувати. Модифікація дає зброї чи броні додатковий аспект, наприклад, <em><strong>приціл нічного бачення</strong></em> чи <em><strong>опірність до вогню</strong></em>. Для створення та встановлення модифікацій персонажу знадобиться перк «Зброяр» чи «Броняр», день часу, кришки та доступ до придбання сировини та запчастин.</p><p>Встановлення модифікації коштує 10 кришок і вимагає перевірки <strong>ІНТ + Техніка</strong>. На один екземпляр зброї чи броні можна встановити до <strong>двох</strong> модифікацій.</p><p>Результат модифікації залежить від перевірки.</p><ul><li><strong>9 чи нижче:</strong> модифікація не вдалася. Сировина та кришки витрачені дарма.</li><li><strong>10-14:</strong> модифікація вдалася, але обійшлася наполовину дорожче. Якщо в тебе не вистачає кришок, щоб оплатити збільшену вартість, модифікація не буде готова, поки ти не витратиш залишок вартості.</li><li><strong>15-18:</strong> модифікація вдалася.</li><li><strong>19 чи вище:</strong> модифікація вийшла дуже вдало. На твій вибір ти або витрачаєш наполовину менше часу та кришок, або додаєш створеному аспекту модифікації ще одне безкоштовне Посилення на сесію.</li></ul><p>Встановлена модифікація, як і будь-який аспект, є ігровою правдою. Наприклад, встановлений <em><strong>приціл нічного бачення</strong></em> дозволяє без перешкод стріляти у пітьмі, а <em><strong>опірність до вогню</strong></em> дозволяє отримувати Посилення на перевірки уникнення небезпеки від вогню. Також встановлена модифікація дає одне безкоштовне Посилення аспекту модифікації кожну ігрову сесію.</p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768651936507,
+        "modifiedTime": 1768651944744,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!fgncVhxcFfSNiAa7.Oi9CsvFK4aXDMMx9"
+    },
+    {
+      "sort": 300000,
+      "name": "Дизайнерські наркотики",
+      "type": "text",
+      "_id": "LUoOrvIPZZU9dqaf",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>Вмілий персонаж з перком «Хімік» може спробувати створити свої власні наркотики, що відрізняються від звичайних. Для цього йому необхідно мати доступ до хімічної лабораторії, витратити день часу, а також сировину та кришки в обсязі, що залежить від ефектів наркотика.</p><p>Ефекти можна комбінувати до тих пір, поки сумарний шанс залежності не стане рівним 9. Якщо сумарний шанс залежності перевищує 9 — один з ефектів треба прибрати або замінити таким чином, щоб шанс залежності не перевищував 9. Ціна виробництва та шанс залежності не можуть бути нижчі за 1.</p><p>Коли створюєш новий дизайнерський наркотик — дай йому назву.</p><p>Результат варки залежить від перевірки <strong>ІНТ + Медицина.</strong></p><ul><li><strong>9 чи нижче:</strong> варка не вдалася. Сировина та кришки витрачені дарма.</li><li><strong>10-14:</strong> варка вдалася, але наркотик вийшов брудним. Доглядач пропонує побічний ефект або кидає 1d10 за таблицею побічних ефектів нижче.</li><li><strong>15-18:</strong> варка вдалася.</li><li><strong>19 чи вище:</strong> варка вдалася особливо добре. На твій вибір ти або витрачаєш наполовину менше (округлюючи вгору) часу та кришок, або шанс залежності речовини зменшується на 1.</li></ul><h3>Ефекти наркотиків</h3><p>Всі наркотики та медикаменти діють 1 сцену. Всі ефекти можна додавати до однієї речовини тільки один раз, якщо не вказано іншого.</p><table id=\"21ee66cd-8c78-8076-95b8-f774f7514886\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"21ee66cd-8c78-8092-8f39-e23ca3fe51b4\"><th id=\"\\:Sw\" class=\"simple-table-header-color simple-table-header\" style=\"width:323.9945068359375px\"><strong>Ефект</strong></th><th id=\"`~y&lt;\" class=\"simple-table-header-color simple-table-header\"><strong>Ціна виробництва (кришки)</strong></th><th id=\"f&lt;bJ\" class=\"simple-table-header-color simple-table-header\"><strong>Шанс залежності</strong></th></tr></thead><tbody><tr id=\"21ee66cd-8c78-8080-a9a7-f53886108f07\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Бонус +1 до одного атрибуту (крім УДЧ). Цей ефект можна додавати декілька разів на різні атрибути (максимум 3)</td><td id=\"`~y&lt;\">+1</td><td id=\"f&lt;bJ\">+3</td></tr><tr id=\"21ee66cd-8c78-800c-aa9c-fdf23d3390b0\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Ефект бойового перка (ціна виробництва та шанс залежності обговорюються з Доглядачем). Не може давати ефект перків, які мають у вимогах тільки атрибут УДЧ</td><td id=\"`~y&lt;\">+3-5</td><td id=\"f&lt;bJ\">+2-4</td></tr><tr id=\"21ee66cd-8c78-805a-8174-ef0294e379a9\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Ефект небойового перка (ціна виробництва та шанс залежності обговорюються з Доглядачем). Не може давати ефект перків, які мають у вимогах тільки атрибут УДЧ</td><td id=\"`~y&lt;\">+2-4</td><td id=\"f&lt;bJ\">+1-3</td></tr><tr id=\"21ee66cd-8c78-809c-80ee-c653c7f3194c\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Ефект стімпака</td><td id=\"`~y&lt;\">+1</td><td id=\"f&lt;bJ\">+1</td></tr><tr id=\"21ee66cd-8c78-80bd-88c7-d7c3eda89c68\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Ефект суперстімпака (заміняє ефект стімпака)</td><td id=\"`~y&lt;\">+3</td><td id=\"f&lt;bJ\">+2</td></tr><tr id=\"21ee66cd-8c78-80e0-b704-c3410d91cf9e\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Тимчасове підвищення максимуму ОЗ на 1d6</td><td id=\"`~y&lt;\">+1</td><td id=\"f&lt;bJ\">+2</td></tr><tr id=\"21ee66cd-8c78-8092-9003-e0c3fe87735e\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Тимчасове підвищення максимуму ОЗ на 2d6 (заміняє попередній ефект)</td><td id=\"`~y&lt;\">+3</td><td id=\"f&lt;bJ\">+3</td></tr><tr id=\"21ee66cd-8c78-800f-9816-c941d83be73d\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Тимчасове підвищення максимуму ОЗ на 3d6 (заміняє попередній ефект)</td><td id=\"`~y&lt;\">+5</td><td id=\"f&lt;bJ\">+4</td></tr><tr id=\"21ee66cd-8c78-809a-bd39-e9473c5d16d0\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Збільшення всієї шкоди, що завдає персонаж, на 2</td><td id=\"`~y&lt;\">+3</td><td id=\"f&lt;bJ\">+5</td></tr><tr id=\"21ee66cd-8c78-80c6-928e-de05c9b13415\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Збільшення фізичної броні на 1</td><td id=\"`~y&lt;\">+2</td><td id=\"f&lt;bJ\">+3</td></tr><tr id=\"21ee66cd-8c78-8055-910c-d0a14db4e14f\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Збільшення психічної броні на 2</td><td id=\"`~y&lt;\">+2</td><td id=\"f&lt;bJ\">+3</td></tr><tr id=\"21ee66cd-8c78-8078-afbb-e7a1d7c9fb47\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Зменшення шкоди від отрут чи радіації наполовину</td><td id=\"`~y&lt;\">+2</td><td id=\"f&lt;bJ\">+2</td></tr><tr id=\"21ee66cd-8c78-80ee-97d0-e3b0156021c1\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Ефект «Гідри»</td><td id=\"`~y&lt;\">+5</td><td id=\"f&lt;bJ\">+2</td></tr><tr id=\"21ee66cd-8c78-80fe-ad95-ea128f6ba7a8\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Ефект «Меланжевої кислоти»</td><td id=\"`~y&lt;\">+5</td><td id=\"f&lt;bJ\">+2</td></tr><tr id=\"21ee66cd-8c78-804e-8a93-fd7530132ea8\"><td id=\"\\:Sw\" style=\"width:323.9945068359375px\">Ефект «Адреналіну»</td><td id=\"`~y&lt;\">+3</td><td id=\"f&lt;bJ\">+2</td></tr></tbody></table><p></p><h3>Побічні ефекти наркотиків</h3><p>Щоб урівноважити шанс залежності речовинам можна додавати побічні ефекти. Вони знижують шанс залежності та ціну виробництва. Всі побічні ефекти можна додавати до однієї речовини тільки один раз, якщо не вказано іншого.</p><table id=\"2ebe66cd-8c78-80a0-baf2-d16277ca2f47\" class=\"simple-table\"><thead class=\"simple-table-header\"><tr id=\"2ebe66cd-8c78-80c2-ad4a-d2c4f82cece6\"><th id=\"deDD\" class=\"simple-table-header-color simple-table-header\" style=\"width:110.10305786132812px\">Випадкове забруднення (1d10)</th><th id=\"AuNB\" class=\"simple-table-header-color simple-table-header\" style=\"width:324.7989730834961px\">Побічний ефект</th><th id=\"&gt;sni\" class=\"simple-table-header-color simple-table-header\" style=\"width:118.31504821777344px\">Ціна виробництва (кришки)</th><th id=\"LoVQ\" class=\"simple-table-header-color simple-table-header\" style=\"width:99.99268341064453px\">Шанс залежності</th></tr></thead><tbody><tr id=\"2ebe66cd-8c78-80f6-a233-ce1f6ffb1afa\"><td id=\"deDD\" style=\"width:110.10305786132812px\">1</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">Підвищений шанс залежності</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-2</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">+1</td></tr><tr id=\"2ebe66cd-8c78-8046-ae3e-c2e208007bae\"><td id=\"deDD\" style=\"width:110.10305786132812px\">2</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">Штраф -1 до одного атрибуту (крім УДЧ) на наступну сцену. Цей ефект можна додавати декілька разів на різні атрибути (максимум 3)</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-2</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-1</td></tr><tr id=\"2ebe66cd-8c78-804b-9aa0-d6eb6427bdb8\"><td id=\"deDD\" style=\"width:110.10305786132812px\">3</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">Штраф -1 до одного атрибуту (крім УДЧ) на всю сесію. Цей ефект можна додавати декілька разів на різні атрибути (максимум 3)</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-3</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-2</td></tr><tr id=\"2ebe66cd-8c78-800c-9a63-ee955637d9d3\"><td id=\"deDD\" style=\"width:110.10305786132812px\">4</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">Миттєва втрата 1d6 ОЗ після кінця сцени</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-1</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-1</td></tr><tr id=\"2ebe66cd-8c78-806d-b097-c7966bcfee8a\"><td id=\"deDD\" style=\"width:110.10305786132812px\">5</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">Миттєва втрата 2d6 ОЗ після кінця сцени (заміняє попередній ефект)</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-2</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-2</td></tr><tr id=\"2ebe66cd-8c78-806d-bccd-fba14fcc56da\"><td id=\"deDD\" style=\"width:110.10305786132812px\">6</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">Миттєва втрата 3d6 ОЗ після кінця сцени (заміняє попередній ефект)</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-3</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-3</td></tr><tr id=\"2ebe66cd-8c78-8043-a975-c962382e1bc0\"><td id=\"deDD\" style=\"width:110.10305786132812px\">7</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">Дає тому, хто спожив речовину, аспект берсерк до кінця сцени (сильно підвищена агресія, може почати атакувати союзників, схильний до необдуманих ризиків).</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-3</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-3</td></tr><tr id=\"2ebe66cd-8c78-8074-ac4f-e45bfe6298b9\"><td id=\"deDD\" style=\"width:110.10305786132812px\">8</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">В кінці сцени дає легкий ментальний чи фізичний наслідок. Не сполучається з ефектом «Гідри» чи «Меланжевої кислоти»</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-2</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-2</td></tr><tr id=\"2ebe66cd-8c78-80ec-ab6b-efefd817da83\"><td id=\"deDD\" style=\"width:110.10305786132812px\">9</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">В кінці сцени дає середній ментальний чи фізичний наслідок. Не сполучається з ефектом «Гідри» чи «Меланжевої кислоти»</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-4</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-3</td></tr><tr id=\"2ebe66cd-8c78-80f0-a11c-f5ef766f3b2e\"><td id=\"deDD\" style=\"width:110.10305786132812px\">10</td><td id=\"AuNB\" style=\"width:324.7989730834961px\">В кінці сцени дає тяжкий ментальний чи фізичний наслідок. Не сполучається з ефектом «Гідри» чи «Меланжевої кислоти»</td><td id=\"&gt;sni\" style=\"width:118.31504821777344px\">-5</td><td id=\"LoVQ\" style=\"width:99.99268341064453px\">-4</td></tr></tbody></table>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "ownership": {
+        "default": -1,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "wastelanders",
+        "systemVersion": "0.2",
+        "createdTime": 1768651955127,
+        "modifiedTime": 1768652723481,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!journal.pages!fgncVhxcFfSNiAa7.LUoOrvIPZZU9dqaf"
+    }
+  ],
+  "folder": null,
+  "categories": [],
+  "sort": 100000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768651896457,
+    "modifiedTime": 1768658498898,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!journal!fgncVhxcFfSNiAa7"
+}

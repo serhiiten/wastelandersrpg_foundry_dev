@@ -1,0 +1,50 @@
+{
+  "folder": "Z4Ywg4otAI6i7pxy",
+  "name": "Експерт-робототехнік",
+  "type": "perk",
+  "_id": "7BGx6FqBWXSVZEKC",
+  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "system": {
+    "description": "<p>Раз за сцену ти можеш здійснити спеціальну перевірку подолання труднощів ІН + Знання, щоб деактивувати або перепрограмувати робота або подібну електронну систему. Проти елітних супротивників перевірка отримує Послаблення, проти босів - два Послаблення. Деактивація або перепрограмування триває до кінця сцени або кілька хвилин. Перепрограмовані роботи виконують твої команди і будуть захищати тебе та твоїх созників (див. <span style=\"text-decoration:underline;text-decoration-thickness:0.05em;text-decoration-color:rgba(55, 53, 47, 0.4);text-underline-offset:10%;opacity:0.7\" class=\"link-annotation-unknown-block-id--283186777\"><a href=\"/21ee66cd8c7880eba97beea59f11ae0c?pvs=25\" style=\"cursor:pointer;color:inherit;word-wrap:break-word;text-decoration:inherit\" class=\"notion-link-token notion-focusable-token notion-enable-hover\" rel=\"noopener noreferrer\" data-token-index=\"1\" tabindex=\"0\">правила допомоги від НІПів</a></span>). Якщо ОЗ деактивованого або перепрограмованого робота сягнуть половини або нижче - ефект зникне і вони повернуться до початкового стану. На одного робота чи систему цей перк можна застосувати лише один раз.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 1,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 8,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671089192,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!7BGx6FqBWXSVZEKC"
+}

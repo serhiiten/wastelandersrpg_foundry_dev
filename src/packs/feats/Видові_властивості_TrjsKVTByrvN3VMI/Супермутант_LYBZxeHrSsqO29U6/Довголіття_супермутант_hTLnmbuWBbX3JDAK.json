@@ -1,0 +1,31 @@
+{
+  "folder": "LYBZxeHrSsqO29U6",
+  "name": "Довголіття (супермутант)",
+  "type": "feat",
+  "_id": "hTLnmbuWBbX3JDAK",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "isSpecies": true,
+    "description": "<p>Аналогічно до гулів, супермутанти майже не старішають з віком і можуть спокійно прожити сотні років. Звичайно, якщо Пустка не забере їх раніше.</p>",
+    "hpBonus": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150210621,
+    "modifiedTime": 1777150220195,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!hTLnmbuWBbX3JDAK"
+}

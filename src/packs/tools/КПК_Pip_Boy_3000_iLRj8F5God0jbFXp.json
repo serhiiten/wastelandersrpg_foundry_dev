@@ -1,0 +1,30 @@
+{
+  "name": "КПК Pip-Boy 3000",
+  "type": "tool",
+  "_id": "iLRj8F5God0jbFXp",
+  "img": "systems/wastelanders/assets/pip-boy-3000cover.webp",
+  "system": {
+    "description": "<p>Має щоденник, персональний біомонітор, лічильник Гейгера, програму для створення мап місцевості, програвач касет та голодисків, ліхтарик та радіоприймач.</p>",
+    "price": 10
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 600000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768568597054,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!iLRj8F5God0jbFXp"
+}

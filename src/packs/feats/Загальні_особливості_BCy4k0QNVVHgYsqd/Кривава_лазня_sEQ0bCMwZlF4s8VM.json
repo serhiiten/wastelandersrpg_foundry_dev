@@ -1,0 +1,30 @@
+{
+  "name": "Кривава лазня",
+  "type": "feat",
+  "_id": "sEQ0bCMwZlF4s8VM",
+  "img": "systems/wastelanders/assets/body-swapping.svg",
+  "system": {
+    "active": false,
+    "description": "<p>За дивним збігом обставин убиті тобою істоти помирають найстрашнішим чином, з кров'ю та кишками повсюди. Коли ти вбиваєш істоту, яскраво опиши, наскільки криваво це відбувається. Не всім персонажам це подобається, і ти можеш отримувати Послаблення на соціальні взаємодії з персонажами, які були свідками того, що трапляється з твоїми ворогами. Але коли ти залякуєш опонентів, які були свідками твого гніву, ти отримуєш Посилення.</p><p><strong>Попередження:</strong> ця особливість може бути неприйнятною для деяких гравців. Обов'язково обговоріть всією ігровою групою наявність цієї особливості у грі.</p>"
+  },
+  "effects": [],
+  "folder": "BCy4k0QNVVHgYsqd",
+  "sort": 1600000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768569006324,
+    "modifiedTime": 1768827073324,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!sEQ0bCMwZlF4s8VM"
+}

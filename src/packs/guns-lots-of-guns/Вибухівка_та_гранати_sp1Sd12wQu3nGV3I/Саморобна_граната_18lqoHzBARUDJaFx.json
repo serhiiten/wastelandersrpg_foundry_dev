@@ -1,0 +1,31 @@
+{
+  "folder": "sp1Sd12wQu3nGV3I",
+  "name": "Саморобна граната",
+  "type": "weapon",
+  "_id": "18lqoHzBARUDJaFx",
+  "img": "systems/wastelanders/assets/grenade.svg",
+  "system": {
+    "description": "<p>Дальність: 1 зона</p><p>Властивість: завдає шкоди по площині.</p>",
+    "price": 1,
+    "damage": "1d6"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768608994495,
+    "modifiedTime": 1768827196413,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!18lqoHzBARUDJaFx"
+}

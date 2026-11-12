@@ -1,0 +1,50 @@
+{
+  "folder": "u3oLQEnmlpqTwwgK",
+  "name": "Слизький тип",
+  "type": "perk",
+  "_id": "v2n2ZCRoOexY5ElE",
+  "img": "systems/wastelanders/assets/robber.svg",
+  "system": {
+    "description": "<p>Чи це мутація твоєї шкіри, чи ти навчився цього у мандрівного факіра, але тебе неможливо <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>схопити, зв'язати</strong></em></span> чи <span style=\"font-style:italic;font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><em><strong>обплутати</strong></em></span>. Витративши кілька хвилин часу, ти можеш вислизнути навіть із наручників, кайданів або нашийника з вибухівкою, хоч би як туго їх затягували на тобі. Гудіні бісів.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": 1,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 6,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668710203,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!v2n2ZCRoOexY5ElE"
+}

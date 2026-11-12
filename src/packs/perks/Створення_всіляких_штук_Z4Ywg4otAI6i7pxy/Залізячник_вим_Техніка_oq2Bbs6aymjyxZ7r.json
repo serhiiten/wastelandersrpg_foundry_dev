@@ -1,0 +1,50 @@
+{
+  "folder": "Z4Ywg4otAI6i7pxy",
+  "name": "Залізячник (вим. Техніка)",
+  "type": "perk",
+  "_id": "oq2Bbs6aymjyxZ7r",
+  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "system": {
+    "description": "<p>Раз за сцену витрати одиницю Припасів, щоб швидко створити гранату або невеликий механічний чи електронний пристрій, аналогічний такому вартістю до 3 кришок. Дай пристрою назву та обговори з Доглядачем його функції та можливі недоліки. Створений пристрій тримається буквально на соплях, тому його неможливо продати, і він розвалюється в кінці сцени. Витративши вечір відпочинку та сировину на половину звичайної вартості пристрою (округлюючи вгору), ти можеш створити щось надійніше.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 1,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 6,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768670192536,
+    "modifiedTime": 1769783188214,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!oq2Bbs6aymjyxZ7r"
+}

@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Критфікс",
+  "type": "drug",
+  "_id": "k5BjqAnjUVmsc5jK",
+  "img": "systems/wastelanders/assets/scrap-electronics.webp",
+  "system": {
+    "price": 5,
+    "addiction": 0,
+    "description": "<p>Покращений «Хотфікс». За посилений ефект доведеться платити перевантаженням системи. Аналог суперстимпака, але працює лише на механізми.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768648996257,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!k5BjqAnjUVmsc5jK"
+}

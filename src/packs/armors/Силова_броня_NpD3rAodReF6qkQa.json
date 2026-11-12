@@ -1,0 +1,31 @@
+{
+  "name": "Силова броня",
+  "type": "armor",
+  "_id": "NpD3rAodReF6qkQa",
+  "img": "systems/wastelanders/assets/pwrarmor.webp",
+  "system": {
+    "description": "<p>Моделі T-45, T-51, T-60.</p><p>Вершина технологій у сфері персонального захисту. Високотехнологічна полімерно-композитна броня з силовим каркасом та міні-ядерним реактором.</p><p>Дає +1 до Сили (аж до максимуму в +4), має автономний запас повітря на кілька годин, зменшує шкоду від радіації та отрут наполовину (округлюючи вгору). Поки ти носиш цю броню, твої удари кулаками у ближньому бою вважаються середньою зброєю та завдають 1d10 шкоди. <em><strong>Важка. Значуща.</strong></em> Захищає від фізичної шкоди.</p><p>Для використання силової броні потрібен перк «Вміння носити силову броню». Особлива версія такої броні не коштує більше кришок.</p><p></p>",
+    "price": 100,
+    "protection": 5
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 600000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768566019826,
+    "modifiedTime": 1769781830058,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!NpD3rAodReF6qkQa"
+}

@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": null,
+  "name": "Удача",
+  "color": null,
+  "sorting": "m",
+  "_id": "nct1ME7yyYIMNaL3",
+  "description": "",
+  "sort": 541407,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768671516147,
+    "modifiedTime": 1768671672570,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!folders!nct1ME7yyYIMNaL3"
+}

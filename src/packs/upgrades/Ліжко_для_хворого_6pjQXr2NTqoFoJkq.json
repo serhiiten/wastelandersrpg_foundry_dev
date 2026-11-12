@@ -1,0 +1,33 @@
+{
+  "name": "Ліжко для хворого",
+  "type": "upgrade",
+  "_id": "6pjQXr2NTqoFoJkq",
+  "img": "systems/wastelanders/assets/upgrade.svg",
+  "system": {
+    "description": "<p>Окреме ліжко з медичним обладнанням, яке сильно покращує шанси на виживання для того, кому не пощастило. Вміщує одного персонажа. Персонаж, який відпочиває на ліжку для хворого, за витрату одиниці Припасів відновлює всі ОЗ замість половини. Також якщо персонажа лікують на ліжку для хворих, медик отримує +1 до перевірки.</p>",
+    "active": {
+      "value": 0,
+      "max": 1
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768567408735,
+    "modifiedTime": 1768827166260,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!6pjQXr2NTqoFoJkq"
+}

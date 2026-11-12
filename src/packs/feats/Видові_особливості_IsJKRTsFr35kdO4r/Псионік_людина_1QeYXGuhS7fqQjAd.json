@@ -1,0 +1,32 @@
+{
+  "name": "Псионік (людина)",
+  "type": "feat",
+  "_id": "1QeYXGuhS7fqQjAd",
+  "img": "systems/wastelanders/assets/dna1.svg",
+  "system": {
+    "active": false,
+    "description": "<p>Від народження ти отримав надзвичайно рідкісну особливість — силою своєї думки ти можеш творити те, що інші вважають дивами. Ти можеш брати псионічні перки, проте твої здібності лякають оточуючих. Будь-яка відкрита демонстрація твоїх сил непосвяченим призведе до того, що ти в кращому випадку отримаєш Послаблення на всі соціальні перевірки з цими персонажами, а в гіршому — з тобою відмовляться говорити, проженуть або спробують вбити.</p><p><strong>Примітка:</strong> ця особливість є вимогою взяття псионічних перків. Допускати псионіків у гру чи ні — рішення Доглядача.</p>",
+    "isSpecies": true,
+    "hpBonus": null
+  },
+  "effects": [],
+  "folder": "IsJKRTsFr35kdO4r",
+  "sort": 300000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1768569549190,
+    "modifiedTime": 1777149772928,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC"
+  },
+  "_key": "!items!1QeYXGuhS7fqQjAd"
+}

@@ -1,0 +1,50 @@
+{
+  "folder": "h8dtJ70LrehwRRXD",
+  "name": "Автоматний псих",
+  "type": "perk",
+  "_id": "5RcU28PzMBxFmfGs",
+  "img": "systems/wastelanders/assets/human-target.svg",
+  "system": {
+    "description": "<p>Затисни гачок і насолоджуйся. Ти можеш витратити одиницю Припасів перед атакою стрілецькою зброєю, що має автоматичний режим вогню. Якщо ти завдаєш шкоди, можеш кинути шкоду своєї зброї двічі і обрати кращий результат.</p>",
+    "attributes": {
+      "strength": 0,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 6,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768659882249,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!5RcU28PzMBxFmfGs"
+}

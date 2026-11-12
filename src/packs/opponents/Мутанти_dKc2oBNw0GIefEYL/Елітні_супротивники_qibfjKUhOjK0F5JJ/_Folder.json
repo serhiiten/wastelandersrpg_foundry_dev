@@ -1,0 +1,22 @@
+{
+  "type": "Actor",
+  "folder": "dKc2oBNw0GIefEYL",
+  "name": "Елітні супротивники",
+  "color": null,
+  "sorting": "m",
+  "_id": "qibfjKUhOjK0F5JJ",
+  "description": "",
+  "sort": 150000,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "modifiedTime": 1768954491084
+  },
+  "_key": "!folders!qibfjKUhOjK0F5JJ"
+}

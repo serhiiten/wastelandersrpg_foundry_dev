@@ -1,0 +1,31 @@
+{
+  "name": "Плазмовий пістолет (легкий)",
+  "type": "weapon",
+  "_id": "CphDQcfbeC48uJ4R",
+  "img": "systems/wastelanders/assets/pistol-gun-1.svg",
+  "system": {
+    "description": "<p>Дальність: 2 зони </p><p>Властивість: Напівавтоматичний. Плазмовий. Ігнорує 2 броні.</p>",
+    "price": 12,
+    "damage": "1d8"
+  },
+  "effects": [],
+  "folder": "1SQW5cFh9fKmHQAp",
+  "sort": 800000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768605045935,
+    "modifiedTime": 1769781830184,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!CphDQcfbeC48uJ4R"
+}

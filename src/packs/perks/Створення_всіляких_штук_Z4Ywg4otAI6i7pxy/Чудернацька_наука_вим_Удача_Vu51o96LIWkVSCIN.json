@@ -1,0 +1,50 @@
+{
+  "folder": "Z4Ywg4otAI6i7pxy",
+  "name": "Чудернацька наука (вим. Удача)",
+  "type": "perk",
+  "_id": "Vu51o96LIWkVSCIN",
+  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "system": {
+    "description": "<p>Коли ти здійснюєш небезпечні та неперевірені «наукові» експерименти або створюєш чудернацькі приблуди без огляду на власну безпеку та безпеку оточуючих, ти отримуєш Посилення на перевірки успішності своїх експериментів чи створення речі. Доглядач визначає, чи достатньо це небезпечно чи ні.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": 0
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 6,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768670459986,
+    "modifiedTime": 1769783530968,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!Vu51o96LIWkVSCIN"
+}

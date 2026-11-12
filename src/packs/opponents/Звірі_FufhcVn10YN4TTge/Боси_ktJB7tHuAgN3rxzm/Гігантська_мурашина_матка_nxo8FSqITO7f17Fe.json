@@ -1,0 +1,189 @@
+{
+  "folder": "ktJB7tHuAgN3rxzm",
+  "name": "Гігантська мурашина матка",
+  "type": "enemy",
+  "_id": "nxo8FSqITO7f17Fe",
+  "img": "systems/wastelanders/assets/murashyna-matka.png",
+  "system": {
+    "hp": {
+      "value": 30,
+      "max": 30
+    },
+    "armor": 3,
+    "description": "<p>Королева мурашника гігантських мурах. Величезна летюча комаха з роздутим черевом, що постійно народжує нових личинок мурах. Водиться виключно поодинці, але у супроводі 3-4 мурах-солдат.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>королева мурашника, величезна летюча комаха, виділяє дурманливі феромони.</strong></em></span></p><hr /><p>Летюча, тому її не можна <em><strong>збити з ніг.</strong></em></p><hr /><p><strong>Ходи:</strong></p><ul><li><strong>Підкріплення:</strong> раз за сцену закликає двох гігантських мурах-солдат на допомогу.</li><li><strong>Політ:</strong> матка злітає і може переміститися на відстань до двох зон без жодних перешкод.</li><li><strong>Бомбардування кислотою:</strong> раз за сцену всі противники матки в одній вибраній зоні отримують 2d6 шкоди кислотою та отримують -2 до фізичної броні (мінімум 0) до кінця сцени.</li></ul><hr /><p>Після смерті з тіла матки можна добути її феромони. Киньте 1d6, якщо випало 1-2, ви знаходите 1 дозу, 3-4 — 2 дози, 5-6 — 3 дози. Феромони мурашиних маток — надзвичайно сильні афродизіаки. При вживанні вони дають +1 до Привабливості та ефект перку «Сексперт» до кінця сцени. Надзвичайно цінуються обізнаною публікою та йдуть по 10 кришок за дозу.</p>",
+    "type": "boss"
+  },
+  "prototypeToken": {
+    "name": "Гігантська мурашина матка",
+    "displayName": 50,
+    "actorLink": true,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "systems/wastelanders/assets/murashyna-matka.png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "hp"
+    },
+    "bar2": {
+      "attribute": null
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": {},
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "turnMarker": {
+      "mode": 1,
+      "animation": null,
+      "src": null,
+      "disposition": false
+    },
+    "movementAction": null,
+    "flags": {},
+    "randomImg": false,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "depth": 1
+  },
+  "items": [
+    {
+      "name": "Гігантські мандибули",
+      "type": "attack",
+      "_id": "88nn2fJfQaHYVfeb",
+      "img": "assets/bowie-knife.svg",
+      "system": {
+        "description": "<p>+3 шкоди <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>кислотою</strong></em></span>. Ближній бій.</p>",
+        "damage": "2d6+3"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768849599001,
+        "modifiedTime": 1768865816565,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!nxo8FSqITO7f17Fe.88nn2fJfQaHYVfeb"
+    },
+    {
+      "name": "Бомбардування кислотою",
+      "type": "attack",
+      "_id": "pNKzpL9qXWkXXfax",
+      "img": "assets/grenade.svg",
+      "system": {
+        "description": "<p>Раз за сцену всі противники матки в одній вибраній зоні отримують 2d6 шкоди кислотою та отримують -2 до фізичної броні (мінімум 0) до кінця сцени. Дальній бій.</p>",
+        "damage": "2d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders",
+        "systemVersion": "0.3",
+        "createdTime": 1768849673997,
+        "modifiedTime": 1768849741987,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!nxo8FSqITO7f17Fe.pNKzpL9qXWkXXfax"
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.359",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "createdTime": 1768849585234,
+    "modifiedTime": 1769782005278,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!actors!nxo8FSqITO7f17Fe"
+}

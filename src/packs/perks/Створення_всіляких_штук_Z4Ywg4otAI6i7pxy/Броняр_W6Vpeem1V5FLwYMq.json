@@ -1,0 +1,50 @@
+{
+  "folder": "Z4Ywg4otAI6i7pxy",
+  "name": "Броняр",
+  "type": "perk",
+  "_id": "W6Vpeem1V5FLwYMq",
+  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "system": {
+    "description": "<p>Ти можеш створювати броню, якщо маєш достатню кількість сировини. Купи сировини на половину від звичайної вартості броні (округлюючи вгору), а також витрати 1 день для легкої броні, 3 дні для середньої, 5 днів для важкої та тиждень для рідкісної важкої. Щоб виробляти легку броню, твоя навичка Техніки має бути на рівні учня, середню та важку — на рівні підмайстра, рідкісну — майстра. Також ти отримуєш +1 до перевірок <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ІН + Техніка</strong></span>, коли ти ремонтуєш або вдосконалюєш броню.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 0,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 6,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768670152554,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!W6Vpeem1V5FLwYMq"
+}

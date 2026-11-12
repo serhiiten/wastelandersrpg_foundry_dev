@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": "TrjsKVTByrvN3VMI",
+  "name": "Гуль",
+  "color": null,
+  "sorting": "m",
+  "_id": "YDX9RRpC1W6HpLld",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.360",
+    "systemId": "wastelanders",
+    "systemVersion": "0.4.2",
+    "createdTime": 1777150133166,
+    "modifiedTime": 1777150133166,
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!folders!YDX9RRpC1W6HpLld"
+}

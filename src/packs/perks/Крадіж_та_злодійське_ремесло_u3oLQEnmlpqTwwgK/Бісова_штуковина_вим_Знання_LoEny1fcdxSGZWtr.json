@@ -1,0 +1,50 @@
+{
+  "folder": "u3oLQEnmlpqTwwgK",
+  "name": "Бісова штуковина! (вим. Знання)",
+  "type": "perk",
+  "_id": "LoEny1fcdxSGZWtr",
+  "img": "systems/wastelanders/assets/robber.svg",
+  "system": {
+    "description": "<p><span style=\"color: rgb(25, 24, 19); font-family: Scada, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(238, 238, 238); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none\">Раз за сцену ти можеш повністю перекинути будь-яку перевірку, пов'язану зі зламом замків або взаємодією з комп'ютерами, якщо добряче копнеш те, що зламуєш. Це буде гучно.</span></p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 6,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668631586,
+    "modifiedTime": 1769783105279,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!LoEny1fcdxSGZWtr"
+}

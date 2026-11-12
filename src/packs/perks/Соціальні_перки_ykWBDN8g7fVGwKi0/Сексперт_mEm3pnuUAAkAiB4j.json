@@ -1,0 +1,50 @@
+{
+  "folder": "ykWBDN8g7fVGwKi0",
+  "name": "Сексперт",
+  "type": "perk",
+  "_id": "mEm3pnuUAAkAiB4j",
+  "img": "systems/wastelanders/assets/talk.svg",
+  "system": {
+    "description": "<p>У ліжку тобі немає рівних, і про це знають усі, хто переспав з тобою бодай раз. Ти отримуєш Посилення на всі перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ПВ</strong></span>, пов'язані зі звабленням.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": 1,
+      "intelligence": null,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768668201310,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!mEm3pnuUAAkAiB4j"
+}

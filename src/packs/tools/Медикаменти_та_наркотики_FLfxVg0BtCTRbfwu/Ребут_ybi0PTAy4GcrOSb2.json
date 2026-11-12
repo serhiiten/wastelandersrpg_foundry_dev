@@ -1,0 +1,31 @@
+{
+  "folder": "FLfxVg0BtCTRbfwu",
+  "name": "Ребут",
+  "type": "drug",
+  "_id": "ybi0PTAy4GcrOSb2",
+  "img": "systems/wastelanders/assets/scrap-electronics.webp",
+  "system": {
+    "price": 5,
+    "addiction": 0,
+    "description": "<p>Для випадків, коли машинка вже зламалася, але дуже потрібна тут і зараз. Аналог адреналіну, але працює лише на механізми. Не діє на тих, хто <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>приречений</strong></span> померти.</p>"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768649014389,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!ybi0PTAy4GcrOSb2"
+}

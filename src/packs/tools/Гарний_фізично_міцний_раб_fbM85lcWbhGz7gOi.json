@@ -1,0 +1,29 @@
+{
+  "name": "Гарний фізично міцний раб",
+  "type": "passenger",
+  "_id": "fbM85lcWbhGz7gOi",
+  "img": "systems/wastelanders/assets/slaver.webp",
+  "system": {
+    "description": "<p><strong>Ціна: 10 кришок</strong></p><p>Витривалий та сильний раб.</p>"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 800000,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.1",
+    "createdTime": 1768568792097,
+    "modifiedTime": 1769781830080,
+    "lastModifiedBy": "CXn23KOmyfe6wBkg"
+  },
+  "_key": "!items!fbM85lcWbhGz7gOi"
+}

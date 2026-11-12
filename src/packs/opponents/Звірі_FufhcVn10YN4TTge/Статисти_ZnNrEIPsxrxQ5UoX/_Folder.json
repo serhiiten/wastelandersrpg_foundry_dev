@@ -1,0 +1,22 @@
+{
+  "type": "Actor",
+  "folder": "FufhcVn10YN4TTge",
+  "name": "Статисти",
+  "color": null,
+  "sorting": "m",
+  "_id": "ZnNrEIPsxrxQ5UoX",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.3",
+    "lastModifiedBy": "Te0NoAFEwBAH20vC",
+    "modifiedTime": 1768866453948
+  },
+  "_key": "!folders!ZnNrEIPsxrxQ5UoX"
+}

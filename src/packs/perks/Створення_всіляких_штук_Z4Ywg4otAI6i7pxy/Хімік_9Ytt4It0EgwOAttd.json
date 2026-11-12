@@ -1,0 +1,50 @@
+{
+  "folder": "Z4Ywg4otAI6i7pxy",
+  "name": "Хімік",
+  "type": "perk",
+  "_id": "9Ytt4It0EgwOAttd",
+  "img": "systems/wastelanders/assets/auto-repair.svg",
+  "system": {
+    "description": "<p>Раз за сцену витрати одиницю Припасів, щоб швидко створити одну дозу медикаменту, наркотику, отрути чи біологічного агента, аналогічного такому, вартістю до 3 кришок. Дай речовині назву та обговори з Доглядачем ефекти та можливі недоліки даної речовини. Створена речовина дуже нестабільна, тому її не можна просто так продати, також вона втрачає свої властивості наприкінці сцени. Витративши вечір відпочинку та сировину на половину звичайної вартості речовини (округлюючи вгору), ти можеш створити щось стабільніше.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": null,
+      "attractiveness": null,
+      "intelligence": 1,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 6,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders",
+    "systemVersion": "0.2",
+    "createdTime": 1768670168726,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!9Ytt4It0EgwOAttd"
+}
