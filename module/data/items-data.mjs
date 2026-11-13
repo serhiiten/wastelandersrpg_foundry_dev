@@ -4,6 +4,8 @@ export class FeatData extends foundry.abstract.TypeDataModel {
 
     return {
       isSpecies: new fields.BooleanField({ initial: false }),
+      // Player's note on an owned feat (e.g. what it applies to)
+      note: new fields.StringField(),
       hpBonus: new fields.NumberField({
         integer: true,
       }),
@@ -77,6 +79,8 @@ export class PerkData extends foundry.abstract.TypeDataModel {
         integer: true,
       }),
       notMetRequirements: new fields.BooleanField({ initial: false }),
+      // Player's note on an owned perk (e.g. the chosen skill or weapon)
+      note: new fields.StringField(),
     };
   }
 }
@@ -95,6 +99,28 @@ export class WeaponData extends foundry.abstract.TypeDataModel {
         initial: 0,
       }),
       damage: new fields.StringField(),
+      note: new fields.StringField(),
+      // The weapon the character holds (one at a time)
+      inHand: new fields.BooleanField({ initial: false }),
+      // Energy version: «лазерна», «електрична», «плазмова», «кріо», «гаус»
+      energy: new fields.StringField({
+        blank: true,
+        initial: "",
+        choices: ["", "laser", "electric", "plasma", "cryo", "gauss"],
+      }),
+      // «Guns. Lots of Guns» properties
+      range: new fields.StringField({ blank: true, initial: "", choices: ["", "melee", "1", "2", "max"] }),
+      fireRate: new fields.StringField({
+        blank: true,
+        initial: "",
+        choices: ["", "single", "semi", "auto", "melee"],
+      }),
+      weaponClass: new fields.StringField({
+        blank: true,
+        initial: "",
+        choices: ["", "light", "medium", "heavy"],
+      }),
+      mods: new fields.ArrayField(new fields.StringField()),
     };
   }
 }
@@ -107,6 +133,7 @@ export class ArmorData extends foundry.abstract.TypeDataModel {
 
     return {
       description: new fields.HTMLField(),
+      note: new fields.StringField(),
       heavy: new fields.BooleanField({ initial: false }),
       price: new fields.NumberField({
         ...requiredPositiveInteger,
@@ -129,6 +156,8 @@ export class ToolData extends foundry.abstract.TypeDataModel {
 
     return {
       description: new fields.HTMLField(),
+      note: new fields.StringField(),
+      quantity: new fields.NumberField({ ...requiredPositiveInteger, initial: 1 }),
       heavy: new fields.BooleanField({ initial: false }),
       price: new fields.NumberField({
         ...requiredPositiveInteger,
@@ -146,6 +175,8 @@ export class DrugData extends foundry.abstract.TypeDataModel {
 
     return {
       description: new fields.HTMLField(),
+      note: new fields.StringField(),
+      quantity: new fields.NumberField({ ...requiredPositiveInteger, initial: 1 }),
       price: new fields.NumberField({
         ...requiredPositiveInteger,
         initial: 0,
@@ -188,6 +219,7 @@ export class CargoData extends foundry.abstract.TypeDataModel {
 
     return {
       description: new fields.HTMLField(),
+      note: new fields.StringField(),
       price: new fields.NumberField({
         ...requiredPositiveInteger,
         initial: 0,

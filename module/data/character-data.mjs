@@ -12,6 +12,16 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
       concept: new fields.StringField(),
       problem: new fields.StringField(),
       goal: new fields.StringField(),
+      // «Деталь персонажа» — the fourth aspect
+      detail: new fields.StringField(),
+      gender: new fields.StringField({ initial: "m", choices: ["m", "f"] }),
+      // Situational aspects: text and how many times it was invoked this scene
+      situational: new fields.ArrayField(
+        new fields.SchemaField({
+          name: new fields.StringField(),
+          invoked: new fields.NumberField({ ...requiredPositiveInteger, initial: 0 }),
+        }),
+      ),
 
       hp: new fields.SchemaField({
         value: new fields.NumberField({
@@ -30,6 +40,10 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
           ...requiredInteger,
           initial: 0,
         }),
+        // Max HP lost to failed treatment of consequences
+        reduction: new fields.NumberField({ ...requiredPositiveInteger, initial: 0 }),
+        // Manual max HP («вільний режим»); null = calculated
+        maxOverride: new fields.NumberField({ integer: true, min: 0, nullable: true, initial: null }),
       }),
 
       fate: new fields.SchemaField({
@@ -53,6 +67,9 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
           ...requiredPositiveInteger,
           initial: 0,
         }),
+        // Manual physical / psychic armor; null = calculated
+        override: new fields.NumberField({ integer: true, min: 0, nullable: true, initial: null }),
+        psiOverride: new fields.NumberField({ integer: true, min: 0, nullable: true, initial: null }),
       }),
 
       consequences: new fields.SchemaField({
@@ -61,6 +78,13 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
         secondModerate: new fields.StringField(),
         heavy: new fields.StringField(),
         doubleModerate: new fields.BooleanField({ initial: false }),
+        // «пролікований»: treatment of the consequence has started
+        treated: new fields.SchemaField({
+          light: new fields.BooleanField({ initial: false }),
+          moderate: new fields.BooleanField({ initial: false }),
+          secondModerate: new fields.BooleanField({ initial: false }),
+          heavy: new fields.BooleanField({ initial: false }),
+        }),
       }),
 
       attributes: new fields.SchemaField({
@@ -176,7 +200,54 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
         ),
       }),
 
+      // Manual damage defenses; empty / null = calculated from species, perks, armor and chems.
+      // phys, energy, fire, rad, poison, psy: "normal" | "half" | "immune" | "heal" (rad only)
+      defenseOverrides: new fields.SchemaField({
+        ...Object.fromEntries(
+          ["phys", "energy", "fire", "rad", "poison", "psy"].map((k) => [
+            k,
+            new fields.StringField({
+              blank: true,
+              initial: "",
+              choices: ["", "normal", "half", "immune", "heal"],
+            }),
+          ]),
+        ),
+        ...Object.fromEntries(
+          ["electric", "partial", "noKnock", "noStun", "noDisarm"].map((k) => [
+            k,
+            new fields.BooleanField({ nullable: true, initial: null }),
+          ]),
+        ),
+      }),
+
+      // Chems and addictions, owned by the rules engine (same shape as the HTML sheet's `chem`)
+      chem: new fields.ObjectField(),
+
+      // Trophies that change the rules («Яо-ґай», «яйце»)
+      loot: new fields.SchemaField({
+        yaoGuai: new fields.BooleanField({ initial: false }),
+        egg: new fields.BooleanField({ initial: false }),
+      }),
+
+      // The player chose to hold no weapon
+      noHand: new fields.BooleanField({ initial: false }),
+
+      // Character creation: the extra choice is a perk or a skill
+      creationChoice: new fields.StringField({ initial: "perk", choices: ["perk", "skill"] }),
+
+      // Per-character options (the HTML sheet's «Налаштування»)
+      options: new fields.SchemaField({
+        smartDeathclaws: new fields.BooleanField({ initial: true }),
+        psionics: new fields.BooleanField({ initial: true }),
+        powerArmorPerk: new fields.BooleanField({ initial: false }),
+        freeMode: new fields.BooleanField({ initial: false }),
+        handwriting: new fields.BooleanField({ initial: false }),
+      }),
+
       description: new fields.HTMLField(),
+      // «Інші» — companions and other people in the character's life
+      others: new fields.HTMLField(),
       notes: new fields.HTMLField(),
     };
   }
@@ -192,9 +263,10 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
 
     // Count HP
     this.hp.base = 15 + this.attributes.endurance * 3;
-    this.hp.max = this.hp.base + this.hp.bonus + this.hp.perkBonus;
+    const hpMax = this.hp.maxOverride ?? this.hp.base + this.hp.bonus + this.hp.perkBonus;
+    this.hp.max = Math.max(0, hpMax - this.hp.reduction);
 
     // Count Armor
-    this.armor.value = this.armor.bonus + this.armor.itemBonus;
+    this.armor.value = this.armor.override ?? this.armor.bonus + this.armor.itemBonus;
   }
 }
