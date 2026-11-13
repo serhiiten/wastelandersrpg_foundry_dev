@@ -100,6 +100,7 @@ const SAME = {
   "act:json": "action:jsonSave",
   "act:open": "action:jsonOpen",
   "act:consq-roll": "action:checkPanel",
+  "k:supplies": "act:sup-set", // Припаси are set by lamps (Мотлох and the quick panel), no number field
   "act:dismiss": "SKIP",
   "ui:restN": "ui:restMedic",
   "ui:restQr": "ui:restQr",
@@ -255,7 +256,7 @@ function stepsFor(st) {
   const steps = [
     act("gender", { v: "f" }), act("roll-name"), act("roll-asp", { i: "1" }), act("roll-detail"), act("roll-species"),
     act("roll-perks"), act("roll-feats"), act("roll-gear"), act("apply-arch"),
-    act("attr", { k: "SL", d: "1" }), act("attr", { k: "VTR", d: "-1" }), act("skill", { s: "Атлетика", l: "1" }),
+    act("attr", { k: "SL", d: "1" }), act("attr", { k: "VTR", d: "-1" }), { ...act("skill", { s: "Атлетика", l: "1" }), skipToasts: true }, // Foundry's refusal says where new skills come from
     act("perk-add", { n: R.PERKS[st.name.length % R.PERKS.length].n }), act("perk-del", { i: "0" }),
     act("feat-add", { n: R.FEATS[st.name.length % R.FEATS.length].n }), act("feat-del", { i: "0" }),
     act("imp", { k: "perk", i: "0" }), act("imp", { k: "skill2", i: "0" }),

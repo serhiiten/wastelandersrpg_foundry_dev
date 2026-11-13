@@ -58,6 +58,10 @@ if (failures) process.exit(1);
     if (C.setField("hpMaxOv", "3") === false || st.hpMaxOv !== "3") fails++;
     if (C.act("step", { k: "hpMaxOv", d: "1" }) === false || st.hpMaxOv !== "4") fails++;
     if (C.setField("defOv.rad", "immune") === false || st.defOv.rad !== "immune") fails++;
+    // the supplies maximum: a positive number only
+    if (C.setField("supMax", "0") !== false || C.setField("supMax", "-3") !== false || C.setField("supMax", "абв") !== false) fails++;
+    if (C.setField("supMax", "8") === false || st.supMax !== "8") fails++;
+    st.supMax = "1"; if (C.act("step", { k: "supMax", d: "-1" }) === false || st.supMax !== "1") fails++;
     C.setField("set.free", false);
     if (C.act("ov-reset", { k: "hpMaxOv" }) !== false || st.hpMaxOv !== "4") fails++;
   }

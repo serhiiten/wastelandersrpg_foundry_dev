@@ -61,7 +61,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     context.tab = this.ui.tab;
     context.quickFold = !!this.ui.quickFold;
     context.statusFold = !!this.ui.statusFold;
-    context.ui = { ovOpen: !!this.ui.ovOpen, defOpen: !!this.ui.defOpen }; // folded blocks in «Налаштування» (closed by default)
+    context.ui = { ovOpen: !!this.ui.ovOpen, defOpen: !!this.ui.defOpen, xpHelpOpen: !!this.ui.xpHelpOpen, sheetBarOpen: !!this.ui.sheetBarOpen }; // folded blocks in «Налаштування» (closed by default)
     context.restUi = this.ui.rest;
     context.customKind = this.customKind;
     context.editable = this.isEditable;
@@ -163,6 +163,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       case "erudit": return this.#run((C) => C.setErudite(t.dataset.i, t.value));
       case "fav": return this.#run((C) => C.setFavourite(t.value));
       case "chem-used": return this.#run((C, st, L) => L.chemToggleUsed(t.dataset.drug, t.checked));
+      case "grant": return this.#run((C) => C.setGrantSkill(t.dataset.n, t.value));
     }
   }
 
@@ -187,7 +188,12 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     const { action, act, confirm, ...data } = target.dataset;
     if (confirm && !WastelandersCharacterSheetV2.#armed(target)) return;
     if (target.type === "checkbox") event.preventDefault?.();
-    await this.#run((C) => C.act(act, data));
+    const ok = await this.#run((C) => C.act(act, data));
+    // «Очистити аркуш» also puts back the default picture (portrait and token)
+    if (act === "new" && ok !== false) {
+      const img = this.document.constructor.getDefaultArtwork({ type: this.document.type }).img;
+      await this.document.update({ img, "prototypeToken.texture.src": img });
+    }
   }
 
   static #onTab(event, target) {

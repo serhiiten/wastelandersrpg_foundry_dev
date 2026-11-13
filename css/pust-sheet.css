@@ -750,3 +750,106 @@
 .pust-attr-head > .pust-attr-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pust-attr .pust-attr-head > .pust-now { grid-column: auto; flex: 0 0 auto; padding: 1px 6px; border-radius: 3px; background: var(--pu-steel-1); color: var(--pu-green);
   font-family: var(--pu-f-num); font-size: 12px; font-weight: 700; white-space: nowrap; line-height: 1.3; cursor: help; }
+/* quick panel: Припаси as lamps on the dark panel (click one to set the count) */
+.pust-qlamps { display: flex; align-items: center; gap: 6px !important; height: 32px; }
+.wastelanders button.pust-qlamp:not(.header-control) { width: 26px !important; height: 26px !important; min-height: 0; padding: 0 !important; border-radius: 4px;
+  background: var(--pu-steel-0) !important; border: 1px solid var(--pu-steel-3) !important; box-shadow: inset 0 1px 3px rgba(0,0,0,.6) !important; }
+.wastelanders button.pust-qlamp.on:not(.header-control) { background: radial-gradient(circle at 50% 40%, #b6ffb9, var(--pu-green) 45%, #1d7d25) !important; border-color: #2fbf3a !important;
+  box-shadow: 0 0 8px rgba(61,255,71,.6), inset 0 1px 1px rgba(255,255,255,.5) !important; }
+.wastelanders button.pust-qlamp:not(.header-control):hover { border-color: var(--pu-green) !important; }
+/* Мотлох: Припаси as a counter when there are more than 6 */
+.pust-sup-step { display: inline-flex; align-items: center; gap: 5px; }
+.pust-sup-step > b { font-family: var(--pu-f-num); font-size: 18px; }
+.pust-sup-step > button { width: 26px; height: 28px; padding: 0 !important; font-size: 15px !important; }
+/* up to 6 lamps fit the Припаси column (the same width as ОЗ): they shrink a little instead of pushing Кришки out */
+.pust-qlamps { gap: 4px !important; width: 100%; }
+.wastelanders .pust-qlamps > button.pust-qlamp:not(.header-control) { flex: 1 1 0; min-width: 0; max-width: 26px; width: auto !important; }
+.pust-qgrp.q-life > .pust-qi:first-child, .pust-qgrp.q-goods > .pust-qi:first-child { min-width: 0; max-width: 172px; }
+.pust-qlamps { max-width: 157px; } /* six lamps end exactly under the ОЗ «+» */
+/* «Вжити» in Мотлох: a solid green button with a syringe, like «Відпочити» */
+.wastelanders button.pust-use-btn:not(.header-control) { width: auto; height: 26px !important; min-height: 0; line-height: 24px !important; padding: 0 9px !important; white-space: nowrap;
+  background: linear-gradient(180deg, #3f8f46, #2a6b31) !important; color: #effff0 !important; border: 1px solid #1d4e22 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 0 rgba(35,27,17,.3) !important; font-weight: 700; }
+.wastelanders button.pust-use-btn:not(.header-control):hover:not(:disabled) { filter: brightness(1.12); }
+.pust-use-btn > i { margin-right: 3px; }
+/* Покращення: the hint line close to the list */
+.pust-imp-hint { margin: 0 0 6px; }
+/* «Як заробляти ОД»: folded help, like the HTML sheet's hint box */
+.pust-xphelp { margin: 0 0 6px; border: 1px dashed var(--pu-paper-3); border-radius: 4px; background: var(--pu-sheet); padding: 3px 8px; }
+.pust-xphelp > summary { cursor: pointer; list-style: none; font-family: var(--pu-f-label); font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--pu-rust-2); }
+.pust-xphelp > summary::-webkit-details-marker { display: none; }
+.pust-xphelp[open] > summary { margin-bottom: 4px; }
+.pust-xphelp-body { font-size: 13px; line-height: 1.35; }
+.pust-xphelp-body p { margin: 3px 0; }
+.pust-xphelp-body ul { margin: 2px 0 4px; padding-left: 20px; }
+.pust-xphelp-body li { margin: 2px 0; }
+/* Покращення: the list on the left, «Як заробляти ОД» beside it (open by default); one column on a narrow sheet */
+.pust-imp-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; } /* one column: the list, then «Як заробляти ОД» */
+.pust-imp-cols > .pust-imp-list { grid-template-columns: 44px minmax(0, 1fr) 74px minmax(96px, auto); } /* the name column takes the free width */
+.pust-imp-cols > .pust-xphelp { margin: 0; }
+.pust-imp-cols > .pust-imp-list { grid-auto-rows: 1fr; } /* every improvement row as tall as the tallest one */
+/* skills list out of free mode: boxes that are not the starting «учень» pick are locked (filled ones stay filled) */
+.pust-dots .dot.locked { cursor: not-allowed; opacity: .45; }
+.pust-dots .dot.locked.on { opacity: .8; }
+/* locked skill boxes: hatched and dashed, so they plainly can't be clicked */
+.wastelanders .pust-dots .dot.locked { opacity: 1; cursor: not-allowed;
+  background: repeating-linear-gradient(-45deg, var(--pu-paper-2) 0 3px, #b9ab8a 3px 5px) !important;
+  border: 1px dashed var(--pu-ink-3) !important; box-shadow: none !important; }
+.wastelanders .pust-dots .dot.locked.on {
+  background: repeating-linear-gradient(-45deg, var(--pu-rust-2) 0 3px, var(--pu-rust-0) 3px 5px) !important;
+  border: 1px solid var(--pu-rust-0) !important; }
+.wastelanders .pust-dots .dot.locked:hover { filter: none; }
+.wastelanders .pust-skill .pust-dots .dot { width: 24px !important; height: 24px !important; border-radius: 3px; } .pust-skill .pust-dots { gap: 5px; } /* skill boxes a bit bigger */
+/* «Аркуш» at the very top: folds; one row of buttons; «Швидкий старт» opens a list */
+.pust-sheetbar { margin: 0 0 8px; padding: 4px 8px; border: 1px solid var(--pu-paper-3); border-radius: 4px; background: var(--pu-sheet); }
+.pust-sheetbar > summary { cursor: pointer; list-style: none; font-family: var(--pu-f-label); font-weight: 800; font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-rust-2); }
+.pust-sheetbar > summary::-webkit-details-marker { display: none; }
+.pust-sheetbar[open] > summary { margin-bottom: 6px; }
+.pust-sheetbar-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
+.pust-sheetbar-btns > button { white-space: nowrap; }
+.pust-qsmenu { position: relative; }
+.pust-qsmenu > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 4px;
+  background: var(--pu-paper-2); border: 1px solid var(--pu-ink-2); box-shadow: 0 2px 0 var(--pu-rust-1); font-weight: 700; font-size: 13px; white-space: nowrap; }
+.pust-qsmenu > summary::-webkit-details-marker { display: none; }
+.pust-qsmenu[open] > summary { background: var(--pu-steel-1); color: var(--pu-green); border-color: var(--pu-steel-0); }
+.pust-qslist { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; min-width: 220px; display: flex; flex-direction: column; gap: 4px; padding: 6px;
+  background: var(--pu-sheet); border: 1px solid var(--pu-rust-3); border-radius: 4px; box-shadow: 0 6px 16px rgba(0,0,0,.35); }
+.wastelanders .pust-qslist > button:not(.header-control) { display: flex !important; flex-direction: column; align-items: flex-start; height: auto !important; min-height: 40px; line-height: 1.15 !important; padding: 5px 9px !important; text-align: left; white-space: normal; }
+.pust-qslist > button b { font-family: var(--pu-f-label); font-size: 14px; }
+.pust-qslist > button small { font-size: 11px; font-weight: 400; opacity: .75; }
+.wastelanders .pust-sheetbar-btns > button:not(.header-control) { height: 30px !important; min-height: 0; line-height: 28px !important; } /* the same height as «Швидкий старт» */
+/* five equal buttons, one row at any width (labels shorten with «…» on a narrow sheet) */
+.pust-sheetbar-btns { flex-wrap: nowrap; }
+.pust-sheetbar-btns > button, .pust-sheetbar-btns > .pust-qsmenu { min-width: 0 !important; margin: 0 !important; }
+.pust-sheetbar-btns > button, .pust-qsmenu > summary { overflow: hidden; text-overflow: ellipsis; }
+.pust-qsmenu > summary { width: 100%; box-sizing: border-box; }
+.pust-sheetbar-btns > * { box-sizing: border-box !important; } /* padding inside the width, so all five come out equal */
+.pust-sheetbar-btns { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); } .pust-sheetbar-btns > * { width: auto !important; } /* a grid: five truly equal columns (flex added the buttons padding on top) */
+/* «Налаштування»: «Захист вручну» under «Ручні надбавки» in the right column */
+.pust-setstack { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.pust-setstack > .pust-block { margin: 0; }
+.pust-setstack .pust-defgrid { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.pust-setstack .pust-defrow { grid-template-columns: minmax(110px, 1fr) minmax(0, 1.2fr); }
+/* the portrait fills the header's height (down to the last aspect); the HP bar stays under it */
+.pust-head { align-items: stretch; }
+.pust-pcol { height: 100%; }
+.pust-pcol > .pust-portrait { flex: 1 1 auto; height: auto !important; min-height: 146px; width: 100%; }
+.pust-item-head > .pust-x { margin-left: auto; } /* ✕ stays at the right edge when a card has no note */
+/* perks and feats on the sheet: the same cards as in the pickers; perks green, feats blue */
+.pust-item.pust-card { margin: 0 0 6px; padding: 6px 8px 7px; border: 1px solid var(--pu-paper-3); border-left: 4px solid; border-radius: 3px; background: var(--pu-sheet); }
+.pust-item.pust-card.perk, .pust-pick.perk { border-left-color: #4b8a2e; }
+.pust-item.pust-card.feat, .pust-pick.feat { border-left-color: #2f5f97; }
+.pust-item.pust-card > .pust-item-head { margin-bottom: 3px; }
+.pust-item.pust-card > .pust-item-head > b { font-family: var(--pu-f-label); font-weight: 800; font-size: 14px; letter-spacing: .02em; }
+.pust-item.pust-card.bad { background: #fbe9e5; }
+.pust-pick.bad { border-left-color: var(--pu-paper-3); }
+/* free mode: perks and feats that break the rules are marked amber (a reminder), not red */
+.free-mode .pust-item.pust-card.bad { background: #fff3d6; border-color: #e0bf73; }
+.free-mode .pust-item.pust-card.bad b { color: #8a5a00; }
+.free-mode .pust-item.pust-card.bad .pust-why { color: #8a5a00; }
+/* «Вільний режим» chip beside the name: big and hard to miss */
+.pust-freechip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 4px; white-space: nowrap; cursor: help;
+  background: repeating-linear-gradient(-45deg, #f2c94c 0 10px, #e0ab1e 10px 20px); color: #2a1d00; border: 2px solid #8a5a00;
+  font-family: var(--pu-f-label); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: .05em; box-shadow: 0 2px 0 rgba(35,27,17,.35); }
+.pust-freechip > i { font-size: 13px; }
+.pust-freechip { height: 32px; box-sizing: border-box; } /* the height of the name field */

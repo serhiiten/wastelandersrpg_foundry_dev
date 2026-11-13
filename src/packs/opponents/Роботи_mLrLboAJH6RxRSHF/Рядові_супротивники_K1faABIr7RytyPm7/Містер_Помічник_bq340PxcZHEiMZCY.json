@@ -32,13 +32,13 @@
     "lockRotation": false,
     "rotation": 0,
     "alpha": 1,
-    "disposition": 1,
-    "displayBars": 0,
+    "disposition": -1,
+    "displayBars": 40,
     "bar1": {
-      "attribute": "hp"
+      "attribute": null
     },
     "bar2": {
-      "attribute": null
+      "attribute": "hp"
     },
     "light": {
       "negative": false,

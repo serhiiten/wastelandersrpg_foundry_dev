@@ -15,6 +15,7 @@ import { CARAVAN_TYPES, caravanToState } from "../rules/caravan-adapter.mjs";
 import { createCaravanLogic } from "../rules/caravan-logic.mjs";
 import { saveCaravan } from "./caravan-actions.mjs";
 import { joinPrices, splitPrices } from "../rules/prices.mjs";
+import { QUICK_CHARS } from "../rules/quickstart.mjs";
 
 const T = (key, data) =>
   data ? game.i18n.format(`WASTELANDERS.Json.${key}`, data) : game.i18n.localize(`WASTELANDERS.Json.${key}`);
@@ -105,14 +106,35 @@ export async function resolveItem(item, actorData) {
 const PORTRAIT_DIR = () => `worlds/${game.world.id}/pustelnyky-portraits`;
 
 /** Save a data: URI portrait into the world folder; returns its path, or null if the user can't upload. */
+/** «Швидкий старт» portraits ship with the system (round, transparent: a token as it is) */
+const QUICK_PORTRAITS = { "Волті": "volti", "Банджо": "bandzho", "Бабай": "babaj", "Доктор Шредер": "doktor-shreder", "Лихе Око": "lihe-oko" };
+function quickPortrait(dataUri) {
+  const qs = QUICK_CHARS.find((c) => c.portrait && c.portrait === dataUri);
+  const slug = qs && QUICK_PORTRAITS[qs.name];
+  return slug ? `systems/${game.system.id}/assets/quickstart/${slug}.webp` : null;
+}
+
+/**
+ * A portrait from a file as a world image. The name comes from the picture itself (a hash), so opening the same
+ * character again reuses the file instead of making another copy.
+ */
 async function uploadPortrait(dataUri, baseName) {
-  if (!dataUri?.startsWith("data:image/") || !game.user.can("FILES_UPLOAD")) return null;
+  if (!dataUri?.startsWith("data:image/")) return null;
+  const bundled = quickPortrait(dataUri);
+  if (bundled) return bundled;
+  if (!game.user.can("FILES_UPLOAD")) return null;
   const FP = foundry.applications.apps.FilePicker.implementation;
   try {
     await FP.createDirectory("data", PORTRAIT_DIR()).catch(() => {});
     const blob = await (await fetch(dataUri)).blob();
     const ext = blob.type.split("/")[1]?.replace("jpeg", "jpg") || "png";
-    const file = new File([blob], `${baseName.slugify({ strict: true }) || "portrait"}-${foundry.utils.randomID(6)}.${ext}`, { type: blob.type });
+    const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-1", await blob.arrayBuffer()))].slice(0, 5)
+      .map((b) => b.toString(16).padStart(2, "0")).join("");
+    const name = `${baseName.slugify({ strict: true }) || "portrait"}-${hash}.${ext}`;
+    const existing = await FP.browse("data", PORTRAIT_DIR()).catch(() => null);
+    const path = `${PORTRAIT_DIR()}/${name}`;
+    if (existing?.files?.some((f) => decodeURIComponent(f) === path)) return path;
+    const file = new File([blob], name, { type: blob.type });
     const res = await FP.upload("data", PORTRAIT_DIR(), file, {}, { notify: false });
     return res?.path || null;
   } catch (err) {
@@ -204,7 +226,7 @@ export async function replaceCharacter(actor, st) {
   // notes and experience options), with the file's objects and lists replacing the old ones outright.
   const system = foundry.utils.mergeObject(actor.system.toObject(), data.system, { inplace: false });
   for (const k of REPLACE_WHOLE) system[k] = data.system[k] ?? (Array.isArray(system[k]) ? [] : {});
-  await actor.update({ name: data.name || actor.name, ...(img ? { img } : {}), system }, { recursive: false });
+  await actor.update({ name: data.name || actor.name, ...(img ? { img, "prototypeToken.texture.src": img } : {}), system }, { recursive: false });
   await createItems(actor, items);
 }
 

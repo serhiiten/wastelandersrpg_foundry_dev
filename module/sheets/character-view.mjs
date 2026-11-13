@@ -5,10 +5,11 @@
  */
 import {
   ARCH_ORDER, ATTRS, AKEYS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
-  DRUGS, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, catProps, countedFeats,
+  DRUGS, IMP_ATTR, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, catProps, countedFeats,
   countedPerks, drugOf, featElig, gunsOn, perkElig, presetLabel, CAT_SECS,
 } from "../rules/core.mjs";
 import { catalogDescription } from "../applications/catalog-descriptions.mjs";
+import { GRANT_FEATS, grantOptions, lastingCaps, startPicks } from "../rules/skill-sources.mjs";
 
 const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
 const CONS = [
@@ -30,6 +31,21 @@ const GUIDE = [
   ["Кинь випадкову деталь персонажа.", "build"],
 ];
 const TAB_NAME = { build: "Атрибути й навички", perks: "Перки й особливості", xp: "Покращення", health: "Здоров'я", gear: "Мотлох" };
+/**
+ * Free mode skips the rules' checks, yet the sheet still says what breaks them — softly, as reminders
+ * (Foundry only, author 2026-11-14): too many perks or feats, unmet requirements.
+ */
+function freeModeIssues(st, d) {
+  if (!d.free) return [];
+  const out = [];
+  const np = countedPerks(st);
+  if (np > d.perkSlots) out.push(`Перків більше, ніж слотів: ${np} з ${d.perkSlots}.`);
+  if (countedFeats(st) > 2) out.push("Особливостей більше двох.");
+  (d.perkEval || []).forEach((e, i) => { if (!e.ok) out.push(`Перк «${st.perks[i].n}»: ${(e.why || []).join("; ")}.`); });
+  (d.featEval || []).forEach((e, i) => { if (!e.ok) out.push(`Особливість «${st.feats[i]}»: ${(e.why || []).join("; ")}.`); });
+  return out.map((msg) => ({ lvl: "warn", msg: `${msg} (вільний режим)` }));
+}
+
 /** The decorative HP bar under the portrait: fill 0–100 % and a colour step (ok / hurt / low / down) */
 function hpBar(hp, max) {
   const pct = max > 0 ? Math.max(0, Math.min(100, Math.round((hp / max) * 100))) : 0;
@@ -92,18 +108,25 @@ export function buildView(st, d, L, ui = {}) {
 
   /* ---------- skills ---------- */
   const sc = d.skillCheck;
+  // out of free mode the list only picks the starting skills at «учень» (Foundry only): the other boxes are locked,
+  // higher levels come from improvements, perks and feats that name their skill
+  const sp = startPicks(st, d);
   const skills = SKILLS.map((s) => {
     const lv = st.skills[s] || 0;
+    const fromSrc = sp.contrib[s] > 0;
     return {
       s, lv, die: LVLDIE[lv] || "—", level: lv ? LVL[lv] : "—", cap: d.caps[s],
-      dots: [1, 2, 3].map((j) => ({ j, on: lv >= j, label: LVL[j], over: j > d.caps[s] })),
+      dots: [1, 2, 3].map((j) => {
+        const locked = !free && (j >= 2 || fromSrc || (lv < 1 && (sp.left <= 0 || d.caps[s] < 1)));
+        return { j, on: lv >= j, label: LVL[j], over: j > d.caps[s], locked,
+          why: !locked ? LVL[j] : j >= 2 ? "Підмайстер і майстер — через покращення" : fromSrc ? "Цю навичку дає покращення, перк чи особливість" : "Стартові навички вже обрано" };
+      }),
     };
   });
-  const skillBudget = {
-    ok: sc.ok,
-    text: `учень: ${sc.nN} (вільно ${sc.freeN}), підмайстер: ${sc.nJ} (вільно ${sc.freeJ}), майстер: ${sc.nM} (вільно ${sc.freeM})`
-      + (d.sk.flex ? `, гнучких слотів: ${sc.freeFlex}` : ""),
-  };
+  const skillBudget = free
+    ? { ok: sc.ok, text: `учень: ${sc.nN} (вільно ${sc.freeN}), підмайстер: ${sc.nJ} (вільно ${sc.freeJ}), майстер: ${sc.nM} (вільно ${sc.freeM})`
+      + (d.sk.flex ? `, гнучких слотів: ${sc.freeFlex}` : "") }
+    : { ok: sp.left >= 0, text: sp.left > 0 ? `стартові: обери ${sp.left}` : sp.left === 0 ? "стартові: обрано" : `стартові: на ${-sp.left} більше, ніж можна` };
 
   /* ---------- perks & feats ---------- */
   const perks = st.perks.map((p, i) => {
@@ -112,10 +135,12 @@ export function buildView(st, d, L, ui = {}) {
     const c = L.chem();
     return {
       i, n: p.n, note: p.note || "", custom: !!p.custom, ok: ev.ok, why: (ev.why || []).join("; "),
+      // a note only where the book asks for one («категорія ворогів»…), for own perks, or when one is written already
+      needNote: !!P?.note || !!p.custom || !!String(p.note || "").trim(), notePh: typeof P?.note === "string" ? P.note : "примітка",
       req: P?.rt || "", text: P?.d || p.d || "", erudite: p.n === "Ерудит",
       d: p.d || "", extra: !!p.extra, path: `perks.${i}`,
       rage: p.n === "Лють ботана" ? { active: c.scene.some((e) => e.rage), used: c.rageSession === c.session } : null,
-      eruditeOptions: [{ v: "", n: "— навичка —", sel: !p.note }].concat(SKILLS.map((s) => ({ v: s, n: s, sel: p.note === s }))),
+      eruditeOptions: [{ v: "", n: "— навичка —", sel: !p.note }].concat(grantOptions(st, d, "Ерудит", p.note).map((s) => ({ v: s, n: s, sel: p.note === s }))),
     };
   });
   const feats = st.feats.map((fn, i) => {
@@ -124,7 +149,12 @@ export function buildView(st, d, L, ui = {}) {
     const ci = (st.customFeats || []).findIndex((x) => x.n === fn);
     const custom = ci >= 0 ? st.customFeats[ci] : null;
     return {
-      i, n: fn, note: st.featNotes?.[fn] || "", custom: !!custom, ok: ev.ok, why: (ev.why || []).join("; "), text: F?.d || custom?.d || "",
+      i, n: fn, note: st.featNotes?.[fn] || "", custom: !!custom,
+      needNote: !!F?.note || !!custom || !!String(st.featNotes?.[fn] || "").trim(), notePh: typeof F?.note === "string" ? F.note : "примітка",
+      // «Добра душа», «Переконаний дикун»: pick the skill they raise (Foundry only)
+      grant: GRANT_FEATS.includes(fn) && !free
+        ? [{ v: "", n: "— навичка —", sel: !st.featNotes?.[fn] }].concat(grantOptions(st, d, fn, st.featNotes?.[fn]).map((s) => ({ v: s, n: s, sel: st.featNotes?.[fn] === s })))
+        : null, ok: ev.ok, why: (ev.why || []).join("; "), text: F?.d || custom?.d || "",
       d: custom?.d || "", extra: !!custom?.extra, path: `customFeats.${ci}`,
     };
   });
@@ -154,8 +184,25 @@ export function buildView(st, d, L, ui = {}) {
   }
 
   /* ---------- improvements ---------- */
-  const targetOptions = (kind, cur) => [{ v: "", n: "— ціль —", sel: !cur }].concat(
-    kind === "attr" ? ATTRS.map((A) => ({ v: A.k, n: A.n, sel: cur === A.k })) : SKILLS.map((s) => ({ v: s, n: s, sel: cur === s })),
+  // skill improvements offer only the skills they can raise: «учень» — skills not learnt yet, «підмайстер» — at учень,
+  // «майстер» — at підмайстер (Foundry only, author 2026-11-14); a skill another slot of the row took is left out, the chosen one stays
+  const SKILL_NEED = { skill: 0, skill2: 1, skill3: 2 };
+  const capsForImps = lastingCaps(st);
+  const skillFits = (k, i, s) => {
+    const others = (st.imp[k] || []).some((x, j) => j !== i && x.on && x.t === s);
+    const lv = parseInt(st.skills?.[s], 10) || 0;
+    return !others && lv === SKILL_NEED[k] && lv + 1 <= capsForImps[s]; // a lasting feat cap («Добра душа») bars it
+  };
+  // attribute improvements the same way: only attributes this step can raise, as they are before this slot
+  // («до +2» — below +2; «з +2 до +3» — at +2; «з +3 до +4» — at +3; never past the species maximum)
+  const ATTR_OK = Object.fromEntries(IMP_ATTR);
+  const attrFits = (k, i, a) => {
+    const v = d.impSnap?.[`${k}:${i}`]?.[a];
+    return v != null && ATTR_OK[k]?.(v) && v + 1 <= (d.impMax?.[a] ?? 4);
+  };
+  const targetOptions = (kind, cur, k, i) => [{ v: "", n: "— ціль —", sel: !cur }].concat(
+    kind === "attr" ? ATTRS.filter((A) => A.k === cur || attrFits(k, i, A.k)).map((A) => ({ v: A.k, n: A.n, sel: cur === A.k }))
+      : SKILLS.filter((s) => s === cur || skillFits(k, i, s)).map((s) => ({ v: s, n: s, sel: cur === s })),
   );
   const imps = IMPS.map((im) => ({
     k: im.k, label: `${im.ico} ${im.t}${im.sub ? ` (${im.sub})` : ""}`, cost: im.cost,
@@ -165,7 +212,7 @@ export function buildView(st, d, L, ui = {}) {
     taken: (st.imp[im.k] || []).filter((x) => x.on).length,
     slots: (st.imp[im.k] || []).map((x, i) => ({
       i, on: !!x.on, t: x.t || "", cost: d.xpCost.rows[im.k]?.[i] ?? im.cost,
-      targets: IMP_TARGET[im.k] ? targetOptions(IMP_TARGET[im.k], x.t) : null,
+      targets: IMP_TARGET[im.k] ? targetOptions(IMP_TARGET[im.k], x.t, im.k, i) : null,
       bad: !!x.on && IMP_TARGET[im.k] === "attr" && x.t && d.impVal[`${im.k}:${i}`] && !d.impVal[`${im.k}:${i}`].ok,
     })),
   }));
@@ -275,7 +322,7 @@ export function buildView(st, d, L, ui = {}) {
     }), archetypes, arch: st.arch || "",
     aspects: ASPECTS.map(([f, label], i) => ({ f, label, v: st[f] || "", i, locked: !!st.manual?.[f] })), detail: st.detail || "",
     locks: { name: !!st.manual?.name, detail: !!st.manual?.detail }, // typed by hand: the die is locked
-    issues: d.issues.map(([lvl, msg]) => ({ lvl, msg })),
+    issues: d.issues.map(([lvl, msg]) => ({ lvl, msg })).concat(freeModeIssues(st, d)),
     chips: L.statusChips(d).map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
     chipsGood: L.statusChips(d).filter(([cls]) => cls !== "bad").map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
     chipsBad: L.statusChips(d).filter(([cls]) => cls === "bad").map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
@@ -290,7 +337,8 @@ export function buildView(st, d, L, ui = {}) {
     hp: L.curHp(d), hpMax, hpRed: d.hpRed, fd, fdMax: d.fd, hpBar: hpBar(L.curHp(d), hpMax),
     armor: d.armorTotal + L.chemArmor(), psi: d.psiTotal + L.chemPsi(),
     cons, sit, quickAspects, defenses, restBlock,
-    supplies: parseInt(st.supplies, 10) || 0, supMax: d.supMax,
+    supplies: parseInt(st.supplies, 10) || 0, supMax: d.supMax, supMaxAuto: d.supMaxAuto,
+    supLamps: d.supMax <= 6, // more than 6 Припасів: a counter instead of lamps
     supDots: Array.from({ length: d.supMax }, (_, j) => ({ n: j + 1, on: j < (parseInt(st.supplies, 10) || 0) })),
     caps: parseInt(st.caps, 10) || 0,
     chem, rest,

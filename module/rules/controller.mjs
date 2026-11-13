@@ -10,6 +10,7 @@
  * («натисни ще раз») are the sheet's job before calling act().
  * Ported from pustelnyky-character-generator/src/app.js — keep in step with it.
  */
+import { GRANTS, GRANT_FEATS, SKILL_IMPS, grantOptions, grantTarget, lastingCaps, startPicks, stepSkill } from "./skill-sources.mjs";
 import {
   AKEYS, BUILTIN_CAT, CLAW_WEAPON_MSG, FEAT, LVL, PERK, PRESETS, SKILLS, SPECIES,
   addOtherItem, applyArchetypeSkills, blankState, catalogAll, compute, countedFeats, countedPerks,
@@ -101,6 +102,24 @@ export function createController(st, L, { toast = () => {} } = {}) {
   function setField(k, v, { num = false } = {}) {
     if (num) v = v === "" ? 0 : parseInt(v, 10) || 0;
     if (isFreeKey(k) && !st.set?.free) return refuse(FREE_MSG);
+    // Foundry only: a skill improvement's target gets the level (the old target loses it)
+    const im = /^imp\.(skill|skill2|skill3)\.(\d+)\.t$/.exec(k);
+    if (im && !st.set?.free) {
+      const x = st.imp?.[im[1]]?.[+im[2]];
+      if (x?.on) {
+        // a feat that caps the skill for good («Добра душа»: Стрільба no higher than учень) bars the improvement
+        const after = (parseInt(st.skills[v], 10) || 0) + (v === x.t ? 0 : 1);
+        if (v && after > lastingCaps(st)[v]) return refuse(v + ": не вище рівня «" + LVL[lastingCaps(st)[v]] + "» через особливість.");
+        if (x.t) stepSkill(st, x.t, -1);
+        if (v) stepSkill(st, v, 1);
+      }
+    }
+    if (k === "supMax" && String(v ?? "").trim() !== "") {
+      // the supplies maximum: a positive whole number (empty = by the rules)
+      const n = parseInt(v, 10);
+      if (!(n >= 1)) return refuse("Максимум Припасів — додатне число (від 1).", "bad");
+      v = String(n);
+    }
     // Foundry only (like the caravan sheet): a text typed by hand locks its die and survives «Випадковий персонаж»
     if (MANUAL_KEYS.includes(k)) {
       st.manual = st.manual || {};
@@ -176,6 +195,18 @@ export function createController(st, L, { toast = () => {} } = {}) {
   }
 
   /** «Ерудит»: the skill it raises (perk index, skill name or "") */
+  /** «Добра душа», «Переконаний дикун» (and «Ерудит»): the chosen skill gets one step, the old one loses it */
+  function setGrantSkill(src, v) {
+    const old = grantTarget(st, src);
+    if (v && !GRANTS[src]?.includes(v)) return refuse("«" + src + "» не дає навичку «" + v + "».", "bad");
+    if (old) stepSkill(st, old, -1);
+    if (v) stepSkill(st, v, 1);
+    if (src === "Ерудит") { const p = st.perks.find((x) => x.n === "Ерудит"); if (p) p.note = v || ""; }
+    else { st.featNotes = st.featNotes || {}; st.featNotes[src] = v || ""; }
+    toast(v ? src + ": " + v + " — тепер " + LVL[st.skills[v]] + "." : old ? src + ": " + old + " — знову " + (st.skills[old] ? LVL[st.skills[old]] : "без навички") + "." : "");
+    return true;
+  }
+
   function setErudite(i, v) {
     const p = st.perks[+i];
     if (!p) return false;
@@ -311,6 +342,18 @@ export function createController(st, L, { toast = () => {} } = {}) {
         const s = data.s;
         const j = +data.l;
         const lv = st.skills[s] || 0;
+        if (!d.free) {
+          // Foundry only: the list picks the starting skills at «учень»; higher levels and extra skills come from
+          // improvements and perks / feats that name their skill
+          const sp = startPicks(st, d);
+          if (j >= 2) return refuse("Підмайстер і майстер — через покращення «↑ навичка» у вкладці «Покращення».");
+          if (sp.contrib[s] > 0) return refuse("«" + s + "» дає покращення, перк чи особливість — зміни ціль там.");
+          if (lv >= 1) { st.skills[s] = 0; return true; }
+          if (sp.left <= 0) return refuse("Стартові навички вже обрано. Нові — через покращення «+ навичка (учень)».");
+          if (1 > d.caps[s]) return refuse(s + ": недоступна через особливість.");
+          st.skills[s] = 1;
+          return true;
+        }
         const nl = lv >= j ? j - 1 : j;
         const test = Object.assign({}, st.skills, { [s]: nl });
         if (!d.free && nl > lv) {
@@ -356,6 +399,7 @@ export function createController(st, L, { toast = () => {} } = {}) {
       }
       case "feat-del": {
         const n = st.feats[+data.i];
+        if (GRANT_FEATS.includes(n) && grantTarget(st, n) && !d.free) { stepSkill(st, grantTarget(st, n), -1); st.featNotes[n] = ""; } // Foundry only
         if (!FEAT[n]) st.customFeats = st.customFeats.filter((c) => c.n !== n);
         if (n === "Псионік" && st.arch === "Псионік") toast("Архетип «Псионік» потребує цієї особливості.", "bad");
         st.feats.splice(+data.i, 1);
@@ -365,6 +409,7 @@ export function createController(st, L, { toast = () => {} } = {}) {
       case "imp": {
         const x = st.imp[data.k][+data.i];
         x.on = !x.on;
+        if (!x.on && x.t && SKILL_IMPS.includes(data.k) && !d.free) stepSkill(st, x.t, -1); // Foundry only
         if (!x.on) x.t = "";
         clampAttrs();
         return true;
@@ -421,7 +466,7 @@ export function createController(st, L, { toast = () => {} } = {}) {
           const nv = (parseInt(st[k], 10) || 0) + dd;
           st[k] = nv === 0 ? "" : String(nv);
         } else if (k === "supMax") {
-          const nv = Math.max(0, (st.supMax === "" || st.supMax == null ? d.supMax : parseInt(st.supMax, 10) || 0) + dd);
+          const nv = Math.max(1, (st.supMax === "" || st.supMax == null ? d.supMax : parseInt(st.supMax, 10) || 0) + dd); // a positive number
           st.supMax = String(nv);
         }
         return true;
@@ -526,5 +571,5 @@ export function createController(st, L, { toast = () => {} } = {}) {
     Object.assign(st, fresh);
   }
 
-  return { setField, setFavourite, setErudite, act, addPreset, addCatalog, clampAttrs, dropInvalidSpeciesFeats };
+  return { setField, setFavourite, setErudite, setGrantSkill, act, addPreset, addCatalog, clampAttrs, dropInvalidSpeciesFeats };
 }

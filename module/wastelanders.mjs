@@ -1,6 +1,7 @@
 import * as models from "./data/_module.mjs";
 import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
+import { WastelandersToken } from "./canvas/token.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
@@ -26,6 +27,8 @@ import { openTerminal } from "./applications/terminal.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 
 Hooks.once("init", async function () {
+  // the HP bar over a token keeps the HP colours
+  CONFIG.Token.objectClass = WastelandersToken;
   game.wastelanders = {
     WastelandersActor,
     WastelandersItem,
@@ -138,6 +141,14 @@ Hooks.once("init", async function () {
 // the catalogues show the compendiums' full gear texts
 Hooks.once("ready", () => {
   loadCatalogDescriptions().catch((err) => console.warn("Пустельники | gear descriptions not loaded", err));
+  // characters' tokens: name under, HP bar over, linked; placed tokens take the character's name
+  WastelandersActor.syncCharacterTokens().catch((err) => console.warn("Пустельники | token sync failed", err));
+});
+
+// a character, caravan or enemy dropped on a scene: its token carries the actor's current name
+Hooks.on("preCreateToken", (token) => {
+  const actor = token.actor;
+  if (["character", "caravan", "enemy"].includes(actor?.type) && token.actorLink && token.name !== actor.name) token.updateSource({ name: actor.name });
 });
 
 Hooks.on("preCreateChatMessage", preprocessChatMessage);

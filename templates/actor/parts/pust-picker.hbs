@@ -9,7 +9,7 @@
   {{#each list}}
   <h4>{{c}} <small>{{list.length}}</small></h4>
   {{#each list}}
-  <div class="pust-pick {{#unless ok}}bad{{/unless}}">
+  <div class="pust-pick {{../../kind}} {{#unless ok}}bad{{/unless}}">
     <div class="pust-pick-head">
       <b>{{n}}</b>
       <button type="button" class="pust-pick-add" data-action="act" data-act="{{../../kind}}-add" data-n="{{n}}" {{#unless ok}}title="{{why}}"{{/unless}}><i class="fa-solid {{#if ok}}fa-plus{{else}}fa-lock{{/if}}"></i> Узяти</button>

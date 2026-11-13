@@ -1316,6 +1316,7 @@ function humanName(gender){
   return RNG()<0.5 ? adj+' '+first : first+' '+adj;
 }
 function rollName(species, gender){
+  if(gender==='n' && species!=='mutant') gender = RNG()<0.5 ? 'f' : 'm';
   if(species==='robot') return RNG()<0.7 ? pick(NAMES.robot) : humanName(gender);
   if(species==='mutant') return RNG()<0.7 ? pick(NAMES.mutant) : humanName('m');
   if(species==='claw') return pick(gender==='f'?NAMES.cf:NAMES.cm);
