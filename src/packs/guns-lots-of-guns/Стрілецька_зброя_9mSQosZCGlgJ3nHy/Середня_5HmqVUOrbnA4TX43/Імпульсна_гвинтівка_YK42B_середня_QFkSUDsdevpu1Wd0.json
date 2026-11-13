@@ -4,7 +4,7 @@
   "_id": "QFkSUDsdevpu1Wd0",
   "img": "systems/wastelanders-dev/assets/winchester-rifle.svg",
   "system": {
-    "description": "<p>Дальність: Макс. </p><p>Властивість: Одиночна. Електрична. Завдає роботам та техніці додатково 1d6 шкоди.</p>",
+    "description": "<p>Дальність: Макс</p><p>Властивість: Одиночна. <strong><em>Електрична.</em></strong> Завдає роботам та електроніці додатково 1d6 шкоди.</p>",
     "price": 30,
     "damage": "2d6+1"
   },

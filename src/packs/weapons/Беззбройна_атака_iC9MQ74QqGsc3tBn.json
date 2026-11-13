@@ -1,11 +1,11 @@
 {
-  "name": "Беззбройна атака",
+  "name": "Беззбройні атаки",
   "type": "weapon",
   "img": "systems/wastelanders-dev/assets/fist-1.svg",
   "system": {
-    "description": "<p>Удари руками та ногами, імпровізованою зброєю, а також удари прикладом легкої зброї.</p>",
+    "description": "<p>Удари руками й ногами, імпровізованою зброєю, а також прикладом легкої зброї.</p>",
     "price": 0,
-    "damage": "2d6kl"
+    "damage": "2d6kl1"
   },
   "effects": [],
   "folder": null,

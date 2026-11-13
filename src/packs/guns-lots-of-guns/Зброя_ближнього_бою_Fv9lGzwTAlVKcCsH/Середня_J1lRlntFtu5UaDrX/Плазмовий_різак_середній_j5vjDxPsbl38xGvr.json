@@ -5,9 +5,9 @@
   "_id": "j5vjDxPsbl38xGvr",
   "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
-    "description": "<p>Дальність: Ближ. </p><p>Властивість: Плазмовий. Ігнорує 2 броні.</p>",
-    "price": 15,
-    "damage": "1d10"
+    "description": "<p>Дальність: Ближ</p><p>Властивість: <strong><em>Плазмовий</em></strong>. Ігнорує 2 броні.</p>",
+    "price": 11,
+    "damage": "1d6"
   },
   "effects": [],
   "sort": 0,

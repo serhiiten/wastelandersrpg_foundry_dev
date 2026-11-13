@@ -4,7 +4,7 @@
   "_id": "FgRMhva0QrwrIwC7",
   "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
-    "description": "<p>Дальність: 2 зони </p><p>Властивість: Автоматичний. Лазерний. Ігнорує 1 броні.</p>",
+    "description": "<p>Дальність: 2 зони</p><p>Властивість: Автоматичний. <strong><em>Лазерний</em></strong>. Ігнорує 1 броні.</p>",
     "price": 45,
     "damage": "3d6"
   },

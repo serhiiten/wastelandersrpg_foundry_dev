@@ -1,0 +1,31 @@
+{
+  "folder": "sp1Sd12wQu3nGV3I",
+  "name": "Димова граната",
+  "type": "weapon",
+  "_id": "dPV3SqbTxpXuZp4I",
+  "img": "systems/wastelanders-dev/assets/grenade.svg",
+  "system": {
+    "description": "<p>Шкода: -</p><p>Дальність: 1 зона</p><p>Властивість: Створює в зоні влучання аспект <strong><em>густий дим</em></strong>. Всі істоти в <strong><em>густому диму</em></strong> отримують Послаблення на перевірки атак та Посилення на перевірки уникнення шкоди від атак і спроб бути візуально непомітними. <strong><em>Густий дим</em></strong> залишається до кінця сцени або поки його не розвіє вітер.</p>",
+    "price": 3,
+    "damage": ""
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders-dev",
+    "systemVersion": "0.1",
+    "createdTime": 1768609087500,
+    "modifiedTime": 1768827196413,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!dPV3SqbTxpXuZp4I"
+}

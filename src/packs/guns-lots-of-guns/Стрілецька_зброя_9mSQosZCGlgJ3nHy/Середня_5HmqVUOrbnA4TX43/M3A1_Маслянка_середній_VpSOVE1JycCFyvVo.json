@@ -1,10 +1,10 @@
 {
-  "name": "M3A1 \"Маслянка\" (середній)",
+  "name": "M3A1 “Маслянка” (середній)",
   "type": "weapon",
   "_id": "VpSOVE1JycCFyvVo",
   "img": "systems/wastelanders-dev/assets/winchester-rifle.svg",
   "system": {
-    "description": "<p>Дальність: 2 зони </p><p>Властивість: Автоматична.</p>",
+    "description": "<p>Дальність: 1 зона</p><p>Властивість: Автоматична.</p>",
     "price": 4,
     "damage": "1d8"
   },

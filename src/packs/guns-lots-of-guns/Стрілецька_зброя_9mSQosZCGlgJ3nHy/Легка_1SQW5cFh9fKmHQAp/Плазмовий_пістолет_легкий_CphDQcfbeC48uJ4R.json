@@ -4,9 +4,9 @@
   "_id": "CphDQcfbeC48uJ4R",
   "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
-    "description": "<p>Дальність: 2 зони </p><p>Властивість: Напівавтоматичний. Плазмовий. Ігнорує 2 броні.</p>",
-    "price": 12,
-    "damage": "1d8"
+    "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматичний. <strong><em>Плазмовий</em></strong>. Ігнорує 2 броні.</p>",
+    "price": 11,
+    "damage": "1d6"
   },
   "effects": [],
   "folder": "1SQW5cFh9fKmHQAp",

@@ -5,9 +5,9 @@
   "_id": "aPwNuW5fZ8tVO31A",
   "img": "systems/wastelanders-dev/assets/hammer-drop.svg",
   "system": {
-    "description": "<p>Дальність: Ближ. </p><p>Властивість: Ігнорує 1 броні. Гостра.</p>",
-    "price": 20,
-    "damage": "2d6+1"
+    "description": "<p>Дальність: Ближ</p><p>Властивість: Ігнорує 1 броні. Гостра.</p>",
+    "price": 15,
+    "damage": "2d6"
   },
   "effects": [],
   "sort": 0,

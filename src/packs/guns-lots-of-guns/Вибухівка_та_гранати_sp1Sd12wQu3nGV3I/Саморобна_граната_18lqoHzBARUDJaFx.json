@@ -5,7 +5,7 @@
   "_id": "18lqoHzBARUDJaFx",
   "img": "systems/wastelanders-dev/assets/grenade.svg",
   "system": {
-    "description": "<p>Дальність: 1 зона</p><p>Властивість: завдає шкоди по площині.</p>",
+    "description": "<p>Дальність: 1 зона</p>",
     "price": 1,
     "damage": "1d6"
   },

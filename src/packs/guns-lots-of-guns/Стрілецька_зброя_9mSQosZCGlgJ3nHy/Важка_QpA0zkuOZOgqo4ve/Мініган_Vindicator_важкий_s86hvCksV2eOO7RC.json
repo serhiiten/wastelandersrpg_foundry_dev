@@ -1,10 +1,10 @@
 {
-  "name": "Мініган \"Vindicator\" (важкий)",
+  "name": "Мініган “Vindicator” (важкий)",
   "type": "weapon",
   "_id": "s86hvCksV2eOO7RC",
   "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
-    "description": "<p>Дальність: 2 зони </p><p>Властивість: Автоматичний.</p>",
+    "description": "<p>Дальність: 2 зони</p><p>Властивість: Автоматичний.</p>",
     "price": 40,
     "damage": "3d6"
   },

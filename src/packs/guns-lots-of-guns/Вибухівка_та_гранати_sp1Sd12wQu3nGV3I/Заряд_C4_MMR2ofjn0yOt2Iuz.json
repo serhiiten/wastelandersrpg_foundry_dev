@@ -1,11 +1,11 @@
 {
   "folder": "sp1Sd12wQu3nGV3I",
-  "name": "Заряд C4",
+  "name": "Заряд C-4",
   "type": "weapon",
   "_id": "MMR2ofjn0yOt2Iuz",
   "img": "systems/wastelanders-dev/assets/grenade.svg",
   "system": {
-    "description": "<p>Дальність: 1 зона</p><p>Властивість: Завдає шкоди по площині.</p>",
+    "description": "<p>Дальність: 1 зона</p>",
     "price": 3,
     "damage": "2d6+2"
   },

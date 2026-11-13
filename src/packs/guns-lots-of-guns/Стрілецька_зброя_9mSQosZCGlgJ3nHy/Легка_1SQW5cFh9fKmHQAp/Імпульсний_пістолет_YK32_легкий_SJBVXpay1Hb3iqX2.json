@@ -4,7 +4,7 @@
   "_id": "SJBVXpay1Hb3iqX2",
   "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
-    "description": "<p>Дальність: 2 зони </p><p>Властивість: Одиночний. Електричний. Завдає роботам та техніці додатково 1d6 шкоди.</p>",
+    "description": "<p>Дальність: 2 зони</p><p>Властивість: Одиночний. <strong><em>Електричний.</em></strong> Завдає роботам та електроніці додатково 1d6 шкоди.</p>",
     "price": 20,
     "damage": "1d10"
   },

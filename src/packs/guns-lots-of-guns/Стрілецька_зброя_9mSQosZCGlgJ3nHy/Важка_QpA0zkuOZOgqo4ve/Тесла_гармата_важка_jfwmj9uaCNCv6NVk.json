@@ -4,7 +4,7 @@
   "_id": "jfwmj9uaCNCv6NVk",
   "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
-    "description": "<p>Дальність: 2 зони </p><p>Властивість: Одиночна. Електрична. Завдає роботам та техніці додатково 1d6 шкоди.</p>",
+    "description": "<p>Дальність: 2 зони</p><p>Властивість: Одиночна. <strong><em>Електрична.</em></strong> Завдає роботам та електроніці додатково 1d6 шкоди.</p>",
     "price": 45,
     "damage": "3d6"
   },

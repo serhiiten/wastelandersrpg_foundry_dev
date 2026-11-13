@@ -4,7 +4,7 @@
   "_id": "jKHiSWKeTSKpjzGz",
   "img": "systems/wastelanders-dev/assets/winchester-rifle.svg",
   "system": {
-    "description": "<p>Дальність: Макс. </p><p>Властивість: Одиночна.</p>",
+    "description": "<p>Дальність: Макс</p><p>Властивість: Одиночна.</p>",
     "price": 6,
     "damage": "1d10"
   },

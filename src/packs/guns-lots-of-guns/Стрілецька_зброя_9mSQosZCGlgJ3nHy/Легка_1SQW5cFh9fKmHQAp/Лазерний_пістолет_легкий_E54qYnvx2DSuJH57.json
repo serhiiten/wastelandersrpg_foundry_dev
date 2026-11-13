@@ -4,7 +4,7 @@
   "_id": "E54qYnvx2DSuJH57",
   "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
-    "description": "<p>Дальність: 2 зони </p><p>Властивість: Напівавтоматичний. Лазерний. Ігнорує 1 броні.</p>",
+    "description": "<p>Дальність: Макс</p><p>Властивість: Напівавтоматичний. <strong><em>Лазерний</em></strong>. Ігнорує 1 броні.</p>",
     "price": 6,
     "damage": "1d6"
   },

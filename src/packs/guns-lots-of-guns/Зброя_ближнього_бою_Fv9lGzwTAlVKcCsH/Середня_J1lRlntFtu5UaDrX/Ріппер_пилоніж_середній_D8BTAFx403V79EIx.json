@@ -5,7 +5,7 @@
   "_id": "D8BTAFx403V79EIx",
   "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
-    "description": "<p>Дальність: Ближ. </p><p>Властивість: Ігнорує 1 броні. Гострий.</p>",
+    "description": "<p>Дальність: Ближ</p><p>Властивість: Ігнорує 1 броні. Гострий.</p>",
     "price": 10,
     "damage": "1d10"
   },
