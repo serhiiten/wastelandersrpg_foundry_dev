@@ -45,7 +45,7 @@
         <input type="text" data-k="fdCur" value="{{v.fd}}" aria-label="Жетони Долі"><b>/ {{v.fdMax}}</b>
         <button type="button" data-action="act" data-act="step" data-k="fdCur" data-d="1">+</button>
       </div>
-      <div class="pust-stat"><span>Броня</span><b>{{v.armor}}</b>{{#if v.psi}}<span class="pust-sub">пси {{v.psi}}</span>{{/if}}</div>
+      <div class="pust-stat"><span>Броня</span> <b>{{v.armor}}</b>{{#if v.psi}}<span class="pust-sub">пси {{v.psi}}</span>{{/if}}</div>
       <button type="button" class="pust-check-btn" data-action="checkPanel"><i class="fa-solid fa-dice-d20"></i> Зробити перевірку</button>
     </div>
   </header>
@@ -320,7 +320,7 @@
     <section class="pust-block">
       <h3>Броня</h3>
       {{#each v.armorList}}
-      <div class="pust-gear">
+      <div class="pust-gear armor">
         <label class="pust-tog" title="Вдягнена"><input type="checkbox" data-k="armor.{{i}}.w" {{#if w}}checked{{/if}}></label>
         <input type="text" data-k="armor.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname">
         <input type="text" data-k="armor.{{i}}.v" value="{{v}}" placeholder="Броня" class="pust-dmg">
@@ -335,7 +335,7 @@
     <section class="pust-block">
       <h3>Інший мотлох</h3>
       {{#each v.other}}
-      <div class="pust-gear">
+      <div class="pust-gear other">
         <input type="text" data-k="other.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" {{#if auto}}readonly{{/if}}>
         <input type="text" data-k="other.{{i}}.q" value="{{q}}" class="pust-qty" title="Кількість">
         {{#if usable}}<button type="button" data-action="act" data-act="chem-use" data-i="{{i}}">Вжити</button>{{/if}}

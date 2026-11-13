@@ -121,3 +121,15 @@
 .pust-chat h4 { margin: 0 0 4px; color: #9a4a20; }
 .pust-chat .pust-total.v0 { color: #a3241b; }
 .pust-chat .pust-total.v3 { color: #2f6b35; }
+.pust-sheet .pust-row select, .pust-check .pust-row select { flex: 1 1 130px; width: auto; min-width: 0; }
+.pust-sheet .pust-row .pust-seg, .pust-sheet .pust-row button { flex: 0 0 auto; }
+.pust-stat b { margin-left: 2px; }
+.pust-stat .pust-sub { margin-left: 6px; }
+.pust-sheet input[type="checkbox"], .pust-sheet input[type="radio"],
+.pust-check input[type="checkbox"] { accent-color: var(--pust-rust); background: #fff; }
+.pust-gear.armor { grid-template-columns: 24px 1fr 80px auto auto; }
+.pust-gear.other { grid-template-columns: 1fr 56px auto auto; }
+.pust-gear.other .pust-gnote { grid-column: 1 / -1; }
+.pust-sheet .pust-row > input.pust-num { flex: 0 0 52px; }
+.pust-sheet h4, .pust-check h4 { color: var(--pust-rust); border: none; font-weight: bold; }
+.pust-sheet label, .pust-check label { color: var(--pust-ink); }
