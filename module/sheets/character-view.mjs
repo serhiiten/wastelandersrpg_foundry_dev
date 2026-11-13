@@ -204,8 +204,13 @@ export function buildView(st, d, L, ui = {}) {
   const secs = [...new Set(catalogAll(gunsOn(st)).map((e) => e.sec))];
   const catSec = secs.includes(ui.catSec) ? ui.catSec : "all";
   const catSort = ui.catSort || "price";
-  const catalog = ui.cat
-    ? catalogView(ui.catQ || "", catSec, catSort, gunsOn(st)).map((e) => ({ id: e.id, n: e.n, g: e.g || "", d: e.d || "", price: e.price ?? "" }))
+  // catalogView → { groups: [{ g, sec, items }], total, all }
+  const cv = ui.cat ? catalogView(ui.catQ || "", catSec, catSort, gunsOn(st)) : null;
+  const catalog = cv
+    ? {
+      total: cv.total, all: cv.all,
+      groups: cv.groups.map((g) => ({ g: g.g, items: g.items.map((e) => ({ id: e.id, n: e.n, d: e.d || "", price: e.price ?? "" })) })),
+    }
     : null;
   const catSecs = [{ v: "all", n: "усі розділи", sel: catSec === "all" }].concat(secs.map((k) => ({ v: k, n: CAT_SECS[k] || k, sel: catSec === k })));
   const catSorts = Object.entries(CAT_SORT).map(([v, n]) => ({ v, n, sel: catSort === v }));

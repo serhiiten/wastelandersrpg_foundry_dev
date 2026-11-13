@@ -137,3 +137,6 @@
 .pust-guide ol { margin: 0; padding-left: 20px; font-size: 12px; }
 .pust-guide a { cursor: pointer; color: var(--pust-rust); white-space: nowrap; }
 .pust-quick > button:last-child { font-size: 11px; }
+/* check panel: Foundry's compact controls clip the HTML panel's selects */
+.pust-check .pust-roller select { height: auto !important; min-height: 32px; line-height: 1.3; }
+.pust-check .window-content { padding: 6px; }

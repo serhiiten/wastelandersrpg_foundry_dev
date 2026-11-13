@@ -377,9 +377,13 @@
           <select data-ui="catSec">{{#each v.catSecs}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
           <select data-ui="catSort">{{#each v.catSorts}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
         </div>
-        {{#each v.catalog}}
-        <div class="pust-cat-row"><span>{{n}}</span> <small class="pust-sub">{{g}} {{d}} {{#if price}}{{price}} к{{/if}}</small>
+        <p class="pust-sub">Знайдено {{v.catalog.total}} з {{v.catalog.all}}</p>
+        {{#each v.catalog.groups}}
+        <h4>{{g}}</h4>
+        {{#each items}}
+        <div class="pust-cat-row"><span>{{n}}</span> <small class="pust-sub">{{d}} {{#if price}}{{price}} к{{/if}}</small>
           <button type="button" data-action="act" data-act="cat-add" data-id="{{id}}">Додати</button></div>
+        {{/each}}
         {{/each}}
       </div>
       {{/if}}
