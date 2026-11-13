@@ -63,7 +63,7 @@ same([...battleP.matchAll(/<option value="(\w+)">/g)].map((m) => m[1]), BATTLE_D
 same([...battleP.matchAll(/type="checkbox" value="(\w+)"/g)].map((m) => m[1]), T0.battle.kinds().map((k) => k.key), "battle enemy kinds");
 const BT_IDS = { "bt-gen": 'data-action="battleGen"', "bt-rollPlace": 'data-kind="place"', "bt-rollHazard": 'data-kind="hazard"',
   "bt-rollRewardBtn": 'data-action="battleReward"', "bt-clearRes": 'data-action="battleClear"', "bt-foldRes": 'data-action="battleFold"',
-  "bt-importTr": 'data-mode="combat"' /* «Експорт у трекер» → Foundry tokens and combat */ };
+  "bt-importTr": 'data-mode="place"' /* «Експорт у трекер» → «Розмістити» (tokens on the scene) */ };
 const SKIP = {
   "bt-copyText": "текст битви — у Foundry кнопка «В чат»", runTests: "діагностика генератора — для розробки HTML",
   copyBtnCase: "копіювання тексту справи — у Foundry кнопка «В чат»",
@@ -76,7 +76,9 @@ for (const id of [...battleP.matchAll(/<button[^>]*id="([\w-]+)"/g)].map((m) => 
   else if (!HBS.includes(want)) fail(`battle button «${id}» → template lacks ${want}`);
 }
 has('data-what="battle"', HBS, "battle → chat");
-has('data-mode="combat"', HBS, "battle → tokens and combat");
+has('data-mode="place"', HBS, "battle → tokens on the scene");
+has('data-mode="folder"', HBS, "battle → folder in Actors");
+if (/startCombat|Combat\.implementation\.create/.test(readFileSync(new URL("../module/applications/terminal-battle.mjs", import.meta.url), "utf8"))) fail("battle must not start a combat (author, 2026-11-13)");
 // Натхнення: every card (its output id), its selects and options
 const htmlCards = [...tablesP.matchAll(/id="(\w+)Out"/g)].map((m) => m[1]);
 same(htmlCards, TABLE_CARDS.map((c) => c.id), "inspiration cards");

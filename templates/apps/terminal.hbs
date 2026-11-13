@@ -94,8 +94,9 @@
       <button type="button" class="pust-term-chat" data-action="toChat" data-what="battle" title="Надіслати битву в чат"><i class="fa-solid fa-comment"></i> В чат</button>
     </div>
     <div class="pust-term-row pust-battle-make">
-      <button type="button" data-action="battleCreate" data-mode="actors" title="Створити акторів-супротивників у теці «Битви»"><i class="fa-solid fa-user-plus"></i> Створити супротивників</button>
-      <button type="button" class="pust-term-go" data-action="battleCreate" data-mode="combat" title="Створити супротивників, поставити їхні токени на поточну сцену й почати бій"><i class="fa-solid fa-skull-crossbones"></i> Створити, розставити й почати бій</button>
+      <span class="pust-sub">Супротивники з'являться в Акторах, у теці «Битви → {{v.battle.folder}}».</span>
+      <button type="button" data-action="battleCreate" data-mode="folder" title="Додати в Актори теку «Битви → {{v.battle.folder}}» з усіма супротивниками цієї битви"><i class="fa-solid fa-folder-plus"></i> Додати теку в Актори</button>
+      <button type="button" class="pust-term-go" data-action="battleCreate" data-mode="place" title="Додати теку в Актори й поставити токени супротивників на поточну сцену. Бій не починається"><i class="fa-solid fa-chess-pawn"></i> Розмістити</button>
     </div>
     {{#each v.battle.buckets}}{{#if count}}
     <div class="pust-bucket cat-{{cat}}"><div class="pust-bucket-l">{{label}} <span class="pust-pill">{{count}}</span></div>

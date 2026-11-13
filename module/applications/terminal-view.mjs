@@ -186,6 +186,7 @@ function battleView(T, st, ui) {
     kinds: T.battle.kinds().map((k) => ({ ...k, on: b.kinds.includes(k.key) })),
     has: !!last,
     title: last ? T.battle.BT.kindName(last.factionKey) : "",
+    folder: last ? [T.battle.BT.kindName(last.factionKey), (BATTLE_DIFFS.find((d) => d.v === s.difficulty) || {}).n].filter(Boolean).join(" · ") : "",
     caseInfo: last ? "Кейс: " + Object.entries(last.pickedCase).map(([k, v]) => `${T.battle.BT.labelCat(k)}: ${v}`).join(" • ") : "",
     buckets,
     total: buckets.reduce((n, x) => n + x.count, 0),

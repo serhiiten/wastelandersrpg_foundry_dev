@@ -1,10 +1,11 @@
 /**
- * «Битви» → Foundry: create the generated enemies as actors, and optionally place their tokens on the
- * current scene and start a combat with them.
+ * «Битви» → Foundry: «Додати теку в Актори» puts the generated enemies into a folder of the Actors
+ * directory («Битви» → «Звірі · Важка»); «Розмістити» also places their tokens on the current scene.
+ * No combat is started: the GM does that in Foundry when ready.
  *
  * Enemies come from the system's «opponents» compendium by name (the wiki's texts and pictures); one not
- * found there becomes an enemy actor built from the generator's own data. Actors go to the «Битви» folder
- * and are reused when an actor of the same name is already there. Tokens are unlinked and get personal
+ * found there becomes an enemy actor built from the generator's own data. An actor already in the battle's
+ * folder is reused, so pressing both buttons does not make doubles. Tokens are unlinked and get personal
  * names: the travel battle's names (Горкі й Моркі…), the HTML tracker's name pools for humanoids, or «Ім'я 2».
  */
 import { armorOf } from "./terminal-view.mjs";
@@ -35,9 +36,16 @@ export const OPPONENT_ALIASES = {
 export const opponentName = (name) => OPPONENT_ALIASES[String(name).replace(/[‐-―]/g, "-")] || OPPONENT_ALIASES[name] || name;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 
-async function battleFolder() {
-  return game.folders.find((f) => f.type === "Actor" && f.name === FOLDER && !f.folder)
-    || Folder.implementation.create({ name: FOLDER, type: "Actor", color: "#9a4a20" });
+const DIFF = { easy: "Легка", medium: "Середня", hard: "Важка", deadly: "Смертельна" };
+
+/** The battle's folder in the Actors directory: «Битви» → «<види> · <складність>» */
+async function battleFolder(title, diff) {
+  const Folder_ = Folder.implementation;
+  const parent = game.folders.find((f) => f.type === "Actor" && f.name === FOLDER && !f.folder)
+    || await Folder_.create({ name: FOLDER, type: "Actor", color: "#9a4a20" });
+  const name = [title, DIFF[diff]].filter(Boolean).join(" · ") || "Битва";
+  return game.folders.find((f) => f.type === "Actor" && f.name === name && f.folder?.id === parent.id)
+    || Folder_.create({ name, type: "Actor", folder: parent.id });
 }
 
 let indexCache = null;
@@ -103,20 +111,21 @@ function spots(scene, n) {
 /**
  * @param T      createTerminal()
  * @param st     the terminal state (st.battle.state.last, st.battle.names)
- * @param mode   "actors" | "combat"
+ * @param mode   "folder" — actors into the battle's folder; "place" — the same, plus tokens on the current scene
  */
-export async function createBattle(T, st, mode = "actors") {
+export async function createBattle(T, st, mode = "folder") {
   if (!game.user.isGM) return ui.notifications.warn("Битву веде Доглядач.");
   const last = st.battle.state?.last;
   if (!last) return;
   const entries = last.allocations.flatMap((a) => a.entries).filter((e) => e.count > 0);
-  const scene = mode === "combat" ? game.scenes.viewed : null;
-  if (mode === "combat" && !scene) return ui.notifications.warn("Немає відкритої сцени: відкрий сцену, щоб розставити токени.");
-  const folder = await battleFolder();
+  const scene = mode === "place" ? game.scenes.viewed : null;
+  if (mode === "place" && !scene) return ui.notifications.warn("Немає відкритої сцени: відкрий сцену, щоб розмістити токени.");
+  const folder = await battleFolder(T.battle.BT.kindName(last.factionKey), st.battle.state.difficulty);
   const actors = [];
   for (const e of entries) actors.push({ e, count: e.count, actor: await enemyActor(T, e.enemy, folder) });
-  if (mode !== "combat") {
-    ui.notifications.info(`Супротивників створено в теці «${FOLDER}»: ${actors.map((x) => `${x.actor.name} × ${x.count}`).join(", ")}.`);
+  const where = `«${FOLDER} → ${folder.name}»`;
+  if (mode !== "place") {
+    ui.notifications.info(`В Актори додано теку ${where}: ${actors.map((x) => `${x.actor.name} × ${x.count}`).join(", ")}. Перетягни їх на сцену або натисни «Розмістити».`);
     return actors.map((x) => x.actor);
   }
   const used = new Set();
@@ -130,10 +139,6 @@ export async function createBattle(T, st, mode = "actors") {
     }
   }
   const made = await scene.createEmbeddedDocuments("Token", tokens);
-  const combat = game.combats.find((c) => c.scene?.id === scene.id && !c.started)
-    || await Combat.implementation.create({ scene: scene.id, active: true });
-  await combat.createEmbeddedDocuments("Combatant", made.map((t) => ({ tokenId: t.id, sceneId: scene.id, actorId: t.actorId })));
-  if (!combat.started) await combat.startCombat();
-  ui.notifications.info(`Бій почато: ${made.length} супротивників на сцені «${scene.name}».`);
+  ui.notifications.info(`Токени на сцені «${scene.name}»: ${made.length}. Супротивники — в Акторах, у теці ${where}. Бій почни, коли будеш готовий.`);
   return made;
 }
