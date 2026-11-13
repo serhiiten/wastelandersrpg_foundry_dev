@@ -19,7 +19,7 @@ import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { registerHandlebarsHelpers } from "./helpers/handlebars-helpers.mjs";
 import { WASTELANDERS } from "./helpers/config.mjs";
 // Rules data generated from the HTML sheets (tools/port_rules.py in the workspace)
-import * as gamedata from "./rules/gamedata.mjs";
+import * as core from "./rules/core.mjs";
 import * as caravanRules from "./rules/caravan.mjs";
 import { BOOK } from "./rules/book.mjs";
 
@@ -27,7 +27,7 @@ Hooks.once("init", async function () {
   game.wastelanders = {
     WastelandersActor,
     WastelandersItem,
-    rules: { ...gamedata, caravan: caravanRules, BOOK },
+    rules: { ...core, caravan: caravanRules, BOOK },
   };
 
   CONFIG.WASTELANDERS = WASTELANDERS;
