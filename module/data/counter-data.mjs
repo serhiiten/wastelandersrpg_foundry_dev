@@ -11,7 +11,7 @@ export default class CounterData extends foundry.abstract.TypeDataModel {
 
     return {
       progress: new fields.SchemaField({
-        value: new fields.NumberField({ requiredPositiveInteger, initial: 0 }),
+        value: new fields.NumberField({ ...requiredPositiveInteger, initial: 0 }),
         max: new fields.NumberField({
           ...requiredPositiveInteger,
           initial: 4,

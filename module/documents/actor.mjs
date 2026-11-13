@@ -240,7 +240,8 @@ export class WastelandersActor extends Actor {
 
       if (requirement == null) continue;
 
-      if (!actorValue || actorValue < requirement) {
+      // Attributes can be 0 or negative, so compare numbers rather than truthiness.
+      if ((actorValue ?? 0) < requirement) {
         failed.result = true;
         failed.check = "Attribute";
         failed.item = key;
@@ -256,7 +257,7 @@ export class WastelandersActor extends Actor {
 
         if (!requirement) continue;
 
-        if (!actorValue || actorValue < requirement) {
+        if ((actorValue ?? 0) < requirement) {
           failed.result = true;
           failed.check = "Skill";
           failed.item = key;

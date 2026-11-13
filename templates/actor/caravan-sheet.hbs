@@ -38,11 +38,11 @@
         </div>
         <div class="prop">
           <label class="prop-label" for="system.karma">{{localize 'WASTELANDERS.Actor.Caravan.Karma'}}:</label>
-          {{numberInput system.karma name="system.karma" class="clear-input" step=1 min=0 max=20}}
+          {{numberInput system.karma name="system.karma" class="clear-input" step=1 min=-100 max=100}}
         </div>
         <div class="prop">
           <label class="prop-label luck-roll" for="system.luck">{{localize 'WASTELANDERS.Actor.Caravan.Luck'}}:</label>
-          {{numberInput system.luck name="system.luck" class="clear-input" step=1 min=0 max=20}}
+          {{numberInput system.luck name="system.luck" class="clear-input" step=1 min=-2 max=2}}
         </div>
       </div>
 

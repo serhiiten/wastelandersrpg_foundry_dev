@@ -113,8 +113,10 @@ export class WastelandersCaravanSheet extends WastelandersActorSheet {
   }
 
   async _luckRoll(event) {
-    const formula = "1d10+" + this.actor.system.luck;
-    const roll = await new Roll(formula).evaluate();
+    // Roll data keeps negative luck valid ("1d10 + -1" instead of "1d10+-1").
+    const roll = await new Roll("1d10 + @luck", {
+      luck: this.actor.system.luck,
+    }).evaluate();
 
     if (roll._total >= 6) {
       roll.resultLabel = game.i18n.localize(

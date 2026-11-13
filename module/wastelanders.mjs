@@ -47,6 +47,7 @@ Hooks.once("init", async function () {
     weapon: models.WeaponData,
     armor: models.ArmorData,
     tool: models.ToolData,
+    drug: models.DrugData,
     upgrade: models.UpgradeData,
     cargo: models.CargoData,
     passenger: models.PassengerData,
