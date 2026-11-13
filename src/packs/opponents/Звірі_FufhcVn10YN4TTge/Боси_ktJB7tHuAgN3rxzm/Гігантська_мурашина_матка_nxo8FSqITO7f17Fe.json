@@ -113,7 +113,7 @@
       "img": "assets/bowie-knife.svg",
       "system": {
         "description": "<p>2d6 фізичної шкоди + 3 шкоди кислотою, ближній бій.</p>",
-        "damage": "2d6"
+        "damage": "2d6[фізична] + 3[кислота]"
       },
       "effects": [],
       "folder": null,

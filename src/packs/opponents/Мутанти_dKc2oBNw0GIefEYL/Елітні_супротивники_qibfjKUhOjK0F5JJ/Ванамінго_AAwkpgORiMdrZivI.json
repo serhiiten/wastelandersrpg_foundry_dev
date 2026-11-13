@@ -113,7 +113,7 @@
       "img": "assets/bowie-knife.svg",
       "system": {
         "description": "<p>1d6 фізичної шкоди + 3 шкоди радіацією, ближній бій, радіація ігнорує броню.</p>",
-        "damage": "1d6"
+        "damage": "1d6[фізична] + 3[радіація]"
       },
       "effects": [],
       "folder": null,

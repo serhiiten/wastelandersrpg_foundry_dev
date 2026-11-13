@@ -113,7 +113,7 @@
       "img": "assets/poison-bottle.svg",
       "system": {
         "description": "<p>1d10 фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню.</p>",
-        "damage": "1d10"
+        "damage": "1d10[фізична] + 1d6[отрута]"
       },
       "effects": [],
       "folder": null,
