@@ -9,6 +9,8 @@ export class FeatData extends foundry.abstract.TypeDataModel {
       hpBonus: new fields.NumberField({
         integer: true,
       }),
+      // Values the HTML sheet keeps that have no Foundry field (lossless .json export)
+      engine: new fields.ObjectField(),
       description: new fields.HTMLField(),
     };
   }
@@ -19,6 +21,8 @@ export class PerkData extends foundry.abstract.TypeDataModel {
     const fields = foundry.data.fields;
 
     return {
+      // Values the HTML sheet keeps that have no Foundry field (lossless .json export)
+      engine: new fields.ObjectField(),
       description: new fields.HTMLField(),
       attributes: new fields.SchemaField({
         strength: new fields.NumberField({
@@ -92,6 +96,8 @@ export class WeaponData extends foundry.abstract.TypeDataModel {
     const requiredPositiveInteger = { ...requiredInteger, min: 0 };
 
     return {
+      // Values the HTML sheet keeps that have no Foundry field (lossless .json export)
+      engine: new fields.ObjectField(),
       description: new fields.HTMLField(),
       heavy: new fields.BooleanField({ initial: false }),
       price: new fields.NumberField({
@@ -120,7 +126,10 @@ export class WeaponData extends foundry.abstract.TypeDataModel {
         initial: "",
         choices: ["", "light", "medium", "heavy"],
       }),
-      mods: new fields.ArrayField(new fields.StringField()),
+      // Weapon mods («Guns. Lots of Guns»): name and whether it is installed
+      mods: new fields.ArrayField(
+        new fields.SchemaField({ name: new fields.StringField(), used: new fields.BooleanField({ initial: false }) }),
+      ),
     };
   }
 }
@@ -132,6 +141,8 @@ export class ArmorData extends foundry.abstract.TypeDataModel {
     const requiredPositiveInteger = { ...requiredInteger, min: 0 };
 
     return {
+      // Values the HTML sheet keeps that have no Foundry field (lossless .json export)
+      engine: new fields.ObjectField(),
       description: new fields.HTMLField(),
       note: new fields.StringField(),
       heavy: new fields.BooleanField({ initial: false }),
@@ -155,6 +166,8 @@ export class ToolData extends foundry.abstract.TypeDataModel {
     const requiredPositiveInteger = { ...requiredInteger, min: 0 };
 
     return {
+      // Values the HTML sheet keeps that have no Foundry field (lossless .json export)
+      engine: new fields.ObjectField(),
       description: new fields.HTMLField(),
       note: new fields.StringField(),
       quantity: new fields.NumberField({ ...requiredPositiveInteger, initial: 1 }),
@@ -174,6 +187,8 @@ export class DrugData extends foundry.abstract.TypeDataModel {
     const requiredPositiveInteger = { ...requiredInteger, min: 0 };
 
     return {
+      // Values the HTML sheet keeps that have no Foundry field (lossless .json export)
+      engine: new fields.ObjectField(),
       description: new fields.HTMLField(),
       note: new fields.StringField(),
       quantity: new fields.NumberField({ ...requiredPositiveInteger, initial: 1 }),
