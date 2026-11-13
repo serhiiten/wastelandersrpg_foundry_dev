@@ -339,7 +339,7 @@ function chemAct(a, b){
     case 'chem-reset': { c.rageSession=0; c.session=1; c.sceneNo=1; c.dayNo=1; c.restDay=0; c.addictions.forEach(a=>{ a.since=0; a.lastUse=0; }); c.last='Лічильники скинуто: сесія 1, день 1, сцена 1.'; toast('Лічильники скинуто.'); render(); return true; }
     case 'chem-eff-del': { const id=b.dataset.id; ['scene','day'].forEach(k=>{ const e=c[k].find(x=>x.id===id); if(e && e.hpTemp>0){ const d=compute(st); st.hpCur=String(Math.max(0,curHp(d)-e.hpTemp)); } c[k]=c[k].filter(x=>x.id!==id); }); render(); return true; }
     case 'chem-add-del': { const i=+b.dataset.i; const a2=c.addictions[i]; if(a2 && !a2.src){ c.addictions.splice(i,1); render(); } return true; }
-    case 'chem-add-new': { const inp=document.getElementById('chem-new'); const v=(inp&&inp.value||'').trim(); if(!v){ toast('Впиши назву речовини.','bad'); return true; } const key=drugOf(v)||v; if(c.addictions.some(x=>x.drug.toLowerCase()===key.toLowerCase())){ toast('Така залежність уже є.','bad'); return true; } c.addictions.push({drug:key, incurable:false, since:c.session, lastUse:c.session}); ui.chemNew=''; render(); return true; }
+    case 'chem-add-new': { const v=String(ui.chemNew||'').trim(); if(!v){ toast('Впиши назву речовини.','bad'); return true; } const key=drugOf(v)||v; if(c.addictions.some(x=>x.drug.toLowerCase()===key.toLowerCase())){ toast('Така залежність уже є.','bad'); return true; } c.addictions.push({drug:key, incurable:false, since:c.session, lastUse:c.session}); ui.chemNew=''; render(); return true; }
   }
   return false;
 }

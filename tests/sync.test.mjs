@@ -25,6 +25,7 @@ function makeActor(st) {
 function apply(actor, plan) {
   const a = clone(actor);
   a.system = mergeSystem(a.system, plan.system);
+  a.name = plan.name;
   for (const u of plan.update) {
     const it = a.items.find((i) => i._id === u._id);
     if (u.name) it.name = u.name;

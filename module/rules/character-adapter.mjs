@@ -299,7 +299,7 @@ const isSheetFeat = (it) => !!(it.system?.engine?.custom || engineName(it, FEAT)
  * What to change on an actor so it matches `st` (read earlier with actorToState(actor, { withIds: true })).
  * @param {object} actor  plain actor data { system, items[] } (items with _id)
  * @param {object} st     the changed HTML sheet state
- * @returns {{system:object, update:object[], create:object[], delete:string[]}}
+ * @returns {{name:string, system:object, update:object[], create:object[], delete:string[]}}
  *   system: the new system values (merge onto the current ones, replacing REPLACE_WHOLE keys outright);
  *   update: items with their complete system data (apply with { recursive: false });
  *   create/delete: item operations (create entries still need their compendium data).
@@ -339,7 +339,7 @@ export function planSync(actor, st) {
   const del = (actor.items || [])
     .filter((i) => MANAGED_TYPES.includes(i.type) && !keep.has(i._id) && (i.type !== "feat" || isSheetFeat(i)))
     .map((i) => i._id);
-  return { system: data.system, update, create, delete: del };
+  return { name: data.name, system: data.system, update, create, delete: del };
 }
 
 /** System values that a changed state replaces outright instead of merging into the old ones */

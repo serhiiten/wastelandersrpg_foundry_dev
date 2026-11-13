@@ -9,7 +9,7 @@
  * Messages the HTML sheet shows as toasts go to Foundry notifications.
  */
 import { actorToState, mergeSystem, planSync } from "../rules/character-adapter.mjs";
-import { compute } from "../rules/core.mjs";
+import { compute, syncAuto } from "../rules/core.mjs";
 import { createLogic } from "../rules/logic.mjs";
 import { resolveItem } from "./character-json.mjs";
 
@@ -58,8 +58,17 @@ export function saveState(actor, st) {
       if (rest.length) await actor.createEmbeddedDocuments("Item", rest, { render: false });
     }
     const system = mergeSystem(actor.system.toObject(), plan.system);
-    await actor.update({ system }, { recursive: false });
+    await actor.update({ ...(plan.name && plan.name !== actor.name ? { name: plan.name } : {}), system }, { recursive: false });
   });
+}
+
+/**
+ * What the HTML sheet does on every redraw: automatic items (claws, psi strike, built-in weapon,
+ * Vault gear, feat addictions, hands) and the knock-out check of chems.
+ */
+export function normalize(st, L) {
+  syncAuto(st);
+  L.chemKO();
 }
 
 /**
@@ -73,6 +82,7 @@ export async function runAction(actor, fn, opts = {}) {
   const st = readState(actor);
   const L = logicFor(st, opts);
   const result = await fn(st, L);
+  normalize(st, L);
   await saveState(actor, st);
   return result;
 }
