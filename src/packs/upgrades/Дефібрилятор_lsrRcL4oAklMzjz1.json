@@ -4,7 +4,7 @@
   "_id": "lsrRcL4oAklMzjz1",
   "img": "systems/wastelanders-dev/assets/upgrade.svg",
   "system": {
-    "description": "<p>Можна взяти тільки якщо у вас є <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ліжко для хворого</strong></span>.<br>Раз за сцену ціною одиниці Припасів дозволяє повернути персонажа з 0 ОЗ назад у сцену з 1 ОЗ, якщо його затягнуть на ліжко для хворого, і якщо він не <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>приречений</strong></span> і не мертвий. Пацієнт отримує наслідки як завжди.</p>",
+    "description": "<p>Раз за сцену ціною одиниці Припасів дозволяє повернути персонажа з 0 ОЗ назад у сцену з 1 ОЗ, якщо його затягнуть на ліжко для хворого і якщо він не <strong>приречений</strong> і не мертвий. Пацієнт отримує наслідки, як завжди. Можна взяти тільки якщо у вас є <strong>ліжко для хворого</strong>.</p>",
     "active": {
       "value": 0,
       "max": 1

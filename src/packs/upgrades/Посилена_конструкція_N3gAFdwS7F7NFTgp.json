@@ -4,7 +4,7 @@
   "_id": "N3gAFdwS7F7NFTgp",
   "img": "systems/wastelanders-dev/assets/upgrade.svg",
   "system": {
-    "description": "<p>Дає каравану +10 ОЗ.</p>",
+    "description": "<p>Дає каравану +10 ОЗ. Це покращення можна брати до трьох разів.</p>",
     "active": {
       "value": 0,
       "max": 3
