@@ -12,12 +12,15 @@ export default class CaravanData extends foundry.abstract.TypeDataModel {
         ...requiredPositiveInteger,
         initial: 0,
       }),
+      // Karma ranges −100…+100 (starts at −5 / 0 / +5); party luck ranges −2…+2.
       karma: new fields.NumberField({
-        ...requiredPositiveInteger,
+        ...requiredInteger,
         initial: 0,
+        min: -100,
+        max: 100,
       }),
       luck: new fields.NumberField({
-        ...requiredPositiveInteger,
+        ...requiredInteger,
         initial: 0,
       }),
       armor: new fields.NumberField({

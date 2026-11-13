@@ -11,8 +11,8 @@ export default class SpeciesData extends foundry.abstract.TypeDataModel {
     };
 
     return {
-      skills: new fields.NumberField({ requiredPositiveInteger, initial: 0 }),
-      perks: new fields.NumberField({ requiredPositiveInteger, initial: 0 }),
+      skills: new fields.NumberField({ ...requiredPositiveInteger, initial: 0 }),
+      perks: new fields.NumberField({ ...requiredPositiveInteger, initial: 0 }),
 
       feats: new fields.ArrayField(
         new fields.SchemaField({
