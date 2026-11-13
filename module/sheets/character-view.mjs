@@ -5,8 +5,8 @@
  */
 import {
   ARCH_ORDER, ATTRS, AKEYS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
-  IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, countedFeats, countedPerks,
-  drugOf, featElig, gunsOn, perkElig, presetLabel,
+  DRUGS, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, countedFeats,
+  countedPerks, drugOf, featElig, gunsOn, perkElig, presetLabel, CAT_SECS,
 } from "../rules/core.mjs";
 
 const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
@@ -29,6 +29,8 @@ const GUIDE = [
   ["Кинь випадкову деталь персонажа.", "build"],
 ];
 const TAB_NAME = { build: "Персонаж", health: "Здоров'я та Доля", gear: "Мотлох" };
+/** The HTML sheet's catalogue sorting (app.js CAT_SORT) */
+const CAT_SORT = { price: "за ціною ↑", pdesc: "за ціною ↓", power: "за шкодою чи бронею", name: "за назвою" };
 const IMP_TARGET = { attr2: "attr", attr3: "attr", attr4: "attr", skill: "skill", skill2: "skill", skill3: "skill" };
 
 export function buildView(st, d, L, ui = {}) {
@@ -80,17 +82,24 @@ export function buildView(st, d, L, ui = {}) {
   const perks = st.perks.map((p, i) => {
     const ev = d.perkEval[i] || { ok: true, why: [] };
     const P = PERK[p.n];
+    const c = L.chem();
     return {
       i, n: p.n, note: p.note || "", custom: !!p.custom, ok: ev.ok, why: (ev.why || []).join("; "),
       req: P?.rt || "", text: P?.d || p.d || "", erudite: p.n === "Ерудит",
+      d: p.d || "", extra: !!p.extra, path: `perks.${i}`,
+      rage: p.n === "Лють ботана" ? { active: c.scene.some((e) => e.rage), used: c.rageSession === c.session } : null,
       eruditeOptions: [{ v: "", n: "— навичка —", sel: !p.note }].concat(SKILLS.map((s) => ({ v: s, n: s, sel: p.note === s }))),
     };
   });
   const feats = st.feats.map((fn, i) => {
     const ev = d.featEval[i] || { ok: true, why: [] };
     const F = FEAT[fn];
-    const custom = (st.customFeats || []).find((x) => x.n === fn);
-    return { i, n: fn, note: st.featNotes?.[fn] || "", custom: !!custom, ok: ev.ok, why: (ev.why || []).join("; "), text: F?.d || custom?.d || "" };
+    const ci = (st.customFeats || []).findIndex((x) => x.n === fn);
+    const custom = ci >= 0 ? st.customFeats[ci] : null;
+    return {
+      i, n: fn, note: st.featNotes?.[fn] || "", custom: !!custom, ok: ev.ok, why: (ev.why || []).join("; "), text: F?.d || custom?.d || "",
+      d: custom?.d || "", extra: !!custom?.extra, path: `customFeats.${ci}`,
+    };
   });
   const q = String(ui.q || "").toLowerCase();
   const match = (o) => !q || o.n.toLowerCase().includes(q) || String(o.d || "").toLowerCase().includes(q);
@@ -161,7 +170,7 @@ export function buildView(st, d, L, ui = {}) {
     auto: !!(w.auto || w.claw), energyOptions: energyOptions(w.en),
     guns: gunsOn(st), r: w.r || "", rof: w.rof || "", cls: w.cls || "",
     rangeOptions: opts(GUN_RANGE, w.r), rofOptions: opts(GUN_ROF, w.rof), clsOptions: opts(GUN_CLS, w.cls),
-    mods: (w.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })),
+    mods: (w.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })), sharp: !!w.sharp,
     builtin: w.auto === "builtin"
       ? Object.entries(BUILTIN_CAT).map(([v, c]) => ({ v, n: `${c.n} (${c.d})`, sel: (w.cat || "medium") === v }))
       : null,
@@ -170,13 +179,36 @@ export function buildView(st, d, L, ui = {}) {
     ? [{ v: "", n: "— не обрано —", sel: !st.weapons.some((w) => w.fav) }].concat(
       st.weapons.map((w, i) => ({ v: String(i), n: w.n || "без назви", sel: !!w.fav })).filter((o) => !st.weapons[+o.v]?.auto))
     : null;
-  const armor = st.armor.map((a, i) => ({ i, n: a.n || "", v: a.v ?? "", h: !!a.h, w: a.w !== false, note: a.note || "" }));
-  const other = st.other.map((o, i) => ({ i, n: o.n || "", q: o.q ?? "1", note: o.note || "", auto: !!o.auto, usable: !!drugOf(o.n) }));
-  const cq = String(ui.catQ || "").toLowerCase();
+  const armor = st.armor.map((a, i) => ({
+    i, n: a.n || "", v: a.v ?? "", h: !!a.h, w: a.w !== false, note: a.note || "",
+    guns: gunsOn(st), mods: (a.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })),
+  }));
+  const consL = String(st.cons?.l || "").trim();
+  const other = st.other.map((o, i) => {
+    const key = drugOf(o.n);
+    const D = key ? DRUGS[key] : null;
+    return {
+      i, n: o.n || "", q: o.q ?? "1", note: o.note || "", auto: !!o.auto, usable: !!key,
+      booster: D?.booster && !/\(/.test(o.n || "")
+        ? [{ v: "", n: "атрибут…", sel: !o.attr }].concat(ATTRS.filter((A) => A.k !== "UDCH").map((A) => ({ v: A.k, n: A.s, sel: o.attr === A.k })))
+        : null,
+      treat: !!(D && (D.heal || D.superHeal) && consL && !st.consT?.l),
+    };
+  });
+  const robotBody = st.species === "robot" && !d.has("Кіборг");
+  const ai = st.other.findIndex((o) => {
+    const k = drugOf(o.n);
+    return (k === "Адреналін" && !robotBody) || (k === "Ребут" && robotBody);
+  });
+  // catalogue: the HTML sheet's search, sections and sorting (catalogView)
+  const secs = [...new Set(catalogAll(gunsOn(st)).map((e) => e.sec))];
+  const catSec = secs.includes(ui.catSec) ? ui.catSec : "all";
+  const catSort = ui.catSort || "price";
   const catalog = ui.cat
-    ? catalogAll(gunsOn(st)).filter((e) => !cq || e.n.toLowerCase().includes(cq) || String(e.g || "").toLowerCase().includes(cq))
-      .slice(0, 80).map((e) => ({ id: e.id, n: e.n, g: e.g || "", d: e.d || "", price: e.price ?? "" }))
+    ? catalogView(ui.catQ || "", catSec, catSort, gunsOn(st)).map((e) => ({ id: e.id, n: e.n, g: e.g || "", d: e.d || "", price: e.price ?? "" }))
     : null;
+  const catSecs = [{ v: "all", n: "усі розділи", sel: catSec === "all" }].concat(secs.map((k) => ({ v: k, n: CAT_SECS[k] || k, sel: catSec === k })));
+  const catSorts = Object.entries(CAT_SORT).map(([v, n]) => ({ v, n, sel: catSort === v }));
 
   return {
     name: st.name || "", gender: st.gender, genders: [["m", "чол."], ["f", "жін."], ["n", "без статі"]].map(([v, n]) => ({ v, n, sel: st.gender === v })),
@@ -200,7 +232,8 @@ export function buildView(st, d, L, ui = {}) {
     caps: parseInt(st.caps, 10) || 0,
     chem, rest,
     weapons, favWeapon, armorList: armor, other, heavy: { n: d.heavyN, cap: d.heavyCap, over: d.heavyN > d.heavyCap },
-    cat: !!ui.cat, catQ: ui.catQ || "", catalog,
+    cat: !!ui.cat, catQ: ui.catQ || "", catalog, catSecs, catSorts,
+    adren: ai >= 0 ? { i: ai, n: drugOf(st.other[ai].n) } : null,
     presets: PRESETS.map((p, i) => ({ i, n: presetLabel ? presetLabel(p) : p[1] })),
     bio: st.bio || "", others: st.others || "",
     set: { ...st.set },

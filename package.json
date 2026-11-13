@@ -8,6 +8,6 @@
   "scripts": {
     "packs:unpack": "node tools/packs.mjs unpack",
     "packs:pack": "node tools/packs.mjs pack",
-    "test": "node tests/engine.test.mjs && node tests/adapter.test.mjs && node tests/sync.test.mjs && node tests/logic.test.mjs && node tests/controller.test.mjs"
+    "test": "node tests/engine.test.mjs && node tests/adapter.test.mjs && node tests/sync.test.mjs && node tests/logic.test.mjs && node tests/controller.test.mjs && node tests/parity.test.mjs"
   }
 }

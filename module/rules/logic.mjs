@@ -164,8 +164,9 @@ export function createLogic(env = {}) {
   // helpers from the HTML sheet's app.js
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
   const plural = (n, a, b, c) => { n = Math.abs(n) % 100; const n1 = n % 10; if (n > 10 && n < 20) return c; if (n1 > 1 && n1 < 5) return b; if (n1 === 1) return a; return c; };
-  // HTML-only decorations used by the HTML sheet's own panels
-  const icon = () => "";
+  // the HTML sheet's icons, as Font Awesome icons
+  const ICONS = { dice: "fa-dice", minus: "fa-minus", plus: "fa-plus", x: "fa-xmark" };
+  const icon = (n) => (ICONS[n] ? `<i class="fa-solid ${ICONS[n]}"></i> ` : "");
   const hintBox = () => "";
 
 // ===== chem.js =====
@@ -717,9 +718,9 @@ function giveXp(n, kind){ const L=R.last; if(!L) return; const key=kind==='sav'?
 /* ---------- вигляд ---------- */
 function dieChip(v, sides, cls, title){ return '<span class="die '+cls+'" title="'+esc(title||'')+'"><b>'+v+'</b><i>d'+sides+'</i></span>'; }
 function renderRoller(){
-  const host=document.getElementById('roller-body'); if(!host || document.getElementById('roller').hidden) return;
+  const host={};
   const d=compute(st); const ci=critInfo(d);
-  const fs=document.activeElement&&document.activeElement.id;
+  const fs=null;
   const attrBtns=ATTRS.map(a=>'<button type="button" class="rat'+(R.attr===a.k?' on':'')+'" data-r="attr" data-v="'+a.k+'" aria-pressed="'+(R.attr===a.k)+'" title="'+a.n+'"><b>'+a.s+'</b><span>'+sgn(effAttr(d,a.k))+'</span></button>').join('');
   const skillOpts='<option value="">без навички</option>'+SKILLS.map(s=>{ const L=st.skills[s]||0; return '<option value="'+s+'"'+(R.skill===s?' selected':'')+'>'+s+(L?' · '+LVL[L]+' '+LVLDIE[L]:' · немає')+'</option>'; }).join('');
   const lvl=R.skill?(st.skills[R.skill]||0):0;
@@ -814,7 +815,7 @@ function renderRoller(){
       '<button type="button" class="btn" data-r="poolroll" '+(R.pool[6]+R.pool[8]+R.pool[10]?'':'disabled')+'>'+icon('dice')+'Кинути '+[6,8,10].filter(k=>R.pool[k]).map(k=>R.pool[k]+'d'+k).join(' + ')+'</button>'+
       (R.poolRes?'<div class="rpres" aria-live="polite"><div class="rdice">'+[6,8,10].map(k=>R.poolRes.out[k].map(v=>dieChip(v,k,'kept','')).join('')).join('')+'</div><div class="rpsum">'+[6,8,10].filter(k=>R.poolRes.out[k].length).map(k=>R.poolRes.out[k].length+'d'+k+': '+R.poolRes.out[k].reduce((a,b)=>a+b,0)).join(' · ')+'<b>Разом: '+R.poolRes.total+'</b></div></div>':'')+'</div>'+
     hist;
-  if(fs){ const el=document.getElementById(fs); if(el) el.focus({preventScroll:true}); }
+  return host.innerHTML;
 }
 function openRoller(open){
   const p=document.getElementById('roller'); const b=document.getElementById('roller-btn');
@@ -822,8 +823,45 @@ function openRoller(open){
   if(open){ renderRoller(); const h=p.querySelector('h2'); if(h) h.focus(); }
   else if(b) b.focus();
 }
-
-
+function rollerClick(b){ if(!b) return;
+  if(b.tagName==='SELECT' || (b.tagName==='INPUT')) return;
+  const k=b.dataset.r;
+  switch(k){
+    case 'attr': R.attr=b.dataset.v; break;
+    case 'luckattr': R.attr='UDCH'; break;
+    case 'boost': R.boost=Math.max(0,Math.min(2,R.boost+(+b.dataset.d))); break;
+    case 'pen': R.pen=Math.max(0,Math.min(2,R.pen+(+b.dataset.d))); break;
+    case 'mod': R.mod=Math.max(-3,Math.min(3,R.mod+(+b.dataset.d))); break;
+    case 'preset': { const p=ROLL_PRESETS[+b.dataset.v]; R.last=null; R.am={}; R.psi=''; R.hint=''; R.dmgKey=null; R.dmgUser=false; R.type=p.t; if(p.a){ R.attr=p.a; R.skill=p.s; } else applyTypeDefaults(p.t); break; }
+    case 'xpreset': R.last=null; applyPreset(extraPresets()[+b.dataset.v]); R.dmgUser=false; break;
+    case 'dmg': doDamage(); break;
+    case 'dmgre': { const L=R.last; if(L&&L.dmg){ L.dmg.rerolled=true; const p=L.dmg.p; L.dmg.r1=rollDice(p); if(L.dmg.r2) L.dmg.r2=rollDice(p); ['silent','crit','robot'].forEach(k=>{ if(L.dmg.extra[k]!=null) L.dmg.extra[k]=rnd(6); }); logDamage(L,compute(st)); } break; }
+    case 'pool': { const k=+b.dataset.k; R.pool[k]=Math.max(0,Math.min(10,R.pool[k]+(+b.dataset.d))); break; }
+    case 'poolroll': rollPool(); break;
+    case 'roll': doRoll(); break;
+    case 'aspect': invokeAspect(); render(); return;
+    case 'modasp': { const x=rollMods()[+b.dataset.v]; if(x && !x.m.u){ const n=x.m.n.trim(); invokeAspect({label:'модифікації «'+n+'»', use:()=>{ x.m.u=true; }, msg:'Модифікація «'+n+'»: безкоштовне Посилення на цю сесію використано.'}); } render(); return; }
+    case 'sitasp': { const a=(st.sit||[])[+b.dataset.v]; if(a && a.inv>0){ invokeAspect({label:'аспекту «'+a.t+'»', use:()=>{ a.inv=Math.max(0,a.inv-1); }, msg:'Аспект «'+a.t+'»: безкоштовне Посилення використано, лишилося '+Math.max(0,a.inv-1)+'.'}); } render(); return; }
+    case 'xp': giveXp(+b.dataset.v, b.dataset.k); return;
+    case 'fmode': R.fateMode=b.dataset.v; break;
+    case 'fate': rollFate(); break;
+    default: return;
+  }
+  renderRoller();
+}
+function rollerChange(t){ if(!t || !t.dataset || !t.dataset.r) return;
+  const k=t.dataset.r;
+  if(k==='type'){ if(R.type!==t.value){ R.last=null; R.am={}; } R.type=t.value; applyTypeDefaults(R.type); }
+  else if(k==='skill'){ R.skill=t.value; if(R.am) Object.keys(R.am).filter(x=>x.startsWith('spec')).forEach(x=>delete R.am[x]); }
+  else if(k==='spend') R.spend=t.checked;
+  else if(k==='addon') R.addOn=t.checked;
+  else if(k==='poison') R.poison=t.value;
+  else if(k==='am'){ R.am=R.am||{}; R.am[t.dataset.k]=t.checked; }
+  else if(k==='party') R.party=+t.value;
+  else if(k==='dmgw'){ R.dmgKey=t.value; R.dmgUser=true; if(R.last) R.last.dmg=null; }
+  else if(k==='dopt'){ R.dmgOpt[t.dataset.k]=t.checked; if(R.last && R.last.dmg){ if(t.dataset.k==='auto'||t.dataset.k==='dual') R.last.dmg=null; else logDamage(R.last, compute(st)); } }
+  renderRoller();
+}
 
 
 
@@ -1483,6 +1521,8 @@ function statusChips(d){
     dieChip,
     renderRoller,
     openRoller,
+    rollerClick,
+    rollerChange,
     PSI_PRESETS,
     extraPresets,
     favTrickBonus,

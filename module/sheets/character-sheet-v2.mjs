@@ -118,7 +118,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   #onSpecialChange(event) {
     const t = event.currentTarget;
     switch (t.dataset.change) {
-      case "erudite": return this.#run((C) => C.setErudite(t.dataset.i, t.value));
+      case "erudit": return this.#run((C) => C.setErudite(t.dataset.i, t.value));
       case "fav": return this.#run((C) => C.setFavourite(t.value));
       case "chem-used": return this.#run((C, st, L) => L.chemToggleUsed(t.dataset.drug, t.checked));
     }
@@ -128,6 +128,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     const t = event.currentTarget;
     const key = t.dataset.ui;
     this.ui[key] = t.type === "checkbox" ? t.checked : t.value;
+    if (["catSec", "catSort"].includes(key) && event.type === "change") return this.render();
     if (["q", "catQ"].includes(key) && event.type === "input") {
       clearTimeout(this.#searchTimer);
       this.#searchTimer = setTimeout(() => {

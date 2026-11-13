@@ -46,6 +46,11 @@ const blankNum = (n) => (n ? String(n) : "");
 /** Foundry trims text fields; give back the file's original text when only surrounding spaces differ */
 const raw = (original, stored) =>
   original != null && String(original).trim() === String(stored ?? "").trim() ? original : stored ?? "";
+/** Foundry items need a name: gear rows still being filled in are saved under this one */
+export const UNNAMED = "(без назви)";
+const itemName = (n) => (String(n ?? "").trim() ? n : UNNAMED);
+/** The row's name back from an item: the file's own when only spaces differ, empty for an unnamed row */
+const rowName = (e, name) => (name === UNNAMED && !String(e.n ?? "").trim() ? e.n ?? "" : raw(e.n, name));
 /** Top-level text fields of the state, kept untrimmed in system.engine.raw when they have edge spaces */
 const TEXT_KEYS = ["name", "arch", "concept", "problem", "goal", "detail", "bio", "others"];
 const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
@@ -148,7 +153,7 @@ export function stateToActor(st) {
     push("feat", fn, { note: fnote || "" }, custom ? { n: fn, custom: clone(custom), ...fraw } : { n: fn, ...fraw }, st._featIds?.[fn]);
   });
   st.weapons.forEach((w) =>
-    push("weapon", w.n || "", {
+    push("weapon", itemName(w.n), {
       damage: w.d || "",
       heavy: !!w.h,
       note: w.note || "",
@@ -161,10 +166,10 @@ export function stateToActor(st) {
     }, clone(w)),
   );
   st.armor.forEach((a) =>
-    push("armor", a.n || "", { protection: Math.max(0, int(a.v)), heavy: !!a.h, equipped: a.w !== false, note: a.note || "" }, clone(a)),
+    push("armor", itemName(a.n), { protection: Math.max(0, int(a.v)), heavy: !!a.h, equipped: a.w !== false, note: a.note || "" }, clone(a)),
   );
   st.other.forEach((o) =>
-    push(drugOf(o.n) ? "drug" : "tool", o.n || "", { quantity: Math.max(0, int(o.q, 1)), note: o.note || "" }, clone(o)),
+    push(drugOf(o.n) ? "drug" : "tool", itemName(o.n), { quantity: Math.max(0, int(o.q, 1)), note: o.note || "" }, clone(o)),
   );
   return { name: st.name || "", img: st.portrait || null, system, items };
 }
@@ -232,7 +237,7 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
       if (sys.note) st.featNotes[fn] = raw(e.note, sys.note);
       if (withIds) st._featIds[fn] = it._id;
     } else if (it.type === "weapon") {
-      const w = Object.assign(e, { n: raw(e.n, it.name), d: sys.damage || "", h: !!sys.heavy, en: sys.energy || "", note: raw(e.note, sys.note) });
+      const w = Object.assign(e, { n: rowName(e, it.name), d: sys.damage || "", h: !!sys.heavy, en: sys.energy || "", note: raw(e.note, sys.note) });
       if (sys.inHand || "hand" in e) w.hand = !!sys.inHand;
       if (sys.range || "r" in e) w.r = sys.range || "";
       if (sys.fireRate || "rof" in e) w.rof = sys.fireRate || "";
@@ -240,11 +245,12 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
       if ((sys.mods || []).length || "mods" in e) w.mods = (sys.mods || []).map((m) => ({ n: m.name || "", u: !!m.used }));
       st.weapons.push(w);
     } else if (it.type === "armor") {
-      const v = int(e.v, NaN) === int(sys.protection) ? e.v : String(int(sys.protection));
-      st.armor.push(Object.assign(e, { n: raw(e.n, it.name), v, h: !!sys.heavy, w: !!sys.equipped, note: raw(e.note, sys.note) }));
+      // the file's own text («2 пси», "") when it means the same protection
+      const v = "v" in e && int(e.v, 0) === int(sys.protection) ? e.v : String(int(sys.protection));
+      st.armor.push(Object.assign(e, { n: rowName(e, it.name), v, h: !!sys.heavy, w: !!sys.equipped, note: raw(e.note, sys.note) }));
     } else if (it.type === "tool" || it.type === "drug") {
       const q = int(e.q, NaN) === int(sys.quantity, 1) ? e.q : String(int(sys.quantity, 1));
-      st.other.push(Object.assign(e, { n: raw(e.n, it.name), q, note: raw(e.note, sys.note) }));
+      st.other.push(Object.assign(e, { n: rowName(e, it.name), q, note: raw(e.note, sys.note) }));
     }
   }
 
