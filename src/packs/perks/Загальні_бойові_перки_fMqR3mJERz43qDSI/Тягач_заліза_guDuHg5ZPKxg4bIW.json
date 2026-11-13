@@ -5,7 +5,7 @@
   "_id": "guDuHg5ZPKxg4bIW",
   "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
-    "description": "<p>Ти можеш рухатися акуратно і швидко навіть у <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>важкій</strong></em></span> броні або з <span style=\"font-style:italic;font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><em><strong>важкою</strong></em></span> зброєю. Ти не отримуєш штрафів та Послаблень при перевірках, де зазвичай така зброя чи броня тобі б заважали.</p>",
+    "description": "<p>Ти можеш рухатися вправно й швидко навіть у важкій броні чи з важкою зброєю. Ти не отримуєш штрафів і Послаблень на перевірки, яким зазвичай заважала б така броня чи зброя.</p><p><strong>Вимоги:</strong> СЛ +1 або вище.</p>",
     "attributes": {
       "strength": 1,
       "perception": null,

@@ -5,7 +5,7 @@
   "_id": "Ud9E2pVF5OWHCdpb",
   "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
-    "description": "<p>За всіх перевірок ближнього бою критичним успіхом для тебе вважається результат 18+.</p>",
+    "description": "<p>Під час перевірок атаки в ближньому бою критичним успіхом для тебе вважається результат 18+.</p><p><strong>Вимоги:</strong> Навичка Герць на рівні учня або вище, УДЧ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

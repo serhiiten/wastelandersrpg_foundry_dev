@@ -5,7 +5,7 @@
   "_id": "zPfibLkfHRnUu08W",
   "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
-    "description": "<p>Коли ти вбиваєш противника будь-якою <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>енергетичною</strong></em></span> зброєю, ти завдаєш всім істотам, які знаходяться в одній з ним зоні 1d6 фізичної шкоди, яка ігнорує броню. Будь обережним — це поширюється і на твоїх спільників, і на тебе самого!</p>",
+    "description": "<p>Коли ти вбиваєш супротивника будь-якою енергетичною зброєю, усі істоти в одній зоні з ним отримують 1d6 фізичної шкоди, що ігнорує броню. Будь обережним: це стосується і твоїх союзників, і тебе самого!</p><p><strong>Вимоги:</strong> Навичка Стрільба на рівні учня або вище, ІН +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

@@ -5,7 +5,7 @@
   "_id": "2Sg8NUeIr8nLODYR",
   "img": "systems/wastelanders-dev/assets/binoculars.svg",
   "system": {
-    "description": "<p>Ти не отримуєш штрафи та Послаблення на перевірки, пов'язані з темрявою навколо. Також ти чудово бачиш при поганому освітленні. Втім <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>повна темрява </strong></em></span>все ще перешкоджає твоєму зору.</p>",
+    "description": "<p>Ти не отримуєш штрафів і Послаблень, пов'язаних з темрявою. Крім того, ти чудово бачиш за поганого освітлення. Утім, <strong><em>повна темрява</em></strong> все одно заважає твоєму зору.</p><p><strong>Вимоги:</strong> СПР +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": 1,

@@ -5,7 +5,7 @@
   "_id": "1tlHIwl0YCJwWCGH",
   "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
-    "description": "<p>Ти отримуєш бонус +2 на перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ПВ + Маніпуляція</strong></span>, коли підлизуєшся до тих, хто має владу, і тих, хто набагато вищий від тебе за статусом.</p>",
+    "description": "<p>Ти отримуєш +2 до перевірок <strong>ПВ + Маніпуляція</strong>, коли підлизуєшся до можновладців і тих, хто значно вищий за тебе статусом.</p><p><strong>Вимоги:</strong> Навичка Маніпуляція на рівні учня або вище, ПВ 0 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

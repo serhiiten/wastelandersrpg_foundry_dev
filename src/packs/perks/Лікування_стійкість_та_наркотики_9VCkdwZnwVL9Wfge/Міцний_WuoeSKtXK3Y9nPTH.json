@@ -5,7 +5,7 @@
   "_id": "WuoeSKtXK3Y9nPTH",
   "img": "systems/wastelanders-dev/assets/heart-plus.svg",
   "system": {
-    "description": "<p>Отримай додатковий слот середнього наслідку.</p>",
+    "description": "<p>Ти отримуєш додатковий слот середнього наслідку.</p><p><strong>Вимоги:</strong> ВТР +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

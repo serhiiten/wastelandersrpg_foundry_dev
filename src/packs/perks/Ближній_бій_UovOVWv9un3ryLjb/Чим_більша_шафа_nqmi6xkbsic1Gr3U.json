@@ -5,7 +5,7 @@
   "_id": "nqmi6xkbsic1Gr3U",
   "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
-    "description": "<p>При успіху та критичному успіху на перевірці ближнього бою ти завжди <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збиваєш супротивника з ніг</strong></em></span>, якщо ти цього хочеш, і якщо у нього взагалі є ноги.</p>",
+    "description": "<p>У разі успіху або критичного успіху перевірки атаки в ближньому бою ти за бажанням безкоштовно <strong><em>збиваєш супротивника з ніг</em></strong>, якщо в нього, звісно, взагалі є ноги.</p><p><strong>Вимоги:</strong> Навичка Герць на рівні учня або вище, СЛ +1 або вище.</p>",
     "attributes": {
       "strength": 1,
       "perception": null,

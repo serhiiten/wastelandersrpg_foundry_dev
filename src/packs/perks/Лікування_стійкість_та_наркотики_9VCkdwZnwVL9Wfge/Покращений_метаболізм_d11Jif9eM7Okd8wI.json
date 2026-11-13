@@ -5,7 +5,7 @@
   "_id": "d11Jif9eM7Okd8wI",
   "img": "systems/wastelanders-dev/assets/heart-plus.svg",
   "system": {
-    "description": "<p>Усі наркотики діють на тебе на одну сцену довше. Це не впливає на шанс залежності. <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>Роботи не можуть взяти цей перк.</strong></span></p>",
+    "description": "<p>Усі наркотики діють на тебе на одну сцену довше. На шанс залежності це не впливає. <strong>Роботи не можуть взяти цей перк.</strong></p><p><strong>Вимоги:</strong> ВТР +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

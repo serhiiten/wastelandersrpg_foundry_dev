@@ -5,7 +5,7 @@
   "_id": "5wDn3WL8kp06iko1",
   "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
-    "description": "<p>Ти отримуєш +1 на всі перевірки уникнення шкоди.</p>",
+    "description": "<p>Ти отримуєш +1 до всіх перевірок уникнення шкоди.</p><p><strong>Вимоги:</strong> ВП +1 або ІН +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

@@ -4,7 +4,7 @@
   "type": "perk",
   "img": "systems/wastelanders-dev/assets/gift-of-knowledge.svg",
   "system": {
-    "description": "<p>Отримай ще одну навичку на рівні учня або поліпши навичку з рівня учня до підмайстра.</p>",
+    "description": "<p>Ти отримуєш ще одну навичку на рівні учня або підвищуєш одну зі своїх навичок з рівня учня до рівня підмайстра.</p><p><strong>Вимоги:</strong> ІН 0 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

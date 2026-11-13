@@ -5,7 +5,7 @@
   "_id": "DtFYabZ76bf0hNYv",
   "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
-    "description": "<p>Ти просто добре вмієш не підставлятися. Раз за сцену відміни будь-яку заподіяну фізичну шкоду від супротивника чи пастки.</p>",
+    "description": "<p>Ти просто добре вмієш не підставлятися. Раз за сцену ти можеш скасувати будь-яку фізичну шкоду, якої тобі завдав супротивник чи пастка.</p><p><strong>Вимоги:</strong> ВП або УДЧ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

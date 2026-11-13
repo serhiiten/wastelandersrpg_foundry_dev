@@ -5,7 +5,7 @@
   "_id": "t7i48cEI5RDPLeSW",
   "img": "systems/wastelanders-dev/assets/heart-plus.svg",
   "system": {
-    "description": "<p>Тільки для роботів.</p><p>Ти можеш відновлювати ОЗ за відпочинок та витрату одиниці Припасів як живі істоти.</p>",
+    "description": "<p>Як і живі істоти, ти можеш відновлювати ОЗ під час відпочинку, витрачаючи Припаси.</p><p><strong>Вимоги:</strong> Вид: робот, ВТР 0 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

@@ -1,11 +1,11 @@
 {
   "folder": "h8dtJ70LrehwRRXD",
-  "name": "Бонусна шкода у бою на відстані",
+  "name": "Бонусна шкода в бою на відстані",
   "type": "perk",
   "_id": "9D1Tlu1TJiNtRvms",
   "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
-    "description": "<p>Ти завдаєш +2 шкоди у бою на відстані.</p>",
+    "description": "<p>Твої атаки в бою на відстані завдають +2 шкоди.</p><p><strong>Вимоги:</strong> СПР +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": 1,

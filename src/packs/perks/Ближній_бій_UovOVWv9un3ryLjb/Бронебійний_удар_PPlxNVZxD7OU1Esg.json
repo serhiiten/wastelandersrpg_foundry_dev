@@ -5,7 +5,7 @@
   "_id": "PPlxNVZxD7OU1Esg",
   "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
-    "description": "<p>У ближньому бою твої удари ігнорують 1 фізичної броні.</p>",
+    "description": "<p>Твої атаки в ближньому бою додатково ігнорують 1 фізичної броні.</p><p><strong>Вимоги:</strong> Навичка Герць на рівні учня або вище, ВП 0 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,
