@@ -6,9 +6,10 @@
 import {
   ARCH_ORDER, ATTRS, AKEYS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
   DRUGS, IMP_ATTR, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, catProps, countedFeats,
-  countedPerks, drugOf, featElig, gunsOn, perkElig, presetLabel, CAT_SECS,
+  countedPerks, drugOf, featElig, gunsOn, perkElig, presetLabel, CAT_SECS, weaponDmg,
 } from "../rules/core.mjs";
 import { catalogDescription } from "../applications/catalog-descriptions.mjs";
+import { DMG_TYPES, EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
 import { GRANT_FEATS, grantOptions, lastingCaps, startPicks } from "../rules/skill-sources.mjs";
 
 const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
@@ -16,21 +17,23 @@ const CONS = [
   ["l", "Легкий"], ["m", "Середній"], ["m2", "Середній (Міцний)"], ["h", "Тяжкий"],
 ];
 const ASPECTS = [["concept", "Концепція"], ["problem", "Проблема"], ["goal", "Ціль"]];
-/** The HTML sheet's «?» guide: 11 steps of character creation (text, tab to open) */
+/**
+ * The HTML sheet's «?» guide: 11 steps of character creation — text, the tab to open (null: the block is above the tabs),
+ * the block to scroll to and flash (a CSS selector), the link's label.
+ */
 const GUIDE = [
-  ["Обери архетип. Цей крок необов'язковий, але архетип допоможе тобі визначитися з образом персонажа й наступними кроками створення.", "build"],
-  ["Обери вид. Вид визначає мінімальні та максимальні значення атрибутів, дає видові особливості, а також сам по собі є аспектом.", "build"],
-  ["Розподіли пункти атрибутів. Початкове значення кожного з семи атрибутів — 0, і в тебе є 3 вільні пункти. Знизиш атрибут нижче 0 — отримаєш додатковий пункт. На старті атрибути не можуть бути нижчими за −1 і вищими за +2, а максимум будь-якого атрибута — +3, але вид може змінювати ці межі. Або розподіли набір: +2, +2, +1, 0, 0, −1, −1.", "build"],
-  ["Обери дві навички на рівні учня, або три, якщо граєш за людину.", "build"],
-  ["Обери два перки, або три, якщо граєш за людину.", "perks"],
-  ["Обери від нуля до двох особливостей. Не забувай про видові особливості.", "perks"],
-  ["Розрахуй очки здоров'я (ОЗ). На старті максимум ОЗ становить 15: +3 за кожну одиницю ВТР понад 0 і −3 за кожну нижче 0. Аркуш рахує ОЗ сам, разом із бонусами та штрафами від перків і особливостей.", "health"],
-  ["Запиши жетони Долі (ЖД). На початку кожної ігрової сесії персонаж відновлює 2 + УДЧ жетонів Долі. Аркуш рахує це сам.", "health"],
-  ["Дай персонажеві ім'я, зовнішність і аспекти. Кинь випадкові або вигадай самостійно.", "build"],
-  ["Придбай спорядження. Кожен персонаж починає гру з 10 кришками на закупівлю та 3 одиницями Припасів. Крім того, один вид легкої зброї ти отримуєш безкоштовно.", "gear"],
-  ["Кинь випадкову деталь персонажа.", "build"],
+  ["Обери архетип. Цей крок необов'язковий, але архетип допоможе тобі визначитися з образом персонажа й наступними кроками створення.", null, '[data-k="arch"]', "Шапка: архетип"],
+  ["Обери вид. Вид визначає мінімальні та максимальні значення атрибутів, дає видові особливості, а також сам по собі є аспектом.", null, '[data-k="species"]', "Шапка: вид"],
+  ["Розподіли пункти атрибутів. Початкове значення кожного з семи атрибутів — 0, і в тебе є 3 вільні пункти. Знизиш атрибут нижче 0 — отримаєш додатковий пункт. На старті атрибути не можуть бути нижчими за −1 і вищими за +2, а максимум будь-якого атрибута — +3, але вид може змінювати ці межі. Або розподіли набір: +2, +2, +1, 0, 0, −1, −1.", "build", '.pust-attrs', "Атрибути"],
+  ["Обери дві навички на рівні учня, або три, якщо граєш за людину.", "build", '[data-go="skills"]', "Навички"],
+  ["Обери два перки, або три, якщо граєш за людину.", "perks", '[data-go="perks"]', "Перки"],
+  ["Обери від нуля до двох особливостей. Не забувай про видові особливості.", "perks", '[data-go="feats"]', "Особливості"],
+  ["Розрахуй очки здоров'я (ОЗ). На старті максимум ОЗ становить 15: +3 за кожну одиницю ВТР понад 0 і −3 за кожну нижче 0. Аркуш рахує ОЗ сам, разом із бонусами та штрафами від перків і особливостей.", null, '.q-life', "Швидкий доступ: ОЗ"],
+  ["Запиши жетони Долі (ЖД). На початку кожної ігрової сесії персонаж відновлює 2 + УДЧ жетонів Долі. Аркуш рахує це сам.", null, '.q-fate', "Швидкий доступ: жетони Долі"],
+  ["Дай персонажеві ім'я, зовнішність і аспекти. Кинь випадкові або вигадай самостійно.", null, '.pust-who', "Шапка: ім'я й аспекти"],
+  ["Придбай спорядження. Кожен персонаж починає гру з 10 кришками на закупівлю та 3 одиницями Припасів. Крім того, один вид легкої зброї ти отримуєш безкоштовно.", "gear", '[data-go="gear"]', "Мотлох"],
+  ["Кинь випадкову деталь персонажа.", null, '.asp-detail', "Шапка: деталь"],
 ];
-const TAB_NAME = { build: "Атрибути й навички", perks: "Перки й особливості", xp: "Покращення", health: "Здоров'я", gear: "Мотлох" };
 /**
  * Free mode skips the rules' checks, yet the sheet still says what breaks them — softly, as reminders
  * (Foundry only, author 2026-11-14): too many perks or feats, unmet requirements.
@@ -248,10 +251,21 @@ export function buildView(st, d, L, ui = {}) {
 
   /* ---------- gear ---------- */
   const energyOptions = (cur) => ENERGY_ORDER.map((k) => ({ v: k, n: k ? ENERGY[k]?.n || k : "звичайна", sel: (cur || "") === k }));
+  // «Тип»: the energy versions (rules) plus the other damage types (Foundry only: the colour of the damage, author 2026-11-14);
+  // shown: the type chosen, else the energy version, else a fire / psi / poison / radiation type found in the name or note
+  const typeOptions = (w) => {
+    const auto = weaponDmgType({ w });
+    const cur = EXTRA_TYPES.includes(w.dt) ? w.dt : w.en || (!w.dt && EXTRA_TYPES.includes(auto) ? auto : "");
+    return [...energyOptions(cur), ...EXTRA_TYPES.map((k) => ({ v: k, n: DMG_TYPES[k], sel: cur === k }))];
+  };
   const opts = (map, cur) => Object.entries(map).map(([v, n]) => ({ v, n, sel: (cur || "") === v }));
   const weapons = st.weapons.map((w, i) => ({
-    i, n: w.n || "", d: w.d || "", h: !!w.h, en: w.en || "", note: w.note || "", price: w.price || "", hand: !!w.hand, fav: !!w.fav,
-    auto: !!(w.auto || w.claw), energyOptions: energyOptions(w.en),
+    i, n: w.n || "", d: w.d || "", h: !!w.h,
+    // cryo: the damage one step down (as the damage roll counts it); the field shows it, editing shows the base damage
+    dEff: weaponDmg(w) !== (w.d || "").trim() ? weaponDmg(w) : "",
+    en: w.en || "", note: w.note || "", price: w.price || "", hand: !!w.hand, fav: !!w.fav,
+    dt: weaponDmgType({ w }), // the damage type, for the colour of the «Шкода» field
+    auto: !!(w.auto || w.claw), energyOptions: typeOptions(w),
     guns: gunsOn(st), r: w.r || "", rof: w.rof || "", cls: w.cls || "",
     rangeOptions: opts(GUN_RANGE, w.r), rofOptions: opts(GUN_ROF, w.rof), clsOptions: opts(GUN_CLS, w.cls),
     mods: (w.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })), sharp: !!w.sharp,
@@ -362,6 +376,6 @@ export function buildView(st, d, L, ui = {}) {
     })),
     loot: { yao: !!st.loot?.yao, egg: !!st.loot?.egg },
     propsOpen: !!ui.propsOpen,
-    guide: ui.guide ? GUIDE.map(([t, tab], i) => ({ n: i + 1, t, tab, tabName: TAB_NAME[tab] })) : null,
+    guide: ui.guide ? GUIDE.map(([t, tab, go, label], i) => ({ n: i + 1, t, tab, go, label })) : null,
   };
 }

@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Одиночний. <strong><em>Електричний.</em></strong> Завдає роботам та електроніці додатково 1d6 шкоди.</p>",
     "price": 20,
-    "damage": "1d10"
+    "damage": "1d10",
+    "damageType": "electric"
   },
   "effects": [],
   "folder": "1SQW5cFh9fKmHQAp",

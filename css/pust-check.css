@@ -184,3 +184,160 @@
 .pust-roller .rasp .rasp-name { background: #e2ad3b; color: #241a0c; font-style: italic; font-weight: 400; padding: 0 5px; }
 .pust-roller .rasp .rinv { background: #2f6b35; color: #e7ffd9; border-radius: 3px; padding: 0 5px; font-family: var(--pu-f-num); font-size: 12px; }
 .pust-roller .rasp .xcross { width: 10px; height: 10px; }
+
+/* the check's result in the chat card: the same screen as in «Зробити перевірку» (total, verdict, the range it fell into) */
+.pust-chat .pust-cres { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 2px; padding: 8px 10px;
+  background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29); color: var(--pu-green);
+  border: 3px solid var(--pu-steel-0); border-radius: 6px; box-shadow: inset 0 0 18px rgba(0,0,0,.45); }
+.pust-chat .pust-cres > * { margin: 0; }
+.chat-message .pust-chat .pust-cres .rtot { flex: none; font-family: var(--pu-f-num); font-size: 26px; line-height: 1; color: #b6ffb9; text-shadow: 0 0 10px rgba(61,255,71,.5); }
+.pust-chat .pust-cres .rverd { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; padding: 4px 8px; border-radius: 3px; background: rgba(0,0,0,.25); }
+.chat-message .pust-chat .pust-cres .rverd > b:not(.rtot) { flex: 0 1 auto; min-width: 0; font-family: var(--pu-f-label); font-weight: 800; font-size: 15px; line-height: 1.1; text-transform: uppercase; letter-spacing: .03em; }
+.chat-message .pust-chat .pust-cres.v0 .rverd > b:not(.rtot) { color: var(--pu-red); }
+.chat-message .pust-chat .pust-cres.v1 .rverd > b:not(.rtot) { color: var(--pu-amber); }
+.chat-message .pust-chat .pust-cres.v2 .rverd > b:not(.rtot) { color: var(--pu-green); }
+.chat-message .pust-chat .pust-cres.v3 .rverd > b:not(.rtot) { color: #9ff6ff; text-shadow: 0 0 10px rgba(159,246,255,.6); }
+.pust-chat .pust-cres .rranges { display: inline-flex; flex: none; gap: 2px; margin-left: auto; }
+.pust-chat .pust-cres .rranges > span { font-family: var(--pu-f-num); font-size: 10.5px; padding: 1px 3px; border-radius: 3px; color: var(--pu-green-dim); border: 1px solid var(--pu-steel-3); }
+.pust-chat .pust-cres .rranges > span.hit { font-weight: 700; color: var(--pu-steel-0); border-color: transparent; }
+.pust-chat .pust-cres .rranges > .hit.v0 { background: var(--pu-red); }
+.pust-chat .pust-cres .rranges > .hit.v1 { background: var(--pu-amber); }
+.pust-chat .pust-cres .rranges > .hit.v2 { background: var(--pu-green); }
+.pust-chat .pust-cres .rranges > .hit.v3 { background: #9ff6ff; }
+.pust-chat .pust-cres .rdesc { font-size: 12.5px; line-height: 1.4; color: #cfe9d2; }
+.pust-chat .pust-cbreak { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 4px 0; } /* dice, skill, aspect, modifiers: one line */
+/* narrow chat: the verdict and its ranges in one row, the breakdown in one row */
+.pust-chat .pust-cres { padding: 6px 8px; gap: 4px; }
+.pust-chat .pust-cres .rverd { gap: 6px; padding: 3px 6px; white-space: nowrap; }
+.chat-message .pust-chat .pust-cres .rverd > b:not(.rtot) { font-size: 12.5px; letter-spacing: .02em; }
+.pust-chat .pust-cres .rranges { gap: 2px; }
+.pust-chat .pust-cres .rranges > span { font-size: 9.5px; padding: 0 2px; line-height: 15px; }
+.pust-chat .pust-cbreak { gap: 3px; font-size: 12px; }
+.pust-chat .pust-cbreak .die { min-width: 0; padding: 0 4px; line-height: 18px; }
+/* the verdict matters more than the number (author): in «Зробити перевірку» it comes first, right under the dice, the sum below it */
+.pust-roller .rres > * { order: 3; }
+.pust-roller .rres > .rvhead { order: 0; }
+.pust-roller .rres > .rverd { order: 1; }
+.pust-roller .rres > .rdice { order: 2; } /* the dice under the bar (author) */
+/* the verdict in the dice row, the sum in the bar with the ranges (author, 2026-11-14) */
+.pust-roller .rres > .rvhead { margin: 0; font-family: var(--pu-f-label); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .05em; line-height: 1; }
+.pust-roller .rres.v0 .rvhead { color: var(--pu-red); }
+.pust-roller .rres.v1 .rvhead { color: var(--pu-amber); }
+.pust-roller .rres.v2 .rvhead { color: var(--pu-green); }
+.pust-roller .rres.v3 .rvhead { color: #9ff6ff; text-shadow: 0 0 10px rgba(159,246,255,.6); }
+.pust-roller .rverd > .rsum { display: inline-flex; align-items: baseline; gap: 6px; }
+.pust-roller .rres .rverd .rtot { font-family: var(--pu-f-num); font-size: 24px; line-height: 1; color: #b6ffb9 !important; text-shadow: 0 0 10px rgba(61,255,71,.5); text-transform: none; letter-spacing: 0; }
+.pust-roller .rverd { align-items: center; }
+/* chat card, as the panel: dice, the verdict under them, the bar with the sum and the ranges */
+.chat-message .pust-chat .pust-cres .rvhead { font-family: var(--pu-f-label); font-weight: 800; font-size: 18px; line-height: 1.1; text-transform: uppercase; letter-spacing: .04em; }
+.chat-message .pust-chat .pust-cres.v0 .rvhead { color: var(--pu-red); }
+.chat-message .pust-chat .pust-cres.v1 .rvhead { color: var(--pu-amber); }
+.chat-message .pust-chat .pust-cres.v2 .rvhead { color: var(--pu-green); }
+.chat-message .pust-chat .pust-cres.v3 .rvhead { color: #9ff6ff; text-shadow: 0 0 10px rgba(159,246,255,.6); }
+.chat-message .pust-chat .pust-cres .rverd > .rtot { font-size: 22px; }
+.pust-chat .pust-cres .pust-cbreak { margin: 0; color: #cfe9d2; }
+
+/* ===== Dice drawn as dice (author, 2026-11-14): d6 a rounded square, d8 a diamond, d10 a kite, d12 a pentagon, d4 a triangle.
+   The shape is two clipped layers behind the number: the outer one in the border colour, the inner one in the face colour. */
+:is(.pust-roller, .pust-chat) .die { --die-bg: var(--pu-paper); --die-bd: var(--pu-paper-3); }
+.pust-roller .die.kept, .pust-chat .die.kept { --die-bg: #f4f0e2; --die-bd: var(--pu-green); }
+.pust-roller .die.skill { --die-bd: var(--pu-amber); }
+.pust-roller .die.aspect { --die-bd: var(--pu-orange); }
+:is(.pust-roller, .pust-chat) .die:is(.d4, .d8, .d10, .d12) { position: relative; isolation: isolate; background: none !important; border-color: transparent !important; box-shadow: none !important; }
+:is(.pust-roller, .pust-chat) .die:is(.d4, .d8, .d10, .d12)::before,
+:is(.pust-roller, .pust-chat) .die:is(.d4, .d8, .d10, .d12)::after { content: ""; position: absolute; z-index: -1; clip-path: var(--die-shape); }
+:is(.pust-roller, .pust-chat) .die:is(.d4, .d8, .d10, .d12)::before { inset: -2px; background: var(--die-bd); }
+:is(.pust-roller, .pust-chat) .die:is(.d4, .d8, .d10, .d12)::after { inset: 1px; background: var(--die-bg); }
+:is(.pust-roller, .pust-chat) .die.d10 { --die-shape: polygon(50% 0, 100% 42%, 50% 100%, 0 42%); }
+:is(.pust-roller, .pust-chat) .die.d8 { --die-shape: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+:is(.pust-roller, .pust-chat) .die.d12 { --die-shape: polygon(50% 0, 100% 38%, 81% 100%, 19% 100%, 0 38%); }
+:is(.pust-roller, .pust-chat) .die.d4 { --die-shape: polygon(50% 0, 100% 100%, 0 100%); }
+:is(.pust-roller, .pust-chat) .die.d6 { border-radius: 8px !important; }
+/* kept dice glow around the shape */
+:is(.pust-roller, .pust-chat) .die.kept:is(.d4, .d8, .d10, .d12) { filter: drop-shadow(0 0 4px rgba(61,255,71,.55)); }
+/* the panel: shaped dice a bit larger, the number in the wide part, the type small under it */
+.pust-roller .die:is(.d4, .d8, .d10, .d12) { min-width: 44px; height: 48px; justify-content: flex-start; padding: 10px 0 0; }
+.pust-roller .die.d10 { padding-top: 8px; }
+.pust-roller .die.d4 { padding-top: 18px; }
+.pust-roller .die.d12 { padding-top: 12px; }
+.pust-roller .die:is(.d4, .d8, .d10, .d12) i { font-size: 8.5px; }
+.pust-roller .die.drop:is(.d4, .d8, .d10, .d12) { text-decoration: none; }
+.pust-roller .die.drop:is(.d4, .d8, .d10, .d12) b { text-decoration: line-through; }
+/* the chat: small dice, the number only */
+.pust-chat .die:is(.d4, .d8, .d10, .d12) { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 28px; padding: 0 !important; margin: 0 1px; font-weight: 700; color: var(--pu-ink) !important; line-height: 1; }
+.pust-chat .die.d10 { padding-bottom: 3px !important; }
+.pust-chat .die.d6 { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 !important; background: var(--die-bg) !important; border: 2px solid var(--die-bd) !important; color: var(--pu-ink) !important; font-weight: 700; }
+/* the chat: a die replaced by the skill or aspect die is dimmed, as in the panel */
+.pust-chat .die.swapped { opacity: .6; }
+
+/* ===== Шкода: a screen like the check's, rust-tinted so it reads as a block of its own (author, 2026-11-14) ===== */
+.pust-roller .rdmg { background: var(--pu-scan), linear-gradient(180deg, #3b2b22, #2b1f18 60%, #201712); color: #f1dccb;
+  border: 2px solid var(--pu-rust-1); border-left: 5px solid var(--pu-rust-3); border-radius: 5px; box-shadow: inset 0 0 16px rgba(0,0,0,.5); padding: 8px 10px; }
+.pust-roller .rdmg > h4 { margin: 0; font-family: var(--pu-f-label); font-weight: 800; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: #f0a070; border: 0; }
+.pust-roller .rdmg :is(.rnote, small, .rsteps, .rtraits, .rdbrk, .tog, label) { color: #e3c7b0 !important; }
+.pust-roller .rdmg .rhint { color: var(--pu-amber) !important; }
+.pust-roller .rdmg .dsep, .pust-roller .rdmg .rform { color: #c99a7c; }
+.pust-roller .rdmg .rtraits { margin: 0; padding-left: 18px; font-size: 12.5px; }
+.pust-roller .rdmg .rdres { display: flex; flex-direction: column; gap: 6px; padding-top: 6px; border-top: 1px dashed rgba(240,160,112,.35); }
+.pust-roller .rdmg .rdsum { display: flex; align-items: baseline; gap: 8px; }
+.pust-roller .rdmg .rdsum .rtot { font-family: var(--pu-f-num); font-size: 30px; line-height: 1; color: #ff9a62; text-shadow: 0 0 10px rgba(255,120,60,.55); }
+.pust-roller .rdmg .rdsum .rform { font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: #f0a070; }
+.pust-roller .rdmg .rdbrk { margin: 0; font-family: var(--pu-f-num); font-size: 12.5px; }
+.pust-roller .rdmg .die.kept { --die-bg: var(--pu-rust-2); --die-bd: #f0a070; background: var(--pu-rust-2); border-color: #f0a070; box-shadow: 0 0 6px rgba(255,120,60,.45); }
+.pust-roller .rdmg .die.kept b { color: var(--pu-yellow); }
+.pust-roller .rdmg .die.kept i { color: #f0c9a8; }
+/* the damage chat card: the same rust screen */
+.pust-chat .pust-cdmg { display: flex; flex-direction: column; gap: 4px; margin: 6px 0 2px; padding: 6px 8px; color: #f1dccb;
+  background: var(--pu-scan), linear-gradient(180deg, #3b2b22, #2b1f18 60%, #201712); border: 2px solid var(--pu-rust-1); border-left: 5px solid var(--pu-rust-3); border-radius: 5px; box-shadow: inset 0 0 16px rgba(0,0,0,.5); }
+.pust-chat .pust-cdmg > * { margin: 0; }
+.pust-chat .pust-cdmg .rdsum { display: flex; align-items: baseline; gap: 8px; }
+.chat-message .pust-chat .pust-cdmg .rtot { font-family: var(--pu-f-num); font-size: 26px; line-height: 1; color: #ff9a62; text-shadow: 0 0 10px rgba(255,120,60,.55); }
+.pust-chat .pust-cdmg .rdsum > span { font-family: var(--pu-f-label); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: #f0a070; }
+.pust-chat .pust-cdmg :is(.rdbrk, .rnote, .pust-cbreak) { font-size: 12px; color: #e3c7b0; }
+.pust-chat .pust-cdmg .die.kept { --die-bg: var(--pu-rust-2); --die-bd: #f0a070; background: var(--pu-rust-2) !important; border-color: #f0a070 !important; color: var(--pu-yellow) !important; }
+
+/* ===== Damage types: each has its face colour (--dt-bg), border (--dt-bd) and number colour (--dt-fg) (author, 2026-11-14) ===== */
+.dt-phys     { --dt-bg: #6e3b22; --dt-bd: #f0a070; --dt-fg: #f4d11a; --dt-glow: rgba(255,120,60,.5); }
+.dt-laser    { --dt-bg: #6b1212; --dt-bd: #ff4b3e; --dt-fg: #ff7b6e; --dt-glow: rgba(255,60,50,.55); }
+.dt-plasma   { --dt-bg: #154d1c; --dt-bd: #3ddc4a; --dt-fg: #7dff6a; --dt-glow: rgba(61,255,71,.5); }
+.dt-gauss    { --dt-bg: #14305c; --dt-bd: #4a90e2; --dt-fg: #8cc4ff; --dt-glow: rgba(80,150,255,.55); }
+.dt-electric { --dt-bg: #4c430c; --dt-bd: #e6c619; --dt-fg: #ffe94a; --dt-glow: rgba(255,230,60,.55); }
+.dt-fire     { --dt-bg: #5c2a06; --dt-bd: #ff8a1f; --dt-fg: #ffa94a; --dt-glow: rgba(255,140,30,.6); }
+.dt-cryo     { --dt-bg: #123f4a; --dt-bd: #5ad0e8; --dt-fg: #a8f0ff; --dt-glow: rgba(120,220,255,.5); }
+.dt-psi      { --dt-bg: #3b1a58; --dt-bd: #a35fe0; --dt-fg: #d4a6ff; --dt-glow: rgba(170,100,255,.55); }
+.dt-poison   { --dt-bg: #17311a; --dt-bd: #3f7d33; --dt-fg: #7cc263; --dt-glow: rgba(80,160,60,.4); }
+.dt-rad      { --dt-bg: #1d3c0e; --dt-bd: #9dff2a; --dt-fg: #c4ff4a; --dt-glow: rgba(157,255,42,.85); }
+
+/* the dice of the damage block in their type's colours (both the panel and the chat) */
+:is(.pust-roller .rdmg, .pust-chat .pust-cdmg) .die.kept { --die-bg: var(--dt-bg); --die-bd: var(--dt-bd); background: var(--dt-bg) !important; border-color: var(--dt-bd) !important; box-shadow: 0 0 6px var(--dt-glow) !important; }
+:is(.pust-roller .rdmg, .pust-chat .pust-cdmg) .die.kept:is(.d4, .d8, .d10, .d12) { background: none !important; border-color: transparent !important; box-shadow: none !important; filter: drop-shadow(0 0 4px var(--dt-glow)); }
+.pust-roller .rdmg .die.kept b, .pust-chat .pust-cdmg .die.kept { color: var(--dt-fg) !important; }
+.pust-roller .rdmg .die.kept i { color: var(--dt-fg) !important; opacity: .7; }
+.dt-rad .die.kept b, .pust-chat .pust-cdmg.dt-rad .die.kept, .rtot.dt-rad, b.dt-rad { text-shadow: 0 0 8px var(--dt-glow); }
+/* the total and the breakdown numbers */
+:is(.pust-roller .rdmg, .pust-chat .pust-cdmg) .rtot { color: var(--dt-fg) !important; text-shadow: 0 0 10px var(--dt-glow); }
+:is(.pust-roller .rdmg, .pust-chat .pust-cdmg) .rdbrk b { color: var(--dt-fg); font-family: var(--pu-f-num); }
+/* the poison of the weapon (the panel's line under the damage) */
+.pust-roller .rdmg .rpoisres { --dt-bg: #17311a; --dt-bd: #3f7d33; --dt-fg: #7cc263; --dt-glow: rgba(80,160,60,.4); }
+.pust-roller .rdmg .rpoisres > b { color: var(--dt-fg); font-family: var(--pu-f-num); font-size: 18px; }
+.pust-roller .rdmg .rpoisres .die { --die-bg: var(--dt-bg); --die-bd: var(--dt-bd); background: var(--dt-bg) !important; border-color: var(--dt-bd) !important; }
+.pust-roller .rdmg .rpoisres .die b { color: var(--dt-fg) !important; }
+/* type chips */
+.dtchips { display: inline-flex; flex-wrap: wrap; gap: 3px; }
+.dtchip { display: inline-block; padding: 0 6px; border-radius: 9px; font-family: var(--pu-f-label); font-weight: 700; font-size: 10.5px; line-height: 16px; text-transform: uppercase; letter-spacing: .04em;
+  background: var(--dt-bg); color: var(--dt-fg); border: 1px solid var(--dt-bd); }
+.dtchip.dt-rad { box-shadow: 0 0 6px var(--dt-glow); }
+/* the total in one row with the dice */
+.pust-roller .rdmg .rdrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.pust-roller .rdmg .rdrow > .rdice { margin: 0; }
+.pust-roller .rdmg .rdsum { flex-wrap: wrap; align-items: center; }
+.pust-chat .pust-cdmg .rdrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.pust-chat .pust-cdmg .rdrow > .rdice { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+.pust-chat .pust-cdmg .rdsum { display: inline-flex; align-items: baseline; gap: 6px; }
+.pust-chat .pust-cdmg .dsep { font-size: 11px; color: #c99a7c; }
+/* damage effects (armour ignored, cryo, the whole zone…): over the breakdown, bigger, in the type's colour */
+:is(.pust-roller .rdmg, .pust-chat .pust-cdmg) .rdfx { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+:is(.pust-roller .rdmg, .pust-chat .pust-cdmg) .rdfx > li { position: relative; padding-left: 14px; font-family: var(--pu-f-label); font-weight: 700; line-height: 1.3; color: var(--dt-fg) !important; }
+:is(.pust-roller .rdmg, .pust-chat .pust-cdmg) .rdfx > li::before { content: "▸"; position: absolute; left: 0; color: var(--dt-bd); }
+.pust-roller .rdmg .rdfx > li { font-size: 14.5px; }
+.pust-chat .pust-cdmg .rdfx > li { font-size: 13px; }

@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Автоматичний. <strong><em>Лазерний</em></strong>. Ігнорує 1 броні.</p>",
     "price": 45,
-    "damage": "3d6"
+    "damage": "3d6",
+    "damageType": "laser"
   },
   "effects": [],
   "folder": "QpA0zkuOZOgqo4ve",

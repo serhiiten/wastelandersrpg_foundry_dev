@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматична. <strong><em>Кріо.</em></strong> При критичних влучаннях дозволяє <strong><em>заморозити</em></strong> супротивника елітної категорії чи нижче до кінця сцени замість завдання шкоди.</p>",
     "price": 50,
-    "damage": "2d6"
+    "damage": "2d6",
+    "damageType": "cryo"
   },
   "effects": [],
   "folder": "QpA0zkuOZOgqo4ve",

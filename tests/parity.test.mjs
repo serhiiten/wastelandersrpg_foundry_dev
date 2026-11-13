@@ -101,6 +101,7 @@ const SAME = {
   "act:open": "action:jsonOpen",
   "act:consq-roll": "action:checkPanel",
   "k:supplies": "act:sup-set", // Припаси are set by lamps (Мотлох and the quick panel), no number field
+  "k:weapons.N.en": "change:dtype", // «Тип»: the energy version plus fire / psi / poison / radiation (Foundry only, author 2026-11-14)
   "act:dismiss": "SKIP",
   "ui:restN": "ui:restMedic",
   "ui:restQr": "ui:restQr",
@@ -309,8 +310,10 @@ for (let c = 0; c < 60; c++) {
       continue;
     }
     compared++;
-    const A = canon(h.st);
-    const B = canon(f.st);
+    // Foundry writes «менша з 2d6» where the HTML sheet has «менший з 2d6» (author, 2026-11-14)
+    const lesser = (o) => JSON.parse(JSON.stringify(o).replace(/менший з 2d6/g, "менша з 2d6"));
+    const A = lesser(canon(h.st));
+    const B = lesser(canon(f.st));
     if (step.fix) { step.fix(A); step.fix(B); }
     const keys = [...new Set([...Object.keys(A), ...Object.keys(B)])].filter((k) => JSON.stringify(A[k]) !== JSON.stringify(B[k]));
     if (keys.length) {

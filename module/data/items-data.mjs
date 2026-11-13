@@ -114,6 +114,13 @@ export class WeaponData extends foundry.abstract.TypeDataModel {
         initial: "",
         choices: ["", "laser", "electric", "plasma", "cryo", "gauss"],
       }),
+      // Damage type (Foundry only, author 2026-11-14): its colour in «Зробити перевірку» and the chat;
+      // empty — from the energy version, the name and the note
+      damageType: new fields.StringField({
+        blank: true,
+        initial: "",
+        choices: ["", "phys", "laser", "plasma", "gauss", "electric", "fire", "cryo", "psi", "poison", "rad"],
+      }),
       // «Guns. Lots of Guns» properties
       range: new fields.StringField({ blank: true, initial: "", choices: ["", "melee", "1", "2", "max"] }),
       fireRate: new fields.StringField({

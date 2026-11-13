@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Завдає шкоди всім у зоні влучання. Одна граната коштує 2 кришки. Використовує перевірку <strong>СПР + Стрільба</strong>.</p>",
     "price": 10,
-    "damage": "2d6"
+    "damage": "2d6",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": "5HmqVUOrbnA4TX43",

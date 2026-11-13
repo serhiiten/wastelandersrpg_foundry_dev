@@ -159,6 +159,7 @@ export function stateToActor(st) {
       note: w.note || "",
       inHand: !!w.hand,
       energy: w.en || "",
+      damageType: w.dt || "",
       range: w.r || "",
       fireRate: w.rof || "",
       weaponClass: w.cls || "",
@@ -239,6 +240,8 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
     } else if (it.type === "weapon") {
       const w = Object.assign(e, { n: rowName(e, it.name), d: sys.damage || "", h: !!sys.heavy, en: sys.energy || "", note: raw(e.note, sys.note) });
       if (sys.inHand || "hand" in e) w.hand = !!sys.inHand;
+      if (sys.damageType) w.dt = sys.damageType; // a compendium weapon's type (Foundry only)
+      else delete w.dt;
       if (sys.range || "r" in e) w.r = sys.range || "";
       if (sys.fireRate || "rof" in e) w.rof = sys.fireRate || "";
       if (sys.weaponClass || "cls" in e) w.cls = sys.weaponClass || "";

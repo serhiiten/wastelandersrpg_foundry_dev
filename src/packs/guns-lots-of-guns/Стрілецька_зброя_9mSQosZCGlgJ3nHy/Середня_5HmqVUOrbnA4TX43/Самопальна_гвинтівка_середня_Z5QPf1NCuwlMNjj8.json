@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Одиночна. Схильна до <strong><em>поломок.</em></strong></p>",
     "price": 3,
-    "damage": "1d8"
+    "damage": "1d8",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": "5HmqVUOrbnA4TX43",

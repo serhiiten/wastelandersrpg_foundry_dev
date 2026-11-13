@@ -7,7 +7,7 @@
     <div class="pust-sheetbar-btns">
       <button type="button" data-action="jsonOpen"><i class="fa-solid fa-folder-open"></i> Відкрити .json</button>
       <button type="button" data-action="jsonSave"><i class="fa-solid fa-floppy-disk"></i> Зберегти .json</button>
-      <button type="button" data-action="act" data-act="random" data-confirm="1" title="Заповнене вручну (ім'я, аспекти, записи) лишиться"><i class="fa-solid fa-dice"></i> Випадковий персонаж</button>
+      <button type="button" data-action="act" class="pust-random" data-act="random" data-confirm="1" title="Заповнене вручну (ім'я, аспекти, записи) лишиться"><i class="fa-solid fa-dice"></i> Випадковий персонаж</button>
       <details class="pust-qsmenu">
         <summary class="pust-qsbtn" title="Замінити персонажа готовим"><i class="fa-solid fa-person-running"></i> Швидкий старт <i class="fa-solid fa-caret-down"></i></summary>
         <div class="pust-qslist">
@@ -15,8 +15,16 @@
         </div>
       </details>
       <button type="button" class="pust-danger" data-action="act" data-act="new" data-confirm="1"><i class="fa-solid fa-eraser"></i> Очистити аркуш</button>
+      <button type="button" class="{{#if v.guide}}on{{/if}}" data-action="uiToggle" data-key="guide" title="{{#if v.guide}}Сховати покрокову інструкцію{{else}}Покрокова інструкція: як створити персонажа{{/if}}"><i class="fa-solid fa-circle-question"></i> Як створити персонажа</button>
     </div>
   </details>
+
+  {{#if v.guide}}
+  <section class="pust-block pust-guide">
+    <h3>Як створити персонажа</h3>
+    <ol>{{#each v.guide}}<li>{{t}} <a data-action="pustTab" {{#if tab}}data-tab="{{tab}}"{{/if}} data-go="{{go}}" title="Показати">→ {{label}}</a></li>{{/each}}</ol>
+  </section>
+  {{/if}}
 
   {{!-- ===== Пустельник ===== --}}
   <header class="pust-head">
@@ -148,12 +156,6 @@
     </div>
   </section>
 
-  {{#if v.guide}}
-  <section class="pust-block pust-guide">
-    <h3>Як створити персонажа</h3>
-    <ol>{{#each v.guide}}<li>{{t}} <a data-action="pustTab" data-tab="{{tab}}">→ {{tabName}}</a></li>{{/each}}</ol>
-  </section>
-  {{/if}}
   {{#if v.issues.length}}
   <section class="pust-issues">
     <div class="pust-issues-hd"><i class="fa-solid fa-triangle-exclamation"></i> Сповіщення й попередження <small>{{v.issues.length}}</small></div>
@@ -197,7 +199,7 @@
         {{/each}}
       </section>
 
-      <section class="pust-block">
+      <section class="pust-block" data-go="skills">
         <h3>Навички <small class="pust-h3-line {{#unless v.skillBudget.ok}}bad{{/unless}}">{{v.skillBudget.text}}</small></h3>
         {{#each v.skills}}
         <div class="pust-skill lv{{lv}}">
@@ -215,7 +217,7 @@
   {{!-- ===== Перки й особливості (дві колонки) ===== --}}
   {{#if (eq tab 'perks')}}
     <div class="pust-cols">
-    <section class="pust-block">
+    <section class="pust-block" data-go="perks">
       <h3>Перки <small class="{{#if (gt v.perksCounted v.perkSlots)}}bad{{/if}}">{{v.perksCounted}} з {{v.perkSlots}}</small></h3>
       <div class="pust-tools pust-tools-row">
         <button type="button" class="pust-go" data-action="pick" data-pick="perk" title="{{#if (eq v.pick 'perk')}}Сховати список перків{{else}}Додати перк зі списку{{/if}}">{{#if (eq v.pick 'perk')}}Сховати{{else}}+ Додати{{/if}}</button>
@@ -249,7 +251,7 @@
     </section>
 
     <div class="pust-col">
-    <section class="pust-block">
+    <section class="pust-block" data-go="feats">
       <h3>Особливості <small class="{{#if (gt v.featsCounted 2)}}bad{{/if}}">{{v.featsCounted}} з 2</small></h3>
       <div class="pust-tools pust-tools-row">
         <button type="button" class="pust-go" data-action="pick" data-pick="feat" title="{{#if (eq v.pick 'feat')}}Сховати список особливостей{{else}}Додати особливість зі списку{{/if}}">{{#if (eq v.pick 'feat')}}Сховати{{else}}+ Додати{{/if}}</button>
@@ -410,7 +412,7 @@
 
   {{!-- ===== Мотлох ===== --}}
   {{#if (eq tab 'gear')}}
-    <div class="pust-cols pust-cols-eq pust-supcaps">
+    <div class="pust-cols pust-cols-eq pust-supcaps" data-go="gear">
       <section class="pust-block pust-supplies">
         <h3>Припаси</h3>
         <div class="pust-row">
@@ -465,10 +467,10 @@
           <input type="text" data-k="weapons.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" {{#if auto}}readonly{{/if}}>
           <textarea rows="1" data-k="weapons.{{i}}.note" placeholder="Примітка" class="pust-gnote-in" aria-label="Примітка">{{note}}</textarea>
           <span class="pust-gextra">
-            <select data-k="weapons.{{i}}.en" title="Енергетична версія" class="pust-en">{{#each energyOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
-            <a class="pust-roll" data-action="checkPanel" data-weapon="{{i}}" title="Атака цією зброєю"><i class="fa-solid fa-crosshairs"></i></a>
+            <select data-change="dtype" data-i="{{i}}" title="Тип шкоди: енергетична версія (лазерна, електрична, плазмова, кріо, гаус) змінює правила зброї; вогонь, пси, отрута й радіація — лише колір шкоди" class="pust-en">{{#each energyOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
+            <a class="pust-roll" data-action="weaponDamage" data-weapon="{{i}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i></a>
           </span>
-          <input type="text" data-k="weapons.{{i}}.d" value="{{d}}" placeholder="Шкода" class="pust-dmg" title="Шкода">
+          <span class="pust-dmgcell"><span class="pust-dmgchip">Шкода</span><textarea rows="1" data-k="weapons.{{i}}.d" placeholder="Шкода" class="pust-dmg pust-dmg-in pust-dtin dt-{{dt}} {{#if dEff}}pust-cryo{{/if}}" {{#if dEff}}data-base="{{d}}" data-eff="{{dEff}}" title="Кріо: шкода на ступінь нижча — {{dEff}} (базова {{d}}). Клацни, щоб змінити базову"{{else}}title="Шкода. Кілька типів — у квадратних дужках: 1d10[отрута]+2d6[пси]"{{/if}}>{{#if dEff}}{{dEff}}{{else}}{{d}}{{/if}}</textarea></span>
           <label class="pust-tog pust-gh" title="Важка"><input type="checkbox" data-k="weapons.{{i}}.h" {{#if h}}checked{{/if}}></label>
           <input type="text" data-k="weapons.{{i}}.price" value="{{price}}" placeholder="—" class="pust-price" title="Вартість" aria-label="Вартість">
           {{#unless auto}}<button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="weapons" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>{{else}}<span></span>{{/unless}}

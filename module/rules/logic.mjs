@@ -908,18 +908,19 @@ function applyPreset(p){
 /* ===== Шкода зброї ===== */
 const DICE_UP = {'1d6':'1d10','1d10':'2d6','2d6':'3d6','3d6':'3d6'};
 function parseDmg(str){
-  const s=String(str||'').toLowerCase().replace(/\s+/g,'');
-  if(/менш/.test(s)) return {low:true, terms:[{n:2,s:6}], flat:0};
+  const lbl=[]; const s=String(str||'').toLowerCase().replace(/\s+/g,'').replace(/(\d*d\d+)\[([^\]]*)\]/g,(m,t,l)=>{ lbl.push([t,l]); return t; }).replace(/\[[^\]]*\]/g,'');
+  if(/менш|^2d6kl1$/.test(s)) return {low:true, terms:[{n:2,s:6}], flat:0};
   const terms=[]; let flat=0;
   const m=s.match(/(\d*)d(\d+)/); if(!m) return null;
   terms.push({n:+m[1]||1, s:+m[2]});
   let rest=s.slice(s.indexOf(m[0])+m[0].length), x;
   while((x=rest.match(/^([+-])(\d*)d(\d+)|^([+-]\d+)(?![\dd])/))){ if(x[3]){ if(x[1]==='+') terms.push({n:+x[2]||1, s:+x[3]}); } else flat+=+x[4]; rest=rest.slice(x[0].length); }
+  lbl.forEach(([tx,l])=>{ const m=tx.match(/(\d*)d(\d+)/); const t=terms.find(t=>!t.t && t.n===(+m[1]||1) && t.s===+m[2]); if(t) t.t=l; });
   return {low:false, terms, flat};
 }
 function unarmedDmg(d){
   const n=d.allPerks.filter(p=>p==='Залізні кулаки').length;
-  if(n>=2) return '2d6'; if(n===1||d.powerArmor) return '1d10'; return 'менший з 2d6';
+  if(n>=2) return '2d6'; if(n===1||d.powerArmor) return '1d10'; return 'менша з 2d6';
 }
 /* Вид атаки за навичкою: лише для конкретних перевірок (Стрільба, Герць, Техніка) */
 function dmgFilterMode(skill){ return skill==='Стрільба'?'ranged':skill==='Герць'?'melee':skill==='Техніка'?'explosive':''; }
@@ -1033,7 +1034,7 @@ function dmgTotal(L, d){
   let base;
   const psiW=!!(ch0(L,d) && ch0(L,d).w && ch0(L,d).w.auto==='psi');
   if(opt.silent && !psiW){ base=maxDice(D.p); parts.push(['Максимум кісток (Тиха смерть)', base]); parts.push(['Тиха смерть +1d6', dmgExtra(L,'silent')]); }
-  else { const best = D.r2 && !psiW && D.r2.sum>D.r1.sum ? D.r2 : D.r1; base=best.sum; parts.push([(D.p.low?'менший з 2d6':D.p.terms.map(t=>t.n+'d'+t.s).join('+'))+(D.r2?' (краща з двох)':''), base]); }
+  else { const best = D.r2 && !psiW && D.r2.sum>D.r1.sum ? D.r2 : D.r1; base=best.sum; parts.push([(D.p.low?'менша з 2d6':D.p.terms.map(t=>t.n+'d'+t.s).join('+'))+(D.r2?' (краща з двох)':''), base]); }
   if(D.p.flat) parts.push(['Бонус зброї', D.p.flat]);
   const ch=dmgChoices(d).find(x=>x.key===D.key);
   dmgBonuses(mode, d, opt, ch).forEach(b=>parts.push(b));

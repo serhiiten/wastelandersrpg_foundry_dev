@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: Макс</p><p>Властивість: Автоматична.</p>",
     "price": 30,
-    "damage": "2d6+3"
+    "damage": "2d6+3",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": "QpA0zkuOZOgqo4ve",

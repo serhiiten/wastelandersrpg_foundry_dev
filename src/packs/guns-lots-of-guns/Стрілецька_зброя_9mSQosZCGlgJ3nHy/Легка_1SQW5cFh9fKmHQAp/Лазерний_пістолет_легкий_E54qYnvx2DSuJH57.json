@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: Макс</p><p>Властивість: Напівавтоматичний. <strong><em>Лазерний</em></strong>. Ігнорує 1 броні.</p>",
     "price": 6,
-    "damage": "1d6"
+    "damage": "1d6",
+    "damageType": "laser"
   },
   "effects": [],
   "folder": "1SQW5cFh9fKmHQAp",

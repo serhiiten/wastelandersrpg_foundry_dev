@@ -7,7 +7,8 @@
   "system": {
     "description": "<p>Дальність: Ближ</p><p>Властивість: Ігнорують 1 броні. Гострі.</p>",
     "price": 25,
-    "damage": "2d6"
+    "damage": "2d6",
+    "damageType": "phys"
   },
   "effects": [],
   "sort": 0,

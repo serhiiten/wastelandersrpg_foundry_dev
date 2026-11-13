@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: 1 зона</p><p>Властивість: Одиночний.</p>",
     "price": 2,
-    "damage": "1d8"
+    "damage": "1d8",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": "1SQW5cFh9fKmHQAp",

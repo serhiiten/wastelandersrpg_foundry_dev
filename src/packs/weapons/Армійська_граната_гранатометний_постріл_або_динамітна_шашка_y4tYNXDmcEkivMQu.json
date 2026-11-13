@@ -5,7 +5,8 @@
   "system": {
     "description": "<p>Завдає шкоди всім у зоні влучання.</p>",
     "price": 2,
-    "damage": "2d6"
+    "damage": "2d6",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": null,

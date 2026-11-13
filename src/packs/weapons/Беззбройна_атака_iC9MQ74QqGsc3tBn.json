@@ -5,7 +5,8 @@
   "system": {
     "description": "<p>Удари руками й ногами, імпровізованою зброєю, а також прикладом легкої зброї.</p>",
     "price": 0,
-    "damage": "2d6kl1"
+    "damage": "2d6kl1",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": null,

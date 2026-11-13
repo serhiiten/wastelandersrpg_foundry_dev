@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматичний. Боєприпаси не закінчуються поки під рукою є будь-який мотлох.</p>",
     "price": 12,
-    "damage": "2d6"
+    "damage": "2d6",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": "QpA0zkuOZOgqo4ve",

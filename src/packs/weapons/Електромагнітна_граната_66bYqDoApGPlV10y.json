@@ -5,7 +5,8 @@
   "system": {
     "description": "<p>Завдає шкоди лише роботам та електроніці у зоні влучання. Додатковий 1d6 шкоди вже враховано. Рідкісна річ.</p>",
     "price": 5,
-    "damage": "4d6"
+    "damage": "4d6",
+    "damageType": "electric"
   },
   "effects": [],
   "folder": null,

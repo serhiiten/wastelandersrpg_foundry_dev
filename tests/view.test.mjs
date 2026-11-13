@@ -26,6 +26,11 @@ for (let i = 0; i < 200; i++) {
         if (!Array.isArray(v[k])) throw new Error(`${k} is not a list`);
       }
       if (ui.cat && !Array.isArray(v.catalog?.groups)) throw new Error("catalog has no groups");
+      // every weapon row carries what its fields show (a lost key leaves a field empty on the sheet)
+      for (const w of v.weapons) {
+        for (const k of ["n", "d", "en", "note", "price", "hand", "fav", "h", "dt"]) if (!(k in w)) throw new Error(`weapon row has no «${k}»`);
+        if (w.note !== (st.weapons[w.i].note || "")) throw new Error(`weapon ${w.i}: note «${w.note}» ≠ «${st.weapons[w.i].note || ""}»`);
+      }
     } catch (err) {
       errors++;
       if (errors < 5) console.log("FAIL", i, JSON.stringify(ui), err.message);

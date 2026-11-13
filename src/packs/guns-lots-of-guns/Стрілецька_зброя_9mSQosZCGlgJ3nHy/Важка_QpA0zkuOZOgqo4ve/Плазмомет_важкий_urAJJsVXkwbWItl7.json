@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: Макс</p><p>Властивість: Напівавтоматичний.<strong><em>Плазмовий</em></strong>. Ігнорує 2 броні.</p>",
     "price": 40,
-    "damage": "2d6+3"
+    "damage": "2d6+3",
+    "damageType": "plasma"
   },
   "effects": [],
   "folder": "QpA0zkuOZOgqo4ve",

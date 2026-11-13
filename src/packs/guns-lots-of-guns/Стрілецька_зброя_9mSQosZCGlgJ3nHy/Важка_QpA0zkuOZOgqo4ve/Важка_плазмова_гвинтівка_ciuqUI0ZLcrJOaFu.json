@@ -7,7 +7,8 @@
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматична. <strong><em>Плазмова</em></strong>. Ігнорує 2 броні.</p>",
     "price": 20,
-    "damage": "2d6"
+    "damage": "2d6",
+    "damageType": "plasma"
   },
   "effects": [],
   "sort": 0,

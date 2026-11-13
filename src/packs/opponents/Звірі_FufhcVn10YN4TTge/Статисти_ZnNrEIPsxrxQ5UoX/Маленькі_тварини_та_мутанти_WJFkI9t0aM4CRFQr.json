@@ -10,7 +10,7 @@
       "max": 2
     },
     "armor": 0,
-    "description": "<blockquote>\n<p>Будь-яка дрібна наволоч, яка радше бісить, ніж завдає шкоди. Зазвичай нападає зграями по 6–10 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 2</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Укуси</u> (менший результат із 2d6, фізична шкода, ближній бій)</li>\n<li><strong>Аспект: <em>набридлива дрібнота, що лізе звідусіль.</em></strong></li>\n</ul>",
+    "description": "<blockquote>\n<p>Будь-яка дрібна наволоч, яка радше бісить, ніж завдає шкоди. Зазвичай нападає зграями по 6–10 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 2</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Укуси</u> (менша з 2d6, фізична шкода, ближній бій)</li>\n<li><strong>Аспект: <em>набридлива дрібнота, що лізе звідусіль.</em></strong></li>\n</ul>",
     "type": "statistician"
   },
   "prototypeToken": {
@@ -112,7 +112,7 @@
       "_id": "yfWs7AEXjSNeGCDl",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>менший результат із 2d6, фізична шкода, ближній бій.</p>",
+        "description": "<p>менша з 2d6, фізична шкода, ближній бій.</p>",
         "damage": "2d6kl1"
       },
       "effects": [],

@@ -9,7 +9,8 @@ import { QUICK_CHARS } from "../rules/quickstart.mjs";
 import { evaluate, readState, runAction } from "../applications/character-actions.mjs";
 import { exportCharacter, replaceCharacter, replaceCharacterFromFile } from "../applications/character-json.mjs";
 import { buildView } from "./character-view.mjs";
-import { openCheckPanel } from "../applications/check-panel.mjs";
+import { openCheckPanel, rollWeaponDamage } from "../applications/check-panel.mjs";
+import { EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -33,6 +34,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       customForm: WastelandersCharacterSheetV2.#onCustomForm,
       customSave: WastelandersCharacterSheetV2.#onCustomSave,
       checkPanel: WastelandersCharacterSheetV2.#onCheckPanel,
+      weaponDamage: WastelandersCharacterSheetV2.#onWeaponDamage,
       jsonOpen: WastelandersCharacterSheetV2.#onJsonOpen,
       jsonSave: WastelandersCharacterSheetV2.#onJsonSave,
       quickStart: WastelandersCharacterSheetV2.#onQuickStart,
@@ -94,6 +96,47 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     // «Видові властивості» folds; the sheet remembers it while open (closed again for a new window)
     root.querySelector(".pust-props")?.addEventListener("toggle", (ev) => { this.ui.propsOpen = ev.currentTarget.open; });
     root.querySelectorAll("details[data-fold]").forEach((el) => el.addEventListener("toggle", () => { this.ui[el.dataset.fold] = el.open; }));
+    this.#showGoTo(root);
+    // the damage field (author, 2026-11-14): a long value («менша з 2d6») gets a smaller font (down to 10 px), so it fits the cell;
+    // one that still doesn't fit («1d10[отрута]+2d6[пси]») moves to a row of its own under the weapon, with a «Шкода» chip,
+    // and wraps there (the field grows with its text; Enter leaves the field)
+    // (the text is measured on a canvas in the field's own font: a field's scrollWidth doesn't tell the text width reliably)
+    const ctx = (WastelandersCharacterSheetV2.#measure ||= document.createElement("canvas").getContext("2d"));
+    const fitDmg = (el) => {
+      const row = el.closest(".pust-grow");
+      row?.classList.remove("dmg-wide");
+      el.style.fontSize = "";
+      el.style.height = "";
+      const cs = getComputedStyle(el);
+      const room = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 3;
+      const base = parseFloat(cs.fontSize) || 13;
+      let px = base;
+      const width = () => { ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${px}px ${cs.fontFamily}`; return ctx.measureText(el.value).width; };
+      while (width() > room && px > 10) px -= 0.5;
+      if (width() <= room) {
+        if (px !== base) el.style.fontSize = `${px}px`;
+        return;
+      }
+      row?.classList.add("dmg-wide");
+      if (el.scrollHeight > el.clientHeight + 1) {
+        el.style.height = "auto";
+        el.style.height = `${el.scrollHeight + 2}px`;
+      }
+    };
+    const dmgFields = root.querySelectorAll("textarea.pust-dmg-in");
+    requestAnimationFrame(() => dmgFields.forEach(fitDmg));
+    dmgFields.forEach((el) => {
+      el.addEventListener("input", () => {
+        if (/\n/.test(el.value)) el.value = el.value.replace(/\n/g, "");
+        fitDmg(el);
+      });
+      el.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); el.blur(); } });
+    });
+    // a cryo weapon's damage field shows the damage one step down; while editing it shows the base damage, which is what is saved
+    root.querySelectorAll(".pust-cryo[data-base]").forEach((el) => {
+      el.addEventListener("focus", () => { el.value = el.dataset.base; el.select(); fitDmg(el); });
+      el.addEventListener("blur", () => { if (el.value === el.dataset.base) el.value = el.dataset.eff; fitDmg(el); });
+    });
     // gear notes wrap: the field grows with its text (one paragraph, Enter leaves the field);
     // in Броня / Інший мотлох a note that doesn't fit its column on one line gets a row of its own
     root.querySelectorAll(".pust-gnote-in, .pust-gnote-ta").forEach((ta) => {
@@ -147,6 +190,8 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   }
 
   #refocus = null;
+  /** A canvas context for measuring text (the damage field fit) */
+  static #measure = null;
   #searchTimer = null;
 
   #onField(event) {
@@ -164,6 +209,22 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       case "fav": return this.#run((C) => C.setFavourite(t.value));
       case "chem-used": return this.#run((C, st, L) => L.chemToggleUsed(t.dataset.drug, t.checked));
       case "grant": return this.#run((C) => C.setGrantSkill(t.dataset.n, t.value));
+      // «Тип» of a weapon: an energy version goes to the rules (en); fire, psi, poison, radiation only colour the damage (dt)
+      case "dtype": return this.#run((C, st) => {
+        const i = +t.dataset.i;
+        const w = st.weapons[i];
+        if (!w) return false;
+        const v = t.value;
+        if (EXTRA_TYPES.includes(v)) {
+          if (w.en) C.setField(`weapons.${i}.en`, "");
+          st.weapons[i].dt = v;
+        } else {
+          if ((w.en || "") !== v) C.setField(`weapons.${i}.en`, v);
+          delete st.weapons[i].dt;
+          // «звичайна» for a weapon whose name or note says fire / psi / poison / radiation: physical, as chosen
+          if (!v && EXTRA_TYPES.includes(weaponDmgType({ w: st.weapons[i] }))) st.weapons[i].dt = "phys";
+        }
+      });
     }
   }
 
@@ -196,9 +257,33 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     }
   }
 
+  /** A tab; a guide link also names the block to show (data-go: a selector; no data-tab — the block is above the tabs) */
   static #onTab(event, target) {
-    this.ui.tab = target.dataset.tab;
+    const { tab, go } = target.dataset;
+    if (tab) this.ui.tab = tab;
+    if (go) {
+      this.#goTo = go;
+      if (go.startsWith(".q-")) this.ui.quickFold = false; // «Швидкий доступ» unfolds to show ОЗ / жетони Долі
+    }
     this.render();
+  }
+
+  /** The block a guide link asked for: scrolled into view and flashed after the render */
+  #goTo = null;
+
+  #showGoTo(root) {
+    const sel = this.#goTo;
+    this.#goTo = null;
+    const el = sel && root.querySelector(sel);
+    if (!el) return;
+    const block = el.matches("input, select, textarea") ? el.closest(".pust-row") || el : el;
+    requestAnimationFrame(() => {
+      block.scrollIntoView({ block: "center", behavior: "smooth" });
+      block.classList.remove("pust-flash");
+      void block.offsetWidth; // restart the animation
+      block.classList.add("pust-flash");
+      setTimeout(() => block.classList.remove("pust-flash"), 1800);
+    });
   }
 
   static #onPick(event, target) {
@@ -249,6 +334,11 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     this.ui.addPick = this.ui.addPick === l ? "" : l;
     this.ui.addQ = "";
     this.render();
+  }
+
+  /** «Шкода» of a weapon in Мотлох: just its damage dice, to chat (author, 2026-11-14) */
+  static #onWeaponDamage(event, target) {
+    return rollWeaponDamage(this.document, +target.dataset.weapon);
   }
 
   static #onCheckPanel(event, target) {

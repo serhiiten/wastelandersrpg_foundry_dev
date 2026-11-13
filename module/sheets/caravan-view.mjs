@@ -10,6 +10,12 @@ const int = (v, def = 0) => {
   return Number.isFinite(n) ? n : def;
 };
 const signed = (n) => (n > 0 ? "+" + n : n < 0 ? "−" + Math.abs(n) : "0");
+/** The decorative HP bar: fill 0–100 % and a colour step (ok / hurt / low / down) */
+function hpBar(hp, max) {
+  const pct = max > 0 ? Math.max(0, Math.min(100, Math.round((hp / max) * 100))) : 0;
+  const level = hp <= 0 ? "down" : pct <= 25 ? "low" : pct <= 50 ? "hurt" : "ok";
+  return { pct, level };
+}
 const pips = (from, to, max, cur, kind) =>
   Array.from({ length: to - from }, (_, j) => {
     const k = from + j;
@@ -52,6 +58,7 @@ export function buildCaravanView(S, L, ui = {}) {
     hpCurrent: int(S.hpCurrent), maxHP: D.maxHP, baseMaxHP: D.baseMaxHP, hpCustom: S.hpMaxOverride != null,
     armor: D.armor, baseArmor: D.baseArmor, armorCustom: S.armorOverride != null,
     armorType: S.armorType || "", armorTypeCustom: String(S.armorType || "").trim() !== DEFAULT_ARMOR_TYPE,
+    hpBar: hpBar(int(S.hpCurrent), D.maxHP),
     repair: dmg > 0 ? { dmg, cost: Math.ceil(dmg / 5), hurt: S.hpCurrent > 0 && S.hpCurrent <= Math.floor(D.maxHP / 2), destroyed: S.hpCurrent === 0 } : null,
 
     movePips1: pips(0, 10, D.maxMove, S.moveCurrent, "move"),
@@ -62,6 +69,7 @@ export function buildCaravanView(S, L, ui = {}) {
 
     impCount: D.impCount, impNeed: need,
     impHint: need ? `оберіть ще ${2 - D.impCount}` : D.impCount === 2 ? "стартові обрано" : `докуплено ${D.impCount - 2} × 25(к)`,
+    supLamps: D.supCap ? Array.from({ length: D.supCap }, (_, k) => ({ k, n: k + 1, on: k < S.supplies })) : null,
     supNow: D.supCap ? `${S.supplies} / ${D.supCap}` : "немає скриньки",
     cargoNow: `${D.cargoVal} / ${D.cargoCap}`, cargoOver: D.cargoVal > D.cargoCap,
     cargoPct: Math.min(100, D.cargoCap ? (D.cargoVal / D.cargoCap) * 100 : 0),

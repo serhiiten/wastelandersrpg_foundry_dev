@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: Макс</p><p>Властивість: Одиночна.</p>",
     "price": 10,
-    "damage": "2d6"
+    "damage": "2d6",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": "QpA0zkuOZOgqo4ve",

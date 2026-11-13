@@ -7,7 +7,8 @@
   "system": {
     "description": "<p>Дальність: Ближ</p><p>Властивість: <strong><em>Електричний.</em></strong> Завдає роботам та електроніці додатково 1d6 шкоди.</p>",
     "price": 10,
-    "damage": "1d10"
+    "damage": "1d10",
+    "damageType": "electric"
   },
   "effects": [],
   "sort": 0,

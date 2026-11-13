@@ -7,7 +7,8 @@
   "system": {
     "description": "<p>Дальність: Ближ</p><p>Властивість: Гострий.</p>",
     "price": 3,
-    "damage": "1d6+1"
+    "damage": "1d6+1",
+    "damageType": "phys"
   },
   "effects": [],
   "sort": 0,

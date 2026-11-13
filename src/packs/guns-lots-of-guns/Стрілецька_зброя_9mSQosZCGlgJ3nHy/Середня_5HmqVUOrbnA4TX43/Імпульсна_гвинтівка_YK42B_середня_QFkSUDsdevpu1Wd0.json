@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: Макс</p><p>Властивість: Одиночна. <strong><em>Електрична.</em></strong> Завдає роботам та електроніці додатково 1d6 шкоди.</p>",
     "price": 30,
-    "damage": "2d6+1"
+    "damage": "2d6+1",
+    "damageType": "electric"
   },
   "effects": [],
   "folder": "5HmqVUOrbnA4TX43",

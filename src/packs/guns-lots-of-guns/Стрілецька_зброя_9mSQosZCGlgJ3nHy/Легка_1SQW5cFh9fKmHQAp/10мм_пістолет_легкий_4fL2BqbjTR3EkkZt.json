@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматичний.</p>",
     "price": 2,
-    "damage": "1d6"
+    "damage": "1d6",
+    "damageType": "phys"
   },
   "effects": [],
   "folder": "1SQW5cFh9fKmHQAp",

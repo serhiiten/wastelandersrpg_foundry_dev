@@ -381,7 +381,7 @@ const ENERGY = {
   gauss:   {n:'гаус',      adj:'гаус',      cost:15, eff:'у разі влучання ігнорує 3 фізичної броні'}
 };
 const ENERGY_ORDER = ['','laser','electric','plasma','cryo','gauss'];
-const CRYO_DOWN = {'1d6':'менший з 2d6','1d10':'1d6','2d6':'1d10','3d6':'2d6'};
+const CRYO_DOWN = {'1d6':'менша з 2d6','1d10':'1d6','2d6':'1d10','3d6':'2d6'};
 function weaponDmg(w){ const d=(w.d||'').trim(); if(w.en==='cryo' && !w.fixEn){ const k=d.toLowerCase().replace(/\s/g,''); return CRYO_DOWN[k]||d; } return d; }
 function weaponName(w){ const e=ENERGY[w.en||'']; return e&&e.adj&&!w.fixEn ? (w.n||'Зброя')+' ('+e.adj+')' : (w.n||''); }
 function weaponNote(w, full){ const e=ENERGY[w.en||'']; return [w.fav?'Особлива, улюблена':'', e&&e.eff&&!w.fixEn?e.n.charAt(0).toUpperCase()+e.n.slice(1)+': '+(full?e.eff:(e.short||e.eff)):'', typeof gunProps==='function'?gunProps(w):'', w.note].filter(Boolean).join('; '); }
@@ -413,7 +413,7 @@ const PIPBOY_NOTE = 'наручний комп\'ютер: щоденник, пе
 const PA_NOTE = '+1 СЛ (до +4); удари кулаками — 1d10; шкода від радіації та отрут ½ (з округленням угору); запас повітря; потрібен перк «Вміння носити силову броню»';
 const PRESETS = [
   ['w','Легка зброя','1d6',0,'1 к'],['w','Середня зброя','1d10',0,'5 к'],['w','Важка зброя','2d6',1,'10 к, обидві руки'],['w','Рідкісна зброя','3d6',1,'40 к, обидві руки'],
-  ['w','Беззбройні атаки','менший з 2d6',0,''],
+  ['w','Беззбройні атаки','менша з 2d6',0,''],
   ['a','Легка броня','1',0,'5 к'],['a','Середня броня','2',0,'10 к'],['a','Важка броня','3',1,'20 к'],['a','Рідкісна важка броня','4',0,'50 к'],
   ['a','Силова броня','5',1,'T-45, T-51, T-60; '+PA_NOTE],['a','Покращена силова броня','6',1,'APA, APA Mk II; '+PA_NOTE],
   ['a','Костюм хімзахисту','1',0,'шкода від радіації та отрут ½ (з округленням угору); запас повітря на кілька годин'],

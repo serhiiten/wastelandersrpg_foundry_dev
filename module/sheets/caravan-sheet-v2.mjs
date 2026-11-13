@@ -24,6 +24,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     actions: {
       cact: WastelandersCaravanSheetV2.#onAct,
       uiToggle: WastelandersCaravanSheetV2.#onUiToggle,
+      pustTab: WastelandersCaravanSheetV2.#onTab,
       undo: WastelandersCaravanSheetV2.#onUndo,
       jsonOpen: WastelandersCaravanSheetV2.#onJsonOpen,
       jsonSave: WastelandersCaravanSheetV2.#onJsonSave,
@@ -34,7 +35,8 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     sheet: { template: "systems/wastelanders-dev/templates/actor/caravan-v2.hbs", scrollable: [".pust-body"] },
   };
 
-  ui = { guide: false, foldImps: false };
+  /** Sheet UI state (not saved): guide, folds, tab */
+  ui = { guide: false, foldImps: false, tab: "imps", quickFold: false, sheetBarOpen: false };
   /** The caravan before the last undoable action (null when there is nothing to undo) */
   undoState = null;
   #undoTimer = null;
@@ -48,6 +50,9 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     const S = readCaravan(this.document);
     const { L } = caravanLogicFor(S, { quiet: true });
     context.v = buildCaravanView(S, L, this.ui);
+    context.tab = this.ui.tab;
+    context.quickFold = !!this.ui.quickFold;
+    context.ui = { sheetBarOpen: !!this.ui.sheetBarOpen };
     context.editable = this.isEditable;
     context.undo = !!this.undoState;
     return context;
@@ -56,6 +61,23 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
   _onRender(context, options) {
     super._onRender(context, options);
     const root = this.element;
+    // one-paragraph fields (reputation, story, cargo notes) grow with their text; Enter leaves the field
+    root.querySelectorAll(".pust-asp-ta, .pust-gnote-in").forEach((ta) => {
+      const fit = () => {
+        ta.style.height = "";
+        if (ta.scrollHeight <= ta.clientHeight + 1) return;
+        ta.style.height = "auto";
+        ta.style.height = `${ta.scrollHeight + 2}px`;
+      };
+      requestAnimationFrame(fit);
+      ta.addEventListener("input", () => {
+        if (/\n/.test(ta.value)) ta.value = ta.value.replace(/\n/g, " ");
+        fit();
+      });
+      ta.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); ta.blur(); } });
+    });
+    // folds («Аркуш») are remembered while the sheet is open
+    root.querySelectorAll("details[data-fold]").forEach((el) => el.addEventListener("toggle", () => { this.ui[el.dataset.fold] = el.open; }));
     if (!this.isEditable) {
       root.querySelectorAll("input, select, textarea, button[data-action='cact']").forEach((el) => (el.disabled = true));
       return;
@@ -99,6 +121,11 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     clearTimeout(this.#undoTimer);
     await saveCaravan(this.document, prev);
     ui.notifications.info("Скасовано.");
+  }
+
+  static #onTab(event, target) {
+    this.ui.tab = target.dataset.tab;
+    this.render();
   }
 
   static #onUiToggle(event, target) {

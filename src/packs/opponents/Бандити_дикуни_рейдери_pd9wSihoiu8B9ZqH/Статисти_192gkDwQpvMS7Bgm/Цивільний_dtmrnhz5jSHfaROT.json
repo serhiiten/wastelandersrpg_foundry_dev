@@ -10,7 +10,7 @@
       "max": 3
     },
     "armor": 0,
-    "description": "<blockquote>\n<p>Прості мешканці Пустки без особливої бойової підготовки: селяни, роботяги, волоцюги, раби та інші небораки.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Кулаки або імпровізована зброя</u> (менший результат із 2d6, фізична шкода, ближній бій)</li>\n</ul>",
+    "description": "<blockquote>\n<p>Прості мешканці Пустки без особливої бойової підготовки: селяни, роботяги, волоцюги, раби та інші небораки.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Кулаки або імпровізована зброя</u> (менша з 2d6, фізична шкода, ближній бій)</li>\n</ul>",
     "type": "statistician"
   },
   "prototypeToken": {
@@ -112,7 +112,7 @@
       "_id": "BlMDuv3qaSDnf6Qo",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>менший результат із 2d6, фізична шкода, ближній бій.</p>",
+        "description": "<p>менша з 2d6, фізична шкода, ближній бій.</p>",
         "damage": "2d6kl1"
       },
       "effects": [],

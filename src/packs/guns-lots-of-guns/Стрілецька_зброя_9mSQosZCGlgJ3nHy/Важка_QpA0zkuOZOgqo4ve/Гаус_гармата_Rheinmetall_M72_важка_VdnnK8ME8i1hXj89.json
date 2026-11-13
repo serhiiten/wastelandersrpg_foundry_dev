@@ -6,7 +6,8 @@
   "system": {
     "description": "<p>Дальність: Макс</p><p>Властивість: Одиночна. <strong><em>Гаус</em></strong>. Ігнорує 3 броні.</p>",
     "price": 55,
-    "damage": "3d6"
+    "damage": "3d6",
+    "damageType": "gauss"
   },
   "effects": [],
   "folder": "QpA0zkuOZOgqo4ve",
