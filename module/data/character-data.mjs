@@ -1,4 +1,7 @@
 import { WastelandersItem } from "../documents/item.mjs";
+import { ATTR, actorToState } from "../rules/character-adapter.mjs";
+import { compute } from "../rules/core.mjs";
+import { createLogic } from "../rules/logic.mjs";
 
 const ATTRIBUTES = ["strength", "perception", "endurance", "attractiveness", "intelligence", "dexterity", "luck"];
 // Improvement slots (HTML sheet IMPS): key → how many times it can be bought
@@ -294,16 +297,39 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
 
   /** @inheritdoc */
   prepareDerivedData() {
-    // Automatically count fate point recovery if enabled
+    try {
+      this._prepareFromRules();
+    } catch (err) {
+      console.error("Пустельники | rules engine failed for", this.parent?.name, err);
+      this._prepareLegacy();
+    }
+  }
+
+  /** Values in play from the HTML sheet's rules engine (with chems, power armor, perks and feats) */
+  _prepareFromRules() {
+    const actor = this.parent;
+    if (!actor) return this._prepareLegacy();
+    const st = actorToState(actor.toObject());
+    const d = compute(st);
+    const L = createLogic({ st });
+    for (const [k, f] of Object.entries(ATTR)) this.attributes[f] = L.effAttr(d, k);
+    this.hp.base = d.hp;
+    this.hp.max = L.hpMaxNow(d);
+    this.fate.recover = d.fd;
+    this.armor.value = d.armorTotal + L.chemArmor();
+    this.armor.psi = d.psiTotal + L.chemPsi();
+    this.supplies.max = d.supMax;
+    // everything else the sheet shows: limits, budgets, issues, defenses, chems
+    Object.defineProperty(this, "rules", { value: { st, d, L }, configurable: true, enumerable: false });
+  }
+
+  /** The system's original formulas (used if the rules engine fails) */
+  _prepareLegacy() {
     if (this.fate.countAutomatically) {
       this.fate.recover = 2 + this.attributes.luck;
     }
-
-    // Count HP
     this.hp.base = 15 + this.attributes.endurance * 3;
     this.hp.max = Math.max(0, this.hp.base + this.hp.bonus + this.hp.perkBonus - this.hp.reduction);
-
-    // Count Armor
     this.armor.value = this.armor.bonus + this.armor.itemBonus;
   }
 }

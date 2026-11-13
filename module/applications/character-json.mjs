@@ -71,7 +71,7 @@ function pickVariant(candidates, actorData) {
 }
 
 /** Item data ready for createEmbeddedDocuments: compendium item when found, merged with the file's values */
-async function resolveItem(item, actorData) {
+export async function resolveItem(item, actorData) {
   const index = await compendiumIndex();
   const key = norm(item.name);
   const pool = index[item.type] || [];
@@ -208,6 +208,13 @@ function pickFile() {
     input.addEventListener("cancel", () => resolve(null));
     input.click();
   });
+}
+
+/** Create characters from HTML sheet states (a parsed .json file; also for macros and tests) */
+export async function createCharacters(list) {
+  const created = [];
+  for (const st of Array.isArray(list) ? list : [list]) created.push(await createCharacter(st));
+  return created;
 }
 
 /** Actors directory button: create characters from a file */

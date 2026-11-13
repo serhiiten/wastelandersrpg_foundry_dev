@@ -43,6 +43,11 @@ const int = (v, d = 0) => {
   return Number.isFinite(n) ? n : d;
 };
 const blankNum = (n) => (n ? String(n) : "");
+/** Foundry trims text fields; give back the file's original text when only surrounding spaces differ */
+const raw = (original, stored) =>
+  original != null && String(original).trim() === String(stored ?? "").trim() ? original : stored ?? "";
+/** Top-level text fields of the state, kept untrimmed in system.engine.raw when they have edge spaces */
+const TEXT_KEYS = ["name", "arch", "concept", "problem", "goal", "detail", "bio", "others"];
 const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
 
 /** Engine name of a perk/feat item: stored name, else the item name, else without its «(…)» suffix. */
@@ -111,6 +116,7 @@ export function stateToActor(st) {
     engine: {
       extra: Object.fromEntries(Object.entries(st).filter(([k]) => !MAPPED.has(k) && !k.startsWith("_"))),
       // keep exact empty-vs-number forms of the HTML fields
+      raw: Object.fromEntries(TEXT_KEYS.filter((k) => typeof st[k] === "string" && st[k] !== st[k].trim()).map((k) => [k, st[k]])),
       hpCur: st.hpCur ?? "",
       fdCur: st.fdCur ?? "",
       set: clone(st.set),
@@ -133,11 +139,13 @@ export function stateToActor(st) {
 
   st.perks.forEach((p) => {
     const { n, note, ...rest } = p;
-    push("perk", n, { note: note || "" }, { n, ...rest });
+    push("perk", n, { note: note || "" }, { n, ...rest, ...(note !== (note || "").trim() ? { note } : {}) });
   });
   st.feats.forEach((fn) => {
     const custom = (st.customFeats || []).find((c) => c.n === fn);
-    push("feat", fn, { note: st.featNotes?.[fn] || "" }, custom ? { n: fn, custom: clone(custom) } : { n: fn }, st._featIds?.[fn]);
+    const fnote = st.featNotes?.[fn];
+    const fraw = typeof fnote === "string" && fnote !== fnote.trim() ? { note: fnote } : {};
+    push("feat", fn, { note: fnote || "" }, custom ? { n: fn, custom: clone(custom), ...fraw } : { n: fn, ...fraw }, st._featIds?.[fn]);
   });
   st.weapons.forEach((w) =>
     push("weapon", w.n || "", {
@@ -208,7 +216,7 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
     if (it.type === "perk") {
       const n = engineName(it, PERK) ?? it.name;
       const { n: _n, ...rest } = e;   // rest keeps _fid when present
-      const p = { n, note: sys.note || "", ...rest };
+      const p = { n, ...rest, note: raw(e.note, sys.note) };
       if (!PERK[n] && !p.custom) p.custom = true;
       st.perks.push(p);
     } else if (it.type === "feat") {
@@ -221,10 +229,10 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
         st.feats.push(n);
       }
       const fn = st.feats[st.feats.length - 1];
-      if (sys.note) st.featNotes[fn] = sys.note;
+      if (sys.note) st.featNotes[fn] = raw(e.note, sys.note);
       if (withIds) st._featIds[fn] = it._id;
     } else if (it.type === "weapon") {
-      const w = Object.assign(e, { n: it.name, d: sys.damage || "", h: !!sys.heavy, en: sys.energy || "", note: sys.note || "" });
+      const w = Object.assign(e, { n: raw(e.n, it.name), d: sys.damage || "", h: !!sys.heavy, en: sys.energy || "", note: raw(e.note, sys.note) });
       if (sys.inHand || "hand" in e) w.hand = !!sys.inHand;
       if (sys.range || "r" in e) w.r = sys.range || "";
       if (sys.fireRate || "rof" in e) w.rof = sys.fireRate || "";
@@ -233,10 +241,10 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
       st.weapons.push(w);
     } else if (it.type === "armor") {
       const v = int(e.v, NaN) === int(sys.protection) ? e.v : String(int(sys.protection));
-      st.armor.push(Object.assign(e, { n: it.name, v, h: !!sys.heavy, w: !!sys.equipped, note: sys.note || "" }));
+      st.armor.push(Object.assign(e, { n: raw(e.n, it.name), v, h: !!sys.heavy, w: !!sys.equipped, note: raw(e.note, sys.note) }));
     } else if (it.type === "tool" || it.type === "drug") {
       const q = int(e.q, NaN) === int(sys.quantity, 1) ? e.q : String(int(sys.quantity, 1));
-      st.other.push(Object.assign(e, { n: it.name, q, note: sys.note || "" }));
+      st.other.push(Object.assign(e, { n: raw(e.n, it.name), q, note: raw(e.note, sys.note) }));
     }
   }
 
@@ -262,6 +270,7 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
   });
   st.bio = s.description || "";
   st.others = s.others || "";
+  for (const k of TEXT_KEYS) if (eng.raw?.[k] != null) st[k] = raw(eng.raw[k], st[k]);
   st.set = clone(eng.set) || st.set;
   for (const [k, f] of Object.entries(OPTIONS)) {
     if (k in st.set || s.options?.[f]) st.set[k] = !!s.options?.[f];   // add a key only when it is on
