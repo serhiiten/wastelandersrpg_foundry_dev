@@ -1161,7 +1161,7 @@ function compute(st){
   d.psiTotal = Math.max(0, d.psiTotal + d.psiBonus);
   d.defOv = Object.keys(st.defOv||{}).filter(k=>DEF_TYPES[k] && ['half','immune','heal','yes'].includes(st.defOv[k]));
   d.heavyCap = Math.max(0,d.eff.SL) + d.allPerks.filter(n=>n==='Майстер важких речей').length;
-  d.heavyN = st.weapons.filter(w=>w.h).length + st.armor.filter(a=>a.h).length;
+  d.heavyN = st.weapons.filter(w=>w.h).length + st.armor.filter(a=>a.h).length + (st.other||[]).filter(o=>o.h).reduce((n,o)=>n+Math.max(1, parseInt(o.q,10)||1), 0);
   d.medSlots = d.allPerks.includes('Міцний') ? 2 : 1;
   d.supMaxAuto = 3 + (d.allPerks.includes('Сильна спина')?3:0);
   d.supMax = (free && st.supMax!=='' && st.supMax!=null && !isNaN(parseInt(st.supMax,10))) ? parseInt(st.supMax,10) : d.supMaxAuto;

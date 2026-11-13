@@ -18,6 +18,14 @@ import {
   rollPerksFor, rollSpecies, skillBudget, syncAuto, weaponName,
 } from "./core.mjs";
 
+/** Text fields with a die: filled in by hand → the die is locked (Foundry only, like the caravan sheet) */
+export const MANUAL_KEYS = ["name", "concept", "problem", "goal", "detail"];
+const MANUAL_MSG = "Це поле заповнили вручну, тож кістки заблоковано. Очисти поле, щоб знову кидати.";
+/** Manual bonuses and defences change only in «Вільний режим» (as the HTML sheet's warning says) */
+const FREE_KEYS = ["hpMaxOv", "fdOv", "armorOv", "psiArmorOv", "supMax"];
+const FREE_MSG = "Ручні надбавки й захист вручну змінюються лише у вільному режимі. Увімкни його в «Налаштуваннях».";
+const isFreeKey = (k) => FREE_KEYS.includes(k) || /^defOv\./.test(k);
+
 /** Value at a dotted path («weapons.2.hand») */
 function setPath(st, path, val) {
   const ps = path.split(".");
@@ -92,8 +100,15 @@ export function createController(st, L, { toast = () => {} } = {}) {
   /** A field changed. `num` = numeric field (empty → 0). */
   function setField(k, v, { num = false } = {}) {
     if (num) v = v === "" ? 0 : parseInt(v, 10) || 0;
+    if (isFreeKey(k) && !st.set?.free) return refuse(FREE_MSG);
+    // Foundry only (like the caravan sheet): a text typed by hand locks its die and survives «Випадковий персонаж»
+    if (MANUAL_KEYS.includes(k)) {
+      st.manual = st.manual || {};
+      st.manual[k] = String(v ?? "").trim() !== "";
+    }
     if (k === "supplies") v = clampSup(v);
     if (k === "hpCur") v = clampHp(v);
+    if (k === "hpRed") v = Math.max(0, v);
     setPath(st, k, v);
     if (/^armor\.\d+\.w$/.test(k) && v && !st.set.free) {
       const i = +k.split(".")[1];
@@ -229,14 +244,21 @@ export function createController(st, L, { toast = () => {} } = {}) {
     const d = compute(st);
     switch (a) {
       case "gender": st.gender = data.v; return true;
-      case "roll-name": st.name = rollName(st.species, st.gender); return true;
+      case "roll-name":
+        if (st.manual?.name) return refuse(MANUAL_MSG);
+        st.name = rollName(st.species, st.gender);
+        return true;
       case "roll-asp": {
         const i = +data.i;
         const f = ["concept", "problem", "goal"][i];
+        if (st.manual?.[f]) return refuse(MANUAL_MSG);
         st[f] = rollAspect(st.arch, i, st.species, st.gender, st[f], st.feats);
         return true;
       }
-      case "roll-detail": st.detail = rollDetail(); return true;
+      case "roll-detail":
+        if (st.manual?.detail) return refuse(MANUAL_MSG);
+        st.detail = rollDetail();
+        return true;
       case "roll-species": {
         st.species = rollSpecies(st.arch, st.set.claws);
         dropInvalidSpeciesFeats();
@@ -392,6 +414,15 @@ export function createController(st, L, { toast = () => {} } = {}) {
           if (dd < 0 && cur <= 0) return false;
           if (dd > 0 && cur + dd > d.supMax) return refuse("Більше Припасів не влізе: максимум " + d.supMax + ".", "bad");
           st.supplies = Math.max(0, cur + dd);
+        } else if (FREE_KEYS.includes(k) && !st.set?.free) {
+          return refuse(FREE_MSG);
+        } else if (["hpMaxOv", "fdOv", "armorOv", "psiArmorOv"].includes(k)) {
+          // Foundry only: −/+ on the manual bonuses (signed; 0 means «за правилами», stored as "")
+          const nv = (parseInt(st[k], 10) || 0) + dd;
+          st[k] = nv === 0 ? "" : String(nv);
+        } else if (k === "supMax") {
+          const nv = Math.max(0, (st.supMax === "" || st.supMax == null ? d.supMax : parseInt(st.supMax, 10) || 0) + dd);
+          st.supMax = String(nv);
         }
         return true;
       }
@@ -405,8 +436,16 @@ export function createController(st, L, { toast = () => {} } = {}) {
         const keep = { set: st.set };
         const fresh = rollCharacter(keep);
         fresh.set = keep.set;
+        // Foundry only: what was typed by hand stays (name, aspects, detail with their locks; the notes)
+        const M = st.manual || {};
+        const kept = MANUAL_KEYS.filter((k) => M[k] && String(st[k] ?? "").trim());
+        kept.forEach((k) => (fresh[k] = st[k]));
+        if (kept.length) fresh.manual = Object.fromEntries(kept.map((k) => [k, true]));
+        if (String(st.bio || "").trim()) fresh.bio = st.bio;
+        if (String(st.others || "").trim()) fresh.others = st.others;
         replaceAll(fresh);
-        toast("Новий пустельник: " + st.name + " — " + st.arch.toLowerCase() + ", " + SPECIES[st.species].n.toLowerCase() + ".");
+        toast("Новий пустельник: " + st.name + " — " + st.arch.toLowerCase() + ", " + SPECIES[st.species].n.toLowerCase() + "."
+          + (kept.length ? " Заповнене вручну лишилося." : ""));
         return true;
       }
       case "new": {
@@ -436,11 +475,14 @@ export function createController(st, L, { toast = () => {} } = {}) {
       }
       case "sit-del": st.sit.splice(+data.i, 1); return true;
       case "def-reset":
+        if (!st.set?.free) return refuse(FREE_MSG);
         st.defOv = {};
         st.psiArmorOv = "";
         toast("Захист повернуто за правилами.");
         return true;
-      case "ov-reset": st[data.k] = ""; toast("Скинуто до стандартного значення."); return true;
+      case "ov-reset":
+        if (!st.set?.free) return refuse(FREE_MSG);
+        st[data.k] = ""; toast("Скинуто до стандартного значення."); return true;
       case "custom-save": {
         const kind = data.kind;
         const name = String(data.name || "").trim();

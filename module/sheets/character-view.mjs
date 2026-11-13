@@ -5,9 +5,10 @@
  */
 import {
   ARCH_ORDER, ATTRS, AKEYS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
-  DRUGS, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, countedFeats,
+  DRUGS, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, catProps, countedFeats,
   countedPerks, drugOf, featElig, gunsOn, perkElig, presetLabel, CAT_SECS,
 } from "../rules/core.mjs";
+import { catalogDescription } from "../applications/catalog-descriptions.mjs";
 
 const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
 const CONS = [
@@ -29,6 +30,30 @@ const GUIDE = [
   ["Кинь випадкову деталь персонажа.", "build"],
 ];
 const TAB_NAME = { build: "Атрибути й навички", perks: "Перки й особливості", xp: "Покращення", health: "Здоров'я", gear: "Мотлох" };
+/** The decorative HP bar under the portrait: fill 0–100 % and a colour step (ok / hurt / low / down) */
+function hpBar(hp, max) {
+  const pct = max > 0 ? Math.max(0, Math.min(100, Math.round((hp / max) * 100))) : 0;
+  const level = hp <= 0 ? "down" : pct <= 25 ? "low" : pct <= 50 ? "hurt" : "ok";
+  return { pct, level };
+}
+/** A chem's addiction chance (d10 ≤ N), 0 for none */
+function catAddict(e) {
+  const key = drugOf(e.n);
+  return key && DRUGS[key]?.ch > 0 ? DRUGS[key].ch : 0;
+}
+
+/** A catalogue entry's description: the add-on's properties and the book's note (the price and damage have their own places) */
+function catDesc(e) {
+  const d = String(e.d || "").trim();
+  // the compendium's full text when there is one (it has the add-on's range and fire mode too), else the sheet's short note
+  const full = catalogDescription(e.n);
+  if (full) return full;
+  return [catProps(e), String(e.note || "").trim()]
+    .map((x) => String(x || "").trim())
+    .map((x) => (d && x.startsWith(`${d}, `) ? x.slice(d.length + 2) : x)) // «1d6, уся зона» → «уся зона» (1d6 is shown already)
+    .filter((x) => x && x !== d)
+    .join("; ");
+}
 /** The HTML sheet's catalogue sorting (app.js CAT_SORT) */
 const CAT_SORT = { price: "за ціною ↑", pdesc: "за ціною ↓", power: "за шкодою чи бронею", name: "за назвою" };
 const IMP_TARGET = { attr2: "attr", attr3: "attr", attr4: "attr", skill: "skill", skill2: "skill", skill3: "skill" };
@@ -168,13 +193,17 @@ export function buildView(st, d, L, ui = {}) {
     addictions: c.addictions.map((a, i) => ({ i, drug: a.drug, src: a.src || "", used: c.used.includes(a.drug), incurable: !!a.incurable })),
     unsatisfied: L.unsatAddictions().map((a) => a.drug),
     last: c.last || "", restLast: c.restLast || "", superDice: c.superDice || 0, ko: L.curHp(d) <= 0,
+    // the 0 HP block: +1 fate once per fall; Друге дихання / Швидке відновлення only with those perks
+    koFate: !!c.koFate,
+    koWind: d.allPerks.includes("Друге дихання"), koWindUsed: c.swSession === c.session,
+    koQuick: d.allPerks.includes("Швидке відновлення"),
   };
 
   /* ---------- gear ---------- */
   const energyOptions = (cur) => ENERGY_ORDER.map((k) => ({ v: k, n: k ? ENERGY[k]?.n || k : "звичайна", sel: (cur || "") === k }));
   const opts = (map, cur) => Object.entries(map).map(([v, n]) => ({ v, n, sel: (cur || "") === v }));
   const weapons = st.weapons.map((w, i) => ({
-    i, n: w.n || "", d: w.d || "", h: !!w.h, en: w.en || "", note: w.note || "", hand: !!w.hand, fav: !!w.fav,
+    i, n: w.n || "", d: w.d || "", h: !!w.h, en: w.en || "", note: w.note || "", price: w.price || "", hand: !!w.hand, fav: !!w.fav,
     auto: !!(w.auto || w.claw), energyOptions: energyOptions(w.en),
     guns: gunsOn(st), r: w.r || "", rof: w.rof || "", cls: w.cls || "",
     rangeOptions: opts(GUN_RANGE, w.r), rofOptions: opts(GUN_ROF, w.rof), clsOptions: opts(GUN_CLS, w.cls),
@@ -188,20 +217,22 @@ export function buildView(st, d, L, ui = {}) {
       st.weapons.map((w, i) => ({ v: String(i), n: w.n || "без назви", sel: !!w.fav })).filter((o) => !st.weapons[+o.v]?.auto))
     : null;
   const armor = st.armor.map((a, i) => ({
-    i, n: a.n || "", v: a.v ?? "", h: !!a.h, w: a.w !== false, note: a.note || "",
+    i, n: a.n || "", v: a.v ?? "", h: !!a.h, w: a.w !== false, note: a.note || "", price: a.price || "",
     guns: gunsOn(st), mods: (a.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })),
   }));
   const consL = String(st.cons?.l || "").trim();
   const other = st.other.map((o, i) => {
     const key = drugOf(o.n);
     const D = key ? DRUGS[key] : null;
-    return {
-      i, n: o.n || "", q: o.q ?? "1", note: o.note || "", auto: !!o.auto, usable: !!key,
+    const row = {
+      i, n: o.n || "", q: o.q ?? "1", note: o.note || "", price: o.price || "", h: !!o.h, auto: !!o.auto, usable: !!key,
       booster: D?.booster && !/\(/.test(o.n || "")
         ? [{ v: "", n: "атрибут…", sel: !o.attr }].concat(ATTRS.filter((A) => A.k !== "UDCH").map((A) => ({ v: A.k, n: A.s, sel: o.attr === A.k })))
         : null,
       treat: !!(D && (D.heal || D.superHeal) && consL && !st.consT?.l),
     };
+    row.hasActs = row.usable || !!row.booster || row.treat; // «Вжити» and the rest take the end of the note's column
+    return row;
   });
   const robotBody = st.species === "robot" && !d.has("Кіборг");
   const ai = st.other.findIndex((o) => {
@@ -217,16 +248,33 @@ export function buildView(st, d, L, ui = {}) {
   const catalog = cv
     ? {
       total: cv.total, all: cv.all,
-      groups: cv.groups.map((g) => ({ g: g.g, items: g.items.map((e) => ({ id: e.id, n: e.n, d: e.d || "", price: e.price ?? "" })) })),
+      groups: cv.groups.map((g) => ({ g: g.g, items: g.items.map((e) => ({ id: e.id, n: e.n, d: e.d || "", price: e.price ?? "", desc: catDesc(e), addict: catAddict(e) })) })),
     }
     : null;
+  // «+ Зброя / + Броня / + Річ»: that list's catalogue at the bottom of its block (search and sorting as in the catalogue)
+  const ADD_KIND = { weapons: "w", armor: "a", other: "o" };
+  const addPick = ADD_KIND[ui.addPick] ? ui.addPick : "";
+  let addCat = null;
+  if (addPick) {
+    const v = catalogView(ui.addQ || "", "all", catSort, gunsOn(st));
+    const groups = v.groups
+      .map((g) => ({ g: g.g, items: g.items.filter((e) => e.kind === ADD_KIND[addPick])
+        .map((e) => ({ id: e.id, n: e.n, d: e.d || "", price: e.price ?? "", desc: catDesc(e), addict: catAddict(e) })) }))
+      .filter((g) => g.items.length);
+    addCat = { groups, total: groups.reduce((n, g) => n + g.items.length, 0) };
+  }
   const catSecs = [{ v: "all", n: "усі розділи", sel: catSec === "all" }].concat(secs.map((k) => ({ v: k, n: CAT_SECS[k] || k, sel: catSec === k })));
   const catSorts = Object.entries(CAT_SORT).map(([v, n]) => ({ v, n, sel: catSort === v }));
 
   return {
     name: st.name || "", gender: st.gender, genders: [["m", "чол."], ["f", "жін."], ["n", "без статі"]].map(([v, n]) => ({ v, n, sel: st.gender === v })),
-    species, speciesProps: SPECIES[st.species]?.props || [], archetypes, arch: st.arch || "",
-    aspects: ASPECTS.map(([f, label], i) => ({ f, label, v: st[f] || "", i })), detail: st.detail || "",
+    species, // «Назва: опис» → a name and a description, like the feats above (props without a name stay text only)
+    speciesProps: (SPECIES[st.species]?.props || []).map((p) => {
+      const m = /^([^:.]{2,60}):\s*(.+)$/s.exec(p);
+      return m ? { n: m[1], text: m[2].charAt(0).toUpperCase() + m[2].slice(1) } : { n: "", text: p };
+    }), archetypes, arch: st.arch || "",
+    aspects: ASPECTS.map(([f, label], i) => ({ f, label, v: st[f] || "", i, locked: !!st.manual?.[f] })), detail: st.detail || "",
+    locks: { name: !!st.manual?.name, detail: !!st.manual?.detail }, // typed by hand: the die is locked
     issues: d.issues.map(([lvl, msg]) => ({ lvl, msg })),
     chips: L.statusChips(d).map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
     chipsGood: L.statusChips(d).filter(([cls]) => cls !== "bad").map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
@@ -239,7 +287,7 @@ export function buildView(st, d, L, ui = {}) {
     pick: ui.pick || "", q: ui.q || "", showAll: !!ui.showAll, perkPicker, featPicker,
     imps, xp: st.xp || 0, xpSpent: d.xpSpent, xpLeft: d.xpLeft, modelBonus: st.exp,
     hasModel: d.has("Експериментальна модель"),
-    hp: L.curHp(d), hpMax, hpRed: d.hpRed, fd, fdMax: d.fd,
+    hp: L.curHp(d), hpMax, hpRed: d.hpRed, fd, fdMax: d.fd, hpBar: hpBar(L.curHp(d), hpMax),
     armor: d.armorTotal + L.chemArmor(), psi: d.psiTotal + L.chemPsi(),
     cons, sit, quickAspects, defenses, restBlock,
     supplies: parseInt(st.supplies, 10) || 0, supMax: d.supMax,
@@ -247,12 +295,17 @@ export function buildView(st, d, L, ui = {}) {
     caps: parseInt(st.caps, 10) || 0,
     chem, rest,
     weapons, favWeapon, armorList: armor, other, heavy: { n: d.heavyN, cap: d.heavyCap, over: d.heavyN > d.heavyCap },
-    cat: !!ui.cat, catQ: ui.catQ || "", catalog, catSecs, catSorts,
+    cat: !!ui.cat, catQ: ui.catQ || "", catalog, catSecs, catSorts, addPick, addCat, addQ: ui.addQ || "",
     adren: ai >= 0 ? { i: ai, n: drugOf(st.other[ai].n) } : null,
     presets: PRESETS.map((p, i) => ({ i, n: presetLabel ? presetLabel(p) : p[1] })),
     bio: st.bio || "", others: st.others || "",
     set: { ...st.set },
     overrides: { hpMaxOv: st.hpMaxOv ?? "", fdOv: st.fdOv ?? "", armorOv: st.armorOv ?? "", psiArmorOv: st.psiArmorOv ?? "", supMax: st.supMax ?? "" },
+    ovList: [["hpMaxOv", "до максимуму ОЗ"], ["fdOv", "до жетонів Долі"], ["armorOv", "до броні"], ["psiArmorOv", "до пси-броні"]]
+      .map(([k, n]) => ({ k, n, val: st[k] ?? "" })),
+    // how many are set (shown on the folded headers)
+    ovSet: ["hpMaxOv", "fdOv", "armorOv", "psiArmorOv"].filter((k) => String(st[k] ?? "").trim() !== "").length,
+    defSet: Object.keys(DEF_TYPES).filter((k) => ovDef[k]).length,
     defTypes: Object.entries(DEF_TYPES).map(([k, T]) => ({
       k, n: T.n,
       options: [{ v: "", n: "за правилами", sel: !ovDef[k] }].concat(

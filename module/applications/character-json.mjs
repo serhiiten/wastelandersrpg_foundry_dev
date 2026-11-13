@@ -14,6 +14,7 @@ import { FEAT, PERK, SPECIES } from "../rules/core.mjs";
 import { CARAVAN_TYPES, caravanToState } from "../rules/caravan-adapter.mjs";
 import { createCaravanLogic } from "../rules/caravan-logic.mjs";
 import { saveCaravan } from "./caravan-actions.mjs";
+import { joinPrices, splitPrices } from "../rules/prices.mjs";
 
 const T = (key, data) =>
   data ? game.i18n.format(`WASTELANDERS.Json.${key}`, data) : game.i18n.localize(`WASTELANDERS.Json.${key}`);
@@ -336,7 +337,8 @@ function fileName(st) {
 /** Sheet button: save the character as an HTML-sheet .json file */
 export async function exportCharacter(actor) {
   const portrait = await portraitData(actor.img);
-  const st = actorToState(actor.toObject(), { portrait });
+  // the HTML sheet has no «Вартість» field: the price goes back to the start of the note
+  const st = joinPrices(splitPrices(actorToState(actor.toObject(), { portrait })));
   foundry.utils.saveDataToFile(JSON.stringify(st), "application/json", fileName(st));
 }
 

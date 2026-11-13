@@ -11,11 +11,13 @@
 import { actorToState, mergeSystem, planSync } from "../rules/character-adapter.mjs";
 import { compute, syncAuto } from "../rules/core.mjs";
 import { createLogic } from "../rules/logic.mjs";
+import { splitPrices, syncAddictionNotes, syncFavNotes } from "../rules/prices.mjs";
 import { resolveItem } from "./character-json.mjs";
 
 /** Read an actor as HTML sheet state, with item ids so changes can be written back */
 export function readState(actor) {
-  return actorToState(actor.toObject(), { withIds: true });
+  // Foundry only: the price of gear lives in its own field («Вартість»), not at the start of the note
+  return splitPrices(actorToState(actor.toObject(), { withIds: true }));
 }
 
 /** Rules logic bound to a state; toasts become notifications */
@@ -69,6 +71,9 @@ export function saveState(actor, st) {
 export function normalize(st, L) {
   syncAuto(st);
   L.chemKO();
+  splitPrices(st); // gear just added (catalogue, starting gear) has its price in the note
+  syncFavNotes(st); // «особлива, улюблена» follows the favourite weapon
+  syncAddictionNotes(st); // a chem's addiction chance is always in its note
 }
 
 /**

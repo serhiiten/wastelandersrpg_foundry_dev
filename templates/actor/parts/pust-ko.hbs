@@ -1,0 +1,10 @@
+{{!-- «0 ОЗ»: the knock-out box (tab «Здоров'я» and, at 0 HP, «Швидкий доступ» under «Зробити перевірку»).
+     Context: the sheet's v; short=true gives the quick panel's short labels (the full ones stay in the tooltips). --}}
+<div class="pust-tools pust-ko">
+  <b title="0 ОЗ"><i class="fa-solid fa-skull"></i>{{#unless short}} 0 ОЗ:{{/unless}}</b>
+  <button type="button" data-action="checkPanel" data-type="consq" title="Перевірка отримання наслідку">{{#if short}}Перев. наслідку{{else}}Перевірка отримання наслідку{{/if}}</button>
+  <button type="button" data-action="act" data-act="ko-fate" {{#if v.chem.koFate}}disabled title="Жетон за це падіння вже отримано"{{else}}title="+1 жетон Долі за падіння до 0 ОЗ"{{/if}}>+1 жетон Долі</button>
+  {{#if v.chem.koWind}}<button type="button" data-action="act" data-act="ko-wind" {{#if v.chem.koWindUsed}}disabled title="Друге дихання вже було в цій сесії"{{else}}title="Друге дихання: прийти до тями з 5 ОЗ (раз за сесію)"{{/if}}>{{#if short}}Друге дихання{{else}}Друге дихання (5 ОЗ){{/if}}</button>{{/if}}
+  {{#if v.chem.koQuick}}<button type="button" data-action="act" data-act="ko-quick" title="Швидке відновлення: наприкінці бою прийти до тями з 1 ОЗ">{{#if short}}Швидке відновл.{{else}}Швидке відновлення (1 ОЗ){{/if}}</button>{{/if}}
+  {{#if v.adren}}<button type="button" data-action="act" data-act="ko-adren" data-i="{{v.adren.i}}" title="Витрачає одну дозу з мотлоху. Не діє на приречених.">{{v.adren.n}}: 1 ОЗ</button>{{/if}}
+</div>

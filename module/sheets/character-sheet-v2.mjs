@@ -36,6 +36,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       jsonOpen: WastelandersCharacterSheetV2.#onJsonOpen,
       jsonSave: WastelandersCharacterSheetV2.#onJsonSave,
       quickStart: WastelandersCharacterSheetV2.#onQuickStart,
+      addPick: WastelandersCharacterSheetV2.#onAddPick,
     },
   };
 
@@ -59,11 +60,13 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     context.actor = this.document;
     context.tab = this.ui.tab;
     context.quickFold = !!this.ui.quickFold;
+    context.statusFold = !!this.ui.statusFold;
+    context.ui = { ovOpen: !!this.ui.ovOpen, defOpen: !!this.ui.defOpen }; // folded blocks in «Налаштування» (closed by default)
     context.restUi = this.ui.rest;
     context.customKind = this.customKind;
     context.editable = this.isEditable;
     context.quickChars = QUICK_CHARS.map((c, i) => ({
-      i, n: c.name, title: `${c.arch}, ${(SPECIES[c.species] || SPECIES.human).n}. ${c.concept || ""}`,
+      i, n: c.name, sub: `${c.arch} · ${(SPECIES[c.species] || SPECIES.human).n.toLowerCase()}`, title: `${c.arch}, ${(SPECIES[c.species] || SPECIES.human).n}. ${c.concept || ""}`,
     }));
     return context;
   }
@@ -90,6 +93,32 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     });
     // «Видові властивості» folds; the sheet remembers it while open (closed again for a new window)
     root.querySelector(".pust-props")?.addEventListener("toggle", (ev) => { this.ui.propsOpen = ev.currentTarget.open; });
+    root.querySelectorAll("details[data-fold]").forEach((el) => el.addEventListener("toggle", () => { this.ui[el.dataset.fold] = el.open; }));
+    // gear notes wrap: the field grows with its text (one paragraph, Enter leaves the field);
+    // in Броня / Інший мотлох a note that doesn't fit its column on one line gets a row of its own
+    root.querySelectorAll(".pust-gnote-in, .pust-gnote-ta").forEach((ta) => {
+      const row = ta.classList.contains("pust-gnote-in") ? ta.closest(".pust-grow") : null;
+      // one line keeps the CSS height (the same as the fields beside it); longer text grows the field
+      const grow = () => {
+        ta.style.height = "";
+        if (ta.scrollHeight <= ta.clientHeight + 1) return;
+        ta.style.height = "auto";
+        ta.style.height = `${ta.scrollHeight + 2}px`;
+      };
+      const fit = () => {
+        if (row && !row.classList.contains("wide")) {
+          ta.style.height = "";
+          if (ta.scrollHeight > ta.clientHeight + 2) row.classList.add("wide");
+        }
+        grow();
+      };
+      requestAnimationFrame(fit);
+      ta.addEventListener("input", () => {
+        if (/\n/.test(ta.value)) ta.value = ta.value.replace(/\n/g, " ");
+        fit();
+      });
+      ta.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); ta.blur(); } });
+    });
     if (!this.isEditable) {
       root.querySelectorAll("input, select, textarea, button[data-action='act']").forEach((el) => (el.disabled = true));
       return;
@@ -142,7 +171,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     const key = t.dataset.ui;
     this.ui[key] = t.type === "checkbox" ? t.checked : t.value;
     if (["catSec", "catSort"].includes(key) && event.type === "change") return this.render();
-    if (["q", "catQ"].includes(key) && event.type === "input") {
+    if (["q", "catQ", "addQ"].includes(key) && event.type === "input") {
       clearTimeout(this.#searchTimer);
       this.#searchTimer = setTimeout(() => {
         this.#refocus = key;
@@ -206,6 +235,14 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       this.customKind = "";
       this.render();
     }
+  }
+
+  /** «+ Зброя / + Броня / + Річ»: open (or close) that list's catalogue under it */
+  static #onAddPick(event, target) {
+    const l = target.dataset.l || "";
+    this.ui.addPick = this.ui.addPick === l ? "" : l;
+    this.ui.addQ = "";
+    this.render();
   }
 
   static #onCheckPanel(event, target) {

@@ -159,6 +159,8 @@
   font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .03em;
   box-shadow: inset 0 1px 0 rgba(255,220,190,.25);
 }
+.wastelanders .pust-tabs a { padding: 9px 10px 7px; font-size: 14px; letter-spacing: .04em; } /* sheet tabs: bigger than the terminal's */
+.wastelanders .pust-tabs a.pust-tab-ico { flex: 0 0 auto; padding: 9px 16px 7px; font-size: 17px; line-height: 1; } /* a tab shown as an icon (Налаштування) */
 .wastelanders :is(.pust-tabs, .pust-term-tabs) a:hover { color: var(--pu-yellow); text-shadow: none; }
 .wastelanders :is(.pust-tabs, .pust-term-tabs) a.active {
   background: var(--pu-steel-1); color: var(--pu-green); text-shadow: 0 0 6px rgba(61,255,71,.5);
@@ -241,3 +243,20 @@
   background: #e2ad3b; color: #241a0c; font-style: italic; font-family: var(--pu-f-text); padding: 0 6px; border-radius: 1px;
   box-decoration-break: clone; -webkit-box-decoration-break: clone;
 }
+
+/* ------------- −/+ steppers: a decrease is pale red, an increase pale green (every button with data-d) ------------- */
+.wastelanders button[data-d]:not(.header-control) { box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 1px 0 rgba(35,27,17,.25) !important; }
+.wastelanders button[data-d^="-"]:not(.header-control) { background: #f2cdc6 !important; border-color: #b0574a !important; color: #8a2116 !important; }
+.wastelanders button[data-d]:not([data-d^="-"]):not(.header-control) { background: #cfe6c2 !important; border-color: #5f8f4a !important; color: #2a5a1c !important; }
+.wastelanders button[data-d^="-"]:not(.header-control):hover:not(:disabled) { background: #f7b9ae !important; }
+.wastelanders button[data-d]:not([data-d^="-"]):not(.header-control):hover:not(:disabled) { background: #b9e0a6 !important; }
+.wastelanders button[data-d]:not(.header-control):disabled { opacity: .45; }
+
+/* ------------- an editable number (with −/+ around it): a small dark screen, green mono digits -------------
+   The one style for every such field (quick panel, ОД, Кришки, Припаси, caravan counters…): add class "pust-screen". */
+.wastelanders input.pust-screen[type="text"] {
+  width: 52px !important; height: 32px !important; flex: 0 0 52px !important; padding: 0 !important; text-align: center;
+  background: var(--pu-steel-0) !important; color: var(--pu-green) !important; border: 1px solid var(--pu-steel-3) !important; border-radius: 3px;
+  font-family: var(--pu-f-num) !important; font-size: 18px !important; font-weight: 700; box-shadow: inset 0 1px 3px rgba(0,0,0,.5) !important;
+}
+.wastelanders input.pust-screen[type="text"]:focus { border-color: var(--pu-green-dim) !important; box-shadow: inset 0 1px 3px rgba(0,0,0,.5), 0 0 6px rgba(61,255,71,.35) !important; }

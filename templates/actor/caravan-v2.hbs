@@ -39,7 +39,7 @@
     <div class="pust-row">
       <label class="pust-lbl">Карма</label>
       <button type="button" data-action="cact" data-act="step" data-step="karma" data-d="-1">−</button>
-      <input type="text" class="pust-num" data-k="karma" value="{{v.karma}}">
+      <input type="text" class="pust-screen pust-num" data-k="karma" value="{{v.karma}}">
       <button type="button" data-action="cact" data-act="step" data-step="karma" data-d="1">+</button>
       <select data-k="karmaAspect">{{#each v.karmaAspects}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
       <button type="button" class="pust-die {{#if v.locks.karma}}locked{{/if}}" data-action="cact" data-act="rollKarma" title="Кинути d6 на карму"><i class="fa-solid {{#if v.locks.karma}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
@@ -52,7 +52,7 @@
     <div class="pust-row">
       <label class="pust-lbl">Бюджет кришок</label>
       <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="-1">−</button>
-      <input type="text" class="pust-num" data-k="budget" value="{{v.budget}}">
+      <input type="text" class="pust-screen pust-num" data-k="budget" value="{{v.budget}}">
       <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="1">+</button>
       <button type="button" class="pust-die {{#if v.locks.budget}}locked{{/if}}" data-action="cact" data-act="rollBudget" title="Кинути 1d6 + 4"><i class="fa-solid {{#if v.locks.budget}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
     </div>
@@ -63,7 +63,7 @@
     <div class="pust-row">
       <label class="pust-lbl">ОЗ</label>
       <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="-1">−</button>
-      <input type="text" class="pust-num" data-k="hpCurrent" value="{{v.hpCurrent}}">
+      <input type="text" class="pust-screen pust-num" data-k="hpCurrent" value="{{v.hpCurrent}}">
       <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="1">+</button>
       <span>з</span>
       <input type="text" class="pust-num {{#if v.hpCustom}}custom{{/if}}" data-k="hpMax" value="{{v.maxHP}}" title="{{#if v.hpCustom}}Встановлено вручну. Стандартно: {{v.baseMaxHP}}{{else}}Максимум ОЗ можна змінити вручну{{/if}}">

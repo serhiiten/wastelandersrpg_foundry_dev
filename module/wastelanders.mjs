@@ -23,6 +23,7 @@ import * as caravanRules from "./rules/caravan.mjs";
 import { BOOK } from "./rules/book.mjs";
 import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal } from "./applications/terminal.mjs";
+import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 
 Hooks.once("init", async function () {
   game.wastelanders = {
@@ -126,6 +127,7 @@ Hooks.once("init", async function () {
   registerHandlebarsHelpers();
   await foundry.applications.handlebars.loadTemplates({
     pustPicker: `systems/${game.system.id}/templates/actor/parts/pust-picker.hbs`,
+    pustKo: `systems/${game.system.id}/templates/actor/parts/pust-ko.hbs`,
   });
 
   // Preload Handlebars templates.
@@ -133,6 +135,11 @@ Hooks.once("init", async function () {
 });
 
 // Preprocess chat message before it is created hook
+// the catalogues show the compendiums' full gear texts
+Hooks.once("ready", () => {
+  loadCatalogDescriptions().catch((err) => console.warn("Пустельники | gear descriptions not loaded", err));
+});
+
 Hooks.on("preCreateChatMessage", preprocessChatMessage);
 
 // Render chat message hook

@@ -25,7 +25,7 @@ const fail = (msg) => failures.push(msg);
 const HTML_SRC = new URL("../../pustelnyky-character-generator/src/", import.meta.url);
 const html = ["app.js", "chem.js", "roller.js", "gamedata.js", "template.html"].map((f) => readFileSync(new URL(f, HTML_SRC), "utf8")).join("\n");
 const foundry = [
-  "../templates/actor/character-v2.hbs", "../templates/actor/parts/pust-picker.hbs", "../templates/apps/check-panel.hbs",
+  "../templates/actor/character-v2.hbs", "../templates/actor/parts/pust-picker.hbs", "../templates/actor/parts/pust-ko.hbs", "../templates/apps/check-panel.hbs",
   "../module/sheets/character-sheet-v2.mjs", "../module/sheets/character-view.mjs", "../module/applications/check-panel.mjs",
 ].map((f) => readFileSync(new URL(f, import.meta.url), "utf8")).join("\n");
 // the check panel's content is drawn by the HTML sheet's own renderer, ported into logic.mjs
@@ -234,6 +234,23 @@ const field = (k, v, opts = {}) => {
   return { name: `поле ${k}=${JSON.stringify(v)}`, html: (S) => S.change(k, v, o), foundry: (C) => C.setField(k, v, o) };
 };
 
+// Manual bonuses and defences change only in «Вільний режим» in Foundry (author, 2026-11-14): compared in free mode
+const FREE = { type: "checkbox" };
+// «Новий день» and «Кінець сесії» end the scene first in Foundry (author, 2026-11-14): compared with the HTML sheet
+// pressing «Кінець сцени» before them; the log line and the toasts say more, so they are left out
+const afterScene = (name) => ({
+  name: `${name} (з кінцем сцени)`,
+  html: (S) => { S.act("chem-scene", {}); return S.act(name, {}); },
+  foundry: (C) => C.act(name, {}),
+  fix: (X) => { if (X.chem) delete X.chem.last; },
+  skipToasts: true,
+});
+const inFree = (step) => ({
+  name: step.name + " (вільний режим)",
+  html: (S) => { S.change("set.free", true, FREE); return step.html(S); },
+  foundry: (C) => { C.setField("set.free", true, FREE); return step.foundry(C); },
+});
+
 function stepsFor(st) {
   const steps = [
     act("gender", { v: "f" }), act("roll-name"), act("roll-asp", { i: "1" }), act("roll-detail"), act("roll-species"),
@@ -247,12 +264,12 @@ function stepsFor(st) {
     act("step", { k: "hpCur", d: "-3" }), act("step", { k: "hpCur", d: "1" }), act("step", { k: "fdCur", d: "-1" }),
     act("step", { k: "hpRed", d: "1" }), act("step", { k: "caps", d: "5" }), act("step", { k: "xp", d: "1" }),
     act("step", { k: "supplies", d: "1" }), act("sup-set", { n: "1" }),
-    act("sit-quick", { t: "Збитий з ніг" }), act("def-reset"), act("ov-reset", { k: "hpMaxOv" }),
-    act("chem-scene"), act("chem-day"), act("chem-session"), act("rest"), act("rage"), act("ko-fate"), act("ko-wind"), act("ko-quick"), act("chem-reset"),
+    act("sit-quick", { t: "Збитий з ніг" }), inFree(act("def-reset")), inFree(act("ov-reset", { k: "hpMaxOv" })),
+    act("chem-scene"), afterScene("chem-day"), afterScene("chem-session"), act("rest"), act("rage"), act("ko-fate"), act("ko-wind"), act("ko-quick"), act("chem-reset"),
     act("random"), act("new"),
     field("species", "ghoul"), field("arch", "Псионік"), field("exp", "point"), field("set.free", true), field("set.psi", false),
     field("cons.l", "Подряпина"), field("consT.l", true), field("hpCur", "99"), field("supplies", "9", { num: true }),
-    field("loot.yao", true), field("defOv.rad", "immune"), field("hpMaxOv", "3"),
+    field("loot.yao", true), inFree(field("defOv.rad", "immune")), inFree(field("hpMaxOv", "3")),
     {
       name: "sit-add",
       html: (S) => S.run("sitAdd('Під прицілом')"),
@@ -293,12 +310,13 @@ for (let c = 0; c < 60; c++) {
     compared++;
     const A = canon(h.st);
     const B = canon(f.st);
+    if (step.fix) { step.fix(A); step.fix(B); }
     const keys = [...new Set([...Object.keys(A), ...Object.keys(B)])].filter((k) => JSON.stringify(A[k]) !== JSON.stringify(B[k]));
     if (keys.length) {
       const k = keys[0];
       diffs[`${step.name.split(" ")[0]} → ${keys.join(",")}`] ||= `персонаж ${c}: ${k}: HTML ${JSON.stringify(A[k])?.slice(0, 140)} | Foundry ${JSON.stringify(B[k])?.slice(0, 140)}`;
     }
-    if (JSON.stringify(h.toasts) !== JSON.stringify(f.toasts)) {
+    if (!step.skipToasts && JSON.stringify(h.toasts) !== JSON.stringify(f.toasts)) {
       diffs[`${step.name.split(" ")[0]} → повідомлення`] ||= `HTML ${JSON.stringify(h.toasts).slice(0, 160)} | Foundry ${JSON.stringify(f.toasts).slice(0, 160)}`;
     }
   }
