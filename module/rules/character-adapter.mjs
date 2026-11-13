@@ -109,7 +109,7 @@ export function stateToActor(st) {
     description: st.bio || "",
     others: st.others || "",
     engine: {
-      extra: Object.fromEntries(Object.entries(st).filter(([k]) => !MAPPED.has(k))),
+      extra: Object.fromEntries(Object.entries(st).filter(([k]) => !MAPPED.has(k) && !k.startsWith("_"))),
       // keep exact empty-vs-number forms of the HTML fields
       hpCur: st.hpCur ?? "",
       fdCur: st.fdCur ?? "",
@@ -118,7 +118,16 @@ export function stateToActor(st) {
   };
 
   const items = [];
-  const push = (type, name, sys, engine) => items.push({ type, name, system: { ...sys, engine }, sort: (items.length + 1) * 100 });
+  // entries read with { withIds } carry their item id in `_fid`: it becomes the item's _id, not engine data
+  const push = (type, name, sys, engine, id) => {
+    const it = { type, name, system: { ...sys, engine }, sort: (items.length + 1) * 100 };
+    if (engine && "_fid" in engine) {
+      it._id = engine._fid;
+      delete engine._fid;
+    }
+    if (id) it._id = id;
+    items.push(it);
+  };
 
   items.push({ type: "species", name: (SPECIES[st.species] || SPECIES.human).n, system: {}, sort: 0 });
 
@@ -128,7 +137,7 @@ export function stateToActor(st) {
   });
   st.feats.forEach((fn) => {
     const custom = (st.customFeats || []).find((c) => c.n === fn);
-    push("feat", fn, { note: st.featNotes?.[fn] || "" }, custom ? { n: fn, custom: clone(custom) } : { n: fn });
+    push("feat", fn, { note: st.featNotes?.[fn] || "" }, custom ? { n: fn, custom: clone(custom) } : { n: fn }, st._featIds?.[fn]);
   });
   st.weapons.forEach((w) =>
     push("weapon", w.n || "", {
@@ -160,9 +169,10 @@ export function stateToActor(st) {
  * @param {object} actor  plain actor data: { name, img, system, items[] }
  * @param {object} [opts]
  * @param {string|null} [opts.portrait]  portrait as a data: URI (the Foundry layer reads the image file)
+ * @param {boolean} [opts.withIds]  tag entries with their item id (`_fid`, `_featIds`) for planSync
  * @returns {object} HTML sheet state
  */
-export function actorToState(actor, { portrait = null } = {}) {
+export function actorToState(actor, { portrait = null, withIds = false } = {}) {
   const s = actor.system || {};
   const eng = s.engine || {};
   const st = blankState();
@@ -190,12 +200,14 @@ export function actorToState(actor, { portrait = null } = {}) {
   st.weapons = [];
   st.armor = [];
   st.other = [];
+  if (withIds) st._featIds = {};
   for (const it of items) {
     const sys = it.system || {};
     const e = clone(sys.engine) || {};
+    if (withIds && it._id) e._fid = it._id;
     if (it.type === "perk") {
       const n = engineName(it, PERK) ?? it.name;
-      const { n: _n, ...rest } = e;
+      const { n: _n, ...rest } = e;   // rest keeps _fid when present
       const p = { n, note: sys.note || "", ...rest };
       if (!PERK[n] && !p.custom) p.custom = true;
       st.perks.push(p);
@@ -210,6 +222,7 @@ export function actorToState(actor, { portrait = null } = {}) {
       }
       const fn = st.feats[st.feats.length - 1];
       if (sys.note) st.featNotes[fn] = sys.note;
+      if (withIds) st._featIds[fn] = it._id;
     } else if (it.type === "weapon") {
       const w = Object.assign(e, { n: it.name, d: sys.damage || "", h: !!sys.heavy, en: sys.energy || "", note: sys.note || "" });
       if (sys.inHand || "hand" in e) w.hand = !!sys.inHand;
@@ -227,9 +240,6 @@ export function actorToState(actor, { portrait = null } = {}) {
     }
   }
 
-  const d = compute(st);
-  st.hpCur = eng.hpCur === "" && int(s.hp?.value) === d.hp ? "" : String(int(s.hp?.value, d.hp));
-  st.fdCur = eng.fdCur === "" && int(s.fate?.value) === d.fd ? "" : String(int(s.fate?.value, d.fd));
   st.cons = Object.fromEntries(Object.entries(CONS).map(([k, f]) => [k, s.consequences?.[f] || ""]));
   st.consT = Object.fromEntries(Object.entries(CONS).map(([k, f]) => [k, !!s.consequences?.treated?.[f]]));
   st.hpRed = int(s.hp?.reduction);
@@ -256,5 +266,86 @@ export function actorToState(actor, { portrait = null } = {}) {
   for (const [k, f] of Object.entries(OPTIONS)) {
     if (k in st.set || s.options?.[f]) st.set[k] = !!s.options?.[f];   // add a key only when it is on
   }
+  // current HP / Fate: blank means "full" in the HTML sheet; compute once everything that changes the
+  // maximum (trophies, options, bonuses) is set
+  const d = compute(st);
+  st.hpCur = eng.hpCur === "" && int(s.hp?.value) === d.hp ? "" : String(int(s.hp?.value, d.hp));
+  st.fdCur = eng.fdCur === "" && int(s.fate?.value) === d.fd ? "" : String(int(s.fate?.value, d.fd));
   return st;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Writing a changed state back to the actor                          */
+/* ------------------------------------------------------------------ */
+
+/** Item types the HTML sheet manages; other items (e.g. species properties) are left alone */
+export const MANAGED_TYPES = ["species", "perk", "feat", "weapon", "armor", "tool", "drug"];
+
+const sameJson = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+
+/** Is this feat item one of the character's feats (not a species property that comes with the species)? */
+const isSheetFeat = (it) => !!(it.system?.engine?.custom || engineName(it, FEAT));
+
+/**
+ * What to change on an actor so it matches `st` (read earlier with actorToState(actor, { withIds: true })).
+ * @param {object} actor  plain actor data { system, items[] } (items with _id)
+ * @param {object} st     the changed HTML sheet state
+ * @returns {{system:object, update:object[], create:object[], delete:string[]}}
+ *   system: the new system values (merge onto the current ones, replacing REPLACE_WHOLE keys outright);
+ *   update: items with their complete system data (apply with { recursive: false });
+ *   create/delete: item operations (create entries still need their compendium data).
+ */
+export function planSync(actor, st) {
+  const data = stateToActor(st);
+  const current = new Map((actor.items || []).map((i) => [i._id, i]));
+  const keep = new Set();
+  const update = [];
+  const create = [];
+  for (const it of data.items) {
+    if (it.type === "species") {
+      const cur = (actor.items || []).find((i) => i.type === "species");
+      if (cur && cur.name === it.name) keep.add(cur._id);
+      else create.push(it);
+      continue;
+    }
+    const cur = it._id && current.get(it._id);
+    if (!cur) {
+      delete it._id;
+      create.push(it);
+      continue;
+    }
+    keep.add(cur._id);
+    const changes = {};
+    for (const [k, v] of Object.entries(it.system)) {
+      if (!sameJson(cur.system?.[k], v)) changes[k] = v;
+    }
+    // gear can be renamed on the sheet; perks and feats keep their compendium names
+    const rename = ["weapon", "armor", "tool", "drug"].includes(it.type) && cur.name !== it.name;
+    if (Object.keys(changes).length || rename || cur.sort !== it.sort) {
+      // the item's complete system data: apply with { recursive: false } so removed keys really go
+      update.push({ _id: cur._id, ...(rename ? { name: it.name } : {}), sort: it.sort,
+        system: { ...clone(cur.system), ...clone(changes) } });
+    }
+  }
+  const del = (actor.items || [])
+    .filter((i) => MANAGED_TYPES.includes(i.type) && !keep.has(i._id) && (i.type !== "feat" || isSheetFeat(i)))
+    .map((i) => i._id);
+  return { system: data.system, update, create, delete: del };
+}
+
+/** System values that a changed state replaces outright instead of merging into the old ones */
+export const REPLACE_WHOLE = ["situational", "defenseOverrides", "chem", "engine", "improvements"];
+
+/** Merge new system values onto the current ones the way the sheet saves them (pure; for Foundry and tests) */
+export function mergeSystem(current, next) {
+  const out = clone(current) || {};
+  const deep = (a, b) => {
+    for (const [k, v] of Object.entries(b)) {
+      if (v && typeof v === "object" && !Array.isArray(v) && a[k] && typeof a[k] === "object" && !Array.isArray(a[k])) deep(a[k], v);
+      else a[k] = clone(v);
+    }
+  };
+  deep(out, Object.fromEntries(Object.entries(next).filter(([k]) => !REPLACE_WHOLE.includes(k))));
+  for (const k of REPLACE_WHOLE) if (k in next) out[k] = clone(next[k]);
+  return out;
 }
