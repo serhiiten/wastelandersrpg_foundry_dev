@@ -1,5 +1,6 @@
 import WastelandersRollerApp from "../applications/roll.mjs";
 import WastelandersSheetSettings from "../applications/sheet-settings.mjs";
+import { exportCharacter, replaceCharacterFromFile } from "../applications/character-json.mjs";
 
 /**
  * Extend the basic ActorSheet
@@ -55,6 +56,25 @@ export class WastelandersActorSheet extends foundry.appv1.sheets.ActorSheet {
     const buttons = super._getHeaderButtons();
 
     if (!this.actor.testUserPermission(game.user, "OBSERVER")) return buttons;
+
+    // Electronic character sheet files (.json)
+    if (this.actor.type === "character") {
+      buttons.unshift({
+        label: game.i18n.localize("WASTELANDERS.Json.Save"),
+        class: "wastelanders-json-save",
+        icon: "fa-solid fa-file-export",
+        onclick: () => exportCharacter(this.actor),
+      });
+      if (this.actor.isOwner) {
+        buttons.unshift({
+          label: game.i18n.localize("WASTELANDERS.Json.Open"),
+          class: "wastelanders-json-open",
+          icon: "fa-solid fa-file-import",
+          onclick: () => replaceCharacterFromFile(this.actor),
+        });
+      }
+    }
+
     if (!CONFIG.WASTELANDERS.settingsSupported.includes(this.actor.type))
       return buttons;
 

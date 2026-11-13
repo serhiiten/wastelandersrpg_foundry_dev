@@ -22,6 +22,7 @@ import { WASTELANDERS } from "./helpers/config.mjs";
 import * as core from "./rules/core.mjs";
 import * as caravanRules from "./rules/caravan.mjs";
 import { BOOK } from "./rules/book.mjs";
+import { importCharactersFromFile } from "./applications/character-json.mjs";
 
 Hooks.once("init", async function () {
   game.wastelanders = {
@@ -131,3 +132,18 @@ Hooks.on("preCreateChatMessage", preprocessChatMessage);
 
 // Render chat message hook
 Hooks.on("renderChatMessageHTML", renderChatMessage);
+
+// Actors directory: «Відкрити .json» creates characters from electronic character sheet files
+Hooks.on("renderActorDirectory", (app, html) => {
+  if (!game.user.can("ACTOR_CREATE")) return;
+  const root = html instanceof HTMLElement ? html : html[0];
+  const actions = root?.querySelector(".header-actions");
+  if (!actions || actions.querySelector(".wastelanders-json-open")) return;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "wastelanders-json-open";
+  button.title = game.i18n.localize("WASTELANDERS.Json.OpenHint");
+  button.innerHTML = `<i class="fa-solid fa-file-import"></i> ${game.i18n.localize("WASTELANDERS.Json.Open")}`;
+  button.addEventListener("click", () => importCharactersFromFile());
+  actions.append(button);
+});
