@@ -11,6 +11,9 @@
  */
 import { actorToState, stateToActor } from "../rules/character-adapter.mjs";
 import { FEAT, PERK, SPECIES } from "../rules/core.mjs";
+import { CARAVAN_TYPES, caravanToState } from "../rules/caravan-adapter.mjs";
+import { createCaravanLogic } from "../rules/caravan-logic.mjs";
+import { saveCaravan } from "./caravan-actions.mjs";
 
 const T = (key, data) =>
   data ? game.i18n.format(`WASTELANDERS.Json.${key}`, data) : game.i18n.localize(`WASTELANDERS.Json.${key}`);
@@ -24,9 +27,10 @@ const PACKS_FOR = {
   armor: ["armors"],
   tool: ["tools"],
   drug: ["tools"],
+  upgrade: ["upgrades"],
 };
 /** Item types that make up a character (replaced when a file is opened onto a sheet) */
-const CHARACTER_ITEM_TYPES = Object.keys(PACKS_FOR);
+const CHARACTER_ITEM_TYPES = ["species", "perk", "feat", "weapon", "armor", "tool", "drug"];
 /** System values a file replaces outright instead of merging into the old ones */
 const REPLACE_WHOLE = ["situational", "defenseOverrides", "chem", "engine", "improvements"];
 
@@ -139,9 +143,11 @@ async function portraitData(img) {
 /* ------------------------------------------------------------------ */
 
 const isCharacterState = (o) => o && typeof o === "object" && "base" in o && "skills" in o && "species" in o;
+const isCaravanState = (o) => o && typeof o === "object" && !Array.isArray(o) && "companyName" in o;
 
-/** Parse a file's text into a list of character states (throws with a readable message). */
-function parseFile(text) {
+/** Parse a file's text into a list of sheet states (throws with a readable message).
+ *  kind: "character" | "caravan" | "any" (a list may mix characters and caravans). */
+function parseFile(text, kind = "character") {
   let data;
   try {
     data = JSON.parse(text);
@@ -149,8 +155,11 @@ function parseFile(text) {
     throw new Error(T("NotJson"));
   }
   const list = Array.isArray(data) ? data : [data];
-  if (!list.length || !list.every(isCharacterState)) {
-    throw new Error(list.some((o) => o && "companyName" in o) ? T("CaravanNotYet") : T("NotCharacter"));
+  const ok = { character: isCharacterState, caravan: isCaravanState, any: (o) => isCharacterState(o) || isCaravanState(o) }[kind];
+  if (!list.length || !list.every(ok)) {
+    if (kind === "character" && list.some(isCaravanState)) throw new Error(T("IsCaravan"));
+    if (kind === "caravan" && list.some(isCharacterState)) throw new Error(T("IsCharacter"));
+    throw new Error(kind === "caravan" ? T("NotCaravan") : kind === "any" ? T("NotSheet") : T("NotCharacter"));
   }
   return list;
 }
@@ -217,18 +226,76 @@ export async function createCharacters(list) {
   return created;
 }
 
-/** Actors directory button: create characters from a file */
+/* ---------------------------- caravans ---------------------------- */
+
+/** A caravan file's state as the HTML caravan sheet opens it: normalize(), then clampAfter() */
+function caravanState(st) {
+  const L = createCaravanLogic({ S: null, toast: () => {} });
+  L.setS(L.normalize(JSON.parse(JSON.stringify(st))));
+  L.clampAfter();
+  return L.getS();
+}
+
+/** Create caravans from HTML caravan sheet states (also for macros and tests) */
+export async function createCaravans(list) {
+  const created = [];
+  for (const st of Array.isArray(list) ? list : [list]) {
+    const S = caravanState(st);
+    const actor = await Actor.implementation.create({ name: S.companyName || T("Unnamed"), type: "caravan" });
+    await saveCaravan(actor, S);
+    created.push(actor);
+  }
+  return created;
+}
+
+/** Replace a caravan actor with a file's state (upgrades, cargo and passengers are replaced) */
+export async function replaceCaravan(actor, st) {
+  const old = actor.items.filter((i) => CARAVAN_TYPES.includes(i.type)).map((i) => i.id);
+  if (old.length) await actor.deleteEmbeddedDocuments("Item", old);
+  await saveCaravan(actor, caravanState(st));
+}
+
+/** Caravan sheet button: replace this caravan with a file (asks for confirmation) */
+export async function replaceCaravanFromFile(actor) {
+  const text = await pickFile();
+  if (text == null) return;
+  let list;
+  try {
+    list = parseFile(text, "caravan");
+  } catch (err) {
+    return ui.notifications.error(err.message);
+  }
+  const ok = await foundry.applications.api.DialogV2.confirm({
+    window: { title: T("ReplaceTitle") },
+    content: `<p>${T("ReplaceCaravanText", { actor: foundry.utils.escapeHTML(actor.name), file: foundry.utils.escapeHTML(list[0].companyName || T("Unnamed")) })}</p>`,
+    rejectClose: false,
+    modal: true,
+  });
+  if (!ok) return;
+  await replaceCaravan(actor, list[0]);
+  ui.notifications.info(T("Replaced", { name: actor.name }));
+  return true;
+}
+
+/** Caravan sheet button: save the caravan as the HTML caravan sheet's .json («Караван — Назва.json») */
+export function exportCaravan(actor) {
+  const S = caravanToState(actor.toObject());
+  const n = String(S.companyName || "").trim().replace(/[\\/:*?"<>|]+/g, "").slice(0, 60);
+  foundry.utils.saveDataToFile(JSON.stringify(S, null, 2), "application/json", `Караван${n ? " — " + n : ""}.json`);
+}
+
+/** Actors directory button: create characters and caravans from a file */
 export async function importCharactersFromFile() {
   const text = await pickFile();
   if (text == null) return;
   let list;
   try {
-    list = parseFile(text);
+    list = parseFile(text, "any");
   } catch (err) {
     return ui.notifications.error(err.message);
   }
   const created = [];
-  for (const st of list) created.push(await createCharacter(st));
+  for (const st of list) created.push(isCaravanState(st) ? (await createCaravans([st]))[0] : await createCharacter(st));
   ui.notifications.info(T("Imported", { names: created.map((a) => a.name).join(", ") }));
   if (created.length === 1) created[0].sheet.render(true);
 }

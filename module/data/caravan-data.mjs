@@ -1,3 +1,6 @@
+import { caravanToState } from "../rules/caravan-adapter.mjs";
+import { createCaravanLogic } from "../rules/caravan-logic.mjs";
+
 export default class CaravanData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     const fields = foundry.data.fields;
@@ -90,6 +93,24 @@ export default class CaravanData extends foundry.abstract.TypeDataModel {
 
       description: new fields.HTMLField(),
       notes: new fields.HTMLField(),
+      // the electronic caravan sheet's values Foundry has no field for, and texts as typed
+      engine: new fields.ObjectField(),
     };
+  }
+
+  /** Max HP, armor and range from the HTML caravan sheet's rules (vehicle, upgrades, manual values) */
+  prepareDerivedData() {
+    const actor = this.parent;
+    if (!actor) return;
+    try {
+      const S = caravanToState(actor.toObject());
+      const D = createCaravanLogic({ S }).derived(S);
+      this.hp.max = D.maxHP;
+      this.armor = D.armor;
+      this.range.max = D.maxMove;
+      Object.defineProperty(this, "rules", { value: { S, D }, configurable: true, enumerable: false });
+    } catch (err) {
+      console.error("Пустельники | caravan rules failed for", actor.name, err);
+    }
   }
 }

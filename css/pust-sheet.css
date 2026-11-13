@@ -140,3 +140,43 @@
 /* check panel: Foundry's compact controls clip the HTML panel's selects */
 .pust-check .pust-roller select { height: auto !important; min-height: 32px; line-height: 1.3; }
 .pust-check .window-content { padding: 6px; }
+
+/* ===== Електронний аркуш каравану ===== */
+.pust-caravan .pust-lbl { font-family: "Oswald", sans-serif; font-size: 12px; color: var(--pust-rust); min-width: 92px; }
+.pust-caravan .pust-row + .pust-row { margin-top: 4px; }
+.pust-caravan input.pust-num { width: 52px !important; flex: 0 0 52px !important; text-align: center; }
+.pust-caravan b.pust-num { min-width: 34px; text-align: center; }
+.pust-caravan input.custom { border-color: var(--pust-rust); box-shadow: inset 0 0 0 1px var(--pust-rust); }
+.pust-caravan .pust-screen-block { background: var(--pust-screen); color: var(--pust-screen-ink); }
+.pust-caravan .pust-screen-block .pust-lbl { color: var(--pust-screen-ink); }
+.pust-caravan .pust-screen-block .pust-sub { color: #33493b; }
+.pust-caravan .pust-log { margin: 4px 0; font-size: 12px; }
+.pust-pips { display: inline-flex; gap: 2px; }
+.pust-sheet .pust-pips .pip { width: 14px !important; height: 14px !important; min-height: 0 !important; line-height: 0; padding: 0; border-radius: 50%; flex: 0 0 14px; }
+.pust-sheet .pust-pips .pip.on { background: var(--pust-screen-ink); }
+.pust-sheet .pust-pips .pip:disabled { opacity: .2; }
+.pust-meter { display: inline-block; width: 120px; height: 8px; border: 1px solid var(--pust-screen-ink); border-radius: 4px; overflow: hidden; vertical-align: middle; }
+.pust-meter > span { display: block; height: 100%; background: var(--pust-screen-ink); }
+.pust-meter.warn > span { background: var(--pust-bad); }
+.pust-imp-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; padding: 3px 4px; border-bottom: 1px dashed rgba(0,0,0,.15); }
+.pust-imp-row.taken { background: rgba(154,74,32,.08); }
+.pust-imp-row.locked { opacity: .6; }
+.pust-imp-row .pust-text { font-size: 11px; }
+.pust-imp-row.custom > div { display: flex; flex-direction: column; gap: 3px; }
+.pust-imp-ctrl { display: flex; align-items: center; gap: 4px; }
+.pust-sheet .rbtn { width: 18px !important; height: 18px !important; min-height: 0 !important; line-height: 0; padding: 0; border-radius: 3px; flex: 0 0 18px; }
+.pust-sheet .rbtn.on { background: var(--pust-rust); border-color: var(--pust-rust); }
+.pust-cargo { display: grid; grid-template-columns: 1fr 96px 52px 52px 40px 26px; gap: 4px; align-items: center; margin-bottom: 6px; }
+.pust-cargo .pust-gnote { grid-column: 1 / -1; }
+.pust-caravan .pust-cargo input.pust-num { width: auto !important; flex: none !important; }
+.pust-segs { display: inline-flex; gap: 2px; flex-wrap: wrap; }
+.pust-sheet .pust-segs .seg { width: 16px !important; height: 18px !important; min-height: 0 !important; line-height: 0; padding: 0; border-radius: 2px; flex: 0 0 16px; }
+.pust-sheet .pust-segs .seg.on { background: var(--pust-rust); border-color: var(--pust-rust); }
+.pust-sheet .pust-x { width: 26px !important; padding: 0; }
+.pust-caravan h3 { display: flex; align-items: center; gap: 6px; }
+.pust-caravan h3 .pust-fold, .pust-caravan h3 .pust-die { display: inline-flex; align-items: center; gap: 4px; height: 22px; width: auto !important; margin-left: 6px; font-family: "Jura", sans-serif; font-size: 11px; }
+.pust-sheet .pust-undo { background: var(--pust-screen); color: var(--pust-screen-ink); }
+.pust-caravan .pust-aspect { align-items: flex-start; }
+.pust-caravan .pust-aspect textarea { flex: 1 1 200px; width: auto; }
+.pust-caravan .pust-tools button.on { background: var(--pust-rust); border-color: var(--pust-rust); color: #fff; }
+.pust-caravan .pust-row > select[data-k^="counters."] { flex: 0 0 120px; width: 120px; }

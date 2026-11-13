@@ -222,6 +222,8 @@ export class UpgradeData extends foundry.abstract.TypeDataModel {
           initial: 1,
         }),
       }),
+      // the electronic caravan sheet's row (upgrade id, or a custom upgrade's own data)
+      engine: new fields.ObjectField(),
     };
   }
 }
@@ -243,6 +245,8 @@ export class CargoData extends foundry.abstract.TypeDataModel {
         ...requiredPositiveInteger,
         initial: 1,
       }),
+      // the electronic caravan sheet's cargo row as typed (texts, price and quantity as strings)
+      engine: new fields.ObjectField(),
     };
   }
 }
@@ -253,6 +257,8 @@ export class PassengerData extends foundry.abstract.TypeDataModel {
 
     return {
       description: new fields.HTMLField(),
+      // the electronic caravan sheet's passenger row (note, price, quantity)
+      engine: new fields.ObjectField(),
     };
   }
 }
