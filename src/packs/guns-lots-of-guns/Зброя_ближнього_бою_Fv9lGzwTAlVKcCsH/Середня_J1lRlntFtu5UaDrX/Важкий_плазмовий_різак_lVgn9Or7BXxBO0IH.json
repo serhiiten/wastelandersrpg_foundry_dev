@@ -3,7 +3,7 @@
   "name": "Важкий плазмовий різак (середній)",
   "type": "weapon",
   "_id": "lVgn9Or7BXxBO0IH",
-  "img": "systems/wastelanders-dev/assets/grenade.svg",
+  "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
     "description": "<p>Дальність: Ближ</p><p>Властивість: <strong><em>Плазмовий</em></strong>. Ігнорує 2 броні.</p>",
     "price": 15,

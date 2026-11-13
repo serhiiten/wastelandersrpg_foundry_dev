@@ -3,7 +3,7 @@
   "name": "Кріорушниця (середня)",
   "type": "weapon",
   "_id": "WnPlcTYcNQdmDdku",
-  "img": "systems/wastelanders-dev/assets/grenade.svg",
+  "img": "systems/wastelanders-dev/assets/winchester-rifle.svg",
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматична. <strong><em>Кріо.</em></strong> При критичних влучаннях дозволяє <strong><em>заморозити</em></strong> супротивника рядової категорії чи нижче до кінця сцени замість завдання шкоди.</p>",
     "price": 15,

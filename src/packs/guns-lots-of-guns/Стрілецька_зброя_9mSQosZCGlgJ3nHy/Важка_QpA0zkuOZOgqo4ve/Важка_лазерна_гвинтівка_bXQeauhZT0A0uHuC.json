@@ -3,7 +3,7 @@
   "name": "Важка лазерна гвинтівка (важка)",
   "type": "weapon",
   "_id": "bXQeauhZT0A0uHuC",
-  "img": "systems/wastelanders-dev/assets/grenade.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Дальність: Макс</p><p>Властивість: Напівавтоматична. <strong><em>Лазерна</em></strong>. Ігнорує 1 броні.</p>",
     "price": 15,

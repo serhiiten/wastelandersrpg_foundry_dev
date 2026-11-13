@@ -3,7 +3,7 @@
   "name": "Рукавиці Пазуря Смерті (середні)",
   "type": "weapon",
   "_id": "QqEbq3PtrO8pFVhb",
-  "img": "systems/wastelanders-dev/assets/grenade.svg",
+  "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
     "description": "<p>Дальність: Ближ</p><p>Властивість: Ігнорують 1 броні. Гострі.</p>",
     "price": 25,

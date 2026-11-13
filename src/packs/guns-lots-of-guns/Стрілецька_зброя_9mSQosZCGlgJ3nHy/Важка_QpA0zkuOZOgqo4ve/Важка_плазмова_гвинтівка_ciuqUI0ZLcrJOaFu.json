@@ -3,7 +3,7 @@
   "name": "Важка плазмова гвинтівка (важка)",
   "type": "weapon",
   "_id": "ciuqUI0ZLcrJOaFu",
-  "img": "systems/wastelanders-dev/assets/grenade.svg",
+  "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
     "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматична. <strong><em>Плазмова</em></strong>. Ігнорує 2 броні.</p>",
     "price": 20,

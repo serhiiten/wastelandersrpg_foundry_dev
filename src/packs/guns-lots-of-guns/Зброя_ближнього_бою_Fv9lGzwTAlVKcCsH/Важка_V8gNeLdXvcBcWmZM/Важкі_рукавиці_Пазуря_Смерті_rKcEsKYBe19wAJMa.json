@@ -3,7 +3,7 @@
   "name": "Важкі рукавиці Пазуря Смерті (важкі)",
   "type": "weapon",
   "_id": "rKcEsKYBe19wAJMa",
-  "img": "systems/wastelanders-dev/assets/grenade.svg",
+  "img": "systems/wastelanders-dev/assets/hammer-drop.svg",
   "system": {
     "description": "<p>Дальність: Ближ</p><p>Властивість: Ігнорують 1 броні. Гострі.</p>",
     "price": 45,
