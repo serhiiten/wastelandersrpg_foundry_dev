@@ -6,6 +6,7 @@
  */
 import { createTerminal } from "../rules/terminal.mjs";
 import { createBattle } from "./terminal-battle.mjs";
+import { postChat } from "./chat.mjs";
 import {
   TABLE_CARDS, battleChat, blankTerminal, buildTerminalView, caseChat, runTable, tableChat, travelChat,
 } from "./terminal-view.mjs";
@@ -172,8 +173,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const html = { case: () => caseChat(st), travel: () => travelChat(st), table: () => tableChat(st, target.dataset.card), battle: () => battleChat(this.T, st) }[target.dataset.what]?.();
     if (!html) return;
     const data = { content: html, speaker: ChatMessage.getSpeaker({ alias: "Термінал Доглядача" }) };
-    ChatMessage.applyRollMode(data, game.settings.get("core", "rollMode"));
-    await ChatMessage.create(data);
+    await postChat(data);
   }
 
   /** A die in the results («2d6»): rolled by Foundry and posted to chat */
@@ -181,7 +181,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const expr = target.dataset.dice;
     if (!expr) return;
     const roll = await new Roll(expr.replace(/^d/, "1d")).evaluate();
-    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ alias: "Термінал Доглядача" }), flavor: expr }, { rollMode: game.settings.get("core", "rollMode") });
+    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ alias: "Термінал Доглядача" }), flavor: expr }); // the chat's mode menu by default
   }
 
   /* ---------- drawing ---------- */

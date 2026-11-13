@@ -1,3 +1,4 @@
+import { postChat } from "../applications/chat.mjs";
 //
 /**
  * Extend the basic Item with some very simple modifications.
@@ -31,7 +32,7 @@ export class WastelandersItem extends Item {
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: message,
     };
-    ChatMessage.create(chatData);
+    postChat(chatData);
   }
 
 

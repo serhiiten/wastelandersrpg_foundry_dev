@@ -30,17 +30,26 @@
         <button type="button" class="pust-die {{#if v.locks.name}}locked{{/if}}" data-action="cact" data-act="rollName" title="{{#if v.locks.name}}Заповнено вручну. Очистіть поле, щоб знову кидати кістки{{else}}Кинути на назву компанії{{/if}}"><i class="fa-solid {{#if v.locks.name}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
       </div>
       <div class="pust-row pust-vrow">
-        <span class="pust-hlab">Транспорт</span>
-        <span class="pust-seg">
-          <button type="button" class="{{#unless v.tachka}}on{{/unless}}" data-action="cact" data-act="veh" data-veh="0">Браміни</button>
-          <button type="button" class="{{#if v.tachka}}on{{/if}}" data-action="cact" data-act="veh" data-veh="1">Тачка</button>
+        <span class="pust-luck">
+          <button type="button" class="pust-luck-roll" data-action="cact" data-act="rollFate" title="Удача партії: підсумуйте УДЧ усіх персонажів. −4 і нижче → −2; −3 або −2 → −1; від −1 до +1 → 0; +2 або +3 → +1; +4 і вище → +2.&#10;Клацніть, щоб кинути Кістку Долі: 1d10 + Удача партії, 6 і вище — на користь персонажів."><i class="fa-solid fa-dice-d10"></i> Удача партії</button>
+          <select data-k="luck" aria-label="Удача партії">{{#each v.luck}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
         </span>
-        <span class="pust-hlab">Удача партії</span>
-        <select data-k="luck" aria-label="Удача партії">{{#each v.luck}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
+        <span class="pust-veh">
+          <span class="pust-hlab">Транспорт</span>
+          <span class="pust-seg">
+            <button type="button" class="{{#unless v.tachka}}on{{/unless}}" data-action="cact" data-act="veh" data-veh="0">Браміни</button>
+            <button type="button" class="{{#if v.tachka}}on{{/if}}" data-action="cact" data-act="veh" data-veh="1">Тачка</button>
+          </span>
+        </span>
       </div>
       <div class="pust-row pust-aspect asp-goal">
         <label>Карма</label>
         <select data-k="karmaAspect" aria-label="Кармічний аспект">{{#each v.karmaAspects}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
+        <span class="pust-karma">
+          <button type="button" data-action="cact" data-act="step" data-step="karma" data-d="-1" title="Мінус 1 карми">−</button>
+          <input type="text" class="pust-screen" data-k="karma" value="{{v.karma}}" aria-label="Карма" title="Карма">
+          <button type="button" data-action="cact" data-act="step" data-step="karma" data-d="1" title="Плюс 1 карми">+</button>
+        </span>
         <button type="button" class="pust-die {{#if v.locks.karma}}locked{{/if}}" data-action="cact" data-act="rollKarma" title="{{#if v.locks.karma}}Заповнено вручну. Змініть кармічний аспект або карму, щоб знову кидати кістки{{else}}Кинути d6 на карму{{/if}}"><i class="fa-solid {{#if v.locks.karma}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
       </div>
       <div class="pust-row pust-aspect asp-concept">
@@ -55,7 +64,8 @@
   <section class="pust-quickbar {{#if quickFold}}folded{{/if}}">
     <button type="button" class="pust-qfold" data-action="uiToggle" data-key="quickFold" title="{{#if quickFold}}Розгорнути швидкий доступ{{else}}Згорнути швидкий доступ{{/if}}"><i class="fa-solid {{#if quickFold}}fa-chevron-down{{else}}fa-chevron-up{{/if}}"></i></button>
     <div class="pust-qgrid">
-      <div class="pust-qgrp q-life">
+      {{!-- one block (author, 2026-11-14): ОЗ, броня, бюджет, запас ходу in a row; the caravan state under them --}}
+      <div class="pust-qgrp q-all">
         <div class="pust-qi q-hp {{#if (lt v.hpCurrent 1)}}bad{{/if}}"><span>Очки здоров'я</span><div>
           <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="-1" title="Мінус 1 ОЗ">−</button>
           <input type="text" class="pust-screen" data-k="hpCurrent" value="{{v.hpCurrent}}" aria-label="Поточні ОЗ">
@@ -69,52 +79,24 @@
           <input type="text" class="pust-qarmtype {{#if v.armorTypeCustom}}custom{{/if}}" data-k="armorType" value="{{v.armorType}}" aria-label="Тип броні" title="Тип броні">
           {{#if (or v.armorCustom v.armorTypeCustom)}}<button type="button" data-action="cact" data-act="armorReset" title="Повернути стандартну броню ({{v.baseArmor}}, фізична)">↺</button>{{/if}}
         </div></div>
-        <div class="pust-hpbar hp-{{v.hpBar.level}}" title="Очки здоров'я: {{v.hpCurrent}} з {{v.maxHP}}" aria-hidden="true">
-          <div class="pust-hpbar-fill" style="width: {{v.hpBar.pct}}%"></div>
-          <span class="pust-hpbar-t"><b>ОЗ</b> {{v.hpCurrent}}/{{v.maxHP}}</span>
-        </div>
-      </div>
-      <div class="pust-qgrp q-move">
-        <div class="pust-qi q-movecell"><span>Запас ходу</span>
-          <div class="q-moverow">
-            <div class="pust-qpips">
-            {{#each v.movePips1}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/each}}
-            {{#each v.movePips2}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/each}}
-            </div>
-            <b>{{v.moveNow}}</b>
-          </div>
-          <small>{{v.cellRule}} · {{v.refill}}</small></div>
-      </div>
-      <div class="pust-qgrp q-goods">
         <div class="pust-qi"><span>Бюджет кришок</span><div>
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="-1" title="Мінус 1 кришка">−</button>
           <input type="text" class="pust-screen" data-k="budget" value="{{v.budget}}" aria-label="Бюджет кришок">
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="1" title="Плюс 1 кришка">+</button>
           <button type="button" class="pust-die {{#if v.locks.budget}}locked{{/if}}" data-action="cact" data-act="rollBudget" title="{{#if v.locks.budget}}Заповнено вручну. Змініть бюджет, щоб знову кидати кістки{{else}}Кинути 1d6 + 4{{/if}}"><i class="fa-solid {{#if v.locks.budget}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
         </div></div>
-        <div class="pust-qi"><span>Карма</span><div>
-          <button type="button" data-action="cact" data-act="step" data-step="karma" data-d="-1" title="Мінус 1 карми">−</button>
-          <input type="text" class="pust-screen" data-k="karma" value="{{v.karma}}" aria-label="Карма">
-          <button type="button" data-action="cact" data-act="step" data-step="karma" data-d="1" title="Плюс 1 карми">+</button>
-        </div></div>
-        {{#if v.supLamps}}
-        <div class="pust-qi"><span>Припаси</span><div class="pust-qlamps">
-          {{#each v.supLamps}}<button type="button" class="pust-qlamp dot {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="sup" data-i="{{k}}" title="Припасів: {{n}}" aria-label="Припасів: {{n}}"></button>{{/each}}
-        </div></div>
-        {{else}}
-        <div class="pust-qi"><span>Припаси</span><div class="pust-qnone">немає скриньки</div></div>
-        {{/if}}
-      </div>
-      <div class="pust-qi pust-qroll">
-        <button type="button" class="pust-check-btn" data-action="cact" data-act="rollFate" title="Кістка Долі: 1d10 + Удача партії, 6 і вище — на користь персонажів"><i class="fa-solid fa-dice-d10"></i> Кістка Долі</button>
+        <div class="pust-qi q-movecell"><span>Запас ходу <b class="q-movenow">{{v.moveNow}}</b></span>
+          <div class="q-moverow">
+            <div class="pust-qpips">
+            {{#each v.movePips1}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/each}}
+            {{#each v.movePips2}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/each}}
+            </div>
+          </div>
+          <small>{{v.cellRule}} · {{v.refill}}</small></div>
+        <p class="pust-qstate {{#if v.repair}}hurt{{/if}} {{#if v.repair.hurt}}bad{{/if}} {{#if v.repair.destroyed}}bad{{/if}}">{{#if v.repair}}<i class="fa-solid fa-screwdriver-wrench"></i> Пошкоджено на <b>{{v.repair.dmg}}</b> ОЗ · ремонт у техніка: <b>{{v.repair.cost}}(к)</b> (1(к) за 5 ОЗ){{#if v.repair.hurt}} · <b>вантаж постраждав</b>: шкоди більше ніж на половину ОЗ{{/if}}{{#if v.repair.destroyed}} · <b>ОЗ 0 — вантаж знищено</b>{{/if}}{{else}}<i class="fa-solid fa-circle-check"></i> Караван цілий{{/if}}</p>
       </div>
     </div>
 
-    <div class="pust-qstat pust-qline">
-      <span class="pust-qline-i">{{#if v.repair}}Пошкоджено на <b>{{v.repair.dmg}}</b> ОЗ · ремонт у техніка: <b>{{v.repair.cost}}(к)</b> (1(к) за 5 ОЗ){{#if v.repair.hurt}} · <b class="bad">вантаж постраждав</b>: шкоди більше ніж на половину ОЗ{{/if}}{{#if v.repair.destroyed}} · <b class="bad">ОЗ 0 — вантаж знищено</b>{{/if}}{{else}}Караван цілий{{/if}}</span>
-      <span class="pust-qline-i">Покращень: <b class="{{#if v.impNeed}}bad{{/if}}">{{v.impCount}}</b> <small>({{v.impHint}})</small></span>
-      <span class="pust-qline-i">Вантаж: <b class="{{#if v.cargoOver}}bad{{/if}}">{{v.cargoNow}}</b> <span class="pust-meter {{#if v.cargoOver}}warn{{/if}}"><span style="width: {{v.cargoPct}}%"></span></span></span>
-    </div>
   </section>
 
 
@@ -130,6 +112,7 @@
   {{!-- ===== Покращення ===== --}}
   {{#if (eq tab 'imps')}}
     <div class="pust-tools pust-tools-top pust-imp-bar">
+      <span class="pust-hcount {{#if v.impNeed}}bad{{/if}}" title="Покращень у каравана"><span>Покращень</span><b>{{v.impCount}}</b><small>{{v.impHint}}</small></span>
       <button type="button" class="pust-fold" data-action="uiToggle" data-key="foldImps" title="{{#if v.foldImps}}Показати всі покращення{{else}}Показати лише взяті{{/if}}"><i class="fa-solid {{#if v.foldImps}}fa-chevron-down{{else}}fa-chevron-up{{/if}}"></i> {{#if v.foldImps}}Усі покращення{{else}}Лише взяті{{/if}}</button>
       <button type="button" class="pust-die {{#if v.locks.imps}}locked{{/if}}" data-action="cact" data-act="rollImps" data-confirm="1" title="{{#if v.locks.imps}}Покращення обрано вручну. Зніміть усі позначки, щоб знову кидати{{else}}Обрати 2 випадкові покращення замість поточних{{/if}}"><i class="fa-solid {{#if v.locks.imps}}fa-lock{{else}}fa-dice{{/if}}"></i> 2 випадкові</button>
     </div>
@@ -164,6 +147,9 @@
 
   {{!-- ===== Вантаж і пасажири ===== --}}
   {{#if (eq tab 'cargo')}}
+    <div class="pust-tools pust-tools-top pust-cargo-bar">
+      <span class="pust-hcount {{#if v.cargoOver}}bad{{/if}}" title="Вантаж на суму / місткість каравану"><span>Вантаж</span><b>{{v.cargoNow}}</b><small>(к)</small><span class="pust-meter {{#if v.cargoOver}}warn{{/if}}"><span style="width: {{v.cargoPct}}%"></span></span>{{#if v.cargoOver}}<small>перевантаження</small>{{/if}}</span>
+    </div>
     {{#if v.cargo.length}}
     <div class="pust-glist pust-glist-cargo">
       <div class="pust-grow pust-ghead"><span>Назва</span><span>Примітка</span><span>Тип</span><span>Ціна</span><span>К-сть</span><span>Сума</span><span><i class="fa-solid fa-xmark"></i></span></div>

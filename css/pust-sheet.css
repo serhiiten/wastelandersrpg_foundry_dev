@@ -966,3 +966,80 @@
 .pust-grow.dmg-wide > .pust-dmgcell > .pust-dmgchip { display: inline-block; }
 .wastelanders .pust-grow.dmg-wide textarea.pust-dmg-in { text-align: left; padding-left: 6px !important; }
 .pust-grow > .pust-dmgcell { width: 100%; }
+
+/* ===== Caravan sheet, round 2 (author, 2026-11-14) ===== */
+/* header: «Удача партії» on the left (prominent; the label rolls «Кістка Долі»), the transport on the right */
+.pust-caravan .pust-vrow { justify-content: space-between; }
+.pust-caravan .pust-luck { display: inline-flex; align-items: stretch; gap: 0; border: 2px solid var(--pu-rust-1); border-radius: 4px; overflow: hidden; box-shadow: 0 2px 0 var(--pu-rust-0); }
+.wastelanders .pust-caravan button.pust-luck-roll:not(.header-control) { height: 30px !important; min-height: 0; margin: 0 !important; padding: 0 12px !important; border: 0 !important; border-radius: 0 !important;
+  display: inline-flex; align-items: center; gap: 7px; font-family: var(--pu-f-label); font-weight: 800; font-size: 13.5px !important; text-transform: uppercase; letter-spacing: .05em;
+  background: linear-gradient(180deg, var(--pu-rust-4), var(--pu-rust-3) 55%, var(--pu-rust-2)) !important; color: #f4d11a !important; text-shadow: 0 1px 1px rgba(0,0,0,.55); box-shadow: none !important; }
+.wastelanders .pust-caravan button.pust-luck-roll:not(.header-control):hover { filter: brightness(1.12); }
+.wastelanders .pust-caravan button.pust-luck-roll i { font-size: 15px; }
+.wastelanders .pust-caravan .pust-luck > select { height: 30px !important; width: 62px !important; flex: none !important; border: 0 !important; border-left: 2px solid var(--pu-rust-1) !important; border-radius: 0 !important;
+  font-family: var(--pu-f-num); font-weight: 700; font-size: 17px !important; text-align: center; background: var(--pu-steel-0) !important; color: #b6ffb9 !important; }
+.pust-caravan .pust-veh { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.pust-caravan .pust-vrow > .pust-veh > .pust-hlab { flex: none; margin: 0; }
+
+/* quick panel: row 1 — «ОЗ і броня» | «бюджет, карма, Припаси»; row 2 — «Запас ходу», the whole width */
+.pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) !important; grid-template-areas: "life goods" "move move" !important; grid-template-rows: auto auto; }
+.pust-caravan .pust-qgrp.q-life, .pust-caravan .pust-qgrp.q-goods { align-content: flex-start; }
+.pust-caravan .q-moverow > .pust-qpips { grid-template-columns: repeat(20, 18px) !important; }
+/* the state instead of the HP bar */
+.pust-caravan .pust-qstate { flex: 1 0 100%; margin: 0; font-size: 13px; line-height: 1.35; color: var(--pu-green); }
+.pust-caravan .pust-qstate i { margin-right: 4px; }
+.pust-caravan .pust-qstate b { font-family: var(--pu-f-num); color: #b6ffb9; }
+.pust-caravan .pust-qstate.hurt { color: var(--pu-amber); }
+.pust-caravan .pust-qstate.hurt b { color: var(--pu-amber); }
+.pust-caravan .pust-qstate.bad, .pust-caravan .pust-qstate.bad b { color: var(--pu-red) !important; }
+@container (max-width: 650px) {
+  .pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "life" "goods" "move" !important; }
+  .pust-caravan .q-moverow > .pust-qpips { grid-template-columns: repeat(10, 18px) !important; }
+}
+
+/* the counts in the headers of «Покращення» and «Вантаж і пасажири» */
+.pust-caravan .pust-hcount { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 4px; margin-right: auto;
+  background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)); border: 2px solid var(--pu-steel-0); box-shadow: inset 0 0 8px rgba(0,0,0,.4); }
+.pust-caravan .pust-hcount > span:first-child { font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--pu-green-dim); }
+.pust-caravan .pust-hcount > b { font-family: var(--pu-f-num); font-size: 20px; line-height: 1; color: #b6ffb9; text-shadow: 0 0 8px rgba(61,255,71,.45); }
+.pust-caravan .pust-hcount > small { font-size: 11.5px; color: var(--pu-green-dim); }
+.pust-caravan .pust-hcount.bad > b, .pust-caravan .pust-hcount.bad > small { color: var(--pu-red) !important; text-shadow: none; }
+.pust-caravan .pust-hcount .pust-meter { width: 120px; }
+.pust-caravan .pust-imp-bar, .pust-caravan .pust-cargo-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 8px; }
+
+/* caravan, round 3 (author, 2026-11-14): the karma counter in the karma aspect's row; the quick panel's top row on one line,
+   the state under it across both groups, then «Запас ходу» */
+.pust-caravan .pust-karma { display: inline-flex; align-items: center; gap: 4px; flex: none; }
+.wastelanders .pust-caravan .pust-karma > input { width: 46px !important; height: 30px !important; flex: none !important; text-align: center; font-size: 16px !important; }
+.wastelanders .pust-caravan .pust-karma > button:not(.header-control) { width: 26px !important; height: 26px !important; min-height: 0; padding: 0 !important; margin: 0 !important; line-height: 24px !important; }
+.pust-caravan .pust-quickbar .pust-qgrid { grid-template-areas: "life goods" "state state" "move move" !important; grid-template-rows: auto auto auto; }
+.pust-caravan .pust-qgrp.q-life, .pust-caravan .pust-qgrp.q-goods { flex-wrap: nowrap; align-items: flex-start; }
+.pust-caravan .pust-qgrp.q-goods .pust-qlamps { flex-wrap: nowrap; }
+.pust-caravan .pust-qgrid > .pust-qstate { grid-area: state; margin: -2px 2px 0; }
+@container (max-width: 650px) {
+  .pust-caravan .pust-quickbar .pust-qgrid { grid-template-areas: "life" "goods" "state" "move" !important; }
+}
+
+/* caravan, round 4 (author, 2026-11-14): «Удача партії» the size of the transport buttons, flush with the left edge;
+   the quick panel one block — ОЗ, броня, бюджет, запас ходу in a row, the state under them */
+.pust-caravan .pust-vrow { padding-left: 0 !important; }
+.pust-caravan .pust-luck { border-width: 1px; border-radius: 3px; box-shadow: none; }
+.wastelanders .pust-caravan button.pust-luck-roll:not(.header-control) { height: 28px !important; padding: 0 8px !important; gap: 5px; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 12.5px !important; letter-spacing: .03em; }
+.wastelanders .pust-caravan button.pust-luck-roll i { font-size: 12.5px; }
+.wastelanders .pust-caravan .pust-luck > select { height: 28px !important; width: 54px !important; font-size: 14px !important; border-left-width: 1px !important; }
+.pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "all" !important; grid-template-rows: auto !important; }
+.pust-caravan .pust-qgrp.q-all { grid-area: all; flex-wrap: wrap; gap: 6px 18px; align-items: flex-start; }
+.pust-caravan .pust-qgrp.q-all > .pust-qstate { flex: 1 0 100%; margin: 0; }
+.pust-caravan .q-all .q-moverow > .pust-qpips { grid-template-columns: repeat(10, 16px) !important; gap: 3px 3px; }
+.wastelanders .pust-caravan .q-all .pust-qpips .pip { width: 16px !important; height: 13px !important; }
+.pust-caravan .q-all .pust-qi.q-movecell { flex: 1 1 auto; }
+.pust-caravan .q-all .pust-qi.q-movecell > small { font-size: 11px; }
+.pust-caravan .pust-qi input.pust-qarmtype { width: 86px !important; }
+@container (max-width: 650px) { .pust-caravan .pust-quickbar .pust-qgrid { grid-template-areas: "all" !important; } }
+.pust-caravan .pust-qgrp.q-all { gap: 6px 14px; }
+.pust-caravan .q-all .pust-qi.q-movecell { flex: 1 1 0; min-width: 177px; }
+.pust-caravan .q-all .q-movecell > span .q-movenow { margin-left: 6px; font-family: var(--pu-f-num); font-size: 13px; letter-spacing: 0; color: #b6ffb9; }
+.pust-caravan .q-all .q-moverow { height: 32px; align-items: center; }
+.pust-caravan .q-all .q-moverow > .pust-qpips { grid-template-columns: repeat(10, 15px) !important; }
+.wastelanders .pust-caravan .q-all .pust-qpips .pip { width: 15px !important; height: 12px !important; }
+.pust-caravan .q-all .pust-qi.q-movecell > small { line-height: 1.2; }

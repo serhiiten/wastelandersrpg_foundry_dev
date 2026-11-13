@@ -341,3 +341,8 @@
 :is(.pust-roller .rdmg, .pust-chat .pust-cdmg) .rdfx > li::before { content: "▸"; position: absolute; left: 0; color: var(--dt-bd); }
 .pust-roller .rdmg .rdfx > li { font-size: 14.5px; }
 .pust-chat .pust-cdmg .rdfx > li { font-size: 13px; }
+/* «Кістка Долі» and «Кістки» chat cards: the check card's screen */
+.pust-chat .pust-cfate .rranges > span { min-width: 22px; text-align: center; }
+.pust-chat .pust-cpool .rverd { justify-content: flex-start; }
+.pust-chat .pust-cpool .rpool-sum { font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-green-dim); }
+.chat-message .pust-chat .pust-cpool .rverd > .rtot, .chat-message .pust-chat .pust-cfate .rverd > .rtot { font-size: 22px; }

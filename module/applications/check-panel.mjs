@@ -7,6 +7,7 @@
  */
 import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
+import { postChat } from "./chat.mjs";
 import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType } from "../rules/damage-types.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -227,10 +228,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   /* ---------- chat ---------- */
 
   #chat(content) {
-    return ChatMessage.create({
+    return postChat({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: `<div class="pust-chat">${content}</div>`,
-    });
+    }, { dice: true });
   }
 
   #chatCheck(last, verdicts, types, aspect) {
@@ -273,13 +274,11 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   #chatFate(fate) {
-    const ok = fate.total >= 6;
-    return this.#chat(`<h4>Кістка Долі</h4><p>${fate.v} ${fate.mod < 0 ? "−" : "+"} ${Math.abs(fate.mod)} (${fate.mode === "char" ? "Удача" : "Удача партії"}) = <b>${fate.total}</b></p><p>${ok ? "На користь персонажа" : "Не на користь персонажа"}</p>`);
+    return postFateCard(this.actor, { v: fate.v, mod: fate.mod, party: fate.mode !== "char" });
   }
 
   #chatPool(res) {
-    const parts = [6, 8, 10].filter((k) => res.out[k]?.length).map((k) => `${res.out[k].length}d${k}: ${res.out[k].join(", ")}`);
-    return this.#chat(`<h4>Кістки</h4><p>${parts.join(" | ")}</p><p>Сума: <b>${res.total}</b></p>`);
+    return postPoolCard(this.actor, res);
   }
 
   async close(options) {
@@ -294,7 +293,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
  */
 function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null, spent = "" }) {
   const types = [...parts.map((p) => p.t), ...(poison ? ["poison"] : [])];
-  return ChatMessage.create({
+  return postChat({
     speaker: ChatMessage.getSpeaker({ actor }),
     content: `<div class="pust-chat"><h4>${esc(head)}</h4>`
       + `<div class="pust-cdmg dt-${wt}"><div class="rdrow"><span class="rdsum"><b class="rtot dt-${wt}">${total}</b><span>шкоди</span></span>`
@@ -303,7 +302,7 @@ function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null,
       + (parts.length > 1 ? `<p class="rdbrk">${parts.map((p) => `${esc(p.l)}: <b class="dt-${p.t}">${p.v}</b>`).join(" · ")}</p>` : "")
       + (poison ? `<div class="rdrow dt-poison"><span class="rdsum"><b class="rtot dt-poison">+${poison.sum}</b><span>отрутою</span></span></div>` : "")
       + (spent ? `<p class="rnote">${esc(spent)}</p>` : "") + `</div></div>`,
-  });
+  }, { dice: true });
 }
 
 /**
@@ -325,4 +324,33 @@ export async function rollWeaponDamage(actor, i) {
   const total = Math.max(0, r.sum + (p.flat || 0));
   const fx = damageEffects(L.weaponTraits(c, "", d), c, termTypes(c, p, wt));
   return postDamageCard(actor, { head: `Шкода: ${c.name} (${c.d})`, wt, total, parts, fx });
+}
+
+/**
+ * «Кістка Долі» to chat (author, 2026-11-14), the character's (Удача) and the caravan's (Удача партії) alike:
+ * a screen like the check's — the verdict, the total, «d10 + Удача», the die.
+ */
+export function postFateCard(actor, { v, mod, party = false }) {
+  const total = v + mod;
+  const ok = total >= 6;
+  const who = party ? "персонажів" : "персонажа";
+  return postChat({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="pust-chat"><h4>Кістка Долі${party ? " · Удача партії" : ""}</h4>`
+      + `<div class="pust-cres pust-cfate ${ok ? "v2" : "v0"}"><b class="rvhead">${ok ? `На користь ${who}` : `Не на користь ${who}`}</b>`
+      + `<div class="rverd"><b class="rtot">${total}</b><span class="rranges"><span class="${ok ? "" : "hit v0"}">≤5</span><span class="${ok ? "hit v2" : ""}">6+</span></span></div>`
+      + `<p class="pust-cbreak"><span class="die d10 kept">${v}</span> · ${party ? "Удача партії" : "Удача"} ${sgn(mod)}</p></div></div>`,
+  }, { dice: true });
+}
+
+/** «Кістки» (the HTML sheet's «Просто кубики») to chat: the total, then every die in its shape */
+export function postPoolCard(actor, res) {
+  const dice = [6, 8, 10].flatMap((k) => (res.out[k] || []).map((v) => `<span class="die d${k} kept" title="d${k}">${v}</span>`)).join(" ");
+  const what = [6, 8, 10].filter((k) => res.out[k]?.length).map((k) => `${res.out[k].length}d${k}`).join(" + ");
+  return postChat({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="pust-chat"><h4>Кістки: ${esc(what)}</h4>`
+      + `<div class="pust-cres pust-cpool"><div class="rverd"><b class="rtot">${res.total}</b><span class="rpool-sum">сума</span></div>`
+      + `<p class="pust-cbreak">${dice}</p></div></div>`,
+  }, { dice: true });
 }
