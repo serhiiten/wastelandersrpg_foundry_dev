@@ -2,7 +2,7 @@
   "id": "wastelanders-dev",
   "title": "Пустельники (DEV)",
   "description": "Система для Пустельники (автор: Сергій Тен) від GMonline",
-  "version": "1.1.0-dev.8",
+  "version": "1.1.0-dev.9",
   "compatibility": {
     "minimum": "13",
     "verified": "14.367",
@@ -159,6 +159,6 @@
   "primaryTokenAttribute": "hp",
   "url": "https://github.com/serhiiten/wastelandersrpg_foundry_dev",
   "manifest": "https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry_dev/main/system.json",
-  "download": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/releases/download/v1.1.0-dev.8/foundry.zip",
+  "download": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/releases/download/v1.1.0-dev.9/foundry.zip",
   "license": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/blob/main/LICENSE.md"
 }
