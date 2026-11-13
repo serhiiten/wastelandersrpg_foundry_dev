@@ -9,9 +9,9 @@
   {{#each list}}
   <div class="pust-pick {{#unless ok}}bad{{/unless}}">
     <button type="button" data-action="act" data-act="{{../../kind}}-add" data-n="{{n}}" {{#unless ok}}title="{{why}}"{{/unless}}>+</button>
-    <b>{{n}}</b>{{#if req}} <small class="pust-sub">{{req}}</small>{{/if}}
+    <b>{{n}}</b>{{#if req}} <small class="pust-sub pust-req">вимоги: {{req}}</small>{{/if}}
     {{#unless ok}}<small class="bad"> — {{why}}</small>{{/unless}}
-    <div class="pust-text">{{text}}</div>
+    <div class="pust-text pust-desc">{{text}}</div>
   </div>
   {{/each}}
   {{else}}

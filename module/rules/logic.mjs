@@ -215,6 +215,7 @@ function useItem(i){
   const D=DRUGS[key]; const d=compute(st); const c=chem();
   const robotBody = st.species==='robot' && !d.has('Кіборг');
   if(D.robot && st.species!=='robot'){ toast('«'+key+'» працює лише на механізми. Щоб полагодити союзника-робота, просто зменш кількість.','bad'); return; }
+  if(D.robot && st.species==='robot' && !robotBody){ toast('«'+key+'» не діє на кіборгів: у тебе живе тіло, тож тебе лікують як інші види.','bad'); return; }
   if(D.food && robotBody){ toast('Роботи не їдять.','bad'); return; }
   if(D.loot){ st.loot=Object.assign({yao:false,egg:false}, st.loot||{}); if(st.loot[D.loot]){ toast('Цей бонус персонаж уже отримав — лише раз на персонажа.','bad'); return; } }
   if(!D.robot && !D.gadget && !D.other && !D.food && robotBody){ toast('Наркотики, медикаменти й алкоголь на роботів не діють.','bad'); return; }
@@ -223,6 +224,7 @@ function useItem(i){
   if(D.booster){ attr=boosterAttr(o); if(!attr){ toast('Обери в рядку, який атрибут підсилює бустер.','bad'); return; } }
   const q=parseInt(o.q,10);
   if(!isNaN(q) && q<=0){ toast('Цієї речі не лишилося.','bad'); return; }
+  if(D.heal){ const lim=Math.ceil(D.heal.base/D.heal.dec); if((c.uses[key]||0)>=lim){ toast('«'+key+'»: сьогодні вже застосовано '+lim+' — більше не подіє до «Новий день».','bad'); return; } }
   const msgs=[]; const resist=d.has('Опірність до хімії');
   const longer = !!D.drug && (d.has('Чутливість до хімії') || d.allPerks.includes('Покращений метаболізм'));
   const scenes = longer ? 2 : 1;
@@ -249,7 +251,8 @@ function useItem(i){
   // залежність
   const boozeImmune = D.booze && d.allPerks.includes('Стійкість до отрут');
   if(boozeImmune) msgs.push('Стійкість до отрут: ти ніколи не станеш залежним від бухла.');
-  if(D.ch>0 && !boozeImmune){
+  if(D.ch>0 && robotBody) msgs.push('Роботи не стають залежними.');
+  if(D.ch>0 && !boozeImmune && !robotBody){
     let ch=D.ch; const why=[];
     if(D.drug && d.allPerks.includes('Електрохімічний жокей')){ ch=Math.max(1,ch-3); why.push('Електрохімічний жокей −3'); }
     if(D.drug && d.has('Чутливість до хімії')){ ch=Math.min(9,ch+2); why.push('Чутливість до хімії +2'); }
@@ -679,6 +682,7 @@ function invokeAspect(src){
   const L=R.last; if(!L || L.aspect) return;
   if(L.verdict>=3){ toast('Уже критичний успіх — викликати аспект не потрібно.','bad'); return; }
   if(L.dmgDone){ toast('Шкоду вже кинуто — викликати аспект не можна.','bad'); return; }
+  if(L.xpGiven||L.savGiven){ toast('ОД за цей кидок уже отримано — викликати аспект не можна.','bad'); return; }
   if(L.B>=2){ toast('На перевірку вже діють два Посилення — більше не можна.','bad'); return; }
   const d=compute(st);
   const spend = src ? false : R.spend;
@@ -772,7 +776,7 @@ function renderRoller(){
         (L.xpGiven ? '<small>Додано в аркуш: '+L.xpGiven+' ОД.</small>' : '<span class="rxpb"><button type="button" class="btn sm" data-r="xp" data-v="1">+1 ОД в аркуш</button>'+(studious?'<button type="button" class="btn sm" data-r="xp" data-v="2">+2 ОД</button>':'')+'</span>')+'</div>' : '';
     const savant = L.verdict===3 && !L.lvl && d.allPerks.includes('Савант') ? '<div class="rxp good"><b>Савант: отримай 1 ОД</b> за критичний успіх без навички.'+(L.savGiven?'<small>Додано в аркуш.</small>':'<span class="rxpb"><button type="button" class="btn sm" data-r="xp" data-v="1" data-k="sav">+1 ОД в аркуш</button></span>')+'</div>' : '';
     const cursedNote = L.ci.cursed && L.total>=19 ? '<p class="rnote">Проклятий: критичних успіхів не буває, 19+ — просто успіх.</p>' : '';
-    const canAsp = !L.aspect && L.B<2 && L.verdict<3 && !L.dmgDone;
+    const canAsp = !L.aspect && L.B<2 && L.verdict<3 && !L.dmgDone && !L.xpGiven && !L.savGiven;
     res = '<div class="rres v'+L.verdict+'" aria-live="polite">'+
       '<div class="rdice">'+base+sk+as+'</div>'+
       '<div class="rsum"><span class="rform">'+esc(parts)+' =</span><b class="rtot">'+L.total+'</b></div>'+
@@ -783,7 +787,7 @@ function renderRoller(){
       (st.sit||[]).map((a,j)=>a.inv>0?'<button type="button" class="btn sm modasp" data-r="sitasp" data-v="'+j+'" '+(canAsp?'':'disabled')+' title="Ситуативний аспект: безкоштовних Посилень '+a.inv+'">«'+esc(a.t)+'» <svg class="xcross" viewBox="0 0 10 10" aria-hidden="true"><path d="M3.6 0h2.8v3.6H10v2.8H6.4V10H3.6V6.4H0V3.6h3.6z" fill="currentColor"/></svg>'+a.inv+': +1d10</button>':'').join('')+
       rollMods().map((x,j)=>'<button type="button" class="btn sm modasp" data-r="modasp" data-v="'+j+'" '+(canAsp&&!x.m.u?'':'disabled')+' title="'+esc(x.of)+': безкоштовне Посилення раз на сесію'+(x.m.u?' — уже використано':'')+'">Мод. «'+esc(x.m.n.trim())+'»: +1d10</button>').join('')+
       '<label class="tog"><input type="checkbox" id="r-spend" data-r="spend"'+(R.spend?' checked':'')+'> витратити жетон Долі <small>зараз: '+esc(fd)+'</small></label>'+
-      (L.aspect?'<small>Аспект на цю перевірку вже викликано.</small>':L.dmgDone?'<small>Шкоду вже кинуто — аспект викликати не можна.</small>':L.verdict>=3?'<small>Уже критичний успіх — аспект не потрібен.</small>':(L.B>=2?'<small>Уже діють два Посилення.</small>':''))+'</div>'+
+      (L.aspect?'<small>Аспект на цю перевірку вже викликано.</small>':(L.xpGiven||L.savGiven)?'<small>ОД за цей кидок уже отримано — аспект викликати не можна.</small>':L.dmgDone?'<small>Шкоду вже кинуто — аспект викликати не можна.</small>':L.verdict>=3?'<small>Уже критичний успіх — аспект не потрібен.</small>':(L.B>=2?'<small>Уже діють два Посилення.</small>':''))+'</div>'+
     '</div>';
   }
   const F=R.fate;

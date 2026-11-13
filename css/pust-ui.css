@@ -1,0 +1,243 @@
+/* =====================================================================================
+   «Пустельники» — one look for every window of the system (sheets, tools, chat cards).
+   Inspired by the HTML «Термінал Доглядача», adapted to Foundry (not copied):
+     • frame   — rusty plate: the window border, header and tabs;
+     • paper   — sandy paper: the working surface (fields, lists, text);
+     • card    — a sheet of paper lying on it: a section with a ruled heading and a hard shadow;
+     • screen  — a dark CRT with green phosphor: numbers and results (HP, checks, generator output);
+     • buttons — embossed plates: rust with yellow letters (main action), paper (ordinary),
+                 screen-green when switched on, red when a second click is needed;
+     • notes   — the GM's handwriting in red ink.
+   Fonts: Roboto Condensed (labels, buttons, headings), Ubuntu Mono (text and fields),
+   Handjet (screens and big numbers), Marck Script (notes). Loaded from Google Fonts, like
+   the system's other fonts; without internet the browser falls back to similar ones.
+   Every class here starts with .pust- or sits under .wastelanders; tokens are --pu-*.
+   ===================================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;800&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&family=Handjet:wght@500;700&family=Marck+Script&display=swap");
+
+.wastelanders, .pust-chat, .chat-message .pust-card {
+  /* colours */
+  --pu-rust-0: #2a150c; --pu-rust-1: #4a2616; --pu-rust-2: #6e3b22; --pu-rust-3: #94552f; --pu-rust-4: #b8774a;
+  --pu-paper: #ebdfb6; --pu-paper-2: #dfcf9c; --pu-paper-3: #cbb882; --pu-sheet: #fbf6e6;
+  --pu-ink: #231b11; --pu-ink-2: #4a3d2b; --pu-ink-3: #7a6748;
+  --pu-steel-0: #1c1f1e; --pu-steel-1: #2c302f; --pu-steel-2: #3d4241; --pu-steel-3: #5a605e;
+  --pu-green: #3dff47; --pu-green-dim: #21b52a; --pu-amber: #ffd84a; --pu-red: #ff5a4a;
+  --pu-yellow: #f4d11a; --pu-red-ink: #a8121a; --pu-good: #2f6b35; --pu-orange: #ef9d62; --pu-olive: #9fcd6c;
+  /* type */
+  --pu-f-label: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif;
+  --pu-f-text: "Ubuntu Mono", "PT Mono", Consolas, monospace;
+  --pu-f-screen: "Handjet", "Ubuntu Mono", monospace;
+  --pu-f-hand: "Marck Script", "Caveat", cursive;
+  --pu-f-num: "Ubuntu Mono", "PT Mono", Consolas, monospace; /* numbers: Handjet draws 0 almost like 8 */
+  /* textures (tiny inline SVG noise, as in the HTML terminal) */
+  --pu-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --pu-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .3  0 0 0 0 .2  0 0 0 0 .1  0 0 0 .09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --pu-scan: repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px);
+  /* old names used by the sheets' own files */
+  --pust-paper: var(--pu-paper); --pust-ink: var(--pu-ink); --pust-rust: var(--pu-rust-2); --pust-rust-2: var(--pu-rust-3);
+  --pust-screen: var(--pu-steel-1); --pust-screen-ink: var(--pu-green); --pust-metal: var(--pu-ink-3);
+  --pust-bad: var(--pu-red-ink); --pust-good: var(--pu-good); --pust-warn: #8a5a00;
+}
+
+/* ---------------------------------- the window ---------------------------------- */
+.application.wastelanders, .window-app.wastelanders {
+  --background: var(--pu-paper);
+  --color-text-primary: var(--pu-ink); --color-text-secondary: var(--pu-ink-2); --color-text-subtle: var(--pu-ink-3);
+  --color-border: var(--pu-ink-3); --color-form-label: var(--pu-ink-2); --color-form-hint: var(--pu-ink-3);
+  --input-background-color: var(--pu-sheet); --input-text-color: var(--pu-ink); --input-border-color: var(--pu-ink-3);
+  --button-background-color: var(--pu-paper-2); --button-text-color: var(--pu-ink); --button-border-color: var(--pu-rust-1);
+  background: var(--pu-rust-2) var(--pu-noise);
+  border: 2px solid var(--pu-rust-0); border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(255,220,190,.18) inset, 0 10px 28px rgba(0,0,0,.55);
+  color: var(--pu-ink);
+  font-family: var(--pu-f-text);
+  color-scheme: light; /* paper windows: native check boxes, selects and scrollbars in light colours */
+}
+.wastelanders > .window-header {
+  background: linear-gradient(180deg, rgba(255,220,190,.14), rgba(0,0,0,.18)), var(--pu-rust-2) var(--pu-noise);
+  border-bottom: 2px solid var(--pu-rust-0);
+  color: #f1e3c2;
+  font-family: var(--pu-f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+}
+.wastelanders > .window-header .window-title { font-family: var(--pu-f-label); font-weight: 800; color: #f1e3c2; text-shadow: 0 1px 0 var(--pu-rust-0); }
+.wastelanders > .window-header :is(.header-control, .header-button, button, a) { color: #f1e3c2; }
+.wastelanders > .window-header :is(.header-control, .header-button, button, a):hover { color: var(--pu-yellow); text-shadow: none; }
+.wastelanders > .window-content {
+  background: var(--pu-grain), var(--pu-paper);
+  color: var(--pu-ink);
+  margin: 0 5px 5px; border: 1px solid var(--pu-rust-0); border-radius: 0 0 3px 3px;
+}
+.wastelanders .window-resize-handle, .wastelanders .window-resizable-handle { color: var(--pu-paper-2); }
+
+/* -------------------------------- text and headings ------------------------------- */
+.wastelanders :is(h1, h2, h3, h4) { font-family: var(--pu-f-label); color: var(--pu-rust-2); border: none; text-shadow: none; }
+.wastelanders h3 { font-weight: 800; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid var(--pu-ink); padding-bottom: 1px; margin: 0 0 6px; }
+.wastelanders h4 { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; }
+.wastelanders label { color: var(--pu-ink-2); }
+.wastelanders a { color: var(--pu-rust-2); }
+.wastelanders a:hover { color: var(--pu-red-ink); text-shadow: none; }
+/* label type: small caps-like, for field names */
+.wastelanders .pust-label, .wastelanders .pust-lbl, .wastelanders .pust-term-l {
+  font-family: var(--pu-f-label); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2);
+}
+.wastelanders .pust-sub { font-size: 12px; color: var(--pu-ink-3); }
+/* handwritten note in red ink */
+.wastelanders .pust-note-hand, .wastelanders .pust-hand { font-family: var(--pu-f-hand); font-size: 17px; color: var(--pu-red-ink); line-height: 1.2; }
+
+/* --------------------------------------- controls --------------------------------------- */
+.wastelanders :is(input[type="text"], input[type="number"], input:not([type]), select, textarea) {
+  background: var(--pu-sheet); color: var(--pu-ink);
+  border: 1px solid var(--pu-ink-3); border-radius: 2px;
+  font-family: var(--pu-f-text); font-size: 14px;
+  box-shadow: inset 0 1px 2px rgba(35,27,17,.15);
+}
+.wastelanders :is(input, select, textarea):focus { outline: 2px solid var(--pu-rust-4); outline-offset: 0; box-shadow: none; }
+.wastelanders :is(input, textarea)::placeholder { color: var(--pu-ink-3); opacity: .75; }
+/* check boxes and radios: the browser's own, in rust (Foundry draws dark ones) */
+.wastelanders input[type="checkbox"], .wastelanders input[type="radio"] {
+  appearance: auto !important; -webkit-appearance: auto !important; accent-color: var(--pu-rust-2);
+  width: 15px; height: 15px; margin: 0 4px 0 0; flex: 0 0 auto; background: none; border: none; box-shadow: none;
+}
+.wastelanders input[type="checkbox"]::before, .wastelanders input[type="checkbox"]::after,
+.wastelanders input[type="radio"]::before, .wastelanders input[type="radio"]::after { content: none !important; display: none !important; }
+
+/* buttons: an embossed paper plate */
+.wastelanders button:not(.header-control):not(.pip):not(.rbtn):not(.seg):not(.dot):not(.die) {
+  background: linear-gradient(180deg, #efe4c4, var(--pu-paper-2)); color: var(--pu-ink);
+  border: 1.5px solid var(--pu-rust-1); border-radius: 3px;
+  box-shadow: 0 2px 0 var(--pu-rust-1), inset 0 1px 0 rgba(255,255,255,.55);
+  font-family: var(--pu-f-label); font-weight: 700; font-size: 12.5px; letter-spacing: .03em;
+  line-height: 22px; min-height: 0; padding: 0 8px; margin-bottom: 2px;
+  transition: transform .06s, box-shadow .06s, filter .1s;
+}
+.wastelanders button:not(.header-control):not(.pip):not(.rbtn):not(.seg):not(.dot):not(.die):hover:not(:disabled) { filter: brightness(1.06); }
+.wastelanders button:not(.header-control):not(.pip):not(.rbtn):not(.seg):not(.dot):not(.die):active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 var(--pu-rust-1); }
+.wastelanders button:disabled { opacity: .45; cursor: default; }
+/* main action: rust plate, yellow letters */
+.wastelanders :is(.pust-go, .pust-term-go, .pust-check-btn, .pust-big, .pust-primary):not(.header-control) {
+  background: var(--pu-rust-2) var(--pu-noise) !important; color: var(--pu-yellow) !important;
+  border-color: var(--pu-rust-0) !important; box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 1px 0 rgba(255,225,190,.35) !important;
+  text-transform: uppercase; letter-spacing: .06em; font-weight: 800 !important;
+}
+/* switched on (segments, toggles): a little screen lit green */
+.wastelanders :is(.pust-seg, .pust-term-seg) button.on, .wastelanders button.on:not(.pip):not(.rbtn):not(.seg):not(.dot) {
+  background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)) !important; color: var(--pu-green) !important;
+  border-color: var(--pu-steel-0) !important; text-shadow: 0 0 6px rgba(61,255,71,.45);
+  box-shadow: 0 2px 0 var(--pu-steel-0), inset 0 0 10px rgba(61,255,71,.12) !important;
+}
+.wastelanders :is(.pust-seg, .pust-term-seg) { display: inline-flex; gap: 0; }
+.wastelanders :is(.pust-seg, .pust-term-seg) button { border-radius: 0 !important; margin-right: -1.5px; }
+.wastelanders :is(.pust-seg, .pust-term-seg) button:first-child { border-radius: 3px 0 0 3px !important; }
+.wastelanders :is(.pust-seg, .pust-term-seg) button:last-child { border-radius: 0 3px 3px 0 !important; margin-right: 0; }
+/* a second click is needed */
+.wastelanders button.armed { background: var(--pu-red-ink) !important; color: #fff !important; border-color: #5a0a0e !important; box-shadow: 0 2px 0 #5a0a0e !important; }
+/* round reroll / dice buttons */
+.wastelanders :is(.pust-die, .pust-term-reroll, .pust-reroll):not(.header-control) {
+  width: 26px !important; height: 26px; padding: 0 !important; line-height: 24px !important; border-radius: 50% !important;
+  background: radial-gradient(circle at 40% 35%, var(--pu-rust-4), var(--pu-rust-2)) !important; color: #f6e7c8 !important;
+  border-color: var(--pu-rust-0) !important; box-shadow: 0 2px 0 var(--pu-rust-0) !important; font-size: 12px !important;
+}
+.wastelanders .pust-die.locked { background: var(--pu-paper-3) !important; color: var(--pu-ink-2) !important; }
+/* dice inside text: a tiny screen */
+.wastelanders button.die, .pust-chat button.die {
+  display: inline; padding: 0 4px; margin: 0 1px; line-height: 18px; min-height: 0; width: auto;
+  font-family: var(--pu-f-num); font-weight: 700; font-size: 12.5px;
+  background: var(--pu-steel-1); color: var(--pu-green); border: 1px solid var(--pu-steel-0); border-radius: 3px; box-shadow: 0 1px 0 var(--pu-steel-0);
+  cursor: pointer;
+}
+.wastelanders button.die:hover { color: var(--pu-amber); }
+
+/* -------------------------------------- tabs -------------------------------------- */
+.wastelanders :is(.pust-tabs, .pust-term-tabs) {
+  display: flex; gap: 4px; flex-wrap: wrap; padding: 6px 6px 0; margin: 0 0 6px;
+  background: var(--pu-rust-1) var(--pu-noise); border: none; border-bottom: 3px solid var(--pu-rust-0); border-radius: 3px 3px 0 0;
+}
+.wastelanders :is(.pust-tabs, .pust-term-tabs) a {
+  flex: 1 1 auto; text-align: center; white-space: nowrap;
+  padding: 4px 8px 3px; border-radius: 4px 4px 0 0; cursor: pointer;
+  background: var(--pu-rust-2); color: #e9d9b8;
+  font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .03em;
+  box-shadow: inset 0 1px 0 rgba(255,220,190,.25);
+}
+.wastelanders :is(.pust-tabs, .pust-term-tabs) a:hover { color: var(--pu-yellow); text-shadow: none; }
+.wastelanders :is(.pust-tabs, .pust-term-tabs) a.active {
+  background: var(--pu-steel-1); color: var(--pu-green); text-shadow: 0 0 6px rgba(61,255,71,.5);
+  box-shadow: inset 0 0 12px rgba(61,255,71,.14);
+}
+
+/* ------------------------------------- surfaces ------------------------------------- */
+/* card: a section of the sheet */
+.wastelanders :is(.pust-block, .pust-card, .pust-term-result, .pust-table-card) {
+  background: rgba(255,252,240,.78); border: 1.5px solid var(--pu-ink-2); border-radius: 3px;
+  box-shadow: 3px 3px 0 rgba(35,27,17,.22);
+  padding: 6px 8px; margin-bottom: 10px;
+}
+/* screen: dark CRT with green phosphor */
+.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result, .pust-log, .pust-table-out, .pust-scene-box),
+.pust-chat .pust-screen {
+  background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29) !important;
+  color: var(--pu-green) !important;
+  border: 3px solid var(--pu-steel-0); border-radius: 6px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.07), inset 0 0 18px rgba(0,0,0,.45);
+}
+.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result, .pust-log, .pust-table-out, .pust-scene-box) :is(b, strong, .pust-val) { color: #b6ffb9; }
+.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result, .pust-log, .pust-table-out, .pust-scene-box) :is(.pust-sub, .pust-lbl, .pust-label, label, .pust-term-l, small) { color: var(--pu-green-dim) !important; }
+.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result) :is(h2, h3, h4) { color: var(--pu-red); border-color: var(--pu-steel-3); font-family: var(--pu-f-screen); letter-spacing: .04em; }
+.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result) :is(input[type="text"], select) {
+  background: var(--pu-steel-0); color: var(--pu-green); border-color: var(--pu-steel-3); box-shadow: none; font-family: var(--pu-f-num); font-size: 15px; font-weight: 700;
+}
+.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block) .bad { color: var(--pu-red) !important; }
+.wastelanders .pust-screen-num, .wastelanders :is(.pust-quick, .pust-screen-block) b { font-family: var(--pu-f-num); font-weight: 700; font-size: 15px; }
+/* a hazard stripe above important action bars */
+.wastelanders .pust-hazard { border-top: 6px solid transparent; border-image: repeating-linear-gradient(-45deg, var(--pu-yellow) 0 10px, #1d1a14 10px 20px) 6; }
+
+/* -------------------------------------- bits -------------------------------------- */
+.wastelanders :is(.pust-chip, .pust-pill) {
+  background: var(--pu-orange); color: var(--pu-ink); border: none; border-radius: 2px;
+  font-family: var(--pu-f-text); font-size: 12px; padding: 0 6px;
+}
+.wastelanders .pust-chip.good { background: var(--pu-olive); color: var(--pu-ink); }
+.wastelanders .pust-chip.bad { background: #e59a8c; color: var(--pu-ink); } /* filled like the positive ones */
+.wastelanders .pust-chip.info { background: var(--pu-paper-2); }
+.wastelanders .bad { color: var(--pu-red-ink); }
+/* dots, pips, segments, check boxes drawn as buttons */
+.wastelanders :is(.pip, .rbtn, button.seg, .dot) {
+  background: var(--pu-sheet); border: 1.5px solid var(--pu-ink-2); box-shadow: inset 0 1px 2px rgba(35,27,17,.2); cursor: pointer;
+}
+.wastelanders :is(.pip, .rbtn, button.seg, .dot).on { background: var(--pu-rust-2); border-color: var(--pu-rust-0); box-shadow: inset 0 1px 0 rgba(255,220,190,.3); }
+.wastelanders :is(.pust-screen-block, .pust-quick) :is(.pip) { background: var(--pu-steel-0); border-color: var(--pu-steel-3); }
+.wastelanders :is(.pust-screen-block, .pust-quick) :is(.pip).on { background: var(--pu-green); border-color: var(--pu-green-dim); box-shadow: 0 0 6px rgba(61,255,71,.6); }
+
+/* scrollbars */
+.wastelanders ::-webkit-scrollbar { width: 9px; height: 9px; }
+.wastelanders ::-webkit-scrollbar-thumb { background: var(--pu-rust-3); border: 2px solid var(--pu-paper-2); border-radius: 5px; }
+.wastelanders ::-webkit-scrollbar-track { background: var(--pu-paper-2); }
+.wastelanders * { scrollbar-color: var(--pu-rust-3) var(--pu-paper-2); }
+
+/* ------------------------------------ chat cards ------------------------------------ */
+.chat-message .pust-chat, .chat-message .pust-card {
+  background: rgba(255,252,240,.9); color: var(--pu-ink); border: 1.5px solid var(--pu-ink-2); border-radius: 3px;
+  box-shadow: 2px 2px 0 rgba(35,27,17,.2); padding: 4px 6px; font-family: var(--pu-f-text); font-size: 13px;
+}
+.chat-message .pust-chat h3, .chat-message .pust-chat h4 {
+  margin: -4px -6px 4px; padding: 2px 6px; background: var(--pu-rust-2) var(--pu-noise); color: #f1e3c2; border: none;
+  font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .05em;
+}
+.chat-message .pust-chat b, .chat-message .pust-chat strong { color: var(--pu-rust-1); }
+
+/* round dice buttons with a caption («2 випадкові») stay plates */
+.wastelanders h3 :is(.pust-die, .pust-fold):not(.header-control) { width: auto !important; height: 24px; border-radius: 3px !important; padding: 0 8px !important; line-height: 22px !important; font-size: 11.5px !important; text-transform: none; letter-spacing: 0; }
+
+/* «Відпочити · −1 Припас»: a green plate (rest heals), unlike the rust main action and the olive travel check */
+.wastelanders button.pust-rest-btn:not(.header-control) {
+  background: linear-gradient(180deg, #3f8a47, #2c6533) !important; color: #f2f9e8 !important;
+  border-color: #173d1c !important; box-shadow: 0 2px 0 #173d1c, inset 0 1px 0 rgba(230,255,220,.3) !important;
+  font-weight: 800 !important; letter-spacing: .03em;
+}
+.wastelanders button.pust-rest-btn:disabled { filter: grayscale(.7); }
+
+/* aspects look like the book's: italic on an ochre highlight */
+.wastelanders .pust-aspect-text, .wastelanders .pust-sitchip > span:first-child, .wastelanders .pust-enemy .pust-chip {
+  background: #e2ad3b; color: #241a0c; font-style: italic; font-family: var(--pu-f-text); padding: 0 6px; border-radius: 1px;
+  box-decoration-break: clone; -webkit-box-decoration-break: clone;
+}

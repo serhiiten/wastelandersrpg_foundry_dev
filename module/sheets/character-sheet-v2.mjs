@@ -58,6 +58,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     context.v = buildView(st, d, L, this.ui);
     context.actor = this.document;
     context.tab = this.ui.tab;
+    context.quickFold = !!this.ui.quickFold;
     context.restUi = this.ui.rest;
     context.customKind = this.customKind;
     context.editable = this.isEditable;
@@ -77,6 +78,18 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   _onRender(context, options) {
     super._onRender(context, options);
     const root = this.element;
+    // aspects wrap: the field grows with its text; Enter doesn't add a line break (the value stays one line)
+    root.querySelectorAll(".pust-asp-ta").forEach((ta) => {
+      const fit = () => { ta.style.height = "auto"; ta.style.height = `${ta.scrollHeight + 2}px`; };
+      fit();
+      ta.addEventListener("input", () => {
+        if (/\n/.test(ta.value)) ta.value = ta.value.replace(/\n/g, " ");
+        fit();
+      });
+      ta.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); ta.blur(); } });
+    });
+    // «Видові властивості» folds; the sheet remembers it while open (closed again for a new window)
+    root.querySelector(".pust-props")?.addEventListener("toggle", (ev) => { this.ui.propsOpen = ev.currentTarget.open; });
     if (!this.isEditable) {
       root.querySelectorAll("input, select, textarea, button[data-action='act']").forEach((el) => (el.disabled = true));
       return;

@@ -34,7 +34,7 @@ export function openCheckPanel(actor, preset = {}) {
 class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["wastelanders", "pust-check"],
-    position: { width: 460, height: "auto" },
+    position: { width: 540, height: "auto" },
     window: { resizable: true, icon: "fa-solid fa-dice-d20" },
   };
 
@@ -53,6 +53,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   #load(L) {
     const saved = STATES.get(this.actor.uuid);
     if (saved) Object.assign(L.R, clone(saved));
+    L.R.fateMode = "char"; // Кістка Долі for this character only (author, 2026-11-13)
+    if (!saved) L.R.pool = { 6: 0, 8: 0, 10: 0 }; // «Кістки» (the HTML sheet's «Просто кубики») start empty (author, 2026-11-13)
     return L.R;
   }
   #save(L) {
@@ -85,7 +87,32 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   async _prepareContext() {
     const { L } = evaluate(this.actor);
     this.#load(L);
-    return { html: L.renderRoller() };
+    // Кістка Долі is rolled for this character only: no «Персонаж / Партія» switch (author, 2026-11-13)
+    // «Останні кидки» is left out: in Foundry every roll is already in the chat log (author, 2026-11-13)
+    const html = L.renderRoller()
+      .replace(/<details class="rhist"[\s\S]*?<\/details>/, "")
+      .replace(/<div class="seg" role="group" aria-label="Чия Удача">[\s\S]*?<\/div>/, "")
+      // no rule text under «Кістка Долі»; the result speaks to the player («на твою користь»)
+      .replace(/(<div class="rfate"><h3>Кістка Долі<\/h3>)<p class="rnote">[\s\S]*?<\/p>/, "$1")
+      .replace(/<em>на користь персонажів<\/em>/, "<em>на твою користь</em>")
+      .replace(/<em>не на користь персонажів<\/em>/, "<em>не на твою користь</em>")
+      // ready-made checks: the part in brackets («бій на відстані», «гранати») always on the button's second line
+      // ready-made checks in two lines: «СПР+Стрільба» / «бій на відстані», «ВП» / «фізична шкода»
+      .replace(/(<button type="button" class="chipb[^"]*"[^>]*>)([^<]*)(<\/button>)/g, (m, open, label, close) => {
+        const [, top, sub] = /^(.*?)\s*\((.*)\)\s*$/.exec(label) || /^(.*?)\s+—\s+(.*)$/.exec(label) || [null, label, ""];
+        return `${open}${top.replace(/\s*\+\s*/g, "+")}${sub ? `<small class="rsub">${sub}</small>` : ""}${close}`;
+      })
+      .replace('<div class="rpool"><h3>Просто кубики</h3>', '<div class="rpool"><h3>Кістки</h3>')
+      // invoking a situational aspect: «name», its free invokes as a green «+2» (as on the sheet), then «+1d10»
+      .replace(/(data-r="sitasp"[^>]*>)«([^»]*)»\s*<svg class="xcross"[\s\S]*?<\/svg>(\d+): \+1d10/g,
+        '$1<span class="rasp-name">$2</span><span class="rinv" title="Безкоштовних Посилень">+$3</span><span>+1d10</span>')
+      // the result's ranges (≤9 · 10–14 · 15–16 · 17+): the one the total fell into is lit
+      .replace(/(<div class="rres v(\d)"[\s\S]*?<div class="rverd"><b>[^<]*<\/b>)<small>([^<]*)<\/small>/, (m, head, v, ranges) =>
+        `${head}<span class="rranges">${ranges.split(" · ").map((r, i) => `<span class="${i === +v ? `hit v${v}` : ""}">${r}</span>`).join("")}</span>`)
+      // no «кидаєш 2d10…» line over the roll button; only the critical-success note stays, when there is one
+      .replace(/<p class="rnote">(?:кидаєш|нейтралізують)[^<]*((?:<b>[^<]*<\/b>)*)<\/p>(?=<button type="button" class="btn rust rgo")/,
+        (m, crit) => (crit ? `<p class="rnote">${crit.trim()}</p>` : ""));
+    return { html };
   }
 
   _onRender(context, options) {
@@ -168,7 +195,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   #chatFate(fate) {
     const ok = fate.total >= 6;
-    return this.#chat(`<h4>Кістка Долі</h4><p>${fate.v} ${fate.mod < 0 ? "−" : "+"} ${Math.abs(fate.mod)} (${fate.mode === "char" ? "Удача" : "Удача партії"}) = <b>${fate.total}</b></p><p>${ok ? "На користь персонажів" : "Не на користь персонажів"}</p>`);
+    return this.#chat(`<h4>Кістка Долі</h4><p>${fate.v} ${fate.mod < 0 ? "−" : "+"} ${Math.abs(fate.mod)} (${fate.mode === "char" ? "Удача" : "Удача партії"}) = <b>${fate.total}</b></p><p>${ok ? "На користь персонажа" : "Не на користь персонажа"}</p>`);
   }
 
   #chatPool(res) {

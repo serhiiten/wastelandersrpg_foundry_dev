@@ -1,9 +1,6 @@
-import WastelandersRollerApp from "../applications/roll.mjs";
-import WastelandersSheetSettings from "../applications/sheet-settings.mjs";
-import { exportCharacter, replaceCharacterFromFile } from "../applications/character-json.mjs";
-
 /**
- * Extend the basic ActorSheet
+ * The base of the enemy and counter sheets (AppV1). Characters and caravans have their own sheets
+ * (character-sheet-v2.mjs, caravan-sheet-v2.mjs).
  * @extends {ActorSheet}
  */
 export class WastelandersActorSheet extends foundry.appv1.sheets.ActorSheet {
@@ -51,49 +48,6 @@ export class WastelandersActorSheet extends foundry.appv1.sheets.ActorSheet {
     return context;
   }
 
-  _getHeaderButtons() {
-    // Get the default buttons from the parent class
-    const buttons = super._getHeaderButtons();
-
-    if (!this.actor.testUserPermission(game.user, "OBSERVER")) return buttons;
-
-    // Electronic character sheet files (.json)
-    if (this.actor.type === "character") {
-      buttons.unshift({
-        label: game.i18n.localize("WASTELANDERS.Json.Save"),
-        class: "wastelanders-json-save",
-        icon: "fa-solid fa-file-export",
-        onclick: () => exportCharacter(this.actor),
-      });
-      if (this.actor.isOwner) {
-        buttons.unshift({
-          label: game.i18n.localize("WASTELANDERS.Json.Open"),
-          class: "wastelanders-json-open",
-          icon: "fa-solid fa-file-import",
-          onclick: () => replaceCharacterFromFile(this.actor),
-        });
-      }
-    }
-
-    if (!CONFIG.WASTELANDERS.settingsSupported.includes(this.actor.type))
-      return buttons;
-
-    // Add a custom button for settings
-    buttons.unshift({
-      label: game.i18n.localize("WASTELANDERS.Settings.HeaderButton"),
-      class: "wastelanders-sheet-settings",
-      icon: "fa-solid fa-screwdriver-wrench",
-      onclick: () => {
-        const settingsForm = new WastelandersSheetSettings(this.actor, {
-          system: this.actor.system,
-        });
-        return settingsForm.render(true);
-      },
-    });
-
-    return buttons;
-  }
-
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
@@ -112,26 +66,8 @@ export class WastelandersActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
     });
 
-    // Count dot
-    html.find(".value-step-block").each(function () {
-      const value = Number(this.dataset.value);
-      $(this)
-        .find(".value-step")
-        .each(function (i) {
-          if (i + 1 <= value) {
-            $(this).addClass("active");
-          }
-        });
-    });
-
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
-
-    // Item checkbox in Actor Sheet
-    html.find(".item-checkbox").click(this._onItemCheckbox.bind(this));
-
-    // Roll dice
-    html.find(".rollable").click(this._onRoll.bind(this));
 
     // Add Item
     html.find(".item-create").click(this._onItemCreate.bind(this));
@@ -161,38 +97,6 @@ export class WastelandersActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /* -------------------------------------------- */
-
-  async _onItemCheckbox(event) {
-    const element = event.currentTarget;
-    const dataset = element.dataset;
-    const key = dataset.key;
-    const updateKey = "system." + key;
-
-    const parent = $(event.currentTarget).parents(".item");
-    const item = this.actor.items.get(parent.data("itemId"));
-
-    const checked = !item.system[key];
-    await item.update({ [updateKey]: checked });
-  }
-
-  /**
-   * Handle clickable rolls.
-   * @param {Event} the originating click event
-   * @private
-   */
-  _onRoll(event) {
-    event.preventDefault();
-    const element = event.currentTarget;
-    const dataset = element.dataset;
-
-    const rollApp = new WastelandersRollerApp({
-      type: dataset.type,
-      actor: this.actor,
-      note: dataset.note,
-    });
-
-    rollApp.render(true);
-  }
 
   /**
    * Handle creating a new Owned Item for the actor using initial data defined in the HTML dataset

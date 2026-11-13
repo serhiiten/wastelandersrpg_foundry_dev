@@ -13,22 +13,22 @@ const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
 const CONS = [
   ["l", "Легкий"], ["m", "Середній"], ["m2", "Середній (Міцний)"], ["h", "Тяжкий"],
 ];
-const ASPECTS = [["concept", "Концепція"], ["problem", "Проблема"], ["goal", "Мета"]];
+const ASPECTS = [["concept", "Концепція"], ["problem", "Проблема"], ["goal", "Ціль"]];
 /** The HTML sheet's «?» guide: 11 steps of character creation (text, tab to open) */
 const GUIDE = [
   ["Обери архетип. Цей крок необов'язковий, але архетип допоможе тобі визначитися з образом персонажа й наступними кроками створення.", "build"],
   ["Обери вид. Вид визначає мінімальні та максимальні значення атрибутів, дає видові особливості, а також сам по собі є аспектом.", "build"],
   ["Розподіли пункти атрибутів. Початкове значення кожного з семи атрибутів — 0, і в тебе є 3 вільні пункти. Знизиш атрибут нижче 0 — отримаєш додатковий пункт. На старті атрибути не можуть бути нижчими за −1 і вищими за +2, а максимум будь-якого атрибута — +3, але вид може змінювати ці межі. Або розподіли набір: +2, +2, +1, 0, 0, −1, −1.", "build"],
   ["Обери дві навички на рівні учня, або три, якщо граєш за людину.", "build"],
-  ["Обери два перки, або три, якщо граєш за людину.", "build"],
-  ["Обери від нуля до двох особливостей. Не забувай про видові особливості.", "build"],
+  ["Обери два перки, або три, якщо граєш за людину.", "perks"],
+  ["Обери від нуля до двох особливостей. Не забувай про видові особливості.", "perks"],
   ["Розрахуй очки здоров'я (ОЗ). На старті максимум ОЗ становить 15: +3 за кожну одиницю ВТР понад 0 і −3 за кожну нижче 0. Аркуш рахує ОЗ сам, разом із бонусами та штрафами від перків і особливостей.", "health"],
   ["Запиши жетони Долі (ЖД). На початку кожної ігрової сесії персонаж відновлює 2 + УДЧ жетонів Долі. Аркуш рахує це сам.", "health"],
   ["Дай персонажеві ім'я, зовнішність і аспекти. Кинь випадкові або вигадай самостійно.", "build"],
   ["Придбай спорядження. Кожен персонаж починає гру з 10 кришками на закупівлю та 3 одиницями Припасів. Крім того, один вид легкої зброї ти отримуєш безкоштовно.", "gear"],
   ["Кинь випадкову деталь персонажа.", "build"],
 ];
-const TAB_NAME = { build: "Персонаж", health: "Здоров'я та Доля", gear: "Мотлох" };
+const TAB_NAME = { build: "Атрибути й навички", perks: "Перки й особливості", xp: "Покращення", health: "Здоров'я", gear: "Мотлох" };
 /** The HTML sheet's catalogue sorting (app.js CAT_SORT) */
 const CAT_SORT = { price: "за ціною ↑", pdesc: "за ціною ↓", power: "за шкодою чи бронею", name: "за назвою" };
 const IMP_TARGET = { attr2: "attr", attr3: "attr", attr4: "attr", skill: "skill", skill2: "skill", skill3: "skill" };
@@ -57,6 +57,8 @@ export function buildView(st, d, L, ui = {}) {
       now, nowS: sgn(now), changed: now !== d.eff[k],
       bonus: d.bonus[k], imp: d.attrImp[k],
       range: `${sgn(b.min)} … ${sgn(b.start)} (макс. ${sgn(b.max)})`,
+      rStart: `${sgn(b.min)} … ${sgn(b.start)}`, rMax: sgn(b.max),
+      lim: { min: sgn(b.min), start: sgn(b.start), max: sgn(b.max) }, // the species' limits: minimum, at creation, maximum
       canUp: free || (st.base[k] + 1 <= d.allowMax[k] && d.left > 0),
       canDown: free || st.base[k] - 1 >= d.allowMin[k],
       chemNote: L.chemAttrNote(k),
@@ -132,6 +134,10 @@ export function buildView(st, d, L, ui = {}) {
   );
   const imps = IMPS.map((im) => ({
     k: im.k, label: `${im.ico} ${im.t}${im.sub ? ` (${im.sub})` : ""}`, cost: im.cost,
+    ico: im.ico, t: im.t, sub: im.sub || "",
+    // the HTML sheet shows the row's prices («10/15 ОД» when perks or skills change the price)
+    costLabel: [...new Set(d.xpCost.rows[im.k] || [im.cost])].join("/"),
+    taken: (st.imp[im.k] || []).filter((x) => x.on).length,
     slots: (st.imp[im.k] || []).map((x, i) => ({
       i, on: !!x.on, t: x.t || "", cost: d.xpCost.rows[im.k]?.[i] ?? im.cost,
       targets: IMP_TARGET[im.k] ? targetOptions(IMP_TARGET[im.k], x.t) : null,
@@ -153,6 +159,8 @@ export function buildView(st, d, L, ui = {}) {
 
   /* ---------- chems & rest ---------- */
   const rest = L.restInfo(d);
+  // «Швидкий доступ»: why resting is not possible now
+  const restBlock = rest.rested ? "Сьогодні вже відпочивали — наступний відпочинок після «Новий день»." : rest.sup <= 0 ? "Немає Припасів — відпочити не вийде." : "";
   const chem = {
     session: c.session, day: c.dayNo, scene: c.sceneNo,
     effects: [...c.scene.map((e) => ({ ...e, when: "сцена" })), ...c.day.map((e) => ({ ...e, when: "день" }))]
@@ -163,7 +171,7 @@ export function buildView(st, d, L, ui = {}) {
   };
 
   /* ---------- gear ---------- */
-  const energyOptions = (cur) => ENERGY_ORDER.map((k) => ({ v: k, n: k ? ENERGY[k]?.n || k : "—", sel: (cur || "") === k }));
+  const energyOptions = (cur) => ENERGY_ORDER.map((k) => ({ v: k, n: k ? ENERGY[k]?.n || k : "звичайна", sel: (cur || "") === k }));
   const opts = (map, cur) => Object.entries(map).map(([v, n]) => ({ v, n, sel: (cur || "") === v }));
   const weapons = st.weapons.map((w, i) => ({
     i, n: w.n || "", d: w.d || "", h: !!w.h, en: w.en || "", note: w.note || "", hand: !!w.hand, fav: !!w.fav,
@@ -221,6 +229,8 @@ export function buildView(st, d, L, ui = {}) {
     aspects: ASPECTS.map(([f, label], i) => ({ f, label, v: st[f] || "", i })), detail: st.detail || "",
     issues: d.issues.map(([lvl, msg]) => ({ lvl, msg })),
     chips: L.statusChips(d).map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
+    chipsGood: L.statusChips(d).filter(([cls]) => cls !== "bad").map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
+    chipsBad: L.statusChips(d).filter(([cls]) => cls === "bad").map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
     free,
     attrs, points: { left: d.left, total: d.points, spent: d.spent },
     skills, skillBudget,
@@ -231,7 +241,7 @@ export function buildView(st, d, L, ui = {}) {
     hasModel: d.has("Експериментальна модель"),
     hp: L.curHp(d), hpMax, hpRed: d.hpRed, fd, fdMax: d.fd,
     armor: d.armorTotal + L.chemArmor(), psi: d.psiTotal + L.chemPsi(),
-    cons, sit, quickAspects, defenses,
+    cons, sit, quickAspects, defenses, restBlock,
     supplies: parseInt(st.supplies, 10) || 0, supMax: d.supMax,
     supDots: Array.from({ length: d.supMax }, (_, j) => ({ n: j + 1, on: j < (parseInt(st.supplies, 10) || 0) })),
     caps: parseInt(st.caps, 10) || 0,
@@ -250,6 +260,7 @@ export function buildView(st, d, L, ui = {}) {
       ),
     })),
     loot: { yao: !!st.loot?.yao, egg: !!st.loot?.egg },
+    propsOpen: !!ui.propsOpen,
     guide: ui.guide ? GUIDE.map(([t, tab], i) => ({ n: i + 1, t, tab, tabName: TAB_NAME[tab] })) : null,
   };
 }

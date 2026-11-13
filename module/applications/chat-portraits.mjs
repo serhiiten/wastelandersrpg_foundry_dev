@@ -20,14 +20,9 @@ function isWebm(file) {
 
 // Preprocess chat message before it is created
 export function preprocessChatMessage(messageData, options, userId, diff) {
-  let portraitSource;
-
-  if (messageData.speaker.actor) {
-    const actor = game.actors.get(messageData.speaker.actor);
-    portraitSource = actor.img;
-  } else {
-    portraitSource = game.user.avatar;
-  }
+  // the speaking actor's picture (a deleted actor, e.g. a battle's enemy, falls back to the user's avatar)
+  const actor = messageData.speaker?.actor ? game.actors.get(messageData.speaker.actor) : null;
+  const portraitSource = actor?.img || game.user.avatar;
 
   messageData.updateSource({ flags: { portrait: { src: portraitSource } } });
 }

@@ -1,0 +1,186 @@
+/* «Зробити перевірку» in the system's one look (pust-ui.css). The panel's markup comes from the HTML
+   sheet's renderer (renderRoller in module/rules/logic.mjs); its classes are styled here, the HTML
+   sheet's own styles are not used. Sections are cards, choices are paper plates, the result is a screen. */
+.pust-check .window-content { padding: 0; overflow-y: auto; } /* the panel is taller than the window: it scrolls */
+.pust-check .pust-roller { display: flex; flex-direction: column; gap: 8px; padding: 8px 12px 14px; font-size: 13.5px; }
+.pust-check .pust-roller > * { margin: 0; }
+
+/* who rolls */
+.pust-roller .rwho { font-family: var(--pu-f-label); font-weight: 800; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--pu-ink); border-bottom: 2px solid var(--pu-ink); padding-bottom: 3px; }
+
+/* a labelled field: label above, control under it */
+.pust-roller .rgrp { display: flex; flex-direction: column; gap: 4px; }
+.pust-roller :is(.rgrp > label, .rgrp > .rl, .rpre > .rl, .rparty > label) {
+  font-family: var(--pu-f-label); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--pu-ink-2);
+}
+.pust-roller select { width: 100%; height: 30px !important; font-size: 14px; }
+.pust-roller .rintro { font-size: 12.5px; color: var(--pu-ink-2); line-height: 1.35; }
+
+/* ready-made checks: three groups, each a small card with its buttons */
+.pust-roller .rpre { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 5px; padding: 4px 6px; background: rgba(255,252,240,.7); border: 1px solid var(--pu-paper-3); border-left: 4px solid var(--pu-ink-3); border-radius: 3px; }
+.pust-roller .rpre > .rl { flex: 0 0 74px; font-size: 10.5px !important; line-height: 1.1; }
+.pust-roller .rpre:has(.atk) { border-left-color: var(--pu-red-ink); }
+.pust-roller .rpre:has(.dodge) { border-left-color: var(--pu-steel-3); }
+.pust-roller .rpre.psi { border-left-color: #6b4fa0; }
+.pust-roller .chipb { font-size: 11.5px !important; padding: 0 6px !important; line-height: 21px !important; }
+.pust-roller .travelb { align-self: flex-start; }
+.pust-roller .travelb .ico, .pust-roller .ico { display: inline-flex; vertical-align: -2px; margin-right: 4px; }
+.pust-roller .ico svg { width: 14px; height: 14px; }
+
+/* attribute: 7 plates, abbreviation and value; the chosen one lit */
+.pust-roller .rats { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.pust-roller .rat { display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 0; height: 38px !important; min-width: 0; padding: 1px 2px !important; line-height: 1.05 !important; }
+.pust-roller .rat b { font-family: var(--pu-f-label); font-weight: 800; font-size: 14px; letter-spacing: .03em; }
+.pust-roller .rat span { font-family: var(--pu-f-num); font-size: 12px; }
+.pust-roller .rwarn { color: var(--pu-red-ink); font-size: 12px; }
+
+/* Посилення · Послаблення · Модифікатор: three counters */
+.pust-roller .rmods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pust-roller .rstep { display: grid; grid-template-columns: 28px 1fr 28px; align-items: center; gap: 2px 4px; padding: 3px 6px 5px; background: var(--pu-sheet); border: 1px solid var(--pu-paper-3); border-top: 4px solid var(--pu-ink-3); border-radius: 3px; }
+.pust-roller .rstep.pos { border-top-color: var(--pu-good); }
+.pust-roller .rstep.neg { border-top-color: var(--pu-red-ink); }
+.pust-roller .rstep > span { grid-column: 1 / -1; text-align: center; font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-roller .rstep > button { width: 28px !important; height: 26px !important; padding: 0 !important; }
+.pust-roller .rstep > output { text-align: center; font-family: var(--pu-f-num); font-weight: 700; font-size: 18px; }
+
+/* small things */
+.pust-roller .tog { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--pu-ink); }
+.pust-roller .tog small { color: var(--pu-ink-3); }
+.pust-roller .ramods { display: flex; flex-direction: column; gap: 4px; padding: 6px 8px; background: rgba(255,216,74,.16); border: 1px dashed var(--pu-ink-3); border-radius: 3px; }
+.pust-roller .rnote { font-size: 12.5px; color: var(--pu-ink-2); line-height: 1.35; }
+.pust-roller .rhint { font-family: var(--pu-f-hand); font-size: 16px; color: var(--pu-red-ink); line-height: 1.2; }
+.pust-roller .chip { display: inline-block; background: var(--pu-olive); color: var(--pu-ink); border-radius: 2px; padding: 0 6px; font-size: 12px; }
+
+/* the roll button: the main action */
+.pust-roller .rgo, .pust-roller .btn.rust {
+  background: var(--pu-rust-2) var(--pu-noise) !important; color: var(--pu-yellow) !important; border-color: var(--pu-rust-0) !important;
+  box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 1px 0 rgba(255,225,190,.35) !important;
+  text-transform: uppercase; letter-spacing: .06em; font-weight: 800 !important;
+}
+.pust-roller .rgo { height: 40px; line-height: 38px !important; font-size: 15px !important; }
+
+/* the result: a screen */
+.pust-roller .rres {
+  display: flex; flex-direction: column; gap: 8px; padding: 10px 12px;
+  background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29); color: var(--pu-green);
+  border: 3px solid var(--pu-steel-0); border-radius: 6px; box-shadow: inset 0 0 18px rgba(0,0,0,.45);
+}
+.pust-roller .rres > * { margin: 0; }
+.pust-roller .rdice { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.pust-roller .die { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; padding: 0 4px; border-radius: 4px;
+  font-family: var(--pu-f-num); font-weight: 700; font-size: 16px; background: var(--pu-paper); color: var(--pu-ink); border: 2px solid var(--pu-paper-3); }
+/* the die: its value big, its type small underneath */
+.pust-roller .die { flex-direction: column; height: 38px; min-width: 34px; line-height: 1; gap: 1px; }
+.pust-roller .die b { font-size: 17px; }
+.pust-roller .die i { font-style: normal; font-size: 9.5px; opacity: .75; }
+.pust-roller .die.kept { background: #f4f0e2; color: var(--pu-ink); border-color: var(--pu-green); box-shadow: 0 0 0 1px var(--pu-green-dim), 0 0 8px rgba(61,255,71,.45); }
+.pust-roller .die.kept i { color: var(--pu-ink-3); opacity: 1; }
+.pust-roller .die.drop { opacity: .4; text-decoration: line-through; }
+.pust-roller .die.swapped { opacity: .6; border-style: dashed; }
+.pust-roller .die.skill { border-color: var(--pu-amber); }
+.pust-roller .die.aspect { border-color: var(--pu-orange); }
+.pust-roller .dsep { font-family: var(--pu-f-label); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-green-dim); margin: 0 2px; }
+.pust-roller .rsum { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.pust-roller .rform { font-family: var(--pu-f-num); font-size: 13px; color: var(--pu-green-dim); }
+.pust-roller .rtot { font-family: var(--pu-f-num); font-size: 30px; color: #b6ffb9; text-shadow: 0 0 10px rgba(61,255,71,.5); }
+.pust-roller .rverd { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 4px 8px; border-radius: 3px; background: rgba(0,0,0,.25); }
+.pust-roller .rverd b { font-family: var(--pu-f-label); font-weight: 800; font-size: 18px; text-transform: uppercase; letter-spacing: .05em; }
+.pust-roller .rverd small { font-family: var(--pu-f-num); font-size: 11.5px; color: var(--pu-green-dim); }
+.pust-roller .rres.v0 .rverd b { color: var(--pu-red); }
+.pust-roller .rres.v1 .rverd b { color: var(--pu-amber); }
+.pust-roller .rres.v2 .rverd b { color: var(--pu-green); }
+.pust-roller .rres.v3 .rverd b { color: #9ff6ff; text-shadow: 0 0 10px rgba(159,246,255,.6); }
+.pust-roller .rres :is(.rdesc, .rnote, .rsteps, .rfx, .rtraits, small) { color: #cfe9d2; }
+.pust-roller .rres .rhint { color: var(--pu-amber); }
+.pust-roller .rdesc { font-size: 13.5px; line-height: 1.4; }
+.pust-roller .rsteps { margin: 0; padding-left: 18px; font-size: 12px; }
+.pust-roller .rfx { border-top: 1px dashed var(--pu-steel-3); padding-top: 4px; font-size: 12.5px; }
+.pust-roller .rfx summary { cursor: pointer; font-family: var(--pu-f-label); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--pu-green); }
+.pust-roller .rfx h4 { color: var(--pu-amber); font-size: 11.5px; margin: 6px 0 2px; }
+.pust-roller .rfx ul, .pust-roller .rperk { margin: 0; padding-left: 18px; }
+.pust-roller .rasp { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; border-top: 1px dashed var(--pu-steel-3); padding-top: 7px; }
+.pust-roller .rasp .tog { color: #cfe9d2; }
+.pust-roller .rxp { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 3px; background: rgba(255,216,74,.14); border: 1px solid rgba(255,216,74,.4); color: var(--pu-amber); }
+.pust-roller .rxp.good { background: rgba(61,255,71,.1); border-color: rgba(61,255,71,.35); color: var(--pu-green); }
+.pust-roller .rxpb { display: inline-flex; gap: 5px; }
+
+/* damage inside the result: a paper card on the screen */
+.pust-roller .rdmg { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; background: var(--pu-paper); color: var(--pu-ink); border-radius: 4px; border-left: 5px solid var(--pu-red-ink); }
+.pust-roller .rdmg :is(.rnote, small, .rsteps, .rtraits) { color: var(--pu-ink-2); }
+.pust-roller .rdmg .rhint { color: var(--pu-red-ink); }
+.pust-roller .rdmg .dsep { color: var(--pu-ink-3); }
+.pust-roller .rdmg .rform { color: var(--pu-ink-2); }
+.pust-roller .rdmg .rtot { color: var(--pu-red-ink); text-shadow: none; font-size: 26px; }
+.pust-roller .rdmg .die.kept { background: var(--pu-rust-2); color: var(--pu-yellow); border-color: var(--pu-rust-0); box-shadow: none; }
+.pust-roller .rdmgsel, .pust-roller .rdopts { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.pust-roller .rdres { display: flex; flex-direction: column; gap: 5px; }
+
+/* Кістка Долі and Просто кубики: two cards */
+.pust-roller :is(.rfate, .rpool) { display: flex; flex-direction: column; gap: 7px; padding: 8px 10px 10px; background: rgba(255,252,240,.78); border: 1.5px solid var(--pu-ink-2); border-radius: 3px; box-shadow: 3px 3px 0 rgba(35,27,17,.22); }
+.pust-roller :is(.rfate, .rpool) > h3 { margin: 0; }
+.pust-roller :is(.rfate, .rpool) > .btn { align-self: flex-start; }
+.pust-roller .rfate .seg { display: inline-flex; align-self: flex-start; }
+.pust-roller .rfate .seg button { border-radius: 0 !important; margin-right: -1.5px; }
+.pust-roller .rfate .seg button:first-child { border-radius: 3px 0 0 3px !important; }
+.pust-roller .rfate .seg button:last-child { border-radius: 0 3px 3px 0 !important; }
+.pust-roller .rfate .seg button.on { background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)) !important; color: var(--pu-green) !important; border-color: var(--pu-steel-0) !important; }
+.pust-roller .rparty { display: flex; align-items: center; gap: 8px; }
+.pust-roller .rparty select { width: auto; }
+.pust-roller :is(.rfres, .rpres) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 5px; color: var(--pu-green);
+  background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)); border: 3px solid var(--pu-steel-0); }
+.pust-roller :is(.rfres, .rpres) b { font-family: var(--pu-f-num); font-size: 24px; color: #b6ffb9; }
+.pust-roller .rfres.bad b, .pust-roller .rfres.bad em { color: var(--pu-red); }
+.pust-roller .rfres em { font-style: normal; font-family: var(--pu-f-label); font-weight: 700; text-transform: uppercase; }
+.pust-roller .rfres > span { font-family: var(--pu-f-num); color: var(--pu-green-dim); }
+.pust-roller .rpsum { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; font-family: var(--pu-f-num); font-size: 13px; color: var(--pu-green-dim); }
+.pust-roller .rpsum b { font-size: 22px; margin-left: auto; }
+.pust-roller .rpres { flex-direction: column; align-items: stretch; }
+.pust-roller .rpool .rmods { grid-template-columns: repeat(3, 1fr); }
+
+/* history */
+.pust-roller .rhist { background: rgba(255,252,240,.6); border: 1px solid var(--pu-paper-3); border-radius: 3px; padding: 4px 8px; }
+.pust-roller .rhist summary { cursor: pointer; font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-roller .rhist ol { margin: 4px 0 2px; padding-left: 20px; font-size: 12.5px; }
+.pust-roller .rhist li b { font-family: var(--pu-f-num); margin-right: 4px; }
+.pust-roller .rhist li.v0 b { color: var(--pu-red-ink); }
+.pust-roller .rhist li.v3 b { color: var(--pu-good); }
+/* dice numbers stay dark on the light die, whatever box they sit in */
+.pust-roller :is(.rres, .rfres, .rpres, .rdmg) .die b { color: var(--pu-ink); font-size: 17px; text-shadow: none; }
+.pust-roller .rdmg .die.kept b { color: var(--pu-yellow); }
+/* ready-made checks: each group's buttons in one row; long names wrap inside the button */
+.pust-roller .rpre { flex-wrap: nowrap; align-items: stretch; }
+.pust-roller .rpre > .rl { align-self: center; }
+.pust-roller .rpre > .chipb { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.15 !important; padding: 3px 5px !important; height: auto !important; text-align: center; }
+/* «Просто кубики» result: the dice and «Разом» in one row; the per-type sums («3d6: 7») are left out */
+.pust-roller .rpres { flex-direction: row; align-items: center; flex-wrap: nowrap; }
+.pust-roller .rpres .rpsum { margin-left: auto; font-size: 0; gap: 0; }
+.pust-roller .rpres .rpsum b { font-size: 22px; margin-left: 0; white-space: nowrap; }
+/* the ready-made check's detail on its own line, smaller */
+.pust-roller .chipb .rsub { display: block; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; opacity: .8; text-transform: none; }
+/* Foundry lays buttons out as flex rows: put the ready-made check's second line under the first */
+.pust-roller .rpre > .chipb { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+/* a check box with a long sentence: the sentence flows as one paragraph beside the box */
+.pust-roller label.tog { display: block; padding-left: 24px; text-indent: -24px; line-height: 1.4; }
+.pust-roller label.tog > input { vertical-align: -3px; margin: 0 6px 0 0 !important; text-indent: 0; }
+/* «Перевірка подорожі»: its own olive plate (a road sign), different from the rust «Кинути перевірку» */
+.pust-roller .travelb {
+  background: linear-gradient(180deg, #8f8a50, #6f6a39) !important; color: #f6efd2 !important;
+  border-color: #3f3b1c !important; box-shadow: 0 2px 0 #3f3b1c, inset 0 1px 0 rgba(255,250,220,.3) !important;
+  font-weight: 800 !important; letter-spacing: .03em; padding: 0 12px !important;
+}
+.pust-roller .travelb svg { color: #f4d11a; }
+/* the verdict's ranges: four cells, the one the total fell into lit in the verdict's colour */
+.pust-roller .rranges { display: inline-flex; gap: 3px; margin-left: auto; }
+.pust-roller .rranges > span { font-family: var(--pu-f-num); font-size: 12px; padding: 1px 7px; border-radius: 3px; color: var(--pu-green-dim); border: 1px solid var(--pu-steel-3); }
+.pust-roller .rranges > span.hit { font-weight: 700; color: var(--pu-steel-0); border-color: transparent; }
+.pust-roller .rranges > .hit.v0 { background: var(--pu-red); }
+.pust-roller .rranges > .hit.v1 { background: var(--pu-amber); }
+.pust-roller .rranges > .hit.v2 { background: var(--pu-green); }
+.pust-roller .rranges > .hit.v3 { background: #9ff6ff; }
+/* the panel can't be squeezed below this (narrower, its rows of choices stop fitting) */
+.application.pust-check { min-width: 460px; }
+/* invoke buttons (aspect, situational aspect, mod): one line */
+.pust-roller .rasp > button { display: inline-flex !important; align-items: center; gap: 6px; white-space: nowrap; height: auto !important; min-height: 28px; line-height: 1.2 !important; padding: 3px 8px !important; }
+.pust-roller .rasp .rasp-name { background: #e2ad3b; color: #241a0c; font-style: italic; font-weight: 400; padding: 0 5px; }
+.pust-roller .rasp .rinv { background: #2f6b35; color: #e7ffd9; border-radius: 3px; padding: 0 5px; font-family: var(--pu-f-num); font-size: 12px; }
+.pust-roller .rasp .xcross { width: 10px; height: 10px; }

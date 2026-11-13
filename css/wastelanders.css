@@ -12,16 +12,6 @@
   border-width: 0;
 }
 
-.wastelanders-rolls {
-  font-family: "Scada", sans-serif;
-}
-.wastelanders-rolls .inputs-block div {
-  margin-bottom: 5px;
-}
-.wastelanders-rolls .inputs-block div label {
-  font-weight: bold;
-}
-
 .roll-message .roll-header {
   margin-bottom: 10px;
 }
@@ -38,30 +28,10 @@
   font-weight: bold;
 }
 
-.flex-group-left {
-  display: flex;
-  justify-content: flex-start;
-  text-align: left;
-}
-
-.flex-group-right {
-  display: flex;
-  justify-content: flex-end;
-  text-align: right;
-}
-
 .flex-group-center {
   display: flex;
   justify-content: center;
   text-align: center;
-}
-
-.flexshrink {
-  flex: 0;
-}
-
-.flex-between {
-  justify-content: space-between;
 }
 
 .flex-centration {
@@ -70,178 +40,10 @@
   align-items: center;
 }
 
-.flexlarge {
-  flex: 2;
-}
-
-.align-left {
-  justify-content: flex-start;
-  text-align: left;
-}
-
-.align-right {
-  justify-content: flex-end;
-  text-align: right;
-}
-
-.align-center {
-  justify-content: center;
-  text-align: center;
-}
-
 .grid-2col {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-}
-
-.grid-3col {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-4col {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-5col {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-6col {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-7col {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-8col {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-9col {
-  display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-  grid-column: span 9/span 9;
-  gap: 10px;
-}
-
-.grid-10col {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-11col {
-  display: grid;
-  grid-template-columns: repeat(11, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-12col {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.grid-start-2 {
-  grid-column-start: 2;
-}
-
-.grid-start-3 {
-  grid-column-start: 3;
-}
-
-.grid-start-4 {
-  grid-column-start: 4;
-}
-
-.grid-start-5 {
-  grid-column-start: 5;
-}
-
-.grid-start-6 {
-  grid-column-start: 6;
-}
-
-.grid-start-7 {
-  grid-column-start: 7;
-}
-
-.grid-start-8 {
-  grid-column-start: 8;
-}
-
-.grid-start-9 {
-  grid-column-start: 9;
-}
-
-.grid-start-10 {
-  grid-column-start: 10;
-}
-
-.grid-start-11 {
-  grid-column-start: 11;
-}
-
-.grid-start-12 {
-  grid-column-start: 12;
-}
-
-.grid-span-2 {
-  grid-column-end: span 2;
-}
-
-.grid-span-3 {
-  grid-column-end: span 3;
-}
-
-.grid-span-4 {
-  grid-column-end: span 4;
-}
-
-.grid-span-5 {
-  grid-column-end: span 5;
-}
-
-.grid-span-6 {
-  grid-column-end: span 6;
-}
-
-.grid-span-7 {
-  grid-column-end: span 7;
-}
-
-.grid-span-8 {
-  grid-column-end: span 8;
-}
-
-.grid-span-9 {
-  grid-column-end: span 9;
-}
-
-.grid-span-10 {
-  grid-column-end: span 10;
-}
-
-.grid-span-11 {
-  grid-column-end: span 11;
-}
-
-.grid-span-12 {
-  grid-column-end: span 12;
 }
 
 input.clear-input {
@@ -334,15 +136,7 @@ select.clear-select {
 .wastelanders .window-content {
   background: #e9dfc7;
 }
-.wastelanders .detail-window .detail-trigger {
-  cursor: pointer;
-}
-.wastelanders .detail-window .detail-block:not(.active) {
-  display: none;
-}
-.wastelanders .rollable:hover, .wastelanders .rollable:focus,
-.wastelanders .luck-roll:hover,
-.wastelanders .luck-roll:focus {
+.wastelanders .rollable:hover, .wastelanders .rollable:focus{
   cursor: pointer;
   color: black;
   color: var(--color-text-primary);
@@ -369,16 +163,6 @@ select.clear-select {
   height: 14px;
 }
 .wastelanders .value-step-block .value-dot.active {
-  background: black;
-}
-.wastelanders .value-step-block .value-box {
-  border: 1px solid black;
-  border-radius: 0;
-  background: white;
-  width: 12px;
-  height: 12px;
-}
-.wastelanders .value-step-block .value-box.active {
   background: black;
 }
 .wastelanders h1,
@@ -446,11 +230,6 @@ select.clear-select {
 .wastelanders .items-block .items-list .item .item-description .item-image:hover {
   background-image: url("/icons/svg/d20-black.svg") !important;
 }
-.wastelanders .items-block .items-list .item .item-description .item-checkbox {
-  margin: 0;
-  width: 15px;
-  height: 15px;
-}
 .wastelanders .items-block .items-list .item .item-description .item-name {
   cursor: pointer;
   margin-right: 3px;
@@ -483,13 +262,6 @@ select.clear-select {
   font-size: 12px;
   text-align: center;
 }
-.wastelanders .items-block .items-list .item .item-controls .item-control.item-equip {
-  transition: color 0.2s ease-in-out;
-  color: grey;
-}
-.wastelanders .items-block .items-list .item .item-controls .item-control.item-equip.active {
-  color: black;
-}
 .wastelanders .items-block .items-list .item.weapon .item-description,
 .wastelanders .items-block .items-list .item.attack .item-description {
   display: flex;
@@ -497,16 +269,6 @@ select.clear-select {
   flex-wrap: wrap;
 }
 .wastelanders .items-block .items-list .item.heavy .item-name {
-  font-weight: bold;
-}
-.wastelanders .items-block .items-list .item.not-met-requirements {
-  color: red;
-}
-.wastelanders .items-block .check-list .item .item-name {
-  color: gray;
-}
-.wastelanders .items-block .check-list .item.active .item-name {
-  color: black;
   font-weight: bold;
 }
 
@@ -583,24 +345,6 @@ select.clear-select {
   flex: 1;
   border-bottom: 1px solid #b5b3a4;
 }
-.wastelanders.actor .notes .exp-options th,
-.wastelanders.actor .notes .exp-options td {
-  padding: 0.25em;
-}
-
-.wastelanders.actor .character .sheet-header .name-block .prop {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  text-decoration: none;
-}
-.wastelanders.actor .character .sheet-header .name-block .prop input {
-  max-width: 160px;
-}
-.wastelanders.actor .character .sheet-header .name-block .prop .archetype {
-  text-align: right;
-}
 .wastelanders.actor .character .general-container {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) 2fr;
@@ -614,9 +358,6 @@ select.clear-select {
 .wastelanders.actor .character .general-container .attribute {
   font-size: x-large;
 }
-.wastelanders.actor .character .general-container .fate-points {
-  gap: 0;
-}
 .wastelanders.actor .character .general-container .prop {
   display: flex;
   justify-content: flex-start;
@@ -629,23 +370,12 @@ select.clear-select {
   flex: 1;
   border-bottom: 1px solid #b5b3a4;
 }
-.wastelanders.actor .character .inventory .heavy-tip {
-  font-weight: normal;
-  font-size: small;
-  font-family: "Scada", sans-serif;
-}
-.wastelanders.actor .character .inventory .heavy-tip.heavy-red {
-  color: red;
-}
 .wastelanders.actor .character .notes .experience {
   font-size: large;
   font-family: "Overseer", sans-serif;
 }
 
 .wastelanders.actor .caravan .general-container h2 {
-  text-align: center;
-}
-.wastelanders.actor .caravan .general-container .subheader {
   text-align: center;
 }
 
@@ -697,9 +427,6 @@ select.clear-select {
 }
 .wastelanders.item .items-header .header-fields .brief-info .prop {
   margin-top: 3px;
-}
-.wastelanders.item .sheet-body .editor-block {
-  flex: auto;
 }
 .wastelanders.item .sheet-body .linked-items {
   margin-bottom: 10px;
