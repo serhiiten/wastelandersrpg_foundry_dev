@@ -10,7 +10,7 @@
       "max": 5
     },
     "armor": 1,
-    "description": "<p>Звичайні розбійники, работоргівці, дикуни та інші заброди. Навіщо самому копирсатися в землі, якщо можна просто відібрати все у тих, хто копирсається в землі? Зазвичай зустрічаються бандами по 3-5 плюс ватажок.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>звичайний бандит.</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Звичайні розбійники, мафіозі, работоргівці, дикуни та інші заброди. Навіщо самому копирсатися в землі, якщо можна просто відібрати все в тих, хто копирсається? Зазвичай трапляються бандами по 3–5 осіб плюс ватажок.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Легка зброя</u> (1d6 фізичної шкоди, бій на відстані або ближній бій); <u>саморобна граната</u> (1d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.)</li>\n<li><strong>Аспект:</strong> <strong><em>звичайний головоріз.</em></strong></li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "fSk2dfQqgofbfg2q",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ближній бій або бій на відстані.</p>",
+        "description": "<p>1d6 фізичної шкоди, бій на відстані або ближній бій.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "aR1viKYeWB42is9U",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>1d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

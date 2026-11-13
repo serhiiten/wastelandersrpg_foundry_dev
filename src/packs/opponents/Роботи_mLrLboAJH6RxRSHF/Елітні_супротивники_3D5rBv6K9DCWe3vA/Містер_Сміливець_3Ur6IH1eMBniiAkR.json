@@ -10,7 +10,7 @@
       "max": 15
     },
     "armor": 2,
-    "description": "<p>Бойова версія Містера Помічника. Обладнаний посиленою бронею, плазмовим пістолетом та потужнішим вогнеметом, а також більш досконалим бойовим штучним інтелектом. Зустрічається на старих військових базах по 1-2 штуки.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>бойовий робот, характер та знання суворого сержанта.</strong></em></span></p><hr /><p>Летючий, тому його не можна <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збити з ніг</strong></em></span>.</p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Перегрів ядра:</strong> коли Містер Сміливець досягає 0 ОЗ, він вибухає, завдаючи всім істотам у своїй зоні 1d10 шкоди <em><strong>вогнем</strong></em>.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Бойова версія Містера Помічника з плазмовим пістолетом, потужнішим вогнеметом і досконалішим бойовим штучним інтелектом. Трапляється на старих військових базах, по одному-двоє.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 2 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Плазмовий пістолет</u> (1d6+3 фізичної шкоди, бій на відстані, ігнорує 2 броні); <u>вогнемет</u> (2d6 шкоди вогнем всім істотам в одній зоні, 2 заряди)</li>\n<li><strong>Аспекти:</strong> <strong><em>бойовий робот, вдача й вишкіл суворого сержанта.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Перегрів ядра:</strong> коли ОЗ Містера Сміливця падають до 0, він вибухає й завдає 1d10 шкоди вогнем усім істотам у своїй зоні.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "ErqXL9XQpsQOj0gW",
       "img": "assets/laser-blast.svg",
       "system": {
-        "description": "<p>Ігнорує 2 броні. Бій на відстані.</p>",
+        "description": "<p>1d6+3 фізичної шкоди, бій на відстані, ігнорує 2 броні.</p>",
         "damage": "1d6+3"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "RBG8wnrIOR0DUcCa",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>2d6 шкоди вогнем всім істотам в одній зоні, 2 заряди.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -172,12 +172,12 @@
       "_id": "Rb65vvTCSvbra51N",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>Коли Містер Сміливець досягає 0 ОЗ, він вибухає, завдаючи всім істотам у своїй зоні 1d10 шкоди <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>вогнем</strong></em></span>.</p>",
+        "description": "<p><em>Хід.</em> коли ОЗ Містера Сміливця падають до 0, він вибухає й завдає 1d10 шкоди вогнем усім істотам у своїй зоні.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 300000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

@@ -10,7 +10,7 @@
       "max": 35
     },
     "armor": 4,
-    "description": "<p>Великий вдосконалений гуманоїдний бойовий робот. Покритий композитною бронею та обладнаний важким озброєнням. Трапляються поодинці на занедбаних об'єктах підвищеної секретності.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> великий гуманоїдний бойовий робот, вдосконалені сенсори, неабияка сила.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Захисний протокол:</strong> раз за сцену ігнорує будь-яку щойно завдану йому шкоду.</li><li><strong>Силовий ривок:</strong> раз за сцену робить силовий ривок. Завдає 2d6 шкоди всім противникам у своїй зоні і <em><strong>збиває їх з ніг</strong></em>, а потім переміщується в сусідню зону, де може завдати 2d6 шкоди противнику та <em><strong>збити його з ніг.</strong></em></li><li><strong>Перегрів ядра:</strong> коли робот-вартовий досягає 0 ОЗ, він вибухає, завдаючи всім істотам у своїй зоні 1d10 шкоди <em><strong>вогнем</strong></em> + 1d6 шкоди радіацією (ігнорує броню).</li></ul><hr /><p>Після перемоги над роботом-вартовим ви можете зняти з нього <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>лазерний </strong></em></span>мініган (рідкісна зброя, 3d6 шкоди), а також уламки броні. Умілий технік за 20 кришок може зробити з них рідкісну важку броню (4 броні).</p></li></ul>",
+    "description": "<blockquote>\n<p>Великий удосконалений гуманоїдний бойовий робот, вкритий композитною бронею й обладнаний важким озброєнням. Трапляється поодинці на занедбаних об'єктах підвищеної секретності.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> бос</li>\n<li><strong>ОЗ:</strong> 35</li>\n<li><strong>Броня:</strong> 4</li>\n<li><strong>Шкода:</strong> <u>Лазерний мініган</u> (3d6 фізичної шкоди, бій на відстані, ігнорує 1 броні); <u>важка ракетниця</u> (3d6 фізичної шкоди всім істотам в одній зоні, 2 ракети)</li>\n<li><strong>Аспекти: <em>великий гуманоїдний бойовий робот, удосконалені сенсори, неабияка сила.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Захисний протокол:</strong> раз за сцену ігнорує шкоду, яку йому щойно завдали.</li>\n<li><strong>Силовий ривок:</strong> раз за сцену завдає 2d6 шкоди всім ворогам у своїй зоні й <strong><em>збиває їх з ніг</em></strong>, після чого переміщується в сусідню зону, де може завдати 2d6 шкоди одній цілі й <strong><em>збити її з ніг.</em></strong></li>\n<li><strong>Перегрів ядра:</strong> коли ОЗ робота-вартового падають до 0, він вибухає й завдає всім істотам у своїй зоні 1d10 шкоди вогнем + 1d6 шкоди радіацією, що ігнорує броню.</li>\n</ul>\n</li>\n</ul><blockquote class=\"aside\"><p>Після перемоги над роботом-вартовим із нього можна зняти лазерний мініган (рідкісна важка зброя, 3d6 шкоди, ігнорує 1 броні) та уламки броні. Умілий технік за 20 кришок може зробити з уламків рідкісну важку броню (4 броні).</p></blockquote>",
     "type": "boss"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "GMTxilc0Ki4SZXF7",
       "img": "assets/laser-blast.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Бій на відстані.</p>",
+        "description": "<p>3d6 фізичної шкоди, бій на відстані, ігнорує 1 броні.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "1dWkFhsvHi3Fk7fO",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>3d6 фізичної шкоди всім істотам в одній зоні, 2 ракети.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -172,12 +172,12 @@
       "_id": "A5N0FCGSuG2rYVHX",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Раз за сцену робить силовий ривок. Завдає 2d6 шкоди всім противникам у своїй зоні і <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збиває їх з ніг</strong></em></span>, а потім переміщується в сусідню зону, де може завдати 2d6 шкоди противнику та<span style=\"font-style:italic;font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><em><strong> збити його з ніг.</strong></em></span></p>",
+        "description": "<p><em>Хід.</em> раз за сцену завдає 2d6 шкоди всім ворогам у своїй зоні й збиває їх з ніг, після чого переміщується в сусідню зону, де може завдати 2d6 шкоди одній цілі й збити її з ніг.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 300000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -202,12 +202,12 @@
       "_id": "vbwbUIJvvD3vkHBV",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>Коли робот-вартовий досягає 0 ОЗ, він вибухає, завдаючи всім істотам у своїй зоні 1d10 шкоди <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>вогнем</strong></em></span> + 1d6 шкоди радіацією (ігнорує броню).</p>",
-        "damage": "1d10+1d6"
+        "description": "<p><em>Хід.</em> коли ОЗ робота-вартового падають до 0, він вибухає й завдає всім істотам у своїй зоні 1d10 шкоди вогнем + 1d6 шкоди радіацією, що ігнорує броню.</p>",
+        "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 400000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

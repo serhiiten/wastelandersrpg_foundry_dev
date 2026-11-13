@@ -10,7 +10,7 @@
       "max": 4
     },
     "armor": 0,
-    "description": "<p>Дресирований бійцівський собака. Зазвичай зустрічається разом зі своїми господарями групами по 2-3 особи.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> вірний пес з гострим нюхом.</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Дресирований бійцівський собака. Зазвичай трапляється разом із господарями, групами по 2–3 особини.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 4</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Ікла</u> (1d6+1 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспект: <em>вірний пес з гострим нюхом.</em></strong></li>\n</ul>",
     "type": "statistician"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "ggTFc5CoTxgv1Y6K",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d6+1 фізичної шкоди, ближній бій.</p>",
         "damage": "1d6+1"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

@@ -10,7 +10,7 @@
       "max": 12
     },
     "armor": 3,
-    "description": "<p>Плід збоченої фантазії вчених: гібрид робота та собаки. Більш живучий, небезпечний та відданіший за звичайного пса. Зустрічається разом зі своїми господарями із фракцій, які володіють новітніми технологіями.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>вірний кіберпес, наполовину машина.</strong></em></span></p><hr /><p><strong>Ходи:</strong></p><ul><li><strong>Кусь:</strong> у ближньому бою може зменшити завдану шкоду наполовину, але натомість за це <em><strong>збити супротивника з ніг</strong></em>.</li></ul>",
+    "description": "<blockquote>\n<p>Плід збоченої фантазії вчених — гібрид робота й собаки. Живучіший, небезпечніший і відданіший за звичайного пса. Трапляється разом із господарями з фракцій, що володіють новітніми технологіями.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Ікла</u> (1d10+1 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>вірний кіберпес, наполовину машина.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Кусь:</strong> атакуючи в ближньому бою, може завдати вдвічі меншої шкоди, щоб натомість <strong><em>збити ціль з ніг.</em></strong></li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Робо-ікла",
+      "name": "Ікла",
       "type": "attack",
-      "_id": "wXrVO3hGse89Qmh7",
+      "_id": "TqfvtmDk75R6RaTw",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d10+1 фізичної шкоди, ближній бій.</p>",
         "damage": "1d10+1"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768849395959,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!idQGq3hVyMS5XxX6.wXrVO3hGse89Qmh7"
+      "_key": "!actors.items!idQGq3hVyMS5XxX6.TqfvtmDk75R6RaTw"
     }
   ],
   "effects": [],

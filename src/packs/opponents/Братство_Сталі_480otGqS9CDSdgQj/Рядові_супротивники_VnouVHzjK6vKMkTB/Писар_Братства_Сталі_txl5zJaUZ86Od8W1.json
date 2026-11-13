@@ -10,7 +10,7 @@
       "max": 8
     },
     "armor": 2,
-    "description": "<p>Найнижчий ранг у ієрархії Братства. Займаються збиранням, відновленням та збереженням технологій Старого світу. Зазвичай переміщуються групами по 2-4 особи у супроводі лицарів або групи з 2-4 протектронів.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> писар Братства Сталі.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Критфікс:</strong> раз за сцену може повернути роботичного союзника з 0 ОЗ назад у сцену з 5 ОЗ, якщо його корпус не був повністю знищений.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Найнижчий ранг в ієрархії Братства. Писарі збирають, відновлюють і зберігають технології Старого світу. Зазвичай подорожують групами по 2–4 особи в супроводі лицарів або 2–4 протектронів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня лазерна зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.)</li>\n<li><strong>Аспект: <em>писар Братства Сталі.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Ребут:</strong> раз за сцену може повернути в сцену союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його корпус не знищено повністю.</li>\n</ul>\n</li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "iEG0WQIovmYVkJhq",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Ближній бій або бій на відстані.</p>",
+        "description": "<p>1d10 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "1dyOr6wHpbR7e9qf",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

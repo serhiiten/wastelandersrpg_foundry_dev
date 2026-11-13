@@ -10,7 +10,7 @@
       "max": 15
     },
     "armor": 3,
-    "description": "<p>Досвідчених ветеранів Легіону, що зуміли особливо відзначитися, підвищують до центуріонів. Вони командують військами Легіону в полі і мають доступ до кращого озброєння та техніки Легіону. Зустрічаються поодинці, але завжди в складі загону легіонерів.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> елітний воїн Легіону, знає стратегію та тактику ведення війни.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Децимація:</strong> раз за сцену може показово вбити одного легіонера у своїй зоні. Всі інші легіонери, які це бачать, негайно відновлюють 5 ОЗ та завдають +1 шкоди до кінця сцени.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Досвідчених ветеранів Легіону, які особливо відзначилися, підвищують до центуріонів. Центуріони командують військами в полі й мають доступ до найкращого озброєння та техніки Легіону. Трапляються поодинці, але завжди на чолі загону легіонерів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3 (бойова броня)</li>\n<li><strong>Шкода:</strong> <u>Середня енергетична зброя — термальний спис або плазмовий пістолет</u> (1d10+1 фізичної шкоди, бій на відстані або ближній бій, ігнорує 2 броні); <u>саморобні гранати</u> (1d6 фізичної шкоди всім істотам в одній зоні, 2 шт.) або <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, 1 шт.) — на вибір Доглядача</li>\n<li><strong>Аспекти: <em>елітний воїн Легіону, знає стратегію і тактику ведення війни.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Децимація:</strong> раз за сцену показово страчує одного легіонера у своїй зоні. Усі інші легіонери, які це бачать, негайно відновлюють 5 ОЗ і до кінця сцени завдають +1 шкоди.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Середня енергетична зброя",
+      "name": "Середня енергетична зброя — термальний спис або плазмовий пістолет",
       "type": "attack",
-      "_id": "Xg103UFpRdWLfQCM",
+      "_id": "UhFAsxinipXUDuSO",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ігнорує 2 броні. Середня енергетична зброя ближнього бою або бою на відстані.</p>",
+        "description": "<p>1d10+1 фізичної шкоди, бій на відстані або ближній бій, ігнорує 2 броні.</p>",
         "damage": "1d10+1"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,37 @@
         "modifiedTime": 1768951277662,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!pTnejsFTvRM54HPw.Xg103UFpRdWLfQCM"
+      "_key": "!actors.items!pTnejsFTvRM54HPw.UhFAsxinipXUDuSO"
+    },
+    {
+      "name": "Саморобні гранати",
+      "type": "attack",
+      "_id": "K5a3WcBqTrPu77rZ",
+      "img": "assets/bayonet.svg",
+      "system": {
+        "description": "<p>1d6 фізичної шкоди всім істотам в одній зоні, 2 шт.</p>",
+        "damage": "1d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200000,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders-dev",
+        "systemVersion": "0.3",
+        "createdTime": 1768951243050,
+        "modifiedTime": 1768951277662,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!pTnejsFTvRM54HPw.K5a3WcBqTrPu77rZ"
     },
     {
       "name": "Армійська граната",
@@ -142,12 +172,12 @@
       "_id": "NiYjWc742htOeCr2",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди всім істотам в одній зоні, 1 шт.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 300000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

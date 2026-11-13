@@ -10,7 +10,7 @@
       "max": 15
     },
     "armor": 3,
-    "description": "<p>Досвідчений офіцер Ши у бойовій броні їх власного виробництва та з якісною зброєю. Командує загонами рядових бійців (2-4) та має доступ до кращого спорядження.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>досвідчений офіцер Ши, відданість Імператору</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Розпад:</strong> коли капітан Ши своєю шкодою знижує ОЗ супротивника до 0, всі супротивники в його зоні отримують 1d10 <em><strong>енергетичної</strong></em> шкоди, яка ігнорує броню.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Досвідчений офіцер Ши в бойовій броні власного виробництва та з якісною зброєю. Командує загонами з 2–4 рядових і має доступ до найкращого спорядження.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3 (бойова броня Ши)</li>\n<li><strong>Шкода:</strong> <u>Середня лазерна зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>плазмова граната</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспекти:</strong> <strong><em>досвідчений офіцер Ши, відданість Імператору.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Розпад:</strong> коли капітан своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Лазерна середня зброя",
+      "name": "Середня лазерна зброя",
       "type": "attack",
-      "_id": "NpR6L4pWfqmHi5zC",
+      "_id": "s5Y6HKDQCd6Cd4s1",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Ближній бій або бій на відстані.</p>",
+        "description": "<p>1d10 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768952432725,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!cR1yeFHDkA64NRPk.NpR6L4pWfqmHi5zC"
+      "_key": "!actors.items!cR1yeFHDkA64NRPk.s5Y6HKDQCd6Cd4s1"
     },
     {
       "name": "Плазмова граната",
@@ -142,12 +142,12 @@
       "_id": "EdhEkelxS7EZgtye",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -165,6 +165,36 @@
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
       "_key": "!actors.items!cR1yeFHDkA64NRPk.EdhEkelxS7EZgtye"
+    },
+    {
+      "name": "Розпад",
+      "type": "attack",
+      "_id": "SpcIsnNqfjk6TSSp",
+      "img": "assets/bayonet.svg",
+      "system": {
+        "description": "<p><em>Хід.</em> коли капітан своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.</p>",
+        "damage": "1d10"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 300000,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders-dev",
+        "systemVersion": "0.3",
+        "createdTime": 1768952402629,
+        "modifiedTime": 1768952432725,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!cR1yeFHDkA64NRPk.SpcIsnNqfjk6TSSp"
     }
   ],
   "effects": [],

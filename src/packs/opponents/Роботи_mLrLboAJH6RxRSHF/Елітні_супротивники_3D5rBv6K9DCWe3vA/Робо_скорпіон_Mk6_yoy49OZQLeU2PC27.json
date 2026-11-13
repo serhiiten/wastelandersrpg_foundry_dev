@@ -10,7 +10,7 @@
       "max": 15
     },
     "armor": 3,
-    "description": "<p>Наче звичайних та роботичних скорпіонів Пустці було мало, дослідницький центр Біг-Маунтін вирішив випустити покращену (читай, більшу, злішу та небезпечнішу) лінійку моделі “Робо-скорпіон”. Діти, давайте разом подякуємо нашим “чудовим” вченим, хай їм грець. Зустрічаються поодинці або парами.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>великий робо-скорпіон, вкрай паскудні поведінкові матриці.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Рад-промінь:</strong> раз за сцену стріляє з хвоста направленим променем гамма-радіації. Завдає 2d6 шкоди радіацією (ігнорує броню) одному супротивнику.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Наче Пустці було мало звичайних скорпіонів і робо-скорпіонів, дослідницький центр Біг-Маунтін вирішив випустити покращену (читай: більшу, злішу й небезпечнішу) лінійку робо-скорпіонів. Діти, подякуймо разом нашим «чудовим» ученим, хай їм грець. Трапляються поодинці або парами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Клешні</u> (1d10 фізичної шкоди, ближній бій); <u>плазмовий хвіст</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 заряд)</li>\n<li><strong>Аспекти:</strong> <strong><em>великий робо-скорпіон, вкрай паскудні поведінкові матриці.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Рад-промінь:</strong> раз за сцену стріляє з хвоста спрямованим променем гамма-випромінювання й завдає одній цілі 2d6 шкоди радіацією, що ігнорує броню.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "SiJr1VBaGqxFzHll",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d10 фізичної шкоди, ближній бій.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -137,17 +137,17 @@
       "_key": "!actors.items!yoy49OZQLeU2PC27.SiJr1VBaGqxFzHll"
     },
     {
-      "name": "Плазмовий вибух",
+      "name": "Плазмовий хвіст",
       "type": "attack",
-      "_id": "9AJWBkzPiShp1Cb2",
-      "img": "assets/grenade.svg",
+      "_id": "MfAvuiobmWmZXyyJ",
+      "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>3d6 фізичної шкоди всім істотам в одній зоні, 1 заряд.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -160,11 +160,11 @@
         "coreVersion": "14.359",
         "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
-        "createdTime": 1768938790650,
-        "modifiedTime": 1768938840927,
+        "createdTime": 1768938790341,
+        "modifiedTime": 1768938814108,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!yoy49OZQLeU2PC27.9AJWBkzPiShp1Cb2"
+      "_key": "!actors.items!yoy49OZQLeU2PC27.MfAvuiobmWmZXyyJ"
     },
     {
       "name": "Рад-промінь",
@@ -172,12 +172,12 @@
       "_id": "WKKz6MSv8NA30kAo",
       "img": "assets/radioactive.svg",
       "system": {
-        "description": "<p>Раз за сцену стріляє з хвоста направленим променем гамма-радіації. Завдає 2d6 шкоди радіацією (ігнорує броню) одному супротивнику.</p>",
+        "description": "<p><em>Хід.</em> раз за сцену стріляє з хвоста спрямованим променем гамма-випромінювання й завдає одній цілі 2d6 шкоди радіацією, що ігнорує броню.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 300000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

@@ -10,7 +10,7 @@
       "max": 12
     },
     "armor": 2,
-    "description": "<p>Командир загону бійців НКР. Помітно краще навчений і озброєний, ніж рядові призовники. Зазвичай зустрічається разом із загоном рядових.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> командир загону бійців НКР, дисциплінований та навчений.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Перегрупуємось:</strong> раз за сцену може скомандувати своєму загону перегрупуватися. Усі бійці НКР, які чують цей наказ, можуть переміститися на одну зону, якщо їм нічого не заважає, і відновлюють по 3 ОЗ.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Командир загону НКР, помітно краще навчений та озброєний, ніж рядові призовники. Зазвичай трапляється разом зі своїм загоном.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій); <u>армійські гранати</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 шт.)</li>\n<li><strong>Аспекти: <em>командир загону бійців НКР, дисциплінований і вишколений.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Перегрупуймося:</strong> раз за сцену наказує своєму загону перегрупуватися. Усі бійці НКР, які чують наказ, відновлюють по 3 ОЗ і, якщо їм ніщо не заважає, можуть переміститися на одну зону.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "EVSIZP4RTDqvpXO5",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ближній бій або бій на відстані.</p>",
+        "description": "<p>1d10 фізичної шкоди, бій на відстані або ближній бій.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -137,17 +137,17 @@
       "_key": "!actors.items!dGbnMZ0Lg6JPtzZc.EVSIZP4RTDqvpXO5"
     },
     {
-      "name": "Армійська граната",
+      "name": "Армійські гранати",
       "type": "attack",
-      "_id": "CMSMURnYfgoKNOsh",
-      "img": "assets/grenade.svg",
+      "_id": "WprWpMDPuRd7MAFJ",
+      "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди всім істотам в одній зоні, 2 шт.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -160,11 +160,11 @@
         "coreVersion": "14.359",
         "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
-        "createdTime": 1768951875717,
-        "modifiedTime": 1768951912078,
+        "createdTime": 1768951875400,
+        "modifiedTime": 1768951892955,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!dGbnMZ0Lg6JPtzZc.CMSMURnYfgoKNOsh"
+      "_key": "!actors.items!dGbnMZ0Lg6JPtzZc.WprWpMDPuRd7MAFJ"
     }
   ],
   "effects": [],

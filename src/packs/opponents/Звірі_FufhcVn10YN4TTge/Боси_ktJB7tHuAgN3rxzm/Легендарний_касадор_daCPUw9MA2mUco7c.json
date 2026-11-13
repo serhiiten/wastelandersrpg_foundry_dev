@@ -10,7 +10,7 @@
       "max": 35
     },
     "armor": 3,
-    "description": "<p>На випадок, якщо звичайних касадорів вам було мало. Більше, зліше, швидше, отруйніше. Зустрічається виключно поодинці, але в супроводі 2-3 інших касадорів-самиць.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти: </strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>надзвичайно зла летюча комаха, потужна отрута, страхітливий вигляд.</strong></em></span></p><hr /><p><span style=\"color:rgb(25, 24, 19);font-family:Scada, sans-serif;font-size:14px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:normal;orphans:2;text-align:start;text-indent:0px;text-transform:none;widows:2;word-spacing:0px;-webkit-text-stroke-width:0px;white-space:normal;background-color:rgb(238, 238, 238);text-decoration-thickness:initial;text-decoration-style:initial;text-decoration-color:initial;display:inline !important;float:none\">Летючий, тому його не можна </span><span data-token-index=\"1\" class=\"notion-enable-hover\" style=\"box-sizing:border-box;user-select:text;scrollbar-width:thin;scrollbar-color:rgb(120, 46, 34) rgba(0, 0, 0, 0);color:rgb(25, 24, 19);font-family:Scada, sans-serif;font-size:14px;font-variant-ligatures:normal;font-variant-caps:normal;letter-spacing:normal;orphans:2;text-align:start;text-indent:0px;text-transform:none;widows:2;word-spacing:0px;-webkit-text-stroke-width:0px;white-space:normal;background-color:rgb(238, 238, 238);text-decoration-thickness:initial;text-decoration-style:initial;text-decoration-color:initial;font-style:italic;font-weight:600\"><em style=\"box-sizing:border-box;user-select:text;scrollbar-width:thin;scrollbar-color:rgb(120, 46, 34) rgba(0, 0, 0, 0)\"><strong style=\"box-sizing:border-box;user-select:text;scrollbar-width:thin;scrollbar-color:rgb(120, 46, 34) rgba(0, 0, 0, 0)\">збити з ніг</strong></em></span><span style=\"color:rgb(25, 24, 19);font-family:Scada, sans-serif;font-size:14px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:normal;orphans:2;text-align:start;text-indent:0px;text-transform:none;widows:2;word-spacing:0px;-webkit-text-stroke-width:0px;white-space:normal;background-color:rgb(238, 238, 238);text-decoration-thickness:initial;text-decoration-style:initial;text-decoration-color:initial;display:inline !important;float:none\">.</span></p><hr /><p><strong>Ходи:</strong></p><ul><li><strong>Отруйне жало:</strong> раз за сцену вражає супротивника отруйним жалом. Жертва отримує 1d10 шкоди отрутою щоразу, коли доходить її черга діяти, протягом 3 кіл. Ця шкода ігнорує броню.</li><li><strong>Політ:</strong> касадор злітає і може переміститися на відстань до двох зон без жодних перешкод. Також його не можна збити з ніг.</li><li><strong>Регенерація:</strong> один раз за сцену відновлює 2d6 ОЗ.</li></ul><hr /><p>З легендарного касадора можна зцідити його отруту. Киньте 1d6, якщо випало 1-2 ви знаходите одну дозу, 3-4 — 2 дози, 5-6 — 3 дози. Отрута легендарного касадора вважається <span style=\"text-decoration:underline;text-decoration-thickness:0.05em;text-decoration-color:rgba(55, 53, 47, 0.4);text-underline-offset:10%;opacity:0.7\" class=\"link-annotation-unknown-block-id-1603543801\"><a href=\"/21de66cd8c7880ce8f72dbd763b7183c?pvs=25\" style=\"cursor:pointer;color:inherit;word-wrap:break-word;text-decoration:inherit\" class=\"notion-link-token notion-focusable-token notion-enable-hover\" rel=\"noopener noreferrer\" data-token-index=\"1\" tabindex=\"0\">смертельною отрутою</a></span>. Деяким племенам дикунів можна продати таку отруту по 10 кришок, оскільки вони використовують її у шаманських обрядах посвяти.</p>",
+    "description": "<blockquote>\n<p>На випадок, якщо звичайних касадорів вам було мало. Більший, зліший, швидший, отруйніший. Трапляється лише поодинці, проте завжди в супроводі 2–3 звичайних касадорів-самиць.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> бос</li>\n<li><strong>ОЗ:</strong> 35</li>\n<li><strong>Броня:</strong> 3 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Жало</u> (2d6 фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню)</li>\n<li><strong>Аспекти: <em>надзвичайно злісна летюча комаха, потужна отрута, страхітливий вигляд.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Отруйне жало:</strong> раз за сцену вражає ціль отруйним жалом. Протягом 3 кіл жертва отримує 1d10 шкоди від отрути щоразу, коли настає її черга діяти. Ця шкода ігнорує броню.</li>\n<li><strong>Політ:</strong> касадор злітає й переміщується на відстань до двох зон, оминаючи будь-які перешкоди.</li>\n<li><strong>Регенерація:</strong> один раз за сцену відновлює 2d6 ОЗ.</li>\n</ul>\n</li>\n</ul><blockquote class=\"aside\"><p>З легендарного касадора можна зцідити отруту. Кинь 1d6: якщо випаде 1–2, вдається добути одну дозу, якщо 3–4 — дві, якщо 5–6 — три. Отрута легендарного касадора вважається смертельною отрутою. Деякі племена дикунів купують її по 10 кришок за дозу, бо використовують у шаманських обрядах посвяти.</p></blockquote>",
     "type": "boss"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Легендарне жало",
+      "name": "Жало",
       "type": "attack",
-      "_id": "Z7lCG5oZwm4dwzN2",
+      "_id": "Rslj2N5E4ydtjeS5",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>+ 1d6 шкоди отрутою (ігнорує броню). Ближній бій.</p>",
-        "damage": "2d6+1d6"
+        "description": "<p>2d6 фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню.</p>",
+        "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,37 @@
         "modifiedTime": 1768865804168,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!daCPUw9MA2mUco7c.Z7lCG5oZwm4dwzN2"
+      "_key": "!actors.items!daCPUw9MA2mUco7c.Rslj2N5E4ydtjeS5"
+    },
+    {
+      "name": "Отруйне жало",
+      "type": "attack",
+      "_id": "CXp5cAf30tz8Oy7e",
+      "img": "assets/bowie-knife.svg",
+      "system": {
+        "description": "<p><em>Хід.</em> раз за сцену вражає ціль отруйним жалом. Протягом 3 кіл жертва отримує 1d10 шкоди від отрути щоразу, коли настає її черга діяти. Ця шкода ігнорує броню.</p>",
+        "damage": "1d10"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200000,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders-dev",
+        "systemVersion": "0.3",
+        "createdTime": 1768849869585,
+        "modifiedTime": 1768865804168,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!daCPUw9MA2mUco7c.CXp5cAf30tz8Oy7e"
     }
   ],
   "effects": [],

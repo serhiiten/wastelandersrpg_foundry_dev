@@ -1,6 +1,6 @@
 {
   "folder": "BTkasQzsQi28Rb5v",
-  "name": "Штурмовик НКР",
+  "name": "Штурмовик армії НКР",
   "type": "enemy",
   "_id": "y2W4kO1G8q87B1iP",
   "img": "systems/wastelanders-dev/assets/shturmovyk-nkr.png",
@@ -10,7 +10,7 @@
       "max": 20
     },
     "armor": 4,
-    "description": "<p>Важкоозброєний ветеран, закутий в силову броню, з якої механіки НКР витягли силовий каркас. Зустрічаються парами на передовій найзапекліших сутичок або як охоронці найбільш важливих об’єктів НКР.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> важкоозброєний піхотинець НКР, честь та навички досвідченого ветерана.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Суперстимпак:</strong> раз за сцену відновлює 1d6+4 ОЗ.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Важкоозброєний ветеран, закутий у силову броню, з якої механіки НКР вийняли силовий каркас. Трапляються парами на передовій найзапекліших боїв або охороняють найважливіші об'єкти НКР.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 20</li>\n<li><strong>Броня:</strong> 4 — силова броня без каркасу (рідкісна важка броня)</li>\n<li><strong>Шкода:</strong> <u>Важка зброя</u> (2d6 фізичної шкоди, бій на відстані або ближній бій); <u>армійські гранати</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 шт.)</li>\n<li><strong>Аспекти: <em>важкоозброєний піхотинець НКР, честь та навички досвідченого ветерана.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Суперстимпак:</strong> раз за сцену відновлює 1d6+4 ОЗ.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "pav4gmHljVyozxHq",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ближній бій або бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди, бій на відстані або ближній бій.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -137,17 +137,17 @@
       "_key": "!actors.items!y2W4kO1G8q87B1iP.pav4gmHljVyozxHq"
     },
     {
-      "name": "Армійська граната",
+      "name": "Армійські гранати",
       "type": "attack",
-      "_id": "924l8pVJhoIntNyz",
-      "img": "assets/grenade.svg",
+      "_id": "FyNyi5VWRR1Y0eMu",
+      "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди всім істотам в одній зоні, 2 шт.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -160,11 +160,11 @@
         "coreVersion": "14.359",
         "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
-        "createdTime": 1768952040021,
-        "modifiedTime": 1768952073216,
+        "createdTime": 1768952039809,
+        "modifiedTime": 1768952053586,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!y2W4kO1G8q87B1iP.924l8pVJhoIntNyz"
+      "_key": "!actors.items!y2W4kO1G8q87B1iP.FyNyi5VWRR1Y0eMu"
     }
   ],
   "effects": [],

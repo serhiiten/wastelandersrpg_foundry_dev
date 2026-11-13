@@ -10,7 +10,7 @@
       "max": 15
     },
     "armor": 3,
-    "description": "<p>Важкоозброєний боєць Анклаву. Вважає себе кращим за всіх інших жителів Пустки і ненавидить мутантів. Зустрічаються групами по 2-3.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> важкоозброєний боєць Анклаву, ненавиджу, бляха, мутантів.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Улюблений ворог:</strong> завдає на 2 шкоди більше мутантам, супермутантам та гулям.</li><li><strong>Стимпак:</strong> один раз за сцену відновлює 5 ОЗ.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Важкоозброєний боєць Анклаву. Вважає себе кращим за всіх інших жителів Пустки й ненавидить мутантів. Трапляються групами по 2–3 бійці.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3 (бойова броня)</li>\n<li><strong>Шкода:</strong> <u>Важка лазерна зброя</u> (2d6 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>плазмова граната</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспекти: <em>важкоозброєний боєць Анклаву, «ненавиджу, бляха, мутантів».</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Улюблений ворог:</strong> завдає на 2 шкоди більше мутантам, супермутантам та гулям.</li>\n<li><strong>Стимпак:</strong> один раз за сцену відновлює 5 ОЗ.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "FQ8W9SQ3T4OYwIuu",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Ближній бій або бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "0y46g0wonh2g8vpJ",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

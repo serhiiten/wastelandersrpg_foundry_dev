@@ -1,6 +1,6 @@
 {
   "folder": "01vnbS0DjgwV8TAm",
-  "name": "Ватажок",
+  "name": "Ватажки бандитів, мафіозі, рейдерів, дикунів",
   "type": "enemy",
   "_id": "Gf24GqWqw1gBjhZc",
   "img": "systems/wastelanders-dev/assets/vatazhok-reyderiv-2.png",
@@ -10,7 +10,7 @@
       "max": 12
     },
     "armor": 2,
-    "description": "<p>Найбільший, найзліший та/або найрозумніший з усієї ватаги ідіотів. Після його смерті решта банди зазвичай розбігається. На одну банду припадає один ватажок.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> ватажок банди, має незаперечний авторитет серед своїх.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Стимпак:</strong> раз за сцену відновлює 5 ОЗ.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Найбільший, найзліший та/або найрозумніший з усієї ватаги ідіотів. Після його смерті решта банди зазвичай розбігається. На одну банду припадає один ватажок.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій); <u>саморобні гранати</u> (1d6 фізичної шкоди всім істотам в одній зоні, 2 шт.) або <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, 1 шт.) — на вибір Доглядача</li>\n<li><strong>Аспекти: <em>ватажок банди, має незаперечний авторитет серед своїх.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Стимпак:</strong> раз за сцену відновлює 5 ОЗ.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "LQFbNG36kQ4rx4AO",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ближній бій або бій на відстані.</p>",
+        "description": "<p>1d10 фізичної шкоди, бій на відстані або ближній бій.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -137,17 +137,47 @@
       "_key": "!actors.items!Gf24GqWqw1gBjhZc.LQFbNG36kQ4rx4AO"
     },
     {
+      "name": "Саморобні гранати",
+      "type": "attack",
+      "_id": "Kj3FjQd8QppZeTGU",
+      "img": "assets/bayonet.svg",
+      "system": {
+        "description": "<p>1d6 фізичної шкоди всім істотам в одній зоні, 2 шт.</p>",
+        "damage": "1d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200000,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders-dev",
+        "systemVersion": "0.3",
+        "createdTime": 1768950717307,
+        "modifiedTime": 1768950754657,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!Gf24GqWqw1gBjhZc.Kj3FjQd8QppZeTGU"
+    },
+    {
       "name": "Армійська граната",
       "type": "attack",
       "_id": "PgvxOIbKunTtKPiK",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди всім істотам в одній зоні, 1 шт.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 300000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

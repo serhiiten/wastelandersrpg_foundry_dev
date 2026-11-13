@@ -10,7 +10,7 @@
       "max": 13
     },
     "armor": 2,
-    "description": "<p>Те, що стається з людиною, коли її тіло повністю захоплює колонія агресивного мутованого грибка. Спороносці - агресивні зеленошкірі створіння, що люблять вологу та підземелля і чудово маскуються. Не один Пустельник склеїв ласти, від того що запізно помітив, що в цих зелених хащах, де він присів по справах, він не на самоті. Зустрічаються зграями по 2-3.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> агресивна людиноподібна рослина, чудово маскується.</strong></em></span></p><hr /><p><strong>Ходи:</strong></p><ul><li><strong>Непомітність:</strong> спороносців дуже складно помітити якщо вони вичікують нерухомо серед хащів рослин. Будь-яка спроба їх помітити, якщо вони замасковані, має Послаблення.</li><li><strong>Споровий вибух:</strong> раз за сцену може випустити хмару отруйних спор. Хмара завдає 1d10 шкоди отрутою (ігнорує броню) та <em><strong>засліплює</strong></em> всіх супротивників в його зоні.</li></ul><hr /><p>Зі спороносців можна зцідити їхню отруту. Киньте 1d6, якщо випало 3-4 — ви знаходите 1 дозу, 5-6 — 2 дози. Отрута спороносця вважається <span style=\"text-decoration:underline;text-decoration-thickness:0.05em;text-decoration-color:rgba(55, 53, 47, 0.4);text-underline-offset:10%;opacity:0.7\" class=\"link-annotation-unknown-block-id-1603543801\"><a href=\"/21de66cd8c7880ce8f72dbd763b7183c?pvs=25\" style=\"cursor:pointer;color:inherit;word-wrap:break-word;text-decoration:inherit\" class=\"notion-link-token notion-focusable-token notion-enable-hover\" rel=\"noopener noreferrer\" data-token-index=\"1\" tabindex=\"0\">середньою отрутою</a></span>.</p>",
+    "description": "<blockquote>\n<p>Те, на що перетворюється людина, коли її тіло повністю захоплює колонія агресивного мутованого грибка. Спороносці — люті зеленошкірі створіння, які люблять вологу й підземелля та чудово маскуються. Не один Пустельник склеїв ласти, надто пізно помітивши, що в зелених хащах, де він присів у своїх справах, він не на самоті. Трапляються групами по 2–3 особини.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 13</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Пазурі</u> (1d10 фізичної шкоди + 2 шкоди отрутою, ближній бій, отрута ігнорує броню)</li>\n<li><strong>Аспекти: <em>людиноподібне грибкове створіння, майстер маскування.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Непомітність:</strong> спороносця дуже складно помітити, коли він нерухомо чатує серед заростей. Будь-яка спроба помітити замаскованого спороносця отримує Послаблення.</li>\n<li><strong>Споровий вибух:</strong> раз за сцену випускає хмару отруйних спор. Хмара завдає 1d10 шкоди отрутою, що ігнорує броню, і <strong><em>засліплює</em></strong> всіх ворогів у зоні спороносця.</li>\n</ul>\n</li>\n</ul><blockquote class=\"aside\"><p>Зі спороносця можна зцідити отруту. Кинь 1d6: якщо випаде 3–4, вдається добути одну дозу, якщо 5–6 — дві. Отрута спороносця вважається середньою отрутою.</p></blockquote>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Отруйні кігті",
+      "name": "Пазурі",
       "type": "attack",
-      "_id": "JGmsXXilMEtZ2Z6M",
+      "_id": "hZh7edewWgYrihPq",
       "img": "assets/poison-bottle.svg",
       "system": {
-        "description": "<p>+2 шкоди отрутою (ігнорує броню). Ближній бій.</p>",
-        "damage": "1d10+2"
+        "description": "<p>1d10 фізичної шкоди + 2 шкоди отрутою, ближній бій, отрута ігнорує броню.</p>",
+        "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768866700475,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!hB5ff7Vavbz8l6U5.JGmsXXilMEtZ2Z6M"
+      "_key": "!actors.items!hB5ff7Vavbz8l6U5.hZh7edewWgYrihPq"
     },
     {
       "name": "Споровий вибух",
@@ -142,12 +142,12 @@
       "_id": "YFd0v6vqhZaK9fJt",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>Раз за сцену може випустити хмару отруйних спор. Хмара завдає 1d10 шкоди отрутою (ігнорує броню) та <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>засліплює</strong></em></span> всіх супротивників в його зоні.</p>",
+        "description": "<p><em>Хід.</em> раз за сцену випускає хмару отруйних спор. Хмара завдає 1d10 шкоди отрутою, що ігнорує броню, і засліплює всіх ворогів у зоні спороносця.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

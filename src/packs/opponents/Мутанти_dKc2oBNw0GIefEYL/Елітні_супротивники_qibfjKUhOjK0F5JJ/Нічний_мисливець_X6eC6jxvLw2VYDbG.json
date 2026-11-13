@@ -10,7 +10,7 @@
       "max": 12
     },
     "armor": 1,
-    "description": "<p>Моторошний мутант з тілом койота, мордою змії та гадючою тріскачкою на хвості. Справжня чупакабра. Вміє ненадовго ставати невидимим завдяки дивній мутації. Зустрічається в печерах групами по 2-4.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> небезпечний та потайливий хижак, передбачує небезпеку.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Стелс-койот:</strong> раз за сцену може стати <em><strong>невидимим</strong></em> і переміститися на відстань до двох зон без жодних перешкод, після чого завдати противнику шкоди (від цього він знову стане видимим) або втекти з безнадійної сутички.</li></ul><hr /><p>З нічних мисливців можна зцідити їхню отруту. Киньте 1d6, якщо випало 3-4 — ви знаходите 1 дозу, 5-6 — 2 дози. Отрута нічного мисливця вважається <span style=\"text-decoration:underline;text-decoration-thickness:0.05em;text-decoration-color:rgba(55, 53, 47, 0.4);text-underline-offset:10%;opacity:0.7\" class=\"link-annotation-unknown-block-id-1603543801\"><a href=\"/21de66cd8c7880ce8f72dbd763b7183c?pvs=25\" style=\"cursor:pointer;color:inherit;word-wrap:break-word;text-decoration:inherit\" class=\"notion-link-token notion-focusable-token notion-enable-hover\" rel=\"noopener noreferrer\" data-token-index=\"1\" tabindex=\"0\">середньою отрутою</a></span>.</p></li></ul>",
+    "description": "<blockquote>\n<p>Моторошний мутант із тілом койота, зміїною головою та брязкальцем гримучої змії на хвості. Справжня чупакабра. Завдяки дивній мутації вміє ненадовго ставати невидимим. Трапляється в печерах групами по 2–4 особини.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Укус</u> (1d6 фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню)</li>\n<li><strong>Аспекти: <em>потайливий хижак, передбачує небезпеку.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Стелс-койот:</strong> раз за сцену стає <strong><em>невидимим</em></strong> і переміщується на відстань до двох зон, оминаючи будь-які перешкоди. Після цього може або атакувати ціль, від чого знову стає видимим, або втекти з безнадійного бою.</li>\n</ul>\n</li>\n</ul><blockquote class=\"aside\"><p>З нічного мисливця можна зцідити отруту. Кинь 1d6: якщо випаде 3–4, вдається добути одну дозу, якщо 5–6 — дві. Отрута нічного мисливця вважається середньою отрутою.</p></blockquote>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Отруйний укус",
+      "name": "Укус",
       "type": "attack",
-      "_id": "DJjIkzu2Fs3zpMly",
+      "_id": "RqmSsvo3U7wqKIfw",
       "img": "assets/poison-bottle.svg",
       "system": {
-        "description": "<p>+ 1d6 шкоди отрутою (ігнорує броню). Ближній бій.</p>",
-        "damage": "1d6+1d6"
+        "description": "<p>1d6 фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню.</p>",
+        "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768866662010,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!X6eC6jxvLw2VYDbG.DJjIkzu2Fs3zpMly"
+      "_key": "!actors.items!X6eC6jxvLw2VYDbG.RqmSsvo3U7wqKIfw"
     }
   ],
   "effects": [],

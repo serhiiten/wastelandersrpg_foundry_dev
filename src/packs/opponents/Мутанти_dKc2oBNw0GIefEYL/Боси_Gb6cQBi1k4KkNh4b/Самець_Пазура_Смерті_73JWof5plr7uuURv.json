@@ -10,7 +10,7 @@
       "max": 35
     },
     "armor": 3,
-    "description": "<p>Король всіх тварюк Пустки, найнебезпечніша істота після людини на багато сотень миль довкола. Гігантський прямохідний мутант-хамелеон Джексона. Має надзвичайно гострі пазурі і настільки ж небезпечні роги. Ревно охороняє свою територію, і особливо дитинчат. Двічі подумайте перед тим, як лізти з ним у бійку. Зустрічається поодинці або з невеликим виводком малечі.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> величезна ящірка-мутант, жахаюче гострі пазурі, найстрашніша тварюка у Пустці.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Підйом-переворот:</strong> раз за сцену Пазур Смерті може кинути одного персонажа зі своєї зони в іншого, що знаходиться у тій же або сусідній зоні. Обидва отримують 2d6 шкоди</li><li><strong>Ривок:</strong> Пазур Смерті робить потужний ривок на відстань до сусідньої зони, після чого може завдати шкоди одному противнику, що знаходиться там, і <em><strong>збити його з ніг.</strong></em></li><li><strong>Живучість:</strong> раз за сцену, якщо завдана шкода зменшує ОЗ Кігтя Смерті до 0, він вперто залишається живим з 5 ОЗ.</li></ul><hr /><p>З пари лап дорослого самця Пазура Смерті досить вмілий зброяр за 10 кришок може створити на ваш вибір або <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>рідкісну </strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>важку</strong></em></span><span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong> </strong></span>зброю ближнього бою, або зброю ближнього бою зі шкодою 2d6, яка не вважається<span style=\"font-style:italic;font-weight:600\" data-token-index=\"5\" class=\"notion-enable-hover\"><em><strong> важкою</strong></em></span>.</p></li></ul>",
+    "description": "<blockquote>\n<p>Король усіх тварюк Пустки, найнебезпечніша після людини істота на сотні миль довкола. Гігантський прямохідний мутований хамелеон Джексона з надзвичайно гострими пазурями й не менш небезпечними рогами. Ревно охороняє свою територію, а надто дитинчат. З ним варто двічі подумати, перш ніж лізти в бійку. Трапляється поодинці або з невеликим виводком малечі.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> бос</li>\n<li><strong>ОЗ:</strong> 35</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Пазурі</u> (2d6+3 фізичної шкоди, ближній бій, ігнорує 2 броні)</li>\n<li><strong>Аспекти: <em>величезна ящірка-мутант, жахливо гострі пазурі, найстрашніша тварюка у Пустці.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Підйом-переворот:</strong> раз за сцену хапає ціль у своїй зоні й жбурляє її в іншого персонажа в тій самій або сусідній зоні. Обидва отримують 2d6 шкоди.</li>\n<li><strong>Ривок:</strong> Пазур Смерті потужно кидається в сусідню зону, після чого може завдати шкоди пазурями одній цілі в ній і <strong><em>збити її з ніг.</em></strong></li>\n<li><strong>Живучість:</strong> раз за сцену, якщо отримана шкода мала б знизити ОЗ Пазура Смерті до 0, він уперто лишається живим із 5 ОЗ.</li>\n</ul>\n</li>\n</ul><blockquote class=\"aside\"><p>З пари лап дорослого самця Пазура Смерті вправний зброяр за 10 кришок може виготовити на вибір гравця рідкісну важку зброю ближнього бою або середню зброю ближнього бою зі шкодою 2d6.</p></blockquote>",
     "type": "boss"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Жахливі пазурі",
+      "name": "Пазурі",
       "type": "attack",
-      "_id": "mXxZAV7NKRH37XsI",
+      "_id": "GDOUjkczACJDafWc",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ігнорують 2 броні. Ближній бій.</p>",
+        "description": "<p>2d6+3 фізичної шкоди, ближній бій, ігнорує 2 броні.</p>",
         "damage": "2d6+3"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,20 +134,20 @@
         "modifiedTime": 1768867247750,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!73JWof5plr7uuURv.mXxZAV7NKRH37XsI"
+      "_key": "!actors.items!73JWof5plr7uuURv.GDOUjkczACJDafWc"
     },
     {
-      "name": "Пійдом-переворот",
+      "name": "Підйом-переворот",
       "type": "attack",
-      "_id": "Oz4AIh73jOTaG15b",
-      "img": "assets/crossed-axes.svg",
+      "_id": "iZhJrOlO7wJ6j8wq",
+      "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Раз за сцену Пазур Смерті може кинути одного персонажа зі своєї зони в іншого, що знаходиться у тій же або сусідній зоні. Обидва отримують 2d6 шкоди.</p>",
+        "description": "<p><em>Хід.</em> раз за сцену хапає ціль у своїй зоні й жбурляє її в іншого персонажа в тій самій або сусідній зоні. Обидва отримують 2d6 шкоди.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -160,11 +160,11 @@
         "coreVersion": "14.359",
         "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
-        "createdTime": 1768867282705,
-        "modifiedTime": 1768867315554,
+        "createdTime": 1768867224641,
+        "modifiedTime": 1768867247750,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!73JWof5plr7uuURv.Oz4AIh73jOTaG15b"
+      "_key": "!actors.items!73JWof5plr7uuURv.iZhJrOlO7wJ6j8wq"
     }
   ],
   "effects": [],

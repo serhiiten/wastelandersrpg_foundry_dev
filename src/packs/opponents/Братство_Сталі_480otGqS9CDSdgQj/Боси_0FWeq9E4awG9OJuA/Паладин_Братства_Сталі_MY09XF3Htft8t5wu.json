@@ -10,7 +10,7 @@
       "max": 35
     },
     "armor": 5,
-    "description": "<p>Лише найкращі бійці Братства отримують титул паладина та честь носити священну силову броню. Зустріч із таким не обіцяє для його супротивника абсолютно нічого хорошого. Трапляються поодинці, зазвичай у супроводі лицарів.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти: </strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>Паладин Братства Сталі, закутий у потужну силову броню, поважний вигляд.</strong></em></span></p><hr /><p><span style=\"color:rgb(25, 24, 19);font-family:Scada, sans-serif;font-size:14px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:normal;orphans:2;text-align:start;text-indent:0px;text-transform:none;widows:2;word-spacing:0px;-webkit-text-stroke-width:0px;white-space:normal;background-color:rgb(238, 238, 238);text-decoration-thickness:initial;text-decoration-style:initial;text-decoration-color:initial;display:inline !important;float:none\">Силова броня, знижує наполовину шкоду від радіації та отрут.</span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Суперстимпак:</strong> раз за сцену відновлює 1d6+4 ОЗ.</li><li><strong>Силовий ривок:</strong> раз за сцену робить ривок за допомогою своєї силової броні. Завдає 2d6 шкоди всім противникам у своїй зоні і <em><strong>збиває їх з ніг</strong></em>, а потім переміщається в сусідню зону, де може завдати 2d6 шкоди противнику та <em><strong>збити його з ніг</strong></em>.</li><li><strong>Розпад:</strong> коли паладин своєю шкодою знижує ОЗ супротивника до 0, всі супротивники в його зоні отримують 1d10 <em><strong>енергетичної</strong></em> шкоди, яка ігнорує броню.</li></ul><hr /></li><li><p>Нагородою за вбивство паладина Братства Сталі є його силова броня. Киньте 1d6, на 1-3 броня сильно пошкоджена і їй потрібен неабиякий ремонт, на 4-5 вона пошкоджена легко, але їй все ще потрібен ремонт, на 6 — ви примудрилися практично не подряпати її. Також ви отримуєте його рідкісну зброю (3d6 шкоди). Силова броня Братства — дуже помітна річ і викликає багато питань, коли її носить не представник Братства.</p></li><li><p>Вбивство паладина — визначний вчинок, що позначиться на репутації персонажів гравців. Також це призведе до того, що ви станете особистими ворогами Братства.</p></li></ul>",
+    "description": "<blockquote>\n<p>Лише найкращі бійці Братства отримують звання паладина й честь носити священну силову броню. Зустріч із паладином не обіцяє його супротивникам нічого доброго. Трапляється поодинці, але зазвичай у супроводі лицарів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> бос</li>\n<li><strong>ОЗ:</strong> 35</li>\n<li><strong>Броня:</strong> 5 (силова броня: від радіації та отрути отримує лише половину шкоди)</li>\n<li><strong>Шкода:</strong> <u>Рідкісна важка плазмова зброя</u> (3d6 фізичної шкоди, бій на відстані або ближній бій, ігнорує 2 броні); <u>плазмові гранати</u> (3d6 фізичної шкоди всім істотам в одній зоні, 2 шт.); <u>кулаки силової броні</u> (1d10 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти: <em>Паладин Братства Сталі, закутий у потужну силову броню, величний вигляд.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Суперстимпак:</strong> раз за сцену відновлює 1d6+4 ОЗ.</li>\n<li><strong>Силовий ривок:</strong> раз за сцену робить ривок за допомогою силової броні: завдає 2d6 шкоди всім ворогам у своїй зоні й <strong><em>збиває їх з ніг</em></strong>, після чого переміщується в сусідню зону, де може завдати 2d6 шкоди одній цілі й <strong><em>збити її з ніг</em></strong>.</li>\n<li><strong>Розпад:</strong> коли паладин своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.</li>\n</ul>\n</li>\n</ul>\n<p>Нагородою за вбивство паладина стане його силова броня. Кинь 1d6: якщо випаде 1–3, броня сильно пошкоджена й потребує серйозного ремонту; якщо 4–5 — пошкоджена легко, але ремонт усе одно потрібен; якщо 6 — героям якимось дивом удалося майже її не подряпати. Крім того, герої отримують його рідкісну важку зброю (3d6 шкоди). Силова броня Братства — дуже помітна річ, і якщо її носить не член Братства, це викликає чимало запитань.</p><blockquote class=\"aside\"><p>Убивство паладина — визначний вчинок, що неодмінно позначиться на репутації героїв. Крім того, вони стануть особистими ворогами Братства.</p></blockquote>",
     "type": "boss"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Рідкісна плазмова зброя",
+      "name": "Рідкісна важка плазмова зброя",
       "type": "attack",
-      "_id": "vH6Y9pLVrXMOeFhS",
+      "_id": "GG66kOfryPOc3F1u",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ігнорує 2 броні. Ближній бій або бій на відстані.</p>",
+        "description": "<p>3d6 фізичної шкоди, бій на відстані або ближній бій, ігнорує 2 броні.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,20 +134,20 @@
         "modifiedTime": 1768953062486,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!MY09XF3Htft8t5wu.vH6Y9pLVrXMOeFhS"
+      "_key": "!actors.items!MY09XF3Htft8t5wu.GG66kOfryPOc3F1u"
     },
     {
-      "name": "Плазмова граната",
+      "name": "Плазмові гранати",
       "type": "attack",
-      "_id": "MhUhjWdjCJ8OAGRU",
-      "img": "assets/grenade.svg",
+      "_id": "MW2W1rJeKSDyI4PV",
+      "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>3d6 фізичної шкоди всім істотам в одній зоні, 2 шт.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -160,11 +160,41 @@
         "coreVersion": "14.359",
         "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
-        "createdTime": 1768953024984,
-        "modifiedTime": 1768953085535,
+        "createdTime": 1768953024677,
+        "modifiedTime": 1768953062486,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!MY09XF3Htft8t5wu.MhUhjWdjCJ8OAGRU"
+      "_key": "!actors.items!MY09XF3Htft8t5wu.MW2W1rJeKSDyI4PV"
+    },
+    {
+      "name": "Кулаки силової броні",
+      "type": "attack",
+      "_id": "3cgy5CaRw3szSrMD",
+      "img": "assets/bayonet.svg",
+      "system": {
+        "description": "<p>1d10 фізичної шкоди, ближній бій.</p>",
+        "damage": "1d10"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 300000,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders-dev",
+        "systemVersion": "0.3",
+        "createdTime": 1768953024677,
+        "modifiedTime": 1768953062486,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!MY09XF3Htft8t5wu.3cgy5CaRw3szSrMD"
     },
     {
       "name": "Силовий ривок",
@@ -172,12 +202,12 @@
       "_id": "iEpMukXnrg5khQOu",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Раз за сцену робить ривок за допомогою своєї силової броні. Завдає 2d6 шкоди всім противникам у своїй зоні і <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збиває їх з ніг</strong></em></span>, а потім переміщається в сусідню зону, де може завдати 2d6 шкоди противнику та <span style=\"font-style:italic;font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><em><strong>збити його з ніг</strong></em></span>.</p>",
+        "description": "<p><em>Хід.</em> раз за сцену робить ривок за допомогою силової броні: завдає 2d6 шкоди всім ворогам у своїй зоні й збиває їх з ніг, після чого переміщується в сусідню зону, де може завдати 2d6 шкоди одній цілі й збити її з ніг.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 400000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -197,17 +227,17 @@
       "_key": "!actors.items!MY09XF3Htft8t5wu.iEpMukXnrg5khQOu"
     },
     {
-      "name": "Силовий кулак",
+      "name": "Розпад",
       "type": "attack",
-      "_id": "sgaGMmWktoHCwnhm",
-      "img": "assets/bowie-knife.svg",
+      "_id": "Jg7sYK6ZsEJx6xpl",
+      "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p><em>Хід.</em> коли паладин своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 500000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -220,11 +250,11 @@
         "coreVersion": "14.359",
         "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
-        "createdTime": 1768953105629,
-        "modifiedTime": 1768953118657,
+        "createdTime": 1768953024677,
+        "modifiedTime": 1768953062486,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!MY09XF3Htft8t5wu.sgaGMmWktoHCwnhm"
+      "_key": "!actors.items!MY09XF3Htft8t5wu.Jg7sYK6ZsEJx6xpl"
     }
   ],
   "effects": [],
