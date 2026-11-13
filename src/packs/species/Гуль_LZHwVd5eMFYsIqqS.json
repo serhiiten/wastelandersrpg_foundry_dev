@@ -9,7 +9,7 @@
     "feats": [
       {
         "id": "F75mVDMKHjdx3qfb",
-        "uuid": "Compendium.wastelanders.feats.Item.F75mVDMKHjdx3qfb",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.F75mVDMKHjdx3qfb",
         "name": "На вигляд не дуже (гуль)",
         "type": "feat",
         "title": "Особливість",
@@ -17,7 +17,7 @@
       },
       {
         "id": "WppNsVKjc6Ce73th",
-        "uuid": "Compendium.wastelanders.feats.Item.WppNsVKjc6Ce73th",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.WppNsVKjc6Ce73th",
         "name": "Стійкість до отрут (гуль)",
         "type": "feat",
         "title": "Особливість",
@@ -25,7 +25,7 @@
       },
       {
         "id": "dIsRqVPI3xSRM1xp",
-        "uuid": "Compendium.wastelanders.feats.Item.dIsRqVPI3xSRM1xp",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.dIsRqVPI3xSRM1xp",
         "name": "Цілюще випромінювання (гуль)",
         "type": "feat",
         "title": "Особливість",
@@ -33,7 +33,7 @@
       },
       {
         "id": "mqureHJQgf55RS7x",
-        "uuid": "Compendium.wastelanders.feats.Item.mqureHJQgf55RS7x",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.mqureHJQgf55RS7x",
         "type": "feat",
         "name": "Довголіття (гуль)",
         "title": "Особливість",

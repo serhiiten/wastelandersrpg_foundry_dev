@@ -1,0 +1,20 @@
+{{!-- List of perks / feats to add (kind: perk | feat) --}}
+<div class="pust-picker">
+  <div class="pust-row">
+    <input type="text" placeholder="Пошук" data-ui="q" value="{{q}}">
+    <label class="pust-tog"><input type="checkbox" data-ui="showAll" {{#if showAll}}checked{{/if}}> показати недоступні</label>
+  </div>
+  {{#each list}}
+  <h4>{{c}}</h4>
+  {{#each list}}
+  <div class="pust-pick {{#unless ok}}bad{{/unless}}">
+    <button type="button" data-action="act" data-act="{{../../kind}}-add" data-n="{{n}}" {{#unless ok}}title="{{why}}"{{/unless}}>+</button>
+    <b>{{n}}</b>{{#if req}} <small class="pust-sub">{{req}}</small>{{/if}}
+    {{#unless ok}}<small class="bad"> — {{why}}</small>{{/unless}}
+    <div class="pust-text">{{text}}</div>
+  </div>
+  {{/each}}
+  {{else}}
+  <p class="pust-sub">Нічого не знайдено.</p>
+  {{/each}}
+</div>

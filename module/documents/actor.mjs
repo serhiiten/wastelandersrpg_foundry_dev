@@ -227,6 +227,8 @@ export class WastelandersActor extends Actor {
 
   // Check if perk meets requirements
   async _perkRequirements(item) {
+    // characters: the rules engine (module/rules) checks perks and counts HP and armor
+    if (this.type === "character") return;
     const actorData = this.system;
     const itemData = item.system;
 
@@ -313,6 +315,8 @@ export class WastelandersActor extends Actor {
   }
 
   async _updateActorHP() {
+    // characters: the rules engine (module/rules) checks perks and counts HP and armor
+    if (this.type === "character") return;
     const toCount = [];
 
     for (let i of this.items) {
@@ -330,6 +334,8 @@ export class WastelandersActor extends Actor {
   }
 
   async _updateActorArmor() {
+    // characters: the rules engine (module/rules) checks perks and counts HP and armor
+    if (this.type === "character") return;
     const toCount = [];
 
     for (let i of this.items) {
