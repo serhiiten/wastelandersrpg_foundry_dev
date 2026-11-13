@@ -155,6 +155,6 @@
   "primaryTokenAttribute": "hp",
   "url": "https://github.com/serhiiten/wastelandersrpg_foundry_dev",
   "manifest": "https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry_dev/main/system.json",
-  "download": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/releases/download/v1.1.0-dev.2/foundry.zip",
+  "download": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/releases/download/v1.1.0-dev.3/foundry.zip",
   "license": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/blob/main/LICENSE.md"
 }
