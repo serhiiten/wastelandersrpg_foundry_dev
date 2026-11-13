@@ -5,7 +5,7 @@
   "_id": "v2n2ZCRoOexY5ElE",
   "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
-    "description": "<p>Чи це мутація твоєї шкіри, чи ти навчився цього у мандрівного факіра, але тебе неможливо <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>схопити, зв'язати</strong></em></span> чи <span style=\"font-style:italic;font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><em><strong>обплутати</strong></em></span>. Витративши кілька хвилин часу, ти можеш вислизнути навіть із наручників, кайданів або нашийника з вибухівкою, хоч би як туго їх затягували на тобі. Гудіні бісів.</p>",
+    "description": "<p>Чи то це мутація твоєї шкіри, чи то ти навчився цього в мандрівного факіра, але тебе неможливо <strong><em>схопити</em></strong>, <strong><em>зв'язати</em></strong> чи <strong><em>обплутати</em></strong>. Витративши кілька хвилин, ти можеш вислизнути навіть із наручників, кайданів чи нашийника з вибухівкою, хоч би як щільно їх на тобі затягнули. Гудіні бісів.</p><p><strong>Вимоги:</strong> Навичка Крадіж на рівні учня або вище, ВП +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

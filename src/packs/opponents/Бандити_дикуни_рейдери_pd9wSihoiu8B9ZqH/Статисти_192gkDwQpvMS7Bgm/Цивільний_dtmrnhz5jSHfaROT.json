@@ -1,6 +1,6 @@
 {
   "folder": "192gkDwQpvMS7Bgm",
-  "name": "Цивільний",
+  "name": "Цивільні",
   "type": "enemy",
   "_id": "dtmrnhz5jSHfaROT",
   "img": "systems/wastelanders-dev/assets/tsyvil-1.png",
@@ -10,7 +10,7 @@
       "max": 3
     },
     "armor": 0,
-    "description": "<p>Прості мешканці Пустки без особливої бойової підготовки: селяни, роботяги, волоцюги, раби та інші небораки.</p>",
+    "description": "<blockquote>\n<p>Прості мешканці Пустки без особливої бойової підготовки: селяни, роботяги, волоцюги, раби та інші небораки.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Кулаки або імпровізована зброя</u> (менший результат із 2d6, фізична шкода, ближній бій)</li>\n</ul>",
     "type": "statistician"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Кулаки",
+      "name": "Кулаки або імпровізована зброя",
       "type": "attack",
-      "_id": "WgWJ2NNoFxWXEakb",
+      "_id": "BlMDuv3qaSDnf6Qo",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
-        "damage": "2d6kl"
+        "description": "<p>менший результат із 2d6, фізична шкода, ближній бій.</p>",
+        "damage": "2d6kl1"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768950541981,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!dtmrnhz5jSHfaROT.WgWJ2NNoFxWXEakb"
+      "_key": "!actors.items!dtmrnhz5jSHfaROT.BlMDuv3qaSDnf6Qo"
     }
   ],
   "effects": [],

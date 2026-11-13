@@ -5,7 +5,7 @@
   "_id": "wy8go5TTtilbGdIP",
   "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
-    "description": "<p>Ти завдаєш +2 шкоди своїм «Пси-ударом».</p>",
+    "description": "<p>Твій «Пси-удар» завдає +2 шкоди.</p><p><strong>Вимоги:</strong> Перк «Пси-удар»</p>",
     "attributes": {
       "strength": null,
       "perception": null,

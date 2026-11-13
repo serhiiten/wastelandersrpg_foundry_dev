@@ -10,7 +10,7 @@
       "max": 30
     },
     "armor": 4,
-    "description": "<p>Елітна охорона найбільш важливих командувачів Легіону. Титулу преторіанця досягають лише найбільш уславлені центуріони, а їх кількість суворо обмежена - четверо охороняють самого Цезаря, двоє - легата, ще кілька - інших польових командирів Легіону. Озброєні вибуховими суперсиловими кулаками.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> елітна варта Легіону, неймовірна витривалість, завжди насторожі.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Суперстимпак:</strong> раз за сцену відновлює 1d6+4 ОЗ.</li><li><strong>Удар-землетрус:</strong> раз за сцену вдаряє суперсиловим кулаком об землю. Всі створіння в його зоні отримують 3d6 шкоди <em><strong>приголомшуються</strong></em> (пропускають наступний хід) та <em><strong>падають</strong></em>.</li><li><strong>Здимів звідси:</strong> преторіанець може знизити завдану шкоду наполовину, щоб відкинути супротивника в сусідню зону і <em><strong>збити його з ніг</strong></em>.</li></ul><hr /></li><li><p>Нагородою за вбивство преторіанця є його рідкісна важка броня (4 фізичної броні) і рідкісна зброя ближнього бою (3d6 шкоди).</p></li><li><p>Вбивство преторіанця - злочин, за який Легіон карає виключно болісною смертю через розп’яття на хресті. Легіон докладе всіх можливих зусиль для пошуку винуватців. Такий вчинок точно зробить вас відомими, звичайно, якщо ви не постараєтесь приховати його.</p></li></ul>",
+    "description": "<blockquote>\n<p>Елітна охорона найважливіших командувачів Легіону. Звання преторіанця здобувають лише найуславленіші центуріони, а кількість преторіанців суворо обмежена: четверо охороняють самого Цезаря, двоє — легата, ще кілька — інших польових командирів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> бос</li>\n<li><strong>ОЗ:</strong> 30</li>\n<li><strong>Броня:</strong> 4 (рідкісна важка броня)</li>\n<li><strong>Шкода:</strong> <u>Вибухові суперсилові кулаки</u> (3d6 фізичної шкоди, ближній бій); <u>середня енергетична зброя</u> (1d10 фізичної шкоди, бій на відстані, ігнорує 1 броні); <u>плазмова граната</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспекти: <em>елітна варта Легіону, неймовірна витривалість, завжди насторожі.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Суперстимпак:</strong> раз за сцену відновлює 1d6+4 ОЗ.</li>\n<li><strong>Удар-землетрус:</strong> раз за сцену б'є суперсиловим кулаком об землю. Усі інші істоти в його зоні отримують 3d6 шкоди, <strong><em>падають з ніг</em></strong> і <strong><em>приголомшені</em></strong>: пропускають свою наступну дію.</li>\n<li><strong>Здимів звідси:</strong> атакуючи, може завдати вдвічі меншої шкоди, щоб натомість відкинути ціль у сусідню зону й <strong><em>збити її з ніг.</em></strong></li>\n</ul>\n</li>\n</ul>\n<p>Нагородою за вбивство преторіанця стане його рідкісна важка броня (4 броні) і суперсилові кулаки (рідкісна важка зброя ближнього бою, 3d6 шкоди).</p><blockquote class=\"aside\"><p>Убивство преторіанця — злочин, за який Легіон карає лише одним способом: болісною смертю на хресті. Легіон докладе всіх зусиль, щоб розшукати винуватців. Такий вчинок неодмінно прославить героїв — хіба що вони постараються його приховати.</p></blockquote>",
     "type": "boss"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Вибуховий суперсиловий кулак",
+      "name": "Вибухові суперсилові кулаки",
       "type": "attack",
-      "_id": "ml61qd12RUg0WBCl",
+      "_id": "tl2PPIp9qpM8iJ5z",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Рідкісна зброя ближнього бою.</p>",
+        "description": "<p>3d6 фізичної шкоди, ближній бій.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768951458766,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!aZQXNhQEVxuBV2r0.ml61qd12RUg0WBCl"
+      "_key": "!actors.items!aZQXNhQEVxuBV2r0.tl2PPIp9qpM8iJ5z"
     },
     {
       "name": "Середня енергетична зброя",
@@ -142,12 +142,12 @@
       "_id": "rVVw3nbrZUSygGUQ",
       "img": "assets/winchester-rifle.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Бій на відстані.</p>",
+        "description": "<p>1d10 фізичної шкоди, бій на відстані, ігнорує 1 броні.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -172,12 +172,12 @@
       "_id": "WyBK8cljiPXTmoGT",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.</p>",
         "damage": "3d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 300000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -195,6 +195,36 @@
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
       "_key": "!actors.items!aZQXNhQEVxuBV2r0.WyBK8cljiPXTmoGT"
+    },
+    {
+      "name": "Удар-землетрус",
+      "type": "attack",
+      "_id": "Pbq98dwsTUoYw2LG",
+      "img": "assets/bowie-knife.svg",
+      "system": {
+        "description": "<p><em>Хід.</em> раз за сцену б'є суперсиловим кулаком об землю. Усі інші істоти в його зоні отримують 3d6 шкоди, падають з ніг і приголомшені: пропускають свою наступну дію.</p>",
+        "damage": "3d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 400000,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders-dev",
+        "systemVersion": "0.3",
+        "createdTime": 1768951427416,
+        "modifiedTime": 1768951458766,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!aZQXNhQEVxuBV2r0.Pbq98dwsTUoYw2LG"
     }
   ],
   "effects": [],

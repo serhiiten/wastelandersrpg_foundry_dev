@@ -5,7 +5,7 @@
   "_id": "j0rnlOaSNLmNxCnG",
   "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
-    "description": "<p>За всіх перевірок бою на відстані критичним успіхом для тебе вважається результат 18+.</p>",
+    "description": "<p>Під час перевірок атаки в бою на відстані критичним успіхом для тебе вважається результат 18+.</p><p><strong>Вимоги:</strong> Навичка Стрільба на рівні учня або вище, УДЧ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

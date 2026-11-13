@@ -5,7 +5,7 @@
   "_id": "yMSCEohwAsbjdGEQ",
   "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
-    "description": "<p>Під час атак в бою на відстані ти можеш обирати як звичайний варіант <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збити супротивника з ніг</strong></em></span>.</p>",
+    "description": "<p>Під час атак у бою на відстані ти можеш обирати як звичайний ефект <strong><em>збивання супротивника з ніг</em></strong>.</p><p><strong>Вимоги:</strong> Навичка Стрільба на рівні учня або вище, СПР 0 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": 0,

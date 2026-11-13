@@ -10,7 +10,7 @@
       "max": 7
     },
     "armor": 2,
-    "description": "<p>Базова модель роботів-скорпіонів, що тероризують Пустку. Кажуть, вони з’явились завдяки експериментам схиблених вчених з дослідницького центру Біг-Маунтін. Зустрічаються зграями по 2-5.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>набридливий робот-скорпіон</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Базова модель роботів-скорпіонів, що тероризують Пустку. Кажуть, вони з'явилися через експерименти схиблених учених із дослідницького центру Біг-Маунтін. Трапляються зграями по 2–5 роботів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 7</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Лазерний хвіст</u> (1d6+2 фізичної шкоди, бій на відстані, ігнорує 1 броні); <u>клешні</u> (1d6 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспект:</strong> <strong><em>набридливий робот-скорпіон.</em></strong></li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Лазерний промінь",
+      "name": "Лазерний хвіст",
       "type": "attack",
-      "_id": "CMBBm5bewSUBEyCK",
+      "_id": "ZvykxZ9H0Xh3cRJc",
       "img": "assets/laser-blast.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Бій на відстані.</p>",
+        "description": "<p>1d6+2 фізичної шкоди, бій на відстані, ігнорує 1 броні.</p>",
         "damage": "1d6+2"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768938350154,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!GmBELSScqWcREGcJ.CMBBm5bewSUBEyCK"
+      "_key": "!actors.items!GmBELSScqWcREGcJ.ZvykxZ9H0Xh3cRJc"
     },
     {
       "name": "Клешні",
@@ -142,12 +142,12 @@
       "_id": "kJGfhgZ27o7j1obl",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d6 фізичної шкоди, ближній бій.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

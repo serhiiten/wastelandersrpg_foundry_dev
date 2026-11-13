@@ -6,7 +6,7 @@
   "img": "icons/svg/item-bag.svg",
   "system": {
     "isSpecies": true,
-    "description": "<p>Отрути завдають гулям лише половину шкоди (округлюючи вгору).</p>",
+    "description": "<p>отрути завдають гулям лише половини шкоди (з округленням угору).</p>",
     "hpBonus": null
   },
   "effects": [],

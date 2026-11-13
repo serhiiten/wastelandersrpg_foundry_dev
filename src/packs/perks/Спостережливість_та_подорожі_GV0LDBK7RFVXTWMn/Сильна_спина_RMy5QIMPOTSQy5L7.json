@@ -5,7 +5,7 @@
   "_id": "RMy5QIMPOTSQy5L7",
   "img": "systems/wastelanders-dev/assets/binoculars.svg",
   "system": {
-    "description": "<p>Ти можеш переносити на 3 одиниці запасів більше. Ти й сам не знаєш, як усе це добро влазить у твій наплічник.</p>",
+    "description": "<p>Ти можеш переносити на 3 одиниці Припасів більше. Ти й сам не знаєш, як усе це добро влазить у твій наплічник.</p><p><strong>Вимоги:</strong> ВТР 0 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

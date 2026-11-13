@@ -5,7 +5,7 @@
   "_id": "mEm3pnuUAAkAiB4j",
   "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
-    "description": "<p>У ліжку тобі немає рівних, і про це знають усі, хто переспав з тобою бодай раз. Ти отримуєш Посилення на всі перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ПВ</strong></span>, пов'язані зі звабленням.</p>",
+    "description": "<p>У ліжку тобі немає рівних, і про це знають усі, хто бодай раз з тобою переспав. Ти отримуєш Посилення на всі перевірки <strong>ПВ</strong>, пов'язані зі звабленням.</p><p><strong>Вимоги:</strong> ПВ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

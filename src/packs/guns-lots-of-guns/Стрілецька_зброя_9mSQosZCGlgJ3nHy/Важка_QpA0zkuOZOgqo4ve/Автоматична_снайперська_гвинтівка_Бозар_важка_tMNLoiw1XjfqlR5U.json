@@ -1,10 +1,10 @@
 {
-  "name": "Автоматична снайперська гвинтівка \"Бозар\" (важка)",
+  "name": "Автоматична снайперська гвинтівка “Бозар” (важка)",
   "type": "weapon",
   "_id": "tMNLoiw1XjfqlR5U",
   "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
-    "description": "<p>Дальність: Макс. </p><p>Властивість: Автоматична.</p>",
+    "description": "<p>Дальність: Макс</p><p>Властивість: Автоматична.</p>",
     "price": 30,
     "damage": "2d6+3"
   },

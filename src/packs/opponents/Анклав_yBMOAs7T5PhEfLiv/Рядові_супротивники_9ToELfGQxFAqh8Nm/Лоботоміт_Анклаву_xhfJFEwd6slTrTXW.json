@@ -10,7 +10,7 @@
       "max": 8
     },
     "armor": 1,
-    "description": "<p>Нещасні жертви експериментів, котрих Анклав змусив служити собі навіть після смерті їх мізків. Не мають власної волі та розуму, все що їм доступно - незграбно махати ріппер-ножами, імплантованими їм прямо в руки, та виконувати прості команди своїх хазяїв. Зустрічаються групами по 3-5 в супроводі польового вченого або солдата.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>лоботомізований продукт експериментів.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Забув померти:</strong> раз за сцену коли його ОЗ сягають 0, лоботоміт вперто залишається живим з 1 ОЗ.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Нещасні жертви експериментів, яких Анклав змусив служити собі навіть після того, як їхній мозок помер. Вони не мають ні волі, ні розуму: усе, на що вони здатні, — незграбно махати ріпер-ножами, вживленими просто в руки, і виконувати прості команди хазяїв. Трапляються групами по 3–5 осіб у супроводі польового дослідника або солдата.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Ріпер-ніж</u> (1d10 фізичної шкоди, ближній бій, середня зброя)</li>\n<li><strong>Аспект:</strong> <strong><em>лоботомізована жертва експериментів.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Забув померти:</strong> раз за сцену, якщо отримана шкода мала б знизити ОЗ лоботоміта до 0, він уперто лишається живим з 1 ОЗ.</li>\n</ul>\n</li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Середня зброя",
+      "name": "Ріпер-ніж",
       "type": "attack",
-      "_id": "PSMw1Ou4dAzBGy7E",
+      "_id": "j1E9MFh4fvsGOLls",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d10 фізичної шкоди, ближній бій, середня зброя.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768953410141,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!xhfJFEwd6slTrTXW.PSMw1Ou4dAzBGy7E"
+      "_key": "!actors.items!xhfJFEwd6slTrTXW.j1E9MFh4fvsGOLls"
     }
   ],
   "effects": [],

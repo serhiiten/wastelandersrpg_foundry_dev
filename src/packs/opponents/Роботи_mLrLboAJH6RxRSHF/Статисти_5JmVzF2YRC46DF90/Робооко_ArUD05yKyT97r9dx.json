@@ -10,7 +10,7 @@
       "max": 5
     },
     "armor": 1,
-    "description": "<p>Загалом нешкідливий летючий кулястий робот з динаміком всередині. Іноді транслює пропаганду. Зустрічаються найчастіше поодинці, але подекуди збиваються в зграї, якщо транслюють одну й ту саму передачу.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>маленька летюча машина для пропаганди</strong></em></span></p><hr /><p>Летюче, тому його не можна <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збити з ніг</strong></em></span>.</p>",
+    "description": "<blockquote>\n<p>Здебільшого нешкідливий летючий кулястий робот із динаміком усередині, що часом транслює пропаганду. Найчастіше трапляється поодинці, але іноді робоочі, які транслюють ту саму передачу, збиваються в зграї.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Лазер</u> (1d6 фізичної шкоди, бій на відстані, ігнорує 1 броні)</li>\n<li><strong>Аспект:</strong> <strong><em>маленька летюча пропагандистська машина.</em></strong></li>\n</ul>",
     "type": "statistician"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Лазерний промінь",
+      "name": "Лазер",
       "type": "attack",
-      "_id": "ZDCk6f0RB1aZcAKB",
+      "_id": "OsF1bpUCcezMlE4I",
       "img": "assets/laser-blast.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Бій на відстані.</p>",
+        "description": "<p>1d6 фізичної шкоди, бій на відстані, ігнорує 1 броні.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768936081863,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!ArUD05yKyT97r9dx.ZDCk6f0RB1aZcAKB"
+      "_key": "!actors.items!ArUD05yKyT97r9dx.OsF1bpUCcezMlE4I"
     }
   ],
   "effects": [],

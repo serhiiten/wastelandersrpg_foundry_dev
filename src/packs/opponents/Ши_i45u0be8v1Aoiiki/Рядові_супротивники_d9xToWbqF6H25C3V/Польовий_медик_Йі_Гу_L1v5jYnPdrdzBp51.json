@@ -10,7 +10,7 @@
       "max": 5
     },
     "armor": 2,
-    "description": "<p>Польовий медик Ши. За допомогою суміші традиційної китайської медицини та новітніх розробок Ши в медичній галузі здатен поставити на ноги навіть майже мертвого.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>польовий медик Ши</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>А ну вставай!:</strong> раз за сцену може повернути живого союзника з 0 ОЗ назад у сцену з 5 ОЗ, якщо його тіло не було знищене.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Польовий медик Ши. Поєднуючи традиційну китайську медицину з новітніми медичними розробками Ши, здатен поставити на ноги навіть напівмертвого. Супроводжує загони рядових.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Легка зброя</u> (1d6 фізичної шкоди, бій на відстані або ближній бій)</li>\n<li><strong>Аспект:</strong> <strong><em>польовий медик Ши.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Ану, вставай!:</strong> раз за сцену може повернути в сцену живого союзника, чиї ОЗ упали до 0, з 5 ОЗ, якщо його тіло вціліло.</li>\n</ul>\n</li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "2XsJdKS8R8qEpNZs",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Ближній бій або бій на відстані.</p>",
+        "description": "<p>1d6 фізичної шкоди, бій на відстані або ближній бій.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

@@ -10,7 +10,7 @@
       "max": 12
     },
     "armor": 2,
-    "description": "<p>Захисник мурашника. Якщо ви їх зустріли, то мурашник десь поряд. Водяться групами по двоє, зазвичай охороняють гігантських мурах-робітників.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>гігантська комаха з гострими мандибулами, помре, але не втече.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Плювок кислотою:</strong> раз за сцену плюється в супротивника у своїй або сусідній зоні їдкою кислотою. Кислота завдає 2d6 шкоди. Ціль отримує -2 до фізичної броні (мінімум 0) до кінця сцени.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Захисник мурашника: якщо трапилися мурахи-солдати, мурашник десь поряд. Тримаються парами й зазвичай охороняють гігантських мурах-робітників.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Мандибули</u> (1d10 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>гігантська комаха з міцним панцирем і гострими мандибулами, помре, але не відступить.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Плювок кислотою:</strong>  раз за сцену плює їдкою кислотою в ціль у своїй або сусідній зоні. Кислота завдає 2d6 шкоди, а ціль до кінця сцени отримує −2 до фізичної броні (мінімум 0).</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "u140clTfJOU8bp0j",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d10 фізичної шкоди, ближній бій.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "gq944841BXvPxcmZ",
       "img": "assets/winchester-rifle.svg",
       "system": {
-        "description": "<p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Плювок кислотою:</strong></span> раз за сцену плюється в супротивника у своїй або сусідній зоні їдкою кислотою. Кислота завдає 2d6 шкоди. Ціль отримує -2 до фізичної броні (мінімум 0) до кінця сцени.</p>",
+        "description": "<p><em>Хід.</em> раз за сцену плює їдкою кислотою в ціль у своїй або сусідній зоні. Кислота завдає 2d6 шкоди, а ціль до кінця сцени отримує −2 до фізичної броні (мінімум 0).</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

@@ -1,11 +1,11 @@
 {
   "folder": "J1lRlntFtu5UaDrX",
-  "name": "Силовий кулак (середній)",
+  "name": "Силові кулаки (середні)",
   "type": "weapon",
   "_id": "81OzDrMmPCJCiNVg",
   "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
-    "description": "<p>Дальність: Ближ.</p>",
+    "description": "<p>Дальність: Ближ</p>",
     "price": 8,
     "damage": "1d10+1"
   },

@@ -10,7 +10,7 @@
       "max": 7
     },
     "armor": 2,
-    "description": "<p>Довоєнна модель робота, призначена для хатньої роботи. Обладнаний трьома кінцівками, одна з яких закінчується циркулярною пилкою, а ще одна – невеликим вогнеметом. Багацько з тих, що продовжують функціонувати, зациклилися на останній програмі, а деякі збожеволіли від деградації електроніки. Зазвичай зустрічаються по одному-двоє на руїнах поселень.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>робот для хатньої роботи.</strong></em></span></p><hr /><p>Летючий, тому його не можна <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збити з ніг</strong></em></span>.</p>",
+    "description": "<blockquote>\n<p>Довоєнна модель робота — хатнього помічника. Має три кінцівки: одна закінчується циркулярною пилкою, інша — невеликим вогнеметом. Чимало вцілілих Помічників зациклилися на останній програмі, а деякі збожеволіли через деградацію електроніки. Зазвичай трапляються по одному-двоє в руїнах поселень.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 7</li>\n<li><strong>Броня:</strong> 2 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Пилка</u> (1d6 фізичної шкоди, ближній бій); <u>вогнемет</u> (1d6 шкоди вогнем всім істотам в одній зоні, 2 заряди)</li>\n<li><strong>Аспект:</strong> <strong><em>робот для хатньої роботи.</em></strong></li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "NOfi1dTtBVkwMeL1",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d6 фізичної шкоди, ближній бій.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "pfIa7yP2Pmm6BxWk",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>2 заряди, влучає по всім у одній зоні. Бій на відстані.</strong></span></p>",
+        "description": "<p>1d6 шкоди вогнем всім істотам в одній зоні, 2 заряди.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

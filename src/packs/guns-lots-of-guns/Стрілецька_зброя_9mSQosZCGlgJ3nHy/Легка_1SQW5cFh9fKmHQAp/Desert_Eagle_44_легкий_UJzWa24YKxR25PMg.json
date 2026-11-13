@@ -4,7 +4,7 @@
   "_id": "UJzWa24YKxR25PMg",
   "img": "systems/wastelanders-dev/assets/pistol-gun-1.svg",
   "system": {
-    "description": "<p>Дальність: 2 зони.</p><p>Властивість: Напівавтоматичний.</p>",
+    "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматичний.</p>",
     "price": 5,
     "damage": "1d8+1"
   },

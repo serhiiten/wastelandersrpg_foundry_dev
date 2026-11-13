@@ -1,11 +1,11 @@
 {
   "folder": "UovOVWv9un3ryLjb",
-  "name": "Бонусна шкода у ближньому бою",
+  "name": "Бонусна шкода в ближньому бою",
   "type": "perk",
   "_id": "FVyO3CFbK63ce32d",
   "img": "systems/wastelanders-dev/assets/high-punch.svg",
   "system": {
-    "description": "<p>Ти завдаєш +2 шкоди у ближньому бою.</p>",
+    "description": "<p>Твої атаки в ближньому бою завдають +2 шкоди.</p><p><strong>Вимоги:</strong> СЛ +1 або вище.</p>",
     "attributes": {
       "strength": 1,
       "perception": null,

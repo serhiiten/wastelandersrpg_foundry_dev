@@ -5,7 +5,7 @@
   "_id": "THPoECgwKGxdEdMK",
   "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
-    "description": "<p>Ти завжди точно відчуваєш настрій співрозмовника. До того ж отримай бонус +2 на всі перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>СПР + Маніпуляція</strong></span>, щоб розпізнати брехню або замовчування.</p>",
+    "description": "<p>Ти завжди точно відчуваєш настрій співрозмовника. Крім того, ти отримуєш +2 до всіх перевірок <strong>СПР + Маніпуляція</strong>, щоб розпізнати брехню чи замовчування.</p><p><strong>Вимоги:</strong> Навичка Маніпуляція на рівні учня або вище, СПР +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": 1,

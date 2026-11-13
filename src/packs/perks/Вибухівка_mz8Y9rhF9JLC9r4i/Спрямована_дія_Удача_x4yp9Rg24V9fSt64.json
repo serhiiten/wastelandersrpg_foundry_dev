@@ -5,7 +5,7 @@
   "_id": "x4yp9Rg24V9fSt64",
   "img": "systems/wastelanders-dev/assets/mine-explosion.svg",
   "system": {
-    "description": "<p>Твої власні гранати та вибухівка завжди завдають тобі та твоїм спільникам лише половину шкоди (округлюючи вгору).</p>",
+    "description": "<p>Твої власні гранати та вибухівка завжди завдають тобі й твоїм союзникам лише половини шкоди (з округленням угору).</p><p><strong>Вимоги:</strong> ВП +1 або УДЧ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

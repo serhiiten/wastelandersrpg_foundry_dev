@@ -5,7 +5,7 @@
   "_id": "ggshVJR3CTehbRy8",
   "img": "systems/wastelanders-dev/assets/grenade.svg",
   "system": {
-    "description": "<p>Дальність: 1 зона</p><p>Властивість: Завдає шкоди по площині. Плазмова. Ігнорує 2 броні.</p>",
+    "description": "<p>Дальність: 1 зона</p>",
     "price": 4,
     "damage": "3d6"
   },

@@ -5,7 +5,7 @@
   "_id": "UYIdsoFV7ivQm2Np",
   "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
-    "description": "<p>Раз за бойову сцену ти можеш перекинути всі кубики шкоди, яку завдав ти або яку завдали тобі, і вибрати найкращий результат.</p>",
+    "description": "<p>Раз за бойову сцену ти можеш перекинути всі кістки шкоди, завданої тобою чи тобі, і обрати вигідніший для тебе результат.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

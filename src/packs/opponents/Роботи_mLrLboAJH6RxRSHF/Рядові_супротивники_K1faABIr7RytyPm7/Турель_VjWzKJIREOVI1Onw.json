@@ -10,7 +10,7 @@
       "max": 6
     },
     "armor": 2,
-    "description": "<p>Оснащена кулеметом чи лазером захисна турель. Стаціонарна. Зустрічається на покинутих військових базах та інших режимних об'єктах. Зазвичай розташовані парами.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>стаціонарна турель.</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Стаціонарна захисна турель із кулеметом або лазером. Трапляється на покинутих військових базах та інших режимних об'єктах, зазвичай парами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 6</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода (залежно від моделі):</strong> <u>Кулемет</u> (1d10 фізичної шкоди, бій на відстані); <u>лазер</u> (1d10 фізичної шкоди, бій на відстані, ігнорує 1 броні)</li>\n<li><strong>Аспект:</strong> <strong><em>стаціонарна турель.</em></strong></li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "Ij9zfrEtvQ5uktgr",
       "img": "assets/winchester-rifle.svg",
       "system": {
-        "description": "<p>Бій на відстані.</p>",
+        "description": "<p>1d10 фізичної шкоди, бій на відстані.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -137,17 +137,17 @@
       "_key": "!actors.items!VjWzKJIREOVI1Onw.Ij9zfrEtvQ5uktgr"
     },
     {
-      "name": "Лазерний промінь",
+      "name": "Лазер",
       "type": "attack",
-      "_id": "bSJ7xRkCK5ekFAKt",
-      "img": "assets/laser-blast.svg",
+      "_id": "sTfCGUa5QJKrqaLh",
+      "img": "assets/winchester-rifle.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Бій на відстані.</p>",
+        "description": "<p>1d10 фізичної шкоди, бій на відстані, ігнорує 1 броні.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -160,11 +160,11 @@
         "coreVersion": "14.359",
         "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
-        "createdTime": 1768938208128,
-        "modifiedTime": 1768938241432,
+        "createdTime": 1768938186165,
+        "modifiedTime": 1768938243678,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!VjWzKJIREOVI1Onw.bSJ7xRkCK5ekFAKt"
+      "_key": "!actors.items!VjWzKJIREOVI1Onw.sTfCGUa5QJKrqaLh"
     }
   ],
   "effects": [],

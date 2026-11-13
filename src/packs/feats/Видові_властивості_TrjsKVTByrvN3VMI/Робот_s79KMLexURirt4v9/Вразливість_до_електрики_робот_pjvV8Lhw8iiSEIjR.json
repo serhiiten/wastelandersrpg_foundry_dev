@@ -6,7 +6,7 @@
   "img": "icons/svg/item-bag.svg",
   "system": {
     "isSpecies": true,
-    "description": "<p>Якщо робот отримує шкоду від зброї з аспектом <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>електрична</strong></em></span> або будь-яким іншим чином отримує розряд електрики, ця шкода збільшується на 1d6.</p>",
+    "description": "<p>якщо робот отримує шкоду від зброї з аспектом <strong><em>електрична</em></strong> або в будь-який інший спосіб зазнає удару струмом, ця шкода збільшується на 1d6.</p>",
     "hpBonus": null
   },
   "effects": [],

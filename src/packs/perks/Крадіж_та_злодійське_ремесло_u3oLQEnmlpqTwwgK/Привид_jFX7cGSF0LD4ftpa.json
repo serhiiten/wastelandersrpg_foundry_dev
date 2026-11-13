@@ -5,7 +5,7 @@
   "_id": "jFX7cGSF0LD4ftpa",
   "img": "systems/wastelanders-dev/assets/robber.svg",
   "system": {
-    "description": "<p>Тебе практично неможливо помітити, якщо ти перебуваєш у тіні і стоїш нерухомо.</p>",
+    "description": "<p>Тебе практично неможливо помітити, якщо ти нерухомо стоїш у тіні.</p><p><strong>Вимоги:</strong> Навичка Крадіж на рівні підмайстра або вище, ВП +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

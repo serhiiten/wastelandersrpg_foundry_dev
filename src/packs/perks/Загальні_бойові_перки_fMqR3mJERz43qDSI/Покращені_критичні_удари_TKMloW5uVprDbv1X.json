@@ -5,7 +5,7 @@
   "_id": "TKMloW5uVprDbv1X",
   "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
-    "description": "<p>При критичному успіху будь-яких перевірок атаки ти можеш вибрати додатково ще 1 критичний ефект.</p>",
+    "description": "<p>У разі критичного успіху будь-якої перевірки атаки ти можеш додатково обрати ще 1 критичний ефект.</p><p><strong>Вимоги:</strong> УДЧ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

@@ -4,7 +4,7 @@
   "_id": "eToQ7yRa3IajyHgO",
   "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
-    "description": "<p>Дальність: Макс. </p><p>Властивість: Одиночна.</p>",
+    "description": "<p>Дальність: Макс</p><p>Властивість: Одиночна.</p>",
     "price": 10,
     "damage": "2d6"
   },

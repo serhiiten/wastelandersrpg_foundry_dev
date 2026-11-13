@@ -5,7 +5,7 @@
   "_id": "Y2l4ufhfWlid3Zzh",
   "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
-    "description": "<p>Дальність: Ближ. </p><p>Властивість: Гострий.</p>",
+    "description": "<p>Дальність: Ближ</p><p>Властивість: Гострий.</p>",
     "price": 3,
     "damage": "1d8"
   },

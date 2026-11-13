@@ -3,7 +3,7 @@
   "type": "weapon",
   "img": "systems/wastelanders-dev/assets/fo1-plasma-grenade.webp",
   "system": {
-    "description": "<p>Завдає шкоди по площині. Продається лише у великих поселеннях.</p>",
+    "description": "<p>Завдає шкоди всім у зоні влучання. Продається лише у великих поселеннях.</p>",
     "price": 4,
     "damage": "3d6"
   },

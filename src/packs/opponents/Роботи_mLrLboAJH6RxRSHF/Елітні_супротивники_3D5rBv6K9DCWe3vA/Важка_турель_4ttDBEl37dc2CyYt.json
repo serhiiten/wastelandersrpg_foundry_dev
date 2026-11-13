@@ -10,7 +10,7 @@
       "max": 12
     },
     "armor": 3,
-    "description": "<p>Як звичайна, тільки більша, краще броньована і з важкою гарматою. Стаціонарна. Зустрічаються парами в тих місцях, куди мріє залізти кожен Пустельник за дійсно крутою поживою.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> важка стаціонарна турель, стійка до спроб зламу.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Захоплення цілі:</strong> раз за сцену захоплює одну ціль до кінця сцени. Захоплена ціль отримує на 2 шкоди більше від важкої турелі. Перевірки уникнення шкоди проти важкої турелі від захопленої цілі отримують Послаблення.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Як звичайна, тільки більша, краще броньована й з важким озброєнням. Стаціонарна. Трапляється парами в тих місцях, куди мріє залізти кожен Пустельник по справді круту поживу.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Важкий кулемет</u> (2d6 фізичної шкоди, бій на відстані); <u>вбудована ракетниця</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 ракети)</li>\n<li><strong>Аспекти: <em>важка стаціонарна турель, стійка до спроб зламу.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Захоплення цілі:</strong> раз за сцену бере на приціл одну ціль до кінця сцени. Ціль на прицілі отримує від важкої турелі на 2 шкоди більше, а її перевірки уникнення шкоди проти турелі отримують Послаблення.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "YtWVIublaM7wS9Dn",
       "img": "assets/machine-gun.svg",
       "system": {
-        "description": "<p>Бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди, бій на відстані.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "Uz1WecNccZexUugG",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>2d6 фізичної шкоди всім істотам в одній зоні, 2 ракети.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

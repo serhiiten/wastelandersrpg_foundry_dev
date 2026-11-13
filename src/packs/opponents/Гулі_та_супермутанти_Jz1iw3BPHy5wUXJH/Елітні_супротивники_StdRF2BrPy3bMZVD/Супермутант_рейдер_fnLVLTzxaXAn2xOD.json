@@ -10,7 +10,7 @@
       "max": 18
     },
     "armor": 1,
-    "description": "<p>Після смерті Повелителя багато супермутантів збилися в банди і стали тероризувати Пустку. Згодом війська НКР та вільні законники перебили багатьох із них, але деякі продовжують займатися своєю брудною справою. Трапляються групами по 2-3. У великі групи збиваються рідко, оскільки це часто закінчується внутрішніми чварами та бійкою.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>супермутант-рейдер, незграбний здоровило.</strong></em></span></p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Затиснути гашетку:</strong> раз за сцену завдає 1d10 шкоди своєю стрілецькою зброєю всім істотам в одній обраній зоні, після чого змушений перейти на зброю ближнього бою.</li></ul></li></ul>",
+    "description": "<blockquote>\n<p>Після смерті Повелителя чимало супермутантів збилися в банди й почали тероризувати Пустку. Згодом війська НКР і вільні законники перебили багатьох із них, але дехто досі займається своєю брудною справою. Трапляються групами по двоє-троє. Більшими гуртами збираються рідко, бо це часто закінчується чварами й бійкою.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 18</li>\n<li><strong>Броня:</strong> 1 (невразливий до радіації)</li>\n<li><strong>Шкода:</strong> Середня зброя (1d10 фізичної шкоди, бій на відстані або ближній бій); саморобні гранати (1d6 фізичної шкоди всім істотам в одній зоні, 2 шт.)</li>\n<li><strong>Аспект:</strong> <strong><em>супермутант-рейдер, незграбний здоровило.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Затиснути гашетку:</strong> раз за сцену поливає вогнем зі стрілецької зброї одну зону на свій вибір і завдає 1d10 шкоди всім істотам у ній, після чого мусить перейти на зброю ближнього бою.</li>\n</ul>\n</li>\n</ul>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Середня зброя",
+      "name": "Затиснути гашетку",
       "type": "attack",
-      "_id": "w5pYZj6hTRmTCetG",
+      "_id": "Htzj62T7ycnemorG",
       "img": "assets/bayonet.svg",
       "system": {
-        "description": "<p>Бій на відстані або ближній бій.</p>",
+        "description": "<p><em>Хід.</em> раз за сцену поливає вогнем зі стрілецької зброї одну зону на свій вибір і завдає 1d10 шкоди всім істотам у ній, після чого мусить перейти на зброю ближнього бою.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,37 +134,7 @@
         "modifiedTime": 1768940195276,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!fnLVLTzxaXAn2xOD.w5pYZj6hTRmTCetG"
-    },
-    {
-      "name": "Саморобна граната",
-      "type": "attack",
-      "_id": "fBqJ6AEYrIy61s9f",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p>2 заряди, влучає по всім у одній зоні. Бій на відстані.</p>",
-        "damage": "1d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 0,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768939783402,
-        "modifiedTime": 1768939830056,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!fnLVLTzxaXAn2xOD.fBqJ6AEYrIy61s9f"
+      "_key": "!actors.items!fnLVLTzxaXAn2xOD.Htzj62T7ycnemorG"
     }
   ],
   "effects": [],

@@ -5,7 +5,7 @@
   "_id": "Mmi7q2ARPbBB1387",
   "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
   "system": {
-    "description": "<p>Ти легко читаєш поверхневі емоції розумних істот. Ти можеш навіть спробувати прочитати їхні думки, але для цього тобі потрібно буде зробити перевірку <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ІН + Маніпуляція</strong></span>. Також ти отримуєш +2 на перевірки <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>СПР + Маніпуляція</strong></span>, щоб розпізнати брехню або замовчування. Цей перк можна застосовувати потай.</p>",
+    "description": "<p>Ти легко зчитуєш поверхневі емоції розумних істот. Ти можеш навіть спробувати прочитати їхні думки, але для цього треба пройти перевірку <strong>ІН + Маніпуляція</strong>. Крім того, ти отримуєш +2 до перевірок <strong>СПР + Маніпуляція</strong>, щоб розпізнати брехню чи замовчування. <strong>Цей перк можна застосовувати потай.</strong></p><p><strong>Вимоги:</strong> Навичка Маніпуляція на рівні учня або вище, ІН +1 або СПР +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

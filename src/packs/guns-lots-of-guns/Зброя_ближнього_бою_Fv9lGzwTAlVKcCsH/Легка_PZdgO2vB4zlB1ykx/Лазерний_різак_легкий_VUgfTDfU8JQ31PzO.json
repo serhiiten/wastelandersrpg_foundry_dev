@@ -5,7 +5,7 @@
   "_id": "VUgfTDfU8JQ31PzO",
   "img": "systems/wastelanders-dev/assets/bowie-knife.svg",
   "system": {
-    "description": "<p>Дальність: Ближ. </p><p>Властивість: Лазерний. Ігнорує 1 броні.</p>",
+    "description": "<p>Дальність: Ближ</p><p>Властивість: <strong><em>Лазерний</em></strong>. Ігнорує 1 броні.</p>",
     "price": 6,
     "damage": "1d6"
   },

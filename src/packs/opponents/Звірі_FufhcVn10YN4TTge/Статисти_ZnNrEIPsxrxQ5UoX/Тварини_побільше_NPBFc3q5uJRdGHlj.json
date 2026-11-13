@@ -1,6 +1,6 @@
 {
   "folder": "ZnNrEIPsxrxQ5UoX",
-  "name": "Тварини побільше",
+  "name": "Тварини побільше (койоти, кротощури, свинощури, гігантські богомоли)",
   "type": "enemy",
   "_id": "NPBFc3q5uJRdGHlj",
   "img": "systems/wastelanders-dev/assets/krotoshchur.png",
@@ -10,7 +10,7 @@
       "max": 3
     },
     "armor": 0,
-    "description": "<p>Койоти, кротощури, свинощури, гігантські богомоли. Істоти трохи більше. Становлять небезпеку, якщо збиваються у велику зграю. Зазвичай нападають у групах не менше ніж 5.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span><span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong> малі й голодні мисливці-падальники</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Трохи більші істоти. Небезпечні, якщо збиваються у велику зграю. Зазвичай нападають групами від 5 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Укуси</u> (1d6 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспект: <em>малі й голодні мисливці-падальники</em></strong></li>\n</ul>",
     "type": "statistician"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Ікла, пазурі, жала",
+      "name": "Укуси",
       "type": "attack",
-      "_id": "y55nf380BbU0lHGs",
+      "_id": "JPYKyRNTnZ7BFGVY",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d6 фізичної шкоди, ближній бій.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768848615954,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!NPBFc3q5uJRdGHlj.y55nf380BbU0lHGs"
+      "_key": "!actors.items!NPBFc3q5uJRdGHlj.JPYKyRNTnZ7BFGVY"
     }
   ],
   "effects": [],

@@ -5,7 +5,7 @@
   "_id": "3vpt7HKu2t3jPUbz",
   "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
-    "description": "<p>Ти отримуєш +2 на всі перевірки подолання труднощів, пов’язані з тим щоб прибирати ситуативні аспекти оточення за допомогою грубої сили. Інакше кажучи, з тим щоб ламати <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>барикади</strong></em></span>, розбивати <span style=\"font-style:italic;font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><em><strong>перевернуті столи </strong></em></span>та трощити ящики. Цей бонус також стосується перевірок вибивання дверей та схожих випадків, коли тобі просто треба розбити якийсь предмет на друзки.</p>",
+    "description": "<p>Ти отримуєш +2 до всіх перевірок подолання труднощів, коли грубою силою прибираєш ситуативні аспекти оточення: ламаєш <strong><em>барикади</em></strong>, розбиваєш <strong><em>перевернуті столи</em></strong>, трощиш ящики тощо. Цей бонус також діє на перевірки вибивання дверей і подібні випадки, коли тобі просто треба розтрощити якийсь предмет на друзки.</p><p><strong>Вимоги:</strong> Навичка Атлетика на рівні учня, СЛ +1 або вище.</p>",
     "attributes": {
       "strength": 1,
       "perception": null,

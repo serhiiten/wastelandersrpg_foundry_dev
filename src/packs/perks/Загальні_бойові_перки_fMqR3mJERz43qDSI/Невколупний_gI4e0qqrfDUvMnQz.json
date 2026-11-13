@@ -5,7 +5,7 @@
   "_id": "gI4e0qqrfDUvMnQz",
   "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
-    "description": "<p>Ти отримуєш 1 броні від усієї фізичної шкоди. Цей бонус додається до будь-якої броні, яку ти носиш.</p>",
+    "description": "<p>Ти отримуєш 1 броні від усієї фізичної шкоди. Цей бонус додається до будь-якої броні, яку ти носиш.</p><p><strong>Вимоги:</strong> ВТР 0 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

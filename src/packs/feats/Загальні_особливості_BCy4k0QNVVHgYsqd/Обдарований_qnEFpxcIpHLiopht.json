@@ -5,7 +5,7 @@
   "img": "systems/wastelanders-dev/assets/body-swapping.svg",
   "system": {
     "active": false,
-    "description": "<p>Отримай 1 пункт атрибутів, але в тебе на 1 перк менше.</p>"
+    "description": "<p>Ти отримуєш 1 додатковий пункт атрибутів, але маєш на 1 перк менше.</p>"
   },
   "effects": [],
   "folder": "BCy4k0QNVVHgYsqd",

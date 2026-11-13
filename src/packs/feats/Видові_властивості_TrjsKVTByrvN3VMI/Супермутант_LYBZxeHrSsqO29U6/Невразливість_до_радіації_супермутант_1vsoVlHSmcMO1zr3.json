@@ -6,7 +6,7 @@
   "img": "icons/svg/item-bag.svg",
   "system": {
     "isSpecies": true,
-    "description": "<p>Супермутанти невразливі до негативного впливу опромінення.</p>",
+    "description": "<p>супермутанти невразливі до негативного впливу опромінення.</p>",
     "hpBonus": null
   },
   "effects": [],

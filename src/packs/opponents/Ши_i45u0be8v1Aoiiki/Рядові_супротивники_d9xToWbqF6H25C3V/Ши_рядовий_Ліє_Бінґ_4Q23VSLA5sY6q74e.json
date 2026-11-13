@@ -10,7 +10,7 @@
       "max": 7
     },
     "armor": 1,
-    "description": "<p>Рядовий солдат Ши. Зазвичай патрулюють кордони Сан-Франа та слідкують за порядком у місті. Зустрічаються загонами по 2-4 у супроводі польового медика та іноді капітана Ши.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>дисциплінований воїн Ши</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Рядовий солдат Ши. Такі бійці зазвичай патрулюють кордони Сан-Франа й стежать за порядком у місті. Трапляються загонами по 2–4 бійці в супроводі польового медика, а іноді й капітана Ши.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 7</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, ближній бій); <u>легка зброя</u> (1d6 фізичної шкоди, бій на відстані); <u>саморобна граната</u> (1d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.)</li>\n<li><strong>Аспект:</strong> <strong><em>дисциплінований воїн Ши.</em></strong></li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "uxEEw6nU5QPlx6OW",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d10 фізичної шкоди, ближній бій.</p>",
         "damage": "1d10"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -142,12 +142,12 @@
       "_id": "Z1SdI7mfPvKi1gZK",
       "img": "assets/winchester-rifle.svg",
       "system": {
-        "description": "<p>Бій на відстані.</p>",
+        "description": "<p>1d6 фізичної шкоди, бій на відстані.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -172,12 +172,12 @@
       "_id": "gxL3pfPjFwKdpky3",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p>1 заряд, влучає по всім у одній зоні. Бій на відстані.</p>",
+        "description": "<p>1d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 300000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3

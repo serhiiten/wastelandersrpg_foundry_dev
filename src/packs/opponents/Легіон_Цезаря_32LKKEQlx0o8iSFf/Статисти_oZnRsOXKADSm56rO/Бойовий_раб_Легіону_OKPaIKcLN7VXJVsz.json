@@ -10,7 +10,7 @@
       "max": 3
     },
     "armor": 0,
-    "description": "<p>Деяким фізично міцним рабам промивають голову настільки потужно, що вони стають відданим гарматним м'ясом Легіону. Готові беззаперечно виконати будь-який наказ і померти, коли потрібно. Зазвичай зустрічаються групами по 3-5 разом із їхніми наглядачами.</p>",
+    "description": "<blockquote>\n<p>Деяким фізично міцним рабам так ретельно промивають мізки, що вони стають відданим гарматним м'ясом Легіону. Такі раби готові беззаперечно виконати будь-який наказ і, коли треба, померти. Зазвичай трапляються групами по 3–5 осіб разом зі своїми наглядачами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Легка зброя</u> (1d6 фізичної шкоди, ближній бій); <u>саморобна граната, прив'язана до руки</u> (1d6 фізичної шкоди всім істотам в одній зоні, 1 шт., вбиває носія під час атаки)</li>\n</ul>",
     "type": "statistician"
   },
   "prototypeToken": {
@@ -112,12 +112,12 @@
       "_id": "YuQoJnwPcacDEiEC",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d6 фізичної шкоди, ближній бій.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -137,17 +137,17 @@
       "_key": "!actors.items!OKPaIKcLN7VXJVsz.YuQoJnwPcacDEiEC"
     },
     {
-      "name": "Камікадзе-атака",
+      "name": "Саморобна граната, прив'язана до руки",
       "type": "attack",
-      "_id": "0HTb0YEEslk9Pp96",
-      "img": "assets/grenade.svg",
+      "_id": "KPXK9uqfJ4GQ6Cc0",
+      "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Cаморобна граната, прив’язана до руки (влучає по всім в одній зоні, вбиває носія під час атаки).</p>",
+        "description": "<p>1d6 фізичної шкоди всім істотам в одній зоні, 1 шт., вбиває носія під час атаки.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 200000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -160,11 +160,11 @@
         "coreVersion": "14.359",
         "systemId": "wastelanders-dev",
         "systemVersion": "0.3",
-        "createdTime": 1768951081106,
-        "modifiedTime": 1768951124072,
+        "createdTime": 1768951080762,
+        "modifiedTime": 1768951100648,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!OKPaIKcLN7VXJVsz.0HTb0YEEslk9Pp96"
+      "_key": "!actors.items!OKPaIKcLN7VXJVsz.KPXK9uqfJ4GQ6Cc0"
     }
   ],
   "effects": [],

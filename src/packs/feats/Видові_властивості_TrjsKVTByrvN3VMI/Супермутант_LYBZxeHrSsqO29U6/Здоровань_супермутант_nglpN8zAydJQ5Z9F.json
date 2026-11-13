@@ -6,7 +6,7 @@
   "img": "icons/svg/item-bag.svg",
   "system": {
     "isSpecies": true,
-    "description": "<p>Супермутанти одержують більше ОЗ на старті гри.</p>",
+    "description": "<p>супермутанти мають +5 ОЗ.</p>",
     "hpBonus": 5
   },
   "effects": [],

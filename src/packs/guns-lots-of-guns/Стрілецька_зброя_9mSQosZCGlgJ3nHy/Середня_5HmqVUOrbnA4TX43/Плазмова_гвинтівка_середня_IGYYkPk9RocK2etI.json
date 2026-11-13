@@ -4,9 +4,9 @@
   "_id": "IGYYkPk9RocK2etI",
   "img": "systems/wastelanders-dev/assets/winchester-rifle.svg",
   "system": {
-    "description": "<p>Дальність: Макс. </p><p>Властивість: Напівавтоматична. Плазмова. Ігнорує 2 броні.</p>",
-    "price": 20,
-    "damage": "1d10+2"
+    "description": "<p>Дальність: 2 зони</p><p>Властивість: Напівавтоматична. <strong><em>Плазмова</em></strong>. Ігнорує 2 броні.</p>",
+    "price": 15,
+    "damage": "1d10"
   },
   "effects": [],
   "folder": "5HmqVUOrbnA4TX43",

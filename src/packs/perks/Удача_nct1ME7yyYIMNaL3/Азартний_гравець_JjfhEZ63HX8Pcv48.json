@@ -5,7 +5,7 @@
   "_id": "JjfhEZ63HX8Pcv48",
   "img": "systems/wastelanders-dev/assets/dice-fire.svg",
   "system": {
-    "description": "<p>Ти отримуєш Посилення на всі перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>УДЧ</strong></span>, пов'язані з азартними іграми та схожими розвагами.</p>",
+    "description": "<p>Ти отримуєш Посилення на всі перевірки <strong>УДЧ</strong>, пов'язані з азартними іграми та подібними розвагами.</p><p><strong>Вимоги:</strong> УДЧ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

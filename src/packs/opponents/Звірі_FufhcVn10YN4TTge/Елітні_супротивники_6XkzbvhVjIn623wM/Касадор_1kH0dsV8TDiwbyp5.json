@@ -10,7 +10,7 @@
       "max": 15
     },
     "armor": 2,
-    "description": "<p>Мутована оса-павуколов. Цілком виправдано вважається найнебезпечнішою комахою у Пустці. Великий, але надзвичайно рухливий літаючий хижак з отруйним жалом розміром з долоню. Водяться зазвичай поодинці, іноді групами до 3.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>надзвичайно зла летюча комаха, верткий, як сам чорт.</strong></em></span></p><hr /><p>Летючий, тому його не можна <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збити з ніг</strong></em></span>.</p><hr /><ul><li><p><strong>Ходи:</strong></p><ul><li><strong>Отруєння:</strong> раз за сцену вражає супротивника отруйним жалом. Жертва отримує 1d6 шкоди отрутою щоразу, коли доходить її черга діяти, протягом 3 кіл. Ця шкода ігнорує броню.</li><li><strong>Політ:</strong> касадор злітає і може переміститися на відстань до двох зон без жодних перешкод. Також його не можна збити з ніг.</li></ul><hr /><p>З касадорів можна зцідити їхню отруту. Киньте 1d6, якщо випало 3-4 — ви знаходите 1 дозу, 5-6 — 2 дози. Отрута касадора вважається сильною отрутою.</p></li></ul>",
+    "description": "<blockquote>\n<p>Мутована оса-павуколов, яку цілком заслужено вважають найнебезпечнішою комахою в Пустці. Великий, але надзвичайно рухливий летючий хижак із жалом завбільшки з долоню. Зазвичай трапляється поодинці, іноді групами до трьох особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 2 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Жало</u> (1d10 фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню)</li>\n<li><strong>Аспекти:</strong> <strong><em>надзвичайно злісна летюча комаха, верткий, як сам чорт.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Отруєння:</strong> раз за сцену вражає ціль отруйним жалом. Протягом 3 кіл жертва отримує 1d6 шкоди від отрути щоразу, коли настає її черга діяти. Ця шкода ігнорує броню.</li>\n<li><strong>Політ:</strong> касадор злітає й переміщується на відстань до двох зон, оминаючи будь-які перешкоди.</li>\n</ul>\n</li>\n</ul><blockquote class=\"aside\"><p>З касадора можна зцідити отруту. Кинь 1d6: якщо випаде 3–4, вдається добути одну дозу, якщо 5–6 — дві. Отрута касадора вважається сильною отрутою.</p></blockquote>",
     "type": "elite"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Отруйне жало",
+      "name": "Жало",
       "type": "attack",
-      "_id": "91rFydZEuWg2neem",
+      "_id": "zG7d5ERcaje3tgE1",
       "img": "assets/poison-bottle.svg",
       "system": {
-        "description": "<p>+ 1d6 шкоди отрутою (ігнорує броню). Ближній бій.</p>",
-        "damage": "1d10+1d6"
+        "description": "<p>1d10 фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню.</p>",
+        "damage": "1d10[фізична] + 1d6[отрута]"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,37 @@
         "modifiedTime": 1768849225531,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!1kH0dsV8TDiwbyp5.91rFydZEuWg2neem"
+      "_key": "!actors.items!1kH0dsV8TDiwbyp5.zG7d5ERcaje3tgE1"
+    },
+    {
+      "name": "Отруєння",
+      "type": "attack",
+      "_id": "UPCJwaZ1o95lwfGc",
+      "img": "assets/poison-bottle.svg",
+      "system": {
+        "description": "<p><em>Хід.</em> раз за сцену вражає ціль отруйним жалом. Протягом 3 кіл жертва отримує 1d6 шкоди від отрути щоразу, коли настає її черга діяти. Ця шкода ігнорує броню.</p>",
+        "damage": "1d6"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200000,
+      "ownership": {
+        "default": 0,
+        "Te0NoAFEwBAH20vC": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "14.359",
+        "systemId": "wastelanders-dev",
+        "systemVersion": "0.3",
+        "createdTime": 1768849183777,
+        "modifiedTime": 1768849225531,
+        "lastModifiedBy": "Te0NoAFEwBAH20vC"
+      },
+      "_key": "!actors.items!1kH0dsV8TDiwbyp5.UPCJwaZ1o95lwfGc"
     }
   ],
   "effects": [],

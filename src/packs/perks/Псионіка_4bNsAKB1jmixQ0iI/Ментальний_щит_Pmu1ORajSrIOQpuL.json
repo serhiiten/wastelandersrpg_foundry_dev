@@ -1,0 +1,52 @@
+{
+  "folder": "4bNsAKB1jmixQ0iI",
+  "name": "Ментальний щит",
+  "type": "perk",
+  "_id": "Pmu1ORajSrIOQpuL",
+  "img": "systems/wastelanders-dev/assets/psychic-waves.svg",
+  "system": {
+    "description": "<p>Твій розум — фортеця, і ворота до неї ретельно охороняються. Ти отримуєш 2 броні від психічної шкоди. Крім того, раз за сесію ти можеш витратити дію, щоб накрити щитом свою зону. Всі твої союзники в ній теж отримують 2 броні від психічної шкоди, а також ви всі отримуєте Посилення на перевірки уникнення шкоди, щоб протистояти навіюванню, ілюзіям та іншому ментальному впливу. Щит зникає на початку твоєї наступної дії.</p><p><strong>Вимоги:</strong> ІН +1 або вище, ВТР +1 або вище.</p>",
+    "attributes": {
+      "strength": null,
+      "perception": null,
+      "endurance": 1,
+      "attractiveness": null,
+      "intelligence": 1,
+      "dexterity": null,
+      "luck": null
+    },
+    "skills": {
+      "athletics": 0,
+      "thievery": 0,
+      "marksmanship": 0,
+      "dueling": 0,
+      "medicine": 0,
+      "mechanics": 0,
+      "knowledge": 0,
+      "survival": 0,
+      "manipulation": 0,
+      "intimidation": 0
+    },
+    "hpBonus": null,
+    "notMetRequirements": false
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "Te0NoAFEwBAH20vC": 3
+  },
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "wastelanders-dev",
+    "systemVersion": "0.2",
+    "createdTime": 1768659882249,
+    "modifiedTime": 1768827159592,
+    "lastModifiedBy": "W42gkP6LZH5xXz85"
+  },
+  "_key": "!items!Pmu1ORajSrIOQpuL"
+}

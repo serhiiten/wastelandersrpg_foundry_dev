@@ -10,7 +10,7 @@
       "max": 8
     },
     "armor": 1,
-    "description": "<p>Кайманова черепаха, що мутувала до повної невпізнаваності. На вигляд нагадує рибоподібного гуманоїда з гострими кігтями на лапах. Не агресивні, якщо не підходити близько. Водяться біля водоймищ групами по 3-5 особин. Вміють дихати під водою і переміщуються у воді так само швидко, як на суші.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>мутант-амфібія.</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Кайманова черепаха, що мутувала до повної невпізнаваності. На вигляд нагадує рибоподібного гуманоїда з гострими кігтями на лапах. Без потреби не нападає, якщо не підходити надто близько. Трапляється біля водойм групами по 3–5 особин. Уміє дихати під водою й плаває так само швидко, як пересувається суходолом.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Кігті</u> (1d6+1 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспект:</strong> <strong><em>мутант-амфібія, однаково спритний у воді й на суші.</em></strong></li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Лапи",
+      "name": "Кігті",
       "type": "attack",
-      "_id": "P2CivpAo3crXmVz2",
+      "_id": "aDQVnh1aNPsImogm",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d6+1 фізичної шкоди, ближній бій.</p>",
         "damage": "1d6+1"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768865899769,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!XtZyUS741NN5fYFP.P2CivpAo3crXmVz2"
+      "_key": "!actors.items!XtZyUS741NN5fYFP.aDQVnh1aNPsImogm"
     }
   ],
   "effects": [],

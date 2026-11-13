@@ -5,7 +5,7 @@
   "_id": "of6skNDxCXI6qEAj",
   "img": "systems/wastelanders-dev/assets/mine-explosion.svg",
   "system": {
-    "description": "<p>Ти завдаєш +2 шкоди при використанні гранат та вибухівки.</p>",
+    "description": "<p>Твої гранати та вибухівка завдають +2 шкоди.</p><p><strong>Вимоги:</strong> Навичка Техніка на рівні учня або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

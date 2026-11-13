@@ -5,9 +5,9 @@
   "_id": "HtssStjPBJGsaAux",
   "img": "systems/wastelanders-dev/assets/spiked-bat-1.svg",
   "system": {
-    "description": "<p>Дальність: Ближ. </p><p>Властивість: Електричний. Завдає роботам та техніці додатково 1d6 шкоди.</p>",
-    "price": 9,
-    "damage": "1d8"
+    "description": "<p>Дальність: Ближ</p><p>Властивість: <strong><em>Електричний.</em></strong> Завдає роботам та електроніці додатково 1d6 шкоди.</p>",
+    "price": 10,
+    "damage": "1d10"
   },
   "effects": [],
   "sort": 0,

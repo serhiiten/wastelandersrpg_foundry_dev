@@ -10,7 +10,7 @@
       "max": 3
     },
     "armor": 1,
-    "description": "<p>Невідомо хто вперше здогадався запхнути вибухівку в робооко, але з того часу жителі Пустки перестали ігнорувати літаючі кульки. На вигляд нічим не відрізняється від звичайного робоока, але всі його нутрощі, окрім рушія, замінені на вибухівку. Єдине, чим можна відрізнити від звичайного робоока - бум-очі літають тихо.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>маленька летюча бомба</strong></em></span></p><hr /><p>Летюче, тому його не можна <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>збити з ніг</strong></em></span>.</p>",
+    "description": "<blockquote>\n<p>Невідомо, хто першим здогадався запхати вибухівку в робооко, але відтоді жителі Пустки більше не ігнорують летючі кульки. На вигляд бум-око таке саме, як звичайне робооко, проте всі його нутрощі, крім рушія, замінено вибухівкою. Відрізнити їх можна хіба що за звуком: бум-очі літають мовчки.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 1 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Вбудована вибухівка</u> (2d6 фізичної шкоди всім істотам у своїй зоні, під час атаки самознищується)</li>\n<li><strong>Аспект:</strong> <strong><em>маленька летюча бомба.</em></strong></li>\n</ul>",
     "type": "statistician"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Камікадзе-атака",
+      "name": "Вбудована вибухівка",
       "type": "attack",
-      "_id": "LXjN4pB0vgV9a5Hu",
+      "_id": "9nOkBWAmn5nvDsSb",
       "img": "assets/grenade.svg",
       "system": {
-        "description": "<p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\">Влучає по всім у одній зоні. Бум-око самознищується під час атаки.</span></p>",
+        "description": "<p>2d6 фізичної шкоди всім істотам у своїй зоні, під час атаки самознищується.</p>",
         "damage": "2d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768937470490,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!ug9DXMHo46hHiGCz.LXjN4pB0vgV9a5Hu"
+      "_key": "!actors.items!ug9DXMHo46hHiGCz.9nOkBWAmn5nvDsSb"
     }
   ],
   "effects": [],

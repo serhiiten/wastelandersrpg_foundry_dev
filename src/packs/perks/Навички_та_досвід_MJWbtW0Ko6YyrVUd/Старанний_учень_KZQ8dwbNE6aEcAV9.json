@@ -5,7 +5,7 @@
   "_id": "KZQ8dwbNE6aEcAV9",
   "img": "systems/wastelanders-dev/assets/gift-of-knowledge.svg",
   "system": {
-    "description": "<p>При перших трьох невдачах перевірок на кожній ігровій сесії ти отримуєш 2 ОД замість 1.</p>",
+    "description": "<p>За перші три невдалі перевірки на кожній ігровій сесії ти отримуєш 2 ОД замість 1.</p><p><strong>Вимоги:</strong> ІН +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

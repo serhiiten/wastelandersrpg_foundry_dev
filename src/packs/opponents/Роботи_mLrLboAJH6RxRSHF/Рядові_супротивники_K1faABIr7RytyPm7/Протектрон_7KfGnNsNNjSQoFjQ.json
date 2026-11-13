@@ -10,7 +10,7 @@
       "max": 8
     },
     "armor": 2,
-    "description": "<p>Гуманоїдний робот, призначений для охорони та підтримання порядку. Пересувається повільно, але впевнено. Зазвичай зустрічаються на занедбаних режимних об'єктах групами по 3-5.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>робот-охоронець.</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Гуманоїдний робот, призначений для охорони й підтримання порядку. Пересувається повільно, але впевнено. Трапляється на занедбаних режимних об'єктах, зазвичай групами по 3–5 роботів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Лазер</u> (1d6+2 фізичної шкоди, бій на відстані, ігнорує 1 броні)</li>\n<li><strong>Аспект:</strong> <strong><em>повільний, але невідступний робот-охоронець.</em></strong></li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Лазерний промінь",
+      "name": "Лазер",
       "type": "attack",
-      "_id": "6zzDo2j6b3BbydjX",
+      "_id": "wNgSqBK6zZpk1v0A",
       "img": "assets/laser-blast.svg",
       "system": {
-        "description": "<p>Ігнорує 1 броні. Бій на відстані.</p>",
+        "description": "<p>1d6+2 фізичної шкоди, бій на відстані, ігнорує 1 броні.</p>",
         "damage": "1d6+2"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768938143204,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!7KfGnNsNNjSQoFjQ.6zzDo2j6b3BbydjX"
+      "_key": "!actors.items!7KfGnNsNNjSQoFjQ.wNgSqBK6zZpk1v0A"
     }
   ],
   "effects": [],

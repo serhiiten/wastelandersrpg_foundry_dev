@@ -5,7 +5,7 @@
   "_id": "ZKMxPUZ7rZRiZPyq",
   "img": "systems/wastelanders-dev/assets/human-target.svg",
   "system": {
-    "description": "<p>Боєприпаси для твоєї зброї у тебе не закінчуються доти, доки ти маєш хоча б одиницю Припасів.</p>",
+    "description": "<p>Боєприпаси до твоєї зброї не закінчуються, доки в тебе є хоча б одиниця Припасів.</p><p><strong>Вимоги:</strong> Навичка Стрільба на рівні учня або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

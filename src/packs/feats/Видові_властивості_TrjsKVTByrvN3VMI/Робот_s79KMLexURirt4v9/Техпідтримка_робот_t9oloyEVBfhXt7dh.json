@@ -6,7 +6,7 @@
   "img": "icons/svg/item-bag.svg",
   "system": {
     "isSpecies": true,
-    "description": "<p>Щоб відновити ОЗ або вилікувати наслідок, роботу потрібен ремонт за допомогою перевірки <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>ІН + Техніка. </strong></span>Також роботи <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>не можуть відновлювати ОЗ за відпочинок</strong></span>.</p>",
+    "description": "<p>щоб відновити ОЗ чи позбутися наслідку, роботу потрібен ремонт, тобто перевірка <strong>ІН + Техніка</strong>. Крім того, роботи не відновлюють ОЗ під час відпочинку.</p>",
     "hpBonus": null
   },
   "effects": [],

@@ -4,9 +4,9 @@
   "_id": "urAJJsVXkwbWItl7",
   "img": "systems/wastelanders-dev/assets/minigun-1.svg",
   "system": {
-    "description": "<p>Дальність: Макс. </p><p>Властивість: Напівавтоматичний. Плазмовий. Ігнорує 2 броні.</p>",
+    "description": "<p>Дальність: Макс</p><p>Властивість: Напівавтоматичний.<strong><em>Плазмовий</em></strong>. Ігнорує 2 броні.</p>",
     "price": 40,
-    "damage": "2d6+2"
+    "damage": "2d6+3"
   },
   "effects": [],
   "folder": "QpA0zkuOZOgqo4ve",

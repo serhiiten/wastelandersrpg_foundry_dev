@@ -5,7 +5,7 @@
   "_id": "01RvhH8Rv5byNKiX",
   "img": "systems/wastelanders-dev/assets/crossed-axes.svg",
   "system": {
-    "description": "<p>Тебе практично неможливо зупинити. Ніщо, крім повного <span style=\"font-style:italic;font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><em><strong>знерухомлення, приголомшення</strong></em></span> або кайданів на руках і ногах не здатне завадити тобі переміщатися між зонами у битві.</p>",
+    "description": "<p>Тебе неможливо зупинити. Ніщо, крім повного <strong><em>знерухомлення</em></strong>, <strong><em>приголомшення</em></strong> чи кайданів на руках і ногах, не завадить тобі пересуватися між зонами в бою.</p><p><strong>Вимоги:</strong> Навичка Атлетика на рівні учня або вище, ВП або СЛ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

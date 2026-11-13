@@ -5,7 +5,7 @@
   "_id": "7YCqTKLs2FwbONUU",
   "img": "systems/wastelanders-dev/assets/binoculars.svg",
   "system": {
-    "description": "<p>Отримай +1 до перевірок <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>СПР + Виживання</strong></span>, пов'язаних з подорожами Пусткою. Також тебе неможливо захопити зненацька у звичайних умовах.</p>",
+    "description": "<p>Ти отримуєш +1 до перевірок <strong>СПР + Виживання</strong>, пов'язаних із подорожами Пусткою. Крім того, у звичайних умовах тебе неможливо заскочити зненацька.</p><p><strong>Вимоги:</strong> Навичка Виживання на рівні учня або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

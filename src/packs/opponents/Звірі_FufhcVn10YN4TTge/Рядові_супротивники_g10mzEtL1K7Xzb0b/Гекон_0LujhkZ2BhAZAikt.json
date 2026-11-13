@@ -10,7 +10,7 @@
       "max": 5
     },
     "armor": 1,
-    "description": "<p>Мутована ящірка, що виросла до розмірів великого вовка. Водяться групами по 2-5.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспекти:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>спритна ящірка-переросток.</strong></em></span></p>",
+    "description": "<blockquote>\n<p>Мутована ящірка, що виросла до розмірів великого вовка. Трапляється групами по 2–5 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Пазурі</u> (1d6 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>спритна ящірка-переросток.</em></strong></li>\n</ul>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Лапи",
+      "name": "Пазурі",
       "type": "attack",
-      "_id": "pvV0tDM3fkHDNc5O",
+      "_id": "qA4orv3rISDbyD4r",
       "img": "assets/bowie-knife.svg",
       "system": {
-        "description": "<p>Ближній бій.</p>",
+        "description": "<p>1d6 фізичної шкоди, ближній бій.</p>",
         "damage": "1d6"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768848627883,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!0LujhkZ2BhAZAikt.pvV0tDM3fkHDNc5O"
+      "_key": "!actors.items!0LujhkZ2BhAZAikt.qA4orv3rISDbyD4r"
     }
   ],
   "effects": [],

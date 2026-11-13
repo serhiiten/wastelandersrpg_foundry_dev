@@ -5,7 +5,7 @@
   "_id": "m80PTy3znN8MeU7W",
   "img": "systems/wastelanders-dev/assets/gift-of-knowledge.svg",
   "system": {
-    "description": "<p>Ти отримуєш 1 ОД щоразу, коли отримуєш критичний успіх на перевірці, де в тебе не було відповідної навички.</p>",
+    "description": "<p>Щоразу, коли твоя перевірка, для якої в тебе немає відповідної навички, закінчується критичним успіхом, ти отримуєш 1 ОД.</p><p><strong>Вимоги:</strong> УДЧ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

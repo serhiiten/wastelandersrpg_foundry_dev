@@ -10,7 +10,7 @@
       "max": 6
     },
     "armor": 1,
-    "description": "<p>Мутована венерина мухоловка. Пересуватися не може, проте навчилася плюватися отруйними шипами. Зустрічається невеличкими гаями по 3-5 рослин.</p><hr /><p><span style=\"font-weight:600\" data-token-index=\"0\" class=\"notion-enable-hover\"><strong>Аспект:</strong></span> <span style=\"font-style:italic;font-weight:600\" data-token-index=\"2\" class=\"notion-enable-hover\"><em><strong>мутована агресивна рослина.</strong></em></span></p><hr /><p>З хижих рослин можна зцідити їхню отруту. Киньте 1d6, якщо випало 3-4 — ви знаходите 1 дозу, 5-6 — 2 дози. Отрута хижої рослини вважається <span style=\"text-decoration:underline;text-decoration-thickness:0.05em;text-decoration-color:rgba(55, 53, 47, 0.4);text-underline-offset:10%;opacity:0.7\" class=\"link-annotation-unknown-block-id-1603543801\"><a href=\"/21de66cd8c7880ce8f72dbd763b7183c?pvs=25\" style=\"cursor:pointer;color:inherit;word-wrap:break-word;text-decoration:inherit\" class=\"notion-link-token notion-focusable-token notion-enable-hover\" rel=\"noopener noreferrer\" data-token-index=\"1\" tabindex=\"0\">слабкою отрутою</a></span>.</p>",
+    "description": "<blockquote>\n<p>Мутована венерина мухоловка. Пересуватися не може, проте навчилася плюватися отруйними шипами. Трапляється невеликими заростями по 3–5 рослин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 6</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Шипи</u> (1d6 фізичної шкоди + 2 шкоди отрутою, бій на відстані, отрута ігнорує броню)</li>\n<li><strong>Аспект:</strong> <strong><em>нерухома агресивна рослина-мутант.</em></strong></li>\n</ul><blockquote class=\"aside\"><p>З хижої рослини можна зцідити отруту. Кинь 1d6: якщо випаде 3–4, вдається добути одну дозу, якщо 5–6 — дві. Отрута хижої рослини вважається слабкою отрутою.</p></blockquote>",
     "type": "ordinary"
   },
   "prototypeToken": {
@@ -107,17 +107,17 @@
   },
   "items": [
     {
-      "name": "Шип",
+      "name": "Шипи",
       "type": "attack",
-      "_id": "H2zWlitEsC0iifLA",
+      "_id": "MgbFtEee2VJesn3l",
       "img": "assets/winchester-rifle.svg",
       "system": {
-        "description": "<p>+ 2 шкоди отрутою (ігнорує броню). Бій на відстані.</p>",
-        "damage": "1d6+2"
+        "description": "<p>1d6 фізичної шкоди + 2 шкоди отрутою, бій на відстані, отрута ігнорує броню.</p>",
+        "damage": "1d6[фізична] + 2[отрута]"
       },
       "effects": [],
       "folder": null,
-      "sort": 0,
+      "sort": 100000,
       "ownership": {
         "default": 0,
         "Te0NoAFEwBAH20vC": 3
@@ -134,7 +134,7 @@
         "modifiedTime": 1768865966669,
         "lastModifiedBy": "Te0NoAFEwBAH20vC"
       },
-      "_key": "!actors.items!IfAlY0LN4lTkW8lz.H2zWlitEsC0iifLA"
+      "_key": "!actors.items!IfAlY0LN4lTkW8lz.MgbFtEee2VJesn3l"
     }
   ],
   "effects": [],

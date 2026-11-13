@@ -5,7 +5,7 @@
   "_id": "79wiBkLVnPg7gj8t",
   "img": "systems/wastelanders-dev/assets/talk.svg",
   "system": {
-    "description": "<p>При першій зустрічі з будь-яким персонажем ти отримуєш Посилення на першу перевірку <span style=\"font-weight:600\" data-token-index=\"1\" class=\"notion-enable-hover\"><strong>Маніпуляції</strong></span> або <span style=\"font-weight:600\" data-token-index=\"3\" class=\"notion-enable-hover\"><strong>Примусу</strong></span> проти нього. Кожен ще здалеку бачить, що ти серйозна людина.</p>",
+    "description": "<p>Під час першої зустрічі з будь-яким персонажем ти отримуєш Посилення на першу перевірку <strong>Маніпуляції</strong> чи <strong>Примусу</strong> проти нього. Кожен ще здалеку бачить, що ти серйозна людина.</p><p><strong>Вимоги:</strong> ПВ +1 або вище.</p>",
     "attributes": {
       "strength": null,
       "perception": null,

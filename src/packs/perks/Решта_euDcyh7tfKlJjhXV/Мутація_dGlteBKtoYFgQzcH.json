@@ -5,7 +5,7 @@
   "_id": "dGlteBKtoYFgQzcH",
   "img": "systems/wastelanders-dev/assets/dna2.svg",
   "system": {
-    "description": "<p>Коли береш цей перк, можеш відмовитися від однієї або двох своїх особливостей і взяти замість них інші або повністю відмовитися від них.</p>",
+    "description": "<p>Коли береш цей перк, ти можеш замінити одну чи дві свої особливості іншими або повністю від них відмовитися.</p>",
     "attributes": {
       "strength": null,
       "perception": null,
