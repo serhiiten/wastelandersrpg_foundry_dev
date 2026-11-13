@@ -42,6 +42,27 @@
       "path": "lang/uk.json"
     }
   ],
+  "documentTypes": {
+    "Actor": {
+      "character": { "htmlFields": ["description", "notes"] },
+      "caravan": { "htmlFields": ["description", "notes"] },
+      "enemy": { "htmlFields": ["description"] },
+      "counter": { "htmlFields": ["description"] }
+    },
+    "Item": {
+      "species": { "htmlFields": ["description"] },
+      "feat": { "htmlFields": ["description"] },
+      "perk": { "htmlFields": ["description"] },
+      "weapon": { "htmlFields": ["description"] },
+      "armor": { "htmlFields": ["description"] },
+      "tool": { "htmlFields": ["description"] },
+      "drug": { "htmlFields": ["description"] },
+      "upgrade": { "htmlFields": ["description"] },
+      "cargo": { "htmlFields": ["description"] },
+      "passenger": { "htmlFields": ["description"] },
+      "attack": { "htmlFields": ["description"] }
+    }
+  },
   "packs": [
     {
       "label": "Види",

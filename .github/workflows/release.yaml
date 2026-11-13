@@ -45,7 +45,7 @@ jobs:
 
       - name: Create Zip Archive
         run: |
-          zip -r foundry.zip system.json template.json LICENSE.md README.md assets css fonts lang module packs templates
+          zip -r foundry.zip system.json LICENSE.md README.md assets css fonts lang module packs templates
 
       - name: Create Release
         id: create_release
