@@ -6,7 +6,7 @@
   "img": "icons/svg/item-bag.svg",
   "system": {
     "isSpecies": true,
-    "description": "<p>Роботи мають <span style=\"text-decoration:underline;text-decoration-thickness:0.05em;text-decoration-color:rgba(55, 53, 47, 0.4);text-underline-offset:10%;opacity:0.7\" class=\"link-annotation-unknown-block-id--2145576175\"><span href=\"/21de66cd8c7880afb6c4d72a714ef617?pvs=25\" style=\"cursor: pointer; word-wrap: break-word; text-decoration: inherit; color: inherit\" rel=\"noopener noreferrer\" data-token-index=\"1\" tabindex=\"0\">броню</span></span> 2 від фізичної шкоди. Вони не можуть носити броню як живі істоти, проте можуть замовити поліпшення свого корпусу, витративши у досить вмілого техніка вдвічі більше кришок, ніж коштує звичайна броня з таким самим класом захисту.</p>",
+    "description": "<p>роботи мають броню 2 від фізичної шкоди. Вони не можуть носити броню, як живі істоти, проте можуть замовити поліпшення корпусу в досить умілого техніка. Це коштуватиме вдвічі дорожче, ніж звичайна броня з таким самим класом захисту.</p>",
     "hpBonus": null
   },
   "effects": [],

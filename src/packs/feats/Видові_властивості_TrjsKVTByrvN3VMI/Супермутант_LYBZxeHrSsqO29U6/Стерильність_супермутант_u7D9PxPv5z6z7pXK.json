@@ -6,7 +6,7 @@
   "img": "icons/svg/item-bag.svg",
   "system": {
     "isSpecies": true,
-    "description": "<p>Супермутанти не здатні мати нащадків.</p>",
+    "description": "<p>супермутанти не здатні мати нащадків.</p>",
     "hpBonus": null
   },
   "effects": [],

@@ -6,7 +6,7 @@
   "img": "icons/svg/item-bag.svg",
   "system": {
     "isSpecies": true,
-    "description": "<p>При відповідному догляді робот може існувати майже вічно.</p>",
+    "description": "<p>за належного догляду робот може існувати необмежено довго.</p>",
     "hpBonus": null
   },
   "effects": [],
