@@ -83,6 +83,9 @@ async function resolveItem(item, actorData) {
   const data = doc.toObject();
   delete data._id;
   data.sort = item.sort;
+  // gear keeps the name from the file (players rename their gear); perks and feats show the
+  // compendium name and remember the engine name in system.engine.n
+  if (["weapon", "armor", "tool", "drug"].includes(item.type)) data.name = item.name;
   // the file's own values win (damage, notes, quantity…); the compendium supplies texts and pictures
   data.system = foundry.utils.mergeObject(data.system, item.system, { inplace: false });
   // remember which compendium item this came from
