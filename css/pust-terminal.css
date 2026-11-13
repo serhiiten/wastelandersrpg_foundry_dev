@@ -1,0 +1,100 @@
+/* «Термінал Доглядача» (Foundry): the HTML terminal's generators. Colours after the HTML tools;
+   the full restyle comes later. Also listed in system.json (and imported by pust-sheet.css). */
+.pust-terminal-app {
+  --pt-paper: #d9cfb2; --pt-ink: #2a261c; --pt-rust: #9a4a20; --pt-rust-2: #c06a35;
+  --pt-screen: #b5cfbd; --pt-screen-ink: #13231a; --pt-rim: #1e1b17; --pt-metal: #8e887f; --pt-bad: #a3241b;
+}
+.pust-terminal-app .window-content { background: var(--pt-paper); color: var(--pt-ink); padding: 0; }
+.pust-terminal { display: flex; flex-direction: column; height: 100%; font-family: "PT Sans Narrow", "Jura", sans-serif; font-size: 14px; }
+.pust-terminal button { background: #efe7d0; color: var(--pt-ink); border: 1px solid var(--pt-metal); border-radius: 3px; line-height: 22px; padding: 0 8px; width: auto; flex: 0 0 auto; cursor: pointer; }
+.pust-terminal button:disabled { opacity: .45; cursor: default; }
+.pust-terminal button.armed { background: var(--pt-bad); color: #fff; }
+.pust-terminal button.pust-term-go { background: var(--pt-rust); border-color: var(--pt-rust); color: #fff; font-weight: bold; }
+.pust-terminal select { background: rgba(255,255,255,.55); color: var(--pt-ink); border: 1px solid var(--pt-metal); height: 26px; }
+
+.pust-term-tabs { display: flex; gap: 2px; padding: 6px 8px 0; background: var(--pt-rim); }
+.pust-term-tabs a { padding: 5px 14px; color: #d9cfb2; border-radius: 4px 4px 0 0; cursor: pointer; font-family: "Oswald", sans-serif; letter-spacing: .03em; }
+.pust-term-tabs a.active { background: var(--pt-paper); color: var(--pt-rust); }
+.pust-term-body { flex: 1; overflow-y: auto; padding: 8px 10px 14px; }
+
+.pust-term-screen { background: var(--pt-screen); color: var(--pt-screen-ink); border: 3px solid var(--pt-rim); border-radius: 6px; padding: 6px 10px; margin-bottom: 8px;
+  background-image: repeating-linear-gradient(0deg, rgba(0,0,0,.05) 0 1px, transparent 1px 3px); }
+.pust-term-screen h2 { margin: 0; border: 0; font-family: "Oswald", sans-serif; font-size: 18px; color: var(--pt-rust); text-transform: uppercase; }
+.pust-term-screen p { margin: 2px 0 0; font-size: 13px; }
+
+.pust-term-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0; }
+.pust-term-l { font-family: "Oswald", sans-serif; font-size: 12px; color: var(--pt-rust); text-transform: uppercase; }
+.pust-term-seg { display: inline-flex; }
+.pust-term-seg button { border-radius: 0; }
+.pust-term-seg button.on { background: var(--pt-rust); border-color: var(--pt-rust); color: #fff; }
+.pust-term-seg.off { opacity: .5; }
+.pust-term-fld { display: inline-flex; flex-direction: column; gap: 2px; font-size: 12px; }
+.pust-term-fld > span { color: var(--pt-rust); font-family: "Oswald", sans-serif; text-transform: uppercase; }
+
+.pust-term-result { background: rgba(255,255,255,.3); border: 1px solid rgba(0,0,0,.18); border-radius: 4px; padding: 6px 8px; margin-top: 8px; }
+.pust-term-hd { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--pt-metal); padding-bottom: 4px; margin-bottom: 6px; }
+.pust-term-hd > b { font-family: "Oswald", sans-serif; font-size: 16px; color: var(--pt-rust); }
+.pust-term-hd .pust-term-chat { margin-left: auto; }
+.pust-term-stamp { border: 2px solid var(--pt-rust); color: var(--pt-rust); padding: 0 6px; font-family: "Oswald", sans-serif; text-transform: uppercase; transform: rotate(-3deg); }
+.pust-term-note { font-size: 12px; color: #5e5647; }
+.pust-term-reroll { width: 24px !important; padding: 0 !important; line-height: 20px !important; font-size: 11px; }
+
+.pust-case-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.pust-case-sub { grid-column: 1 / -1; font-family: "Oswald", sans-serif; text-transform: uppercase; color: var(--pt-rust); border-bottom: 1px dashed var(--pt-metal); margin-top: 4px; }
+.pust-case-f { grid-column: span 2; background: rgba(255,255,255,.35); border: 1px solid rgba(0,0,0,.12); border-radius: 3px; padding: 4px 6px; }
+/* like the HTML case sheet: the customer on the left half, the goal and the complication stacked on the right */
+.pust-case-f[data-field="customer"] { grid-column: 1 / span 3; grid-row: span 2; }
+.pust-case-f[data-field="goal"], .pust-case-f[data-field="complication"] { grid-column: 4 / span 3; }
+.pust-case-f.wide { grid-column: 1 / -1; }
+.pust-case-fh { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--pt-rust); font-family: "Oswald", sans-serif; text-transform: uppercase; }
+.pust-case-fh .pust-term-reroll { margin-left: auto; }
+.pust-case-ft small { display: block; font-size: 11px; color: #5e5647; }
+
+.pust-travel-html .result-section { border-left: 3px solid var(--pt-metal); padding: 3px 8px; margin: 6px 0; background: rgba(255,255,255,.25); }
+.pust-travel-html .danger-encounter { border-color: var(--pt-bad); }
+.pust-travel-html .battle-encounter { border-color: var(--pt-rust); }
+.pust-travel-html .special-encounter, .pust-travel-html .settlement-encounter { border-color: var(--pt-screen-ink); }
+.pust-travel-html .result-title { font-family: "Oswald", sans-serif; text-transform: uppercase; color: var(--pt-rust); font-size: 13px; }
+.pust-tvb-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
+
+.pust-tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.pust-table-card { display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,.3); border: 1px solid rgba(0,0,0,.18); border-radius: 4px; padding: 6px 8px; }
+.pust-table-card h3 { margin: 0; border: 0; font-family: "Oswald", sans-serif; color: var(--pt-rust); font-size: 15px; }
+.pust-table-out { flex: 1; min-height: 40px; white-space: pre-line; background: var(--pt-screen); color: var(--pt-screen-ink); border-radius: 3px; padding: 4px 6px; }
+.pust-table-btns { display: flex; gap: 4px; }
+
+.pust-kinds { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.pust-kind { display: inline-flex; align-items: center; gap: 3px; border: 1px solid var(--pt-metal); border-radius: 12px; padding: 1px 8px; background: #efe7d0; cursor: pointer; }
+.pust-kind.on { background: var(--pt-rust); border-color: var(--pt-rust); color: #fff; }
+.pust-kind { position: relative; }
+.pust-kind input { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; pointer-events: none; }
+.pust-kind:has(input:focus-visible) { outline: 2px solid var(--pt-rust); }
+.pust-scene { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+.pust-scene-box { background: var(--pt-screen); color: var(--pt-screen-ink); border-radius: 4px; padding: 4px 8px; }
+.pust-scene-hd { display: flex; align-items: center; gap: 4px; font-family: "Oswald", sans-serif; text-transform: uppercase; font-size: 12px; }
+.pust-scene-hd .pust-term-reroll { margin-left: auto; }
+.pust-terminal .muted { opacity: .6; }
+.pust-battle-make { justify-content: flex-end; }
+.pust-bucket { margin-top: 6px; }
+.pust-bucket-l { font-family: "Oswald", sans-serif; text-transform: uppercase; color: var(--pt-rust); }
+.pust-pill { background: var(--pt-rust); color: #fff; border-radius: 9px; padding: 0 6px; font-size: 11px; }
+.pust-enemy { background: rgba(255,255,255,.4); border: 1px solid rgba(0,0,0,.15); border-left: 4px solid var(--pt-metal); border-radius: 3px; padding: 3px 8px; margin: 4px 0; }
+.pust-enemy.cat-elite { border-left-color: var(--pt-rust-2); }
+.pust-enemy.cat-boss { border-left-color: var(--pt-bad); }
+.pust-enemy summary { cursor: pointer; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.pust-qty, .pust-mini { color: #5e5647; font-size: 12px; }
+.pust-cat, .pust-kindtag { margin-left: auto; font-size: 11px; text-transform: uppercase; color: var(--pt-rust); }
+.pust-kindtag { margin-left: 0; color: var(--pt-screen-ink); }
+.pust-sect { font-family: "Oswald", sans-serif; font-size: 11px; text-transform: uppercase; color: var(--pt-rust); margin-top: 4px; }
+.pust-move { font-size: 13px; }
+.pust-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+.pust-chip { font-size: 12px; padding: 0 6px; border-radius: 9px; border: 1px solid var(--pt-metal); background: rgba(255,255,255,.5); }
+.pust-terminal .pust-sub { font-size: 12px; color: #5e5647; }
+.pust-terminal button.die { display: inline; padding: 0 4px; line-height: 18px; font-family: "PT Mono", monospace; font-size: 12px; background: var(--pt-screen); color: var(--pt-screen-ink); border-color: var(--pt-screen-ink); }
+.pust-pi { display: none; }
+
+/* chat */
+.pust-chat h3 { margin: 0 0 4px; font-family: "Oswald", sans-serif; color: #9a4a20; border-bottom: 1px solid #8e887f; }
+.pust-chat p { margin: 2px 0; }
+.pust-chat .result-title { font-weight: bold; text-transform: uppercase; font-size: 11px; color: #9a4a20; }
+.pust-chat .result-section { margin: 4px 0; }

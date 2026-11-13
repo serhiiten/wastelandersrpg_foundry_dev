@@ -26,7 +26,8 @@
   "styles": [
     "css/wastelanders.css",
     "css/pust-sheet.css",
-    "css/pust-roller.css"
+    "css/pust-roller.css",
+    "css/pust-terminal.css"
   ],
   "languages": [
     {
