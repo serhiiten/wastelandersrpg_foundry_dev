@@ -47,9 +47,16 @@
       </div>
       <div class="pust-stat"><span>Броня</span> <b>{{v.armor}}</b>{{#if v.psi}}<span class="pust-sub">пси {{v.psi}}</span>{{/if}}</div>
       <button type="button" class="pust-check-btn" data-action="checkPanel"><i class="fa-solid fa-dice-d20"></i> Зробити перевірку</button>
+      <button type="button" data-action="uiToggle" data-key="guide" title="Як створити персонажа"><i class="fa-solid fa-circle-question"></i> Як створити персонажа</button>
     </div>
   </header>
 
+  {{#if v.guide}}
+  <section class="pust-block pust-guide">
+    <h3>Як створити персонажа</h3>
+    <ol>{{#each v.guide}}<li>{{t}} <a data-action="pustTab" data-tab="{{tab}}">→ {{tabName}}</a></li>{{/each}}</ol>
+  </section>
+  {{/if}}
   {{#if v.issues.length}}
   <section class="pust-issues">
     {{#each v.issues}}<div class="pust-issue {{lvl}}">{{msg}}</div>{{/each}}
@@ -304,6 +311,7 @@
         <a class="pust-roll" data-action="checkPanel" data-weapon="{{i}}" title="Атака цією зброєю"><i class="fa-solid fa-crosshairs"></i></a>
         {{#unless auto}}<button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="weapons" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>{{/unless}}
         <input type="text" data-k="weapons.{{i}}.note" value="{{note}}" placeholder="Примітка" class="pust-gnote">
+        {{#if builtin}}<select data-k="weapons.{{i}}.cat" class="pust-gnote" title="Вбудована зброя">{{#each builtin}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>{{/if}}
         {{#if guns}}
         <span class="pust-guns">
           <select data-k="weapons.{{i}}.r" title="Дальність">{{#each rangeOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
@@ -314,7 +322,9 @@
         {{/if}}
       </div>
       {{/each}}
-      <div class="pust-tools"><button type="button" data-action="act" data-act="row-add" data-l="weapons">+ Зброя</button></div>
+      <div class="pust-tools"><button type="button" data-action="act" data-act="row-add" data-l="weapons">+ Зброя</button>
+        {{#if v.favWeapon}}<label>Улюблена зброя</label> <select data-change="fav">{{#each v.favWeapon}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>{{/if}}
+      </div>
     </section>
 
     <section class="pust-block">
@@ -400,6 +410,10 @@
         <button type="button" data-action="act" data-act="new" data-confirm="1">Очистити аркуш</button>
         <button type="button" data-action="jsonOpen">Відкрити .json</button>
         <button type="button" data-action="jsonSave">Зберегти .json</button>
+      </div>
+      <h4>Швидкий старт</h4>
+      <div class="pust-tools">
+        {{#each quickChars}}<button type="button" data-action="quickStart" data-i="{{i}}" title="{{title}}">{{n}}</button>{{/each}}
       </div>
     </section>
   {{/if}}

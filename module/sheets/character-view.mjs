@@ -4,7 +4,7 @@
  * st: HTML sheet state, d: compute(st), L: createLogic(st), ui: sheet UI state (open pickers, search…)
  */
 import {
-  ARCH_ORDER, ATTRS, AKEYS, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
+  ARCH_ORDER, ATTRS, AKEYS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
   IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, countedFeats, countedPerks,
   drugOf, featElig, gunsOn, perkElig, presetLabel,
 } from "../rules/core.mjs";
@@ -14,6 +14,21 @@ const CONS = [
   ["l", "Легкий"], ["m", "Середній"], ["m2", "Середній (Міцний)"], ["h", "Тяжкий"],
 ];
 const ASPECTS = [["concept", "Концепція"], ["problem", "Проблема"], ["goal", "Мета"]];
+/** The HTML sheet's «?» guide: 11 steps of character creation (text, tab to open) */
+const GUIDE = [
+  ["Обери архетип. Цей крок необов'язковий, але архетип допоможе тобі визначитися з образом персонажа й наступними кроками створення.", "build"],
+  ["Обери вид. Вид визначає мінімальні та максимальні значення атрибутів, дає видові особливості, а також сам по собі є аспектом.", "build"],
+  ["Розподіли пункти атрибутів. Початкове значення кожного з семи атрибутів — 0, і в тебе є 3 вільні пункти. Знизиш атрибут нижче 0 — отримаєш додатковий пункт. На старті атрибути не можуть бути нижчими за −1 і вищими за +2, а максимум будь-якого атрибута — +3, але вид може змінювати ці межі. Або розподіли набір: +2, +2, +1, 0, 0, −1, −1.", "build"],
+  ["Обери дві навички на рівні учня, або три, якщо граєш за людину.", "build"],
+  ["Обери два перки, або три, якщо граєш за людину.", "build"],
+  ["Обери від нуля до двох особливостей. Не забувай про видові особливості.", "build"],
+  ["Розрахуй очки здоров'я (ОЗ). На старті максимум ОЗ становить 15: +3 за кожну одиницю ВТР понад 0 і −3 за кожну нижче 0. Аркуш рахує ОЗ сам, разом із бонусами та штрафами від перків і особливостей.", "health"],
+  ["Запиши жетони Долі (ЖД). На початку кожної ігрової сесії персонаж відновлює 2 + УДЧ жетонів Долі. Аркуш рахує це сам.", "health"],
+  ["Дай персонажеві ім'я, зовнішність і аспекти. Кинь випадкові або вигадай самостійно.", "build"],
+  ["Придбай спорядження. Кожен персонаж починає гру з 10 кришками на закупівлю та 3 одиницями Припасів. Крім того, один вид легкої зброї ти отримуєш безкоштовно.", "gear"],
+  ["Кинь випадкову деталь персонажа.", "build"],
+];
+const TAB_NAME = { build: "Персонаж", health: "Здоров'я та Доля", gear: "Мотлох" };
 const IMP_TARGET = { attr2: "attr", attr3: "attr", attr4: "attr", skill: "skill", skill2: "skill", skill3: "skill" };
 
 export function buildView(st, d, L, ui = {}) {
@@ -147,7 +162,14 @@ export function buildView(st, d, L, ui = {}) {
     guns: gunsOn(st), r: w.r || "", rof: w.rof || "", cls: w.cls || "",
     rangeOptions: opts(GUN_RANGE, w.r), rofOptions: opts(GUN_ROF, w.rof), clsOptions: opts(GUN_CLS, w.cls),
     mods: (w.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })),
+    builtin: w.auto === "builtin"
+      ? Object.entries(BUILTIN_CAT).map(([v, c]) => ({ v, n: `${c.n} (${c.d})`, sel: (w.cat || "medium") === v }))
+      : null,
   }));
+  const favWeapon = d.allPerks.includes("Улюблена зброя")
+    ? [{ v: "", n: "— не обрано —", sel: !st.weapons.some((w) => w.fav) }].concat(
+      st.weapons.map((w, i) => ({ v: String(i), n: w.n || "без назви", sel: !!w.fav })).filter((o) => !st.weapons[+o.v]?.auto))
+    : null;
   const armor = st.armor.map((a, i) => ({ i, n: a.n || "", v: a.v ?? "", h: !!a.h, w: a.w !== false, note: a.note || "" }));
   const other = st.other.map((o, i) => ({ i, n: o.n || "", q: o.q ?? "1", note: o.note || "", auto: !!o.auto, usable: !!drugOf(o.n) }));
   const cq = String(ui.catQ || "").toLowerCase();
@@ -177,7 +199,7 @@ export function buildView(st, d, L, ui = {}) {
     supDots: Array.from({ length: d.supMax }, (_, j) => ({ n: j + 1, on: j < (parseInt(st.supplies, 10) || 0) })),
     caps: parseInt(st.caps, 10) || 0,
     chem, rest,
-    weapons, armorList: armor, other, heavy: { n: d.heavyN, cap: d.heavyCap, over: d.heavyN > d.heavyCap },
+    weapons, favWeapon, armorList: armor, other, heavy: { n: d.heavyN, cap: d.heavyCap, over: d.heavyN > d.heavyCap },
     cat: !!ui.cat, catQ: ui.catQ || "", catalog,
     presets: PRESETS.map((p, i) => ({ i, n: presetLabel ? presetLabel(p) : p[1] })),
     bio: st.bio || "", others: st.others || "",
@@ -190,5 +212,6 @@ export function buildView(st, d, L, ui = {}) {
       ),
     })),
     loot: { yao: !!st.loot?.yao, egg: !!st.loot?.egg },
+    guide: ui.guide ? GUIDE.map(([t, tab], i) => ({ n: i + 1, t, tab, tabName: TAB_NAME[tab] })) : null,
   };
 }

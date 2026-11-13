@@ -9,7 +9,7 @@
     "feats": [
       {
         "id": "0Ilm0dVJ3E1TGGvC",
-        "uuid": "Compendium.wastelanders.feats.Item.0Ilm0dVJ3E1TGGvC",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.0Ilm0dVJ3E1TGGvC",
         "name": "У мене кігті (Пазур Смерті)",
         "type": "feat",
         "title": "Особливість",
@@ -17,7 +17,7 @@
       },
       {
         "id": "AweZ6D6hPeREuuHV",
-        "uuid": "Compendium.wastelanders.feats.Item.AweZ6D6hPeREuuHV",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.AweZ6D6hPeREuuHV",
         "name": "Живи швидко (Пазур Смерті)",
         "type": "feat",
         "title": "Особливість",
@@ -25,7 +25,7 @@
       },
       {
         "id": "EZXbn8LUhnVNsB1b",
-        "uuid": "Compendium.wastelanders.feats.Item.EZXbn8LUhnVNsB1b",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.EZXbn8LUhnVNsB1b",
         "name": "Товста шкура (Пазур Смерті)",
         "type": "feat",
         "title": "Особливість",
@@ -33,7 +33,7 @@
       },
       {
         "id": "QcNRF32PrHB86Ops",
-        "uuid": "Compendium.wastelanders.feats.Item.QcNRF32PrHB86Ops",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.QcNRF32PrHB86Ops",
         "name": "Отримали таке прізвисько не за гарні очі (Пазур Смерті)",
         "type": "feat",
         "title": "Особливість",
@@ -41,7 +41,7 @@
       },
       {
         "id": "ZvIzbI4gTNZSnyAP",
-        "uuid": "Compendium.wastelanders.feats.Item.ZvIzbI4gTNZSnyAP",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.ZvIzbI4gTNZSnyAP",
         "name": "Змушений ховатися (Пазур Смерті)",
         "type": "feat",
         "title": "Особливість",
@@ -49,7 +49,7 @@
       },
       {
         "id": "odz9KlGFbx9ZdJoK",
-        "uuid": "Compendium.wastelanders.feats.Item.odz9KlGFbx9ZdJoK",
+        "uuid": "Compendium.wastelanders-dev.feats.Item.odz9KlGFbx9ZdJoK",
         "type": "feat",
         "name": "Здоровань (Пазур Смерті)",
         "title": "Особливість",

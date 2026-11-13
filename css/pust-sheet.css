@@ -133,3 +133,6 @@
 .pust-sheet .pust-row > input.pust-num { flex: 0 0 52px; }
 .pust-sheet h4, .pust-check h4 { color: var(--pust-rust); border: none; font-weight: bold; }
 .pust-sheet label, .pust-check label { color: var(--pust-ink); }
+.pust-guide ol { margin: 0; padding-left: 20px; font-size: 12px; }
+.pust-guide a { cursor: pointer; color: var(--pust-rust); white-space: nowrap; }
+.pust-quick > button:last-child { font-size: 11px; }

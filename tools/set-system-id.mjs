@@ -38,13 +38,17 @@ const walk = (dir) =>
 
 const pathRe = new RegExp(`systems/${prev}/`, "g");
 const idRe = new RegExp(`"systemId": "${prev}"`, "g");
+// compendium links between documents («Compendium.wastelanders.feats.Item.…»)
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+const uuidRe = new RegExp(`Compendium\\.${escapeRe(prev)}\\.`, "g");
 let changed = 0;
 for (const file of ["module", "templates", "scss", "css", "src/packs"].flatMap(walk)) {
   if (!/\.(mjs|js|hbs|scss|css|json|map)$/.test(file)) continue;
   const before = readFileSync(file, "utf8");
   const after = before
     .replace(pathRe, `systems/${next}/`)
-    .replace(idRe, `"systemId": "${next}"`);
+    .replace(idRe, `"systemId": "${next}"`)
+    .replace(uuidRe, `Compendium.${next}.`);
   if (after !== before) {
     writeFileSync(file, after);
     changed++;

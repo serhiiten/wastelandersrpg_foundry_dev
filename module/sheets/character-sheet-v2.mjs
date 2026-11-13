@@ -4,9 +4,10 @@
  * every field change and button to the HTML sheet's handlers (controller) via runAction().
  */
 import { createController } from "../rules/controller.mjs";
-import { FEAT, PERK } from "../rules/core.mjs";
-import { evaluate, runAction } from "../applications/character-actions.mjs";
-import { exportCharacter, replaceCharacterFromFile } from "../applications/character-json.mjs";
+import { FEAT, PERK, SPECIES, blankState } from "../rules/core.mjs";
+import { QUICK_CHARS } from "../rules/quickstart.mjs";
+import { evaluate, readState, runAction } from "../applications/character-actions.mjs";
+import { exportCharacter, replaceCharacter, replaceCharacterFromFile } from "../applications/character-json.mjs";
 import { buildView } from "./character-view.mjs";
 import { openCheckPanel } from "../applications/check-panel.mjs";
 
@@ -34,6 +35,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       checkPanel: WastelandersCharacterSheetV2.#onCheckPanel,
       jsonOpen: WastelandersCharacterSheetV2.#onJsonOpen,
       jsonSave: WastelandersCharacterSheetV2.#onJsonSave,
+      quickStart: WastelandersCharacterSheetV2.#onQuickStart,
     },
   };
 
@@ -59,6 +61,9 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     context.restUi = this.ui.rest;
     context.customKind = this.customKind;
     context.editable = this.isEditable;
+    context.quickChars = QUICK_CHARS.map((c, i) => ({
+      i, n: c.name, title: `${c.arch}, ${(SPECIES[c.species] || SPECIES.human).n}. ${c.concept || ""}`,
+    }));
     return context;
   }
 
@@ -137,14 +142,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   /** A button of the HTML sheet (data-act + its dataset) */
   static async #onAct(event, target) {
     const { action, act, confirm, ...data } = target.dataset;
-    if (confirm && !target.classList.contains("armed")) {
-      target.classList.add("armed");
-      target.dataset.tip = target.title || "";
-      target.title = "Натисни ще раз, щоб підтвердити";
-      ui.notifications.info("Натисни ще раз, щоб підтвердити.");
-      setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
-      return;
-    }
+    if (confirm && !WastelandersCharacterSheetV2.#armed(target)) return;
     if (target.type === "checkbox") event.preventDefault?.();
     await this.#run((C) => C.act(act, data));
   }
@@ -198,6 +196,36 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   static #onCheckPanel(event, target) {
     openCheckPanel(this.document, { ...target.dataset });
+  }
+
+  /** «Швидкий старт»: replace this character with a ready one (asks twice, keeps the sheet settings) */
+  static async #onQuickStart(event, target) {
+    if (!WastelandersCharacterSheetV2.#armed(target)) return;
+    const qs = foundry.utils.deepClone(QUICK_CHARS[+target.dataset.i]);
+    if (!qs) return;
+    const set = { ...readState(this.document).set };
+    const on = [];
+    if (qs.species === "claw" && !set.claws) {
+      set.claws = true;
+      on.push("розумних Пазурів Смерті");
+    }
+    if ((qs.arch === "Псионік" || (qs.feats || []).includes("Псионік")) && !set.psi) {
+      set.psi = true;
+      on.push("псиоників");
+    }
+    await replaceCharacter(this.document, Object.assign(blankState(), qs, { set }));
+    ui.notifications.info(`Швидкий старт: ${qs.name} — ${qs.arch.toLowerCase()}, ${SPECIES[qs.species].n.toLowerCase()}.`
+      + (on.length ? ` У налаштуваннях увімкнено ${on.join(" і ")}.` : ""));
+  }
+
+  /** Two-click confirmation; true on the second click */
+  static #armed(target) {
+    if (target.classList.contains("armed")) return true;
+    target.classList.add("armed");
+    target.title = "Натисни ще раз, щоб підтвердити";
+    ui.notifications.info("Натисни ще раз, щоб підтвердити.");
+    setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
+    return false;
   }
 
   static #onJsonOpen() {
