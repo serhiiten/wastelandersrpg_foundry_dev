@@ -25,12 +25,15 @@ import * as core from "./rules/core.mjs";
 import * as caravanRules from "./rules/caravan.mjs";
 import { BOOK } from "./rules/book.mjs";
 import { importCharactersFromFile } from "./applications/character-json.mjs";
+import { openTerminal } from "./applications/terminal.mjs";
 
 Hooks.once("init", async function () {
   game.wastelanders = {
     WastelandersActor,
     WastelandersItem,
     rules: { ...core, caravan: caravanRules, BOOK },
+    /** «Термінал Доглядача»: the HTML terminal's generators (also for a macro) */
+    openTerminal,
   };
 
   CONFIG.WASTELANDERS = WASTELANDERS;
@@ -173,4 +176,14 @@ Hooks.on("renderActorDirectory", (app, html) => {
   button.innerHTML = `<i class="fa-solid fa-file-import"></i> ${game.i18n.localize("WASTELANDERS.Json.Open")}`;
   button.addEventListener("click", () => importCharactersFromFile());
   actions.append(button);
+  // «Термінал Доглядача» (generators) — for the GM
+  if (game.user.isGM) {
+    const term = document.createElement("button");
+    term.type = "button";
+    term.className = "wastelanders-terminal-open";
+    term.title = "Генератори справ, подорожей, натхнення й битв";
+    term.innerHTML = `<i class="fa-solid fa-terminal"></i> Термінал Доглядача`;
+    term.addEventListener("click", () => openTerminal());
+    actions.append(term);
+  }
 });

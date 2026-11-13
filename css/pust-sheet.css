@@ -1,4 +1,5 @@
 @import url("pust-roller.css"); /* the check panel (generated); also listed in system.json */
+@import url("pust-terminal.css"); /* «Термінал Доглядача»; also listed in system.json */
 /* Електронний аркуш персонажа (Foundry) and «Зробити перевірку».
    Colours after the HTML tools; the full restyle comes later. */
 .pust-sheet, .pust-check {
