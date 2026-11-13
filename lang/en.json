@@ -222,6 +222,20 @@
       }
     },
     "Description": "Опис",
-    "Notes": "Нотатки"
+    "Notes": "Нотатки",
+    "Json": {
+      "Open": "Open .json",
+      "Save": "Save .json",
+      "OpenHint": "Create characters from electronic character sheet files",
+      "Unnamed": "Unnamed",
+      "NotJson": "This is not a .json file.",
+      "NotCharacter": "The file has no character from the electronic sheet.",
+      "CaravanNotYet": "This is a caravan sheet. Caravans can't be opened yet.",
+      "OneCharacterOnly": "The file has several characters. Open it in the Actors list to create all of them.",
+      "Imported": "Created: {names}.",
+      "ReplaceTitle": "Open .json in this sheet",
+      "ReplaceText": "Everything in «{actor}» will be replaced by the character from «{file}»: attributes, skills, perks, feats, gear and notes. Are you sure?",
+      "Replaced": "«{name}» was replaced with the file's data."
+    }
   }
 }
