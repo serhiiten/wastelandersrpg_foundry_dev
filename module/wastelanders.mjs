@@ -5,6 +5,7 @@ import { WastelandersActorSheet } from "./sheets/actor-sheet.mjs";
 import { WastelandersCharacterSheet } from "./sheets/character-sheet.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheet } from "./sheets/caravan-sheet.mjs";
+import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
 import { WastelandersCounterSheet } from "./sheets/counter-sheet.mjs";
 import { WastelandersItemSheet } from "./sheets/item-sheet.mjs";
@@ -90,12 +91,23 @@ Hooks.once("init", async function () {
       label: "Аркуш персонажа (попередній)",
     },
   );
+  // Електронний аркуш каравану (the HTML caravan sheet's features); the earlier sheet stays selectable
+  foundry.documents.collections.Actors.registerSheet(
+    game.system.id,
+    WastelandersCaravanSheetV2,
+    {
+      types: ["caravan"],
+      makeDefault: true,
+      label: "Електронний аркуш каравану",
+    },
+  );
   foundry.documents.collections.Actors.registerSheet(
     game.system.id,
     WastelandersCaravanSheet,
     {
       types: ["caravan"],
-      makeDefault: true,
+      makeDefault: false,
+      label: "Аркуш каравану (попередній)",
     },
   );
   foundry.documents.collections.Actors.registerSheet(
@@ -148,7 +160,7 @@ Hooks.on("preCreateChatMessage", preprocessChatMessage);
 // Render chat message hook
 Hooks.on("renderChatMessageHTML", renderChatMessage);
 
-// Actors directory: «Відкрити .json» creates characters from electronic character sheet files
+// Actors directory: «Відкрити .json» creates characters and caravans from electronic sheet files
 Hooks.on("renderActorDirectory", (app, html) => {
   if (!game.user.can("ACTOR_CREATE")) return;
   const root = html instanceof HTMLElement ? html : html[0];
