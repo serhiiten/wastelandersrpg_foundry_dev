@@ -24,7 +24,8 @@
     "module/wastelanders.mjs"
   ],
   "styles": [
-    "css/wastelanders.css"
+    "css/wastelanders.css",
+    "css/pust-sheet.css"
   ],
   "languages": [
     {

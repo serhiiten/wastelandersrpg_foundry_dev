@@ -3,6 +3,7 @@ import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
 import { WastelandersActorSheet } from "./sheets/actor-sheet.mjs";
 import { WastelandersCharacterSheet } from "./sheets/character-sheet.mjs";
+import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheet } from "./sheets/caravan-sheet.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
 import { WastelandersCounterSheet } from "./sheets/counter-sheet.mjs";
@@ -70,12 +71,23 @@ Hooks.once("init", async function () {
     WastelandersActorSheet,
     { makeDefault: true },
   );
+  // Електронний аркуш персонажа (the HTML sheet's features); the earlier sheet stays selectable
+  foundry.documents.collections.Actors.registerSheet(
+    game.system.id,
+    WastelandersCharacterSheetV2,
+    {
+      types: ["character"],
+      makeDefault: true,
+      label: "Електронний аркуш персонажа",
+    },
+  );
   foundry.documents.collections.Actors.registerSheet(
     game.system.id,
     WastelandersCharacterSheet,
     {
       types: ["character"],
-      makeDefault: true,
+      makeDefault: false,
+      label: "Аркуш персонажа (попередній)",
     },
   );
   foundry.documents.collections.Actors.registerSheet(
@@ -122,6 +134,9 @@ Hooks.once("init", async function () {
   );
 
   registerHandlebarsHelpers();
+  await foundry.applications.handlebars.loadTemplates({
+    pustPicker: `systems/${game.system.id}/templates/actor/parts/pust-picker.hbs`,
+  });
 
   // Preload Handlebars templates.
   return preloadHandlebarsTemplates();
