@@ -81,6 +81,20 @@ export function termCard(tab, kind, title, body) {
 
 export const LUCKS = [-2, -1, 0, 1, 2];
 
+/**
+ * The travel event's texts laid out for reading (author, 2026-11-14; the terminal's «Подорож» and the map's travel window,
+ * not the chat): paragraphs as paragraphs, and a list of die options («1 — Імператор. … 2 — Вежа. …», three or more) one
+ * per line with its number set off.
+ */
+export function prettyTravel(html) {
+  return String(html || "").replace(/(<div class="result-content">)([\s\S]*?)(<\/div>)/g, (m, open, body, close) => {
+    let t = body.trim();
+    if ((t.match(/(^|\s)[1-6] — /g) || []).length >= 3) t = t.replace(/(^|\s)([1-6]) — /g, (_, sp, n) => `\n<b class="tv-opt">${n} —</b> `);
+    t = t.split(/\n{2,}/).map((p) => `<p>${p.trim().replace(/\n/g, "<br>")}</p>`).join("");
+    return open + t + close;
+  });
+}
+
 function travelView(st) {
   const t = st.travel;
   return {
@@ -88,7 +102,7 @@ function travelView(st) {
     lucks: LUCKS.map((n) => ({ v: n, n: n > 0 ? `+${n}` : String(n), on: n === Number(t.luck) })),
     luckOff: t.type === "badEncounter",
     has: !!(t.main || t.additional),
-    html: (t.main || "") + (t.additional || ""),
+    html: prettyTravel((t.main || "") + (t.additional || "")),
   };
 }
 

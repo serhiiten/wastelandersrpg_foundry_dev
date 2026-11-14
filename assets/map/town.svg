@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>Поселення</title>
+  <circle cx="64" cy="64" r="58" fill="#3e8e41" stroke="#1e1b17" stroke-width="6"/>
+  <circle cx="64" cy="64" r="50" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+  <path d="M64 26 L96 54 L88 54 L88 92 L40 92 L40 54 L32 54 Z" fill="#fff" stroke="#1e1b17" stroke-width="3" stroke-linejoin="round"/><rect x="56" y="68" width="16" height="24" fill="#3e8e41" stroke="#1e1b17" stroke-width="2.5"/><rect x="76" y="34" width="8" height="16" fill="#fff" stroke="#1e1b17" stroke-width="3"/>
+</svg>

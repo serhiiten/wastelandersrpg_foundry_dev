@@ -1,6 +1,6 @@
 /* «Термінал Доглядача» (Foundry): the HTML terminal's generators. Colours after the HTML tools;
    the full restyle comes later. Also listed in system.json (and imported by pust-sheet.css). */
-.pust-terminal-app {
+.pust-terminal-app, #pust-mapdock {
   /* the terminal's names for the shared tokens of pust-ui.css */
   --pt-paper: var(--pu-paper); --pt-ink: var(--pu-ink); --pt-rust: var(--pu-rust-2); --pt-rust-2: var(--pu-rust-3);
   --pt-screen: var(--pu-steel-1); --pt-screen-ink: var(--pu-green); --pt-rim: var(--pu-rust-1); --pt-metal: var(--pu-ink-3); --pt-bad: var(--pu-red-ink);
@@ -210,3 +210,163 @@
 .wastelanders-terminal-dock .wastelanders-terminal-open > i { font-size: 13px; }
 .wastelanders-terminal-dock .wastelanders-terminal-open.on { background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)); color: var(--pu-green);
   border-color: var(--pu-green-dim); text-shadow: 0 0 6px rgba(61,255,71,.5); box-shadow: 0 2px 6px rgba(0,0,0,.5), inset 0 0 10px rgba(61,255,71,.15); }
+
+/* «Подорож»: where Удача партії came from (the selected caravan token) */
+.pust-terminal .pust-term-ctl > .pust-term-luckcar { margin-left: 8px; font-size: 12px; line-height: 1.2; color: var(--pu-green-dim); }
+/* «Лічильники гри»: the global counters window (module/applications/game-counters.mjs) */
+.wastelanders .pust-gc { margin: 0; display: flex; flex-direction: column; gap: 8px; padding: 8px 10px 10px; }
+.pust-gc .pust-gc-new { align-self: flex-start; margin: 0; }
+.pust-gc .pust-gc-note, .pust-gc .pust-gc-empty { margin: 0; font-size: 13px; line-height: 1.25; color: var(--pu-green-dim); }
+.pust-gc .pust-gc-form { display: flex; flex-direction: column; gap: 6px; padding: 6px 8px; border: 1px dashed rgba(61,255,71,.35); border-radius: 3px; }
+.pust-gc .pust-gc-form label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+.pust-gc .pust-gc-form input[type="text"] { width: 100%; }
+.pust-gc .pust-gc-frow { display: flex; gap: 10px; }
+.pust-gc .pust-gc-frow > label { flex: 1 1 0; }
+.pust-gc .pust-gc-frow input[type="number"] { width: 100%; text-align: center; }
+.pust-gc .pust-gc-btns { display: flex; justify-content: flex-end; gap: 6px; }
+.pust-gc .pust-gc-btns > button { margin: 0; }
+.pust-gc .pust-gc-item { --c: hsl(var(--h), 85%, 55%); display: flex; flex-direction: column; gap: 5px; padding: 6px 8px; border-radius: 3px; background: rgba(0,0,0,.25); border-left: 3px solid var(--c); }
+.pust-gc .pust-gc-hd { display: flex; align-items: center; gap: 6px; }
+.pust-gc .pust-gc-name { flex: 1 1 auto; min-width: 0; height: 26px; font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; }
+.pust-gc span.pust-gc-name { display: block; height: auto; line-height: 1.2; overflow-wrap: anywhere; }
+.pust-gc .pust-gc-v { flex: none; font-family: var(--pu-f-num); font-size: 22px; line-height: 1; color: var(--c) !important; text-shadow: 0 0 8px var(--c); }
+.pust-gc .pust-gc-v > small { font-size: 12px; margin-left: 1px; }
+.pust-gc .pust-gc-tg, .pust-gc .pust-gc-x { flex: none; width: 26px; height: 26px; margin: 0; padding: 0; line-height: 1; }
+.pust-gc .pust-gc-gauge { display: flex; align-items: center; gap: 8px; }
+.pust-gc .pust-gc-gauge > button { flex: none; width: 30px; height: 26px; margin: 0; padding: 0; font-family: var(--pu-f-num); font-size: 18px; font-weight: 700; line-height: 1; }
+.pust-gc .pust-gc-lamps { flex: 1 1 auto; display: flex; gap: 3px; justify-content: center; }
+.pust-gc .pust-gc-lamps > i { flex: 1 1 0; max-width: 22px; height: 12px; border-radius: 2px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); }
+.pust-gc .pust-gc-lamps > i.on { background: var(--c); border-color: var(--c); box-shadow: 0 0 6px var(--c); }
+.pust-gc .pust-gc-cur { font-size: 13px; line-height: 1.25; color: #b6ffb9; overflow-wrap: anywhere; }
+.pust-gc .pust-gc-rows { display: flex; flex-direction: column; gap: 3px; }
+.pust-gc .pust-gc-row { display: flex; align-items: flex-start; gap: 6px; padding: 2px 4px; border-radius: 2px; opacity: .6; }
+.pust-gc .pust-gc-row.on { opacity: 1; }
+.pust-gc .pust-gc-row.cur { background: rgba(61,255,71,.14); outline: 1px solid var(--c); opacity: 1; }
+.pust-gc .pust-gc-k { flex: none; width: 20px; text-align: right; font-family: var(--pu-f-num); font-weight: 700; color: var(--pu-green-dim); line-height: 24px; }
+.pust-gc .pust-gc-row textarea { flex: 1 1 auto; min-width: 0; min-height: 24px; resize: none; overflow: hidden; font-size: 13px; line-height: 1.25; }
+.pust-gc .pust-gc-lbl { flex: 1 1 auto; font-size: 13px; line-height: 1.25; padding-top: 3px; overflow-wrap: anywhere; }
+
+/* ===== «Мапа Пустки» and «Кістки» panels (module/applications/map-dock.mjs, author 2026-11-14) =====
+   each panel is a unit placed in window pixels, dragged by its header, folded to a small button; the terminal's dark
+   screen look; half-transparent until the pointer is over it; Foundry's left buttons are drawn over the panels */
+#pust-mapdock { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+#ui-left { position: relative; z-index: 1; }
+#pust-mapdock .pust-md-unit { position: absolute; width: 340px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+#pust-mapdock .pust-md-unit > * { pointer-events: auto; }
+#pust-mapdock .pust-md-panel { border: 2px solid #111; border-radius: 6px; overflow: hidden; opacity: .45; transition: opacity .15s ease;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 1px, transparent 1px 4px), linear-gradient(180deg, #2f3433, #232726 60%, #1b1e1d);
+  box-shadow: 0 3px 10px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06); color: #3dff47; }
+#pust-mapdock .pust-md-panel:is(:hover, :focus-within), #pust-mapdock .pust-md-unit.dragging .pust-md-panel { opacity: 1; }
+#pust-mapdock header { display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 4px 0 8px; cursor: grab; user-select: none;
+  background: linear-gradient(180deg, #c8301f, #8a2419); color: #fbeee4;
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+#pust-mapdock .pust-md-unit.dragging header { cursor: grabbing; }
+#pust-mapdock header > span { flex: 1 1 auto; white-space: nowrap; }
+#pust-mapdock .pust-md-dice header { background: linear-gradient(180deg, #4b524f, #2c302f); color: #b6ffb9; }
+#pust-mapdock header > button { flex: none; width: 22px !important; height: 20px !important; padding: 0 !important; margin: 0; background: rgba(0,0,0,.2); border: 1px solid rgba(0,0,0,.35); color: inherit; box-shadow: none; }
+#pust-mapdock header > button:hover { background: rgba(0,0,0,.35); color: #fff; box-shadow: none; }
+#pust-mapdock .pust-md-body { display: flex; flex-direction: column; gap: 5px; padding: 6px; }
+#pust-mapdock .pust-md-row { display: flex; align-items: center; gap: 5px; }
+#pust-mapdock button { flex: 1 1 0; min-width: 0; height: 30px; margin: 0; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  background: linear-gradient(180deg, #3a403e, #2a2e2d); color: #c9f5cc; border: 1px solid #0d0f0e; border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 700; font-size: 12px; line-height: 1; cursor: pointer; white-space: nowrap; }
+#pust-mapdock button > span { overflow: hidden; text-overflow: ellipsis; }
+#pust-mapdock button:hover:not(:disabled) { color: #fff; border-color: #3dff47; box-shadow: 0 0 6px rgba(61,255,71,.35); }
+#pust-mapdock button:disabled { opacity: .45; cursor: default; }
+#pust-mapdock button.on { background: linear-gradient(180deg, #2f6b35, #1f4a24); color: #e7ffd9; border-color: #3dff47; }
+#pust-mapdock .pust-md-map .pust-md-body { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 5px; }
+#pust-mapdock .pust-md-map .pust-md-row { display: contents; }
+#pust-mapdock .pust-md-map button[data-mapdock="town"] i { color: #7bd17f; }
+#pust-mapdock .pust-md-map button[data-mapdock="danger"] i { color: #ff7a6b; }
+#pust-mapdock .pust-md-map button[data-mapdock="poi"] i { color: #ffb15a; }
+#pust-mapdock select, #pust-mapdock input { height: 30px; margin: 0; background: #0f1412; color: #3dff47; border: 1px solid #0d0f0e; border-radius: 4px; font-family: "PT Mono", monospace; font-size: 13px; }
+#pust-mapdock select { flex: none; width: 52px; padding: 0 2px; }
+#pust-mapdock .pust-md-n { flex: none; display: inline-flex; align-items: center; gap: 2px; font-family: "PT Mono", monospace; color: #3dff47; }
+#pust-mapdock .pust-md-n > input { width: 46px; text-align: center; padding: 0 2px; }
+#pust-mapdock .pust-md-n > button { flex: none; width: 30px; padding: 0; }
+#pust-mapdock .pust-md-out { flex: 1 1 auto; min-width: 0; height: 30px; display: flex; align-items: center; gap: 6px; padding: 0 8px; border-radius: 4px; background: rgba(0,0,0,.35); overflow: hidden; white-space: nowrap; }
+#pust-mapdock .pust-md-out > b { font-family: "PT Mono", monospace; font-size: 20px; color: #b6ffb9; text-shadow: 0 0 8px rgba(61,255,71,.5); }
+#pust-mapdock .pust-md-out > small { font-family: "PT Mono", monospace; font-size: 11px; color: #8fcf95; }
+#pust-mapdock .pust-md-out > small.pust-md-what { margin-left: auto; color: #6fae76; overflow: hidden; text-overflow: ellipsis; }
+#pust-mapdock button.pust-md-fate { flex: none; width: 92px; background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border-color: #6e5608; }
+#pust-mapdock button.pust-md-fate:hover { color: #000; border-color: #f4d11a; }
+/* folded: only the header, as a small button; a click on it opens the panel */
+#pust-mapdock .pust-md-unit.folded { width: max-content; }
+#pust-mapdock .pust-md-unit.folded .pust-md-panel { opacity: .8; }
+#pust-mapdock .pust-md-unit.folded .pust-md-panel > .pust-md-body,
+#pust-mapdock .pust-md-unit.folded > .pust-md-travel,
+#pust-mapdock .pust-md-unit.folded > .pust-md-tv,
+#pust-mapdock .pust-md-unit.folded > .pust-md-map ~ .pust-md-ctr { display: none; }
+#pust-mapdock .pust-md-unit.folded header { cursor: pointer; padding-right: 4px; }
+#pust-mapdock .pust-md-unit.folded header > button > i { transform: rotate(180deg); }
+/* «Подорож» (GM): over «Мапа Пустки», opaque and set apart — the terminal's red with a yellow route */
+#pust-mapdock button.pust-md-travel { flex: none; align-self: flex-start; width: auto; height: 32px; padding: 0 14px; opacity: 1;
+  background: linear-gradient(180deg, rgba(255,215,195,.18), rgba(0,0,0,.15)), #a3261a; color: #fbeee4; border: 1px solid #d8371f; border-radius: 5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.55); font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
+#pust-mapdock button.pust-md-travel > i { color: #f4d11a; }
+#pust-mapdock button.pust-md-travel:hover, #pust-mapdock button.pust-md-travel.on { background: linear-gradient(180deg, rgba(255,215,195,.25), rgba(0,0,0,.1)), #c22e1e; color: #fff; border-color: #f4d11a; }
+/* the travel window: under its button, OVER «Мапа Пустки» and «Кістки» (author, 2026-11-14: it doesn't push them), opaque */
+#pust-mapdock .pust-md-tv { position: absolute; left: 0; top: 38px; z-index: 3; width: 100%; display: flex; flex-direction: column;
+  border: 2px solid #111; border-radius: 6px; overflow: hidden; color: #3dff47;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 1px, transparent 1px 4px), linear-gradient(180deg, #2f3433, #232726 60%, #1b1e1d);
+  box-shadow: 0 4px 14px rgba(0,0,0,.6); }
+#pust-mapdock .pust-md-tv[hidden] { display: none; }
+#pust-mapdock .pust-md-tv header { cursor: default; }
+#pust-mapdock .pust-md-tv .pust-md-body { overflow: visible; }
+/* a fixed height for the event (author, 2026-11-14): the settings and buttons stay, the event scrolls, nothing is pushed off the screen */
+#pust-mapdock .pust-md-tvout { max-height: 260px; overflow: hidden auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--pu-rust-3) transparent; }
+#pust-mapdock .pust-md-tvgrid { display: grid; grid-template-columns: max-content 1fr; align-items: center; gap: 5px 8px;
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: #8fcf95; }
+#pust-mapdock .pust-md-seg { display: flex; }
+#pust-mapdock .pust-md-seg > button { border-radius: 0; margin-right: -1px; }
+#pust-mapdock .pust-md-seg > button:first-child { border-radius: 4px 0 0 4px; }
+#pust-mapdock .pust-md-seg > button:last-child { border-radius: 0 4px 4px 0; margin-right: 0; }
+#pust-mapdock .pust-md-luckcar { font-size: 11.5px; color: #8fcf95; }
+#pust-mapdock button.pust-md-go { flex: 2 1 0; background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border-color: #6e5608; }
+/* the event as in the terminal: paper cards (result-section), the roll as a green screen chip, rust titles */
+#pust-mapdock .pust-md-tvout { margin-top: 2px; color: var(--pu-ink); font-family: var(--pu-f-text); font-size: 13px; line-height: 1.35; }
+#pust-mapdock .pust-md-tvout .result-section:first-child { margin-top: 0; }
+#pust-mapdock .pust-md-tvout .result-section:last-child { margin-bottom: 0; }
+#pust-mapdock .pust-md-tvout .result-content { color: var(--pu-ink); }
+#pust-mapdock .pust-md-tvout .tvb-actions, #pust-mapdock .pust-md-tvout .tvb-hint { display: none; }
+#pust-mapdock .pust-md-tvout button.die { flex: none; width: auto; height: 20px; padding: 0 6px; display: inline-flex; vertical-align: baseline; font-family: var(--pu-f-num); font-size: 13px; }
+#pust-mapdock .pust-md-tvout .pust-tvb-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
+#pust-mapdock .pust-md-tvout .pust-tvb-actions > button { flex: 0 0 auto; height: 28px; padding: 0 10px; }
+#pust-mapdock .pust-md-tvout .pust-tvb-actions > small { flex: 1 1 100%; font-size: 11.5px; color: var(--pu-ink-3); }
+
+/* travel events laid out for reading (prettyTravel in terminal-view.mjs), in the terminal and in the map's travel window:
+   the text in a readable proportional face, paragraphs apart, die options one per line with a rust number;
+   a special encounter: «Особлива зустріч» as a small olive label, its name as the heading */
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .result-content { font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-size: 14px; line-height: 1.4; color: var(--pu-ink); }
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .result-content p { margin: 0 0 6px; }
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .result-content p:last-child { margin-bottom: 0; }
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .result-content .tv-opt { margin-right: .2em; color: var(--pu-rust-2); font-weight: 800; }
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .result-title:first-child { font-size: 10.5px; letter-spacing: .1em; color: #5f8a2c; }
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .result-title + .result-title { margin: 1px 0 4px; font-size: 16px; letter-spacing: .03em; color: var(--pu-ink); }
+
+/* the unit with the travel window is drawn over «Кістки» */
+#pust-mapdock .pust-md-unit[data-unit="map"] { z-index: 2; }
+#pust-mapdock .pust-md-unit[data-unit="dice"] { z-index: 1; }
+
+/* players: the counters over «Мапа Пустки», read-only and OPAQUE (author, 2026-11-14) — a game counter: name, value, lamps
+   from red to green, the current segment's description; a scene counter: its die, name, and the state at 0 / at max */
+#pust-mapdock .pust-md-panel.pust-md-ctr { opacity: 1; }
+#pust-mapdock .pust-md-ctr[hidden] { display: none; }
+#pust-mapdock .pust-md-map ~ .pust-md-ctr { cursor: pointer; }
+#pust-mapdock .pust-md-ctr header { background: linear-gradient(180deg, #4b524f, #2c302f); color: #b6ffb9; }
+#pust-mapdock .pust-md-ctr .pust-md-body { gap: 6px; }
+#pust-mapdock .pust-md-csec { font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 800; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #8fcf95; }
+#pust-mapdock .pust-md-gc { --c: hsl(var(--h), 85%, 55%); display: flex; flex-direction: column; gap: 4px; padding: 5px 8px; border-radius: 3px; border-left: 3px solid var(--c); background: rgba(0,0,0,.28); }
+#pust-mapdock .pust-md-gc-hd { display: flex; align-items: baseline; gap: 8px; }
+#pust-mapdock .pust-md-gc-hd > span { flex: 1 1 auto; min-width: 0; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 14px; color: #e8f5e9; overflow-wrap: anywhere; }
+#pust-mapdock .pust-md-gc-hd > b { flex: none; font-family: "PT Mono", monospace; font-size: 18px; color: var(--c); }
+#pust-mapdock .pust-md-gc-hd > b small { font-size: 12px; color: #8fcf95; }
+#pust-mapdock .pust-md-lamps { display: flex; gap: 3px; }
+#pust-mapdock .pust-md-lamps > i { flex: 1 1 0; height: 8px; border-radius: 2px; background: #1b1e1d; box-shadow: inset 0 0 0 1px #3d4241; }
+#pust-mapdock .pust-md-lamps > i.on { background: var(--c); box-shadow: 0 0 6px var(--c); }
+#pust-mapdock .pust-md-gc-cur { font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 13px; line-height: 1.3; color: #cfe9d2; }
+#pust-mapdock .pust-md-lc { --c: hsl(var(--h), 85%, 55%); display: grid; grid-template-columns: 40px 1fr; grid-template-areas: "die name" "die st"; align-items: center; column-gap: 8px; padding: 4px 8px; border-radius: 3px; border-left: 3px solid var(--c); background: rgba(0,0,0,.28); }
+#pust-mapdock .pust-md-lc-die { grid-area: die; width: 40px; height: 40px; }
+#pust-mapdock .pust-md-lc-die svg { width: 100%; height: 100%; display: block; }
+#pust-mapdock .pust-md-lc-name { grid-area: name; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 14px; color: #e8f5e9; overflow-wrap: anywhere; }
+#pust-mapdock .pust-md-lc-st { grid-area: st; font-size: 12px; color: var(--c); font-weight: 700; }

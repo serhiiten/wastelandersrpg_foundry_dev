@@ -1,0 +1,49 @@
+{{!-- Картка місця «Мапи Пустки» (Foundry): як картка з HTML-мапи --}}
+<div class="pust-sheet-inner pust-place {{#unless editable}}readonly{{/unless}}">
+  <header class="pust-place-hd" style="--kc: {{kind.color}}">
+    <span class="pust-place-dot" aria-hidden="true"></span><span class="pust-place-kind">{{kind.label}}</span>
+    {{#if gm}}<button type="button" class="pust-place-vis {{#if vis.visible}}on{{/if}}" data-action="toggleVis" role="switch" aria-checked="{{#if vis.visible}}true{{else}}false{{/if}}"
+      {{#unless vis.has}}disabled{{/unless}} title="{{#if vis.has}}{{#if vis.visible}}Гравці бачать це місце. Натисни, щоб приховати{{else}}Гравці не бачать цього місця. Натисни, щоб показати{{/if}}{{else}}Цього місця ще немає на мапі{{/if}}">
+      <span class="pust-place-sw" aria-hidden="true"></span><i class="fa-solid {{#if vis.visible}}fa-eye{{else}}fa-eye-slash{{/if}}"></i><span>{{#if vis.visible}}Видиме{{else}}Приховане{{/if}}</span></button>{{/if}}
+  </header>
+  <div class="pust-place-body">
+    <label class="pust-place-l">Назва
+      <span class="pust-place-row">
+        <input type="text" name="name" value="{{name}}" placeholder="{{namePh}}" autocomplete="off">
+        {{#if editable}}<button type="button" class="pust-die" data-action="rndName" title="{{nameTitle}}" aria-label="Випадкова назва"><i class="fa-solid fa-dice"></i></button>{{/if}}
+      </span>
+    </label>
+    {{#if isTown}}
+    <label class="pust-place-l">Тип
+      <select name="type">{{#each types}}<option value="{{value}}" {{#if sel}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    </label>
+    {{/if}}
+    {{#if showExp}}
+    <label class="pust-place-l">Експеримент
+      <span class="pust-place-row">
+        <textarea name="exp" rows="3" placeholder="Який соціальний експеримент Vault-Tec тут проводили" autocomplete="off">{{exp}}</textarea>
+        {{#if editable}}<button type="button" class="pust-die" data-action="rndExp" title="Випадковий експеримент Vault-Tec" aria-label="Випадковий експеримент"><i class="fa-solid fa-dice"></i></button>{{/if}}
+      </span>
+    </label>
+    {{/if}}
+    <div class="pust-place-l">Аспекти
+      {{#if editable}}
+      <span class="pust-place-row">
+        <input type="text" name="aspin" placeholder="+ аспект, Enter" autocomplete="off">
+        <button type="button" class="pust-die" data-action="rndAsp" title="Випадковий аспект{{#if isTown}} для цього типу поселення{{/if}}" aria-label="Випадковий аспект"><i class="fa-solid fa-dice"></i></button>
+      </span>
+      {{/if}}
+    </div>
+    <div class="pust-place-asp">
+      {{#each aspects}}<span class="pust-place-chip">{{t}}{{#if ../editable}}<button type="button" data-action="aspRm" data-i="{{i}}" aria-label="Прибрати аспект">×</button>{{/if}}</span>
+      {{else}}{{#unless editable}}<span class="pust-place-muted">Аспектів немає</span>{{/unless}}{{/each}}
+    </div>
+    <label class="pust-place-l">Примітка
+      <textarea name="note" rows="3" placeholder="{{kind.notePh}}">{{note}}</textarea>
+    </label>
+    <div class="pust-place-out">
+      <button type="button" data-action="toChat" title="Надіслати картку місця в чат"><i class="fa-solid fa-comment"></i> В чат</button>
+      {{#if gm}}<button type="button" data-action="toJournal" title="Записати місце в журнал (нова сторінка в теці «Мапа Пустки»)"><i class="fa-solid fa-book-open"></i> В журнал</button>{{/if}}
+    </div>
+  </div>
+</div>

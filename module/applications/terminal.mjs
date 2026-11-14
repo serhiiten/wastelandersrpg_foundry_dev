@@ -8,6 +8,7 @@ import { createTerminal } from "../rules/terminal.mjs";
 import { createBattle } from "./terminal-battle.mjs";
 import { postChat } from "./chat.mjs";
 import { postTerminalRoll } from "./check-panel.mjs";
+import { luckCaravan } from "./map-dice.mjs";
 import {
   TABLE_CARDS, battleChat, battleJournal, blankTerminal, buildTerminalView, caseChat, caseJournal, runTable, tableChat, travelChat,
 } from "./terminal-view.mjs";
@@ -27,6 +28,16 @@ export function openTerminal() {
   return OPEN;
 }
 
+/** «Створити битву» in the «Подорож» window of «Мапа Пустки» (author, 2026-11-14): the terminal opens on «Битви» with that battle */
+export function battleFromTravel(travel, i) {
+  if (!game.user.isGM) return;
+  const first = !OPEN;
+  OPEN ??= new TerminalApp();
+  if (OPEN.fromTravel(travel, i) === false) return;
+  OPEN.render({ force: true, ...(first ? { position: freeSpot() } : {}) });
+  OPEN.bringToFront?.();
+}
+
 /**
  * Where the terminal opens the first time (author, 2026-11-14): in the free space — right of the scene navigation,
  * under the «Термінал Доглядача» plate, left of the sidebar — so it covers neither the scene list nor the controls.
@@ -42,6 +53,10 @@ function freeSpot() {
   const height = Math.max(420, Math.min(820, Math.round(window.innerHeight - top - gap)));
   return { left, top, width, height };
 }
+
+// «Подорож» shows (and takes) the selected caravan's Удача партії: redraw when the selection changes
+const travelLuckRedraw = foundry.utils.debounce(() => { if (OPEN?.rendered && OPEN.st?.tab === "travel") OPEN.render(); }, 100);
+Hooks.on("controlToken", travelLuckRedraw);
 
 /** The plate «Термінал Доглядача» (author, 2026-11-14): opens the terminal, a second press closes it */
 export function toggleTerminal() {
@@ -185,6 +200,14 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     ui.notifications.info("Битву з подорожі перенесено на вкладку «Битви».");
   }
 
+  /** A battle of a travel event made elsewhere (the «Подорож» window of «Мапа Пустки»): that event becomes the terminal's, its battle goes to «Битви» */
+  fromTravel(travel, i) {
+    Object.assign(this.st.travel, clone(travel));
+    if (this.#travelBattle(i) === false) return false;
+    this.save();
+    return true;
+  }
+
   /* ---------- buttons with their own work ---------- */
 
   static async #onCreate(event, target) {
@@ -226,7 +249,22 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /* ---------- drawing ---------- */
 
   async _prepareContext() {
-    return { v: buildTerminalView(this.T, this.st, this.ui) };
+    // «Подорож»: Удача партії comes from the selected caravan token, or the only caravan on the scene (as the HTML map's
+    // travel float, author 2026-11-14). It is applied when that caravan or its luck changes, so a hand-picked value stays
+    // until then; the screen says where the luck came from.
+    const car = luckCaravan();
+    const t = this.st.travel;
+    let luckCar = null;
+    if (car) {
+      const l = parseInt(car.system.luck, 10) || 0;
+      const v = Math.max(-2, Math.min(2, l));
+      const from = `${car.id}:${l}`;
+      if (t.luckFrom !== from) { t.luck = v; t.luckFrom = from; }
+      luckCar = { name: car.name, luck: l > 0 ? `+${l}` : l < 0 ? `−${-l}` : "0", clipped: v !== l, used: Number(t.luck) === v };
+    } else t.luckFrom = "";
+    const v = buildTerminalView(this.T, this.st, this.ui);
+    v.travel.luckCar = luckCar;
+    return { v };
   }
 
   _onRender(context, options) {

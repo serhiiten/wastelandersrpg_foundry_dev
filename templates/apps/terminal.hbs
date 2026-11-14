@@ -40,7 +40,8 @@
     <div class="pust-term-ctl"><span class="pust-term-seg">{{#each v.travel.types}}<button type="button" class="{{#if on}}on{{/if}}" data-action="travelType" data-type="{{v}}">{{n}}</button>{{/each}}</span></div>
     <button type="button" class="pust-term-go" data-action="travelGen"><i class="fa-solid fa-dice"></i> Згенерувати подію</button>
     <span class="pust-term-l">Удача партії</span>
-    <div class="pust-term-ctl wide"><span class="pust-term-seg {{#if v.travel.luckOff}}off{{/if}}">{{#each v.travel.lucks}}<button type="button" class="{{#if on}}on{{/if}}" data-action="travelLuck" data-luck="{{v}}" {{#if ../v.travel.luckOff}}disabled{{/if}}>{{n}}</button>{{/each}}</span></div>
+    <div class="pust-term-ctl wide"><span class="pust-term-seg {{#if v.travel.luckOff}}off{{/if}}">{{#each v.travel.lucks}}<button type="button" class="{{#if on}}on{{/if}}" data-action="travelLuck" data-luck="{{v}}" {{#if ../v.travel.luckOff}}disabled{{/if}}>{{n}}</button>{{/each}}</span>
+      <small class="pust-term-luckcar">{{#if v.travel.luckCar}}<i class="fa-solid fa-truck"></i> з каравану «{{v.travel.luckCar.name}}»: {{v.travel.luckCar.luck}}{{#if v.travel.luckCar.clipped}} (тут від −2 до +2){{/if}}{{#unless v.travel.luckCar.used}} · вибрано вручну{{/unless}}{{else}}<i class="fa-solid fa-truck"></i> обери на мапі токен каравану — Удача візьметься з нього{{/if}}</small></div>
   </div></section>
   {{#if v.travel.has}}
   <div class="pust-term-result pust-travel">

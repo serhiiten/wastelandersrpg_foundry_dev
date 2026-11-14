@@ -4,7 +4,8 @@
       "character": "Персонаж",
       "caravan": "Караван",
       "enemy": "Супротивник",
-      "counter": "Лічильник"
+      "counter": "Лічильник",
+      "place": "Місце"
     },
     "Item": {
       "species": "Вид",

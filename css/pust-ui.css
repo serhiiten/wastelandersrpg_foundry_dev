@@ -15,7 +15,7 @@
    ===================================================================================== */
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;800&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&family=Handjet:wght@500;700&family=Marck+Script&display=swap");
 
-.wastelanders, .pust-chat, .chat-message .pust-card {
+.wastelanders, .pust-chat, .chat-message .pust-card, #pust-mapdock {
   /* colours */
   --pu-rust-0: #2a150c; --pu-rust-1: #4a2616; --pu-rust-2: #6e3b22; --pu-rust-3: #94552f; --pu-rust-4: #b8774a;
   --pu-paper: #ebdfb6; --pu-paper-2: #dfcf9c; --pu-paper-3: #cbb882; --pu-sheet: #fbf6e6;
@@ -275,3 +275,102 @@
 .wastelanders.pust-caravan-sheet > .window-header .window-title { color: #ece8de; text-shadow: 0 1px 0 #1e1b17; }
 .wastelanders.pust-caravan-sheet > .window-header :is(.header-control, .header-button, button, a) { color: #e8e4da; }
 .wastelanders.pust-caravan-sheet > .window-content { border-color: #1e1b17; }
+
+/* the pause banner (author, 2026-11-14): the game's logo, standing still, with the cover's dark-red drop and a soft shadow;
+   the caption in the sheets' label font */
+#pause img.pust-pause-logo { width: 460px; max-width: 80vw; height: auto; animation: none;
+  filter: drop-shadow(3px 4px 0 #5a1208) drop-shadow(0 6px 10px rgba(0,0,0,.75)); }
+#pause figcaption { font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+
+/* ---------- Sticker notes' inline editor («Примітки» of «Мапа Пустки», module/canvas/map-notes.mjs) ----------
+   A DOM overlay exactly over the sticker on the canvas; --k is the zoom × grid scale (24px title, 22px body on the canvas at grid 108),
+   --fill / --line the note's colour, --strip the title strip's height. The bar sits above the sticker (below it near the screen's top). */
+.pust-mn-edit {
+  position: fixed; z-index: 60; box-sizing: border-box;
+  --pu-green: #3dff47; --pu-green-dim: #21b52a; --pu-red: #ff5a4a;
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif;
+}
+.pust-mn-paper {
+  position: absolute; inset: 0; box-sizing: border-box; overflow: hidden;
+  background: var(--fill); border: calc(3px * var(--k)) solid var(--line); border-radius: calc(5px * var(--k));
+  box-shadow: calc(4px * var(--k)) calc(6px * var(--k)) calc(8px * var(--k)) rgba(0,0,0,.35), 0 0 0 2px rgba(61,255,71,.55);
+  display: flex; flex-direction: column;
+}
+/* opaque even for a hidden note: the text drawn on the canvas under it must not show through the editor */
+.pust-mn-edit.is-hidden .pust-mn-paper { opacity: 1; }
+.pust-mn-edit.is-min .pust-mn-paper { position: relative; inset: auto; }
+.pust-mn-title, .pust-mn-body {
+  box-sizing: border-box; width: 100%; margin: 0; border: 0 !important; border-radius: 0 !important; outline: 0 !important; box-shadow: none !important;
+  background: transparent !important; color: #2a261c !important; font-family: inherit !important;
+}
+.pust-mn-title {
+  flex: 0 0 var(--strip); height: var(--strip); padding: 0 calc(10px * var(--k)) !important;
+  font-size: calc(24px * var(--k)) !important; font-weight: 800 !important; line-height: 1.2;
+  background: color-mix(in srgb, var(--line) 30%, transparent) !important; border-bottom: calc(1.5px * var(--k)) solid color-mix(in srgb, var(--line) 80%, transparent) !important;
+}
+.pust-mn-edit.is-min .pust-mn-title { height: 34px; flex-basis: 34px; font-size: 16px !important; }
+.pust-mn-body {
+  flex: 1 1 auto; min-height: 0; padding: calc(8px * var(--k)) calc(10px * var(--k)) !important; resize: none;
+  font-size: calc(22px * var(--k)) !important; line-height: 1.2 !important; overflow: auto;
+}
+.pust-mn-edit.is-min .pust-mn-body { display: none; }
+.pust-mn-title::placeholder { color: rgba(42,38,28,.45); }
+.pust-mn-title:focus, .pust-mn-body:focus { background-color: rgba(255,255,255,.14) !important; }
+
+.pust-mn-bar {
+  position: absolute; left: 0; bottom: calc(100% + 6px); z-index: 1; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  padding: 4px 6px; background: #1e1b17; border: 1px solid #5a605e; border-radius: 4px; box-shadow: 0 3px 10px rgba(0,0,0,.55);
+}
+.pust-mn-edit.bar-below .pust-mn-bar { bottom: auto; top: calc(100% + 6px); }
+.pust-mn-sws { display: inline-flex; gap: 4px; padding-right: 6px; margin-right: 2px; border-right: 1px solid #3d4241; }
+.pust-mn-sw {
+  width: 18px; height: 18px; min-width: 0; padding: 0; margin: 0; line-height: 1; border-radius: 2px;
+  background: var(--sw); border: 2px solid var(--swl); box-shadow: none; cursor: pointer;
+}
+.pust-mn-sw:hover { filter: brightness(1.1); }
+.pust-mn-sw.on { box-shadow: 0 0 0 2px #1e1b17, 0 0 0 3px var(--pu-green); }
+.pust-mn-btn {
+  display: inline-flex; align-items: center; gap: 5px; width: auto; height: 24px; margin: 0; padding: 0 8px; line-height: 1;
+  background: #2c302f; color: #e8e4da; border: 1px solid #5a605e; border-radius: 3px; box-shadow: none; cursor: pointer;
+  font: 700 12px/1 "Roboto Condensed", "PT Sans Narrow", sans-serif; letter-spacing: .03em; text-transform: uppercase;
+}
+.pust-mn-btn:hover { border-color: var(--pu-green-dim); color: var(--pu-green); }
+.pust-mn-btn i { font-size: 12px; }
+.pust-mn-del:hover, .pust-mn-del.armed { border-color: #a8121a; color: #fff; background: #a8121a; }
+.pust-mn-del.armed { animation: pust-mn-arm 0.6s ease-in-out infinite alternate; }
+@keyframes pust-mn-arm { from { background: #a8121a; } to { background: #d2302a; } }
+
+/* «Лічильники гри»: scene (local) counters, the «Сцена / Гра» switch (module/applications/game-counters.mjs) */
+.pust-gc .pust-gc-sec { margin: 4px 0 0; padding: 0 2px; font-family: var(--pu-f-label); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--pu-green-dim); border: 0; overflow-wrap: anywhere; }
+.pust-gc .pust-gc-seg { display: flex; gap: 0; }
+.pust-gc .pust-gc-seg > button { flex: 1 1 0; margin: 0; height: 26px; padding: 0 8px; border-radius: 0; }
+.pust-gc .pust-gc-seg > button.on { background: rgba(61,255,71,.22); outline: 1px solid var(--pu-green-dim); color: #b6ffb9; }
+.pust-gc .pust-gc-hint { margin: 0; font-size: 12px; line-height: 1.25; color: var(--pu-green-dim); }
+.pust-gc .pust-gc-form select { width: 100%; }
+.pust-gc .pust-lc { --c: hsl(var(--h), 85%, 55%); position: relative; display: grid; grid-template-columns: 56px 1fr 26px; grid-template-areas: "die name x" "btns btns btns" "state state state"; gap: 5px 8px; align-items: center; padding: 6px 8px; border-radius: 3px; border-left: 3px solid var(--c); background: linear-gradient(90deg, hsla(var(--h), 70%, 30%, .35), rgba(0,0,0,.25)); }
+.pust-gc .pust-lc-die { grid-area: die; width: 56px; height: 56px; }
+.pust-gc .pust-lc-die svg { width: 100%; height: 100%; display: block; }
+.pust-gc .pust-lc-name { grid-area: name; min-width: 0; height: 26px; font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; }
+.pust-gc span.pust-lc-name { display: block; height: auto; line-height: 1.2; overflow-wrap: anywhere; }
+.pust-gc .pust-lc-x { grid-area: x; }
+.pust-gc .pust-lc-btns { grid-area: btns; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.pust-gc .pust-lc-btns > button { margin: 0; min-width: 0; height: 26px; padding: 0 2px; font-size: 11px; line-height: 1; white-space: nowrap; }
+.pust-gc .pust-lc-btns > button.dn { color: #ff9a82; }
+.pust-gc .pust-lc-btns > button.up { color: #b6ffb9; }
+.pust-gc .pust-lc-state { grid-area: state; font-size: 13px; line-height: 1.25; color: var(--c); overflow-wrap: anywhere; }
+
+/* ===== A place of «Мапа Пустки» in chat (module/sheets/place-sheet.mjs placeCard): the header in the kind's colour
+   (Поселення green, Небезпечне місце red, Точка інтересу orange) with its icon, the name big, aspects as amber chips ===== */
+.chat-message .pust-chat.pust-pcard { padding: 0; overflow: hidden; border-color: var(--kc); }
+.chat-message .pust-chat.pust-pcard > h3 { display: flex; align-items: center; gap: 6px; margin: 0; padding: 3px 8px; background: var(--kc); color: #fff;
+  text-shadow: 0 1px 0 rgba(0,0,0,.35); box-shadow: inset 0 -2px 0 rgba(0,0,0,.2); }
+.chat-message .pust-chat.pust-pcard > h3 > span { flex: none; white-space: nowrap; }
+.chat-message .pust-chat.pust-pcard > h3 > small { flex: 1 1 auto; min-width: 0; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; font-size: 10.5px; opacity: .9; }
+.chat-message .pust-chat.pust-pcard .pust-pc-body { display: flex; flex-direction: column; gap: 5px; padding: 6px 8px 8px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--kc) 14%, transparent), transparent 70%); }
+.chat-message .pust-chat.pust-pcard .pust-pc-name { font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 800; font-size: 17px; line-height: 1.15; color: var(--pu-ink); }
+.chat-message .pust-chat.pust-pcard p { margin: 0; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 13.5px; line-height: 1.35; color: var(--pu-ink); }
+.chat-message .pust-chat.pust-pcard .pust-pc-exp { font-style: italic; }
+.chat-message .pust-chat.pust-pcard .pust-pc-exp b { font-style: normal; color: var(--pu-rust-2); }
+.chat-message .pust-chat.pust-pcard .pust-pc-asps { display: flex; flex-wrap: wrap; gap: 4px; }
+.chat-message .pust-chat.pust-pcard .pust-pc-asp { padding: 0 6px; border-radius: 3px; background: #e2ad3b; color: #241a0c; font-style: italic; font-size: 12.5px; line-height: 19px; box-shadow: 0 1px 0 rgba(0,0,0,.25); }

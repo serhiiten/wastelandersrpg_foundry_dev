@@ -18,4 +18,19 @@ export function registerSystemSettings() {
     type: Number,
     default: 0,
   });
+  // «Лічильники гри» (module/applications/game-counters.mjs): the world's global counters; only the Gamemaster writes
+  game.settings.register(game.system.id, "gameCounters", {
+    scope: "world",
+    config: false,
+    type: Array,
+    default: [],
+    onChange: () => import("../applications/game-counters.mjs").then((m) => m.refreshGameCounters()),
+  });
+  // which «Мапа Пустки» this world has received (module/helpers/default-scene.mjs)
+  game.settings.register(game.system.id, "mapSceneVersion", {
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0,
+  });
 }

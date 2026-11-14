@@ -365,8 +365,14 @@ function postDiceCard(speaker, what, total, dice, flat = 0) {
  * (author, 2026-11-14), the terminal as the speaker.
  */
 export async function postTerminalRoll(expr) {
+  return postExprRoll(expr, ChatMessage.getSpeaker({ alias: "Термінал Доглядача" }));
+}
+
+/** Roll a dice expression («3d6», «d10+2», «1d37») and post the dice card for this speaker; returns the Roll */
+export async function postExprRoll(expr, speaker) {
   const roll = await new Roll(String(expr).replace(/^d/, "1d")).evaluate();
   const dice = roll.dice.flatMap((t) => t.results.map((r) => `<span class="die d${t.faces} kept" title="d${t.faces}">${r.result}</span>`)).join(" ");
   const sum = roll.dice.reduce((t, d) => t + d.total, 0);
-  return postDiceCard(ChatMessage.getSpeaker({ alias: "Термінал Доглядача" }), expr, roll.total, dice, roll.total - sum);
+  await postDiceCard(speaker, expr, roll.total, dice, roll.total - sum);
+  return roll;
 }

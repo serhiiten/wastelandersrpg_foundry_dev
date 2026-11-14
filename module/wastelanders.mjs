@@ -2,10 +2,13 @@ import * as models from "./data/_module.mjs";
 import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
 import { WastelandersToken } from "./canvas/token.mjs";
+import { initMapNotes, readyMapNotes } from "./canvas/map-notes.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
 import { WastelandersCounterSheet } from "./sheets/counter-sheet.mjs";
+import { WastelandersPlaceSheet } from "./sheets/place-sheet.mjs";
+import { renderMapDock } from "./applications/map-dock.mjs";
 import { WastelandersItemSheet } from "./sheets/item-sheet.mjs";
 import { WastelandersSpeciesSheet } from "./sheets/species-sheet.mjs";
 import { registerSystemSettings } from "./helpers/settings.mjs";
@@ -25,10 +28,13 @@ import { BOOK } from "./rules/book.mjs";
 import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
+import { ensureMapScene } from "./helpers/default-scene.mjs";
 
 Hooks.once("init", async function () {
   // the HP bar over a token keeps the HP colours
   CONFIG.Token.objectClass = WastelandersToken;
+  // «Примітки» of «Мапа Пустки»: stickers drawn by the system (module/canvas/map-notes.mjs)
+  initMapNotes();
   game.wastelanders = {
     WastelandersActor,
     WastelandersItem,
@@ -49,6 +55,7 @@ Hooks.once("init", async function () {
     caravan: models.CaravanData,
     enemy: models.EnemyData,
     counter: models.CounterData,
+    place: models.PlaceData,
   };
 
   CONFIG.Item.documentClass = WastelandersItem;
@@ -109,6 +116,17 @@ Hooks.once("init", async function () {
     },
   );
 
+  // Картка місця «Мапи Пустки»
+  foundry.documents.collections.Actors.registerSheet(
+    game.system.id,
+    WastelandersPlaceSheet,
+    {
+      types: ["place"],
+      makeDefault: true,
+      label: "Картка місця",
+    },
+  );
+
   foundry.documents.collections.Items.unregisterSheet(
     "core",
     foundry.appv1.sheets.ItemSheet,
@@ -142,6 +160,27 @@ Hooks.once("init", async function () {
 Hooks.once("setup", () => {
   const cfg = game.settings.settings.get("core.tokenAutoRotate");
   if (cfg) cfg.default = false;
+  // on «Мапа Пустки» a diagonal step counts as one cell (author, 2026-11-14): «Grid Diagonals» starts at EQUIDISTANT
+  const diag = game.settings.settings.get("core.gridDiagonals");
+  if (diag) diag.default = CONST.GRID_DIAGONALS.EQUIDISTANT;
+});
+
+// The pause banner (author, 2026-11-14): «Гра на паузі» under the game's logo «ПУСТЕЛЬНИКИ» (assets/logo-pustelnyky.webp,
+// cut from the author's picture by tools/make_logo.py), standing still, instead of Foundry's spinning clockwork.
+// (The vault-door gear made for it earlier is kept as assets/radiation.svg.)
+Hooks.on("renderGamePause", (app, html) => {
+  const root = html instanceof HTMLElement ? html : html?.[0] ?? document.querySelector("#pause");
+  const fig = root?.id === "pause" ? root : root?.querySelector?.("#pause") ?? document.querySelector("#pause");
+  if (!fig) return;
+  const img = fig.querySelector("img");
+  if (img) {
+    img.src = `systems/${game.system.id}/assets/logo-pustelnyky.webp`;
+    img.alt = "Пустельники";
+    img.classList.remove("fa-spin");
+    img.classList.add("pust-pause-logo");
+  }
+  const cap = fig.querySelector("figcaption");
+  if (cap) cap.textContent = "Гра на паузі";
 });
 
 // Preprocess chat message before it is created hook
@@ -150,6 +189,10 @@ Hooks.once("ready", () => {
   loadCatalogDescriptions().catch((err) => console.warn("Пустельники | gear descriptions not loaded", err));
   // characters' tokens: name under, HP bar over, linked; placed tokens take the character's name
   WastelandersActor.syncCharacterTokens().catch((err) => console.warn("Пустельники | token sync failed", err));
+  // «Мапа Пустки»: the system's default scene, given to each world once
+  ensureMapScene().catch((err) => console.warn("Пустельники | map scene not created", err));
+  // the stickers: double-click to write, drag by the title strip, old notes converted
+  readyMapNotes();
 });
 
 // a character, caravan or enemy dropped on a scene: its token carries the actor's current name
@@ -215,3 +258,25 @@ function dockTerminal() {
 }
 Hooks.on("renderSceneNavigation", () => requestAnimationFrame(dockTerminal));
 Hooks.once("ready", () => requestAnimationFrame(dockTerminal));
+
+// «Лічильники гри»: the scene counters live on the viewed scene, so redraw the open window when it changes or is switched
+Hooks.on("updateScene", (scene) => { if (scene.id === canvas?.scene?.id) import("./applications/game-counters.mjs").then((m) => m.refreshGameCounters()); });
+Hooks.on("canvasReady", () => import("./applications/game-counters.mjs").then((m) => m.refreshGameCounters()));
+
+// «Мапа Пустки» and «Кістки»: panels docked under Foundry's left buttons (author, 2026-11-14), placed again when they render
+Hooks.on("renderSceneControls", () => renderMapDock());
+Hooks.once("ready", () => renderMapDock());
+
+// A place is seen by players only while one of its tokens is visible (the HTML «Видимо гравцям»): visible → LIMITED, all hidden → NONE.
+// Done on the active GM's side, so hidden places don't leak through the Actors directory.
+async function syncPlaceVisibility(actorId) {
+  if (!game.users.activeGM?.isSelf) return;
+  const actor = game.actors.get(actorId);
+  if (actor?.type !== "place") return;
+  const seen = game.scenes.some((sc) => sc.tokens.some((t) => t.actorId === actorId && !t.hidden));
+  const want = seen ? CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED : CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE;
+  if (actor.ownership.default !== want) await actor.update({ "ownership.default": want });
+}
+Hooks.on("createToken", (token) => syncPlaceVisibility(token.actorId));
+Hooks.on("updateToken", (token, changes) => { if ("hidden" in changes || "actorId" in changes) syncPlaceVisibility(token.actorId); });
+Hooks.on("deleteToken", (token) => syncPlaceVisibility(token.actorId));

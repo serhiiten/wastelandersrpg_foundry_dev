@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <title>Пустельники: шестерня дверей сховища зі знаком радіації</title>
+  <defs>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9a958c"/><stop offset=".45" stop-color="#6b665e"/><stop offset="1" stop-color="#3a362f"/>
+    </linearGradient>
+    <linearGradient id="bevel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a362f"/><stop offset="1" stop-color="#a7a298"/>
+    </linearGradient>
+    <radialGradient id="disc" cx=".42" cy=".38" r=".75">
+      <stop offset="0" stop-color="#7d786f"/><stop offset=".7" stop-color="#5a554d"/><stop offset="1" stop-color="#3f3b34"/>
+    </radialGradient>
+  </defs>
+  <!-- twelve trapezoid teeth, as on the vault doors of classic Fallout -->
+  <path d="M 88.42 26.91 L 90.17 6.51 L 109.83 6.51 L 111.58 26.91 L 119.15 28.52 L 126.52 30.92 L 138.23 14.13 L 155.25 23.95 L 146.57 42.49 L 152.33 47.67 L 157.51 53.43 L 176.05 44.75 L 185.87 61.77 L 169.08 73.48 L 171.48 80.85 L 173.09 88.42 L 193.49 90.17 L 193.49 109.83 L 173.09 111.58 L 171.48 119.15 L 169.08 126.52 L 185.87 138.23 L 176.05 155.25 L 157.51 146.57 L 152.33 152.33 L 146.57 157.51 L 155.25 176.05 L 138.23 185.87 L 126.52 169.08 L 119.15 171.48 L 111.58 173.09 L 109.83 193.49 L 90.17 193.49 L 88.42 173.09 L 80.85 171.48 L 73.48 169.08 L 61.77 185.87 L 44.75 176.05 L 53.43 157.51 L 47.67 152.33 L 42.49 146.57 L 23.95 155.25 L 14.13 138.23 L 30.92 126.52 L 28.52 119.15 L 26.91 111.58 L 6.51 109.83 L 6.51 90.17 L 26.91 88.42 L 28.52 80.85 L 30.92 73.48 L 14.13 61.77 L 23.95 44.75 L 42.49 53.43 L 47.67 47.67 L 53.43 42.49 L 44.75 23.95 L 61.77 14.13 L 73.48 30.92 L 80.85 28.52 Z" fill="url(#steel)" stroke="#1e1b17" stroke-width="3" stroke-linejoin="round"/>
+  <!-- the rim and the recessed disc: a dark groove, a lit lower edge (bevel), the disc -->
+  <circle cx="100" cy="100" r="66" fill="none" stroke="#2a2621" stroke-width="3"/>
+  <circle cx="100" cy="100" r="60" fill="url(#bevel)"/>
+  <circle cx="100" cy="100" r="55" fill="url(#disc)" stroke="#2a2621" stroke-width="1.5"/>
+  <!-- the radiation sign in yellow paint on the disc (where the vault number would be), with a thin dark outline -->
+  <g fill="#f4d11a" stroke="#1e1b17" stroke-width="2" stroke-linejoin="round" paint-order="stroke"><path d="M 91.00 100.00 L 70.00 100.00 A 30 30 0 0 1 85.00 74.02 L 95.50 92.21 A 9 9 0 0 0 91.00 100.00 Z M 104.50 92.21 L 115.00 74.02 A 30 30 0 0 1 130.00 100.00 L 109.00 100.00 A 9 9 0 0 0 104.50 92.21 Z M 104.50 107.79 L 115.00 125.98 A 30 30 0 0 1 85.00 125.98 L 95.50 107.79 A 9 9 0 0 0 104.50 107.79 Z"/><circle cx="100" cy="100" r="5.5"/></g>
+</svg>

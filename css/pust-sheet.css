@@ -1143,3 +1143,42 @@
   .pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) !important; }
 }
 .pust-caravan .q-all > .pust-qstate { contain: inline-size; } /* the state text wraps; it never sets the main block's width */
+
+/* ===== «Місце» of «Мапа Пустки» (module/sheets/place-sheet.mjs): the HTML map's place card in the sheets' look ===== */
+.pust-place-sheet .window-content { padding: 0; }
+.pust-place { display: flex; flex-direction: column; }
+.pust-place .pust-place-hd { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--kc); color: #fff;
+  font-family: var(--pu-f-label); font-weight: 800; font-size: 14px; letter-spacing: .06em; text-transform: uppercase;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pust-place .pust-place-dot { width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.25); flex: none; }
+.pust-place .pust-place-body { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px; }
+.pust-place .pust-place-l { display: flex; flex-direction: column; gap: 3px; margin: 0;
+  font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--pu-rust-2); }
+.pust-place .pust-place-l > :is(input, select, textarea) { width: 100%; text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 14px; }
+.pust-place .pust-place-row { display: flex; align-items: flex-start; gap: 6px; }
+.pust-place .pust-place-row > :is(input, textarea) { flex: 1 1 auto; min-width: 0; text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 14px; }
+.pust-place .pust-place-row > input { height: 30px; }
+.wastelanders .pust-place .pust-place-row > button.pust-die:not(.header-control) { flex: none; width: 30px !important; height: 30px !important; margin: 0 !important; padding: 0 !important; }
+.pust-place textarea { resize: vertical; min-height: 56px; line-height: 1.35; }
+.pust-place .pust-place-asp { display: flex; flex-wrap: wrap; gap: 4px; min-height: 0; margin-top: -4px; }
+.pust-place .pust-place-asp:empty { display: none; }
+.pust-place .pust-place-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 4px 1px 8px; border-radius: 3px;
+  background: #e2ad3b; color: #241a0c; font-style: italic; font-size: 13px; line-height: 20px; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.pust-place .pust-place-chip > button { width: 18px; height: 18px; min-height: 0; margin: 0; padding: 0; line-height: 16px; border: none; background: rgba(0,0,0,.12); color: #241a0c; font-style: normal; border-radius: 2px; }
+.pust-place .pust-place-muted { font-size: 12px; color: var(--pu-ink-3); font-style: italic; }
+.pust-place.readonly :is(input, select, textarea) { pointer-events: none; background: transparent; border-color: transparent; }
+/* «Видиме / Приховане» in the place card's header (GM): a small switch; on = players see the place */
+.pust-place .pust-place-hd > .pust-place-kind { flex: 1 1 auto; }
+.wastelanders .pust-place .pust-place-hd > button.pust-place-vis:not(.header-control) { flex: none; display: inline-flex; align-items: center; gap: 6px; width: auto !important; height: 24px !important; margin: 0 !important; padding: 0 9px 0 5px !important;
+  background: rgba(0,0,0,.35) !important; color: #f2ecd8 !important; border: 1px solid rgba(0,0,0,.45) !important; border-radius: 12px !important; box-shadow: none !important;
+  font-family: var(--pu-f-label); font-weight: 800; font-size: 11.5px !important; letter-spacing: .05em; text-transform: uppercase; text-shadow: none; cursor: pointer; }
+.pust-place .pust-place-vis .pust-place-sw { position: relative; width: 26px; height: 14px; border-radius: 7px; background: #5a605e; box-shadow: inset 0 1px 2px rgba(0,0,0,.5); }
+.pust-place .pust-place-vis .pust-place-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: #f2ecd8; transition: left .12s ease; }
+.pust-place .pust-place-vis.on .pust-place-sw { background: #3dff47; }
+.pust-place .pust-place-vis.on .pust-place-sw::after { left: 14px; background: #0e1a10; }
+.pust-place .pust-place-vis:disabled { opacity: .5; cursor: default; }
+/* the switch keeps one size whatever its word («Видиме» / «Приховане») */
+.wastelanders .pust-place .pust-place-hd > button.pust-place-vis:not(.header-control) { width: 132px !important; justify-content: flex-start; }
+/* «В чат» / «В журнал» at the card's foot */
+.pust-place .pust-place-out { display: flex; justify-content: flex-end; gap: 6px; margin-top: 2px; padding-top: 8px; border-top: 1px dashed var(--pu-ink-3); }
+.wastelanders .pust-place .pust-place-out > button:not(.header-control) { flex: 0 0 auto; height: 28px !important; margin: 0 !important; padding: 0 12px !important; }

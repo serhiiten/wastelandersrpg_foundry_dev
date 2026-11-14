@@ -65,7 +65,8 @@
         "htmlFields": [
           "description"
         ]
-      }
+      },
+      "place": {}
     },
     "Item": {
       "species": {

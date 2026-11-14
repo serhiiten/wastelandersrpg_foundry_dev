@@ -12,6 +12,7 @@ for (const act of ["chem-day", "chem-session"]) {
     const st = Rc.rollCharacter(null);
     st.species = "human";
     st.feats = [];
+    st.perks = []; // «Покращений метаболізм» makes a chem last a scene longer
     st.other = [{ n: "Психо", q: "1" }];
     const L = createLogic({ st, toast: () => {} });
     L.useItem(0);

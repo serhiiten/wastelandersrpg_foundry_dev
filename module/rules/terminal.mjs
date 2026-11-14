@@ -2399,6 +2399,7 @@ function refreshTextExport(){
     DB, ORDER, Cases, Rewards, TV_BATTLES, BT_SCENE,
     generate, rollReward, btSceneRoll, renderBattle, travelBattle, battleKinds, setKinds,
     rollDiceExpr, parseAndWrapDice, splitAttacks, attackParts, labelCat, kindName, buildTextExport,
+    sceneRoll, vaultNo,
     last: ()=>_lastBattle,
     restore(s){ _lastBattle = s.last || null; BT_SCENE.place = s.place || ''; BT_SCENE.hazard = s.hazard || '' }
   }
@@ -2480,6 +2481,9 @@ function refreshTextExport(){
       },
       rollReward() { BT.rollReward(); return this.state(); },
       rollScene(kind) { BT.btSceneRoll(kind); return this.state(); },
+      // «Мапа Пустки»: a hazard's name (the inspiration table «Небезпеки», as the battle scene) and a vault number
+      sceneRoll: (kind, prev) => BT.sceneRoll(kind, prev),
+      vaultNo: () => BT.vaultNo(),
       state() {
         const box = byId("bt-rewardBox");
         return { last: BT.last(), place: BT.BT_SCENE.place, hazard: BT.BT_SCENE.hazard, reward: box.dataset.last || "", rewardHtml: box.innerHTML,
