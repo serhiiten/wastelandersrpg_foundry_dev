@@ -1,5 +1,5 @@
 /**
- * The base of the enemy and counter sheets (AppV1). Characters and caravans have their own sheets
+ * The base of the enemy sheet (AppV1). Characters and caravans have their own sheets
  * (character-sheet-v2.mjs, caravan-sheet-v2.mjs).
  * @extends {ActorSheet}
  */

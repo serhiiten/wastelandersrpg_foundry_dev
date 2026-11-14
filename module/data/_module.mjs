@@ -1,7 +1,6 @@
 export { default as CharacterData } from "./character-data.mjs";
 export { default as CaravanData } from "./caravan-data.mjs";
 export { default as EnemyData } from "./enemy-data.mjs";
-export { default as CounterData } from "./counter-data.mjs";
 export { default as SpeciesData } from "./species-data.mjs";
 export {
   FeatData,

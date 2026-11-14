@@ -1,5 +1,5 @@
 /**
- * The system's Actor: default pictures and tokens, and the counter's step descriptions.
+ * The system's Actor: default pictures and tokens, caravan folders, places on «Мапа Пустки».
  * Characters and caravans are run by the rules engine (module/rules) through their sheets;
  * the earlier per-item hooks (perk requirements, HP and armour bonuses, species feats) are gone.
  * @extends {Actor}
@@ -124,7 +124,6 @@ export class WastelandersActor extends Actor {
       character: "systems/wastelanders-dev/assets/vault-boy.webp",
       caravan: "systems/wastelanders-dev/assets/cartwheel.png",
       enemy: "systems/wastelanders-dev/assets/daemon-skull.png",
-      counter: "systems/wastelanders-dev/assets/time-bomb.png",
       place: `systems/${game.system.id}/assets/map/town.svg`,
     };
 
@@ -159,9 +158,18 @@ export class WastelandersActor extends Actor {
   /** @inheritdoc */
   async _onCreate(data, options, userId) {
     super._onCreate(data, options, userId);
-    if (this.type === "counter") this._counterDescriptions();
     // a new caravan gets a folder of its own, named after it (author, 2026-11-14) — for its crew to join
     if (this.type === "caravan" && game.user.id === userId) WastelandersActor.caravanFolder(this);
+  }
+
+  /** Characters, enemies and caravans: the core status «Unconscious» exactly while HP are 0 or less
+   *  (an unlinked enemy token's actor carries it on that token only) */
+  async syncUnconscious() {
+    if (!WastelandersActor.TOKEN_TYPES.includes(this.type) || !this.isOwner) return;
+    const hp = Number(this.system.hp?.value);
+    if (!Number.isFinite(hp)) return;
+    const down = hp <= 0;
+    if (down !== this.statuses.has("unconscious")) await this.toggleStatusEffect("unconscious", { active: down });
   }
 
   /** The caravan's own Actors folder (flagged with its id): created in the folder it was made in, the caravan moved in */
@@ -187,9 +195,8 @@ export class WastelandersActor extends Actor {
     super._onUpdate(changed, options, userId);
 
     if (game.user.id != userId) return;
-    if (this.type === "counter" && changed?.system?.progress?.max !== undefined) {
-      this._counterDescriptions();
-    }
+    // 0 ОЗ: the token lies «Unconscious»; 1 or more: it gets up (author, 2026-11-14)
+    this.syncUnconscious();
     // a renamed caravan renames its own folder (the sheet saves with recursive: false, so the name comes wrapped, not as a string)
     if (this.type === "caravan" && "name" in changed) {
       const folder = game.folders.find((f) => f.type === "Actor" && f.getFlag(game.system.id, "caravan") === this.id);
@@ -276,22 +283,5 @@ export class WastelandersActor extends Actor {
       }
       if (ups.length) await scene.updateEmbeddedDocuments("Token", ups);
     }
-  }
-
-  /** A counter has one description per step */
-  async _counterDescriptions() {
-    const progress = this.system.progress;
-    const currentLength = progress.descriptions.length;
-
-    if (currentLength < progress.max) {
-      const diff = progress.max - currentLength;
-      progress.descriptions.push(...Array(diff).fill(""));
-    } else if (currentLength > progress.max) {
-      progress.descriptions.length = progress.max;
-    }
-
-    await this.update({
-      "system.progress.descriptions": progress.descriptions,
-    });
   }
 }

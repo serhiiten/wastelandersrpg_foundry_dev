@@ -1,33 +1,22 @@
 /**
- * «Лічильники гри» (the HTML terminal's global counters on the map, author 2026-11-14): a window for everyone.
- * The counters live in the world setting `gameCounters`; only the Gamemaster writes, everyone sees changes at once
- * (the setting's onChange → refreshGameCounters). Which counters are expanded is each device's own choice (localStorage).
- * Steps, creation and removal go to chat as a small terminal card.
- * Scene («локальні») counters, as in the HTML terminal's tracker: stored on the CURRENT scene, flag `sceneCounters`
- * (+ `sceneCounterNext`, the scene's id counter); only the Gamemaster writes; the window is redrawn on `updateScene`
- * of the viewed scene and on `canvasReady` (see wastelanders.mjs). The limit of 10 counts both kinds together.
+ * «Лічильники» for the Gamemaster: edited right in the panel under «Мапа Пустки» (author, 2026-11-14; there is no
+ * separate window any more). The panel's header has «+» (a new counter); the body lists the counters with their names,
+ * steps, segment descriptions and removal. Players get their own compact read-only panel (map-dock.mjs).
+ * Game counters live in the world setting `gameCounters` (its onChange → refreshGameCounters); scene («локальні»)
+ * counters, as in the HTML terminal's tracker, on the CURRENT scene, flag `sceneCounters` (+ `sceneCounterNext`);
+ * redrawn on `updateScene` of the viewed scene and on `canvasReady` (wastelanders.mjs). Only the Gamemaster writes;
+ * the limit of 10 counts both kinds together. Which game counters show their segments is each device's own choice
+ * (localStorage). Steps and creation go to chat as a small terminal card; removal does not.
  */
 import { postChat } from "./chat.mjs";
 import * as G from "../rules/game-counters.mjs";
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+// the system path is rewritten by tools/set-system-id.mjs when promoting DEV → stable, as in terminal.mjs
+const TEMPLATE = "systems/wastelanders-dev/templates/apps/game-counters.hbs";
 const OPEN_KEY = "pustelnyky-gcounters-open";
 const CONFIRM_MS = 3000;
 const SAVE_MS = 500;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
-
-let OPEN = null;
-/** Open the window, or bring it to the front; a second press of its tool closes it */
-export function openGameCounters() {
-  if (OPEN?.rendered) return OPEN.close();
-  OPEN ??= new GameCountersApp();
-  return OPEN.render({ force: true });
-}
-
-/** The world's counters changed (any client): redraw the open window */
-export function refreshGameCounters() {
-  if (OPEN?.rendered) OPEN.refresh();
-}
 
 const stored = () => G.normalizeList(game.settings.get(game.system.id, "gameCounters"));
 
@@ -57,52 +46,50 @@ function logCard(text) {
   return postChat({ content, speaker: { alias: "Термінал Доглядача" } });
 }
 
-class GameCountersApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
-    id: "pust-game-counters",
-    classes: ["wastelanders", "pust-game-counters-app"],
-    position: { width: 420, height: "auto" },
-    window: { title: "Лічильники гри", icon: "fa-solid fa-hourglass-half", resizable: true },
-    actions: {
-      newForm: GameCountersApp.#onNewForm,
-      cancelForm: GameCountersApp.#onCancelForm,
-      create: GameCountersApp.#onCreate,
-      step: GameCountersApp.#onStep,
-      toggle: GameCountersApp.#onToggle,
-      remove: GameCountersApp.#onRemove,
-      setKind: GameCountersApp.#onSetKind,
-      lstep: GameCountersApp.#onLStep,
-      lremove: GameCountersApp.#onLRemove,
-    },
-  };
+/** Arm a destructive button on the first press; true when it was already armed (the second press) */
+function armed(target) {
+  if (target.classList.contains("armed")) return true;
+  target.classList.add("armed");
+  target.title = "Натисни ще раз, щоб підтвердити";
+  ui.notifications.info("Натисни ще раз, щоб підтвердити.");
+  setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
+  return false;
+}
 
-  // the system path is rewritten by tools/set-system-id.mjs when promoting DEV → stable, as in terminal.mjs
-  static PARTS = { body: { template: "systems/wastelanders-dev/templates/apps/game-counters.hbs" } };
+class CountersPanel {
+  /** @param {HTMLElement} section the dock's panel: a header with «+», and the body this panel draws */
+  constructor(section) {
+    this.section = section;
+    this.body = section.querySelector(".pust-gc");
+    this.form = null; // { kind: "scene"|"game", name, size, val, die, custom, start } while the new counter's form is open
+    this.pending = false;
+    this.timers = new Map();
+    this.seq = 0;
+    section.addEventListener("click", (ev) => this.#onClick(ev));
+    this.body.addEventListener("focusout", () => { if (this.pending) setTimeout(() => this.pending && this.refresh(), 0); });
+  }
 
-  form = null; // { kind: "scene"|"game", name, size, val, die, custom, start } while the «+ Лічильник» form is open
-  #pending = false;
-  #timers = new Map();
-
-  async _prepareContext() {
-    const gm = game.user.isGM, list = stored(), open = new Set(openIds());
-    const sc = sceneOf(), locals = sc ? sceneList() : [], f = gm ? this.form : null;
+  #context() {
+    const list = stored(), open = new Set(openIds());
+    const sc = sceneOf(), locals = sc ? sceneList() : [], f = this.form;
     return {
-      gm,
+      gm: true,
       max: G.GC_MAX,
       full: G.isFullTotal(locals.length, list.length),
       form: f,
       formScene: f?.kind === "scene",
       hasScene: !!sc,
       sceneName: sc?.name ?? "",
-      showScene: !!sc && (gm || locals.length > 0),
-      sizes: G.GC_SIZES.map((n) => ({ n, sel: n === (this.form?.size ?? 6) })),
+      showScene: locals.length > 0,
+      showGame: list.length > 0,
+      sizes: G.GC_SIZES.map((n) => ({ n, sel: n === (f?.size ?? 6) })),
       dies: G.LC_DIES.map(([d, label]) => ({ d, label, sel: String(d) === String(f?.die ?? 6) })),
       customDie: String(f?.die) === "custom",
       steps: G.LC_STEPS,
       fullText: G.LC_FULL_TEXT,
       locals: locals.map((c) => {
         const st = G.localState(c);
-        return { ...c, st, hue: G.ctHue(c.val, c.die), svg: G.dieSvg(c.die, c.val, c.id), stateText: G.STATE_TEXT[st] ?? "" };
+        return { ...c, st, hue: G.ctHue(c.val, c.die), svg: G.dieSvg(c.die, c.val, `gm${c.id}`), stateText: G.STATE_TEXT[st] ?? "" };
       }),
       counters: list.map((c) => ({
         ...c,
@@ -115,21 +102,35 @@ class GameCountersApp extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
-  /** Redraw, but never over a field being typed in: wait for it to lose focus */
-  refresh() {
-    const ae = this.element?.contains(document.activeElement) ? document.activeElement : null;
-    if (ae?.matches("input, textarea, select")) { this.#pending = true; return; }
-    this.#pending = false;
-    this.render();
+  /** Draw the panel; an empty one shows only its header with «+» */
+  async render() {
+    const seq = ++this.seq;
+    const ctx = this.#context();
+    const html = await foundry.applications.handlebars.renderTemplate(TEMPLATE, ctx);
+    if (seq !== this.seq) return; // a newer draw has started
+    const top = this.body.scrollTop; // a step or a rename must not jump the list back to its top
+    this.body.innerHTML = html;
+    this.body.hidden = !ctx.form && !ctx.showGame && !ctx.showScene;
+    this.section.classList.toggle("pust-md-empty", this.body.hidden); // no counters: half-transparent like the other panels
+    const add = this.section.querySelector("[data-gc='newForm']");
+    if (add) {
+      add.disabled = ctx.full;
+      add.title = ctx.full ? G.LC_FULL_TEXT : "Новий лічильник: гри (від сесії до сесії) або цієї сцени";
+    }
+    this.#bind(); // fits the descriptions' heights, so the scroll is put back after it
+    this.body.scrollTop = top;
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
-    const root = this.element;
-    if (!this._pustFocusBound) {
-      this._pustFocusBound = true;
-      root.addEventListener("focusout", () => { if (this.#pending) setTimeout(() => this.#pending && this.refresh(), 0); });
-    }
+  /** Redraw, but never over a field being typed in: wait for it to lose focus */
+  refresh() {
+    const ae = this.body.contains(document.activeElement) ? document.activeElement : null;
+    if (ae?.matches("input, textarea, select")) { this.pending = true; return; }
+    this.pending = false;
+    return this.render();
+  }
+
+  #bind() {
+    const root = this.body;
     const fit = (t) => { t.style.height = "auto"; if (t.scrollHeight) t.style.height = `${t.scrollHeight}px`; };
     root.querySelectorAll("textarea[data-lbl]").forEach((t) => {
       const key = `l${t.dataset.lbl}.${t.dataset.i}`;
@@ -152,33 +153,30 @@ class GameCountersApp extends HandlebarsApplicationMixin(ApplicationV2) {
     root.querySelectorAll("[data-f]").forEach((el) => el.addEventListener("input", () => this.#readForm()));
     root.querySelector("[data-f='size']")?.addEventListener("change", () => { this.#readForm(); this.render(); });
     root.querySelector("[data-f='die']")?.addEventListener("change", () => { this.#readForm(); this.render(); });
-    root.querySelector("[data-f='name']")?.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); GameCountersApp.#onCreate.call(this); } });
-  }
-
-  async close(options) {
-    for (const key of [...this.#timers.keys()]) this.#flush(key);
-    return super.close(options);
+    const name = root.querySelector("[data-f='name']");
+    name?.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") { ev.preventDefault(); this.#create(); }
+      if (ev.key === "Escape") { ev.preventDefault(); this.form = null; this.render(); }
+    });
   }
 
   /* ---------- debounced saving of names and descriptions ---------- */
   #save(key, fn) {
-    clearTimeout(this.#timers.get(key)?.t);
-    this.#timers.set(key, { fn, t: setTimeout(() => this.#flush(key), SAVE_MS) });
+    clearTimeout(this.timers.get(key)?.t);
+    this.timers.set(key, { fn, t: setTimeout(() => this.#flush(key), SAVE_MS) });
   }
   #flush(key) {
-    const e = this.#timers.get(key);
+    const e = this.timers.get(key);
     if (!e) return;
-    clearTimeout(e.t); this.#timers.delete(key);
+    clearTimeout(e.t); this.timers.delete(key);
     return e.fn();
   }
+  async #flushAll() { for (const key of [...this.timers.keys()]) await this.#flush(key); }
 
-  /** Save the list changed by fn (the Gamemaster only) */
   async #write(fn) {
     if (!game.user.isGM) return;
     return game.settings.set(game.system.id, "gameCounters", fn(stored()));
   }
-
-  /** Save the current scene's list changed by fn (the Gamemaster only) */
   async #writeLocal(fn) {
     if (!game.user.isGM || !sceneOf()) return;
     return writeScene(fn(sceneList()), sceneNext());
@@ -187,7 +185,7 @@ class GameCountersApp extends HandlebarsApplicationMixin(ApplicationV2) {
   #newForm() { return { kind: sceneOf() ? "scene" : "game", name: "", size: 6, val: 0, die: "6", custom: 20, start: 4 }; }
 
   #readForm() {
-    const f = this.form ?? (this.form = this.#newForm()), r = this.element;
+    const f = this.form ?? (this.form = this.#newForm()), r = this.body;
     const q = (k) => r.querySelector(`[data-f='${k}']`);
     f.name = q("name")?.value ?? f.name;
     if (q("size")) f.size = +q("size").value || f.size;
@@ -198,24 +196,41 @@ class GameCountersApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /* ---------- actions ---------- */
-  static #onNewForm() {
-    if (!game.user.isGM || G.isFullTotal(sceneList().length, stored().length)) return;
-    this.form = this.#newForm();
-    this.render().then(() => this.element.querySelector("[data-f='name']")?.focus());
+  #onClick(ev) {
+    const b = ev.target.closest("[data-gc]");
+    if (!b || b.disabled || !game.user.isGM) return;
+    ev.stopPropagation();
+    const a = b.dataset.gc;
+    if (a === "newForm") return this.#newCounter();
+    if (a === "cancelForm") { this.form = null; return this.render(); }
+    if (a === "create") return this.#create();
+    if (a === "setKind") return this.#setKind(b);
+    if (a === "toggle") { const id = +b.dataset.id; setOpen(id, !openIds().includes(id)); return this.render(); }
+    if (a === "step") return this.#step(b);
+    if (a === "remove") return this.#remove(b);
+    if (a === "lstep") return this.#lstep(b);
+    if (a === "lremove") return this.#lremove(b);
   }
-  static #onCancelForm() { this.form = null; this.render(); }
 
-  /** The «Сцена / Гра» switch of the form */
-  static #onSetKind(event, target) {
-    if (!game.user.isGM || !this.form) return;
+  /** «+»: the form opens on top of the list (a second press closes it) */
+  #newCounter() {
+    if (this.form) { this.form = null; return this.render(); }
+    if (G.isFullTotal(sceneList().length, stored().length)) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+    this.form = this.#newForm();
+    this.render().then(() => this.body.querySelector("[data-f='name']")?.focus());
+  }
+
+  /** The «Гра / Сцена» switch of the form */
+  #setKind(target) {
+    if (!this.form) return;
     this.#readForm();
     if (target.dataset.kind === "scene" && !sceneOf()) return;
     this.form.kind = target.dataset.kind === "game" ? "game" : "scene";
     this.render();
   }
 
-  static async #onCreate() {
-    if (!game.user.isGM || !this.form) return;
+  async #create() {
+    if (!this.form) return;
     this.#readForm();
     const list = stored(), f = this.form;
     if (f.kind === "scene") {
@@ -237,58 +252,48 @@ class GameCountersApp extends HandlebarsApplicationMixin(ApplicationV2) {
     await logCard(G.logCreate(r.counter));
   }
 
-  static async #onStep(event, target) {
-    if (!game.user.isGM) return;
-    for (const key of [...this.#timers.keys()]) await this.#flush(key); // typed names / descriptions first
+  async #step(target) {
+    await this.#flushAll(); // typed names / descriptions first
     const r = G.stepCounter(stored(), target.dataset.id, +target.dataset.d);
     if (!r?.changed) return;
     await game.settings.set(game.system.id, "gameCounters", r.list);
     await logCard(G.logStep(r.counter, r.from, r.to));
   }
 
-  static async #onLStep(event, target) {
-    if (!game.user.isGM || !sceneOf()) return;
-    for (const key of [...this.#timers.keys()]) await this.#flush(key);
+  async #lstep(target) {
+    if (!sceneOf()) return;
+    await this.#flushAll();
     const d = +target.dataset.d, r = G.stepLocal(sceneList(), target.dataset.id, d);
     if (!r?.changed) return;
     await writeScene(r.list, sceneNext());
     await logCard(G.logStepLocal(r.counter, r.from, r.to, d));
   }
 
-  static async #onLRemove(event, target) {
-    if (!game.user.isGM || !sceneOf()) return;
-    if (!target.classList.contains("armed")) {
-      target.classList.add("armed");
-      target.title = "Натисни ще раз, щоб підтвердити";
-      ui.notifications.info("Натисни ще раз, щоб підтвердити.");
-      setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
-      return;
-    }
-    const r = G.removeLocal(sceneList(), target.dataset.id);
-    if (!r) return;
-    await writeScene(r.list, sceneNext());
-    await logCard(G.logRemoveLocal(r.counter));
-  }
-
-  static #onToggle(event, target) {
-    const id = +target.dataset.id;
-    setOpen(id, !openIds().includes(id));
-    this.render();
-  }
-
-  static async #onRemove(event, target) {
-    if (!game.user.isGM) return;
-    if (!target.classList.contains("armed")) { // asks twice, like every destructive button
-      target.classList.add("armed");
-      target.title = "Натисни ще раз, щоб підтвердити";
-      ui.notifications.info("Натисни ще раз, щоб підтвердити.");
-      setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
-      return;
-    }
+  async #remove(target) {
+    if (!armed(target)) return; // asks twice, like every destructive button
     const r = G.removeCounter(stored(), target.dataset.id);
     if (!r) return;
     setOpen(r.counter.id, false);
-    await game.settings.set(game.system.id, "gameCounters", r.list);
-    await logCard(G.logRemove(r.counter));
+    await game.settings.set(game.system.id, "gameCounters", r.list); // removal is not posted to chat (author, 2026-11-14)
   }
+
+  async #lremove(target) {
+    if (!sceneOf() || !armed(target)) return;
+    const r = G.removeLocal(sceneList(), target.dataset.id);
+    if (!r) return;
+    await writeScene(r.list, sceneNext()); // removal is not posted to chat
+  }
+}
+
+let PANEL = null;
+
+/** The GM's counters panel: the dock's section (header with «+», body `.pust-gc`) */
+export function mountCounters(section) {
+  PANEL = new CountersPanel(section);
+  return PANEL.render();
+}
+
+/** The world's or the viewed scene's counters changed (any client): redraw the GM's panel */
+export function refreshGameCounters() {
+  return PANEL?.refresh();
 }

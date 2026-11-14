@@ -4,7 +4,6 @@
       "character": "Персонаж",
       "caravan": "Караван",
       "enemy": "Супротивник",
-      "counter": "Лічильник",
       "place": "Місце"
     },
     "Item": {
@@ -23,30 +22,9 @@
   },
   "WASTELANDERS": {
     "Actor": {
-      "Name": "Ім'я",
-      "General": "Основне",
-      "Inventory": "Інвентар",
-      "Items": "Предмети",
-      "Notes": "Нотатки",
       "Character": {
-        "ChooseSpecies": "Обери вид",
-        "Concept": "Концепція",
-        "Problem": "Проблема",
-        "Goal": "Ціль",
-        "Armor": "Броня",
-        "FatePoints": {
-          "Value": "Поточні ЖД",
-          "Recover": "Відновлення ЖД"
-        },
-        "Consequence": {
-          "Light": "Легкий наслідок",
-          "Moderate": "Середній наслідок",
-          "SecondModerate": "Другий середній наслідок",
-          "Heavy": "Тяжкий наслідок"
-        },
         "Attributes": "Атрибути",
         "Attribute": {
-          "Single": "Атрибут",
           "Strength": "Сила",
           "Perception": "Сприйняття",
           "Endurance": "Витривалість",
@@ -67,7 +45,6 @@
         "Skills": "Навички",
         "SkillsNumber": "На старті гри обери {number} навички на рівні учня.",
         "Skill": {
-          "Single": "Навичка",
           "Athletics": "Атлетика",
           "Thievery": "Крадіж",
           "Marksmanship": "Стрільба",
@@ -84,68 +61,9 @@
           "Assistant": "Підмайстер (d8)",
           "Master": "Майстер (d10)"
         },
-        "Feats": "Особливості",
-        "SpeciesFeats": "Видові особливості",
-        "Perks": "Перки",
-        "PerksNumber": "На старті гри обери {number} перки.",
-        "FailedPerkCheck": "Ви не відопвідаєте вимогам перку {perk} ({requirement}) його використання",
-        "Supplies": "Припаси",
-        "Caps": "Кришки",
-        "HeavyItems": "Важкі речі",
-        "Weapons": "Зброя",
-        "Armors": "Захист",
-        "Drugs": "Медикаменти і наркотики",
-        "Tools": "Все інше",
-        "HeavyItemsTips": {
-          "Light": "Отримай штраф -1 на всі перевірки, пов'язані з швидким і акуратним пересуванням, та при спробах бути непомітним",
-          "Moderate": "Отримай Послаблення на всі перевірки, пов'язані з швидким і акуратним пересуванням, та при спробах бути непомітним",
-          "TooMuch": "Твій персонаж не може нести стільки важких речей!"
-        },
-        "Experience": {
-          "Long": "Досвід",
-          "Short": "ОД",
-          "Tips": "Підказки щодо досвіду",
-          "Gains": "Отримання досвіду",
-          "GainFailure": "Невдачі на перевірках",
-          "GainGroupQuestions": "Групові запитання наприкінці сесії",
-          "GainPersonalQuestions": "Особисті запитання наприкінці сесії",
-          "GainRest": "Привал під час подорожі",
-          "Consumption": "Витрата досвіду",
-          "Upgrade": "Покращення",
-          "Price": "Ціна",
-          "Checked": "Взято",
-          "NewPerk": "Отримати новий перк",
-          "LearnSkill": "Вивчити нову навичку на рівні учня",
-          "SkillToJourneyman": "Покращити навичку з рівня учня до підмайстра",
-          "SkillToMaster": "Покращити навичку з рівня підмайстра до майстра",
-          "AttributeToPlus2": "Покращити атрибут на 1 (максимум до +2)",
-          "AttributeToPlus3": "Покращити атрибут на 1 (з +2 до +3)",
-          "AttributeToPlus4": "Покращити атрибут на 1 (з +3 до +4)"
-        },
         "Settings": {
-          "Title": "Налаштування персонажа",
-          "DoubleModerate": "Друга комірка середніх наслідків",
-          "CountFateAutomatically": "Рахувати відновлення ЖД автоматично",
-          "HPBonus": "Бонус ОЗ",
-          "ArmorBonus": "Додаткова броня"
+          "HPBonus": "Бонус ОЗ"
         }
-      },
-      "Caravan": {
-        "Name": "Назва компанії",
-        "KarmicAspect": "Кармічний аспект",
-        "Reputation": "Репутаційний аспект",
-        "Caps": "Бюджет кришок",
-        "Karma": "Карма",
-        "Luck": "Удача партії",
-        "Armor": "Броня",
-        "Range": "Запас ходу",
-        "RangeTips": "Поповнюється у будь-якому поселенні. Коштує 1 кришку за 3 одиниці",
-        "Upgrades": "Покращення",
-        "UpgradeOnCreation": "На старті гри оберіть 2 покращення",
-        "UpgradesTips": "Покращення можна встановити у будь-якому поселенні, де є технік. Вони коштуватимуть по 25 кришок",
-        "CargoNav": "Вантажі та пасажири",
-        "Cargo": "Вантаж",
-        "Passengers": "Пасажири"
       },
       "Enemy": {
         "Name": "Ім'я",
@@ -158,12 +76,6 @@
         },
         "Armor": "Броня",
         "Attacks": "Атаки"
-      },
-      "Counter": {
-        "Filled": "Заповнено",
-        "Size": "Розмір",
-        "Time": "Позначка",
-        "Description": "Опис"
       }
     },
     "Item": {
@@ -190,27 +102,13 @@
       "SpeciesFeats": "Видові властивості"
     },
     "Roll": {
-      "Title": "Кидок",
-      "Modifier": "Модифікатор",
-      "Submit": "Кинути",
-      "AdvantageTitle": "Посилення/Послаблення",
       "DoubleAdvantage": "Посилення (2)",
       "Advantage": "Посилення",
       "Disadvantage": "Послаблення",
       "DoubleDisadvantage": "Послаблення (2)",
       "Results": {
         "Failure": "Невдача",
-        "Partial": "Частковий успіх",
-        "Success": "Успіх",
-        "Crit": "Критичний успіх"
-      }
-    },
-    "Settings": {
-      "HeaderButton": "Налаштування",
-      "Submit": "Підтвердити",
-      "CustomArchetypes": {
-        "Name": "Список архетипів",
-        "Hint": "Введіть свій список архетипів"
+        "Success": "Успіх"
       }
     },
     "Errors": {
@@ -223,10 +121,8 @@
       }
     },
     "Description": "Опис",
-    "Notes": "Нотатки",
     "Json": {
       "Open": "Open .json",
-      "Save": "Save .json",
       "OpenHint": "Create characters and caravans from electronic sheet files",
       "Unnamed": "Unnamed",
       "NotJson": "This is not a .json file.",

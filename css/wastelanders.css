@@ -87,11 +87,6 @@ select.clear-select {
   min-height: 600px;
 }
 
-.wastelanders.sheet.actor.counter {
-  min-width: 300px;
-  min-height: 300px;
-}
-
 .wastelanders.sheet.actor.enemy {
   min-width: 300px;
   min-height: 300px;
@@ -272,9 +267,6 @@ select.clear-select {
   font-weight: bold;
 }
 
-.wastelanders.actor input.all-width {
-  width: 100%;
-}
 .wastelanders.actor .sheet-header {
   display: grid;
   grid-template-columns: 120px 1fr;
@@ -344,58 +336,6 @@ select.clear-select {
 .wastelanders.actor .sheet-header .brief-info .prop .clear-input {
   flex: 1;
   border-bottom: 1px solid #b5b3a4;
-}
-.wastelanders.actor .character .general-container {
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) 2fr;
-  gap: 10px;
-}
-.wastelanders.actor .character .general-container h2 {
-  margin-top: 10px;
-  margin-bottom: 0;
-  border: none;
-}
-.wastelanders.actor .character .general-container .attribute {
-  font-size: x-large;
-}
-.wastelanders.actor .character .general-container .prop {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-.wastelanders.actor .character .general-container .prop .prop-label {
-  margin-right: 3px;
-}
-.wastelanders.actor .character .general-container .prop .clear-input {
-  flex: 1;
-  border-bottom: 1px solid #b5b3a4;
-}
-.wastelanders.actor .character .notes .experience {
-  font-size: large;
-  font-family: "Overseer", sans-serif;
-}
-
-.wastelanders.actor .caravan .general-container h2 {
-  text-align: center;
-}
-
-.wastelanders.actor .counter .sheet-header {
-  display: block;
-}
-.wastelanders.actor .counter .sheet-body .descriptions th,
-.wastelanders.actor .counter .sheet-body .descriptions td {
-  padding: 0.25em;
-}
-.wastelanders.actor .counter .sheet-body .descriptions .col-index {
-  width: 50px;
-  text-align: center;
-}
-.wastelanders.actor .counter .sheet-body .descriptions .col-index .fa-check {
-  margin-right: 2px;
-}
-
-.wastelanders.item input.all-width {
-  width: 100%;
 }
 .wastelanders.item .items-header {
   display: flex;

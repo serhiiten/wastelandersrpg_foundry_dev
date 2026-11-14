@@ -1,10 +1,6 @@
 @use "../utils/variables" as *;
 
 .wastelanders.item {
-  input.all-width {
-    width: 100%;
-  }
-
   .items-header {
     display: flex;
     flex: 100px auto;

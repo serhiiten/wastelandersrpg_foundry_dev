@@ -84,7 +84,6 @@ export function logStep(c, from, to) {
   const l = to > 0 ? (c.labels[to - 1] || "").trim() : "";
   return `Лічильник гри «${c.name}»: ${from} → ${to} з ${c.size}${l ? ` — ${l}` : ""}`;
 }
-export const logRemove = (c) => `Лічильник гри «${c.name}» прибрано`;
 
 /* ---------- Scene (local) counters: mirrors the HTML terminal's tracker.js ctCreate / ctStep / ctRemove ----------
  * A scene counter: { id, name, die: 2..30, val: 0..die }. Lives in the current scene's flag; the limit of GC_MAX counts
@@ -161,7 +160,6 @@ export function logStepLocal(c, from, to, d) {
   const why = STEP_WHY[String(d)];
   return `«${c.name}»: ${from} → ${to}${why ? ` (${why})` : ""}${to <= 0 ? " — загроза настала!" : to >= c.die ? " — проблему розв'язано" : ""}`;
 }
-export const logRemoveLocal = (c) => `Лічильник «${c.name}» прибрано`;
 
 /** The die drawn as in the HTML terminal's ctDieSvg (value big, «dN» small); uid keeps the gradient id unique per card */
 export function dieSvg(die, val, uid = 0) {
@@ -181,4 +179,15 @@ export function dieSvg(die, val, uid = 0) {
     + `<g fill="url(#${g})" stroke="#ffd84a" stroke-width="4" stroke-linejoin="round">${shape}</g>`
     + `<text x="50" y="${ty}" text-anchor="middle" dominant-baseline="middle" font-family="Handjet, monospace" font-weight="700" font-size="${fs}" fill="${fill}">${val}</text>`
     + `<text x="50" y="${dy}" text-anchor="middle" font-family="Handjet, monospace" font-weight="700" font-size="13" fill="#9aa19f">d${die}</text></svg>`;
+}
+
+/* ---------- the old «counter» actor (the original system's progress clock) → a game counter ----------
+ * The actor type is gone (author, 2026-11-14); its raw source { name, system: { progress: { value, max, descriptions },
+ * description } } becomes a game counter: the smallest size that holds max steps, the value and the step descriptions kept. */
+export function fromCounterActor(src) {
+  const p = src?.system?.progress ?? {};
+  const max = clamp(int(p.max, 4), 1, 12);
+  const size = GC_SIZES.find((n) => n >= max) ?? 12;
+  const labels = Array.isArray(p.descriptions) ? p.descriptions.map((t) => String(t ?? "")) : [];
+  return { name: String(src?.name ?? "").trim() || "Лічильник", size, val: clamp(int(p.value), 0, max), labels };
 }

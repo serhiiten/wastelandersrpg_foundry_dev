@@ -28,6 +28,7 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
       rndAsp: WastelandersPlaceSheet.#onRndAsp,
       aspRm: WastelandersPlaceSheet.#onAspRm,
       toggleVis: WastelandersPlaceSheet.#onToggleVis,
+      toggleLock: WastelandersPlaceSheet.#onToggleLock,
       toChat: WastelandersPlaceSheet.#onToChat,
       toJournal: WastelandersPlaceSheet.#onToJournal,
     },
@@ -55,6 +56,8 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
     const toks = placeTokens(this.document);
     context.gm = game.user.isGM;
     context.vis = { has: toks.length > 0, visible: toks.some((t) => !t.hidden) };
+    // «Закріплене / Рухоме» (author, 2026-11-14): the place's tokens can't be dragged on the map while locked
+    context.lock = { has: toks.length > 0, locked: toks.length > 0 && toks.every((t) => t.locked) };
     context.kindKey = s.kind;
     context.kind = kind;
     context.name = this.document.name;
@@ -155,6 +158,18 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
     entry.sheet.render(true);
   }
 
+  /** «Закріплене / Рухоме»: every token of the place on every scene is locked in place (Foundry's token lock) or freed */
+  static async #onToggleLock() {
+    if (!game.user.isGM) return;
+    const toks = placeTokens(this.document);
+    if (!toks.length) return ui.notifications.info("Цього місця ще немає на мапі.");
+    const lock = toks.some((t) => !t.locked);
+    for (const scene of game.scenes) {
+      const ups = scene.tokens.filter((t) => t.actorId === this.document.id && t.locked !== lock).map((t) => ({ _id: t.id, locked: lock }));
+      if (ups.length) await scene.updateEmbeddedDocuments("Token", ups);
+    }
+  }
+
   /** «Видиме / Приховане»: every token of the place on every scene is shown to or hidden from players (the GM's ownership hook follows) */
   static async #onToggleVis() {
     if (!game.user.isGM) return;
@@ -203,9 +218,9 @@ function placeTokens(actor) {
   return game.scenes.contents.flatMap((s) => s.tokens.filter((t) => t.actorId === actor.id));
 }
 
-// the card's switch follows the tokens (hidden from the token HUD too)
+// the card's switches follow the tokens (hidden / locked from the token HUD or config too)
 Hooks.on("updateToken", (tok, changed) => {
-  if (!("hidden" in changed) || tok.actor?.type !== "place") return;
+  if (!("hidden" in changed || "locked" in changed) || tok.actor?.type !== "place") return;
   const sheet = tok.actor.sheet;
   if (sheet?.rendered) sheet.render();
 });

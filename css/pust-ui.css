@@ -77,12 +77,11 @@
 .wastelanders a { color: var(--pu-rust-2); }
 .wastelanders a:hover { color: var(--pu-red-ink); text-shadow: none; }
 /* label type: small caps-like, for field names */
-.wastelanders .pust-label, .wastelanders .pust-lbl, .wastelanders .pust-term-l {
+.wastelanders .pust-term-l {
   font-family: var(--pu-f-label); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2);
 }
 .wastelanders .pust-sub { font-size: 12px; color: var(--pu-ink-3); }
 /* handwritten note in red ink */
-.wastelanders .pust-note-hand, .wastelanders .pust-hand { font-family: var(--pu-f-hand); font-size: 17px; color: var(--pu-red-ink); line-height: 1.2; }
 
 /* --------------------------------------- controls --------------------------------------- */
 .wastelanders :is(input[type="text"], input[type="number"], input:not([type]), select, textarea) {
@@ -114,7 +113,7 @@
 .wastelanders button:not(.header-control):not(.pip):not(.rbtn):not(.seg):not(.dot):not(.die):active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 var(--pu-rust-1); }
 .wastelanders button:disabled { opacity: .45; cursor: default; }
 /* main action: rust plate, yellow letters */
-.wastelanders :is(.pust-go, .pust-term-go, .pust-check-btn, .pust-big, .pust-primary):not(.header-control) {
+.wastelanders :is(.pust-go, .pust-term-go, .pust-check-btn):not(.header-control) {
   background: var(--pu-rust-2) var(--pu-noise) !important; color: var(--pu-yellow) !important;
   border-color: var(--pu-rust-0) !important; box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 1px 0 rgba(255,225,190,.35) !important;
   text-transform: uppercase; letter-spacing: .06em; font-weight: 800 !important;
@@ -132,7 +131,7 @@
 /* a second click is needed */
 .wastelanders button.armed { background: var(--pu-red-ink) !important; color: #fff !important; border-color: #5a0a0e !important; box-shadow: 0 2px 0 #5a0a0e !important; }
 /* round reroll / dice buttons */
-.wastelanders :is(.pust-die, .pust-term-reroll, .pust-reroll):not(.header-control) {
+.wastelanders :is(.pust-die, .pust-term-reroll):not(.header-control) {
   width: 26px !important; height: 26px; padding: 0 !important; line-height: 24px !important; border-radius: 50% !important;
   background: radial-gradient(circle at 40% 35%, var(--pu-rust-4), var(--pu-rust-2)) !important; color: #f6e7c8 !important;
   border-color: var(--pu-rust-0) !important; box-shadow: 0 2px 0 var(--pu-rust-0) !important; font-size: 12px !important;
@@ -175,23 +174,20 @@
   padding: 6px 8px; margin-bottom: 10px;
 }
 /* screen: dark CRT with green phosphor */
-.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result, .pust-log, .pust-table-out, .pust-scene-box),
-.pust-chat .pust-screen {
+.wastelanders :is(.pust-screen, .pust-term-screen, .pust-log, .pust-table-out, .pust-scene-box), .pust-chat .pust-screen {
   background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29) !important;
   color: var(--pu-green) !important;
   border: 3px solid var(--pu-steel-0); border-radius: 6px;
   box-shadow: inset 0 2px 0 rgba(255,255,255,.07), inset 0 0 18px rgba(0,0,0,.45);
 }
-.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result, .pust-log, .pust-table-out, .pust-scene-box) :is(b, strong, .pust-val) { color: #b6ffb9; }
-.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result, .pust-log, .pust-table-out, .pust-scene-box) :is(.pust-sub, .pust-lbl, .pust-label, label, .pust-term-l, small) { color: var(--pu-green-dim) !important; }
-.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result) :is(h2, h3, h4) { color: var(--pu-red); border-color: var(--pu-steel-3); font-family: var(--pu-f-screen); letter-spacing: .04em; }
-.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block, .pust-term-screen, .pust-result) :is(input[type="text"], select) {
+.wastelanders :is(.pust-screen, .pust-term-screen, .pust-log, .pust-table-out, .pust-scene-box) :is(b, strong, .pust-val) { color: #b6ffb9; }
+.wastelanders :is(.pust-screen, .pust-term-screen, .pust-log, .pust-table-out, .pust-scene-box) :is(.pust-sub, label, .pust-term-l, small) { color: var(--pu-green-dim) !important; }
+.wastelanders :is(.pust-screen, .pust-term-screen) :is(h2, h3, h4) { color: var(--pu-red); border-color: var(--pu-steel-3); font-family: var(--pu-f-screen); letter-spacing: .04em; }
+.wastelanders :is(.pust-screen, .pust-term-screen) :is(input[type="text"], select) {
   background: var(--pu-steel-0); color: var(--pu-green); border-color: var(--pu-steel-3); box-shadow: none; font-family: var(--pu-f-num); font-size: 15px; font-weight: 700;
 }
-.wastelanders :is(.pust-screen, .pust-quick, .pust-screen-block) .bad { color: var(--pu-red) !important; }
-.wastelanders .pust-screen-num, .wastelanders :is(.pust-quick, .pust-screen-block) b { font-family: var(--pu-f-num); font-weight: 700; font-size: 15px; }
+.wastelanders :is(.pust-screen) .bad { color: var(--pu-red) !important; }
 /* a hazard stripe above important action bars */
-.wastelanders .pust-hazard { border-top: 6px solid transparent; border-image: repeating-linear-gradient(-45deg, var(--pu-yellow) 0 10px, #1d1a14 10px 20px) 6; }
 
 /* -------------------------------------- bits -------------------------------------- */
 .wastelanders :is(.pust-chip, .pust-pill) {
@@ -207,8 +203,6 @@
   background: var(--pu-sheet); border: 1.5px solid var(--pu-ink-2); box-shadow: inset 0 1px 2px rgba(35,27,17,.2); cursor: pointer;
 }
 .wastelanders :is(.pip, .rbtn, button.seg, .dot).on { background: var(--pu-rust-2); border-color: var(--pu-rust-0); box-shadow: inset 0 1px 0 rgba(255,220,190,.3); }
-.wastelanders :is(.pust-screen-block, .pust-quick) :is(.pip) { background: var(--pu-steel-0); border-color: var(--pu-steel-3); }
-.wastelanders :is(.pust-screen-block, .pust-quick) :is(.pip).on { background: var(--pu-green); border-color: var(--pu-green-dim); box-shadow: 0 0 6px rgba(61,255,71,.6); }
 
 /* scrollbars */
 .wastelanders ::-webkit-scrollbar { width: 9px; height: 9px; }
@@ -239,7 +233,7 @@
 .wastelanders button.pust-rest-btn:disabled { filter: grayscale(.7); }
 
 /* aspects look like the book's: italic on an ochre highlight */
-.wastelanders .pust-aspect-text, .wastelanders .pust-sitchip > span:first-child, .wastelanders .pust-enemy .pust-chip {
+.wastelanders .pust-sitchip > span:first-child, .wastelanders .pust-enemy .pust-chip {
   background: #e2ad3b; color: #241a0c; font-style: italic; font-family: var(--pu-f-text); padding: 0 6px; border-radius: 1px;
   box-decoration-break: clone; -webkit-box-decoration-break: clone;
 }
@@ -340,7 +334,7 @@
 .pust-mn-del.armed { animation: pust-mn-arm 0.6s ease-in-out infinite alternate; }
 @keyframes pust-mn-arm { from { background: #a8121a; } to { background: #d2302a; } }
 
-/* «Лічильники гри»: scene (local) counters, the «Сцена / Гра» switch (module/applications/game-counters.mjs) */
+/* «Лічильники»: edited by the GM in the panel under «Мапа Пустки» (module/applications/game-counters.mjs); players see a compact panel (map-dock.mjs). Scene (local) counters, the «Сцена / Гра» switch */
 .pust-gc .pust-gc-sec { margin: 4px 0 0; padding: 0 2px; font-family: var(--pu-f-label); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--pu-green-dim); border: 0; overflow-wrap: anywhere; }
 .pust-gc .pust-gc-seg { display: flex; gap: 0; }
 .pust-gc .pust-gc-seg > button { flex: 1 1 0; margin: 0; height: 26px; padding: 0 8px; border-radius: 0; }
@@ -351,7 +345,6 @@
 .pust-gc .pust-lc-die { grid-area: die; width: 56px; height: 56px; }
 .pust-gc .pust-lc-die svg { width: 100%; height: 100%; display: block; }
 .pust-gc .pust-lc-name { grid-area: name; min-width: 0; height: 26px; font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; }
-.pust-gc span.pust-lc-name { display: block; height: auto; line-height: 1.2; overflow-wrap: anywhere; }
 .pust-gc .pust-lc-x { grid-area: x; }
 .pust-gc .pust-lc-btns { grid-area: btns; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .pust-gc .pust-lc-btns > button { margin: 0; min-width: 0; height: 26px; padding: 0 2px; font-size: 11px; line-height: 1; white-space: nowrap; }

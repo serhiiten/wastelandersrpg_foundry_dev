@@ -4,7 +4,10 @@
     <span class="pust-place-dot" aria-hidden="true"></span><span class="pust-place-kind">{{kind.label}}</span>
     {{#if gm}}<button type="button" class="pust-place-vis {{#if vis.visible}}on{{/if}}" data-action="toggleVis" role="switch" aria-checked="{{#if vis.visible}}true{{else}}false{{/if}}"
       {{#unless vis.has}}disabled{{/unless}} title="{{#if vis.has}}{{#if vis.visible}}Гравці бачать це місце. Натисни, щоб приховати{{else}}Гравці не бачать цього місця. Натисни, щоб показати{{/if}}{{else}}Цього місця ще немає на мапі{{/if}}">
-      <span class="pust-place-sw" aria-hidden="true"></span><i class="fa-solid {{#if vis.visible}}fa-eye{{else}}fa-eye-slash{{/if}}"></i><span>{{#if vis.visible}}Видиме{{else}}Приховане{{/if}}</span></button>{{/if}}
+      <span class="pust-place-sw" aria-hidden="true"></span><i class="fa-solid {{#if vis.visible}}fa-eye{{else}}fa-eye-slash{{/if}}"></i><span>{{#if vis.visible}}Видиме{{else}}Приховане{{/if}}</span></button>
+    <button type="button" class="pust-place-vis pust-place-lock {{#if lock.locked}}on{{/if}}" data-action="toggleLock" role="switch" aria-checked="{{#if lock.locked}}true{{else}}false{{/if}}"
+      {{#unless lock.has}}disabled{{/unless}} title="{{#if lock.has}}{{#if lock.locked}}Місце закріплене на мапі: його не можна випадково зсунути. Натисни, щоб звільнити{{else}}Місце можна перетягувати. Натисни, щоб закріпити на мапі{{/if}}{{else}}Цього місця ще немає на мапі{{/if}}">
+      <span class="pust-place-sw" aria-hidden="true"></span><i class="fa-solid {{#if lock.locked}}fa-lock{{else}}fa-lock-open{{/if}}"></i><span>{{#if lock.locked}}Закріплене{{else}}Рухоме{{/if}}</span></button>{{/if}}
   </header>
   <div class="pust-place-body">
     <label class="pust-place-l">Назва

@@ -1,88 +1,72 @@
-{{!-- «Лічильники гри» (module/applications/game-counters.mjs): the world's global counters --}}
-<section class="pust-term-screen pust-gc">
-  {{#if gm}}
-    {{#if form}}
-    <div class="pust-gc-form" role="group" aria-label="Новий лічильник">
-      <div class="pust-gc-seg" role="radiogroup" aria-label="Вид лічильника">
-        <button type="button" role="radio" aria-checked="{{#if formScene}}false{{else}}true{{/if}}" data-action="setKind" data-kind="game" class="{{#unless formScene}}on{{/unless}}">Гра</button>
-        <button type="button" role="radio" aria-checked="{{formScene}}" data-action="setKind" data-kind="scene" class="{{#if formScene}}on{{/if}}" {{#unless hasScene}}disabled{{/unless}}>Сцена</button>
-      </div>
-      <p class="pust-gc-hint">{{#if formScene}}Лічильник цієї сцени: загроза, що насувається тут і зараз.{{else}}Лічильник гри: лишається від сцени до сцени, його бачать усі гравці.{{/if}}</p>
-      {{#if formScene}}
-      <label>Назва загрози<input type="text" data-f="name" value="{{form.name}}" placeholder="Напр., Тунель ось-ось обвалиться" autocomplete="off"></label>
-      <div class="pust-gc-frow">
-        <label>Кістка<select data-f="die">{{#each dies}}<option value="{{d}}" {{#if sel}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-      </div>
-      <div class="pust-gc-frow">
-        {{#if customDie}}<label>Поділок<input type="number" class="pust-screen" data-f="custom" min="2" max="30" value="{{form.custom}}"></label>{{/if}}
-        <label>Початок<input type="number" class="pust-screen" data-f="start" min="1" max="30" value="{{form.start}}"></label>
-      </div>
-      <p class="pust-gc-hint">Починай щонайменше з 4. Що нижче число, то ближче неприємності; на 0 загроза настає, на максимумі — проблему розв'язано.</p>
-      {{else}}
-      <label>Назва<input type="text" data-f="name" value="{{form.name}}" placeholder="Напр., Наступ Легіону" autocomplete="off"></label>
-      <div class="pust-gc-frow">
-        <label>Поділок<select data-f="size">{{#each sizes}}<option value="{{n}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
-        <label>Зараз<input type="number" class="pust-screen" data-f="val" min="0" max="{{form.size}}" value="{{form.val}}"></label>
-      </div>
-      {{/if}}
-      <div class="pust-gc-btns">
-        <button type="button" data-action="cancelForm">Скасувати</button>
-        <button type="button" class="pust-term-go" data-action="create">Додати</button>
-      </div>
-    </div>
-    {{else}}
-    <button type="button" class="pust-gc-new" data-action="newForm" {{#if full}}disabled{{/if}}><i class="fa-solid fa-plus"></i> Лічильник</button>
-    {{#if full}}<p class="pust-gc-note">{{fullText}}</p>{{/if}}
-    {{/if}}
-  {{/if}}
-
-  {{#if showScene}}<h4 class="pust-gc-sec">Гра</h4>{{/if}}
-  {{#each counters}}
-  <div class="pust-gc-item{{#if open}} open{{/if}}" style="--h:{{hue}}">
-    <div class="pust-gc-hd">
-      {{#if ../gm}}<input type="text" class="pust-gc-name" data-name="{{id}}" value="{{name}}" aria-label="Назва лічильника" autocomplete="off">
-      {{else}}<span class="pust-gc-name">{{name}}</span>{{/if}}
-      <b class="pust-gc-v">{{val}}<small>/{{size}}</small></b>
-      <button type="button" class="pust-gc-tg" data-action="toggle" data-id="{{id}}" aria-expanded="{{open}}" title="{{#if open}}Згорнути поділки{{else}}Розгорнути поділки{{/if}}"><i class="fa-solid fa-chevron-{{#if open}}up{{else}}down{{/if}}"></i></button>
-      {{#if ../gm}}<button type="button" class="pust-gc-x" data-action="remove" data-id="{{id}}" title="Прибрати лічильник (натисни двічі)" aria-label="Прибрати лічильник">×</button>{{/if}}
-    </div>
-    {{#if open}}
-    <div class="pust-gc-rows">
-      {{#each rows}}
-      <div class="pust-gc-row{{#if on}} on{{/if}}{{#if cur}} cur{{/if}}"><span class="pust-gc-k">{{k}}</span>
-        {{#if ../../gm}}<textarea data-lbl="{{../id}}" data-i="{{i}}" rows="1" placeholder="Що стається на {{k}}…" aria-label="Опис поділки {{k}}">{{label}}</textarea>
-        {{else}}<span class="pust-gc-lbl">{{#if label}}{{label}}{{else}}—{{/if}}</span>{{/if}}
-      </div>
-      {{/each}}
-    </div>
-    {{/if}}
-    <div class="pust-gc-gauge">
-      {{#if ../gm}}<button type="button" data-action="step" data-id="{{id}}" data-d="-1" title="Лічильник −1" aria-label="Лічильник −1">−</button>{{/if}}
-      <span class="pust-gc-lamps" aria-hidden="true">{{#each lamps}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</span>
-      {{#if ../gm}}<button type="button" data-action="step" data-id="{{id}}" data-d="1" title="Лічильник +1" aria-label="Лічильник +1">+</button>{{/if}}
-    </div>
-    {{#if curLabel}}{{#unless open}}<div class="pust-gc-cur" title="Опис поділки {{val}}">{{curLabel}}</div>{{/unless}}{{/if}}
+{{!-- «Лічильники» for the Gamemaster, inside the panel under «Мапа Пустки» (module/applications/game-counters.mjs);
+     the panel's header holds «+», which opens the form below; players have their own read-only panel (map-dock.mjs) --}}
+{{#if form}}
+<div class="pust-gc-form" role="group" aria-label="Новий лічильник">
+  <div class="pust-gc-seg" role="radiogroup" aria-label="Вид лічильника">
+    <button type="button" role="radio" aria-checked="{{#if formScene}}false{{else}}true{{/if}}" data-gc="setKind" data-kind="game" class="{{#unless formScene}}on{{/unless}}">Гра</button>
+    <button type="button" role="radio" aria-checked="{{formScene}}" data-gc="setKind" data-kind="scene" class="{{#if formScene}}on{{/if}}" {{#unless hasScene}}disabled{{/unless}}>Сцена</button>
   </div>
-  {{/each}}
-  {{#if showScene}}{{#unless counters.length}}{{#if gm}}<p class="pust-gc-empty">Лічильників гри немає.</p>{{/if}}{{/unless}}{{/if}}
-  {{#if showScene}}
-  <h4 class="pust-gc-sec">Сцена: {{sceneName}}</h4>
-  {{#each locals}}
-  <div class="pust-lc {{st}}" style="--h:{{hue}}">
-    <div class="pust-lc-die" title="Лічильник на кістці d{{die}}: зараз {{val}} з {{die}}">{{{svg}}}</div>
-    {{#if ../gm}}<input type="text" class="pust-lc-name" data-lname="{{id}}" value="{{name}}" aria-label="Назва лічильника" autocomplete="off">
-    {{else}}<span class="pust-lc-name">{{name}}</span>{{/if}}
-    {{#if ../gm}}<button type="button" class="pust-gc-x pust-lc-x" data-action="lremove" data-id="{{id}}" title="Прибрати лічильник (натисни двічі)" aria-label="Прибрати лічильник">×</button>{{/if}}
-    {{#if ../gm}}
-    <div class="pust-lc-btns">
-      {{#each ../steps}}<button type="button" class="{{cls}}" data-action="lstep" data-id="{{../id}}" data-d="{{d}}" title="{{title}}">{{label}}</button>{{/each}}
-    </div>
-    {{/if}}
-    {{#if stateText}}<div class="pust-lc-state">{{stateText}}</div>{{/if}}
+  <p class="pust-gc-hint">{{#if formScene}}Лічильник цієї сцени: загроза, що насувається тут і зараз.{{else}}Лічильник гри: лишається від сцени до сцени, його бачать усі гравці.{{/if}}</p>
+  {{#if formScene}}
+  <label>Назва загрози<input type="text" data-f="name" value="{{form.name}}" placeholder="Напр., Тунель ось-ось обвалиться" autocomplete="off"></label>
+  <div class="pust-gc-frow">
+    <label>Кістка<select data-f="die">{{#each dies}}<option value="{{d}}" {{#if sel}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    {{#if customDie}}<label>Поділок<input type="number" class="pust-screen" data-f="custom" min="2" max="30" value="{{form.custom}}"></label>{{/if}}
+    <label>Початок<input type="number" class="pust-screen" data-f="start" min="1" max="30" value="{{form.start}}"></label>
   </div>
-  {{/each}}
-  {{#unless locals.length}}{{#if gm}}<p class="pust-gc-empty">Лічильників сцени немає.</p>{{/if}}{{/unless}}
+  <p class="pust-gc-hint">Починай щонайменше з 4. Що нижче число, то ближче неприємності; на 0 загроза настає, на максимумі — проблему розв'язано.</p>
+  {{else}}
+  <label>Назва<input type="text" data-f="name" value="{{form.name}}" placeholder="Напр., Наступ Легіону" autocomplete="off"></label>
+  <div class="pust-gc-frow">
+    <label>Поділок<select data-f="size">{{#each sizes}}<option value="{{n}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
+    <label>Зараз<input type="number" class="pust-screen" data-f="val" min="0" max="{{form.size}}" value="{{form.val}}"></label>
+  </div>
   {{/if}}
+  <div class="pust-gc-btns">
+    <button type="button" data-gc="cancelForm">Скасувати</button>
+    <button type="button" class="pust-gc-go" data-gc="create">Додати</button>
+  </div>
+</div>
+{{/if}}
 
-  {{#unless counters.length}}{{#unless form}}{{#unless showScene}}<p class="pust-gc-empty">{{#if gm}}Лічильників немає: загрози чи плани кампанії, що зріють від сесії до сесії.{{else}}Лічильників поки немає.{{/if}}</p>{{/unless}}{{/unless}}{{/unless}}
-</section>
+{{#if showGame}}<h4 class="pust-gc-sec">Гра</h4>{{/if}}
+{{#each counters}}
+<div class="pust-gc-item{{#if open}} open{{/if}}" style="--h:{{hue}}">
+  <div class="pust-gc-hd">
+    <input type="text" class="pust-gc-name" data-name="{{id}}" value="{{name}}" title="{{name}}" aria-label="Назва лічильника" autocomplete="off">
+    <b class="pust-gc-v">{{val}}<small>/{{size}}</small></b>
+    <button type="button" class="pust-gc-tg" data-gc="toggle" data-id="{{id}}" aria-expanded="{{open}}" title="{{#if open}}Згорнути поділки{{else}}Розгорнути поділки: що стається на кожній{{/if}}"><i class="fa-solid fa-chevron-{{#if open}}up{{else}}down{{/if}}"></i></button>
+    <button type="button" class="pust-gc-x" data-gc="remove" data-id="{{id}}" title="Прибрати лічильник (натисни двічі)" aria-label="Прибрати лічильник">×</button>
+  </div>
+  {{#if open}}
+  <div class="pust-gc-rows">
+    {{#each rows}}
+    <div class="pust-gc-row{{#if on}} on{{/if}}{{#if cur}} cur{{/if}}"><span class="pust-gc-k">{{k}}</span>
+      <textarea data-lbl="{{../id}}" data-i="{{i}}" rows="1" placeholder="Що стається на {{k}}…" aria-label="Опис поділки {{k}}">{{label}}</textarea>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+  <div class="pust-gc-gauge">
+    <button type="button" class="dn" data-gc="step" data-id="{{id}}" data-d="-1" title="Лічильник −1" aria-label="Лічильник −1">−</button>
+    <span class="pust-gc-lamps" aria-hidden="true">{{#each lamps}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</span>
+    <button type="button" class="up" data-gc="step" data-id="{{id}}" data-d="1" title="Лічильник +1" aria-label="Лічильник +1">+</button>
+  </div>
+  {{#if curLabel}}{{#unless open}}<div class="pust-gc-cur" title="Опис поділки {{val}}">{{curLabel}}</div>{{/unless}}{{/if}}
+</div>
+{{/each}}
+
+{{#if showScene}}
+<h4 class="pust-gc-sec">Сцена: {{sceneName}}</h4>
+{{#each locals}}
+<div class="pust-lc {{st}}" style="--h:{{hue}}">
+  <div class="pust-lc-die" title="Лічильник на кістці d{{die}}: зараз {{val}} з {{die}}">{{{svg}}}</div>
+  <input type="text" class="pust-lc-name" data-lname="{{id}}" value="{{name}}" title="{{name}}" aria-label="Назва лічильника" autocomplete="off">
+  <button type="button" class="pust-gc-x pust-lc-x" data-gc="lremove" data-id="{{id}}" title="Прибрати лічильник (натисни двічі)" aria-label="Прибрати лічильник">×</button>
+  <div class="pust-lc-btns">
+    {{#each ../steps}}<button type="button" class="{{cls}}" data-gc="lstep" data-id="{{../id}}" data-d="{{d}}" title="{{title}}">{{label}}</button>{{/each}}
+  </div>
+  {{#if stateText}}<div class="pust-lc-state">{{stateText}}</div>{{/if}}
+</div>
+{{/each}}
+{{/if}}

@@ -6,7 +6,6 @@ import { initMapNotes, readyMapNotes } from "./canvas/map-notes.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
-import { WastelandersCounterSheet } from "./sheets/counter-sheet.mjs";
 import { WastelandersPlaceSheet } from "./sheets/place-sheet.mjs";
 import { renderMapDock } from "./applications/map-dock.mjs";
 import { WastelandersItemSheet } from "./sheets/item-sheet.mjs";
@@ -29,6 +28,7 @@ import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 import { ensureMapScene } from "./helpers/default-scene.mjs";
+import { migrateCounterActors } from "./helpers/migrate-counters.mjs";
 
 Hooks.once("init", async function () {
   // the HP bar over a token keeps the HP colours
@@ -54,7 +54,6 @@ Hooks.once("init", async function () {
     character: models.CharacterData,
     caravan: models.CaravanData,
     enemy: models.EnemyData,
-    counter: models.CounterData,
     place: models.PlaceData,
   };
 
@@ -78,7 +77,7 @@ Hooks.once("init", async function () {
     "core",
     foundry.appv1.sheets.ActorSheet,
   );
-  // (WastelandersActorSheet is only the base of the enemy and counter sheets, not a sheet of its own)
+  // (WastelandersActorSheet is only the base of the enemy sheet, not a sheet of its own)
   // Електронний аркуш персонажа (the HTML sheet's features)
   foundry.documents.collections.Actors.registerSheet(
     game.system.id,
@@ -104,14 +103,6 @@ Hooks.once("init", async function () {
     WastelandersEnemySheet,
     {
       types: ["enemy"],
-      makeDefault: true,
-    },
-  );
-  foundry.documents.collections.Actors.registerSheet(
-    game.system.id,
-    WastelandersCounterSheet,
-    {
-      types: ["counter"],
       makeDefault: true,
     },
   );
@@ -191,6 +182,8 @@ Hooks.once("ready", () => {
   WastelandersActor.syncCharacterTokens().catch((err) => console.warn("Пустельники | token sync failed", err));
   // «Мапа Пустки»: the system's default scene, given to each world once
   ensureMapScene().catch((err) => console.warn("Пустельники | map scene not created", err));
+  // the original system's «counter» actors become game counters in the map panel (the actor type is gone)
+  migrateCounterActors().catch((err) => console.warn("Пустельники | counter actors not migrated", err));
   // the stickers: double-click to write, drag by the title strip, old notes converted
   readyMapNotes();
 });
@@ -259,7 +252,7 @@ function dockTerminal() {
 Hooks.on("renderSceneNavigation", () => requestAnimationFrame(dockTerminal));
 Hooks.once("ready", () => requestAnimationFrame(dockTerminal));
 
-// «Лічильники гри»: the scene counters live on the viewed scene, so redraw the open window when it changes or is switched
+// «Лічильники»: the scene counters live on the viewed scene, so the GM's panel is redrawn when it changes or is switched
 Hooks.on("updateScene", (scene) => { if (scene.id === canvas?.scene?.id) import("./applications/game-counters.mjs").then((m) => m.refreshGameCounters()); });
 Hooks.on("canvasReady", () => import("./applications/game-counters.mjs").then((m) => m.refreshGameCounters()));
 

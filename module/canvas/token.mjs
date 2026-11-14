@@ -3,7 +3,8 @@
  *   – the HP bar (bar2) always in HP colours, whichever bar slot it is in, labelled «ОЗ»;
  *   – a caravan's «Запас ходу» bar (bar1) is green, like the sheet's lamps, with a notch per unit, labelled «Запас ходу»;
  *   – the bars are taller than Foundry's own (14 px instead of 8) and sit outside the picture: bar2 just over the token,
- *     bar1 just under it (the name moves down under bar1); the labels are half-transparent, as if printed on the bar.
+ *     bar1 just under it (the name moves down under bar1); the labels are half-transparent, as if printed on the bar;
+ *   – an enemy at 0 HP or less is crossed out with a red cross over its picture.
  */
 const LABELS = { hp: "ОЗ", range: "Запас ходу" };
 
@@ -30,16 +31,49 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
     this.tooltip.position.set(width / 2, -offset - (this.#barShown(1) ? bh + gap : 0));
   }
 
+  /** An enemy at 0 HP or less: a red cross from corner to corner over its picture (author, 2026-11-14) */
+  #refreshCross() {
+    const down = this.actor?.type === "enemy" && Number(this.actor.system?.hp?.value) <= 0;
+    let cross = this.children.find((c) => c.name === "pust-dead-cross");
+    if (!down) { if (cross) cross.visible = false; return; }
+    if (!cross) {
+      cross = new PIXI.Graphics();
+      cross.name = "pust-dead-cross";
+      cross.eventMode = "none";
+      this.addChild(cross);
+    }
+    const { width, height } = this.document.getSize();
+    const s = canvas.dimensions.uiScale;
+    const w = Math.max(4, Math.min(width, height) * 0.07);
+    const i = Math.min(width, height) * 0.1;
+    cross.clear();
+    for (const [lw, color, alpha] of [[w + 4 * s, 0x1a0505, 0.75], [w, 0xd8261c, 0.95]]) {
+      cross.lineStyle({ width: lw, color, alpha, cap: PIXI.LINE_CAP.ROUND });
+      cross.moveTo(i, i).lineTo(width - i, height - i);
+      cross.moveTo(width - i, i).lineTo(i, height - i);
+    }
+    cross.visible = true;
+  }
+
   /** @override */
   _refreshSize() {
     super._refreshSize();
     this.#placeAroundBars();
+    this.#refreshCross();
   }
 
   /** @override */
   _refreshState() {
     super._refreshState();
     this.#placeAroundBars();
+    this.#refreshCross();
+  }
+
+  /** @override — the HP change also toggles «Unconscious», which refreshes the effects for every viewer (players don't
+   *  draw an enemy's bars, so the cross can't wait for them) */
+  _refreshEffects() {
+    super._refreshEffects();
+    this.#refreshCross();
   }
 
   /** @override */
@@ -104,5 +138,6 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
     // bar2 (the top one) just over the picture, bar1 just under it
     bar.position.set(0, index === 0 ? height + gap : -bh - gap);
     this.#placeAroundBars();
+    this.#refreshCross();
   }
 }

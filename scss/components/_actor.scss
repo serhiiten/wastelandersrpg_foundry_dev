@@ -1,10 +1,6 @@
 @use "../utils/variables" as *;
 
 .wastelanders.actor {
-  input.all-width {
-    width: 100%;
-  }
-
   .sheet-header {
     display: grid;
     grid-template-columns: 120px 1fr;

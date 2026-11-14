@@ -30,7 +30,6 @@ ok(G.stepCounter(l2, 999, 1) === null && G.removeCounter(l2, 999) === null, "unk
 ok(G.logStep(l2[0], 2, 3) === "Лічильник гри «Лічильник»: 2 → 3 з 4 — Тривога", "log step with label: " + G.logStep(l2[0], 2, 3));
 ok(!G.logStep(l2[0], 3, 2).includes("—"), "no label, no dash");
 ok(G.logCreate(l2[0]).startsWith("Новий лічильник гри"), "log create");
-ok(G.logRemove(l2[0]).endsWith("прибрано"), "log remove");
 
 l2 = G.renameCounter(l2, id, " Нове ");
 ok(l2[0].name === "Нове", "rename");
@@ -66,7 +65,16 @@ ok(G.localState({ val: 0, die: 6 }) === "lost" && G.localState({ val: 6, die: 6 
 ok(G.logStepLocal({ name: "Т", die: 6 }, 2, 0, -2) === "«Т»: 2 → 0 (невдача) — загроза настала!", G.logStepLocal({ name: "Т", die: 6 }, 2, 0, -2));
 ok(G.logStepLocal({ name: "Т", die: 6 }, 5, 6, 1) === "«Т»: 5 → 6 (успіх) — проблему розв'язано", "log won");
 ok(G.logStepLocal({ name: "Т", die: 6 }, 3, 5, 2) === "«Т»: 3 → 5 (критичний успіх)", "log crit");
-ok(G.logCreateLocal({ name: "Т", die: 6, val: 4 }) === "Новий лічильник «Т»: d6, починається з 4" && G.logRemoveLocal({ name: "Т" }) === "Лічильник «Т» прибрано", "log create/remove");
+ok(G.logCreateLocal({ name: "Т", die: 6, val: 4 }) === "Новий лічильник «Т»: d6, починається з 4", "log create");
+
+// the old «counter» actor → a game counter
+let m = G.fromCounterActor({ name: " Бомба ", system: { progress: { value: 3, max: 5, descriptions: ["a", "b", "c", "d", "e"] } } });
+ok(m.name === "Бомба" && m.size === 6 && m.val === 3 && m.labels[4] === "e", "actor → counter: " + JSON.stringify(m));
+m = G.addCounter([], m).counter;
+ok(m.size === 6 && m.labels.length === 6 && m.labels[5] === "" && m.labels[0] === "a", "padded to the size");
+m = G.fromCounterActor({ name: "", system: { progress: { value: 99, max: 12, descriptions: null } } });
+ok(m.name === "Лічильник" && m.size === 12 && m.val === 12 && m.labels.length === 0, "defaults and clamps");
+ok(G.fromCounterActor({}).size === 4 && G.fromCounterActor({ system: { progress: { max: 1 } } }).size === 4, "small → 4");
 ok(G.removeLocal(a.list, lid).list.length === 0, "local remove");
 ok(G.renameLocal(a.list, lid, " Нове ")[0].name === "Нове" && G.renameLocal(a.list, lid, " ")[0].name === "Тунель", "local rename");
 ok(G.normalizeLocalList("x").length === 0 && G.normalizeLocalList([{ id: 2, die: 4, val: 9 }, { id: 2 }]).map((c) => c.id).join() === "2,3", "local normalize");

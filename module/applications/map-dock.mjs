@@ -11,7 +11,7 @@
  */
 import { addPlace } from "./map-tools.mjs";
 import { fateInfo, luckCaravan, rollDice, rollFate } from "./map-dice.mjs";
-import { openGameCounters } from "./game-counters.mjs";
+import { mountCounters } from "./game-counters.mjs";
 import * as G from "../rules/game-counters.mjs";
 import { postChat } from "./chat.mjs";
 import { postTerminalRoll } from "./check-panel.mjs";
@@ -40,7 +40,6 @@ function mapButtons() {
   ] : [];
   const row2 = [
     ...(canNote ? [btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")] : []),
-    ...(gm ? [btn("counters", "fa-hourglass-half", "Лічильники", "Лічильники гри й сцени: загрози й плани кампанії")] : []),
   ];
   return [row1, row2].filter((r) => r.length).map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("");
 }
@@ -50,7 +49,6 @@ async function onMap(ev) {
   if (!b) return;
   const k = b.dataset.mapdock;
   if (k === "town" || k === "danger" || k === "poi") return addPlace(k);
-  if (k === "counters") return openGameCounters();
   if (k === "note") {
     // the stickers live in module/canvas/map-notes.mjs (loaded lazily, so the panel works before they are there)
     const m = await import("../canvas/map-notes.mjs").catch(() => null);
@@ -79,6 +77,7 @@ function countersHtml() {
 
 /** Players: redraw the counters panel (shown only while there are counters) */
 function redrawCounters() {
+  if (game.user.isGM) return; // the GM's panel is the editor in game-counters.mjs
   const box = document.querySelector(`#${DOCK} .pust-md-ctr`);
   if (!box) return;
   const html = countersHtml();
@@ -93,7 +92,7 @@ function diceHtml() {
   const f = fateInfo();
   const last = dice.last
     ? `${dice.last.rolls.length > 1 ? `<small>${dice.last.rolls.join(" + ")} =</small> ` : ""}<b>${dice.last.total}</b><small class="pust-md-what">${esc(dice.last.what)}</small>`
-    : `<small>Результат — тут і в чаті</small>`;
+    : "";
   return `<div class="pust-md-row">
       <select data-mapdice="count" aria-label="Скільки кісток">${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${n === dice.count ? "selected" : ""}>${n}×</option>`).join("")}</select>
       <button type="button" data-mapdice="6" title="Кинути d6">d6</button><button type="button" data-mapdice="8" title="Кинути d8">d8</button><button type="button" data-mapdice="10" title="Кинути d10">d10</button>
@@ -247,8 +246,24 @@ function place(unit) {
   el.style.top = `${Math.round(y)}px`;
 }
 
+/** The counters' list scrolls inside its panel: «Мапа Пустки» with it, and «Кістки» under it in their own place, stay
+ *  above Foundry's players list (author, 2026-11-14: long game counters must not push «Кістки» off the screen) */
+function fitCounters() {
+  const unit = document.querySelector(`#${DOCK} [data-unit="map"]`);
+  const body = unit?.querySelector(".pust-md-ctr > .pust-md-body");
+  if (!body || body.hidden || unit.classList.contains("folded")) return;
+  const players = document.querySelector("#players");
+  const floor = Math.min(window.innerHeight - 8, players ? players.getBoundingClientRect().top - 8 : Infinity);
+  const dice = document.querySelector(`#${DOCK} [data-unit="dice"]`);
+  const diceH = dice && !load(POS_KEY).dice ? dice.offsetHeight + 8 : 0; // only while «Кістки» follow «Мапа Пустки»
+  const rest = unit.offsetHeight - body.offsetHeight; // the unit without the list
+  const room = floor - unit.getBoundingClientRect().top - rest - diceH;
+  body.style.maxHeight = `${Math.max(120, Math.floor(room))}px`;
+}
+
 function placeAll() {
   place("map");
+  fitCounters();
   place("dice");
   sideTravel();
 }
@@ -258,7 +273,6 @@ function setFold(unit, folded) {
   f[unit] = folded;
   save(FOLD_KEY, f);
   document.querySelector(`#${DOCK} [data-unit="${unit}"]`)?.classList.toggle("folded", folded);
-  if (unit === "map" && folded) { tv.open = false; redrawTravel(); }
   requestAnimationFrame(placeAll); // «Кістки» in their own place follow the height of «Мапа Пустки»
 }
 
@@ -291,7 +305,7 @@ function bindDrag(unitEl) {
         pos[unit] = { x: parseFloat(unitEl.style.left), y: parseFloat(unitEl.style.top) };
         save(POS_KEY, pos);
         place(unit);
-        if (unit === "map") { place("dice"); sideTravel(); }
+        if (unit === "map") { fitCounters(); place("dice"); sideTravel(); }
       } else if (e.type === "pointerup") {
         // a click: on the fold button, or anywhere on a folded panel's button
         if (unitEl.classList.contains("folded") || start.fold) setFold(unit, !unitEl.classList.contains("folded"));
@@ -330,7 +344,7 @@ export function renderMapDock() {
         ${gm ? `<section class="pust-md-tv" hidden></section>` : ""}
         ${gm ? "" : `<section class="pust-md-panel pust-md-ctr" hidden></section>`}
         ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
-        ${gm ? `<section class="pust-md-panel pust-md-ctr" hidden title="Відкрити «Лічильники гри»"></section>` : ""}
+        ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button></header><div class="pust-md-body pust-gc" hidden></div></section>` : ""}
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
         <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки")}<div class="pust-md-body">${diceHtml()}</div></section>
@@ -338,9 +352,9 @@ export function renderMapDock() {
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
     const mapUnit = dock.querySelector('[data-unit="map"]');
     mapUnit.querySelector(".pust-md-map .pust-md-body")?.addEventListener("click", onMap);
-    redrawCounters();
-    // the GM's counters panel opens the counters window
-    if (gm) mapUnit.querySelector(".pust-md-ctr")?.addEventListener("click", () => openGameCounters());
+    // the counters: the GM edits them right in the panel (game-counters.mjs), players read them (redrawCounters)
+    if (gm) mountCounters(mapUnit.querySelector(".pust-md-ctr")).then(() => requestAnimationFrame(placeAll));
+    else redrawCounters();
     mapUnit.querySelector(".pust-md-travel")?.addEventListener("click", () => { tv.open = !tv.open; redrawTravel(); });
     mapUnit.querySelector(".pust-md-tv")?.addEventListener("click", onTravel);
     const d = dock.querySelector('[data-unit="dice"] .pust-md-body');
@@ -358,7 +372,7 @@ export function renderMapDock() {
     });
     dock.querySelectorAll(".pust-md-unit").forEach(bindDrag);
     // «Кістки» in their own place follow every change of the height of «Мапа Пустки» (travel window, folding)
-    if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(() => place("dice"))).observe(mapUnit);
+    if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(() => { fitCounters(); place("dice"); })).observe(mapUnit);
     window.addEventListener("resize", foundry.utils.debounce(placeAll, 100));
   }
   requestAnimationFrame(placeAll);

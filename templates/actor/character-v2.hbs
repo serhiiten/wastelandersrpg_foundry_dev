@@ -74,14 +74,14 @@
     <button type="button" class="pust-qfold" data-action="uiToggle" data-key="quickFold" title="{{#if quickFold}}Розгорнути швидкий доступ{{else}}Згорнути швидкий доступ{{/if}}"><i class="fa-solid {{#if quickFold}}fa-chevron-down{{else}}fa-chevron-up{{/if}}"></i></button>
     <div class="pust-qgrid">
       <div class="pust-qgrp q-life">
-        <div class="pust-qi {{#if (lt v.hp 1)}}bad{{/if}}"><span>Очки здоров'я</span><div>
+        <div class="pust-qi {{#if (lt v.hp 1)}}bad{{/if}}"><span><i class="fa-solid fa-heart-pulse pust-qic" aria-hidden="true"></i>Очки здоров'я</span><div>
           <button type="button" data-action="act" data-act="step" data-k="hpCur" data-d="-1" title="Мінус 1 ОЗ">−</button>
           <input class="pust-screen" type="text" data-k="hpCur" value="{{v.hp}}" aria-label="Поточні ОЗ"><b>/ {{v.hpMax}}</b>
           <button type="button" data-action="act" data-act="step" data-k="hpCur" data-d="1" title="Плюс 1 ОЗ">+</button></div></div>
-        <div class="pust-qi"><span>Броня</span><div class="pust-qarm"><b class="big arm-phys">{{v.armor}}</b><small class="arm-phys">фіз.</small>{{#if v.psi}}<b class="big arm-psi">{{v.psi}}</b><small class="arm-psi">псих.</small>{{/if}}</div></div>
+        <div class="pust-qi"><span><i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>Броня</span><div class="pust-qarm"><b class="big arm-phys">{{v.armor}}</b><small class="arm-phys">фіз.</small>{{#if v.psi}}<b class="big arm-psi">{{v.psi}}</b><small class="arm-psi">псих.</small>{{/if}}</div></div>
       </div>
       <div class="pust-qgrp q-fate">
-        <div class="pust-qi"><span>Жетони Долі</span><div>
+        <div class="pust-qi"><span><i class="fa-solid fa-clover pust-qic" aria-hidden="true"></i>Жетони Долі</span><div>
           <button type="button" data-action="act" data-act="step" data-k="fdCur" data-d="-1" title="Мінус 1 жетон Долі">−</button>
           <input class="pust-screen" type="text" data-k="fdCur" value="{{v.fd}}" aria-label="Жетони Долі"><b>/ {{v.fdMax}}</b>
           <button type="button" data-action="act" data-act="step" data-k="fdCur" data-d="1" title="Плюс 1 жетон Долі">+</button></div></div>
@@ -92,21 +92,21 @@
       {{#if v.chem.ko}}<div class="pust-qko">{{> pustKo v=v short=true}}</div>{{/if}}
       <div class="pust-qgrp q-goods">
         {{#if v.supLamps}}
-        <div class="pust-qi"><span>Припаси</span><div class="pust-qlamps">
+        <div class="pust-qi"><span><i class="fa-solid fa-backpack pust-qic" aria-hidden="true"></i>Припаси</span><div class="pust-qlamps">
           {{#each v.supDots}}<button type="button" class="pust-qlamp dot {{#if on}}on{{/if}}" data-action="act" data-act="sup-set" data-n="{{n}}" title="Припасів: {{n}}" aria-label="Припасів: {{n}}"></button>{{/each}}</div></div>
         {{else}}
-        <div class="pust-qi"><span>Припаси</span><div>
+        <div class="pust-qi"><span><i class="fa-solid fa-backpack pust-qic" aria-hidden="true"></i>Припаси</span><div>
           <button type="button" data-action="act" data-act="step" data-k="supplies" data-d="-1" title="Мінус 1 Припас">−</button>
           <input class="pust-screen" type="text" data-k="supplies" data-num="1" value="{{v.supplies}}" aria-label="Припаси"><b>/ {{v.supMax}}</b>
           <button type="button" data-action="act" data-act="step" data-k="supplies" data-d="1" title="Плюс 1 Припас">+</button></div></div>
         {{/if}}
-        <div class="pust-qi"><span>Кришки</span><div>
+        <div class="pust-qi"><span><i class="fa-solid fa-coins pust-qic" aria-hidden="true"></i>Кришки</span><div>
           <button type="button" data-action="act" data-act="step" data-k="caps" data-d="-1" title="Мінус 1 кришка">−</button>
           <input class="pust-screen" type="text" data-k="caps" data-num="1" value="{{v.caps}}" aria-label="Кришки">
           <button type="button" data-action="act" data-act="step" data-k="caps" data-d="1" title="Плюс 1 кришка">+</button></div></div>
       </div>
       <div class="pust-qgrp q-xp">
-        <div class="pust-qi"><span>Зароблено ОД</span><div>
+        <div class="pust-qi"><span><i class="fa-solid fa-medal pust-qic" aria-hidden="true"></i>Зароблено ОД</span><div>
           <button type="button" data-action="act" data-act="step" data-k="xp" data-d="-1" title="Мінус 1 ОД">−</button>
           <input class="pust-screen" type="text" data-k="xp" data-num="1" value="{{v.xp}}" aria-label="Зароблено ОД">
           <button type="button" data-action="act" data-act="step" data-k="xp" data-d="1" title="Плюс 1 ОД">+</button>
@@ -115,7 +115,7 @@
     </div>
 
     <div class="pust-qsit">
-      <span class="pust-qlbl">Ситуативні аспекти</span>
+      <span class="pust-qlbl"><i class="fa-solid fa-tags pust-qic" aria-hidden="true"></i>Ситуативні аспекти</span>
       <div class="pust-sitrow">
         {{#each v.sit}}<span class="pust-sitchip"><span>{{t}}</span>
           <span class="pust-sinv" title="Безкоштовні Посилення"><button type="button" data-action="act" data-act="sit-inv" data-i="{{i}}" data-d="-1" {{#unless inv}}disabled{{/unless}} aria-label="Мінус 1 безкоштовне Посилення">−</button><b>+{{inv}}</b><button type="button" data-action="act" data-act="sit-inv" data-i="{{i}}" data-d="1" aria-label="Плюс 1 безкоштовне Посилення">+</button></span>
@@ -128,7 +128,7 @@
     <div class="pust-qstat {{#if statusFold}}folded{{/if}}">
     <button type="button" class="pust-qstat-hd" data-action="uiToggle" data-key="statusFold" title="{{#if statusFold}}Розгорнути статуси й відпочинок{{else}}Згорнути статуси й відпочинок{{/if}}">
       <i class="fa-solid {{#if statusFold}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i>
-      <span>Статуси й відпочинок</span>
+      <span><i class="fa-solid fa-campground pust-qic" aria-hidden="true"></i>Статуси й відпочинок</span>
       <span class="pust-qstat-n good" title="Позитивних статусів">+{{v.chipsGood.length}}</span>
       <span class="pust-qstat-n bad" title="Негативних статусів">−{{v.chipsBad.length}}</span>
       <small class="pust-qcnt">сесія {{v.chem.session}} · день {{v.chem.day}} · сцена {{v.chem.scene}}</small>

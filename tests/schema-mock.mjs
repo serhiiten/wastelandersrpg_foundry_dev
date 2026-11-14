@@ -25,7 +25,7 @@ globalThis.foundry.utils ??= { mergeObject: (a, b) => Object.assign(a, b) };
 
 const models = await import("../module/data/_module.mjs");
 const MODELS = {
-  Actor: { character: models.CharacterData, caravan: models.CaravanData, enemy: models.EnemyData, counter: models.CounterData },
+  Actor: { character: models.CharacterData, caravan: models.CaravanData, enemy: models.EnemyData },
   Item: {
     species: models.SpeciesData, feat: models.FeatData, perk: models.PerkData, weapon: models.WeaponData, armor: models.ArmorData,
     tool: models.ToolData, drug: models.DrugData, upgrade: models.UpgradeData, cargo: models.CargoData,

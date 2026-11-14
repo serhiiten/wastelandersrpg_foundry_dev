@@ -74,7 +74,7 @@
     <div class="pust-qgrid">
       {{!-- one block (author, 2026-11-14): ОЗ, броня, бюджет, запас ходу in a row; the caravan state under them --}}
       <div class="pust-qgrp q-all">
-        <div class="pust-qi q-hp {{#if (lt v.hpCurrent 1)}}bad{{/if}}"><span>Очки здоров'я</span><div>
+        <div class="pust-qi q-hp {{#if (lt v.hpCurrent 1)}}bad{{/if}}"><span><i class="fa-solid fa-heart-pulse pust-qic" aria-hidden="true"></i>Очки здоров'я</span><div>
           <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="-1" title="Мінус 1 ОЗ">−</button>
           <input type="text" class="pust-screen" data-k="hpCurrent" value="{{v.hpCurrent}}" aria-label="Поточні ОЗ">
           <span class="pust-qsep">/</span>
@@ -82,12 +82,12 @@
           <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="1" title="Плюс 1 ОЗ">+</button>
           {{#if v.hpCustom}}<button type="button" data-action="cact" data-act="hpMaxReset" title="Повернути стандартний максимум ({{v.baseMaxHP}})">↺</button>{{/if}}
         </div></div>
-        <div class="pust-qi q-arm"><span>Броня</span><div>
+        <div class="pust-qi q-arm"><span><i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>Броня</span><div>
           <input type="text" class="{{#if v.armorCustom}}custom{{/if}}" data-k="armorVal" value="{{v.armor}}" aria-label="Броня" title="{{#if v.armorCustom}}Встановлено вручну. Стандартно: {{v.baseArmor}}{{else}}Броню можна змінити вручну{{/if}}">
           <input type="text" class="pust-qarmtype {{#if v.armorTypeCustom}}custom{{/if}}" data-k="armorType" value="{{v.armorType}}" aria-label="Тип броні" title="Тип броні">
           {{#if (or v.armorCustom v.armorTypeCustom)}}<button type="button" data-action="cact" data-act="armorReset" title="Повернути стандартну броню ({{v.baseArmor}}, фізична)">↺</button>{{/if}}
         </div></div>
-        <div class="pust-qi q-bud"><span>Бюджет кришок</span><div>
+        <div class="pust-qi q-bud"><span><i class="fa-solid fa-coins pust-qic" aria-hidden="true"></i>Бюджет кришок</span><div>
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="-1" title="Мінус 1 кришка">−</button>
           <input type="text" class="pust-screen" data-k="budget" value="{{v.budget}}" aria-label="Бюджет кришок">
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="1" title="Плюс 1 кришка">+</button>
@@ -96,7 +96,7 @@
         <p class="pust-qstate {{#if v.repair}}hurt{{/if}} {{#if v.repair.hurt}}bad{{/if}} {{#if v.repair.destroyed}}bad{{/if}}">{{#if v.repair}}<i class="fa-solid fa-screwdriver-wrench"></i> Пошкоджено на <b>{{v.repair.dmg}}</b> ОЗ · ремонт у техніка: <b>{{v.repair.cost}}(к)</b> (1(к) за 5 ОЗ){{#if v.repair.hurt}} · <b>вантаж постраждав</b>: шкоди більше ніж на половину ОЗ{{/if}}{{#if v.repair.destroyed}} · <b>ОЗ 0 — вантаж знищено</b>{{/if}}{{else}}<i class="fa-solid fa-circle-check"></i> Караван цілий{{/if}}</p>
       </div>
       <div class="pust-qgrp q-move">
-        <div class="pust-qi q-movecell"><span>Запас ходу <b class="q-movenow">{{v.moveNow}}</b></span>
+        <div class="pust-qi q-movecell"><span><i class="fa-solid fa-route pust-qic" aria-hidden="true"></i>Запас ходу <b class="q-movenow">{{v.moveNow}}</b></span>
           <div class="q-moverow">
             <div class="pust-qpips">
             {{#each v.movePips1}}{{#if avail}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/if}}{{/each}}

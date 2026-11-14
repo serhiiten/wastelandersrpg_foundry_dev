@@ -61,11 +61,6 @@
           "description"
         ]
       },
-      "counter": {
-        "htmlFields": [
-          "description"
-        ]
-      },
       "place": {}
     },
     "Item": {
