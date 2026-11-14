@@ -3,6 +3,8 @@ import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
 import { WastelandersToken } from "./canvas/token.mjs";
 import { initMapNotes, readyMapNotes } from "./canvas/map-notes.mjs";
+import { initBattleZones, readyBattleZones } from "./canvas/battle-zones.mjs";
+import { readyApplyDamage } from "./applications/apply-damage.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
@@ -27,8 +29,9 @@ import { BOOK } from "./rules/book.mjs";
 import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
-import { ensureMapScene } from "./helpers/default-scene.mjs";
+import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
 import { migrateCounterActors } from "./helpers/migrate-counters.mjs";
+import { migrateEnemyActors } from "./helpers/migrate-enemies.mjs";
 import { recolorMapFolder } from "./applications/map-tools.mjs";
 
 Hooks.once("init", async function () {
@@ -36,6 +39,7 @@ Hooks.once("init", async function () {
   CONFIG.Token.objectClass = WastelandersToken;
   // «Примітки» of «Мапа Пустки»: stickers drawn by the system (module/canvas/map-notes.mjs)
   initMapNotes();
+  initBattleZones(); // after the stickers: the zones' Drawing class extends theirs
   game.wastelanders = {
     WastelandersActor,
     WastelandersItem,
@@ -78,7 +82,7 @@ Hooks.once("init", async function () {
     "core",
     foundry.appv1.sheets.ActorSheet,
   );
-  // (WastelandersActorSheet is only the base of the enemy sheet, not a sheet of its own)
+  // (all actor sheets are the system's own AppV2 sheets: character, caravan, enemy, place)
   // Електронний аркуш персонажа (the HTML sheet's features)
   foundry.documents.collections.Actors.registerSheet(
     game.system.id,
@@ -182,12 +186,16 @@ Hooks.once("ready", () => {
   // characters' tokens: name under, HP bar over, linked; placed tokens take the character's name
   WastelandersActor.syncCharacterTokens().catch((err) => console.warn("Пустельники | token sync failed", err));
   // «Мапа Пустки»: the system's default scene, given to each world once
-  ensureMapScene().catch((err) => console.warn("Пустельники | map scene not created", err));
+  // the battle map after the map of the Wasteland (the map is the one made active)
+  ensureMapScene().then(() => ensureBattleScene()).catch((err) => console.warn("Пустельники | default scenes not created", err));
   // the original system's «counter» actors become game counters in the map panel (the actor type is gone)
   migrateCounterActors().catch((err) => console.warn("Пустельники | counter actors not migrated", err));
   recolorMapFolder().catch(() => {});
+  migrateEnemyActors().catch((err) => console.warn("Пустельники | enemies not migrated", err));
   // the stickers: double-click to write, drag by the title strip, old notes converted
   readyMapNotes();
+  readyBattleZones();
+  readyApplyDamage();
 });
 
 // a character, caravan or enemy dropped on a scene: its token carries the actor's current name

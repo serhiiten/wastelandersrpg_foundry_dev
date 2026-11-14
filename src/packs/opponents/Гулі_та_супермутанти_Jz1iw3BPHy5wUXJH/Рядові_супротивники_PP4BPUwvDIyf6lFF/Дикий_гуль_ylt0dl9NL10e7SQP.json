@@ -5,13 +5,97 @@
   "_id": "ylt0dl9NL10e7SQP",
   "img": "systems/wastelanders-dev/assets/dykyy-hul.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 5,
       "max": 5
     },
     "armor": 1,
-    "description": "<blockquote>\n<p>Гуліфікація далеко не завжди минає безслідно для людського розуму. Багато гулів страждають від психічних розладів, а деякі навіть дичавіють. Такі гулі, хоч на вигляд і не відрізняються від звичайних, цілком утратили розум і перетворилися на вічно голодних бродячих тварюк. Зазвичай полюють зграями по 3–5 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1 (шкода від радіації лікує на 1 ОЗ за кожну кістку, від отрут отримує лише половину шкоди з округленням угору)</li>\n<li><strong>Шкода:</strong> <u>Лапи</u> (1d6 фізичної шкоди + 1 шкоди радіацією, ближній бій, радіація ігнорує броню)</li>\n<li><strong>Аспект:</strong> <strong><em>здичавілий гуль, вічно голодний.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "1 (шкода від радіації лікує на 1 ОЗ за кожну кістку, від отрут отримує лише половину шкоди з округленням угору)",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "half",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Лапи",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди + 1 шкоди радіацією, ближній бій, радіація ігнорує броню",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": true
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "здичавілий гуль, вічно голодний",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 5,
+      "armor": 1,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "half",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Лапи",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди + 1 шкоди радіацією, ближній бій, радіація ігнорує броню",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": true
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "здичавілий гуль, вічно голодний",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Гуліфікація далеко не завжди минає безслідно для людського розуму. Багато гулів страждають від психічних розладів, а деякі навіть дичавіють. Такі гулі, хоч на вигляд і не відрізняються від звичайних, цілком утратили розум і перетворилися на вічно голодних бродячих тварюк. Зазвичай полюють зграями по 3–5 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1 (шкода від радіації лікує на 1 ОЗ за кожну кістку, від отрут отримує лише половину шкоди з округленням угору)</li>\n<li><strong>Шкода:</strong> <u>Лапи</u> (1d6 фізичної шкоди + 1 шкоди радіацією, ближній бій, радіація ігнорує броню)</li>\n<li><strong>Аспект:</strong> <strong><em>здичавілий гуль, вічно голодний.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Дикий гуль",

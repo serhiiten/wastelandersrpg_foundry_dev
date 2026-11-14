@@ -1134,3 +1134,146 @@
 /* «В чат» / «В журнал» at the card's foot */
 .pust-place .pust-place-out { display: flex; justify-content: flex-end; gap: 6px; margin-top: 2px; padding-top: 8px; border-top: 1px dashed var(--pu-ink-3); }
 .wastelanders .pust-place .pust-place-out > button:not(.header-control) { flex: 0 0 auto; height: 28px !important; margin: 0 !important; padding: 0 12px !important; }
+
+/* ===== Картка супротивника (author, 2026-11-14): the battle tracker's card as an actor sheet. Strip colour --kc by category ===== */
+.pust-en-sheet .window-content { padding: 0; }
+.pust-en.pust-sheet-inner { padding: 0; gap: 0; height: auto; min-height: 100%; }
+.pust-en .pust-en-hd { display: flex; align-items: stretch; gap: 10px; padding: 8px 12px; background: var(--kc); color: #fff; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+.pust-en .pust-en-pic { width: 64px; height: 64px; flex: none; object-fit: cover; border: 2px solid rgba(255,255,255,.85); border-radius: 4px; background: var(--pu-steel-1); box-shadow: 0 2px 0 rgba(0,0,0,.3); }
+.pust-en .pust-en-pic[data-action] { cursor: pointer; }
+.pust-en .pust-en-who { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+.pust-en .pust-en-namerow { display: flex; align-items: center; gap: 6px; }
+.wastelanders .pust-en input.pust-en-name { flex: 1 1 auto; min-width: 0; height: 32px !important; font-family: var(--pu-f-label) !important; font-weight: 800; font-size: 18px !important; letter-spacing: .03em; }
+.pust-en .pust-en-name.ro { font-family: var(--pu-f-label); font-weight: 800; font-size: 20px; letter-spacing: .03em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); overflow-wrap: anywhere; }
+.wastelanders .pust-en .pust-en-namerow > button.pust-die:not(.header-control) { flex: none; margin: 0 !important; }
+.pust-en .pust-en-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pust-en .pust-en-sp { flex: 1 1 auto; }
+.pust-en .pust-en-cat { display: inline-flex; align-items: center; gap: 6px; font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); white-space: nowrap; }
+.wastelanders .pust-en .pust-en-bar > button.pust-en-sw:not(.header-control) { flex: none; display: inline-flex; align-items: center; gap: 6px; width: auto !important; height: 26px !important; margin: 0 !important; padding: 0 9px 0 6px !important;
+  background: rgba(0,0,0,.35) !important; color: #fff !important; border: 1px solid rgba(255,255,255,.4) !important; border-radius: 13px !important; box-shadow: none !important; font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; line-height: 24px !important; }
+.wastelanders .pust-en .pust-en-bar > button.pust-en-sw:not(.header-control):hover { background: rgba(0,0,0,.5) !important; }
+.pust-en .pust-en-sw .pust-place-sw { position: relative; width: 26px; height: 14px; border-radius: 7px; background: #5a605e; box-shadow: inset 0 1px 2px rgba(0,0,0,.5); flex: none; }
+.pust-en .pust-en-sw .pust-place-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: #f2ecd8; transition: left .12s ease; }
+.pust-en .pust-en-sw.on .pust-place-sw { background: #3dff47; }
+.pust-en .pust-en-sw.on .pust-place-sw::after { left: 14px; background: #0e1a10; }
+.wastelanders .pust-en .pust-en-bar > button.pust-en-edit.on:not(.header-control) { background: #e2ad3b !important; color: #241a0c !important; border-color: #e2ad3b !important; }
+.pust-en .pust-en-body { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px; }
+
+/* HP: a small dark screen */
+.pust-en .pust-en-hp { background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29); color: var(--pu-green); border: 3px solid var(--pu-steel-0); border-radius: 6px; padding: 7px 9px 8px; display: flex; flex-direction: column; gap: 6px; }
+.pust-en .pust-en-hprow { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.pust-en .pust-en-lbl { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--pu-green-dim); white-space: nowrap; }
+.pust-en .pust-qic { width: 1.25em; margin-right: 4px; text-align: center; color: var(--pu-green); opacity: .85; }
+.pust-en h3 .pust-qic { color: var(--pu-rust-2); }
+.pust-en .pust-en-hprow.bad .pust-en-lbl, .pust-en .pust-en-hprow.bad b { color: var(--pu-red); }
+.pust-en .pust-en-hpctl { display: flex; align-items: center; gap: 4px; }
+.pust-en .pust-en-hpctl > b, .pust-en .pust-en-hpnum { font-family: var(--pu-f-num); font-size: 16px; color: #b6ffb9; }
+.wastelanders .pust-en .pust-en-hpctl > button:not(.header-control) { flex: none; width: 28px !important; height: 32px !important; margin: 0 !important; padding: 0 !important; font-size: 17px !important; line-height: 30px !important; }
+.wastelanders .pust-en input.pust-screen.pust-en-max { width: 46px !important; flex-basis: 46px !important; font-size: 15px !important; }
+.pust-en .pust-en-hpbar { position: relative; height: 12px; border: 2px solid var(--pu-steel-0); border-radius: 3px; background: #0c0e0d; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+.pust-en .pust-en-hpfill { position: absolute; inset: 0 auto 0 0; transition: width .3s ease; background: repeating-linear-gradient(90deg, transparent 0 7px, rgba(0,0,0,.45) 7px 9px), linear-gradient(180deg, #8dff8f, #2fbf3a 55%, #1d7d25); }
+.pust-en .pust-en-hpbar.hp-mid .pust-en-hpfill { background: repeating-linear-gradient(90deg, transparent 0 7px, rgba(0,0,0,.45) 7px 9px), linear-gradient(180deg, #ffe78a, #e2ad3b 55%, #9a6f12); }
+.pust-en .pust-en-hpbar.hp-low .pust-en-hpfill { background: repeating-linear-gradient(90deg, transparent 0 7px, rgba(0,0,0,.45) 7px 9px), linear-gradient(180deg, #ff9a8a, #d8402e 55%, #8a1d12); }
+.pust-en .pust-en-hpbar.hp-dead { border-color: #8d2a1f; }
+.pust-en .pust-en-badges { display: flex; flex-wrap: wrap; gap: 4px 5px; }
+.pust-en .pust-en-badge, .pust-en .pust-en-tag { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 7px; border-radius: 3px; font-size: 12px; white-space: nowrap; cursor: help; }
+.pust-en .pust-en-badge { background: rgba(61,255,71,.14); border: 1px solid var(--pu-green-dim); color: #b6ffb9; font-family: var(--pu-f-label); font-weight: 700; letter-spacing: .03em; }
+.pust-en .pust-en-badge b { font-family: var(--pu-f-num); color: var(--pu-green); font-size: 14px; }
+.pust-en .pust-en-badge.psi { background: rgba(170,100,255,.18); border-color: #a35fe0; color: #e3c8ff; }
+.pust-en .pust-en-badge.psi b { color: #d4a6ff; }
+.pust-en .pust-en-tag { background: rgba(255,216,74,.12); border: 1px solid #b8960f; color: #ffe27a; }
+
+/* cards */
+.pust-en .pust-en-card { background: rgba(255,252,240,.78); border: 1.5px solid var(--pu-ink-2); border-radius: 3px; box-shadow: 3px 3px 0 rgba(35,27,17,.22); padding: 6px 8px 8px; margin: 0; }
+.pust-en .pust-en-card > h3 { margin: 0 0 6px; font-size: 13px; }
+.pust-en .pust-en-card h4 { margin: 8px 0 4px; font-size: 12px; }
+.pust-en details.pust-en-card > summary { cursor: pointer; font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink); list-style: none; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pust-en details.pust-en-card > summary::-webkit-details-marker { display: none; }
+.pust-en details.pust-en-card > summary::after { content: "▾"; margin-left: auto; color: var(--pu-ink-3); }
+.pust-en details.pust-en-card[open] > summary::after { content: "▴"; }
+.pust-en .pust-en-flag { background: var(--pu-orange); color: var(--pu-ink); border-radius: 2px; padding: 0 6px; font-size: 11px; font-weight: 700; letter-spacing: .03em; }
+.pust-en .pust-en-muted { font-size: 12px; font-style: italic; color: var(--pu-ink-3); }
+.pust-en .pust-en-sub { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-en .pust-en-hint { font-size: 12px; color: var(--pu-ink-2); margin-top: 3px; }
+.pust-en .pust-en-body :is(input[type="text"], select) { height: 28px; font-size: 14px; }
+.pust-en .pust-en-body textarea { width: 100%; min-height: 48px; resize: vertical; line-height: 1.35; font-size: 14px; }
+.wastelanders .pust-en .pust-en-card button:not(.header-control, [data-d], .pust-en-pip, .pust-en-x) { height: 28px !important; margin: 0 !important; padding: 0 10px !important; line-height: 26px !important; }
+
+/* damage */
+.pust-en .pust-en-dmgrow { display: flex; align-items: center; gap: 6px; }
+.pust-en .pust-en-dmgrow > input { flex: 1 1 90px; min-width: 0; }
+.pust-en .pust-en-dmgrow > select { flex: 2 1 150px; min-width: 0; }
+.pust-en .pust-en-dmgrow.heal { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--pu-ink-3); }
+.pust-en .pust-en-opts { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 5px 0 0; }
+.pust-en .pust-en-opts label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; margin: 0; }
+.wastelanders .pust-en button.pust-en-go:not(.header-control) { flex: none; background: var(--pu-rust-2) !important; color: #fff4e0 !important; border-color: var(--pu-rust-0) !important; font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.wastelanders .pust-en button.pust-en-go.ok:not(.header-control) { background: #cfe6c2 !important; color: #2a5a1c !important; border-color: #5f8f4a !important; }
+
+/* aspects */
+.pust-en .pust-en-quick { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 6px; }
+.pust-en .pust-en-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.pust-en .pust-en-chips:empty { display: none; }
+.pust-en .pust-en-chip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 3px 1px 8px; background: var(--pu-paper); color: var(--pu-ink); border: 1px solid var(--pu-ink-2); border-radius: 3px; font-size: 13px; min-height: 24px; }
+.pust-en .pust-en-inv { display: inline-flex; align-items: center; gap: 1px; background: rgba(110,59,34,.12); border-radius: 2px; padding: 0 1px; }
+.pust-en .pust-en-inv b { font-family: var(--pu-f-num); font-size: 12px; min-width: 18px; text-align: center; color: var(--pu-rust-2); }
+.wastelanders .pust-en .pust-en-inv > button:not(.header-control) { width: 20px !important; height: 20px !important; margin: 0 !important; padding: 0 !important; line-height: 18px !important; font-size: 13px !important; }
+.wastelanders .pust-en button.pust-en-x:not(.header-control) { flex: none; width: 22px !important; height: 22px !important; margin: 0 !important; padding: 0 !important; line-height: 20px !important; background: rgba(0,0,0,.12) !important; color: #241a0c !important; border: none !important; border-radius: 2px !important; font-size: 14px; }
+.wastelanders .pust-en button.pust-en-x:not(.header-control):hover { background: var(--pu-red-ink) !important; color: #fff !important; }
+.pust-en .pust-en-aspin { width: 100%; margin-top: 6px; }
+
+/* attacks */
+.pust-en .pust-en-atk { padding: 5px 0 6px; border-bottom: 1px dotted var(--pu-paper-3); }
+.pust-en .pust-en-atk:last-of-type { border-bottom: none; }
+.pust-en .pust-en-atkhd { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pust-en .pust-en-atkn { flex: 1 1 120px; min-width: 0; font-family: var(--pu-f-label); font-weight: 800; font-size: 15px; color: var(--pu-ink); overflow-wrap: anywhere; }
+.pust-en .pust-en-dicechip, .pust-en .pust-en-type { display: inline-flex; align-items: center; height: 22px; padding: 0 7px; border-radius: 3px; background: var(--dt-bg, #6e3b22); border: 1px solid var(--dt-bd, #f0a070); color: var(--dt-fg, #f4d11a); white-space: nowrap; }
+.pust-en .pust-en-dicechip { font-family: var(--pu-f-num); font-weight: 700; font-size: 14px; }
+.pust-en .pust-en-type { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.pust-en .pust-en-plus { display: inline-flex; align-items: center; height: 22px; padding: 0 6px; background: var(--pu-red-ink); color: #fff; border-radius: 3px; font-family: var(--pu-f-num); font-weight: 700; font-size: 12px; cursor: help; }
+.wastelanders .pust-en button.pust-en-roll:not(.header-control) { flex: none; background: var(--pu-rust-2) !important; color: #fff4e0 !important; border-color: var(--pu-rust-0) !important; font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.wastelanders .pust-en button.pust-en-roll:disabled { opacity: .45; }
+.pust-en .pust-en-note { margin-top: 3px; font-size: 13px; color: var(--pu-ink-2); }
+.pust-en .pust-en-atk.spent .pust-en-atkn { text-decoration: line-through; color: var(--pu-ink-3); }
+.pust-en .pust-en-pips { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+.pust-en .pust-en-pips small { margin-left: 4px; font-family: var(--pu-f-num); font-size: 12px; color: var(--pu-ink-3); }
+.wastelanders .pust-en button.pust-en-pip:not(.header-control) { flex: none; width: 16px !important; height: 16px !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; border-radius: 50% !important; background: var(--pu-paper-3) !important; border: 1.5px solid var(--pu-ink-3) !important; box-shadow: none !important; }
+.wastelanders .pust-en button.pust-en-pip.on:not(.header-control) { background: var(--pu-rust-3, #c06a35) !important; border-color: var(--pu-rust-0) !important; box-shadow: 0 1px 0 var(--pu-rust-0) !important; }
+.pust-en .pust-en-psy { display: flex; align-items: center; gap: 6px; margin: 6px 0 0; padding: 4px 8px; border: 1px dashed var(--pu-ink-3); border-radius: 3px; font-size: 13px; font-weight: 700; }
+.pust-en .pust-en-psy.on { background: rgba(170,100,255,.16); border: 1px solid #a35fe0; color: #3b1a58; }
+.pust-en .pust-en-psy small { font-weight: 400; color: var(--pu-ink-3); }
+
+/* moves */
+.pust-en .pust-en-move { padding: 4px 0 6px; border-bottom: 1px dotted var(--pu-paper-3); }
+.pust-en .pust-en-move.used .pust-en-mvhd b { text-decoration: line-through; color: var(--pu-ink-3); }
+.pust-en .pust-en-mvhd { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.pust-en .pust-en-mvhd b { font-family: var(--pu-f-label); font-weight: 800; font-size: 14px; }
+.pust-en .pust-en-used { display: inline-flex; align-items: center; gap: 5px; margin: 0; font-size: 12.5px; }
+.pust-en .pust-en-mvt { font-size: 13px; color: var(--pu-ink-2); margin-top: 2px; }
+
+/* the editor */
+.pust-en .pust-en-ed { display: flex; flex-direction: column; gap: 4px; padding: 6px; margin-bottom: 6px; background: rgba(223,207,156,.35); border: 1px solid var(--pu-paper-3); border-left: 4px solid var(--pu-rust-3, #c06a35); border-radius: 3px; }
+.pust-en .pust-en-edrow { display: flex; align-items: center; gap: 6px; }
+.pust-en .pust-en-edrow > input { flex: 1 1 auto; min-width: 0; }
+.pust-en .pust-en-edrow > input.pust-en-dice { flex: 0 0 90px; font-family: var(--pu-f-num); text-align: center; }
+.pust-en .pust-en-edrow > select { flex: 1 1 auto; min-width: 0; }
+.pust-en .pust-en-ed > input { width: 100%; }
+.pust-en .pust-en-ammo-l { display: inline-flex; align-items: center; gap: 5px; margin: 0; font-size: 12px; white-space: nowrap; }
+.pust-en input.pust-en-num { width: 48px; flex: none; text-align: center; font-family: var(--pu-f-num); }
+.pust-en .pust-en-edadd { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.pust-en .pust-en-edadd > select { flex: 1 1 auto; min-width: 0; }
+.pust-en .pust-en-chipin { width: 150px; height: 22px !important; font-size: 13px !important; padding: 0 4px; }
+.wastelanders .pust-en button.pust-en-reset:not(.header-control) { margin-top: 8px !important; }
+
+/* defence */
+.pust-en .pust-en-defgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-top: 6px; }
+.pust-en .pust-en-def { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 0; font-size: 12.5px; min-width: 0; }
+.pust-en .pust-en-def > span { flex: 1 1 auto; min-width: 0; line-height: 1.15; }
+.pust-en .pust-en-def > select { flex: 0 1 112px; min-width: 0; height: 26px; font-size: 13px; }
+.pust-en .pust-en-def.chk { grid-column: 1 / -1; }
+.pust-en .pust-en-desc { font-size: 13px; line-height: 1.4; margin-top: 6px; }
+.pust-en .pust-en-desc :is(ul, ol) { margin: 2px 0 2px 16px; padding: 0; }
+
+/* read-only for players */
+.wastelanders .pust-en.readonly :is(input, select, textarea) { pointer-events: none; opacity: 1; background: rgba(255,252,240,.85); border: 1px solid var(--pu-paper-3); color: var(--pu-ink); -webkit-text-fill-color: var(--pu-ink); }
+.wastelanders .pust-en.readonly textarea { resize: none; }
+.wastelanders .pust-en.readonly :is(input, textarea)::placeholder { color: transparent; -webkit-text-fill-color: transparent; }

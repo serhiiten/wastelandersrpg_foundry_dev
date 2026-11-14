@@ -5,13 +5,97 @@
   "_id": "5iS7eZXGi5ieIpDZ",
   "img": "systems/wastelanders-dev/assets/radskorpion.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 8,
       "max": 8
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Звичайні скорпіони й до Війни були не подарунком, а після неї, збільшившись удесятеро, стали справжньою проблемою. Трапляються групами по 2–3 особини.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Жало</u> (1d6 фізичної шкоди + 2 шкоди отрутою, ближній бій, отрута ігнорує броню)</li>\n<li><strong>Аспект:</strong> <strong><em>агресивна отруйна комаха.</em></strong></li>\n</ul><blockquote class=\"aside\"><p>З радскорпіона можна зцідити отруту. Кинь 1d6: якщо випаде 4–5, вдається добути одну дозу, якщо 6 — дві. Отрута радскорпіона вважається слабкою отрутою.</p></blockquote>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "2",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Жало",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди + 2 шкоди отрутою, ближній бій, отрута ігнорує броню",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": true
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "агресивна отруйна комаха",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "З радскорпіона можна зцідити отруту. Кинь 1d6: якщо випаде 4–5, вдається добути одну дозу, якщо 6 — дві. Отрута радскорпіона вважається слабкою отрутою.",
+    "reveal": false,
+    "orig": {
+      "hp": 8,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Жало",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди + 2 шкоди отрутою, ближній бій, отрута ігнорує броню",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": true
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "агресивна отруйна комаха",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": "З радскорпіона можна зцідити отруту. Кинь 1d6: якщо випаде 4–5, вдається добути одну дозу, якщо 6 — дві. Отрута радскорпіона вважається слабкою отрутою."
+    },
+    "description": "<blockquote>\n<p>Звичайні скорпіони й до Війни були не подарунком, а після неї, збільшившись удесятеро, стали справжньою проблемою. Трапляються групами по 2–3 особини.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Жало</u> (1d6 фізичної шкоди + 2 шкоди отрутою, ближній бій, отрута ігнорує броню)</li>\n<li><strong>Аспект:</strong> <strong><em>агресивна отруйна комаха.</em></strong></li>\n</ul><blockquote class=\"aside\"><p>З радскорпіона можна зцідити отруту. Кинь 1d6: якщо випаде 4–5, вдається добути одну дозу, якщо 6 — дві. Отрута радскорпіона вважається слабкою отрутою.</p></blockquote>"
   },
   "prototypeToken": {
     "name": "Радскорпіон",

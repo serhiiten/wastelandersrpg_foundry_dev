@@ -5,13 +5,87 @@
   "_id": "dtmrnhz5jSHfaROT",
   "img": "systems/wastelanders-dev/assets/tsyvil-1.png",
   "system": {
+    "v": 1,
+    "cat": "statists",
     "hp": {
       "value": 3,
       "max": 3
     },
     "armor": 0,
-    "description": "<blockquote>\n<p>Прості мешканці Пустки без особливої бойової підготовки: селяни, роботяги, волоцюги, раби та інші небораки.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Кулаки або імпровізована зброя</u> (менша з 2d6, фізична шкода, ближній бій)</li>\n</ul>",
-    "type": "statistician"
+    "psiArmor": 0,
+    "armorText": "0",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Кулаки або імпровізована зброя",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "менша з , фізична шкода, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 3,
+      "armor": 0,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Кулаки або імпровізована зброя",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "менша з , фізична шкода, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Прості мешканці Пустки без особливої бойової підготовки: селяни, роботяги, волоцюги, раби та інші небораки.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Кулаки або імпровізована зброя</u> (менша з 2d6, фізична шкода, ближній бій)</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Цивільний",

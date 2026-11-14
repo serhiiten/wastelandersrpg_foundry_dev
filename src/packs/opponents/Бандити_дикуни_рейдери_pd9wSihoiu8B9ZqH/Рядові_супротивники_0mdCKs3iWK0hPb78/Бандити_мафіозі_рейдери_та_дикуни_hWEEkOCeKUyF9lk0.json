@@ -5,13 +5,117 @@
   "_id": "hWEEkOCeKUyF9lk0",
   "img": "systems/wastelanders-dev/assets/reyder-1.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 5,
       "max": 5
     },
     "armor": 1,
-    "description": "<blockquote>\n<p>Звичайні розбійники, мафіозі, работоргівці, дикуни та інші заброди. Навіщо самому копирсатися в землі, якщо можна просто відібрати все в тих, хто копирсається? Зазвичай трапляються бандами по 3–5 осіб плюс ватажок.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Легка зброя</u> (1d6 фізичної шкоди, бій на відстані або ближній бій); <u>саморобна граната</u> (1d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.)</li>\n<li><strong>Аспект:</strong> <strong><em>звичайний головоріз.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "1",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Легка зброя",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди, бій на відстані або ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Саморобна граната",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.",
+        "ammoMax": 1,
+        "ammo": 1,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "звичайний головоріз",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 5,
+      "armor": 1,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Легка зброя",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди, бій на відстані або ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Саморобна граната",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.",
+          "ammoMax": 1,
+          "ammo": 1,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "звичайний головоріз",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Звичайні розбійники, мафіозі, работоргівці, дикуни та інші заброди. Навіщо самому копирсатися в землі, якщо можна просто відібрати все в тих, хто копирсається? Зазвичай трапляються бандами по 3–5 осіб плюс ватажок.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Легка зброя</u> (1d6 фізичної шкоди, бій на відстані або ближній бій); <u>саморобна граната</u> (1d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.)</li>\n<li><strong>Аспект:</strong> <strong><em>звичайний головоріз.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Бандити, мафіозі, рейдери та дикуни",

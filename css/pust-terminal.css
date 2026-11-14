@@ -401,3 +401,58 @@
 #pust-mapdock .pust-md-lc-die svg { width: 100%; height: 100%; display: block; }
 #pust-mapdock .pust-md-lc-name { grid-area: name; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 14px; color: #e8f5e9; overflow-wrap: anywhere; }
 #pust-mapdock .pust-md-lc-st { grid-area: st; font-size: 12px; color: var(--c); font-weight: 700; }
+
+/* «Битва» (module/applications/battle-panel.mjs) — instead of «Мапа Пустки» while «Бойова мапа» is viewed (GM) */
+#pust-mapdock [hidden] { display: none !important; }
+#pust-mapdock .pust-md-battle .pust-md-body { gap: 6px; }
+#pust-mapdock .pust-md-bscene { display: flex; align-items: center; gap: 6px; min-height: 30px; }
+#pust-mapdock .pust-md-blabel { flex: none; width: 112px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 800; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #8fcf95; }
+#pust-mapdock .pust-md-blabel > i { width: 14px; text-align: center; }
+#pust-mapdock .pust-md-bval { flex: 1 1 auto; min-width: 0; padding: 0 8px; height: 30px; line-height: 30px; border-radius: 4px; background: rgba(0,0,0,.35);
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 13px; color: #e8f5e9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#pust-mapdock .pust-md-bval.muted { color: #6fae76; font-weight: 400; }
+#pust-mapdock button.pust-md-bdie { flex: none; width: 30px; padding: 0; }
+#pust-mapdock .pust-md-battle .pust-md-bbtns > button { flex: 1 1 0; }
+#pust-mapdock .pust-md-bform { display: flex; flex-direction: column; gap: 6px; padding: 6px 8px 8px; border: 1px dashed rgba(61,255,71,.35); border-radius: 4px; }
+#pust-mapdock .pust-md-bform label { display: flex; flex-direction: column; gap: 2px; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #8fcf95; }
+#pust-mapdock .pust-md-bform select, #pust-mapdock .pust-md-bform input { width: 100%; text-transform: none; letter-spacing: 0; }
+#pust-mapdock .pust-md-bform-row { display: flex; gap: 6px; }
+#pust-mapdock .pust-md-bform-row > label { flex: 1 1 0; min-width: 0; }
+#pust-mapdock .pust-md-bform-row input { text-align: center; }
+#pust-mapdock .pust-md-bform-btns { display: flex; justify-content: flex-end; gap: 6px; }
+#pust-mapdock .pust-md-bform-btns > button { flex: none; height: 28px; padding: 0 14px; }
+#pust-mapdock .pust-md-bform-btns > button.pust-md-bgo { background: linear-gradient(180deg, #2f6b35, #1f4a24); color: #e7ffd9; border-color: #3dff47; }
+#pust-mapdock .pust-md-bcount { margin: 0; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 13px; color: #b6ffb9; text-align: center; }
+#pust-mapdock .pust-md-bcount b { font-family: "PT Mono", monospace; color: #e8f5e9; }
+
+/* «Битва»: «Коло й Доля» and «Шкода й лікування» (author, 2026-11-14) */
+#pust-mapdock .pust-md-bround { display: flex; align-items: center; gap: 6px; min-height: 30px; }
+#pust-mapdock .pust-md-bround > .pust-md-blabel { width: 112px; }
+#pust-mapdock .pust-md-bround > button.pust-md-barrow { flex: none; width: 30px; padding: 0; font-size: 15px; }
+#pust-mapdock .pust-md-bround > button.pust-md-bnext { background: linear-gradient(180deg, #2f6b35, #1f4a24); color: #e7ffd9; border-color: #3dff47; }
+#pust-mapdock .pust-md-bnum { flex: 1 1 auto; height: 30px; line-height: 30px; text-align: center; border-radius: 4px; background: #0f1412;
+  font-family: "PT Mono", monospace; font-size: 20px; font-weight: 700; color: #3dff47; text-shadow: 0 0 8px rgba(61,255,71,.45); }
+#pust-mapdock .pust-md-bround > .pust-md-n { flex: 1 1 auto; justify-content: flex-start; }
+#pust-mapdock .pust-md-bround > .pust-md-n > input { flex: 1 1 auto; width: 40px; font-size: 18px; font-weight: 700; }
+#pust-mapdock .pust-md-bround > .pust-md-n > button[data-d="-1"] { background: linear-gradient(180deg, #5a2a22, #3e1c17); color: #ffb4a3; }
+#pust-mapdock .pust-md-bround > .pust-md-n > button[data-d="1"] { background: linear-gradient(180deg, #2c5a31, #1d3f21); color: #c9ffc4; }
+#pust-mapdock button.pust-md-bset { flex: none; width: auto; height: 30px; padding: 0 8px; flex-direction: column; gap: 0; line-height: 1.05; }
+#pust-mapdock button.pust-md-bset > span { font-size: 10.5px; }
+#pust-mapdock button.pust-md-bset > b { font-family: "PT Mono", monospace; font-size: 13px; color: #b6ffb9; }
+#pust-mapdock .pust-md-bdmg { display: flex; flex-direction: column; gap: 5px; padding: 6px; border-radius: 4px; background: rgba(0,0,0,.28); border: 1px solid #3d4241; }
+#pust-mapdock .pust-md-bdmg-hd { display: flex; align-items: baseline; gap: 6px;
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 800; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #8fcf95; }
+#pust-mapdock .pust-md-bdmg-hd > small { margin-left: auto; font-weight: 700; letter-spacing: 0; text-transform: none; font-size: 12px; color: #b6ffb9; }
+#pust-mapdock .pust-md-bdmg input.pust-md-bexpr { flex: 1 1 auto; min-width: 0; padding: 0 8px; font-size: 15px; }
+#pust-mapdock .pust-md-bdmg select { flex: 0 0 132px; width: 132px; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 13px; }
+#pust-mapdock .pust-md-bquick > button { font-family: "PT Mono", monospace; height: 26px; }
+#pust-mapdock .pust-md-bchk { justify-content: space-between; }
+#pust-mapdock .pust-md-bchk > label { display: inline-flex; align-items: center; gap: 4px; margin: 0;
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12.5px; color: #c9f5cc; }
+#pust-mapdock .pust-md-bchk input { width: 14px; height: 14px; margin: 0; }
+#pust-mapdock .pust-md-bact > button { height: 32px; }
+#pust-mapdock button.pust-md-bhit { background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border-color: #d8371f; }
+#pust-mapdock button.pust-md-bhit:hover:not(:disabled) { border-color: #ff6a4f; box-shadow: 0 0 6px rgba(255,106,79,.4); }
+#pust-mapdock button.pust-md-bheal { background: linear-gradient(180deg, #2f6b35, #1f4a24); color: #e7ffd9; border-color: #3dff47; }
+.pust-chat.pust-round p { margin: 4px 0 0; }

@@ -4,11 +4,41 @@
  *   – a caravan's «Запас ходу» bar (bar1) is green, like the sheet's lamps, with a notch per unit, labelled «Запас ходу»;
  *   – the bars are taller than Foundry's own (14 px instead of 8) and sit outside the picture: bar2 just over the token,
  *     bar1 just under it (the name moves down under bar1); the labels are half-transparent, as if printed on the bar;
- *   – an enemy at 0 HP or less is crossed out with a red cross over its picture.
+ *   – an enemy at 0 HP or less is crossed out with a red cross over its picture;
+ *   – when its HP change, the token flashes green (up) or red (down), as the battle tracker's cards do, for everyone; the
+ *     change itself («+3», «−4») floats up over it for those who may see its HP (author, 2026-11-14).
  */
 const LABELS = { hp: "ОЗ", range: "Запас ходу" };
 
 export class WastelandersToken extends foundry.canvas.placeables.Token {
+  /** A short flash over the token: green when it healed, red when it was hurt */
+  flashHp(diff) {
+    if (!diff || this.destroyed || !this.visible) return;
+    const { width, height } = this.document.getSize();
+    const up = diff > 0, color = up ? 0x3dff47 : 0xff2a1a;
+    const g = new PIXI.Graphics();
+    g.eventMode = "none";
+    const r = Math.min(width, height) * 0.12, s = canvas.dimensions.uiScale;
+    g.lineStyle({ width: 6 * s, color, alpha: 1 }).beginFill(color, 0.38).drawRoundedRect(0, 0, width, height, r).endFill();
+    this.addChild(g);
+    const t0 = performance.now(), ms = 900;
+    const tick = () => {
+      const k = (performance.now() - t0) / ms;
+      if (k >= 1 || g.destroyed) { canvas.app.ticker.remove(tick); if (!g.destroyed) g.destroy(); return; }
+      // two quick pulses, then fade
+      g.alpha = (1 - k) * (0.65 + 0.35 * Math.cos(k * Math.PI * 4));
+    };
+    canvas.app.ticker.add(tick);
+    // the number, for those who may see this token's HP (enemies' HP stay hidden from players)
+    const seesHp = this.document.isOwner || this.actor?.type !== "enemy" || game.user.isGM;
+    if (seesHp) {
+      canvas.interface?.createScrollingText(this.center, `${up ? "+" : "−"}${Math.abs(diff)}`, {
+        anchor: CONST.TEXT_ANCHOR_POINTS.TOP, direction: CONST.TEXT_ANCHOR_POINTS.TOP, distance: height * 0.6,
+        fontSize: 34 * s, fill: color, stroke: 0x000000, strokeThickness: 5 * s, jitter: 0.2, duration: 1600,
+      });
+    }
+  }
+
   /** The bar height and the gap between a bar and the token's picture */
   #barSize() {
     const s = canvas.dimensions.uiScale;
@@ -141,3 +171,18 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
     this.#refreshCross();
   }
 }
+
+/* ---------- the HP flash: each client keeps every token's last HP and compares on update ---------- */
+const hpOf = (t) => Number(t?.actor?.system?.hp?.value);
+function checkHp(tokens) {
+  for (const t of tokens) {
+    if (!t || t.destroyed) continue;
+    const now = hpOf(t), was = t._pustHp;
+    t._pustHp = now;
+    if (Number.isFinite(was) && Number.isFinite(now) && now !== was) t.flashHp?.(now - was);
+  }
+}
+Hooks.on("drawToken", (t) => { t._pustHp = hpOf(t); });
+// a linked token follows its actor; an unlinked one its own (synthetic) actor, through the token's delta
+Hooks.on("updateActor", (actor) => checkHp((canvas?.tokens?.placeables ?? []).filter((t) => t.actor === actor || (t.document.actorLink && t.document.actorId === actor.id))));
+Hooks.on("updateToken", (doc) => { if (doc.object) checkHp([doc.object]); });

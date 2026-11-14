@@ -5,13 +5,129 @@
   "_id": "txl5zJaUZ86Od8W1",
   "img": "systems/wastelanders-dev/assets/pysar-bratstva-2.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 8,
       "max": 8
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Найнижчий ранг в ієрархії Братства. Писарі збирають, відновлюють і зберігають технології Старого світу. Зазвичай подорожують групами по 2–4 особи в супроводі лицарів або 2–4 протектронів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня лазерна зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.)</li>\n<li><strong>Аспект: <em>писар Братства Сталі.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Ребут:</strong> раз за сцену може повернути в сцену союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його корпус не знищено повністю.</li>\n</ul>\n</li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "2",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Середня лазерна зброя",
+        "dice": "1d10",
+        "type": "laser",
+        "note": "фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 1,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Армійська граната",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.",
+        "ammoMax": 1,
+        "ammo": 1,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "писар Братства Сталі",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Ребут",
+        "t": "раз за сцену може повернути в сцену союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його корпус не знищено повністю.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 8,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Середня лазерна зброя",
+          "dice": "1d10",
+          "type": "laser",
+          "note": "фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 1,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Армійська граната",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.",
+          "ammoMax": 1,
+          "ammo": 1,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "писар Братства Сталі",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Ребут",
+          "t": "раз за сцену може повернути в сцену союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його корпус не знищено повністю.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Найнижчий ранг в ієрархії Братства. Писарі збирають, відновлюють і зберігають технології Старого світу. Зазвичай подорожують групами по 2–4 особи в супроводі лицарів або 2–4 протектронів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня лазерна зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.)</li>\n<li><strong>Аспект: <em>писар Братства Сталі.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Ребут:</strong> раз за сцену може повернути в сцену союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його корпус не знищено повністю.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Писар Братства Сталі",

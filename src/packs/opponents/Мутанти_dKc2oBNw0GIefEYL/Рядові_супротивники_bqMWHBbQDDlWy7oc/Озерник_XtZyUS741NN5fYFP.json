@@ -5,13 +5,97 @@
   "_id": "XtZyUS741NN5fYFP",
   "img": "systems/wastelanders-dev/assets/ozernyk.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 8,
       "max": 8
     },
     "armor": 1,
-    "description": "<blockquote>\n<p>Кайманова черепаха, що мутувала до повної невпізнаваності. На вигляд нагадує рибоподібного гуманоїда з гострими кігтями на лапах. Без потреби не нападає, якщо не підходити надто близько. Трапляється біля водойм групами по 3–5 особин. Уміє дихати під водою й плаває так само швидко, як пересувається суходолом.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Кігті</u> (1d6+1 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспект:</strong> <strong><em>мутант-амфібія, однаково спритний у воді й на суші.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "1",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Кігті",
+        "dice": "1d6+1",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "мутант-амфібія, однаково спритний у воді й на суші",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 8,
+      "armor": 1,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Кігті",
+          "dice": "1d6+1",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "мутант-амфібія, однаково спритний у воді й на суші",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Кайманова черепаха, що мутувала до повної невпізнаваності. На вигляд нагадує рибоподібного гуманоїда з гострими кігтями на лапах. Без потреби не нападає, якщо не підходити надто близько. Трапляється біля водойм групами по 3–5 особин. Уміє дихати під водою й плаває так само швидко, як пересувається суходолом.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Кігті</u> (1d6+1 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспект:</strong> <strong><em>мутант-амфібія, однаково спритний у воді й на суші.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Озерник",

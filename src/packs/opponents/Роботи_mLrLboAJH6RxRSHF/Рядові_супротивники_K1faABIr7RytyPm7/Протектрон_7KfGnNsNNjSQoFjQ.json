@@ -5,13 +5,97 @@
   "_id": "7KfGnNsNNjSQoFjQ",
   "img": "systems/wastelanders-dev/assets/protektron.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 8,
       "max": 8
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Гуманоїдний робот, призначений для охорони й підтримання порядку. Пересувається повільно, але впевнено. Трапляється на занедбаних режимних об'єктах, зазвичай групами по 3–5 роботів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Лазер</u> (1d6+2 фізичної шкоди, бій на відстані, ігнорує 1 броні)</li>\n<li><strong>Аспект:</strong> <strong><em>повільний, але невідступний робот-охоронець.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "2",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": true,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Лазер",
+        "dice": "1d6+2",
+        "type": "laser",
+        "note": "фізичної шкоди, бій на відстані, ігнорує 1 броні",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 1,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "повільний, але невідступний робот-охоронець",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 8,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": true,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Лазер",
+          "dice": "1d6+2",
+          "type": "laser",
+          "note": "фізичної шкоди, бій на відстані, ігнорує 1 броні",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 1,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "повільний, але невідступний робот-охоронець",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Гуманоїдний робот, призначений для охорони й підтримання порядку. Пересувається повільно, але впевнено. Трапляється на занедбаних режимних об'єктах, зазвичай групами по 3–5 роботів.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Лазер</u> (1d6+2 фізичної шкоди, бій на відстані, ігнорує 1 броні)</li>\n<li><strong>Аспект:</strong> <strong><em>повільний, але невідступний робот-охоронець.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Протектрон",

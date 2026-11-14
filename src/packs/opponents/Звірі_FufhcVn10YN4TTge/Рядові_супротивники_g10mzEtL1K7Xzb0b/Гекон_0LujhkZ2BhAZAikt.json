@@ -5,13 +5,97 @@
   "_id": "0LujhkZ2BhAZAikt",
   "img": "systems/wastelanders-dev/assets/hekon.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 5,
       "max": 5
     },
     "armor": 1,
-    "description": "<blockquote>\n<p>Мутована ящірка, що виросла до розмірів великого вовка. Трапляється групами по 2–5 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Пазурі</u> (1d6 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>спритна ящірка-переросток.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "1",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Пазурі",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "спритна ящірка-переросток",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 5,
+      "armor": 1,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Пазурі",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "спритна ящірка-переросток",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Мутована ящірка, що виросла до розмірів великого вовка. Трапляється групами по 2–5 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Пазурі</u> (1d6 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>спритна ящірка-переросток.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Гекон",

@@ -5,13 +5,117 @@
   "_id": "VjWzKJIREOVI1Onw",
   "img": "systems/wastelanders-dev/assets/turel.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 6,
       "max": 6
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Стаціонарна захисна турель із кулеметом або лазером. Трапляється на покинутих військових базах та інших режимних об'єктах, зазвичай парами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 6</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода (залежно від моделі):</strong> <u>Кулемет</u> (1d10 фізичної шкоди, бій на відстані); <u>лазер</u> (1d10 фізичної шкоди, бій на відстані, ігнорує 1 броні)</li>\n<li><strong>Аспект:</strong> <strong><em>стаціонарна турель.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "2",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": true,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Кулемет",
+        "dice": "1d10",
+        "type": "phys",
+        "note": "фізичної шкоди, бій на відстані",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Лазер",
+        "dice": "1d10",
+        "type": "laser",
+        "note": "фізичної шкоди, бій на відстані, ігнорує 1 броні",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 1,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "стаціонарна турель",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 6,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": true,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Кулемет",
+          "dice": "1d10",
+          "type": "phys",
+          "note": "фізичної шкоди, бій на відстані",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Лазер",
+          "dice": "1d10",
+          "type": "laser",
+          "note": "фізичної шкоди, бій на відстані, ігнорує 1 броні",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 1,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "стаціонарна турель",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Стаціонарна захисна турель із кулеметом або лазером. Трапляється на покинутих військових базах та інших режимних об'єктах, зазвичай парами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 6</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода (залежно від моделі):</strong> <u>Кулемет</u> (1d10 фізичної шкоди, бій на відстані); <u>лазер</u> (1d10 фізичної шкоди, бій на відстані, ігнорує 1 броні)</li>\n<li><strong>Аспект:</strong> <strong><em>стаціонарна турель.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Турель",

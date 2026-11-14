@@ -101,3 +101,70 @@ export async function ensureMapScene() {
   }
   await game.settings.set(sys, "mapSceneVersion", MAP_SCENE_VERSION);
 }
+
+/* ---------- «Бойова мапа» — the second default scene (author, 2026-11-14) ----------
+ * A dark, quiet ground (assets/maps/battle.webp, tools/make_battle_bg.py) for the battle's zones and tokens: zones are
+ * drawn on it (module/canvas/battle-zones.mjs), the left panel «Битва» shows on it (map-dock.mjs). A world gets it once,
+ * not activated (the GM switches to it when a fight starts); deleted, it stays deleted. A newer BATTLE_SCENE_VERSION
+ * upgrades it in place (picture, size, grid). Versions: 1 — 40 × 30 cells of 100 px, dark concrete; 2 — light sand
+ * (author, 2026-11-14), a dark brown grid. */
+export const BATTLE_SCENE_VERSION = 2;
+export const BATTLE_CELL = 100;
+export const BATTLE_COLS = 40;
+export const BATTLE_ROWS = 30;
+const BATTLE_LEVEL_ID = "pustBattleLevel1";
+
+/** The battle scene's data (pure) */
+export function battleSceneData(systemId) {
+  const src = `systems/${systemId}/assets/maps/battle-sand.webp`;
+  return {
+    name: "Бойова мапа",
+    navName: "Бойова мапа",
+    navigation: true,
+    width: BATTLE_COLS * BATTLE_CELL,
+    height: BATTLE_ROWS * BATTLE_CELL,
+    padding: 0.05,
+    grid: { type: CONST.GRID_TYPES.SQUARE, size: BATTLE_CELL, style: "solidLines", thickness: 1, color: "#4a381e", alpha: 0.3, distance: 1, units: "кл." },
+    tokenVision: false,
+    fog: { mode: 0 },
+    initialLevel: BATTLE_LEVEL_ID,
+    levels: [{
+      _id: BATTLE_LEVEL_ID,
+      name: "Бойова мапа",
+      elevation: { bottom: 0, top: 4 },
+      background: { color: "#c8ad7f", src, tint: "#ffffff", alphaThreshold: 0.75 },
+      foreground: { src: null, tint: "#ffffff", alphaThreshold: 0.75 },
+      textures: { anchorX: 0.5, anchorY: 0.5, offsetX: 0, offsetY: 0, fit: "fill", scaleX: 1, scaleY: 1, rotation: 0 },
+    }],
+    flags: { [systemId]: { battleScene: BATTLE_SCENE_VERSION } },
+  };
+}
+
+/** The world's «Бойова мапа», if it has one */
+export const findBattleScene = () => game.scenes.find((s) => s.getFlag(game.system.id, "battleScene"));
+/** Is this scene the battle map? */
+export const isBattleScene = (scene) => !!scene?.getFlag(game.system.id, "battleScene");
+
+/** Give the world its «Бойова мапа» (the first GM, once), or bring the one it has to this version */
+export async function ensureBattleScene() {
+  if (!game.user.isGM || game.users.activeGM?.id !== game.user.id) return;
+  const sys = game.system.id;
+  const had = game.settings.get(sys, "battleSceneVersion") ?? 0;
+  if (had >= BATTLE_SCENE_VERSION) return;
+  const scene = findBattleScene();
+  if (had > 0) {
+    if (scene) {
+      const data = battleSceneData(sys);
+      await scene.update({
+        width: data.width, height: data.height, padding: data.padding, grid: { size: BATTLE_CELL, color: data.grid.color, alpha: data.grid.alpha },
+        [`flags.${sys}.battleScene`]: BATTLE_SCENE_VERSION,
+        levels: scene.levels.map((l) => (l.id === BATTLE_LEVEL_ID ? { _id: l.id, background: { src: data.levels[0].background.src, color: data.levels[0].background.color } } : { _id: l.id })),
+      });
+      await thumbnail(scene);
+    }
+  } else if (!scene) {
+    const made = await Scene.implementation.create(battleSceneData(sys));
+    await thumbnail(made);
+  }
+  await game.settings.set(sys, "battleSceneVersion", BATTLE_SCENE_VERSION);
+}

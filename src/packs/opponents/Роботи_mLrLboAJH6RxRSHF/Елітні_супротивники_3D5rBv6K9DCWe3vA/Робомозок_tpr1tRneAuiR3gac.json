@@ -5,13 +5,117 @@
   "_id": "tpr1tRneAuiR3gac",
   "img": "systems/wastelanders-dev/assets/robomozok.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 12,
       "max": 12
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Витвір збоченого інженерного генія: гусеничний робот, у якому роль центрального процесора виконує живий людський мозок. Здебільшого робомозки наглухо божевільні. Трапляються на покинутих військових базах та в експериментальних центрах, по одному-двоє.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2 (на відміну від інших роботів, вразливий до психічної шкоди)</li>\n<li><strong>Шкода:</strong> <u>Психічний удар</u> (1d10 психічної шкоди, ігнорує фізичну броню)</li>\n<li><strong>Аспекти: <em>гусеничний бойовий робот, божевільний.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Пси-вибух:</strong> раз за сцену завдає 1d10 психічної шкоди всім живим істотам у вибраній зоні. Ця шкода ігнорує фізичну броню.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "2 (на відміну від інших роботів, вразливий до психічної шкоди)",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": true,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": true
+    },
+    "attacks": [
+      {
+        "name": "Психічний удар",
+        "dice": "1d10",
+        "type": "psychic",
+        "note": "психічної шкоди, ігнорує фізичну броню",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "гусеничний бойовий робот",
+        "inv": 0
+      },
+      {
+        "t": "божевільний",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Пси-вибух",
+        "t": "раз за сцену завдає 1d10 психічної шкоди всім живим істотам у вибраній зоні. Ця шкода ігнорує фізичну броню.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 12,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": true,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": true
+      },
+      "attacks": [
+        {
+          "name": "Психічний удар",
+          "dice": "1d10",
+          "type": "psychic",
+          "note": "психічної шкоди, ігнорує фізичну броню",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "гусеничний бойовий робот",
+          "inv": 0
+        },
+        {
+          "t": "божевільний",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Пси-вибух",
+          "t": "раз за сцену завдає 1d10 психічної шкоди всім живим істотам у вибраній зоні. Ця шкода ігнорує фізичну броню.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Витвір збоченого інженерного генія: гусеничний робот, у якому роль центрального процесора виконує живий людський мозок. Здебільшого робомозки наглухо божевільні. Трапляються на покинутих військових базах та в експериментальних центрах, по одному-двоє.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2 (на відміну від інших роботів, вразливий до психічної шкоди)</li>\n<li><strong>Шкода:</strong> <u>Психічний удар</u> (1d10 психічної шкоди, ігнорує фізичну броню)</li>\n<li><strong>Аспекти: <em>гусеничний бойовий робот, божевільний.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Пси-вибух:</strong> раз за сцену завдає 1d10 психічної шкоди всім живим істотам у вибраній зоні. Ця шкода ігнорує фізичну броню.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Робомозок",

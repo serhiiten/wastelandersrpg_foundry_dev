@@ -5,13 +5,137 @@
   "_id": "yoy49OZQLeU2PC27",
   "img": "systems/wastelanders-dev/assets/roboskorpion.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 15,
       "max": 15
     },
     "armor": 3,
-    "description": "<blockquote>\n<p>Наче Пустці було мало звичайних скорпіонів і робо-скорпіонів, дослідницький центр Біг-Маунтін вирішив випустити покращену (читай: більшу, злішу й небезпечнішу) лінійку робо-скорпіонів. Діти, подякуймо разом нашим «чудовим» ученим, хай їм грець. Трапляються поодинці або парами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Клешні</u> (1d10 фізичної шкоди, ближній бій); <u>плазмовий хвіст</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 заряд)</li>\n<li><strong>Аспекти:</strong> <strong><em>великий робо-скорпіон, вкрай паскудні поведінкові матриці.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Рад-промінь:</strong> раз за сцену стріляє з хвоста спрямованим променем гамма-випромінювання й завдає одній цілі 2d6 шкоди радіацією, що ігнорує броню.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "3",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": true,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Клешні",
+        "dice": "1d10",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Плазмовий хвіст",
+        "dice": "3d6",
+        "type": "plasma",
+        "note": "фізичної шкоди всім істотам в одній зоні, 1 заряд",
+        "ammoMax": 1,
+        "ammo": 1,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "великий робо-скорпіон",
+        "inv": 0
+      },
+      {
+        "t": "вкрай паскудні поведінкові матриці",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Рад-промінь",
+        "t": "раз за сцену стріляє з хвоста спрямованим променем гамма-випромінювання й завдає одній цілі 2d6 шкоди радіацією, що ігнорує броню.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 15,
+      "armor": 3,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": true,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Клешні",
+          "dice": "1d10",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Плазмовий хвіст",
+          "dice": "3d6",
+          "type": "plasma",
+          "note": "фізичної шкоди всім істотам в одній зоні, 1 заряд",
+          "ammoMax": 1,
+          "ammo": 1,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "великий робо-скорпіон",
+          "inv": 0
+        },
+        {
+          "t": "вкрай паскудні поведінкові матриці",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Рад-промінь",
+          "t": "раз за сцену стріляє з хвоста спрямованим променем гамма-випромінювання й завдає одній цілі 2d6 шкоди радіацією, що ігнорує броню.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Наче Пустці було мало звичайних скорпіонів і робо-скорпіонів, дослідницький центр Біг-Маунтін вирішив випустити покращену (читай: більшу, злішу й небезпечнішу) лінійку робо-скорпіонів. Діти, подякуймо разом нашим «чудовим» ученим, хай їм грець. Трапляються поодинці або парами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Клешні</u> (1d10 фізичної шкоди, ближній бій); <u>плазмовий хвіст</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 заряд)</li>\n<li><strong>Аспекти:</strong> <strong><em>великий робо-скорпіон, вкрай паскудні поведінкові матриці.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Рад-промінь:</strong> раз за сцену стріляє з хвоста спрямованим променем гамма-випромінювання й завдає одній цілі 2d6 шкоди радіацією, що ігнорує броню.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Робо-скорпіон Mk6",

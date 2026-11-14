@@ -5,13 +5,125 @@
   "_id": "8J9IlEJYgwfA3GiX",
   "img": "systems/wastelanders-dev/assets/hihants-ka-murakha.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 12,
       "max": 12
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Захисник мурашника: якщо трапилися мурахи-солдати, мурашник десь поряд. Тримаються парами й зазвичай охороняють гігантських мурах-робітників.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Мандибули</u> (1d10 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>гігантська комаха з міцним панцирем і гострими мандибулами, помре, але не відступить.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Плювок кислотою:</strong>  раз за сцену плює їдкою кислотою в ціль у своїй або сусідній зоні. Кислота завдає 2d6 шкоди, а ціль до кінця сцени отримує −2 до фізичної броні (мінімум 0).</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "2",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Мандибули",
+        "dice": "1d10",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "гігантська комаха з міцним панцирем і гострими мандибулами",
+        "inv": 0
+      },
+      {
+        "t": "помре",
+        "inv": 0
+      },
+      {
+        "t": "але не відступить",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Плювок кислотою",
+        "t": "раз за сцену плює їдкою кислотою в ціль у своїй або сусідній зоні. Кислота завдає 2d6 шкоди, а ціль до кінця сцени отримує −2 до фізичної броні (мінімум 0).",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 12,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Мандибули",
+          "dice": "1d10",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "гігантська комаха з міцним панцирем і гострими мандибулами",
+          "inv": 0
+        },
+        {
+          "t": "помре",
+          "inv": 0
+        },
+        {
+          "t": "але не відступить",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Плювок кислотою",
+          "t": "раз за сцену плює їдкою кислотою в ціль у своїй або сусідній зоні. Кислота завдає 2d6 шкоди, а ціль до кінця сцени отримує −2 до фізичної броні (мінімум 0).",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Захисник мурашника: якщо трапилися мурахи-солдати, мурашник десь поряд. Тримаються парами й зазвичай охороняють гігантських мурах-робітників.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Мандибули</u> (1d10 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>гігантська комаха з міцним панцирем і гострими мандибулами, помре, але не відступить.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Плювок кислотою:</strong>  раз за сцену плює їдкою кислотою в ціль у своїй або сусідній зоні. Кислота завдає 2d6 шкоди, а ціль до кінця сцени отримує −2 до фізичної броні (мінімум 0).</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Гігантська мураха-солдат",

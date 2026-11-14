@@ -5,13 +5,97 @@
   "_id": "ug9DXMHo46hHiGCz",
   "img": "systems/wastelanders-dev/assets/robooko.png",
   "system": {
+    "v": 1,
+    "cat": "statists",
     "hp": {
       "value": 3,
       "max": 3
     },
     "armor": 1,
-    "description": "<blockquote>\n<p>Невідомо, хто першим здогадався запхати вибухівку в робооко, але відтоді жителі Пустки більше не ігнорують летючі кульки. На вигляд бум-око таке саме, як звичайне робооко, проте всі його нутрощі, крім рушія, замінено вибухівкою. Відрізнити їх можна хіба що за звуком: бум-очі літають мовчки.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 1 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Вбудована вибухівка</u> (2d6 фізичної шкоди всім істотам у своїй зоні, під час атаки самознищується)</li>\n<li><strong>Аспект:</strong> <strong><em>маленька летюча бомба.</em></strong></li>\n</ul>",
-    "type": "statistician"
+    "psiArmor": 0,
+    "armorText": "1 (летючий: його не можна збити з ніг)",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": true,
+      "halfPartial": false,
+      "noKnockdown": true,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Вбудована вибухівка",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам у своїй зоні, під час атаки самознищується",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "маленька летюча бомба",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 3,
+      "armor": 1,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": true,
+        "halfPartial": false,
+        "noKnockdown": true,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Вбудована вибухівка",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам у своїй зоні, під час атаки самознищується",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "маленька летюча бомба",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Невідомо, хто першим здогадався запхати вибухівку в робооко, але відтоді жителі Пустки більше не ігнорують летючі кульки. На вигляд бум-око таке саме, як звичайне робооко, проте всі його нутрощі, крім рушія, замінено вибухівкою. Відрізнити їх можна хіба що за звуком: бум-очі літають мовчки.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 1 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Вбудована вибухівка</u> (2d6 фізичної шкоди всім істотам у своїй зоні, під час атаки самознищується)</li>\n<li><strong>Аспект:</strong> <strong><em>маленька летюча бомба.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Бум-око",

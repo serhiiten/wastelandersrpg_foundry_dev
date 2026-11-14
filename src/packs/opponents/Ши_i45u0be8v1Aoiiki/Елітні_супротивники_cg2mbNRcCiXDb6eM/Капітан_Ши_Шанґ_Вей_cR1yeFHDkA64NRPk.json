@@ -5,13 +5,137 @@
   "_id": "cR1yeFHDkA64NRPk",
   "img": "systems/wastelanders-dev/assets/kapitan-shy.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 15,
       "max": 15
     },
     "armor": 3,
-    "description": "<blockquote>\n<p>Досвідчений офіцер Ши в бойовій броні власного виробництва та з якісною зброєю. Командує загонами з 2–4 рядових і має доступ до найкращого спорядження.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3 (бойова броня Ши)</li>\n<li><strong>Шкода:</strong> <u>Середня лазерна зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>плазмова граната</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспекти:</strong> <strong><em>досвідчений офіцер Ши, відданість Імператору.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Розпад:</strong> коли капітан своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "3 (бойова броня Ши)",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Середня лазерна зброя",
+        "dice": "1d10",
+        "type": "laser",
+        "note": "фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 1,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Плазмова граната",
+        "dice": "3d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 1 шт.",
+        "ammoMax": 1,
+        "ammo": 1,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "досвідчений офіцер Ши",
+        "inv": 0
+      },
+      {
+        "t": "відданість Імператору",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Розпад",
+        "t": "коли капітан своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 15,
+      "armor": 3,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Середня лазерна зброя",
+          "dice": "1d10",
+          "type": "laser",
+          "note": "фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 1,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Плазмова граната",
+          "dice": "3d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 1 шт.",
+          "ammoMax": 1,
+          "ammo": 1,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "досвідчений офіцер Ши",
+          "inv": 0
+        },
+        {
+          "t": "відданість Імператору",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Розпад",
+          "t": "коли капітан своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Досвідчений офіцер Ши в бойовій броні власного виробництва та з якісною зброєю. Командує загонами з 2–4 рядових і має доступ до найкращого спорядження.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3 (бойова броня Ши)</li>\n<li><strong>Шкода:</strong> <u>Середня лазерна зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>плазмова граната</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспекти:</strong> <strong><em>досвідчений офіцер Ши, відданість Імператору.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Розпад:</strong> коли капітан своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Супротивник",

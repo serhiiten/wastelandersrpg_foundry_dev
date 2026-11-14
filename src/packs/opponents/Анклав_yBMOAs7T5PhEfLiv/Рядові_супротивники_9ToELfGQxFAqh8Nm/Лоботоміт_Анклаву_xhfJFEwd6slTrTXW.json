@@ -5,13 +5,109 @@
   "_id": "xhfJFEwd6slTrTXW",
   "img": "systems/wastelanders-dev/assets/lobotomit.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 8,
       "max": 8
     },
     "armor": 1,
-    "description": "<blockquote>\n<p>Нещасні жертви експериментів, яких Анклав змусив служити собі навіть після того, як їхній мозок помер. Вони не мають ні волі, ні розуму: усе, на що вони здатні, — незграбно махати ріпер-ножами, вживленими просто в руки, і виконувати прості команди хазяїв. Трапляються групами по 3–5 осіб у супроводі польового дослідника або солдата.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Ріпер-ніж</u> (1d10 фізичної шкоди, ближній бій, середня зброя)</li>\n<li><strong>Аспект:</strong> <strong><em>лоботомізована жертва експериментів.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Забув померти:</strong> раз за сцену, якщо отримана шкода мала б знизити ОЗ лоботоміта до 0, він уперто лишається живим з 1 ОЗ.</li>\n</ul>\n</li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "1",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Ріпер-ніж",
+        "dice": "1d10",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій, середня зброя",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "лоботомізована жертва експериментів",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Забув померти",
+        "t": "раз за сцену, якщо отримана шкода мала б знизити ОЗ лоботоміта до 0, він уперто лишається живим з 1 ОЗ.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 8,
+      "armor": 1,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Ріпер-ніж",
+          "dice": "1d10",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій, середня зброя",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "лоботомізована жертва експериментів",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Забув померти",
+          "t": "раз за сцену, якщо отримана шкода мала б знизити ОЗ лоботоміта до 0, він уперто лишається живим з 1 ОЗ.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Нещасні жертви експериментів, яких Анклав змусив служити собі навіть після того, як їхній мозок помер. Вони не мають ні волі, ні розуму: усе, на що вони здатні, — незграбно махати ріпер-ножами, вживленими просто в руки, і виконувати прості команди хазяїв. Трапляються групами по 3–5 осіб у супроводі польового дослідника або солдата.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 8</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Ріпер-ніж</u> (1d10 фізичної шкоди, ближній бій, середня зброя)</li>\n<li><strong>Аспект:</strong> <strong><em>лоботомізована жертва експериментів.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Забув померти:</strong> раз за сцену, якщо отримана шкода мала б знизити ОЗ лоботоміта до 0, він уперто лишається живим з 1 ОЗ.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Лоботоміт Анклаву",

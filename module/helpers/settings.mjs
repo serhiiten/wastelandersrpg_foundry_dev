@@ -33,4 +33,11 @@ export function registerSystemSettings() {
     type: Number,
     default: 0,
   });
+  // «Бойова мапа» (module/helpers/default-scene.mjs): which version of the battle scene the world has got
+  game.settings.register(game.system.id, "battleSceneVersion", {
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0,
+  });
 }

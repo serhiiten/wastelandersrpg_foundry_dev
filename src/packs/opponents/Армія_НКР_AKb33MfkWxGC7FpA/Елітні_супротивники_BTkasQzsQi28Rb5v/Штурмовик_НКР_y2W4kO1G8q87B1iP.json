@@ -5,13 +5,137 @@
   "_id": "y2W4kO1G8q87B1iP",
   "img": "systems/wastelanders-dev/assets/shturmovyk-nkr.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 20,
       "max": 20
     },
     "armor": 4,
-    "description": "<blockquote>\n<p>Важкоозброєний ветеран, закутий у силову броню, з якої механіки НКР вийняли силовий каркас. Трапляються парами на передовій найзапекліших боїв або охороняють найважливіші об'єкти НКР.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 20</li>\n<li><strong>Броня:</strong> 4 — силова броня без каркасу (рідкісна важка броня)</li>\n<li><strong>Шкода:</strong> <u>Важка зброя</u> (2d6 фізичної шкоди, бій на відстані або ближній бій); <u>армійські гранати</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 шт.)</li>\n<li><strong>Аспекти: <em>важкоозброєний піхотинець НКР, честь та навички досвідченого ветерана.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Суперстимпак:</strong> раз за сцену відновлює 1d6+4 ОЗ.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "4 — силова броня без каркасу (рідкісна важка броня)",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Важка зброя",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди, бій на відстані або ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Армійські гранати",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 2 шт.",
+        "ammoMax": 2,
+        "ammo": 2,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "важкоозброєний піхотинець НКР",
+        "inv": 0
+      },
+      {
+        "t": "честь та навички досвідченого ветерана",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Суперстимпак",
+        "t": "раз за сцену відновлює 1d6+4 ОЗ.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 20,
+      "armor": 4,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Важка зброя",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди, бій на відстані або ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Армійські гранати",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 2 шт.",
+          "ammoMax": 2,
+          "ammo": 2,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "важкоозброєний піхотинець НКР",
+          "inv": 0
+        },
+        {
+          "t": "честь та навички досвідченого ветерана",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Суперстимпак",
+          "t": "раз за сцену відновлює 1d6+4 ОЗ.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Важкоозброєний ветеран, закутий у силову броню, з якої механіки НКР вийняли силовий каркас. Трапляються парами на передовій найзапекліших боїв або охороняють найважливіші об'єкти НКР.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 20</li>\n<li><strong>Броня:</strong> 4 — силова броня без каркасу (рідкісна важка броня)</li>\n<li><strong>Шкода:</strong> <u>Важка зброя</u> (2d6 фізичної шкоди, бій на відстані або ближній бій); <u>армійські гранати</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 шт.)</li>\n<li><strong>Аспекти: <em>важкоозброєний піхотинець НКР, честь та навички досвідченого ветерана.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Суперстимпак:</strong> раз за сцену відновлює 1d6+4 ОЗ.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Штурмовик НКР",

@@ -5,13 +5,105 @@
   "_id": "hwnHfoDIHRl0FK3T",
   "img": "systems/wastelanders-dev/assets/tovstorih.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 5,
       "max": 5
     },
     "armor": 1,
-    "description": "<blockquote>\n<p>Мутований баран-товсторіг, якого жителі Пустки навчилися одомашнювати. Дає м'ясо й молоко. Товстороги майже ніколи не нападають першими, але не люблять, коли до них підходять надто близько, і люто захищають свою малечу.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Роги</u> (1d6+2 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>норовливий рогатий таран, захищає малечу.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "1",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Роги",
+        "dice": "1d6+2",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "норовливий рогатий таран",
+        "inv": 0
+      },
+      {
+        "t": "захищає малечу",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 5,
+      "armor": 1,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Роги",
+          "dice": "1d6+2",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "норовливий рогатий таран",
+          "inv": 0
+        },
+        {
+          "t": "захищає малечу",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Мутований баран-товсторіг, якого жителі Пустки навчилися одомашнювати. Дає м'ясо й молоко. Товстороги майже ніколи не нападають першими, але не люблять, коли до них підходять надто близько, і люто захищають свою малечу.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Роги</u> (1d6+2 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>норовливий рогатий таран, захищає малечу.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Товсторіг",

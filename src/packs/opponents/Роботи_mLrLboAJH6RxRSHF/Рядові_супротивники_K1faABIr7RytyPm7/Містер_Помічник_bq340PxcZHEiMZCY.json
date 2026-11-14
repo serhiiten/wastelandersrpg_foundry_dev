@@ -5,13 +5,117 @@
   "_id": "bq340PxcZHEiMZCY",
   "img": "systems/wastelanders-dev/assets/mister-pomichnyk.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 7,
       "max": 7
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Довоєнна модель робота — хатнього помічника. Має три кінцівки: одна закінчується циркулярною пилкою, інша — невеликим вогнеметом. Чимало вцілілих Помічників зациклилися на останній програмі, а деякі збожеволіли через деградацію електроніки. Зазвичай трапляються по одному-двоє в руїнах поселень.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 7</li>\n<li><strong>Броня:</strong> 2 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Пилка</u> (1d6 фізичної шкоди, ближній бій); <u>вогнемет</u> (1d6 шкоди вогнем всім істотам в одній зоні, 2 заряди)</li>\n<li><strong>Аспект:</strong> <strong><em>робот для хатньої роботи.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "2 (летючий: його не можна збити з ніг)",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": true,
+      "halfPartial": false,
+      "noKnockdown": true,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Пилка",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Вогнемет",
+        "dice": "1d6",
+        "type": "fire",
+        "note": "шкоди вогнем всім істотам в одній зоні, 2 заряди",
+        "ammoMax": 2,
+        "ammo": 2,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "робот для хатньої роботи",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 7,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": true,
+        "halfPartial": false,
+        "noKnockdown": true,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Пилка",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Вогнемет",
+          "dice": "1d6",
+          "type": "fire",
+          "note": "шкоди вогнем всім істотам в одній зоні, 2 заряди",
+          "ammoMax": 2,
+          "ammo": 2,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "робот для хатньої роботи",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Довоєнна модель робота — хатнього помічника. Має три кінцівки: одна закінчується циркулярною пилкою, інша — невеликим вогнеметом. Чимало вцілілих Помічників зациклилися на останній програмі, а деякі збожеволіли через деградацію електроніки. Зазвичай трапляються по одному-двоє в руїнах поселень.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 7</li>\n<li><strong>Броня:</strong> 2 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Пилка</u> (1d6 фізичної шкоди, ближній бій); <u>вогнемет</u> (1d6 шкоди вогнем всім істотам в одній зоні, 2 заряди)</li>\n<li><strong>Аспект:</strong> <strong><em>робот для хатньої роботи.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Містер Помічник",

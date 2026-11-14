@@ -5,13 +5,97 @@
   "_id": "vqiElcmKsfGV56eh",
   "img": "systems/wastelanders-dev/assets/bramin.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 5,
       "max": 5
     },
     "armor": 0,
-    "description": "<blockquote>\n<p>Найкорисніша тварина в Пустці, двоголовий нащадок звичайної корови. Дає м'ясо й молоко, тягає вози. Треба неабияк постаратися, щоб він на когось напав.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Роги</u> (1d6 фізичної шкоди, ближній бій, лише якщо його дуже роздратувати)</li>\n<li><strong>Аспект:</strong> <strong><em>велика сумирна двоголова худоба.</em></strong></li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "0",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Роги",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій, лише якщо його дуже роздратувати",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "велика сумирна двоголова худоба",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 5,
+      "armor": 0,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Роги",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій, лише якщо його дуже роздратувати",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "велика сумирна двоголова худоба",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Найкорисніша тварина в Пустці, двоголовий нащадок звичайної корови. Дає м'ясо й молоко, тягає вози. Треба неабияк постаратися, щоб він на когось напав.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 5</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Роги</u> (1d6 фізичної шкоди, ближній бій, лише якщо його дуже роздратувати)</li>\n<li><strong>Аспект:</strong> <strong><em>велика сумирна двоголова худоба.</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Брамін",

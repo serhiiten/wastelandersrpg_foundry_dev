@@ -5,13 +5,147 @@
   "_id": "xjuHgEv78QvZ4Gmt",
   "img": "systems/wastelanders-dev/assets/boets-anklavu.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 15,
       "max": 15
     },
     "armor": 3,
-    "description": "<blockquote>\n<p>Важкоозброєний боєць Анклаву. Вважає себе кращим за всіх інших жителів Пустки й ненавидить мутантів. Трапляються групами по 2–3 бійці.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3 (бойова броня)</li>\n<li><strong>Шкода:</strong> <u>Важка лазерна зброя</u> (2d6 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>плазмова граната</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспекти: <em>важкоозброєний боєць Анклаву, «ненавиджу, бляха, мутантів».</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Улюблений ворог:</strong> завдає на 2 шкоди більше мутантам, супермутантам та гулям.</li>\n<li><strong>Стимпак:</strong> один раз за сцену відновлює 5 ОЗ.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "3 (бойова броня)",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Важка лазерна зброя",
+        "dice": "2d6",
+        "type": "laser",
+        "note": "фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 1,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Плазмова граната",
+        "dice": "3d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 1 шт.",
+        "ammoMax": 1,
+        "ammo": 1,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "важкоозброєний боєць Анклаву",
+        "inv": 0
+      },
+      {
+        "t": "«ненавиджу, бляха, мутантів»",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Улюблений ворог",
+        "t": "завдає на 2 шкоди більше мутантам, супермутантам та гулям.",
+        "used": false
+      },
+      {
+        "n": "Стимпак",
+        "t": "один раз за сцену відновлює 5 ОЗ.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 15,
+      "armor": 3,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Важка лазерна зброя",
+          "dice": "2d6",
+          "type": "laser",
+          "note": "фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 1,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Плазмова граната",
+          "dice": "3d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 1 шт.",
+          "ammoMax": 1,
+          "ammo": 1,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "важкоозброєний боєць Анклаву",
+          "inv": 0
+        },
+        {
+          "t": "«ненавиджу, бляха, мутантів»",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Улюблений ворог",
+          "t": "завдає на 2 шкоди більше мутантам, супермутантам та гулям.",
+          "used": false
+        },
+        {
+          "n": "Стимпак",
+          "t": "один раз за сцену відновлює 5 ОЗ.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Важкоозброєний боєць Анклаву. Вважає себе кращим за всіх інших жителів Пустки й ненавидить мутантів. Трапляються групами по 2–3 бійці.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 3 (бойова броня)</li>\n<li><strong>Шкода:</strong> <u>Важка лазерна зброя</u> (2d6 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні); <u>плазмова граната</u> (3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспекти: <em>важкоозброєний боєць Анклаву, «ненавиджу, бляха, мутантів».</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Улюблений ворог:</strong> завдає на 2 шкоди більше мутантам, супермутантам та гулям.</li>\n<li><strong>Стимпак:</strong> один раз за сцену відновлює 5 ОЗ.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Солдат Анклаву",

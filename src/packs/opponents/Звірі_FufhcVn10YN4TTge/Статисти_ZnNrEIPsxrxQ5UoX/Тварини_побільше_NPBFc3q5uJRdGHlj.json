@@ -5,13 +5,97 @@
   "_id": "NPBFc3q5uJRdGHlj",
   "img": "systems/wastelanders-dev/assets/krotoshchur.png",
   "system": {
+    "v": 1,
+    "cat": "statists",
     "hp": {
       "value": 3,
       "max": 3
     },
     "armor": 0,
-    "description": "<blockquote>\n<p>Трохи більші істоти. Небезпечні, якщо збиваються у велику зграю. Зазвичай нападають групами від 5 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Укуси</u> (1d6 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспект: <em>малі й голодні мисливці-падальники</em></strong></li>\n</ul>",
-    "type": "statistician"
+    "psiArmor": 0,
+    "armorText": "0",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Укуси",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "малі й голодні мисливці-падальники",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 3,
+      "armor": 0,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Укуси",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "малі й голодні мисливці-падальники",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Трохи більші істоти. Небезпечні, якщо збиваються у велику зграю. Зазвичай нападають групами від 5 особин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Укуси</u> (1d6 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспект: <em>малі й голодні мисливці-падальники</em></strong></li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Тварини побільше",

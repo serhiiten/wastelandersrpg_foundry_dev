@@ -8,7 +8,8 @@
 import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
-import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType } from "../rules/damage-types.mjs";
+import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
+import { atkIgnores, atkIgnoreN } from "../rules/battle.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
@@ -291,11 +292,18 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
  * The damage chat card (author, 2026-11-14): the result only — the total with its type chips, the damage effects,
  * the breakdown when there are several parts (each number in its type's colour), the weapon's poison as its own line; no dice.
  */
-function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null, spent = "" }) {
+export function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null, spent = "", apply = null, speaker = null }) {
   const types = [...parts.map((p) => p.t), ...(poison ? ["poison"] : [])];
+  // what «Застосувати» needs (module/applications/apply-damage.mjs): the total, its type, armour ignored — for a character's
+  // weapon read from its effect lines (not the damage type's own line: the type is counted by the rules already)
+  const own = fx.filter((x) => !Object.values(TYPE_EFFECTS).includes(x));
+  const data = {
+    total, type: wt, ignoreArmor: own.some((x) => atkIgnores(x)), ignoreN: Math.max(0, ...own.map((x) => atkIgnoreN(x))),
+    poison: poison?.sum ?? 0, ...(apply || {}),
+  };
   return postChat({
-    speaker: ChatMessage.getSpeaker({ actor }),
-    content: `<div class="pust-chat"><h4>${esc(head)}</h4>`
+    speaker: speaker ?? ChatMessage.getSpeaker({ actor }),
+    content: `<div class="pust-chat pust-dmgcard" data-pust-dmg='${esc(JSON.stringify(data))}'><h4>${esc(head)}</h4>`
       + `<div class="pust-cdmg dt-${wt}"><div class="rdrow"><span class="rdsum"><b class="rtot dt-${wt}">${total}</b><span>шкоди</span></span>`
       + `<span class="dtchips">${typeChips(types.length ? types : [wt])}</span></div>`
       + (fx.length ? `<ul class="rdfx">${fx.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "")

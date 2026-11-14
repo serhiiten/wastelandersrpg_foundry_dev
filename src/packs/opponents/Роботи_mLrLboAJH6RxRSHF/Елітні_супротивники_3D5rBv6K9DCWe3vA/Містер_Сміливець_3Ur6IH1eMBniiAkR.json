@@ -5,13 +5,137 @@
   "_id": "3Ur6IH1eMBniiAkR",
   "img": "systems/wastelanders-dev/assets/mister-smilyvets.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 15,
       "max": 15
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Бойова версія Містера Помічника з плазмовим пістолетом, потужнішим вогнеметом і досконалішим бойовим штучним інтелектом. Трапляється на старих військових базах, по одному-двоє.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 2 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Плазмовий пістолет</u> (1d6+3 фізичної шкоди, бій на відстані, ігнорує 2 броні); <u>вогнемет</u> (2d6 шкоди вогнем всім істотам в одній зоні, 2 заряди)</li>\n<li><strong>Аспекти:</strong> <strong><em>бойовий робот, вдача й вишкіл суворого сержанта.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Перегрів ядра:</strong> коли ОЗ Містера Сміливця падають до 0, він вибухає й завдає 1d10 шкоди вогнем усім істотам у своїй зоні.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "2 (летючий: його не можна збити з ніг)",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": true,
+      "halfPartial": false,
+      "noKnockdown": true,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Плазмовий пістолет",
+        "dice": "1d6+3",
+        "type": "plasma",
+        "note": "фізичної шкоди, бій на відстані, ігнорує 2 броні",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 2,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Вогнемет",
+        "dice": "2d6",
+        "type": "fire",
+        "note": "шкоди вогнем всім істотам в одній зоні, 2 заряди",
+        "ammoMax": 2,
+        "ammo": 2,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "бойовий робот",
+        "inv": 0
+      },
+      {
+        "t": "вдача й вишкіл суворого сержанта",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Перегрів ядра",
+        "t": "коли ОЗ Містера Сміливця падають до 0, він вибухає й завдає 1d10 шкоди вогнем усім істотам у своїй зоні.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 15,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": true,
+        "halfPartial": false,
+        "noKnockdown": true,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Плазмовий пістолет",
+          "dice": "1d6+3",
+          "type": "plasma",
+          "note": "фізичної шкоди, бій на відстані, ігнорує 2 броні",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 2,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Вогнемет",
+          "dice": "2d6",
+          "type": "fire",
+          "note": "шкоди вогнем всім істотам в одній зоні, 2 заряди",
+          "ammoMax": 2,
+          "ammo": 2,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "бойовий робот",
+          "inv": 0
+        },
+        {
+          "t": "вдача й вишкіл суворого сержанта",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Перегрів ядра",
+          "t": "коли ОЗ Містера Сміливця падають до 0, він вибухає й завдає 1d10 шкоди вогнем усім істотам у своїй зоні.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Бойова версія Містера Помічника з плазмовим пістолетом, потужнішим вогнеметом і досконалішим бойовим штучним інтелектом. Трапляється на старих військових базах, по одному-двоє.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 15</li>\n<li><strong>Броня:</strong> 2 (летючий: його не можна збити з ніг)</li>\n<li><strong>Шкода:</strong> <u>Плазмовий пістолет</u> (1d6+3 фізичної шкоди, бій на відстані, ігнорує 2 броні); <u>вогнемет</u> (2d6 шкоди вогнем всім істотам в одній зоні, 2 заряди)</li>\n<li><strong>Аспекти:</strong> <strong><em>бойовий робот, вдача й вишкіл суворого сержанта.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Перегрів ядра:</strong> коли ОЗ Містера Сміливця падають до 0, він вибухає й завдає 1d10 шкоди вогнем усім істотам у своїй зоні.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Містер Сміливець",

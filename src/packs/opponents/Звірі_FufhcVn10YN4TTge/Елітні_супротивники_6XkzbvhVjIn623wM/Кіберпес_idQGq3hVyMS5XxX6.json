@@ -5,13 +5,117 @@
   "_id": "idQGq3hVyMS5XxX6",
   "img": "systems/wastelanders-dev/assets/kiberpes.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 12,
       "max": 12
     },
     "armor": 3,
-    "description": "<blockquote>\n<p>Плід збоченої фантазії вчених — гібрид робота й собаки. Живучіший, небезпечніший і відданіший за звичайного пса. Трапляється разом із господарями з фракцій, що володіють новітніми технологіями.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Ікла</u> (1d10+1 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>вірний кіберпес, наполовину машина.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Кусь:</strong> атакуючи в ближньому бою, може завдати вдвічі меншої шкоди, щоб натомість <strong><em>збити ціль з ніг.</em></strong></li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "3",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Ікла",
+        "dice": "1d10+1",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "вірний кіберпес",
+        "inv": 0
+      },
+      {
+        "t": "наполовину машина",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Кусь",
+        "t": "атакуючи в ближньому бою, може завдати вдвічі меншої шкоди, щоб натомість збити ціль з ніг.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 12,
+      "armor": 3,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Ікла",
+          "dice": "1d10+1",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "вірний кіберпес",
+          "inv": 0
+        },
+        {
+          "t": "наполовину машина",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Кусь",
+          "t": "атакуючи в ближньому бою, може завдати вдвічі меншої шкоди, щоб натомість збити ціль з ніг.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Плід збоченої фантазії вчених — гібрид робота й собаки. Живучіший, небезпечніший і відданіший за звичайного пса. Трапляється разом із господарями з фракцій, що володіють новітніми технологіями.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Ікла</u> (1d10+1 фізичної шкоди, ближній бій)</li>\n<li><strong>Аспекти:</strong> <strong><em>вірний кіберпес, наполовину машина.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Кусь:</strong> атакуючи в ближньому бою, може завдати вдвічі меншої шкоди, щоб натомість <strong><em>збити ціль з ніг.</em></strong></li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Кіберпес",

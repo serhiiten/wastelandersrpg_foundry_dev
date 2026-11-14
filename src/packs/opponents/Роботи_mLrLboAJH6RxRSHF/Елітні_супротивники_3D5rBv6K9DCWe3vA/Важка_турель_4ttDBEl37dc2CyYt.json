@@ -5,13 +5,137 @@
   "_id": "4ttDBEl37dc2CyYt",
   "img": "systems/wastelanders-dev/assets/turel.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 12,
       "max": 12
     },
     "armor": 3,
-    "description": "<blockquote>\n<p>Як звичайна, тільки більша, краще броньована й з важким озброєнням. Стаціонарна. Трапляється парами в тих місцях, куди мріє залізти кожен Пустельник по справді круту поживу.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Важкий кулемет</u> (2d6 фізичної шкоди, бій на відстані); <u>вбудована ракетниця</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 ракети)</li>\n<li><strong>Аспекти: <em>важка стаціонарна турель, стійка до спроб зламу.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Захоплення цілі:</strong> раз за сцену бере на приціл одну ціль до кінця сцени. Ціль на прицілі отримує від важкої турелі на 2 шкоди більше, а її перевірки уникнення шкоди проти турелі отримують Послаблення.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "3",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": true,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Важкий кулемет",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди, бій на відстані",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Вбудована ракетниця",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 2 ракети",
+        "ammoMax": 2,
+        "ammo": 2,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "важка стаціонарна турель",
+        "inv": 0
+      },
+      {
+        "t": "стійка до спроб зламу",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Захоплення цілі",
+        "t": "раз за сцену бере на приціл одну ціль до кінця сцени. Ціль на прицілі отримує від важкої турелі на 2 шкоди більше, а її перевірки уникнення шкоди проти турелі отримують Послаблення.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 12,
+      "armor": 3,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": true,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Важкий кулемет",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди, бій на відстані",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Вбудована ракетниця",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 2 ракети",
+          "ammoMax": 2,
+          "ammo": 2,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "важка стаціонарна турель",
+          "inv": 0
+        },
+        {
+          "t": "стійка до спроб зламу",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Захоплення цілі",
+          "t": "раз за сцену бере на приціл одну ціль до кінця сцени. Ціль на прицілі отримує від важкої турелі на 2 шкоди більше, а її перевірки уникнення шкоди проти турелі отримують Послаблення.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Як звичайна, тільки більша, краще броньована й з важким озброєнням. Стаціонарна. Трапляється парами в тих місцях, куди мріє залізти кожен Пустельник по справді круту поживу.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 3</li>\n<li><strong>Шкода:</strong> <u>Важкий кулемет</u> (2d6 фізичної шкоди, бій на відстані); <u>вбудована ракетниця</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 ракети)</li>\n<li><strong>Аспекти: <em>важка стаціонарна турель, стійка до спроб зламу.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Захоплення цілі:</strong> раз за сцену бере на приціл одну ціль до кінця сцени. Ціль на прицілі отримує від важкої турелі на 2 шкоди більше, а її перевірки уникнення шкоди проти турелі отримують Послаблення.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Важка турель",

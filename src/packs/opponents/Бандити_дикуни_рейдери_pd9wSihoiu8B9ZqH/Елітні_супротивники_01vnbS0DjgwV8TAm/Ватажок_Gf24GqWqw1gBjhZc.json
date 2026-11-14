@@ -5,13 +5,157 @@
   "_id": "Gf24GqWqw1gBjhZc",
   "img": "systems/wastelanders-dev/assets/vatazhok-reyderiv-2.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 12,
       "max": 12
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Найбільший, найзліший та/або найрозумніший з усієї ватаги ідіотів. Після його смерті решта банди зазвичай розбігається. На одну банду припадає один ватажок.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій); <u>саморобні гранати</u> (1d6 фізичної шкоди всім істотам в одній зоні, 2 шт.) або <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, 1 шт.) — на вибір Доглядача</li>\n<li><strong>Аспекти: <em>ватажок банди, має незаперечний авторитет серед своїх.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Стимпак:</strong> раз за сцену відновлює 5 ОЗ.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "2",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Середня зброя",
+        "dice": "1d10",
+        "type": "phys",
+        "note": "фізичної шкоди, бій на відстані або ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Саморобні гранати",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 2 шт.",
+        "ammoMax": 2,
+        "ammo": 2,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Армійська граната",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 1 шт.",
+        "ammoMax": 1,
+        "ammo": 1,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "ватажок банди",
+        "inv": 0
+      },
+      {
+        "t": "має незаперечний авторитет серед своїх",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Стимпак",
+        "t": "раз за сцену відновлює 5 ОЗ.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 12,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Середня зброя",
+          "dice": "1d10",
+          "type": "phys",
+          "note": "фізичної шкоди, бій на відстані або ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Саморобні гранати",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 2 шт.",
+          "ammoMax": 2,
+          "ammo": 2,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Армійська граната",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 1 шт.",
+          "ammoMax": 1,
+          "ammo": 1,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "ватажок банди",
+          "inv": 0
+        },
+        {
+          "t": "має незаперечний авторитет серед своїх",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Стимпак",
+          "t": "раз за сцену відновлює 5 ОЗ.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Найбільший, найзліший та/або найрозумніший з усієї ватаги ідіотів. Після його смерті решта банди зазвичай розбігається. На одну банду припадає один ватажок.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій); <u>саморобні гранати</u> (1d6 фізичної шкоди всім істотам в одній зоні, 2 шт.) або <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, 1 шт.) — на вибір Доглядача</li>\n<li><strong>Аспекти: <em>ватажок банди, має незаперечний авторитет серед своїх.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Стимпак:</strong> раз за сцену відновлює 5 ОЗ.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Ватажок",

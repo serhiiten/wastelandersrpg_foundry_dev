@@ -5,13 +5,129 @@
   "_id": "vivCwboocJrVI0zm",
   "img": "systems/wastelanders-dev/assets/pol-ovyy-doslidnyk.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 6,
       "max": 6
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Учені Анклаву, яким пристрасть до нелюдських експериментів не дає всидіти на базі: вони постійно шукають нових піддослідних. Їхнє надсучасне медичне й технічне обладнання здатне дати другий шанс навіть тим, хто вже остаточно відстрілявся. Трапляються парами в супроводі 3–5 лоботомітів або 2–4 протектронів чи самі супроводжують солдатів або штурмовиків.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 6</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, бій на відстані); <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспект:</strong> <strong><em>схиблений на експериментах учений Анклаву.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Реаніматор:</strong> раз за сцену може повернути в сцену живого союзника чи союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його тіло вціліло.</li>\n</ul>\n</li>\n</ul>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "2",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Середня зброя",
+        "dice": "1d10",
+        "type": "phys",
+        "note": "фізичної шкоди, бій на відстані",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Армійська граната",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 1 шт.",
+        "ammoMax": 1,
+        "ammo": 1,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "схиблений на експериментах учений Анклаву",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Реаніматор",
+        "t": "раз за сцену може повернути в сцену живого союзника чи союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його тіло вціліло.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 6,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Середня зброя",
+          "dice": "1d10",
+          "type": "phys",
+          "note": "фізичної шкоди, бій на відстані",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Армійська граната",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 1 шт.",
+          "ammoMax": 1,
+          "ammo": 1,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "схиблений на експериментах учений Анклаву",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Реаніматор",
+          "t": "раз за сцену може повернути в сцену живого союзника чи союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його тіло вціліло.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Учені Анклаву, яким пристрасть до нелюдських експериментів не дає всидіти на базі: вони постійно шукають нових піддослідних. Їхнє надсучасне медичне й технічне обладнання здатне дати другий шанс навіть тим, хто вже остаточно відстрілявся. Трапляються парами в супроводі 3–5 лоботомітів або 2–4 протектронів чи самі супроводжують солдатів або штурмовиків.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 6</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, бій на відстані); <u>армійська граната</u> (2d6 фізичної шкоди всім істотам в одній зоні, 1 шт.)</li>\n<li><strong>Аспект:</strong> <strong><em>схиблений на експериментах учений Анклаву.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Реаніматор:</strong> раз за сцену може повернути в сцену живого союзника чи союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його тіло вціліло.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Польовий дослідник Анклаву",

@@ -5,13 +5,97 @@
   "_id": "IfAlY0LN4lTkW8lz",
   "img": "systems/wastelanders-dev/assets/khyzha-roslyna.png",
   "system": {
+    "v": 1,
+    "cat": "regular",
     "hp": {
       "value": 6,
       "max": 6
     },
     "armor": 1,
-    "description": "<blockquote>\n<p>Мутована венерина мухоловка. Пересуватися не може, проте навчилася плюватися отруйними шипами. Трапляється невеликими заростями по 3–5 рослин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 6</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Шипи</u> (1d6 фізичної шкоди + 2 шкоди отрутою, бій на відстані, отрута ігнорує броню)</li>\n<li><strong>Аспект:</strong> <strong><em>нерухома агресивна рослина-мутант.</em></strong></li>\n</ul><blockquote class=\"aside\"><p>З хижої рослини можна зцідити отруту. Кинь 1d6: якщо випаде 3–4, вдається добути одну дозу, якщо 5–6 — дві. Отрута хижої рослини вважається слабкою отрутою.</p></blockquote>",
-    "type": "ordinary"
+    "psiArmor": 0,
+    "armorText": "1",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Шипи",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди + 2 шкоди отрутою, бій на відстані, отрута ігнорує броню",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": true
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "нерухома агресивна рослина-мутант",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [],
+    "notes": "З хижої рослини можна зцідити отруту. Кинь 1d6: якщо випаде 3–4, вдається добути одну дозу, якщо 5–6 — дві. Отрута хижої рослини вважається слабкою отрутою.",
+    "reveal": false,
+    "orig": {
+      "hp": 6,
+      "armor": 1,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Шипи",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди + 2 шкоди отрутою, бій на відстані, отрута ігнорує броню",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": true
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "нерухома агресивна рослина-мутант",
+          "inv": 0
+        }
+      ],
+      "moves": [],
+      "notes": "З хижої рослини можна зцідити отруту. Кинь 1d6: якщо випаде 3–4, вдається добути одну дозу, якщо 5–6 — дві. Отрута хижої рослини вважається слабкою отрутою."
+    },
+    "description": "<blockquote>\n<p>Мутована венерина мухоловка. Пересуватися не може, проте навчилася плюватися отруйними шипами. Трапляється невеликими заростями по 3–5 рослин.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> рядовий супротивник.</li>\n<li><strong>ОЗ:</strong> 6</li>\n<li><strong>Броня:</strong> 1</li>\n<li><strong>Шкода:</strong> <u>Шипи</u> (1d6 фізичної шкоди + 2 шкоди отрутою, бій на відстані, отрута ігнорує броню)</li>\n<li><strong>Аспект:</strong> <strong><em>нерухома агресивна рослина-мутант.</em></strong></li>\n</ul><blockquote class=\"aside\"><p>З хижої рослини можна зцідити отруту. Кинь 1d6: якщо випаде 3–4, вдається добути одну дозу, якщо 5–6 — дві. Отрута хижої рослини вважається слабкою отрутою.</p></blockquote>"
   },
   "prototypeToken": {
     "name": "Хижа рослина",

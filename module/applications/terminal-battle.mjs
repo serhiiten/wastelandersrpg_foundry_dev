@@ -8,7 +8,8 @@
  * folder is reused, so pressing both buttons does not make doubles. Tokens are unlinked and get personal
  * names: the travel battle's names (Горкі й Моркі…), the HTML tracker's name pools for humanoids, or «Ім'я 2».
  */
-import { armorOf } from "./terminal-view.mjs";
+import { enemyFromRecord } from "../rules/battle.mjs";
+import { toSystem } from "../rules/enemy-model.mjs";
 
 const FOLDER = "Битви";
 const norm = (s) => String(s || "").toLowerCase().replace(/[‐-―]/g, "-").replace(/[’ʼ']/g, "'").replace(/[^\p{L}\p{N}]/gu, "");
@@ -32,6 +33,16 @@ export const OPPONENT_ALIASES = {
   "Вертиберд Анклаву": "Вертиберд",
   "Кіберпес Анклаву": "Кіберпес",
 };
+/** The battle generator's record of an enemy by its own or its compendium name (they differ: «Бандит/мафіозі/…» ↔
+ *  «Бандити, мафіозі, …»); T = createTerminal() */
+export function generatorRecord(T, name) {
+  const BT = T.battle.BT;
+  for (const fk of Object.keys(BT.DB)) for (const c of BT.ORDER) for (const e of BT.DB[fk][c] || []) {
+    if (e.name === name || opponentName(e.name) === name) return e;
+  }
+  return null;
+}
+
 /** The compendium name to look for */
 export const opponentName = (name) => OPPONENT_ALIASES[String(name).replace(/[‐-―]/g, "-")] || OPPONENT_ALIASES[name] || name;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -39,7 +50,7 @@ const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const DIFF = { easy: "Легка", medium: "Середня", hard: "Важка", deadly: "Смертельна" };
 
 /** The battle's folder in the Actors directory: «Битви» → «<види> · <складність>» */
-async function battleFolder(title, diff) {
+export async function battleFolder(title, diff) {
   const Folder_ = Folder.implementation;
   const parent = game.folders.find((f) => f.type === "Actor" && f.name === FOLDER && !f.folder)
     || await Folder_.create({ name: FOLDER, type: "Actor", color: "#9a4a20" });
@@ -65,7 +76,8 @@ function enemyFromGenerator(T, e) {
   const moves = (e.moves || []).map((m) => `<strong>${esc(m.n)}:</strong> ${esc(m.t)}`);
   const description = `<ul><li><strong>ОЗ:</strong> ${+e.hp || 0}</li><li><strong>Броня:</strong> ${esc(e.armor)}</li></ul>`
     + list("Атаки", attacks) + list("Аспекти", aspects) + list("Ходи", moves) + (e.notes ? `<p><strong>Примітка:</strong> ${esc(e.notes)}</p>` : "");
-  return { name: e.name, type: "enemy", system: { hp: { value: +e.hp || 0, max: +e.hp || 0 }, armor: armorOf(e), description } };
+  // the tracker's card as data (module/rules/enemy-model.mjs); the description stays for reading
+  return { name: e.name, type: "enemy", system: toSystem(enemyFromRecord(e), { description }) };
 }
 
 /** The world actor for one generated enemy (reused from the «Битви» folder, or created) */
@@ -130,11 +142,28 @@ export async function createBattle(T, st, mode = "folder") {
   }
   const used = new Set();
   const total = actors.reduce((n, x) => n + x.count, 0);
-  const free = spots(scene, total);
+  // «Бойова мапа» with zones (author, 2026-11-14): each kind of enemy into the next zone in turn, on free cells under its
+  // strip; the battle's place and hazard go onto the scene too. Elsewhere: around the view's centre, as before.
+  const { isBattleScene } = await import("../helpers/default-scene.mjs");
+  const zones = isBattleScene(scene) ? (await import("../canvas/battle-zones.mjs")).sceneZones(scene) : [];
+  const { zoneCells } = zones.length ? await import("./battle-panel.mjs") : {};
+  if (isBattleScene(scene)) {
+    const S = T.battle.BT.BT_SCENE ?? {};
+    const upd = {};
+    if (S.place) upd[`flags.${game.system.id}.battlePlace`] = S.place;
+    if (S.hazard) upd[`flags.${game.system.id}.battleHazard`] = S.hazard;
+    if (Object.keys(upd).length) await scene.update(upd);
+  }
+  const free = zones.length ? null : spots(scene, total);
   const tokens = [];
+  let zi = 0;
   for (const { e, count, actor } of actors) {
+    const cells = zones.length ? zoneCells(scene, zones[zi++ % zones.length], count) : null;
+    // cells already given to an earlier kind in this same battle are taken now
+    if (cells) for (const t of tokens) { const k = cells.findIndex((c) => c.x === t.x && c.y === t.y); if (k >= 0) cells.splice(k, 1); }
     for (const name of personalNames(T, e.enemy, count, st.battle.names, used)) {
-      const td = await actor.getTokenDocument({ ...free.shift(), name, actorLink: false });
+      const pos = cells ? (cells.shift() ?? { x: zones[0].x, y: zones[0].y + scene.grid.size }) : free.shift();
+      const td = await actor.getTokenDocument({ ...pos, name, actorLink: false });
       tokens.push(td.toObject());
     }
   }

@@ -18,6 +18,8 @@ import { postTerminalRoll } from "./check-panel.mjs";
 import { battleFromTravel } from "./terminal.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { LUCKS, prettyTravel, travelChat } from "./terminal-view.mjs";
+import { battleSectionHtml, mountBattlePanel, redrawBattlePanel } from "./battle-panel.mjs";
+import { isBattleScene } from "../helpers/default-scene.mjs";
 
 const DOCK = "pust-mapdock";
 const POS_KEY = "pustelnyky-mapdock-pos";   // { map: {x, y}, dice: {x, y} } in window pixels; absent = the default place
@@ -278,9 +280,14 @@ function setFold(unit, folded) {
 
 /** Drag a panel by its header; a click without moving folds / unfolds it (folded: a click opens it) */
 function bindDrag(unitEl) {
+  // every panel that heads a unit can drag it: «Мапа Пустки» or, on the battle map, «Битва» (one is hidden), «Кістки»
+  const handles = [...unitEl.querySelectorAll(".pust-md-map > header, .pust-md-battle > header, .pust-md-dice > header")];
+  if (!handles.length) { const h = unitEl.querySelector(".pust-md-panel > header"); if (h) handles.push(h); }
+  handles.forEach((h) => bindHandle(unitEl, h));
+}
+
+function bindHandle(unitEl, handle) {
   const unit = unitEl.dataset.unit;
-  const handle = unitEl.querySelector(".pust-md-map > header, .pust-md-dice > header") || unitEl.querySelector(".pust-md-panel > header");
-  if (!handle) return;
   handle.addEventListener("pointerdown", (ev) => {
     if (ev.button !== 0 || ev.target.closest("button:not(.pust-md-fold)")) return;
     const r = unitEl.getBoundingClientRect();
@@ -344,6 +351,7 @@ export function renderMapDock() {
         ${gm ? `<section class="pust-md-tv" hidden></section>` : ""}
         ${gm ? "" : `<section class="pust-md-panel pust-md-ctr" hidden></section>`}
         ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
+        ${gm ? battleSectionHtml(header) : ""}
         ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button></header><div class="pust-md-body pust-gc" hidden></div></section>` : ""}
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
@@ -352,6 +360,8 @@ export function renderMapDock() {
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
     const mapUnit = dock.querySelector('[data-unit="map"]');
     mapUnit.querySelector(".pust-md-map .pust-md-body")?.addEventListener("click", onMap);
+    if (gm) mountBattlePanel(mapUnit.querySelector(".pust-md-battle"));
+    syncSceneKind();
     // the counters: the GM edits them right in the panel (game-counters.mjs), players read them (redrawCounters)
     if (gm) mountCounters(mapUnit.querySelector(".pust-md-ctr")).then(() => requestAnimationFrame(placeAll));
     else redrawCounters();
@@ -384,4 +394,20 @@ Hooks.on("controlToken", foundry.utils.debounce(() => { redrawDice(); if (tv.ope
 // players' counters follow the GM's changes: the game's (a world setting) and the viewed scene's (a scene flag)
 Hooks.on("updateSetting", (setting) => { if (setting.key === `${game.system.id}.gameCounters`) redrawCounters(); });
 Hooks.on("updateScene", (scene) => { if (scene.id === canvas?.scene?.id) redrawCounters(); });
-Hooks.on("canvasReady", () => redrawCounters());
+Hooks.on("canvasReady", () => { redrawCounters(); syncSceneKind(); });
+
+/**
+ * The panels follow the viewed scene (author, 2026-11-14): on «Бойова мапа» the GM gets «Битва» instead of «Мапа Пустки»
+ * and «Подорож»; «Лічильники» and «Кістки» stay on both.
+ */
+function syncSceneKind() {
+  const unit = document.querySelector(`#${DOCK} [data-unit="map"]`);
+  if (!unit || !game.user.isGM) return;
+  const battle = isBattleScene(canvas?.scene);
+  unit.classList.toggle("is-battle", battle);
+  for (const el of unit.querySelectorAll(".pust-md-map, .pust-md-travel")) el.hidden = battle;
+  if (battle && tv.open) { tv.open = false; redrawTravel(); }
+  const b = unit.querySelector(".pust-md-battle");
+  if (b) { b.hidden = !battle; if (battle) redrawBattlePanel(); }
+  requestAnimationFrame(placeAll);
+}

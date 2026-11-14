@@ -5,13 +5,107 @@
   "_id": "OKPaIKcLN7VXJVsz",
   "img": "systems/wastelanders-dev/assets/rab-3.png",
   "system": {
+    "v": 1,
+    "cat": "statists",
     "hp": {
       "value": 3,
       "max": 3
     },
     "armor": 0,
-    "description": "<blockquote>\n<p>Деяким фізично міцним рабам так ретельно промивають мізки, що вони стають відданим гарматним м'ясом Легіону. Такі раби готові беззаперечно виконати будь-який наказ і, коли треба, померти. Зазвичай трапляються групами по 3–5 осіб разом зі своїми наглядачами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Легка зброя</u> (1d6 фізичної шкоди, ближній бій); <u>саморобна граната, прив'язана до руки</u> (1d6 фізичної шкоди всім істотам в одній зоні, 1 шт., вбиває носія під час атаки)</li>\n</ul>",
-    "type": "statistician"
+    "psiArmor": 0,
+    "armorText": "0",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Легка зброя",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди, ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Саморобна граната, прив'язана до руки",
+        "dice": "1d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 1 шт., вбиває носія під час атаки",
+        "ammoMax": 1,
+        "ammo": 1,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [],
+    "aspects": [],
+    "moves": [],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 3,
+      "armor": 0,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Легка зброя",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди, ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Саморобна граната, прив'язана до руки",
+          "dice": "1d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 1 шт., вбиває носія під час атаки",
+          "ammoMax": 1,
+          "ammo": 1,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [],
+      "moves": [],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Деяким фізично міцним рабам так ретельно промивають мізки, що вони стають відданим гарматним м'ясом Легіону. Такі раби готові беззаперечно виконати будь-який наказ і, коли треба, померти. Зазвичай трапляються групами по 3–5 осіб разом зі своїми наглядачами.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> статист</li>\n<li><strong>ОЗ:</strong> 3</li>\n<li><strong>Броня:</strong> 0</li>\n<li><strong>Шкода:</strong> <u>Легка зброя</u> (1d6 фізичної шкоди, ближній бій); <u>саморобна граната, прив'язана до руки</u> (1d6 фізичної шкоди всім істотам в одній зоні, 1 шт., вбиває носія під час атаки)</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Бойовий раб Легіону",

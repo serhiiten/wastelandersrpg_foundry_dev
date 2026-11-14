@@ -5,13 +5,137 @@
   "_id": "dGbnMZ0Lg6JPtzZc",
   "img": "systems/wastelanders-dev/assets/leytenant-nkr-1.png",
   "system": {
+    "v": 1,
+    "cat": "elite",
     "hp": {
       "value": 12,
       "max": 12
     },
     "armor": 2,
-    "description": "<blockquote>\n<p>Командир загону НКР, помітно краще навчений та озброєний, ніж рядові призовники. Зазвичай трапляється разом зі своїм загоном.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій); <u>армійські гранати</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 шт.)</li>\n<li><strong>Аспекти: <em>командир загону бійців НКР, дисциплінований і вишколений.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Перегрупуймося:</strong> раз за сцену наказує своєму загону перегрупуватися. Усі бійці НКР, які чують наказ, відновлюють по 3 ОЗ і, якщо їм ніщо не заважає, можуть переміститися на одну зону.</li>\n</ul>\n</li>\n</ul>",
-    "type": "elite"
+    "psiArmor": 0,
+    "armorText": "2",
+    "def": {
+      "phys": "normal",
+      "energy": "normal",
+      "fire": "normal",
+      "rad": "normal",
+      "poison": "normal",
+      "psy": "normal"
+    },
+    "flags": {
+      "electricVuln": false,
+      "halfPartial": false,
+      "noKnockdown": false,
+      "noStun": false,
+      "noDisarm": false,
+      "kamikaze": false,
+      "psyVuln": false
+    },
+    "attacks": [
+      {
+        "name": "Середня зброя",
+        "dice": "1d10",
+        "type": "phys",
+        "note": "фізичної шкоди, бій на відстані або ближній бій",
+        "ammoMax": 0,
+        "ammo": 0,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      },
+      {
+        "name": "Армійські гранати",
+        "dice": "2d6",
+        "type": "phys",
+        "note": "фізичної шкоди всім істотам в одній зоні, 2 шт.",
+        "ammoMax": 2,
+        "ammo": 2,
+        "ignoreN": 0,
+        "ignoreArmor": false
+      }
+    ],
+    "baseAspects": [
+      {
+        "t": "командир загону бійців НКР",
+        "inv": 0
+      },
+      {
+        "t": "дисциплінований і вишколений",
+        "inv": 0
+      }
+    ],
+    "aspects": [],
+    "moves": [
+      {
+        "n": "Перегрупуймося",
+        "t": "раз за сцену наказує своєму загону перегрупуватися. Усі бійці НКР, які чують наказ, відновлюють по 3 ОЗ і, якщо їм ніщо не заважає, можуть переміститися на одну зону.",
+        "used": false
+      }
+    ],
+    "notes": "",
+    "reveal": false,
+    "orig": {
+      "hp": 12,
+      "armor": 2,
+      "psiArmor": 0,
+      "def": {
+        "phys": "normal",
+        "energy": "normal",
+        "fire": "normal",
+        "rad": "normal",
+        "poison": "normal",
+        "psy": "normal"
+      },
+      "flags": {
+        "electricVuln": false,
+        "halfPartial": false,
+        "noKnockdown": false,
+        "noStun": false,
+        "noDisarm": false,
+        "kamikaze": false,
+        "psyVuln": false
+      },
+      "attacks": [
+        {
+          "name": "Середня зброя",
+          "dice": "1d10",
+          "type": "phys",
+          "note": "фізичної шкоди, бій на відстані або ближній бій",
+          "ammoMax": 0,
+          "ammo": 0,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        },
+        {
+          "name": "Армійські гранати",
+          "dice": "2d6",
+          "type": "phys",
+          "note": "фізичної шкоди всім істотам в одній зоні, 2 шт.",
+          "ammoMax": 2,
+          "ammo": 2,
+          "ignoreN": 0,
+          "ignoreArmor": false
+        }
+      ],
+      "baseAspects": [
+        {
+          "t": "командир загону бійців НКР",
+          "inv": 0
+        },
+        {
+          "t": "дисциплінований і вишколений",
+          "inv": 0
+        }
+      ],
+      "moves": [
+        {
+          "n": "Перегрупуймося",
+          "t": "раз за сцену наказує своєму загону перегрупуватися. Усі бійці НКР, які чують наказ, відновлюють по 3 ОЗ і, якщо їм ніщо не заважає, можуть переміститися на одну зону.",
+          "used": false
+        }
+      ],
+      "notes": ""
+    },
+    "description": "<blockquote>\n<p>Командир загону НКР, помітно краще навчений та озброєний, ніж рядові призовники. Зазвичай трапляється разом зі своїм загоном.</p>\n</blockquote>\n<ul>\n<li><strong>Категорія:</strong> елітний супротивник.</li>\n<li><strong>ОЗ:</strong> 12</li>\n<li><strong>Броня:</strong> 2</li>\n<li><strong>Шкода:</strong> <u>Середня зброя</u> (1d10 фізичної шкоди, бій на відстані або ближній бій); <u>армійські гранати</u> (2d6 фізичної шкоди всім істотам в одній зоні, 2 шт.)</li>\n<li><strong>Аспекти: <em>командир загону бійців НКР, дисциплінований і вишколений.</em></strong></li>\n<li><strong>Ходи:</strong><ul>\n<li><strong>Перегрупуймося:</strong> раз за сцену наказує своєму загону перегрупуватися. Усі бійці НКР, які чують наказ, відновлюють по 3 ОЗ і, якщо їм ніщо не заважає, можуть переміститися на одну зону.</li>\n</ul>\n</li>\n</ul>"
   },
   "prototypeToken": {
     "name": "Лейтенант армії НКР",
