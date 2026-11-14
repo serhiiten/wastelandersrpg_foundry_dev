@@ -5,6 +5,7 @@
  * the description over the GM's edits); the active GM then saves the converted data once (wastelanders.mjs).
  */
 import { ENEMY_V, CATS, isOldShape, fromOldShape } from "../rules/enemy-model.mjs";
+import { lowerDice } from "../rules/battle.mjs";
 
 export default class EnemyData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -46,6 +47,11 @@ export default class EnemyData extends foundry.abstract.TypeDataModel {
       Object.assign(source, fromOldShape(source, name));
       delete source.type;
     }
+    // «менша з 2d6» was read as plain 2d6 (author, 2026-11-14): such attacks get «2d6kl1» (idempotent; attacks always
+    // come whole, also in partial updates)
+    const lower = (list) => Array.isArray(list) && list.forEach((a) => { if (a && typeof a === "object" && "dice" in a) Object.assign(a, lowerDice(a.dice, a.note)); });
+    lower(source.attacks);
+    lower(source.orig?.attacks);
     return super.migrateData(source, options);
   }
 }

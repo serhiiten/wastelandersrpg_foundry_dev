@@ -4,7 +4,7 @@
  * the portrait, the GM switch, the enriched description.
  */
 import {
-  CAT_LABEL, QUICK_ASPECTS, DEF_FIELDS, R3, R4, DMG_TYPES, profileTags, tagHelp, moveHeal, psyMoveIdx, DICE_RE,
+  diceLabel, CAT_LABEL, QUICK_ASPECTS, DEF_FIELDS, R3, R4, DMG_TYPES, profileTags, tagHelp, moveHeal, psyMoveIdx, DICE_RE,
 } from "../rules/battle.mjs";
 import { profileOf, attackDice, normCat, bookCopy } from "../rules/enemy-model.mjs";
 
@@ -97,7 +97,7 @@ export function enemyView(sys, o = {}) {
     const who = psycho && sys.flags?.kamikaze ? "Психо й Камікадзе" : psycho ? "Психо" : "Камікадзе";
     const ammo = a.ammoMax > 0;
     return {
-      i, name: a.name, dice, base: a.dice, plus, plusText: plus ? `+${plus}` : "", plusTitle: plus ? `${who}: +${plus} шкоди` : "",
+      i, name: a.name, dice, diceText: diceLabel(dice), base: diceLabel(a.dice), plus, plusText: plus ? `+${plus}` : "", plusTitle: plus ? `${who}: +${plus} шкоди` : "",
       type: a.type, typeOpts: typeOptions(a.type), ammoMax: a.ammoMax || 0, typeLabel: typeLabel(a.type), tcls: typeClass(a.type), note: a.note,
       ammo: ammo ? { max: a.ammoMax, value: a.ammo, empty: a.ammo <= 0, pips: Array.from({ length: a.ammoMax }, (_, k) => ({ n: k + 1, on: k < a.ammo })) } : null,
       dead: ammo && a.ammo <= 0, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0, diceOk: DICE_RE.test(String(a.dice).trim()),

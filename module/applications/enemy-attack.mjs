@@ -1,11 +1,13 @@
 /**
  * An enemy's attack to chat (author, 2026-11-14): the attack's dice (with the Психо / Камікадзе +2) rolled by Foundry,
  * the damage card of the character sheet's weapons (postDamageCard: the total in the type's colour, chips, effects),
- * one shot of its ammo spent. The card carries what «Застосувати до цілей» needs. The tracker itself only fed the
+ * one shot of its ammo spent. Returns what «Завдати виділеним» on the enemy's card needs (author, 2026-11-14: the button
+ * is on the card, not in chat). The tracker itself only fed the
  * attack's dice into its damage panel; here the roll is made right away.
  */
 import { postDamageCard } from "./check-panel.mjs";
 import { attackDice } from "../rules/enemy-model.mjs";
+import { diceLabel } from "../rules/battle.mjs";
 import { DMG_TYPES as BATTLE_TYPES } from "../rules/battle.mjs";
 import { TYPE_EFFECTS } from "../rules/damage-types.mjs";
 
@@ -37,10 +39,12 @@ export async function rollEnemyAttack(actor, i, { token = null } = {}) {
     await actor.update({ "system.attacks": attacks });
     spent = `Заряди: ${a.ammo - 1} з ${a.ammoMax}`;
   }
-  return postDamageCard(actor, {
-    head: `${actor.name}: ${a.name} (${dice})`, wt, total: Math.max(0, roll.total),
-    parts: [{ l: dice, v: String(roll.total), t: wt }], fx, spent,
-    apply: { type: wt, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0 },
+  const total = Math.max(0, roll.total);
+  const label = diceLabel(dice);
+  await postDamageCard(actor, {
+    head: `${actor.name}: ${a.name} (${label})`, wt, total,
+    parts: [{ l: label, v: String(total), t: wt }], fx, spent,
     speaker: token ? ChatMessage.getSpeaker({ token }) : null,
   });
+  return { total, head: `${token?.name || actor.name}: ${a.name}`, data: { total, type: wt, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0 } };
 }

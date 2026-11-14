@@ -366,5 +366,22 @@ ok(enemies === 77, "compendium enemies: " + enemies);
   ok(PUST_ZONE_NAMES["Ферма"].includes(B.randomZoneName("Ферма", [])) && PUST_ZONE_ASPECTS["Ферма"].includes(B.randomZoneAspect("Ферма", [])), "place pool used");
 }
 
+/* ---------- «менша з 2d6» (author, 2026-11-14: was read as plain 2d6) ---------- */
+{
+  eq(B.lowerDice("2d6", "менша з , фізична шкода, ближній бій"), { dice: "2d6kl1", note: "фізична шкода, ближній бій" }, "compendium «менша з 2d6»");
+  eq(B.lowerDice("1d6", "кинь двічі, обери менший"), { dice: "2d6kl1", note: "" }, "generator «кинь двічі, обери менший»");
+  eq(B.lowerDice("2d6kl1", "менша з"), { dice: "2d6kl1", note: "менша з" }, "kl1 stays");
+  eq(B.lowerDice("3d6", "фізичної шкоди, менших не буває").dice, "3d6", "«менших» is not «менша з»");
+  eq(B.diceLabel("2d6kl1"), "менша з 2d6", "label");
+  eq(B.diceLabel("1d10+2"), "1d10+2", "label plain");
+  eq(B.normDice("менша з 2d6"), "2d6kl1", "typed «менша з 2d6»");
+  eq(B.normDice("к10 + 2"), "1d10+2", "typed к10");
+  ok(B.DICE_RE.test("2d6kl1") && B.DICE_RE.test("2d6kl1+1") && !B.DICE_RE.test("2d6kh1"), "DICE_RE kl1");
+  const civ = B.parseEnemyHtml('<ul><li><strong>Шкода:</strong> <u>Кулаки або імпровізована зброя</u> (менша з 2d6, фізична шкода, ближній бій)</li></ul>', { name: "Цивільні", hp: 3, armor: 0 });
+  eq([civ.attacks[0].dice, civ.attacks[0].note], ["2d6kl1", "фізична шкода, ближній бій"], "parsed from compendium HTML");
+  const statist = B.enemyFromRecord({ name: "x", hp: 3, armor: 0, dmg: "кулаки 1d6 кинь двічі, обери менший" });
+  eq(statist.attacks[0].dice, "2d6kl1", "parsed from a generator record");
+}
+
 if (failures) { console.log(`FAILS: ${failures}`); process.exit(1); }
 console.log("battle: OK");

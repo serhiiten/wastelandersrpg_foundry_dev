@@ -6,12 +6,13 @@
  */
 import { generatorRecord } from "../applications/terminal-battle.mjs";
 import {
-  CAT_GUIDE, CAT_LABEL, DICE_RE, QUICK_ASPECTS, psyMoveIdx, buildAttackPresets, buildMovePresets, atkType, atkIgnoreN, atkIgnores, atkAmmoEx, moveHeal, zoneOfPoint,
+  CAT_GUIDE, CAT_LABEL, DICE_RE, normDice, QUICK_ASPECTS, psyMoveIdx, buildAttackPresets, buildMovePresets, atkType, atkIgnoreN, atkIgnores, atkAmmoEx, moveHeal, zoneOfPoint,
 } from "../rules/battle.mjs";
 import { CATS, resetToBook, takeDamage } from "../rules/enemy-model.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { postChat } from "../applications/chat.mjs";
 import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
+import { sendDamage } from "../applications/apply-damage.mjs";
 import { enemyView, typeOptions } from "./enemy-view.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -55,6 +56,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       inv: WastelandersEnemySheet.#onInv,
       aspRm: WastelandersEnemySheet.#onAspRm,
       rollAtk: WastelandersEnemySheet.#onRollAtk,
+      hitSel: WastelandersEnemySheet.#onHitSel,
       pip: WastelandersEnemySheet.#onPip,
       addAtk: WastelandersEnemySheet.#onAddAtk,
       rmAtk: WastelandersEnemySheet.#onRmAtk,
@@ -94,6 +96,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const gm = game.user.isGM;
     const edit = this.#ui.edit && editable;
     const v = enemyView(s, { editable, gm });
+    for (const a of v.attacks) { a.hit = this.#hits.get(this.#hitKey(a.i))?.total ?? null; a.hasHit = a.hit != null; }
     Object.assign(context, {
       v, editable, gm, edit, ui: this.#ui, name: doc.name, img: doc.img, differs: v.differs,
       notes: s.notes, dmgTypes: typeOptions("phys"),
@@ -257,8 +260,22 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
   /* ---------- attacks ---------- */
 
   static async #onRollAtk(event, target) {
-    await rollEnemyAttack(this.document, int(target.dataset.i), { token: this.token });
+    const i = int(target.dataset.i);
+    const r = await rollEnemyAttack(this.document, i, { token: this.token });
+    if (r?.data) { this.#hits.set(this.#hitKey(i), r); this.render(); }
   }
+
+  /** «Завдати виділеним» (author, 2026-11-14: on the card, not in chat): the attack's last roll to the selected tokens */
+  static async #onHitSel(event, target) {
+    const r = this.#hits.get(this.#hitKey(int(target.dataset.i)));
+    if (!r) return;
+    target.disabled = true;
+    try { await sendDamage(r.data, { head: r.head }); } finally { target.disabled = false; }
+  }
+
+  /** The last roll of each attack, until the sheet closes; keyed by place and name, so edits don't mix them up */
+  #hits = new Map();
+  #hitKey(i) { const a = this.document.system.attacks?.[i]; return `${i}:${a?.name ?? ""}:${a?.dice ?? ""}`; }
 
   /** A pip is an ammo charge: a click sets the ammo to it; the last lit pip clicked again spends it */
   static async #onPip(event, target) {
@@ -276,8 +293,9 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     if (!a) return;
     const val = String(raw).trim();
     if (f === "dice") {
-      if (!DICE_RE.test(val)) { ui.notifications.warn("Шкода атаки: кістки на кшталт 1d10, 2d6+1 чи 3d6-1."); return this.render(); }
-      a.dice = val;
+      const d = normDice(val);
+      if (!DICE_RE.test(d)) { ui.notifications.warn("Шкода атаки: кістки на кшталт 1d10, 2d6+1, 3d6-1 чи «менша з 2d6»."); return this.render(); }
+      a.dice = d;
     } else if (f === "ammoMax") {
       a.ammoMax = Math.max(0, int(val));
       a.ammo = a.ammoMax;

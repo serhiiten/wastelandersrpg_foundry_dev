@@ -132,8 +132,41 @@ export function profileTags(p) {
  *  Dice
  * ------------------------------------------------------------------ */
 
-/** A plain damage expression of one attack: «1d10», «2d6+2», «3d6-1». */
-export const DICE_RE = /^\d*d\d+([+\-]\d+)?$/i;
+/** A plain damage expression of one attack: «1d10», «2d6+2», «3d6-1», «2d6kl1» (the lower of 2d6). */
+export const DICE_RE = /^\d*d\d+(kl1)?([+\-]\d+)?$/i;
+
+const LOWER_RE = /менш\S*\s+(?:з|із)(?=[\s,]|$)|кинь\s+двічі,?\s+обери\s+менш\S*/i;
+
+/**
+ * «менша з 2d6» / «1d6 кинь двічі, обери менший» (author, 2026-11-14: was read as plain 2d6) → the dice keep the lower
+ * one, «2d6kl1», and the words leave the note. Dice already «kl1» stay as they are.
+ * @param {string} dice @param {string} note @returns {{dice:string, note:string}}
+ */
+export function lowerDice(dice, note) {
+  const d = String(dice || "").trim(), t = String(note || "");
+  if (!LOWER_RE.test(t) || /kl1/i.test(d)) return { dice: d, note: t };
+  const m = /^(\d*)d(\d+)([+\-]\d+)?$/i.exec(d);
+  if (!m) return { dice: d, note: t };
+  const n = +(m[1] || 1);
+  const dice2 = `${n < 2 ? 2 : n}d${m[2]}kl1${m[3] || ""}`;
+  const clean = t.replace(LOWER_RE, "").replace(/^[\s,;]+|[\s,;]+$/g, "").replace(/\s*,\s*,\s*/g, ", ").replace(/\s+/g, " ").trim();
+  return { dice: dice2, note: clean };
+}
+
+/** «2d6kl1» → «менша з 2d6» (how the book says it); other dice as they are */
+export function diceLabel(dice) {
+  const m = /^(\d*d\d+)kl1([+\-]\d+)?$/i.exec(String(dice || "").replace(/\s+/g, ""));
+  return m ? `менша з ${m[1]}${m[2] || ""}` : String(dice || "");
+}
+
+/** What the GM typed as an attack's damage: «менша з 2d6» → «2d6kl1», «к6» → «1d6»; else trimmed */
+export function normDice(input) {
+  let s = String(input || "").trim().replace(/[кk](?=\d)/gi, "d").replace(/\s+/g, " ");
+  const m = /^менш\S*\s+(?:з|із)\s+(\d*d\d+)\s*([+\-]\s*\d+)?$/i.exec(s);
+  if (m) s = `${m[1]}kl1${(m[2] || "").replace(/\s+/g, "")}`;
+  s = s.replace(/\s+/g, "");
+  return /^d/i.test(s) ? `1${s}` : s;
+}
 
 const randIntWith = (rnd) => (min, max) => Math.floor(rnd() * (max - min + 1)) + min;
 
@@ -642,6 +675,7 @@ export function enemyFromRecord(rec) {
     const pr = presetFromRest(q.name, q.rest);
     const at = attackFrom(pr ? pr.n : q.name, pr ? pr.note : q.rest, a);
     at.dice = pr ? pr.d : "";
+    Object.assign(at, lowerDice(at.dice, at.note));
     return at;
   });
   const armorText = String(rec.armor == null ? "" : rec.armor);
@@ -715,6 +749,7 @@ function parseDamageLine(inner) {
     const note = dm ? (r.slice(0, dm.index) + r.slice(dm.index + dm[0].length)).replace(/^[\s,]+/, "").replace(/\s+/g, " ").trim() : r.trim();
     const at = attackFrom(cap(n), note, n + " " + note, atkAmmoEx);
     at.dice = dice;
+    Object.assign(at, lowerDice(at.dice, at.note));
     // «… + 1d6 шкоди отрутою, отрута ігнорує броню»: an extra part ignoring armour is not the whole attack
     if (at.ignoreArmor && /\+\s*\d*d\d+/.test(note)) at.ignoreArmor = false;
     return at;

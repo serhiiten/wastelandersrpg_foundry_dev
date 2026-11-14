@@ -1,6 +1,6 @@
 /**
- * «Застосувати до цілей» (author, 2026-11-14) — under every damage chat card (a character's weapon, an enemy's attack):
- * the damage goes to the user's targeted tokens through the battle tracker's rules (module/rules/battle.mjs
+ * «Завдати виділеним» (author, 2026-11-14) — in «Зробити перевірку» (a partial success halves it for those who take ½),
+ * on an enemy's attack and in the «Битва» panel: the damage goes to the selected tokens through the battle tracker's rules (module/rules/battle.mjs
  * computeDamage: armour, half / immune / heal, laser–plasma–gauss, «ігнорує N», electricity +1d6, ½ on a partial
  * success, Камікадзе +2). Enemies use their card's defence (module/rules/enemy-model.mjs), characters the rules engine's
  * (armour, psychic armour, species / perks / chems, manual defences), caravans their armour. The GM applies at once;
@@ -106,41 +106,29 @@ export async function applyDamage(tokenUuids, data, { partial = false, head = ""
   return lines.length;
 }
 
-/** The bar under a damage card: «Частковий успіх» and «Завдати виділеним» */
-function decorate(message, html) {
-  const root = html instanceof HTMLElement ? html : html?.[0];
-  const card = root?.querySelector(".pust-dmgcard[data-pust-dmg]");
-  if (!card || card.querySelector(".pust-dmgapply-bar")) return;
-  let data;
-  try { data = JSON.parse(card.dataset.pustDmg); } catch (_) { return; }
-  const bar = document.createElement("div");
-  bar.className = "pust-dmgapply-bar";
-  bar.innerHTML = `<label title="½ шкоди для тих, хто за часткового успіху атаки отримує половину"><input type="checkbox" class="pust-dmg-partial"> Частковий успіх</label>
-    <button type="button" class="pust-dmg-apply" title="Шкода виділеним токенам (або цілям, коли нічого не виділено): броня й стійкості кожного враховуються"><i class="fa-solid fa-crosshairs"></i> <span>Завдати виділеним</span></button>`;
-  card.append(bar);
-  bar.querySelector(".pust-dmg-apply").addEventListener("click", async (ev) => {
-    ev.preventDefault();
-    const targets = chosenTokens();
-    if (!targets.length) return ui.notifications.warn(game.user.isGM ? "Спершу виділи токени (клік, Shift+клік, рамка або «Обрати всіх» у зоні) чи познач цілі (T)." : "Спершу познач цілі (T над токеном).");
-    const partial = bar.querySelector(".pust-dmg-partial").checked;
-    if (game.user.isGM) return applyDamage(targets, data, { partial });
-    if (!game.users.activeGM) return ui.notifications.warn("Шкоду застосовує Доглядач, а його зараз немає в грі.");
-    game.socket.emit(SOCKET(), { op: "applyDamage", targets, data, partial, from: game.user.id });
-    ui.notifications.info("Запит надіслано Доглядачеві.");
-  });
+/**
+ * «Завдати виділеним» (author, 2026-11-14: a button in «Зробити перевірку» and on an enemy's attack, not in chat):
+ * the damage goes to the selected tokens (or the targets); the GM applies it, a player's press goes to the active GM.
+ * @param {{total:number, type:string, ignoreArmor?:boolean, ignoreN?:number, poison?:number}} data
+ * @returns {Promise<boolean>} false when there was nobody to hit
+ */
+export async function sendDamage(data, { partial = false, head = "" } = {}) {
+  const targets = chosenTokens();
+  if (!targets.length) {
+    ui.notifications.warn(game.user.isGM ? "Спершу виділи токени (клік, Shift+клік, рамка або «Обрати всіх» у зоні) чи познач цілі (T)." : "Спершу познач цілі (T над токеном).");
+    return false;
+  }
+  if (game.user.isGM) { await applyDamage(targets, data, { partial, head }); return true; }
+  if (!game.users.activeGM) { ui.notifications.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
+  game.socket.emit(SOCKET(), { op: "applyDamage", targets, data, partial, head, from: game.user.id });
+  ui.notifications.info("Запит надіслано Доглядачеві.");
+  return true;
 }
 
-// the bar is added as soon as this module loads (the chat log may render before «ready»)
-Hooks.on("renderChatMessageHTML", decorate);
-
-/** Wiring (wastelanders.mjs, ready): the cards already in the log get their bar; the GM's socket */
+/** Wiring (wastelanders.mjs, ready): the GM's socket for the players' requests */
 export function readyApplyDamage() {
-  for (const el of document.querySelectorAll(".chat-message[data-message-id]")) {
-    const m = game.messages.get(el.dataset.messageId);
-    if (m) decorate(m, el);
-  }
   game.socket.on(SOCKET(), (msg) => {
     if (!game.users.activeGM?.isSelf) return;
-    if (msg?.op === "applyDamage") applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial });
+    if (msg?.op === "applyDamage") applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, head: String(msg.head || "") });
   });
 }

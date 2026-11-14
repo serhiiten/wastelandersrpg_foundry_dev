@@ -6,7 +6,7 @@
  * Enemies come from the system's «opponents» compendium by name (the wiki's texts and pictures); one not
  * found there becomes an enemy actor built from the generator's own data. An actor already in the battle's
  * folder is reused, so pressing both buttons does not make doubles. Tokens are unlinked and get personal
- * names: the travel battle's names (Горкі й Моркі…), the HTML tracker's name pools for humanoids, or «Ім'я 2».
+ * names: the travel battle's names (Горкі й Моркі…) or «Ім'я 2»; personal names are rolled by the GM on the card.
  */
 import { enemyFromRecord } from "../rules/battle.mjs";
 import { toSystem } from "../rules/enemy-model.mjs";
@@ -96,11 +96,14 @@ async function enemyActor(T, e, folder) {
   return Actor.implementation.create(data);
 }
 
-/** Personal names for count enemies of one record */
+/**
+ * Token names for count enemies of one record: the names the travel event already gave them, else the kind's name
+ * («Ім'я N» when there are several). No personal names rolled (author, 2026-11-14): the GM rolls one from the card.
+ */
 function personalNames(T, e, count, travelNames, used) {
   const given = (travelNames || []).find((x) => x.base === e.name)?.names || [];
   return Array.from({ length: count }, (_, i) => {
-    let n = given[i] || T.battle.enemyName(e, used) || (count > 1 ? `${e.name} ${i + 1}` : e.name);
+    let n = given[i] || (count > 1 ? `${e.name} ${i + 1}` : e.name);
     used.add(n);
     return n;
   });

@@ -284,6 +284,8 @@ const SCENARIOS = {
       a.counters(el);
       a.readable(el);
       for (const row of el.querySelectorAll(".pust-en-atk-row, .pust-en-head-btns, .pust-en-quick")) a.row([...row.querySelectorAll(":scope > button")], { label: "кнопки в ряду" });
+      // «Завдати виділеним» under an attack rolled (author, 2026-11-14): the result and the button in one row
+      for (const row of el.querySelectorAll(".pust-en-hit")) a.row([...row.children], { label: "«Завдати виділеним»: результат і кнопка" });
     };
     check("перегляд");
     sheet.element.querySelectorAll("details[data-fold]").forEach((d) => { d.open = true; });
@@ -292,6 +294,16 @@ const SCENARIOS = {
     const edit = sheet.element.querySelector('[data-action="editToggle"]');
     if (edit) { edit.click(); await sleep(900); check("редагування"); sheet.element.querySelector('[data-action="editToggle"]')?.click(); await sleep(600); }
     if (!was) await sheet.close();
+  },
+
+  /** «Зробити перевірку» already open with a damage rolled: «Завдати виділеним» and «частковий успіх» (nothing is rolled here) */
+  async checkPanel(a) {
+    const el = document.querySelector(".pust-roller .rdapply");
+    if (!el) return a.skip("«Завдати виділеним» у перевірці", "відкрий «Зробити перевірку» й кинь шкоду");
+    a.onScreen([el]);
+    a.noCut(el, "button, span");
+    a.oneLine([...el.querySelectorAll("button > span, .rdhalf")], "«Завдати виділеним» і «частковий успіх» в один рядок");
+    a.readable(el, "button, span");
   },
 
   /** A place card (if the world has a place) */

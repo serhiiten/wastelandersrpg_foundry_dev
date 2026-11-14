@@ -4,8 +4,8 @@
  *   – the battle's place and hazard (scene flags `battlePlace` / `battleHazard`), each with a die that rolls the
  *     inspiration tables anew (never the same twice; «Сховище» gets its number); the place picks the zones' name pools;
  *   – «+ Зона» (module/canvas/battle-zones.mjs) and «+ Супротивник»: faction → enemy (the «opponents» compendium) →
- *     how many → which zone; the actor goes to the Actors folder «Битви → <фракція>», unlinked tokens with personal
- *     names land on free cells of the zone;
+ *     how many → which zone; the actor goes to the Actors folder «Битви → <фракція>», unlinked tokens (the kind's name,
+ *     «Ім'я N»; no personal names — author, 2026-11-14) land on free cells of the zone;
  *   – «Коло й Доля» (author, 2026-11-14; the tracker's bottom bar): the round ◀ ▶ (the next one posts the tracker's
  *     reminder), the GM's Fate tokens − / + and «За гравцями» (as many as the player characters on the scene);
  *     scene flags `battleRound` / `battleFate`;
@@ -16,7 +16,7 @@
  * Players don't get this panel. map-dock.mjs shows it instead of «Мапа Пустки» while the battle map is viewed.
  */
 import { createTerminal } from "../rules/terminal.mjs";
-import { battleFolder, generatorRecord } from "./terminal-battle.mjs";
+import { battleFolder } from "./terminal-battle.mjs";
 import { sceneZones, zoneOf, addBattleZone } from "../canvas/battle-zones.mjs";
 import { applyDamage, applyHeal, chosenTokens } from "./apply-damage.mjs";
 import { DMG_TYPES } from "../rules/battle.mjs";
@@ -70,19 +70,13 @@ export function zoneCells(scene, zone, n) {
 }
 
 
-/** Personal names: the travel/tracker pools for humanoids, otherwise «Ім'я N» when there are several */
+/**
+ * Token names: the kind's name, «Ім'я N» when there are several. No personal names rolled (author, 2026-11-14): the GM
+ * rolls one from the enemy's card when it matters.
+ */
 function namesFor(baseName, count, scene) {
-  const rec = generatorRecord(term(), baseName) ?? { name: baseName };
-  const used = new Set(scene.tokens.map((t) => t.name));
   const same = scene.tokens.filter((t) => t.name === baseName || t.name.startsWith(`${baseName} `)).length;
-  const out = [];
-  for (let i = 0; i < count; i++) {
-    let n = term().battle.enemyName(rec, used);
-    if (!n) n = count + same > 1 ? `${baseName} ${same + i + 1}` : baseName;
-    used.add(n);
-    out.push(n);
-  }
-  return out;
+  return Array.from({ length: count }, (_, i) => (count + same > 1 ? `${baseName} ${same + i + 1}` : baseName));
 }
 
 /** Put `count` unlinked tokens of `actor` into `zone` of `scene` */

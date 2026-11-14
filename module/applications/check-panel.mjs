@@ -10,6 +10,7 @@ import { evaluate, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
 import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN } from "../rules/battle.mjs";
+import { sendDamage } from "./apply-damage.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
@@ -129,9 +130,13 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    * The damage block: coloured by the damage type (Foundry only, author 2026-11-14), the total in one row with the dice,
    * each die drawn with its own sides, the parts only when there are several, each number in its type's colour, type chips.
    */
+  /** What «Завдати виділеним» sends: the damage shown in the panel now */
+  #apply = null;
+
   #damageBlock(html, L, st) {
     const last = L.R.last;
     const D = last?.dmg;
+    this.#apply = null;
     const choices = L.dmgChoices(compute(st));
     const wt = weaponDmgType(choices.find((x) => x.key === (D ? D.key : L.R.dmgKey)));
     html = html.replace('<div class="rdmg">', `<div class="rdmg dt-${wt}">`);
@@ -150,6 +155,15 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const choice = choices.find((x) => x.key === D.key);
     const dtypes = dieTypes(choice, D.p, wt);
     const best = D.r2 && D.r2.sum > D.r1.sum ? D.r2 : D.r1;
+    // «Завдати виділеним» (author, 2026-11-14): here, not in chat; a partial success of the check halves the damage
+    // for those who take ½ on a partial success (the tracker's «Частковий успіх», set by the verdict itself)
+    const partial = last.verdict === 1;
+    this.#apply = {
+      data: damageData({ total: L.dmgTotal(last, compute(st)).total, wt, fx, poison: last.poison && last.poisonRoll ? last.poisonRoll : null }),
+      partial, head: D.name,
+    };
+    const applyBtn = `<div class="rdapply"><button type="button" class="pust-dmg-apply" data-apply="1" title="Шкода виділеним токенам (або цілям, коли нічого не виділено): броня й стійкості кожного враховуються${partial ? "; частковий успіх — ½ тим, хто за нього отримує половину" : ""}"><i class="fa-solid fa-crosshairs"></i><span>Завдати виділеним</span></button>`
+      + (partial ? `<span class="rdhalf" title="Перевірка — частковий успіх: хто за часткового успіху отримує половину, отримає ½">частковий успіх</span>` : "") + `</div>`;
     return html.replace(
       /<div class="rdres"><div class="rdice">([\s\S]*?)<\/div><div class="rsum"><span class="rform">[^<]*=<\/span><b class="rtot">([^<]*)<\/b><span class="rform">шкоди<\/span><\/div><ul class="rsteps">([\s\S]*?)<\/ul>/,
       (m, chips, total, lis) => {
@@ -168,7 +182,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         return `<div class="rdres"><div class="rdrow"><div class="rdice">${chips}</div>`
           + `<div class="rsum rdsum"><b class="rtot dt-${wt}">${total}</b><span class="rform">шкоди</span><span class="dtchips">${typeChips(types.length ? types : [wt])}</span></div></div>`
           + (fx.length ? `<ul class="rdfx">${fx.map((t) => `<li>${t}</li>`).join("")}</ul>` : "")
-          + (parts.length > 1 ? `<p class="rdbrk">${parts.map((p) => `${p.l}: <b class="dt-${p.t}">${p.v}</b>`).join(" · ")}</p>` : "");
+          + (parts.length > 1 ? `<p class="rdbrk">${parts.map((p) => `${p.l}: <b class="dt-${p.t}">${p.v}</b>`).join(" · ")}</p>` : "")
+          + applyBtn;
       },
     );
   }
@@ -176,7 +191,15 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender(context, options);
     const root = this.element.querySelector(".pust-roller");
-    root.addEventListener("click", (ev) => {
+    root.addEventListener("click", async (ev) => {
+      const ap = ev.target.closest("[data-apply]");
+      if (ap) {
+        ev.preventDefault();
+        if (!this.#apply || ap.disabled) return;
+        ap.disabled = true;
+        try { await sendDamage(this.#apply.data, { partial: this.#apply.partial, head: this.#apply.head }); } finally { ap.disabled = false; }
+        return;
+      }
       const b = ev.target.closest("[data-r]");
       if (!b || b.tagName === "SELECT" || b.tagName === "INPUT" || b.disabled) return;
       ev.preventDefault();
@@ -289,21 +312,26 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 }
 
 /**
+ * What «Завдати виділеним» needs (module/applications/apply-damage.mjs): the total, its type, armour ignored — for a
+ * character's weapon read from its effect lines (not the damage type's own line: the type is counted by the rules already)
+ */
+export function damageData({ total, wt, fx = [], poison = null }) {
+  const own = fx.filter((x) => !Object.values(TYPE_EFFECTS).includes(x));
+  return {
+    total: Number(total) || 0, type: wt, ignoreArmor: own.some((x) => atkIgnores(x)), ignoreN: Math.max(0, ...own.map((x) => atkIgnoreN(x))),
+    poison: poison?.sum ?? 0,
+  };
+}
+
+/**
  * The damage chat card (author, 2026-11-14): the result only — the total with its type chips, the damage effects,
  * the breakdown when there are several parts (each number in its type's colour), the weapon's poison as its own line; no dice.
  */
-export function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null, spent = "", apply = null, speaker = null }) {
+export function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null, spent = "", speaker = null }) {
   const types = [...parts.map((p) => p.t), ...(poison ? ["poison"] : [])];
-  // what «Застосувати» needs (module/applications/apply-damage.mjs): the total, its type, armour ignored — for a character's
-  // weapon read from its effect lines (not the damage type's own line: the type is counted by the rules already)
-  const own = fx.filter((x) => !Object.values(TYPE_EFFECTS).includes(x));
-  const data = {
-    total, type: wt, ignoreArmor: own.some((x) => atkIgnores(x)), ignoreN: Math.max(0, ...own.map((x) => atkIgnoreN(x))),
-    poison: poison?.sum ?? 0, ...(apply || {}),
-  };
   return postChat({
     speaker: speaker ?? ChatMessage.getSpeaker({ actor }),
-    content: `<div class="pust-chat pust-dmgcard" data-pust-dmg='${esc(JSON.stringify(data))}'><h4>${esc(head)}</h4>`
+    content: `<div class="pust-chat pust-dmgcard"><h4>${esc(head)}</h4>`
       + `<div class="pust-cdmg dt-${wt}"><div class="rdrow"><span class="rdsum"><b class="rtot dt-${wt}">${total}</b><span>шкоди</span></span>`
       + `<span class="dtchips">${typeChips(types.length ? types : [wt])}</span></div>`
       + (fx.length ? `<ul class="rdfx">${fx.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "")
