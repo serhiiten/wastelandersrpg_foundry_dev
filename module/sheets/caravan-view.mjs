@@ -4,6 +4,7 @@
  * Mirrors the HTML sheet's render functions (renderDerived, renderImps, renderCargo, renderCounters…).
  */
 import { ASPECTS, DEFAULT_ARMOR_TYPE, IMPS } from "../rules/caravan.mjs";
+import { cargoHurtAt, rowSale } from "../rules/caravan-adapter.mjs";
 
 const int = (v, def = 0) => {
   const n = parseInt(v, 10);
@@ -39,7 +40,8 @@ const GUIDE = [
 
 export function buildCaravanView(S, L, ui = {}) {
   const D = L.derived(S);
-  const { sale, saleHurt } = L.salePrices(D, S);
+  // «Сума продажу»: the cargo rows' sale prices (each with its own long-haul and damage ticks)
+  const sale = (S.cargo || []).filter((r) => r.kind !== "pass").reduce((t, r) => t + rowSale(r), 0);
   const dmg = D.maxHP - S.hpCurrent;
   const lack = D.maxMove - S.moveCurrent;
   const need = D.impCount < 2;
@@ -59,13 +61,14 @@ export function buildCaravanView(S, L, ui = {}) {
     armor: D.armor, baseArmor: D.baseArmor, armorCustom: S.armorOverride != null,
     armorType: S.armorType || "", armorTypeCustom: String(S.armorType || "").trim() !== DEFAULT_ARMOR_TYPE,
     hpBar: hpBar(int(S.hpCurrent), D.maxHP),
-    repair: dmg > 0 ? { dmg, cost: Math.ceil(dmg / 5), hurt: S.hpCurrent > 0 && S.hpCurrent <= Math.floor(D.maxHP / 2), destroyed: S.hpCurrent === 0 } : null,
+    repair: dmg > 0 ? { dmg, cost: Math.ceil(dmg / 5), hurt: cargoHurtAt(S.hpCurrent, D.maxHP), destroyed: S.hpCurrent === 0 } : null,
 
     movePips1: pips(0, 10, D.maxMove, S.moveCurrent, "move"),
     movePips2: pips(10, 20, D.maxMove, S.moveCurrent, "move"),
     moveNow: `${S.moveCurrent} / ${D.maxMove}`,
     cellRule: S.tachka ? "3 клітини за день і одиницю" : "1 клітина за день і одиницю",
     refill: lack > 0 ? `Поповнити: ${Math.ceil(lack / 3)}(к)` : "Повний запас",
+    moveLack: lack > 0,
 
     impCount: D.impCount, impNeed: need,
     impHint: need ? `оберіть ще ${2 - D.impCount}` : D.impCount === 2 ? "стартові обрано" : `докуплено ${D.impCount - 2} × 25(к)`,
@@ -90,11 +93,11 @@ export function buildCaravanView(S, L, ui = {}) {
 
     cargo: (S.cargo || []).map((r, i) => ({
       i, name: r.name || "", pass: r.kind === "pass", price: r.price ?? "", qty: r.qty ?? "", note: r.note || "",
-      sum: int(r.price) * Math.max(0, int(r.qty, 1)) || "",
+      far: !!r.far, hurt: !!r.hurt, sum: rowSale(r) || "",
     })),
     longHaul: !!S.longHaul,
     cargoSummary: D.cargoVal || D.passengers
-      ? { val: D.cargoVal, cap: D.cargoCap, over: D.cargoVal > D.cargoCap, sale, saleHurt, passengers: D.passengers }
+      ? { val: D.cargoVal, cap: D.cargoCap, over: D.cargoVal > D.cargoCap, sale, hurt: (S.cargo || []).some((r) => r.kind !== "pass" && r.hurt), passengers: D.passengers }
       : null,
     cargoCap: D.cargoCap,
 

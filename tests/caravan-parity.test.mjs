@@ -28,7 +28,7 @@ const SAME = {
   // buttons by id
   vehBrahmin: 'data-act="veh" data-veh="0"', vehTachka: 'data-act="veh" data-veh="1"',
   foldImps: 'data-key="foldImps"', armorReset: 'data-act="armorReset"', hpMaxReset: 'data-act="hpMaxReset"',
-  longHaul: 'data-act="longHaul"', addCustomImp: 'data-act="addCustomImp"', addCounter: 'data-act="addCounter"',
+  longHaul: 'data-k="cargo.{{i}}.far"' /* Foundry: a tick on each cargo row (author, 2026-11-14) */, addCustomImp: 'data-act="addCustomImp"', addCounter: 'data-act="addCounter"',
   addCargo: 'data-act="addCargo"', rollRep: 'data-act="rollRep"', luckPanel: 'data-act="rollFate"',
   rollName: 'data-act="rollName"', rollKarma: 'data-act="rollKarma"', rollBudget: 'data-act="rollBudget"',
   rollImps: 'data-act="rollImps"', btnClear: 'data-act="clear"', btnRandom: 'data-act="random"', btnQuick: 'data-act="quick"',
@@ -113,18 +113,20 @@ const STEPS = {
   vehBrahmin: [(h) => h.click("vehBrahmin"), (C) => C.act("veh", { veh: "0" })],
   armorReset: [(h) => h.click("armorReset"), (C) => C.act("armorReset")],
   hpMaxReset: [(h) => h.click("hpMaxReset"), (C) => C.act("hpMaxReset")],
-  longHaul: [(h) => h.click("longHaul"), (C) => C.act("longHaul")],
   addCustomImp: [(h) => h.click("addCustomImp"), (C) => C.act("addCustomImp")],
   addCounter: [(h) => h.click("addCounter"), (C) => C.act("addCounter")],
   addCargo: [(h) => h.click("addCargo"), (C) => C.act("addCargo")],
   rollRep: [(h) => h.click("rollRep"), (C) => C.act("rollRep")],
   rollFate: [(h) => h.click("luckPanel"), (C) => C.act("rollFate")],
   rollName: [(h) => h.click("rollName"), (C) => C.act("rollName")],
-  rollKarma: [(h) => h.click("rollKarma"), (C) => C.act("rollKarma")],
+  // Foundry (author, 2026-11-14): the karma die is never locked (the sheet asks twice), so the HTML side rolls with the lock off
+  rollKarma: [(h) => { const st = h.getState(); st.manual = { ...st.manual, karma: false }; h.setState(st); h.click("rollKarma"); }, (C) => C.act("rollKarma")],
   rollBudget: [(h) => h.click("rollBudget"), (C) => C.act("rollBudget")],
   rollImps: [(h) => h.click("rollImps"), (C) => C.act("rollImps")],
   clear: [(h) => h.click("btnClear", 2), (C) => C.act("clear")],
-  random: [(h) => h.click("btnRandom", 2), (C) => C.act("random")],
+  // Foundry (author, 2026-11-14): «Випадковий караван» rolls everything anew, typed fields and custom improvements too —
+  // so the HTML side rolls with no manual locks and no custom improvements
+  random: [(h) => { const st = h.getState(); Object.keys(st.manual || {}).forEach((k) => { st.manual[k] = false; }); st.customImps = []; h.setState(st); h.click("btnRandom", 2); }, (C) => C.act("random")],
   quick: [(h) => h.click("btnQuick", 2), (C) => C.act("quick")],
 };
 const field = (id, k, v) => [(h) => h.type(id, v), (C) => C.setField(k, v)];

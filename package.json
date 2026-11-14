@@ -8,6 +8,6 @@
   "scripts": {
     "packs:unpack": "node tools/packs.mjs unpack",
     "packs:pack": "node tools/packs.mjs pack",
-    "test": "node tests/engine.test.mjs && node tests/adapter.test.mjs && node tests/sync.test.mjs && node tests/logic.test.mjs && node tests/controller.test.mjs && node tests/view.test.mjs && node tests/parity.test.mjs && node tests/caravan.test.mjs && node tests/caravan-parity.test.mjs && node tests/terminal.test.mjs && node tests/chem-species.test.mjs && node tests/manual-lock.test.mjs && node tests/prices.test.mjs && node tests/scene-end.test.mjs && node tests/skill-sources.test.mjs && node tests/names.test.mjs && node tests/damage-types.test.mjs"
+    "test": "node tests/engine.test.mjs && node tests/adapter.test.mjs && node tests/sync.test.mjs && node tests/logic.test.mjs && node tests/controller.test.mjs && node tests/view.test.mjs && node tests/parity.test.mjs && node tests/caravan.test.mjs && node tests/caravan-parity.test.mjs && node tests/terminal.test.mjs && node tests/chem-species.test.mjs && node tests/manual-lock.test.mjs && node tests/prices.test.mjs && node tests/scene-end.test.mjs && node tests/skill-sources.test.mjs && node tests/names.test.mjs && node tests/damage-types.test.mjs && node tests/caravan-sale.test.mjs"
   }
 }

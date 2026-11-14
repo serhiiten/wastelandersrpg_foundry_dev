@@ -14,7 +14,7 @@ function pageScript() {
   let code = html.slice(start + "<script>".length, html.indexOf("</script>", start));
   const end = code.lastIndexOf("})();");
   code = code.slice(0, end) +
-    "globalThis.__cv = { getS: () => S, setS: (v) => { S = v; }, derived, normalize, clampAfter, LOCK_KEYS, IMPS };\n" +
+    "globalThis.__cv = { getS: () => S, setS: (v) => { S = v; }, derived, normalize, clampAfter, salePrices, LOCK_KEYS, IMPS };\n" +
     code.slice(end);
   return { code, html };
 }
@@ -123,7 +123,7 @@ export function loadHtmlCaravan({ random = Math.random } = {}) {
   };
 
   return {
-    html, els, docListeners,
+    html, els, docListeners, api,
     getState: () => JSON.parse(JSON.stringify(api.getS())),
     setState: (s) => api.setS(api.normalize(JSON.parse(JSON.stringify(s)))),
     setRandom: (fn) => { ctx.__random = fn; },

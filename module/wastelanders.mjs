@@ -137,6 +137,13 @@ Hooks.once("init", async function () {
   return preloadHandlebarsTemplates();
 });
 
+// Tokens don't turn to face where they move, by default (author, 2026-11-14): the world setting «Automatic Token Rotation»
+// starts off; a world can still switch it on in the core settings (a value set there is kept), and each token keeps its own rotation
+Hooks.once("setup", () => {
+  const cfg = game.settings.settings.get("core.tokenAutoRotate");
+  if (cfg) cfg.default = false;
+});
+
 // Preprocess chat message before it is created hook
 // the catalogues show the compendiums' full gear texts
 Hooks.once("ready", () => {

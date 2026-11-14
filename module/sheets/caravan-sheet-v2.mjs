@@ -13,12 +13,12 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 const CONFIRM_MS = 3000;
 /** How long «Скасувати» stays after an action (the HTML sheet's toast with undo: 7 s) */
 const UNDO_MS = 7000;
-/** Actions the HTML sheet lets you undo */
-const UNDOABLE = new Set(["clear", "random", "quick", "rollImps", "cnt-del", "cg-del", "cimp-del"]);
+/** «Скасувати» shows only after the whole caravan is replaced at random or cleared (author, 2026-11-14; the HTML sheet offers it after more) */
+const UNDOABLE = new Set(["clear", "random"]);
 
 export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
-    classes: ["wastelanders", "pust-sheet"],
+    classes: ["wastelanders", "pust-sheet", "pust-caravan-sheet"],
     position: { width: 820, height: 900 },
     window: { resizable: true },
     form: { submitOnChange: false, closeOnSubmit: false },
@@ -85,6 +85,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     }
     root.querySelectorAll("[data-k]").forEach((el) => el.addEventListener("change", (ev) => {
       const t = ev.currentTarget;
+      this.dropUndo();
       return runCaravanAction(this.document, (C) => C.setField(t.dataset.k, t.type === "checkbox" ? t.checked : t.value));
     }));
   }
@@ -106,11 +107,20 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       return postFateCard(this.document, { v: roll.total, mod: luck, party: true });
     }
     const prev = UNDOABLE.has(act) ? caravanToState(this.document.toObject()) : null;
+    // any other action ends the offer: undoing would also throw away what was done after
+    if (!prev) this.dropUndo();
     await runCaravanAction(this.document, (C) => C.act(act, data));
     if (prev) this.setUndo(prev);
   }
 
-  /** Offer «Скасувати» for a while (also after opening a .json) */
+  /** Hide «Скасувати» */
+  dropUndo() {
+    if (!this.undoState) return;
+    this.undoState = null;
+    clearTimeout(this.#undoTimer);
+  }
+
+  /** Offer «Скасувати» for a while */
   setUndo(prev) {
     this.undoState = prev;
     clearTimeout(this.#undoTimer);
@@ -141,8 +151,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
   }
 
   static async #onJsonOpen() {
-    const prev = caravanToState(this.document.toObject());
-    if (await replaceCaravanFromFile(this.document)) this.setUndo(prev);
+    if (await replaceCaravanFromFile(this.document)) this.dropUndo();
   }
 
   static #onJsonSave() {

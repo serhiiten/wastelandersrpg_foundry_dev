@@ -75,6 +75,13 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
       }
       return true;
     }
+    m = k.match(/^cargo\.(\d+)\.(far|hurt)$/);
+    if (m) {
+      const r = s.cargo[+m[1]];
+      if (v === true || v === "true" || v === "on") r[m[2]] = true;
+      else delete r[m[2]];
+      return true;
+    }
     m = k.match(/^cargo\.(\d+)\.(name|kind|price|qty|note)$/);
     if (m) {
       s.cargo[+m[1]][m[2]] = m[2] === "name" || m[2] === "note" ? text.replace(/\n/g, " ") : text;
@@ -146,7 +153,14 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
       case "cg-del": s.cargo.splice(int(data.i), 1); toast("Рядок вантажу видалено"); return true;
       case "cimp-del": s.customImps.splice(int(data.i), 1); toast("Власне покращення видалено"); return true;
       case "roll": if (!L.isLocked(data.roll)) L.rollStory(data.roll); return true;
-      case "longHaul": s.longHaul = !s.longHaul; return true;
+      // Foundry: «далека доставка» is each cargo row's tick (row.far); this sets or clears it on every cargo row
+      case "longHaul": {
+        const rows = s.cargo.filter((r) => r.kind !== "pass");
+        const on = !rows.every((r) => r.far);
+        rows.forEach((r) => { if (on) r.far = true; else delete r.far; });
+        s.longHaul = false;
+        return true;
+      }
       case "addCustomImp": s.customImps.push({ name: "", desc: "" }); return true;
       case "addCounter": s.counters.push({ name: "", size: 6, value: 0 }); return true;
       case "addCargo": s.cargo.push({ name: "", kind: "cargo", price: "", qty: "1", note: "" }); return true;
@@ -166,7 +180,9 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         return true;
       }
       case "rollKarma": {
-        if (L.isLocked("karma")) return true;
+        // Foundry (author, 2026-11-14): the karma die is never locked — the sheet asks twice instead; the rolled karma
+        // counts as rolled, not typed (so «Випадковий караван» rolls it again)
+        s.manual.karma = false;
         const r = L.rollKarma();
         toast(`Карма: d6 = ${r} → ${s.karmaAspect} (${signed(s.karma)})`);
         return true;
@@ -187,7 +203,13 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         return true;
       }
       case "clear": L.setS(L.blankState()); toast("Аркуш очищено"); return true;
-      case "random": L.generateRandom(); return true;
+      case "random":
+        // Foundry (author, 2026-11-14): after the confirmation everything is rolled anew — fields typed by hand and the
+        // custom improvements are overwritten too (the transport and the party's Удача stay: they are not rolled)
+        Object.keys(s.manual || {}).forEach((k) => { s.manual[k] = false; });
+        s.customImps = [];
+        L.generateRandom();
+        return true;
       case "quick":
         L.setS(L.normalize(clone(QUICK_START)));
         L.clampAfter();

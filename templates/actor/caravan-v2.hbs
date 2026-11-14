@@ -7,7 +7,7 @@
     <div class="pust-sheetbar-btns">
       <button type="button" data-action="jsonOpen"><i class="fa-solid fa-folder-open"></i> Відкрити .json</button>
       <button type="button" data-action="jsonSave"><i class="fa-solid fa-floppy-disk"></i> Зберегти .json</button>
-      <button type="button" class="pust-random" data-action="cact" data-act="random" data-confirm="1" title="Заповнене вручну (назва, аспекти, записи) лишиться"><i class="fa-solid fa-dice"></i> Випадковий караван</button>
+      <button type="button" class="pust-random" data-action="cact" data-act="random" data-confirm="1" title="Повністю випадковий караван: усе, навіть заповнене вручну, буде перекинуто (транспорт і Удача партії лишаються). Натисніть двічі"><i class="fa-solid fa-dice"></i> Випадковий караван</button>
       <button type="button" data-action="cact" data-act="quick" data-confirm="1" title="Замінити караван готовим"><i class="fa-solid fa-person-running"></i> Швидкий старт</button>
       <button type="button" data-action="cact" data-act="clear" data-confirm="1" class="pust-danger"><i class="fa-solid fa-eraser"></i> Очистити аркуш</button>
       <button type="button" data-action="uiToggle" data-key="guide"><i class="fa-solid fa-circle-question"></i> Як створити караван</button>
@@ -50,7 +50,7 @@
           <input type="text" class="pust-screen" data-k="karma" value="{{v.karma}}" aria-label="Карма" title="Карма">
           <button type="button" data-action="cact" data-act="step" data-step="karma" data-d="1" title="Плюс 1 карми">+</button>
         </span>
-        <button type="button" class="pust-die {{#if v.locks.karma}}locked{{/if}}" data-action="cact" data-act="rollKarma" title="{{#if v.locks.karma}}Заповнено вручну. Змініть кармічний аспект або карму, щоб знову кидати кістки{{else}}Кинути d6 на карму{{/if}}"><i class="fa-solid {{#if v.locks.karma}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
+        <button type="button" class="pust-die" data-action="cact" data-act="rollKarma" data-confirm="1" title="Кинути d6 на карму (натисніть двічі): 1 — темні особи, 2–4 — прості волоцюги, 5–6 — гідні люди"><i class="fa-solid fa-dice"></i></button>
       </div>
       <div class="pust-row pust-aspect asp-concept">
         <label>Репутація</label>
@@ -63,6 +63,14 @@
   {{!-- ===== Швидкий доступ ===== --}}
   <section class="pust-quickbar {{#if quickFold}}folded{{/if}}">
     <button type="button" class="pust-qfold" data-action="uiToggle" data-key="quickFold" title="{{#if quickFold}}Розгорнути швидкий доступ{{else}}Згорнути швидкий доступ{{/if}}"><i class="fa-solid {{#if quickFold}}fa-chevron-down{{else}}fa-chevron-up{{/if}}"></i></button>
+    {{!-- folded: the main numbers in one line (author, 2026-11-14) --}}
+    <div class="pust-qsummary">
+      <span class="{{#if (lt v.hpCurrent 1)}}bad{{/if}}">ОЗ <b>{{v.hpCurrent}}/{{v.maxHP}}</b></span>
+      <span>Броня <b>{{v.armor}}</b></span>
+      <span>Бюджет <b>{{v.budget}}</b><small>(к)</small></span>
+      <span>Запас ходу <b>{{v.moveNow}}</b></span>
+      {{#if v.repair}}<span class="{{#if v.repair.hurt}}bad{{else}}hurt{{/if}}"><i class="fa-solid fa-screwdriver-wrench"></i> Пошкоджено на <b>{{v.repair.dmg}}</b> ОЗ</span>{{/if}}
+    </div>
     <div class="pust-qgrid">
       {{!-- one block (author, 2026-11-14): ОЗ, броня, бюджет, запас ходу in a row; the caravan state under them --}}
       <div class="pust-qgrp q-all">
@@ -79,21 +87,23 @@
           <input type="text" class="pust-qarmtype {{#if v.armorTypeCustom}}custom{{/if}}" data-k="armorType" value="{{v.armorType}}" aria-label="Тип броні" title="Тип броні">
           {{#if (or v.armorCustom v.armorTypeCustom)}}<button type="button" data-action="cact" data-act="armorReset" title="Повернути стандартну броню ({{v.baseArmor}}, фізична)">↺</button>{{/if}}
         </div></div>
-        <div class="pust-qi"><span>Бюджет кришок</span><div>
+        <div class="pust-qi q-bud"><span>Бюджет кришок</span><div>
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="-1" title="Мінус 1 кришка">−</button>
           <input type="text" class="pust-screen" data-k="budget" value="{{v.budget}}" aria-label="Бюджет кришок">
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="1" title="Плюс 1 кришка">+</button>
           <button type="button" class="pust-die {{#if v.locks.budget}}locked{{/if}}" data-action="cact" data-act="rollBudget" title="{{#if v.locks.budget}}Заповнено вручну. Змініть бюджет, щоб знову кидати кістки{{else}}Кинути 1d6 + 4{{/if}}"><i class="fa-solid {{#if v.locks.budget}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
         </div></div>
+        <p class="pust-qstate {{#if v.repair}}hurt{{/if}} {{#if v.repair.hurt}}bad{{/if}} {{#if v.repair.destroyed}}bad{{/if}}">{{#if v.repair}}<i class="fa-solid fa-screwdriver-wrench"></i> Пошкоджено на <b>{{v.repair.dmg}}</b> ОЗ · ремонт у техніка: <b>{{v.repair.cost}}(к)</b> (1(к) за 5 ОЗ){{#if v.repair.hurt}} · <b>вантаж постраждав</b>: шкоди більше ніж на половину ОЗ{{/if}}{{#if v.repair.destroyed}} · <b>ОЗ 0 — вантаж знищено</b>{{/if}}{{else}}<i class="fa-solid fa-circle-check"></i> Караван цілий{{/if}}</p>
+      </div>
+      <div class="pust-qgrp q-move">
         <div class="pust-qi q-movecell"><span>Запас ходу <b class="q-movenow">{{v.moveNow}}</b></span>
           <div class="q-moverow">
             <div class="pust-qpips">
-            {{#each v.movePips1}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/each}}
-            {{#each v.movePips2}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/each}}
+            {{#each v.movePips1}}{{#if avail}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/if}}{{/each}}
+            {{#each v.movePips2}}{{#if avail}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/if}}{{/each}}
             </div>
           </div>
-          <small>{{v.cellRule}} · {{v.refill}}</small></div>
-        <p class="pust-qstate {{#if v.repair}}hurt{{/if}} {{#if v.repair.hurt}}bad{{/if}} {{#if v.repair.destroyed}}bad{{/if}}">{{#if v.repair}}<i class="fa-solid fa-screwdriver-wrench"></i> Пошкоджено на <b>{{v.repair.dmg}}</b> ОЗ · ремонт у техніка: <b>{{v.repair.cost}}(к)</b> (1(к) за 5 ОЗ){{#if v.repair.hurt}} · <b>вантаж постраждав</b>: шкоди більше ніж на половину ОЗ{{/if}}{{#if v.repair.destroyed}} · <b>ОЗ 0 — вантаж знищено</b>{{/if}}{{else}}<i class="fa-solid fa-circle-check"></i> Караван цілий{{/if}}</p>
+          <small class="q-refill {{#if v.moveLack}}low{{/if}}">{{v.refill}}</small><small class="q-cellrule">{{v.cellRule}}</small></div>
       </div>
     </div>
 
@@ -149,10 +159,11 @@
   {{#if (eq tab 'cargo')}}
     <div class="pust-tools pust-tools-top pust-cargo-bar">
       <span class="pust-hcount {{#if v.cargoOver}}bad{{/if}}" title="Вантаж на суму / місткість каравану"><span>Вантаж</span><b>{{v.cargoNow}}</b><small>(к)</small><span class="pust-meter {{#if v.cargoOver}}warn{{/if}}"><span style="width: {{v.cargoPct}}%"></span></span>{{#if v.cargoOver}}<small>перевантаження</small>{{/if}}</span>
+      <span class="pust-hcount pust-hsale {{#if v.cargoSummary.hurt}}hurt{{/if}} {{#if v.repair.destroyed}}hurt{{/if}}" title="{{#if v.repair.destroyed}}ОЗ 0 — вантаж знищено: продавати нічого{{else}}За скільки можна продати весь вантаж: сума рядків, кожен зі своєю далекою доставкою й пошкодженням{{/if}}"><span>Сума продажу</span><b>{{#if v.repair.destroyed}}0{{else}}{{#if v.cargoSummary}}{{v.cargoSummary.sale}}{{else}}0{{/if}}{{/if}}</b><small>(к){{#if v.cargoSummary.passengers}} · пасажирів: {{v.cargoSummary.passengers}}{{/if}}</small></span>
     </div>
     {{#if v.cargo.length}}
     <div class="pust-glist pust-glist-cargo">
-      <div class="pust-grow pust-ghead"><span>Назва</span><span>Примітка</span><span>Тип</span><span>Ціна</span><span>К-сть</span><span>Сума</span><span><i class="fa-solid fa-xmark"></i></span></div>
+      <div class="pust-grow pust-ghead"><span>Назва</span><span>Примітка</span><span>Тип</span><span>Ціна</span><span>К-сть</span><span title="Далека доставка (понад 15 клітин): ×2 замість ×1,5">Далека</span><span title="Вантаж пошкоджено: ×1,25 (далека — ×1,5)">Пошк.</span><span title="За скільки продасться рядок">Сума</span><span><i class="fa-solid fa-xmark"></i></span></div>
       {{#each v.cargo}}
       <div class="pust-grow">
         <input type="text" class="pust-gname" data-k="cargo.{{i}}.name" value="{{name}}" placeholder="Що везете" aria-label="Назва">
@@ -160,7 +171,9 @@
         <select data-k="cargo.{{i}}.kind" aria-label="Тип"><option value="cargo" {{#unless pass}}selected{{/unless}}>Вантаж</option><option value="pass" {{#if pass}}selected{{/if}}>Пасажир</option></select>
         <input type="text" class="pust-price" data-k="cargo.{{i}}.price" value="{{price}}" placeholder="Ціна" aria-label="Ціна">
         <input type="text" class="pust-qty" data-k="cargo.{{i}}.qty" value="{{qty}}" placeholder="К-сть" aria-label="Кількість">
-        <b class="pust-csum">{{sum}}</b>
+        {{#if pass}}<span></span><span></span>{{else}}<label class="pust-ctick" title="Далека доставка (понад 15 клітин): продаж ×2 замість ×1,5"><input type="checkbox" data-k="cargo.{{i}}.far" {{#if far}}checked{{/if}} aria-label="Далека доставка"></label>
+        <label class="pust-ctick" title="Вантаж пошкоджено: продаж ×1,25 (далека — ×1,5). Ставиться сам, коли караван отримує понад половину ОЗ шкоди"><input type="checkbox" data-k="cargo.{{i}}.hurt" {{#if hurt}}checked{{/if}} aria-label="Пошкоджено"></label>{{/if}}
+        <b class="pust-csum {{#if hurt}}{{#unless pass}}hurt{{/unless}}{{/if}}" title="{{#if pass}}Плата за проїзд{{else}}Ціна продажу рядка{{/if}}">{{sum}}</b>
         <button type="button" class="pust-x" data-action="cact" data-act="cg-del" data-i="{{i}}" data-confirm="1" title="Видалити рядок"><i class="fa-solid fa-xmark"></i></button>
       </div>
       {{/each}}
@@ -170,9 +183,8 @@
     {{/if}}
     <div class="pust-tools">
       <button type="button" data-action="cact" data-act="addCargo">+ Рядок</button>
-      <button type="button" class="{{#if v.longHaul}}on{{/if}}" data-action="cact" data-act="longHaul" title="Далека доставка (понад 15 клітин): продаж ще на ½ ціни дорожчий">Далека доставка</button>
     </div>
-    <p class="pust-log">{{#if v.cargoSummary}}Вантаж: <b>{{v.cargoSummary.val}} / {{v.cargoSummary.cap}}(к)</b>{{#if v.cargoSummary.over}} — <b class="bad">перевантаження</b>{{/if}} · продаж: <b>{{v.cargoSummary.sale}}(к)</b> (пошкоджений <b>{{v.cargoSummary.saleHurt}}(к)</b>){{#if v.cargoSummary.passengers}} · пасажирів: <b>{{v.cargoSummary.passengers}}</b>{{/if}}{{else}}Місткість: <b>{{v.cargoCap}}(к)</b> вантажу{{/if}}</p>
+
   {{/if}}
 
   {{!-- ===== Лічильники ===== --}}
@@ -195,10 +207,10 @@
     <div class="pust-story">
       <div class="pust-row pust-aspect asp-concept"><label>Як ви познайомилися?</label><textarea class="pust-asp-ta" rows="1" data-k="story.meeting" aria-label="Як ви познайомилися?">{{v.story.meeting}}</textarea>
         <button type="button" class="pust-die {{#if v.locks.meeting}}locked{{/if}}" data-action="cact" data-act="roll" data-roll="meeting" title="{{#if v.locks.meeting}}Заповнено вручну. Очистіть поле, щоб знову кидати{{else}}Кинути кістки{{/if}}"><i class="fa-solid {{#if v.locks.meeting}}fa-lock{{else}}fa-dice{{/if}}"></i></button></div>
-      <div class="pust-row pust-aspect asp-problem"><label>Обличчя компанії</label><textarea class="pust-asp-ta" rows="1" data-k="story.face" aria-label="Обличчя компанії">{{v.story.face}}</textarea></div>
+      <div class="pust-row pust-aspect asp-detail"><label>Обличчя компанії</label><textarea class="pust-asp-ta" rows="1" data-k="story.face" aria-label="Обличчя компанії">{{v.story.face}}</textarea></div>
       <div class="pust-row pust-aspect asp-goal"><label>Остання справа</label><textarea class="pust-asp-ta" rows="1" data-k="story.lastJob" aria-label="Остання справа">{{v.story.lastJob}}</textarea>
         <button type="button" class="pust-die {{#if v.locks.lastJob}}locked{{/if}}" data-action="cact" data-act="roll" data-roll="lastJob" title="{{#if v.locks.lastJob}}Заповнено вручну. Очистіть поле, щоб знову кидати{{else}}Кинути кістки{{/if}}"><i class="fa-solid {{#if v.locks.lastJob}}fa-lock{{else}}fa-dice{{/if}}"></i></button></div>
-      <div class="pust-row pust-aspect asp-detail"><label>Що пішло не так</label><textarea class="pust-asp-ta" rows="1" data-k="story.wentWrong" aria-label="Що пішло не так">{{v.story.wentWrong}}</textarea>
+      <div class="pust-row pust-aspect asp-problem"><label>Що пішло не так</label><textarea class="pust-asp-ta" rows="1" data-k="story.wentWrong" aria-label="Що пішло не так">{{v.story.wentWrong}}</textarea>
         <button type="button" class="pust-die {{#if v.locks.wentWrong}}locked{{/if}}" data-action="cact" data-act="roll" data-roll="wentWrong" title="{{#if v.locks.wentWrong}}Заповнено вручну. Очистіть поле, щоб знову кидати{{else}}Кинути кістки{{/if}}"><i class="fa-solid {{#if v.locks.wentWrong}}fa-lock{{else}}fa-dice{{/if}}"></i></button></div>
     </div>
     <h4>Примітки</h4>

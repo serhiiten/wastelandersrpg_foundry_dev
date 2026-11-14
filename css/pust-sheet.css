@@ -903,7 +903,7 @@
 .pust-caravan .pust-tools button.on { background: var(--pu-steel-1) !important; color: var(--pu-green) !important; }
 
 /* Вантаж і пасажири: a list with column headers, like the gear of the character sheet */
-.pust-caravan .pust-glist-cargo { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 108px 64px 56px 52px 28px; }
+.pust-caravan .pust-glist-cargo { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 108px 64px 56px 50px 44px 52px 28px; }
 .pust-caravan .pust-glist-cargo .pust-grow > select { width: 100%; min-width: 0; }
 .pust-caravan .pust-glist-cargo .pust-grow > .pust-cnote { width: 100%; min-width: 0; }
 .pust-caravan .pust-csum { text-align: center; font-family: var(--pu-f-num); font-size: 15px; line-height: 26px; min-height: 26px; }
@@ -1043,3 +1043,103 @@
 .pust-caravan .q-all .q-moverow > .pust-qpips { grid-template-columns: repeat(10, 15px) !important; }
 .wastelanders .pust-caravan .q-all .pust-qpips .pip { width: 15px !important; height: 12px !important; }
 .pust-caravan .q-all .pust-qi.q-movecell > small { line-height: 1.2; }
+
+/* caravan, round 5 (author, 2026-11-14): the top block as a grid — «Запас ходу» on the right across both lines,
+   the caravan state right under ОЗ / броня / бюджет (no gap) */
+.pust-caravan .pust-qgrp.q-all { display: grid; grid-template-columns: auto auto auto minmax(177px, 1fr); grid-template-areas: "hp arm bud move" "state state state move";
+  column-gap: 14px; row-gap: 8px; align-items: start; }
+.pust-caravan .q-all > .q-hp { grid-area: hp; }
+.pust-caravan .q-all > .q-arm { grid-area: arm; }
+.pust-caravan .q-all > .q-bud { grid-area: bud; }
+.pust-caravan .q-all > .q-movecell { grid-area: move; min-width: 0; }
+.pust-caravan .q-all > .pust-qstate { grid-area: state; align-self: end; }
+@container (max-width: 650px) {
+  .pust-caravan .pust-qgrp.q-all { grid-template-columns: auto auto minmax(0, 1fr); grid-template-areas: "hp arm bud" "move move move" "state state state"; }
+}
+/* the top block fits with the ↺ (custom ОЗ / броня) buttons too: tighter gaps, a narrower armour type, small ↺, smaller lamps */
+.pust-caravan .pust-qgrp.q-all { column-gap: 8px; grid-template-columns: auto auto auto minmax(158px, 1fr); }
+.pust-caravan .pust-qi input.pust-qarmtype { width: 66px !important; }
+.pust-caravan .pust-qi input.pust-qmax { width: 40px !important; }
+.wastelanders .pust-caravan .q-all button[data-act$="Reset"]:not(.header-control) { width: 20px !important; height: 26px !important; padding: 0 !important; font-size: 13px !important; }
+.pust-caravan .q-all .q-moverow > .pust-qpips { grid-template-columns: repeat(10, 14px) !important; gap: 3px 2px; }
+.wastelanders .pust-caravan .q-all .pust-qpips .pip { width: 14px !important; }
+.pust-caravan .q-all .pust-qi.q-movecell { min-width: 158px; }
+
+/* caravan, round 6 (author, 2026-11-14) */
+/* «Скасувати»: hard to miss — amber, with a slow glow, while it lasts */
+@keyframes pust-undo-glow { 0%, 100% { box-shadow: 0 0 0 2px rgba(244,209,26,.25), 0 0 6px rgba(244,209,26,.4); } 50% { box-shadow: 0 0 0 3px rgba(244,209,26,.55), 0 0 14px rgba(244,209,26,.75); } }
+.wastelanders .pust-sheet button.pust-undo:not(.header-control), .wastelanders .pust-caravan button.pust-undo:not(.header-control) {
+  height: 32px !important; padding: 0 14px !important; margin: 0 !important; display: inline-flex; align-items: center; gap: 7px; flex: none;
+  font-family: var(--pu-f-label); font-weight: 800; font-size: 13.5px !important; text-transform: uppercase; letter-spacing: .05em;
+  background: linear-gradient(180deg, #ffe46a, #f4d11a 55%, #d9b200) !important; color: #2a1c05 !important; border: 2px solid #8a6a00 !important; border-radius: 4px !important;
+  animation: pust-undo-glow 1.6s ease-in-out infinite; }
+.wastelanders .pust-caravan button.pust-undo:not(.header-control) i { font-size: 15px; }
+
+/* «Запас ходу»: a block of its own (a framed screen), the lamps filling it, the refill over the rule, two lines */
+.pust-caravan .q-all > .q-movecell { align-self: stretch; padding: 6px 10px 6px; border: 1px solid var(--pu-steel-3); border-radius: 4px;
+  background: rgba(0,0,0,.28); box-shadow: inset 0 0 10px rgba(0,0,0,.45); }
+.pust-caravan .q-all .q-moverow { height: auto; display: block; }
+.pust-caravan .q-all .q-moverow > .pust-qpips { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)) !important; gap: 4px 4px; width: 100%; padding: 2px 0; }
+.wastelanders .pust-caravan .q-all .pust-qpips .pip { width: 100% !important; height: 15px !important; }
+.pust-caravan .q-all .q-movecell > small { display: block; line-height: 1.25; }
+.pust-caravan .q-all .q-movecell > small.q-refill { margin-top: 3px; font-weight: 700; color: var(--pu-green); }
+.pust-caravan .q-all .q-movecell > small.q-refill.low { color: var(--pu-amber); }
+.pust-caravan .q-all .q-movecell > small.q-cellrule { color: var(--pu-green-dim); }
+
+/* caravan, round 7 (author, 2026-11-14): «Запас ходу» a block of its own beside the main one (no frame in a frame);
+   the main block: ОЗ / броня / бюджет, the state under them */
+.pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) minmax(180px, 240px) !important; grid-template-areas: "all move" !important; align-items: stretch !important; }
+.pust-caravan .pust-qgrp.q-all { grid-template-columns: auto auto minmax(0, 1fr); grid-template-areas: "hp arm bud" "state state state"; grid-template-rows: auto 1fr; }
+.pust-caravan .pust-qgrp.q-move { grid-area: move; display: block; padding: 6px 10px; }
+.pust-caravan .q-move > .q-movecell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pust-caravan .q-move .q-moverow { display: block; height: auto; }
+.pust-caravan .q-move .q-moverow > .pust-qpips { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)) !important; gap: 4px; width: 100%; padding: 2px 0; }
+.wastelanders .pust-caravan .q-move .pust-qpips .pip { width: 100% !important; height: 16px !important; min-height: 0 !important; padding: 0 !important; border-radius: 3px;
+  background: var(--pu-steel-0); border: 1px solid var(--pu-steel-3); box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+.wastelanders .pust-caravan .q-move .pust-qpips .pip.on { background: radial-gradient(circle at 50% 40%, #b6ffb9, var(--pu-green) 45%, #1d7d25); border-color: #2fbf3a; box-shadow: 0 0 6px rgba(61,255,71,.6), inset 0 1px 1px rgba(255,255,255,.5); }
+.pust-caravan .q-move .q-movecell > span .q-movenow { margin-left: 6px; font-family: var(--pu-f-num); font-size: 13px; letter-spacing: 0; color: #b6ffb9; }
+.pust-caravan .q-move .q-movecell > small { display: block; line-height: 1.3; font-size: 11px; }
+.pust-caravan .q-move .q-movecell > small.q-refill { margin-top: 2px; font-weight: 700; color: var(--pu-green); }
+.pust-caravan .q-move .q-movecell > small.q-refill.low { color: var(--pu-amber); }
+.pust-caravan .q-move .q-movecell > small.q-cellrule { color: var(--pu-green-dim); }
+@container (max-width: 650px) {
+  .pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "all" "move" !important; }
+}
+/* not enough room for both side by side: «Запас ходу» under the main block, the whole width */
+@container (max-width: 720px) {
+  .pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "all" "move" !important; }
+  .pust-caravan .q-move .q-movecell { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "lab pips refill" "lab pips rule"; column-gap: 14px; align-items: center; }
+  .pust-caravan .q-move .q-movecell > span { grid-area: lab; }
+  .pust-caravan .q-move .q-movecell > .q-moverow { grid-area: pips; }
+  .pust-caravan .q-move .q-movecell > small.q-refill { grid-area: refill; margin: 0; }
+  .pust-caravan .q-move .q-movecell > small.q-cellrule { grid-area: rule; }
+}
+.pust-caravan .pust-cargo-bar > .pust-hcount { margin-right: 0; } /* the load and the sale side by side */
+/* damaged cargo: the sale sum and the row's sum in red */
+.pust-caravan .pust-hsale.hurt > b { color: var(--pu-red) !important; text-shadow: 0 0 8px rgba(255,60,50,.5); }
+.pust-caravan .pust-csum.hurt { color: var(--pu-red); font-weight: 700; }
+/* each cargo row's «Далека» and «Пошк.» ticks (Foundry only, author 2026-11-14) */
+.pust-caravan .pust-ctick { display: flex; align-items: center; justify-content: center; min-height: 26px; margin: 0; cursor: pointer; }
+.pust-caravan .pust-ctick > input[type=checkbox] { margin: 0; }
+
+/* caravan: the folded quick panel shows the main numbers in one line, the fold button inside it (author, 2026-11-14) */
+.pust-caravan .pust-qsummary { display: none; }
+.pust-caravan .pust-quickbar.folded .pust-qgrid { display: none !important; }
+.pust-caravan .pust-quickbar.folded .pust-qsummary { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 22px; min-height: 28px; padding: 0 34px 0 4px;
+  font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-green-dim); }
+.pust-caravan .pust-qsummary b { margin-left: 5px; font-family: var(--pu-f-num); font-size: 16px; letter-spacing: 0; color: #b6ffb9; }
+.pust-caravan .pust-qsummary small { margin-left: 2px; font-size: 10px; }
+.pust-caravan .pust-qsummary .hurt, .pust-caravan .pust-qsummary .hurt b { color: var(--pu-amber); }
+.pust-caravan .pust-qsummary .bad, .pust-caravan .pust-qsummary .bad b { color: var(--pu-red); }
+.pust-caravan .pust-quickbar.folded { padding-top: 6px; padding-bottom: 6px; }
+/* the same place folded and unfolded (top 4px): the folded strip is just tall enough for it to sit in the middle */
+.pust-caravan .pust-quickbar.folded { padding-top: 0 !important; padding-bottom: 0 !important; }
+.pust-caravan .pust-quickbar.folded .pust-qsummary { min-height: 30px; }
+/* the fold button doesn't move when pressed (the common «pressed» shift made it jump) */
+.wastelanders .pust-qfold:not(.header-control):active { transform: none !important; }
+/* the main block is as wide as its content (the budget die never runs into «Запас ходу»); «Запас ходу» takes the rest */
+.pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: max-content minmax(180px, 1fr) !important; }
+@container (max-width: 720px) {
+  .pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) !important; }
+}
+.pust-caravan .q-all > .pust-qstate { contain: inline-size; } /* the state text wraps; it never sets the main block's width */

@@ -303,6 +303,8 @@ export async function replaceCaravanFromFile(actor) {
 /** Caravan sheet button: save the caravan as the HTML caravan sheet's .json («Караван — Назва.json») */
 export function exportCaravan(actor) {
   const S = caravanToState(actor.toObject());
+  // the HTML caravan sheet has one «Далека доставка» for the whole caravan: on when any cargo row has it
+  S.longHaul = (S.cargo || []).some((r) => r.kind !== "pass" && r.far);
   const n = String(S.companyName || "").trim().replace(/[\\/:*?"<>|]+/g, "").slice(0, 60);
   foundry.utils.saveDataToFile(JSON.stringify(S, null, 2), "application/json", `Караван${n ? " — " + n : ""}.json`);
 }

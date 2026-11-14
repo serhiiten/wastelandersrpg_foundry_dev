@@ -260,3 +260,18 @@
   font-family: var(--pu-f-num) !important; font-size: 18px !important; font-weight: 700; box-shadow: inset 0 1px 3px rgba(0,0,0,.5) !important;
 }
 .wastelanders input.pust-screen[type="text"]:focus { border-color: var(--pu-green-dim) !important; box-shadow: inset 0 1px 3px rgba(0,0,0,.5), 0 0 6px rgba(61,255,71,.35) !important; }
+
+/* the caravan sheet's window: metal grey instead of rust, so it is told apart from the characters' sheets (author, 2026-11-14) */
+.application.wastelanders.pust-caravan-sheet {
+  background: #4a453d var(--pu-noise);
+  border-color: #1e1b17;
+  box-shadow: 0 0 0 1px rgba(220,215,205,.16) inset, 0 10px 28px rgba(0,0,0,.55);
+}
+.wastelanders.pust-caravan-sheet > .window-header {
+  background: linear-gradient(180deg, rgba(235,230,220,.16), rgba(0,0,0,.2)), #5a554c var(--pu-noise);
+  border-bottom-color: #1e1b17;
+  color: #e8e4da;
+}
+.wastelanders.pust-caravan-sheet > .window-header .window-title { color: #ece8de; text-shadow: 0 1px 0 #1e1b17; }
+.wastelanders.pust-caravan-sheet > .window-header :is(.header-control, .header-button, button, a) { color: #e8e4da; }
+.wastelanders.pust-caravan-sheet > .window-content { border-color: #1e1b17; }

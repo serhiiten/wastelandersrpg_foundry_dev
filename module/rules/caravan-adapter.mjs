@@ -139,7 +139,24 @@ export function caravanToState(actor, { withIds = false } = {}) {
       S.cargo.push({ kind: "pass", price: "", qty: "1", note: "", ...e, name: rowText(e.name, it.name) });
     }
   }
+  // the HTML sheet's «Далека доставка» for the whole caravan becomes the tick of every cargo row
+  if (S.longHaul) {
+    S.cargo.forEach((r) => { if (r.kind !== "pass") r.far = true; });
+    S.longHaul = false;
+  }
   return S;
+}
+
+/**
+ * Foundry only (author, 2026-11-14): «далека доставка» and «пошкоджено» are ticks of each cargo row (row.far, row.hurt),
+ * not of the whole caravan. The cargo suffers when the caravan takes MORE than half its HP of damage (half rounded up).
+ */
+export const cargoHurtAt = (hp, max) => int(hp) > 0 && int(max) - int(hp) > Math.ceil(int(max) / 2);
+/** A cargo row's sale price: normal ×1.5, long ×2; damaged ×1.25 / ×1.5; rounded up. Passengers: their fare as is. */
+export function rowSale(r) {
+  const v = Math.max(0, int(r.price)) * Math.max(0, int(r.qty, 1));
+  if (r.kind === "pass") return v;
+  return Math.ceil(v * (r.far ? (r.hurt ? 1.5 : 2) : r.hurt ? 1.25 : 1.5));
 }
 
 /** Item types the caravan sheet manages */
