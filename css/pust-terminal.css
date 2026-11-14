@@ -83,3 +83,130 @@
 /* chat: the generators' HTML inside a chat card (card look from pust-ui.css) */
 .pust-chat .result-title { font-weight: bold; text-transform: uppercase; font-size: 11px; color: #6e3b22; }
 .pust-chat .result-section { margin: 4px 0; }
+
+/* ===== «Термінал Доглядача» notifications in chat (author, 2026-11-14): akin to the roll cards — the same paper frame and
+   steel-rimmed screen — but a terminal printout: a steel header with the section's icon, green phosphor text in PT Mono */
+.chat-message .pust-chat.pust-tcard { padding: 4px 6px 6px; }
+.chat-message .pust-chat.pust-tcard > h3 { display: flex; align-items: center; gap: 6px; margin: -4px -6px 6px; padding: 3px 7px;
+  background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-0)); color: var(--pu-green);
+  border-bottom: 2px solid var(--pu-green-dim); text-shadow: 0 0 6px rgba(61,255,71,.45); }
+.chat-message .pust-chat.pust-tcard > h3 > i { flex: none; font-size: 12px; }
+.chat-message .pust-chat.pust-tcard > h3 > span { flex: 1 1 auto; min-width: 0; }
+.chat-message .pust-chat.pust-tcard > h3 > small { flex: none; font-family: var(--pu-f-screen); font-weight: 400; font-size: 10px; letter-spacing: .04em; color: var(--pu-green-dim); text-shadow: none; }
+.chat-message .pust-chat.pust-tcard > h3 > small::before { content: "> "; }
+.pust-chat.pust-tcard .tscreen { padding: 6px 9px; border: 3px solid var(--pu-steel-0); border-radius: 6px;
+  background: var(--pu-scan), radial-gradient(ellipse at 50% 40%, #1d3324, #0f1d15 75%);
+  box-shadow: inset 0 0 16px rgba(0,0,0,.6); color: #bfeec5; font-family: var(--pu-f-screen); font-size: 12px; line-height: 1.45; }
+.pust-chat.pust-tcard .tscreen > :first-child { margin-top: 0; }
+.pust-chat.pust-tcard .tscreen > :last-child { margin-bottom: 0; }
+.pust-chat.pust-tcard .tscreen p { margin: 3px 0; }
+.chat-message .pust-chat.pust-tcard .tscreen :is(b, strong) { color: var(--pu-amber); font-weight: 700; }
+.chat-message .pust-chat.pust-tcard .tscreen small { color: #84b48b; font-size: 11px; }
+.chat-message .pust-chat.pust-tcard .tscreen .result-title { color: var(--pu-green); font-family: var(--pu-f-label); font-weight: 800; font-size: 11.5px; letter-spacing: .06em; text-shadow: 0 0 6px rgba(61,255,71,.4); }
+.chat-message .pust-chat.pust-tcard .tscreen .result-section { margin: 5px 0; padding: 2px 0 2px 7px; border-left: 3px solid var(--pu-green-dim); }
+.chat-message .pust-chat.pust-tcard .tscreen :is(.danger-encounter, .battle-encounter) { border-left-color: var(--pu-red); }
+.chat-message .pust-chat.pust-tcard .tscreen :is(.special-encounter, .settlement-encounter) { border-left-color: var(--pu-amber); }
+.chat-message .pust-chat.pust-tcard .tscreen .dice-result { font-family: var(--pu-f-num); font-weight: 700; color: #0e1a10; background: var(--pu-green); padding: 0 5px; border-radius: 3px; }
+/* easier to read (author, 2026-11-14): bigger text, faint scanlines */
+.pust-chat.pust-tcard .tscreen { font-size: 14px; line-height: 1.45;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 1px, transparent 1px 4px), radial-gradient(ellipse at 50% 40%, #1d3324, #0f1d15 75%); }
+.chat-message .pust-chat.pust-tcard .tscreen small { font-size: 12.5px; }
+.chat-message .pust-chat.pust-tcard .tscreen .result-title { font-size: 12.5px; }
+.chat-message .pust-chat.pust-tcard .tscreen .dice-result { font-size: 14px; }
+
+/* ===== The terminal laid out like the sheets (author, 2026-11-14) =====
+   a red window (characters rust, caravans grey, the Доглядач's terminal red); the sheets' big tabs with the content
+   framed under them; each tab's settings in a dark screen panel like the sheets' quick panel; results on paper cards */
+.application.wastelanders.pust-terminal-app {
+  background: #a3261a var(--pu-noise);
+  border-color: #240806;
+  box-shadow: 0 0 0 1px rgba(255,200,180,.14) inset, 0 10px 28px rgba(0,0,0,.55);
+}
+.wastelanders.pust-terminal-app > .window-header {
+  background: linear-gradient(180deg, rgba(255,215,195,.16), rgba(0,0,0,.12)), #d8371f var(--pu-noise);
+  border-bottom-color: #240806;
+  color: #f6e3d6;
+}
+.wastelanders.pust-terminal-app > .window-header .window-title { color: #fbeee4; text-shadow: 0 1px 0 #240806; }
+.wastelanders.pust-terminal-app > .window-header :is(.header-control, .header-button, button, a) { color: #f6e3d6; }
+.pust-terminal-app .window-content { padding: 8px; border-color: #240806; }
+.pust-terminal { font-size: 14px; }
+/* tabs as on the sheets; the content framed under them */
+.wastelanders .pust-terminal .pust-tabs.pust-term-tabs { margin: 0; border-radius: 3px 3px 0 0; flex: none; }
+.pust-terminal .pust-term-body { border: 3px solid var(--pu-rust-0); border-top: 0; border-radius: 0 0 5px 5px; padding: 8px 8px 10px;
+  background: rgba(110,59,34,.05); box-shadow: inset 0 6px 8px -6px rgba(35,27,17,.35); }
+/* the tab's title, notes and settings: one screen panel, as the sheets' quick panel */
+.wastelanders .pust-terminal .pust-term-screen { outline: none; margin: 0 0 10px; padding: 8px 12px 10px;
+  background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29);
+  border: 3px solid var(--pu-steel-0); border-radius: 6px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.07), inset 0 0 18px rgba(0,0,0,.45), 3px 3px 0 rgba(35,27,17,.22); }
+.pust-terminal .pust-term-screen > .pust-term-row { margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed rgba(61,255,71,.25); gap: 6px 10px; }
+.pust-terminal .pust-term-screen > .pust-term-row + .pust-term-row,
+.pust-terminal .pust-term-screen > .pust-kinds + .pust-term-row { border-top: 0; padding-top: 0; }
+.pust-terminal .pust-term-screen > .pust-kinds { margin: 8px 0 0; }
+.pust-terminal .pust-term-screen .pust-term-fld > span { color: var(--pu-green-dim); }
+.pust-terminal .pust-term-screen .pust-term-go { margin-left: auto; }
+/* results: paper cards with a heading like the sheets' blocks */
+.pust-terminal .pust-term-result { margin: 0 0 10px; }
+.pust-terminal .pust-term-hd { border-bottom: 2px solid var(--pu-rust-2); }
+.pust-terminal .pust-term-hd > b { color: var(--pu-rust-1); }
+.pust-terminal .pust-term-hd .pust-term-journal { margin-left: 0; }
+/* the enemy kinds are labels: keep their plate colours inside the screen (the screen paints every label green) */
+.wastelanders .pust-terminal .pust-term-screen label.pust-kind { color: var(--pu-ink) !important; }
+.wastelanders .pust-terminal .pust-term-screen label.pust-kind.on { color: var(--pu-green) !important; border-color: var(--pu-green-dim); }
+/* the battle's difficulty select in the settings row; the enemy kinds under it */
+.pust-terminal .pust-term-screen select[data-k="battle.difficulty"] { width: auto; min-width: 140px; }
+.pust-terminal .pust-term-screen > .pust-term-row + .pust-kinds { padding-top: 0; }
+/* inspiration cards: the output fills the card, so the buttons of one row of cards line up at the bottom */
+.wastelanders .pust-terminal .pust-table-card { margin: 0; }
+.pust-terminal .pust-tables { gap: 10px; }
+.pust-terminal .pust-table-card > .pust-table-out { flex: 1 1 auto; min-height: 56px; }
+.pust-terminal .pust-table-card > .pust-table-btns { margin-top: 2px; }
+/* the same margin left and right with or without the scrollbar: its room is always kept, the right padding is the scrollbar */
+.pust-terminal .pust-term-body { scrollbar-gutter: stable; padding: 8px 0 10px 10px; }
+
+/* ===== order and symmetry (author, 2026-11-14) =====
+   settings: one grid on every tab — labels in a column of their own, controls start on one line, the Generate button
+   in the first row on the right; blocks 10 px apart everywhere */
+.pust-terminal .pust-term-grid { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; align-items: center; gap: 8px 10px;
+  margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed rgba(61,255,71,.25); }
+.pust-terminal .pust-term-grid > .pust-term-l { margin: 0; white-space: nowrap; }
+.pust-terminal .pust-term-grid > .pust-term-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; }
+.pust-terminal .pust-term-grid > .pust-term-ctl.wide { grid-column: 2 / -1; }
+.pust-terminal .pust-term-grid > .pust-term-go { margin: 0; justify-self: end; }
+.pust-terminal .pust-term-grid > .pust-kinds { margin: 0; }
+.pust-terminal .pust-term-grid select { height: 28px; }
+/* the scene boxes: a row of their own, 10 px from the blocks around them */
+.pust-terminal .pust-scene { margin: 0 0 10px; gap: 8px; }
+.pust-terminal .pust-scene-box { margin: 0; min-height: 64px; }
+/* the battle's result: title and chat / journal in the header; under it the case line and the note on the left,
+   the actor buttons and the list tools on the right */
+.pust-terminal .pust-battle-make { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "info make" "info tools";
+  align-items: center; gap: 6px 10px; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--pu-ink-3); }
+.pust-terminal .pust-battle-info { grid-area: info; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.pust-terminal .pust-battle-info > .pust-term-note { font-size: 17px; line-height: 1.15; }
+.pust-terminal .pust-battle-info > .pust-sub { font-size: 12px; line-height: 1.3; }
+.pust-terminal .pust-battle-btns { grid-area: make; display: flex; justify-content: flex-end; gap: 6px; }
+.pust-terminal .pust-battle-btns.pust-battle-tools { grid-area: tools; }
+.pust-terminal .pust-battle-btns > button { margin: 0; white-space: nowrap; }
+/* a label beside a control that wraps onto several lines sits on its first line (kinds: 22 px plates, 14 px label) */
+.pust-terminal .pust-term-grid > .pust-term-l:has(+ .pust-kinds) { align-self: start; margin-top: 4px; }
+/* the four battle buttons on one 2×2 grid: equal columns (Додати теку / Згорнути, Розмістити / Очистити) */
+.pust-terminal .pust-battle-make { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: none; }
+.pust-terminal .pust-battle-info { grid-area: auto; grid-column: 1; grid-row: 1 / span 2; }
+.pust-terminal .pust-battle-btns, .pust-terminal .pust-battle-btns.pust-battle-tools { display: contents; }
+.pust-terminal .pust-battle-btns > button { justify-content: center; }
+
+/* «Термінал Доглядача» at the top, right of the current scene's name (GM): a full red plate, placed by wastelanders.mjs;
+   lit (.on) while the terminal is open */
+#ui-left-column-2 { position: relative; }
+#ui-left-column-2 > .wastelanders-terminal-dock { position: absolute; z-index: 5; pointer-events: none; }
+#ui-left-column-2 > .wastelanders-terminal-dock > button { pointer-events: auto; }
+.wastelanders-terminal-dock .wastelanders-terminal-open { display: inline-flex; align-items: center; gap: 7px; width: max-content; height: 32px; margin: 0; padding: 0 12px;
+  background: linear-gradient(180deg, rgba(255,215,195,.18), rgba(0,0,0,.15)), #a3261a; color: #fbeee4;
+  border: 1px solid #d8371f; border-radius: 5px; box-shadow: 0 2px 6px rgba(0,0,0,.5);
+  font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
+.wastelanders-terminal-dock .wastelanders-terminal-open:hover { background: linear-gradient(180deg, rgba(255,215,195,.25), rgba(0,0,0,.1)), #c22e1e; color: #fff; }
+.wastelanders-terminal-dock .wastelanders-terminal-open > i { font-size: 13px; }
+.wastelanders-terminal-dock .wastelanders-terminal-open.on { background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)); color: var(--pu-green);
+  border-color: var(--pu-green-dim); text-shadow: 0 0 6px rgba(61,255,71,.5); box-shadow: 0 2px 6px rgba(0,0,0,.5), inset 0 0 10px rgba(61,255,71,.15); }

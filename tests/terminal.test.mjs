@@ -11,7 +11,7 @@ import { opponentName } from "../module/applications/terminal-battle.mjs";
 import { createTerminal } from "../module/rules/terminal.mjs";
 import {
   BATTLE_DIFFS, CASE_DIFFS, CASE_FIELDS, LUCKS, TABLE_CARDS, battleChat, blankTerminal, buildTerminalView, caseChat,
-  runTable, tableChat, travelChat,
+  runTable, tableChat, travelChat, caseJournal, battleJournal,
 } from "../module/applications/terminal-view.mjs";
 
 const HTML = readFileSync(new URL("../../pustelnyky_src (1)/pustelnyky_src/template.html", import.meta.url), "utf8");
@@ -112,6 +112,10 @@ for (let i = 0; i < 600; i++) {
       if (!chat.includes(strip(val))) fail(`case chat lacks «${val.slice(0, 60)}»`);
     }
     if (bad(T.case.text())) fail(`case text: ${T.case.text()}`);
+    // «В журнал»: every case value in the journal page too
+    const cj = caseJournal(st);
+    for (const line of T.case.text().split("\n")) if (!strip(cj.html).includes(strip(line.slice(line.indexOf(": ") + 2)))) fail(`case journal lacks «${line.slice(0, 60)}»`);
+    if (!cj.name || bad(cj.html)) fail(`case journal: ${cj.name}`);
     // Подорож
     st.travel.type = i % 3 ? "travel" : "badEncounter";
     st.travel.luck = LUCKS[i % 5];
@@ -137,6 +141,10 @@ for (let i = 0; i < 600; i++) {
     const text = st.battle.state.text;
     if (!text || bad(text)) fail(`battle text: ${text}`);
     const bchat = strip(battleChat(T, st));
+    // «В журнал»: every enemy with its count, no generator buttons left (dice become [[/r …]])
+    const bj = battleJournal(T, st);
+    if (/<button/.test(bj.html) || bad(bj.html)) fail(`battle journal: ${bj.html.slice(0, 200)}`);
+    for (const m of text.matchAll(/^• (.+) × (\d+)$/gm)) if (!strip(bj.html).includes(`${m[1]} × ${m[2]}`)) fail(`battle journal lacks ${m[1]} × ${m[2]}`);
     for (const m of text.matchAll(/^• (.+) × (\d+)$/gm)) if (!bchat.includes(`${m[1]} × ${m[2]}`)) fail(`battle chat lacks ${m[1]} × ${m[2]}`);
     for (const k of ["МІСЦЕ", "НЕБЕЗПЕКА"]) {
       const m = new RegExp(`^${k}: (.+)$`, "m").exec(text);

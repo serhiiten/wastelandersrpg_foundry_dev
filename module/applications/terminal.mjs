@@ -7,8 +7,9 @@
 import { createTerminal } from "../rules/terminal.mjs";
 import { createBattle } from "./terminal-battle.mjs";
 import { postChat } from "./chat.mjs";
+import { postTerminalRoll } from "./check-panel.mjs";
 import {
-  TABLE_CARDS, battleChat, blankTerminal, buildTerminalView, caseChat, runTable, tableChat, travelChat,
+  TABLE_CARDS, battleChat, battleJournal, blankTerminal, buildTerminalView, caseChat, caseJournal, runTable, tableChat, travelChat,
 } from "./terminal-view.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -20,10 +21,36 @@ let OPEN = null;
 /** Open the terminal (Доглядач only) */
 export function openTerminal() {
   if (!game.user.isGM) return ui.notifications.warn("Термінал — для Доглядача.");
+  const first = !OPEN;
   OPEN ??= new TerminalApp();
-  OPEN.render({ force: true });
+  OPEN.render({ force: true, ...(first ? { position: freeSpot() } : {}) });
   return OPEN;
 }
+
+/**
+ * Where the terminal opens the first time (author, 2026-11-14): in the free space — right of the scene navigation,
+ * under the «Термінал Доглядача» plate, left of the sidebar — so it covers neither the scene list nor the controls.
+ */
+function freeSpot() {
+  const right = (sel) => Math.max(0, ...[...document.querySelectorAll(sel)].map((e) => e.getBoundingClientRect().right));
+  const bottom = (sel) => Math.max(0, ...[...document.querySelectorAll(sel)].map((e) => e.getBoundingClientRect().bottom));
+  const gap = 12;
+  const left = Math.round(Math.max(right("#scene-controls"), right("#scene-navigation li.scene")) + gap);
+  const top = Math.round(Math.max(bottom(".wastelanders-terminal-dock"), bottom("#scene-navigation-viewed")) + gap);
+  const sidebar = document.querySelector("#sidebar")?.getBoundingClientRect().left || window.innerWidth;
+  const width = Math.max(560, Math.min(860, Math.round(sidebar - gap - left)));
+  const height = Math.max(420, Math.min(820, Math.round(window.innerHeight - top - gap)));
+  return { left, top, width, height };
+}
+
+/** The plate «Термінал Доглядача» (author, 2026-11-14): opens the terminal, a second press closes it */
+export function toggleTerminal() {
+  if (OPEN?.rendered) return OPEN.close();
+  return openTerminal();
+}
+
+/** Light the plate while the terminal is open */
+const markPlate = (on) => document.querySelectorAll(".wastelanders-terminal-open").forEach((b) => b.classList.toggle("on", on));
 
 class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -56,6 +83,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       }),
       battleCreate: TerminalApp.#onCreate,
       toChat: TerminalApp.#onChat,
+      toJournal: TerminalApp.#onJournal,
       die: TerminalApp.#onDie,
     },
   };
@@ -176,12 +204,23 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     await postChat(data);
   }
 
+  /** «В журнал»: the case or the battle as a new journal entry in the folder «Термінал Доглядача», opened at once */
+  static async #onJournal(event, target) {
+    const j = { case: () => caseJournal(this.st), battle: () => battleJournal(this.T, this.st) }[target.dataset.what]?.();
+    if (!j) return;
+    const FOLDER = "Термінал Доглядача";
+    const folder = game.folders.find((f) => f.type === "JournalEntry" && f.name === FOLDER && !f.folder)
+      || await Folder.create({ name: FOLDER, type: "JournalEntry", color: "#9a4a20" });
+    const entry = await JournalEntry.create({ name: j.name, folder: folder.id, pages: [{ name: j.name, type: "text", text: { content: j.html } }] });
+    ui.notifications.info(`Записано в журнал: «${entry.name}»`);
+    entry.sheet.render(true);
+  }
+
   /** A die in the results («2d6»): rolled by Foundry and posted to chat */
   static async #onDie(event, target) {
     const expr = target.dataset.dice;
     if (!expr) return;
-    const roll = await new Roll(expr.replace(/^d/, "1d")).evaluate();
-    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ alias: "Термінал Доглядача" }), flavor: expr }); // the chat's mode menu by default
+    await postTerminalRoll(expr); // the dice card, as «Кістки» (follows the chat's mode menu)
   }
 
   /* ---------- drawing ---------- */
@@ -223,8 +262,14 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     }));
   }
 
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
+    markPlate(true);
+  }
+
   _onClose(options) {
     super._onClose(options);
+    markPlate(false);
     clearTimeout(this.#saveTimer);
     game.user.setFlag(game.system.id, FLAG, clone(this.st));
   }

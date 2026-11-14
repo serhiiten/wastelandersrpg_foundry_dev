@@ -1,22 +1,23 @@
 {{!-- «Термінал Доглядача»: the HTML terminal's generators. data-action → terminal.mjs; data-k → a setting of the tab. --}}
 <div class="pust-terminal">
-  <nav class="pust-term-tabs">
+  <nav class="pust-tabs pust-term-tabs">
     {{#each v.tabs}}<a class="{{#if on}}active{{/if}}" data-action="termTab" data-tab="{{id}}"><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}
   </nav>
 
   <div class="pust-term-body">
   {{!-- ============================ Справа ============================ --}}
   {{#if (eq v.tab "case")}}
-  <section class="pust-term-screen"><h2>Генератор справ</h2><p>Складність визначає міць супротивників і винагороду. Якщо змінити її в готовій справі, ці два поля перекинуться.</p></section>
-  <div class="pust-term-row">
+  <section class="pust-term-screen"><h2>Генератор справ</h2><p>Складність визначає міць супротивників і винагороду. Якщо змінити її в готовій справі, ці два поля перекинуться.</p>
+  <div class="pust-term-grid">
     <span class="pust-term-l">Складність справи</span>
-    <span class="pust-term-seg">{{#each v.case.diffs}}<button type="button" class="{{#if on}}on{{/if}}" data-action="caseDiff" data-diff="{{v}}">{{n}}</button>{{/each}}</span>
+    <div class="pust-term-ctl"><span class="pust-term-seg">{{#each v.case.diffs}}<button type="button" class="{{#if on}}on{{/if}}" data-action="caseDiff" data-diff="{{v}}">{{n}}</button>{{/each}}</span></div>
     <button type="button" class="pust-term-go" data-action="caseGen"><i class="fa-solid fa-dice"></i> Згенерувати справу</button>
-  </div>
+  </div></section>
   {{#if v.case.has}}
   <div class="pust-term-result">
     <div class="pust-term-hd"><b>Справа</b> <span class="pust-term-stamp">{{v.case.diffLabel}}</span>
-      <button type="button" class="pust-term-chat" data-action="toChat" data-what="case" title="Надіслати справу в чат"><i class="fa-solid fa-comment"></i> В чат</button></div>
+      <button type="button" class="pust-term-chat" data-action="toChat" data-what="case" title="Надіслати справу в чат"><i class="fa-solid fa-comment"></i> В чат</button>
+      <button type="button" class="pust-term-journal" data-action="toJournal" data-what="case" title="Записати справу в журнал (нова сторінка в теці «Термінал Доглядача»)"><i class="fa-solid fa-book-open"></i> В журнал</button></div>
     <div class="pust-case-grid">
     {{#each v.case.fields}}
       {{#if sub}}<div class="pust-case-sub">{{sub}}</div>{{/if}}
@@ -33,14 +34,14 @@
 
   {{!-- ============================ Подорож ============================ --}}
   {{#if (eq v.tab "travel")}}
-  <section class="pust-term-screen"><h2>Генератор подорожей Пусткою</h2><p>Удача партії додається лише до кидка подорожі. Погана зустріч кидає d6 без неї.</p></section>
-  <div class="pust-term-row">
+  <section class="pust-term-screen"><h2>Генератор подорожей Пусткою</h2><p>Удача партії додається лише до кидка подорожі. Погана зустріч кидає d6 без неї.</p>
+  <div class="pust-term-grid">
     <span class="pust-term-l">Тип події</span>
-    <span class="pust-term-seg">{{#each v.travel.types}}<button type="button" class="{{#if on}}on{{/if}}" data-action="travelType" data-type="{{v}}">{{n}}</button>{{/each}}</span>
+    <div class="pust-term-ctl"><span class="pust-term-seg">{{#each v.travel.types}}<button type="button" class="{{#if on}}on{{/if}}" data-action="travelType" data-type="{{v}}">{{n}}</button>{{/each}}</span></div>
+    <button type="button" class="pust-term-go" data-action="travelGen"><i class="fa-solid fa-dice"></i> Згенерувати подію</button>
     <span class="pust-term-l">Удача партії</span>
-    <span class="pust-term-seg {{#if v.travel.luckOff}}off{{/if}}">{{#each v.travel.lucks}}<button type="button" class="{{#if on}}on{{/if}}" data-action="travelLuck" data-luck="{{v}}" {{#if ../v.travel.luckOff}}disabled{{/if}}>{{n}}</button>{{/each}}</span>
-  </div>
-  <div class="pust-term-row"><button type="button" class="pust-term-go" data-action="travelGen"><i class="fa-solid fa-dice"></i> Згенерувати подію</button></div>
+    <div class="pust-term-ctl wide"><span class="pust-term-seg {{#if v.travel.luckOff}}off{{/if}}">{{#each v.travel.lucks}}<button type="button" class="{{#if on}}on{{/if}}" data-action="travelLuck" data-luck="{{v}}" {{#if ../v.travel.luckOff}}disabled{{/if}}>{{n}}</button>{{/each}}</span></div>
+  </div></section>
   {{#if v.travel.has}}
   <div class="pust-term-result pust-travel">
     <div class="pust-term-hd"><b>Подія</b>
@@ -70,15 +71,15 @@
 
   {{!-- ============================ Битви ============================ --}}
   {{#if (eq v.tab "battle")}}
-  <section class="pust-term-screen"><h2>Генератор битв</h2><p>Створюй битви з обраною складністю та видом супротивників. Познач один або кілька видів супротивників — у змішаній битві кожен вид отримає свою частку.</p></section>
-  <div class="pust-term-row">
-    <label class="pust-term-fld"><span>Складність битви</span><select data-k="battle.difficulty">{{#each v.battle.diffs}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
-  </div>
-  <div class="pust-kinds">
+  <section class="pust-term-screen"><h2>Генератор битв</h2><p>Створюй битви з обраною складністю та видом супротивників. Познач один або кілька видів супротивників — у змішаній битві кожен вид отримає свою частку.</p>
+  <div class="pust-term-grid">
+    <span class="pust-term-l">Складність битви</span>
+    <div class="pust-term-ctl"><select data-k="battle.difficulty">{{#each v.battle.diffs}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></div>
+    <button type="button" class="pust-term-go" data-action="battleGen"><i class="fa-solid fa-dice"></i> Згенерувати битву</button>
     <span class="pust-term-l">Види супротивників</span>
-    {{#each v.battle.kinds}}<label class="pust-kind {{#if on}}on{{/if}}"><input type="checkbox" data-k="battle.kind" value="{{key}}" {{#if on}}checked{{/if}}> {{name}}</label>{{/each}}
+    <div class="pust-term-ctl wide pust-kinds">{{#each v.battle.kinds}}<label class="pust-kind {{#if on}}on{{/if}}"><input type="checkbox" data-k="battle.kind" value="{{key}}" {{#if on}}checked{{/if}}> {{name}}</label>{{/each}}</div>
   </div>
-  <div class="pust-term-row"><button type="button" class="pust-term-go" data-action="battleGen"><i class="fa-solid fa-dice"></i> Згенерувати битву</button></div>
+  </section>
 
   <div class="pust-scene">
     <div class="pust-scene-box"><div class="pust-scene-hd"><i class="fa-solid fa-location-dot"></i> Місце <button type="button" class="pust-term-reroll" data-action="battleScene" data-kind="place" title="Перекинути місце"><i class="fa-solid fa-rotate"></i></button></div><div>{{#if v.battle.place}}{{v.battle.place}}{{else}}<span class="muted">—</span>{{/if}}</div></div>
@@ -88,15 +89,21 @@
 
   {{#if v.battle.has}}
   <div class="pust-term-result">
-    <div class="pust-term-hd"><b>Результат: {{v.battle.title}}</b> <span class="pust-term-note">{{v.battle.caseInfo}}</span>
-      <button type="button" data-action="battleFold" title="{{#if v.battle.folded}}Розгорнути всі картки{{else}}Згорнути всі картки{{/if}}"><i class="fa-solid {{#if v.battle.folded}}fa-angles-down{{else}}fa-angles-up{{/if}}"></i></button>
-      <button type="button" data-action="battleClear" data-confirm="1" title="Очистити результат генерації">Очистити</button>
+    <div class="pust-term-hd"><b>Результат: {{v.battle.title}}</b>
       <button type="button" class="pust-term-chat" data-action="toChat" data-what="battle" title="Надіслати битву в чат"><i class="fa-solid fa-comment"></i> В чат</button>
+      <button type="button" class="pust-term-journal" data-action="toJournal" data-what="battle" title="Записати битву з картками ворогів у журнал (нова сторінка в теці «Термінал Доглядача»)"><i class="fa-solid fa-book-open"></i> В журнал</button>
     </div>
-    <div class="pust-term-row pust-battle-make">
-      <span class="pust-sub">Супротивники з'являться в Акторах, у теці «Битви → {{v.battle.folder}}».</span>
-      <button type="button" data-action="battleCreate" data-mode="folder" title="Додати в Актори теку «Битви → {{v.battle.folder}}» з усіма супротивниками цієї битви"><i class="fa-solid fa-folder-plus"></i> Додати теку в Актори</button>
-      <button type="button" class="pust-term-go" data-action="battleCreate" data-mode="place" title="Додати теку в Актори й поставити токени супротивників на поточну сцену. Бій не починається"><i class="fa-solid fa-chess-pawn"></i> Розмістити</button>
+    <div class="pust-battle-make">
+      <div class="pust-battle-info"><span class="pust-term-note">{{v.battle.caseInfo}}</span>
+        <span class="pust-sub">Супротивники з'являться в Акторах, у теці «Битви → {{v.battle.folder}}».</span></div>
+      <div class="pust-battle-btns">
+        <button type="button" data-action="battleCreate" data-mode="folder" title="Додати в Актори теку «Битви → {{v.battle.folder}}» з усіма супротивниками цієї битви"><i class="fa-solid fa-folder-plus"></i> Додати теку в Актори</button>
+        <button type="button" class="pust-term-go" data-action="battleCreate" data-mode="place" title="Додати теку в Актори й поставити токени супротивників на поточну сцену. Бій не починається"><i class="fa-solid fa-chess-pawn"></i> Розмістити</button>
+      </div>
+      <div class="pust-battle-btns pust-battle-tools">
+        <button type="button" data-action="battleFold" title="{{#if v.battle.folded}}Розгорнути всі картки{{else}}Згорнути всі картки{{/if}}"><i class="fa-solid {{#if v.battle.folded}}fa-angles-down{{else}}fa-angles-up{{/if}}"></i> {{#if v.battle.folded}}Розгорнути{{else}}Згорнути{{/if}}</button>
+        <button type="button" data-action="battleClear" data-confirm="1" title="Очистити результат генерації"><i class="fa-solid fa-eraser"></i> Очистити</button>
+      </div>
     </div>
     {{#each v.battle.buckets}}{{#if count}}
     <div class="pust-bucket cat-{{cat}}"><div class="pust-bucket-l">{{label}} <span class="pust-pill">{{count}}</span></div>

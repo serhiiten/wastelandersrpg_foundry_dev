@@ -346,3 +346,5 @@
 .pust-chat .pust-cpool .rverd { justify-content: flex-start; }
 .pust-chat .pust-cpool .rpool-sum { font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-green-dim); }
 .chat-message .pust-chat .pust-cpool .rverd > .rtot, .chat-message .pust-chat .pust-cfate .rverd > .rtot { font-size: 22px; }
+/* roll cards (fate, dice): an icon in the header */
+.chat-message .pust-chat.pust-croll > h4 > i { margin-right: 3px; font-size: 11.5px; }

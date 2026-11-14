@@ -63,9 +63,18 @@ export function caseChat(st) {
   const cs = st.case.cs;
   if (!cs) return "";
   const v = caseView(st);
-  return `<div class="pust-chat pust-chat-case"><h3>Справа · ${esc(v.diffLabel)}</h3>`
-    + v.fields.map((f) => `<p><b>${esc(f.n)}:</b> ${esc(f.t)}${f.note ? ` <small>${esc(f.note)}</small>` : ""}</p>`).join("")
-    + "</div>";
+  return termCard("case", "case", `Справа · ${v.diffLabel}`,
+    v.fields.map((f) => `<p><b>${esc(f.n)}:</b> ${esc(f.t)}${f.note ? ` <small>${esc(f.note)}</small>` : ""}</p>`).join(""));
+}
+
+/**
+ * A terminal notification in chat (author, 2026-11-14): its own card, akin to the roll cards — the same frame, but a
+ * terminal printout: a steel header with the section and its icon, the text on a green phosphor screen.
+ */
+export function termCard(tab, kind, title, body) {
+  const t = TABS.find((x) => x.id === tab) || TABS[0];
+  return `<div class="pust-chat pust-tcard pust-chat-${kind}"><h3><i class="fa-solid ${t.icon}"></i><span>${esc(title)}</span><small>${esc(t.label)}</small></h3>`
+    + `<div class="tscreen">${body}</div></div>`;
 }
 
 /* ------------------------------ Подорож ------------------------------ */
@@ -88,7 +97,7 @@ export function travelChat(st) {
   const t = st.travel;
   if (!t.main && !t.additional) return "";
   const html = ((t.main || "") + (t.additional || "")).replace(/<button class="die" data-dice="([^"]*)">[^<]*<\/button>/g, "$1");
-  return `<div class="pust-chat pust-chat-travel"><h3>${t.type === "badEncounter" ? "Погана зустріч" : "Подорож Пусткою"}</h3>${html}</div>`;
+  return termCard("travel", "travel", t.type === "badEncounter" ? "Погана зустріч" : "Подорож Пусткою", html);
 }
 
 /* ------------------------------ Натхнення ------------------------------ */
@@ -137,7 +146,7 @@ export function tableChat(st, id) {
   const card = TABLE_CARDS.find((c) => c.id === id);
   const text = st.tables.out[id];
   if (!card || !text) return "";
-  return `<div class="pust-chat pust-chat-table"><h3>${esc(card.n)}</h3><p>${esc(text).replace(/\n/g, "<br>")}</p></div>`;
+  return termCard("tables", "table", card.n, `<p>${esc(text).replace(/\n/g, "<br>")}</p>`);
 }
 
 /* ------------------------------ Битви ------------------------------ */
@@ -203,11 +212,53 @@ export function battleChat(T, st) {
   const diff = (BATTLE_DIFFS.find((d) => d.v === st.battle.state.difficulty) || {}).n || "";
   const list = v.buckets.filter((x) => x.count).map((x) => `<p><b>${esc(x.label)}:</b> ${x.cards.map((c) => `${esc(c.name)} × ${c.count} (${c.hp} ОЗ, броня ${c.armor})`).join("; ")}</p>`).join("");
   const reward = v.rewardHtml.replace(/<button class="die" data-dice="([^"]*)">[^<]*<\/button>/g, "$1");
-  return `<div class="pust-chat pust-chat-battle"><h3>Битва: ${esc(v.title)} · ${esc(diff)}</h3>${list}`
+  return termCard("battle", "battle", `Битва: ${v.title} · ${diff}`, list
     + (v.place ? `<p><b>Місце:</b> ${esc(v.place)}</p>` : "")
     + (v.hazard ? `<p><b>Небезпека:</b> ${esc(v.hazard)}</p>` : "")
-    + (reward ? `<p><b>Винагорода:</b> ${reward}</p>` : "")
-    + "</div>";
+    + (reward ? `<p><b>Винагорода:</b> ${reward}</p>` : ""));
+}
+
+/* ------------------------------ To the journal ------------------------------ */
+/*
+ * «В журнал» (author, 2026-11-14): the case and the battle as a Foundry journal entry, for preparing the session.
+ * The generators' dice («2d6») become inline rolls ([[/r 2d6]]) that roll from the journal.
+ */
+const inlineDice = (html) => String(html || "").replace(/<button class="die" data-dice="([^"]*)">[^<]*<\/button>/g, (m, d) => `[[/r ${d.replace(/^d/, "1d")}]]`);
+
+/** The case as a journal entry: { name, html } */
+export function caseJournal(st) {
+  if (!st.case.cs) return null;
+  const v = caseView(st);
+  // the name: the difficulty and the client's first words
+  const who = String(v.fields[0]?.t || "").trim();
+  const short = who.length > 40 ? who.slice(0, 40).replace(/[\s,.;:—-]+\S*$/, "") + "…" : who;
+  const client = short ? ` — ${short}` : "";
+  return {
+    name: `Справа (${v.diffLabel})${client}`.slice(0, 120),
+    html: `<p><strong>Складність:</strong> ${esc(v.diffLabel)}</p>` + v.fields.map((f) => `<p><strong>${esc(f.n)}:</strong> ${esc(f.t)}${f.note ? ` <em>${esc(f.note)}</em>` : ""}</p>`).join(""),
+  };
+}
+
+/** The battle as a journal entry with every enemy's card (stats, attacks, aspects, moves): { name, html } */
+export function battleJournal(T, st) {
+  const v = battleView(T, st, {});
+  if (!v.has) return null;
+  const diff = (BATTLE_DIFFS.find((d) => d.v === st.battle.state.difficulty) || {}).n || "";
+  const card = (c) => `<h3>${esc(c.name)} × ${c.count}${c.kind ? ` <em>(${esc(c.kind)})</em>` : ""}</h3>`
+    + `<p><strong>ОЗ:</strong> ${c.hp} · <strong>Броня:</strong> ${c.armor}${c.armorBook ? ` (${inlineDice(c.armorBookHtml)})` : ""}</p>`
+    + (c.attacks.length ? `<ul>${c.attacks.map((a) => `<li><strong>${esc(a.n)}</strong>${a.html ? ` — ${inlineDice(a.html)}` : ""}</li>`).join("")}</ul>` : "")
+    + (c.aspects.length ? `<p><strong>Аспекти:</strong> ${c.aspects.map(esc).join("; ")}</p>` : "")
+    + c.moves.map((m) => `<p><strong>${esc(m.n)}:</strong> ${inlineDice(m.html)}</p>`).join("")
+    + (c.notesHtml ? `<p><em>${inlineDice(c.notesHtml)}</em></p>` : "");
+  const reward = inlineDice(v.rewardHtml);
+  return {
+    name: `Битва: ${v.title} (${diff})`.slice(0, 120),
+    html: (v.caseInfo ? `<p><em>${esc(v.caseInfo)}</em></p>` : "")
+      + v.buckets.filter((x) => x.count).map((x) => `<h2>${esc(x.label)} (${x.count})</h2>${x.cards.map(card).join("")}`).join("")
+      + (v.place ? `<p><strong>Місце:</strong> ${esc(v.place)}</p>` : "")
+      + (v.hazard ? `<p><strong>Небезпека:</strong> ${esc(v.hazard)}</p>` : "")
+      + (reward ? `<p><strong>Винагорода:</strong> ${reward}</p>` : ""),
+  };
 }
 
 /* ------------------------------ The window ------------------------------ */

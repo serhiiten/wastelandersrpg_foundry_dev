@@ -336,7 +336,7 @@ export function postFateCard(actor, { v, mod, party = false }) {
   const who = party ? "персонажів" : "персонажа";
   return postChat({
     speaker: ChatMessage.getSpeaker({ actor }),
-    content: `<div class="pust-chat"><h4>Кістка Долі${party ? " · Удача партії" : ""}</h4>`
+    content: `<div class="pust-chat pust-croll"><h4><i class="fa-solid fa-clover"></i> Кістка Долі${party ? " · Удача партії" : ""}</h4>`
       + `<div class="pust-cres pust-cfate ${ok ? "v2" : "v0"}"><b class="rvhead">${ok ? `На користь ${who}` : `Не на користь ${who}`}</b>`
       + `<div class="rverd"><b class="rtot">${total}</b><span class="rranges"><span class="${ok ? "" : "hit v0"}">≤5</span><span class="${ok ? "hit v2" : ""}">6+</span></span></div>`
       + `<p class="pust-cbreak"><span class="die d10 kept">${v}</span> · ${party ? "Удача партії" : "Удача"} ${sgn(mod)}</p></div></div>`,
@@ -347,10 +347,26 @@ export function postFateCard(actor, { v, mod, party = false }) {
 export function postPoolCard(actor, res) {
   const dice = [6, 8, 10].flatMap((k) => (res.out[k] || []).map((v) => `<span class="die d${k} kept" title="d${k}">${v}</span>`)).join(" ");
   const what = [6, 8, 10].filter((k) => res.out[k]?.length).map((k) => `${res.out[k].length}d${k}`).join(" + ");
+  return postDiceCard(ChatMessage.getSpeaker({ actor }), what, res.total, dice);
+}
+
+/** The dice chat card: the check card's screen with the sum and every die in its shape (+ a flat bonus, if any) */
+function postDiceCard(speaker, what, total, dice, flat = 0) {
   return postChat({
-    speaker: ChatMessage.getSpeaker({ actor }),
-    content: `<div class="pust-chat"><h4>Кістки: ${esc(what)}</h4>`
-      + `<div class="pust-cres pust-cpool"><div class="rverd"><b class="rtot">${res.total}</b><span class="rpool-sum">сума</span></div>`
-      + `<p class="pust-cbreak">${dice}</p></div></div>`,
+    speaker,
+    content: `<div class="pust-chat pust-croll"><h4><i class="fa-solid fa-dice"></i> Кістки: ${esc(what)}</h4>`
+      + `<div class="pust-cres pust-cpool"><div class="rverd"><b class="rtot">${total}</b><span class="rpool-sum">сума</span></div>`
+      + `<p class="pust-cbreak">${dice}${flat ? ` · ${esc(sgn(flat))}` : ""}</p></div></div>`,
   }, { dice: true });
+}
+
+/**
+ * A die from the «Термінал Доглядача» results («2d6», «d10+3»): rolled by Foundry, shown as the dice card
+ * (author, 2026-11-14), the terminal as the speaker.
+ */
+export async function postTerminalRoll(expr) {
+  const roll = await new Roll(String(expr).replace(/^d/, "1d")).evaluate();
+  const dice = roll.dice.flatMap((t) => t.results.map((r) => `<span class="die d${t.faces} kept" title="d${t.faces}">${r.result}</span>`)).join(" ");
+  const sum = roll.dice.reduce((t, d) => t + d.total, 0);
+  return postDiceCard(ChatMessage.getSpeaker({ alias: "Термінал Доглядача" }), expr, roll.total, dice, roll.total - sum);
 }

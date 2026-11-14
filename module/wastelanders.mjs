@@ -23,7 +23,7 @@ import * as core from "./rules/core.mjs";
 import * as caravanRules from "./rules/caravan.mjs";
 import { BOOK } from "./rules/book.mjs";
 import { importCharactersFromFile } from "./applications/character-json.mjs";
-import { openTerminal } from "./applications/terminal.mjs";
+import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 
 Hooks.once("init", async function () {
@@ -176,14 +176,42 @@ Hooks.on("renderActorDirectory", (app, html) => {
   button.innerHTML = `<i class="fa-solid fa-file-import"></i> ${game.i18n.localize("WASTELANDERS.Json.Open")}`;
   button.addEventListener("click", () => importCharactersFromFile());
   actions.append(button);
-  // «Термінал Доглядача» (generators) — for the GM
-  if (game.user.isGM) {
-    const term = document.createElement("button");
-    term.type = "button";
-    term.className = "wastelanders-terminal-open";
-    term.title = "Генератори справ, подорожей, натхнення й битв";
-    term.innerHTML = `<i class="fa-solid fa-terminal"></i> Термінал Доглядача`;
-    term.addEventListener("click", () => openTerminal());
-    actions.append(term);
-  }
 });
+
+// «Термінал Доглядача» (generators) — for the GM: a button at the bottom of the left control bar (author, 2026-11-14)
+/**
+ * «Термінал Доглядача» (generators) — for the GM: a full red plate at the top, right of the current scene's name, on its
+ * row (author, 2026-11-14). That row has a fixed width, so the plate never moves (layers, tools, the scene list under it
+ * don't touch it); it opens the terminal, a second press closes it, and it is lit while the terminal is open.
+ */
+function dockTerminal() {
+  if (!game.user.isGM) return;
+  const col = document.querySelector("#ui-left-column-2");
+  const row = document.querySelector("#scene-navigation-viewed");
+  if (!col || !row) return;
+  let dock = col.querySelector(":scope > .wastelanders-terminal-dock");
+  if (!dock) {
+    dock = document.createElement("div");
+    dock.className = "wastelanders-terminal-dock";
+    dock.innerHTML = `<button type="button" class="wastelanders-terminal-open"
+      aria-label="Термінал Доглядача"><i class="fa-solid fa-terminal"></i> Термінал Доглядача</button>`;
+    const btn = dock.firstElementChild;
+    btn.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); clearTimeout(btn._tip); game.tooltip.deactivate(); toggleTerminal(); });
+    // its hint comes later than Foundry's usual 0.5 s (author, 2026-11-14): 1.5 s of hovering
+    btn.addEventListener("pointerenter", () => {
+      clearTimeout(btn._tip);
+      btn._tip = setTimeout(() => game.tooltip.activate(btn, { text: "Справи, подорожі, натхнення, битви", direction: "DOWN" }), 1500);
+    });
+    btn.addEventListener("pointerleave", () => { clearTimeout(btn._tip); if (game.tooltip.element === btn) game.tooltip.deactivate(); });
+    col.append(dock);
+  }
+  const c = col.getBoundingClientRect();
+  const r = row.getBoundingClientRect();
+  // right of the scene name and of Foundry's expand button beside it (shown on hover, so measured even when faded)
+  const expand = document.querySelector("#scene-navigation-expand")?.getBoundingClientRect();
+  const edge = Math.max(r.right, expand?.width ? expand.right : 0);
+  dock.style.left = `${Math.round(edge - c.left + 8)}px`;
+  dock.style.top = `${Math.round(r.top - c.top)}px`;
+}
+Hooks.on("renderSceneNavigation", () => requestAnimationFrame(dockTerminal));
+Hooks.once("ready", () => requestAnimationFrame(dockTerminal));
