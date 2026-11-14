@@ -209,68 +209,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Мацяльця з пащі",
-      "type": "attack",
-      "_id": "r2blGVSLdcIeeQNX",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>1d10 фізичної шкоди + 3 шкоди радіацією, ближній бій, радіація ігнорує броню.</p>",
-        "damage": "1d10[фізична] + 3[радіація]"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768866776155,
-        "modifiedTime": 1768866801830,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!KgVSCXDyNRRAR6Sw.r2blGVSLdcIeeQNX"
-    },
-    {
-      "name": "Радіоактивний плювок",
-      "type": "attack",
-      "_id": "sCoPZ5X3Vaff6Bx5",
-      "img": "assets/winchester-rifle.svg",
-      "system": {
-        "description": "<p><em>Хід.</em> раз за сцену плює в ціль на відстані до двох зон і завдає їй 2d6 шкоди радіацією, що ігнорує броню.</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768866826353,
-        "modifiedTime": 1768866871917,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!KgVSCXDyNRRAR6Sw.sCoPZ5X3Vaff6Bx5"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

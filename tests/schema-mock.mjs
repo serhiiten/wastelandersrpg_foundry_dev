@@ -29,7 +29,7 @@ const MODELS = {
   Item: {
     species: models.SpeciesData, feat: models.FeatData, perk: models.PerkData, weapon: models.WeaponData, armor: models.ArmorData,
     tool: models.ToolData, drug: models.DrugData, upgrade: models.UpgradeData, cargo: models.CargoData,
-    passenger: models.PassengerData, attack: models.AttackData,
+    passenger: models.PassengerData,
   },
 };
 

@@ -237,68 +237,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Пазурі",
-      "type": "attack",
-      "_id": "hecOvqHjzpvrAykx",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>2d6+2 фізичної шкоди, ближній бій.</p>",
-        "damage": "2d6+2"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768849971175,
-        "modifiedTime": 1768849988196,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!F3vfFL4oFpiEZDSQ.hecOvqHjzpvrAykx"
-    },
-    {
-      "name": "Могутні щелепи",
-      "type": "attack",
-      "_id": "jwKveB6LyR134Jb9",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p><em>Хід.</em> раз за сцену, завдаючи шкоди, хапає ціль пащекою й накладає на неї аспект захоплений. Захоплена ціль не може пересуватися, доки не звільниться, а її перевірки подолання труднощів, щоб вирватися з пащеки, отримують Послаблення. Поки ціль захоплена, щоразу, коли настає її черга діяти, вона автоматично отримує 2d6 шкоди від стискання щелеп.</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768849971175,
-        "modifiedTime": 1768849988196,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!F3vfFL4oFpiEZDSQ.jwKveB6LyR134Jb9"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

@@ -1,11 +1,8 @@
 /**
  * Супротивник: the battle tracker's card as data (author, 2026-11-14; the shape is described in
- * module/rules/enemy-model.mjs). An actor saved in the old shape ({type, hp, armor, description}) is converted from its
- * description when it is loaded (migrateData — on full sources only, never on partial updates, which would re-read
- * the description over the GM's edits); the active GM then saves the converted data once (wastelanders.mjs).
+ * module/rules/enemy-model.mjs).
  */
-import { ENEMY_V, CATS, isOldShape, fromOldShape } from "../rules/enemy-model.mjs";
-import { lowerDice } from "../rules/battle.mjs";
+import { ENEMY_V, CATS } from "../rules/enemy-model.mjs";
 
 export default class EnemyData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -38,20 +35,5 @@ export default class EnemyData extends foundry.abstract.TypeDataModel {
       orig: new f.ObjectField({ required: false, nullable: true, initial: null }),
       description: new f.HTMLField(),
     };
-  }
-
-  /** The old shape → the new one, from the description (full sources only) */
-  static migrateData(source, options) {
-    if (!options?.partial && isOldShape(source) && (source.description || source.hp || source.armor != null)) {
-      const name = options?.parentName ?? "";
-      Object.assign(source, fromOldShape(source, name));
-      delete source.type;
-    }
-    // «менша з 2d6» was read as plain 2d6 (author, 2026-11-14): such attacks get «2d6kl1» (idempotent; attacks always
-    // come whole, also in partial updates)
-    const lower = (list) => Array.isArray(list) && list.forEach((a) => { if (a && typeof a === "object" && "dice" in a) Object.assign(a, lowerDice(a.dice, a.note)); });
-    lower(source.attacks);
-    lower(source.orig?.attacks);
-    return super.migrateData(source, options);
   }
 }

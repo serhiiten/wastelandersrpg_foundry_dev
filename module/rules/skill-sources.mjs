@@ -8,7 +8,7 @@
  *     a new skill at «учень» or one raised from «учень» to «підмайстер».
  * `st.skills` keeps the final levels (as the HTML sheet saves them), the sources say how much of each is theirs.
  */
-import { FEAT, LVL, SKILLS } from "./core.mjs";
+import { FEAT, SKILLS } from "./core.mjs";
 
 /** Perks / feats that grant one skill step, with the skills they may take */
 export const GRANTS = {
@@ -95,4 +95,3 @@ export function stepSkill(st, s, dd) {
   st.skills[s] = Math.max(0, Math.min(3, lvl(st, s) + dd));
 }
 
-export const LEVEL_NAME = LVL;

@@ -1,23 +1,20 @@
-// The enemy's data (module/rules/enemy-model.mjs): old shape → tracker card, book copy, profile, attack dice.
+// The enemy's data (module/rules/enemy-model.mjs): tracker card, book copy, profile, attack dice.
 // Run: node tests/enemy-model.test.mjs
 import * as M from "../module/rules/enemy-model.mjs";
+import * as B from "../module/rules/battle.mjs";
 
 let failures = 0;
 const ok = (cond, msg) => { if (!cond) { failures++; console.log("FAIL " + msg); } };
 
-// the old shape, as the compendium had it
-const OLD = {
-  type: "ordinary", hp: { value: 7, max: 12 }, armor: 2,
-  description: "<ul><li><strong>Категорія:</strong> рядовий</li><li><strong>ОЗ:</strong> 12</li>"
-    + "<li><strong>Броня:</strong> 2 (шкіряна броня; невразливий до шкоди вогнем)</li>"
-    + "<li><strong>Шкода:</strong> <u>Мисливська рушниця</u> (2d6 фізичної шкоди, бій на відстані); <u>Граната</u> (3d6 фізичної шкоди всім істотам в одній зоні, 2 шт.)</li>"
-    + "<li><strong>Аспекти: <em>злий, голодний.</em></strong></li>"
-    + "<li><strong>Ходи:</strong><ul><li><strong>Інʼєкція Психо:</strong> раз за сцену вколює собі Психо: +2 шкоди до кінця сцени.</li></ul></li></ul>",
+// a card from the battle generator's record (the old HTML shape is gone with its migration, author 2026-11-14)
+const REC = {
+  name: "Рейдер", cat: "regular", hp: 12, armor: "2 (шкіряна броня; невразливий до шкоди вогнем)",
+  dmg: "мисливська рушниця 2d6 граната (2 заряди) 3d6", aspects: ["злий", "голодний"],
+  moves: [{ n: "Інʼєкція Психо", t: "раз за сцену вколює собі Психо: +2 шкоди до кінця сцени" }],
 };
-ok(M.isOldShape(OLD) && !M.isOldShape({ v: 1, attacks: [] }), "old shape detected");
-const s = M.fromOldShape(OLD, "Рейдер");
+const s = M.toSystem(B.enemyFromRecord(REC), { hpValue: 7 });
 ok(s.v === M.ENEMY_V && s.cat === "regular", `version and category: ${s.v} ${s.cat}`);
-ok(s.hp.value === 7 && s.hp.max === 12 && s.armor === 2, `HP kept, armour: ${JSON.stringify(s.hp)} ${s.armor}`);
+ok(s.hp.value === 7 && s.hp.max === 12 && s.armor === 2, `HP, armour: ${JSON.stringify(s.hp)} ${s.armor}`);
 ok(s.def.fire === "immune" && s.def.phys === "normal", `defence from the armour line: ${JSON.stringify(s.def)}`);
 ok(s.attacks.length === 2 && s.attacks[1].ammoMax === 2 && s.attacks[1].ammo === 2, `attacks and ammo: ${JSON.stringify(s.attacks)}`);
 ok(s.baseAspects.length === 2 && s.baseAspects[0].inv === 0 && s.aspects.length === 0, "book aspects, no situational ones");

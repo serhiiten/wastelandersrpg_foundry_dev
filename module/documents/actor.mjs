@@ -119,7 +119,25 @@ export class WastelandersActor extends Actor {
   /** «Create Actor» offers no «Місце»: places are made by the «Мапа Пустки» panel, on the map (author, 2026-11-14) */
   static async createDialog(data = {}, createOptions = {}, options = {}, renderOptions = {}) {
     if (!options?.types) options = { ...options, types: this.TYPES.filter((t) => t !== "place") };
-    return super.createDialog(data, createOptions, options, renderOptions);
+    // choosing «Супротивник» opens the enemy form (module/applications/enemy-create.mjs) from `create` below; the marker tells
+    // `create` the call comes from this dialog. Foundry's own dialog then renders the new actor's sheet; a cancelled form hands back
+    // a stub that renders nothing, and the contract stays: the created document, or null.
+    const doc = await super.createDialog(data, { ...createOptions, pustEnemyForm: true }, options, renderOptions);
+    return doc?.pustCancelled ? null : doc;
+  }
+
+  /** @override — only the «Create Actor» dialog's enemy goes through the form; every other creation is Foundry's own */
+  static async create(data, operation = {}) {
+    if (operation?.pustEnemyForm) {
+      const { pustEnemyForm, ...rest } = operation;
+      if (!Array.isArray(data) && data?.type === "enemy" && game.user.isGM) {
+        const { askEnemy } = await import("../applications/enemy-create.mjs");
+        const typed = data.name && data.name !== this.defaultName({ type: "enemy", parent: rest.parent, pack: rest.pack }) ? data.name : "";
+        return askEnemy({ name: typed, folder: data.folder });
+      }
+      return super.create(data, rest);
+    }
+    return super.create(data, operation);
   }
 
   /** @override */
@@ -230,63 +248,6 @@ export class WastelandersActor extends Actor {
     for (const scene of game.scenes) {
       // only linked tokens: unlinked ones (the battle generator's enemies) carry names of their own
       const ups = scene.tokens.filter((t) => t.actorId === actor.id && t.actorLink && t.name !== actor.name).map((t) => ({ _id: t.id, name: actor.name }));
-      if (ups.length) await scene.updateEmbeddedDocuments("Token", ups);
-    }
-  }
-
-  /**
-   * The version of the token rules above. Bump it when the rules change, so existing worlds get the new rules once.
-   * 1 — names, HP bar, link, hostile enemies; 2 — the caravan's picture by transport and «Запас ходу» bar, friendly characters
-   * and caravans (author, 2026-11-14); 3 — the caravan's portrait follows its transport too (author, 2026-11-14);
-   * 4 — repair after renames from the sheets wiped the prototypes (hostile, no names or bars, unlinked), 2026-11-14.
-   */
-  static TOKEN_RULES_VERSION = 4;
-
-  /**
-   * Bring existing characters, caravans, enemies and their placed tokens to the token rules above — once per rules version
-   * (author, 2026-11-14): after that, what the Gamemaster changes by hand stays. New actors get the rules when created.
-   */
-  static async syncCharacterTokens() {
-    if (!game.user.isGM) return;
-    const key = [game.system.id, "tokenRulesVersion"];
-    if ((game.settings.get(...key) || 0) >= WastelandersActor.TOKEN_RULES_VERSION) return;
-    await WastelandersActor.#applyTokenRules();
-    await game.settings.set(...key, WastelandersActor.TOKEN_RULES_VERSION);
-  }
-
-  static async #applyTokenRules() {
-    for (const a of game.actors.filter((x) => WastelandersActor.TOKEN_TYPES.includes(x.type))) {
-      const want = WastelandersActor.tokenRules(a.type, a.name);
-      const pt = a.prototypeToken;
-      const diff = {};
-      for (const [k, v] of Object.entries(want)) {
-        const cur = k.startsWith("bar") ? pt[k]?.attribute ?? null : pt[k];
-        const val = k.startsWith("bar") ? v.attribute : v;
-        if (cur !== val) diff[`prototypeToken.${k}`] = v;
-      }
-      // characters and caravans are on the players' side (a caravan opened from a file could come in hostile)
-      if (a.type !== "enemy" && pt.disposition === CONST.TOKEN_DISPOSITIONS.HOSTILE) diff["prototypeToken.disposition"] = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-      if (Object.keys(diff).length) await a.update(diff);
-      if (a.type === "caravan") await WastelandersActor.syncCaravanTexture(a);
-    }
-    for (const scene of game.scenes) {
-      const ups = [];
-      for (const t of scene.tokens) {
-        const a = t.actorId && game.actors.get(t.actorId);
-        if (!WastelandersActor.TOKEN_TYPES.includes(a?.type)) continue;
-        const want = WastelandersActor.tokenRules(a.type, a.name);
-        const u = {};
-        if (t.actorLink && t.name !== a.name) u.name = a.name; // unlinked tokens keep their own names
-        if (t.displayName !== want.displayName) u.displayName = want.displayName;
-        if (t.displayBars !== want.displayBars) u.displayBars = want.displayBars;
-        if (t.bar2?.attribute !== "hp") u.bar2 = { attribute: "hp" };
-        if ((t.bar1?.attribute ?? null) !== want.bar1.attribute) u.bar1 = { attribute: want.bar1.attribute };
-        // characters and caravans: linked to their actor and on the players' side (tokens placed from a wiped prototype
-        // came out unlinked and hostile)
-        if (a.type !== "enemy" && !t.actorLink) { u.actorLink = true; if (t.name !== a.name) u.name = a.name; }
-        if (a.type !== "enemy" && t.disposition === CONST.TOKEN_DISPOSITIONS.HOSTILE) u.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-        if (Object.keys(u).length) ups.push({ _id: t.id, ...u });
-      }
       if (ups.length) await scene.updateEmbeddedDocuments("Token", ups);
     }
   }

@@ -788,9 +788,7 @@
 .pust-caravan .pust-qgrp { min-width: 0; gap: 8px 18px; flex-wrap: wrap; }
 .pust-caravan .pust-qgrp.q-life > .pust-qi:first-child, .pust-caravan .pust-qgrp.q-goods > .pust-qi:first-child { flex: 0 0 auto; min-width: 0; max-width: none; }
 .pust-caravan .pust-qgrp.q-life > .pust-hpbar { flex: 1 0 100%; height: 18px; }
-.pust-caravan .pust-qi input.pust-qmax { width: 46px !important; height: 32px !important; font-size: 15px !important; }
-.pust-caravan .pust-qi input.pust-qarmtype { width: 104px !important; font-size: 14px !important; }
-.pust-caravan .pust-qsep { font-family: var(--pu-f-num); font-size: 18px; color: var(--pu-green-dim); }
+
 .pust-caravan .pust-quickbar .pust-qi input.custom { border-color: var(--pu-amber) !important; box-shadow: inset 0 0 0 1px var(--pu-amber) !important; }
 .pust-caravan .pust-qi .pust-die { height: 28px !important; width: 28px !important; }
 .pust-caravan .pust-qi.bad input { color: var(--pu-red) !important; }
@@ -977,7 +975,7 @@
 .wastelanders .pust-caravan .q-all .pust-qpips .pip { width: 16px !important; height: 13px !important; }
 .pust-caravan .q-all .pust-qi.q-movecell { flex: 1 1 auto; }
 .pust-caravan .q-all .pust-qi.q-movecell > small { font-size: 11px; }
-.pust-caravan .pust-qi input.pust-qarmtype { width: 86px !important; }
+
 @container (max-width: 650px) { .pust-caravan .pust-quickbar .pust-qgrid { grid-template-areas: "all" !important; } }
 .pust-caravan .pust-qgrp.q-all { gap: 6px 14px; }
 .pust-caravan .q-all .pust-qi.q-movecell { flex: 1 1 0; min-width: 177px; }
@@ -1001,8 +999,7 @@
 }
 /* the top block fits with the ↺ (custom ОЗ / броня) buttons too: tighter gaps, a narrower armour type, small ↺, smaller lamps */
 .pust-caravan .pust-qgrp.q-all { column-gap: 8px; grid-template-columns: auto auto auto minmax(158px, 1fr); }
-.pust-caravan .pust-qi input.pust-qarmtype { width: 66px !important; }
-.pust-caravan .pust-qi input.pust-qmax { width: 40px !important; }
+
 .wastelanders .pust-caravan .q-all button[data-act$="Reset"]:not(.header-control) { width: 20px !important; height: 26px !important; padding: 0 !important; font-size: 13px !important; }
 .pust-caravan .q-all .q-moverow > .pust-qpips { grid-template-columns: repeat(10, 14px) !important; gap: 3px 2px; }
 .wastelanders .pust-caravan .q-all .pust-qpips .pip { width: 14px !important; }
@@ -1108,6 +1105,10 @@
 .pust-place .pust-place-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 4px 1px 8px; border-radius: 3px;
   background: #e2ad3b; color: #241a0c; font-style: italic; font-size: 13px; line-height: 20px; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
 .pust-place .pust-place-chip > button { width: 18px; height: 18px; min-height: 0; margin: 0; padding: 0; line-height: 16px; border: none; background: rgba(0,0,0,.12); color: #241a0c; font-style: normal; border-radius: 2px; }
+/* free invokes on a place's aspects (author, 2026-11-14): the character sheet's green counter */
+.pust-place .pust-place-chip .pust-sinv { font-style: normal; color: #e7ffd9; }
+.pust-place .pust-place-chip .pust-sinv button { width: 18px !important; height: 18px; min-height: 0; margin: 0; padding: 0 !important; line-height: 16px !important; font-size: 11px !important; font-style: normal; }
+.pust-place .pust-place-chip .pust-place-inv { padding: 0 5px; border-radius: 3px; background: #2f6b35; color: #e7ffd9; font-family: var(--pu-f-num); font-style: normal; font-size: 12px; line-height: 18px; }
 .pust-place .pust-place-muted { font-size: 12px; color: var(--pu-ink-3); font-style: italic; }
 /* players' read-only card (author, 2026-11-14): light fields with dark ink, not Foundry's dimmed disabled look */
 .wastelanders .pust-place.readonly :is(input, select, textarea) { pointer-events: none; opacity: 1; background: rgba(255,252,240,.85); border: 1px solid var(--pu-paper-3);
@@ -1198,16 +1199,6 @@
 .pust-en .pust-en-body :is(input[type="text"], select) { height: 28px; font-size: 14px; }
 .pust-en .pust-en-body textarea { width: 100%; min-height: 48px; resize: vertical; line-height: 1.35; font-size: 14px; }
 .wastelanders .pust-en .pust-en-card button:not(.header-control, [data-d], .pust-en-pip, .pust-en-x) { height: 28px !important; margin: 0 !important; padding: 0 10px !important; line-height: 26px !important; }
-
-/* damage */
-.pust-en .pust-en-dmgrow { display: flex; align-items: center; gap: 6px; }
-.pust-en .pust-en-dmgrow > input { flex: 1 1 90px; min-width: 0; }
-.pust-en .pust-en-dmgrow > select { flex: 2 1 150px; min-width: 0; }
-.pust-en .pust-en-dmgrow.heal { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--pu-ink-3); }
-.pust-en .pust-en-opts { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 5px 0 0; }
-.pust-en .pust-en-opts label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; margin: 0; }
-.wastelanders .pust-en button.pust-en-go:not(.header-control) { flex: none; background: var(--pu-rust-2) !important; color: #fff4e0 !important; border-color: var(--pu-rust-0) !important; font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
-.wastelanders .pust-en button.pust-en-go.ok:not(.header-control) { background: #cfe6c2 !important; color: #2a5a1c !important; border-color: #5f8f4a !important; }
 
 /* aspects */
 .pust-en .pust-en-quick { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 6px; }

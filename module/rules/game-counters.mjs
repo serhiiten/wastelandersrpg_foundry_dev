@@ -180,14 +180,3 @@ export function dieSvg(die, val, uid = 0) {
     + `<text x="50" y="${ty}" text-anchor="middle" dominant-baseline="middle" font-family="Handjet, monospace" font-weight="700" font-size="${fs}" fill="${fill}">${val}</text>`
     + `<text x="50" y="${dy}" text-anchor="middle" font-family="Handjet, monospace" font-weight="700" font-size="13" fill="#9aa19f">d${die}</text></svg>`;
 }
-
-/* ---------- the old «counter» actor (the original system's progress clock) → a game counter ----------
- * The actor type is gone (author, 2026-11-14); its raw source { name, system: { progress: { value, max, descriptions },
- * description } } becomes a game counter: the smallest size that holds max steps, the value and the step descriptions kept. */
-export function fromCounterActor(src) {
-  const p = src?.system?.progress ?? {};
-  const max = clamp(int(p.max, 4), 1, 12);
-  const size = GC_SIZES.find((n) => n >= max) ?? 12;
-  const labels = Array.isArray(p.descriptions) ? p.descriptions.map((t) => String(t ?? "")) : [];
-  return { name: String(src?.name ?? "").trim() || "Лічильник", size, val: clamp(int(p.value), 0, max), labels };
-}

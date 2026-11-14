@@ -16,8 +16,7 @@
       "drug": "Наркотик",
       "upgrade": "Покращення",
       "cargo": "Вантаж",
-      "passenger": "Пасажири",
-      "attack": "Атака"
+      "passenger": "Пасажири"
     }
   },
   "WASTELANDERS": {
@@ -32,15 +31,6 @@
           "Intelligence": "Інтелект",
           "Dexterity": "Вправність",
           "Luck": "Удача"
-        },
-        "AttributeShort": {
-          "Strength": "СЛ",
-          "Perception": "СПР",
-          "Endurance": "ВТР",
-          "Attractiveness": "ПВ",
-          "Intelligence": "ІН",
-          "Dexterity": "ВП",
-          "Luck": "УДЧ"
         },
         "Skills": "Навички",
         "SkillsNumber": "На старті гри обери {number} навички на рівні учня.",
@@ -64,28 +54,13 @@
         "Settings": {
           "HPBonus": "Бонус ОЗ"
         }
-      },
-      "Enemy": {
-        "Name": "Ім'я",
-        "Type": "Тип",
-        "Types": {
-          "Statistician": "Статист",
-          "Ordinary": "Рядовий",
-          "Elite": "Елітний",
-          "Boss": "Бос"
-        },
-        "Armor": "Броня",
-        "Attacks": "Атаки"
       }
     },
     "Item": {
       "SpeciesFeats": "Видові властивості",
       "Name": "Назва",
-      "Show": "Показати",
       "Add": "Додати",
       "Delete": "Видалити",
-      "Edit": "Відредагувати",
-      "New": "Нове",
       "IsActive": "Активний",
       "CanBeActivated": "Можна активувати",
       "Requirements": "Вимоги",
@@ -100,16 +75,6 @@
       "SpeciesFeat": "Видова особливість",
       "Skills": "Навички",
       "Perks": "Перки"
-    },
-    "Roll": {
-      "DoubleAdvantage": "Посилення (2)",
-      "Advantage": "Посилення",
-      "Disadvantage": "Послаблення",
-      "DoubleDisadvantage": "Послаблення (2)",
-      "Results": {
-        "Failure": "Невдача",
-        "Success": "Успіх"
-      }
     },
     "Errors": {
       "Item": {
@@ -137,6 +102,12 @@
       "ReplaceTitle": "Відкрити .json у цьому аркуші",
       "ReplaceText": "Усе в аркуші «{actor}» буде замінено персонажем з файлу «{file}»: атрибути, навички, перки, особливості, спорядження й записи. Точно?",
       "Replaced": "Аркуш «{name}» замінено даними з файлу."
+    },
+    "Roll": {
+      "Results": {
+        "Failure": "Невдача",
+        "Success": "Успіх"
+      }
     }
   }
 }

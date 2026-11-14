@@ -1,0 +1,67 @@
+/**
+ * Who takes a hit, and how (author, 2026-11-14): the defence profile of a target for `resolveHit` / `computeDamage`
+ * (module/rules/battle.mjs). No Foundry here, so the tests can run it.
+ *   – enemy: its card's defence (module/rules/enemy-model.mjs profileOf: armour, psychic armour, defences, flags, Психо);
+ *   – character: the rules engine, as the sheet's «Захист» shows it — armour and psychic armour with chems, the defences
+ *     by the rules (species, perks, feats, chems) combined with the manual ones (`st.defOv`), the flags (+1d6 from
+ *     electricity, ½ on a partial success, can't be knocked down / stunned / disarmed), Камікадзе;
+ *   – caravan: its armour; «Тачка» (a machine) is immune to psychic damage, poisons and radiation, the brahmins (alive)
+ *     take them (author, 2026-11-14);
+ *   – anything else (a place, no HP): null — it takes no damage.
+ */
+import { compute } from "./core.mjs";
+import { profileOf as enemyProfile } from "./enemy-model.mjs";
+import { logicFor, readState } from "../applications/character-actions.mjs";
+
+const int = (v, d = 0) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? n : d; };
+const RES = ["phys", "energy", "fire", "rad", "poison", "psy"];
+
+/** The rules' defence and the manual one together (the sheet's defCombine): two halves make immunity, heal wins */
+export function combineDefence(a, m) {
+  if (!m || !["half", "immune", "heal"].includes(m)) return a;
+  if (a === "heal" || m === "heal") return "heal";
+  if (a === "immune" || m === "immune") return "immune";
+  if (a === "half" && m === "half") return "immune";
+  return "half";
+}
+
+/** A character's profile from its rules state (the sheet's «Захист») */
+export function characterProfileFromState(st) {
+  const d = compute(st);
+  const L = logicFor(st, { quiet: true });
+  const prof = {
+    armor: int(d.armorTotal + (L.chemArmor?.() ?? 0)), psyArmor: int(d.psiTotal + (L.chemPsi?.() ?? 0)),
+    phys: "normal", energy: "normal", fire: "normal", rad: "normal", poison: "normal", psy: "normal",
+  };
+  const A = L.defAuto ? L.defAuto(d) : {};
+  const ov = st.defOv || {};
+  for (const k of RES) prof[k] = combineDefence(A[k] || "normal", ov[k]);
+  const flag = (auto, key) => (ov[key] === "yes" ? true : ov[key] === "no" ? false : !!auto);
+  Object.assign(prof, {
+    electricVuln: flag(A.electric, "electric"), halfPartial: flag(A.partial, "partial"),
+    noKnockdown: flag(A.noKnock, "noKnock"), noStun: flag(A.noStun, "noStun"), noDisarm: flag(A.noDisarm, "noDisarm"),
+    kamikaze: !!d.has?.("Камікадзе"),
+  });
+  return prof;
+}
+
+/** The profile of an actor (or null when it can't take damage) */
+export function targetProfile(actor) {
+  if (!actor) return null;
+  if (actor.type === "enemy") return enemyProfile(actor.system);
+  if (actor.type === "character") return characterProfileFromState(readState(actor));
+  if (actor.type === "caravan") return caravanProfile(actor.system);
+  return null;
+}
+
+/**
+ * A caravan's profile: its armour (the rules' + «до броні» of «Налаштування → Захист»), the defences set there
+ * (`defOv`: half / immune by type, author 2026-11-14), and a «Тачка» doesn't feel psychic damage, poisons or radiation
+ */
+export function caravanProfile(sys = {}) {
+  const prof = { armor: Math.max(0, int(sys.armor)), psyArmor: 0, phys: "normal", energy: "normal", fire: "normal", rad: "normal", poison: "normal", psy: "normal" };
+  if (sys.vehicle === "tachka") Object.assign(prof, { psy: "immune", poison: "immune", rad: "immune" });
+  const ov = sys.defOv || {};
+  for (const k of RES) prof[k] = combineDefence(prof[k], ov[k]);
+  return prof;
+}

@@ -179,38 +179,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Кулаки або імпровізована зброя",
-      "type": "attack",
-      "_id": "BlMDuv3qaSDnf6Qo",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>менша з 2d6, фізична шкода, ближній бій.</p>",
-        "damage": "2d6kl1"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768950518418,
-        "modifiedTime": 1768950541981,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!dtmrnhz5jSHfaROT.BlMDuv3qaSDnf6Qo"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

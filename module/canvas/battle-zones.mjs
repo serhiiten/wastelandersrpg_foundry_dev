@@ -99,9 +99,12 @@ export function initBattleZones() {
       let x = pad, y = sh + 10 * K;
       const chipH = 30 * K;
       for (const a of z.aspects) {
-        const text = new T(a.t, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 19 * K, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c }));
+        // italic leans past the width PIXI measures (author, 2026-11-14: «курсив зрізає закінчення»): the texture gets padding,
+        // the chip room for the lean
+        const lean = 6 * K;
+        const text = new T(a.t, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 19 * K, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
         const inv = a.inv > 0 ? new T(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 18 * K, fontWeight: "800", fill: 0xf2ecd8 })) : null;
-        const cw = Math.min(w - 2 * pad, text.width + 18 * K + (inv ? inv.width + 14 * K : 0));
+        const cw = Math.min(w - 2 * pad, text.width + lean + 18 * K + (inv ? inv.width + 14 * K : 0));
         if (x + cw > w - pad && x > pad) { x = pad; y += chipH + 6 * K; }
         if (y + chipH > h - 6 * K) break;
         const bg = new PIXI.Graphics();
@@ -182,8 +185,11 @@ function onDragMove(ev) {
   // the preview: the zone follows (moved) or grows (resized); zones may overlap (author, 2026-11-14)
   const shp = drag.placeable.shape;
   if (drag.part === "corner") {
+    // grows from its top-left corner, which stays put (author, 2026-11-14: «картка стрибає»): the shape turns about its
+    // centre, so the centre moves with the new size
+    shp.pivot.set(drag.rect.w / 2, drag.rect.h / 2);
     shp.scale.set(drag.end.w / drag.rect.w, drag.end.h / drag.rect.h);
-    shp.pivot.set(0, 0);
+    shp.position.set(drag.end.x + drag.end.w / 2, drag.end.y + drag.end.h / 2);
   } else shp.position.set(drag.end.x + drag.doc.shape.width / 2, drag.end.y + drag.doc.shape.height / 2);
   if (editor?.doc === drag.doc) layoutEditor();
 }
@@ -204,13 +210,13 @@ async function onDragEnd() {
   const d = drag; drag = null;
   stopListeners();
   if (!d) return;
-  resetPreview(d);
-  if (!d.moved || !d.end) return;
-  const same = d.end.x === d.rect.x && d.end.y === d.rect.y && d.end.w === d.rect.w && d.end.h === d.rect.h;
-  if (same) return;
+  const same = !d.moved || !d.end || (d.end.x === d.rect.x && d.end.y === d.rect.y && d.end.w === d.rect.w && d.end.h === d.rect.h);
+  if (same) return resetPreview(d);
+  // the preview stays until the new size / place is saved, so the zone doesn't flick back for a moment
   try {
     await d.doc.update(d.part === "corner" ? { shape: { width: d.end.w, height: d.end.h } } : { x: d.end.x, y: d.end.y });
   } catch (err) { console.warn("Пустельники | zone not changed", err); }
+  resetPreview(d);
 }
 function onDragCancel() { const d = drag; drag = null; stopListeners(); resetPreview(d); }
 

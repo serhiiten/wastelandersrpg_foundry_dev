@@ -189,38 +189,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Мандибули",
-      "type": "attack",
-      "_id": "mJSGOJwWBAVjnP5r",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>1d6+1 фізичної шкоди, ближній бій.</p>",
-        "damage": "1d6+1"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768836308336,
-        "modifiedTime": 1768848633885,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!k0zpfXXgFzRLVTj1.mJSGOJwWBAVjnP5r"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

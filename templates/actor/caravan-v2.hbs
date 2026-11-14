@@ -77,16 +77,10 @@
         <div class="pust-qi q-hp {{#if (lt v.hpCurrent 1)}}bad{{/if}}"><span><i class="fa-solid fa-heart-pulse pust-qic" aria-hidden="true"></i>Очки здоров'я</span><div>
           <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="-1" title="Мінус 1 ОЗ">−</button>
           <input type="text" class="pust-screen" data-k="hpCurrent" value="{{v.hpCurrent}}" aria-label="Поточні ОЗ">
-          <span class="pust-qsep">/</span>
-          <input type="text" class="pust-qmax {{#if v.hpCustom}}custom{{/if}}" data-k="hpMax" value="{{v.maxHP}}" aria-label="Максимум ОЗ" title="{{#if v.hpCustom}}Встановлено вручну. Стандартно: {{v.baseMaxHP}}{{else}}Максимум ОЗ можна змінити вручну{{/if}}">
+          <b title="Максимум ОЗ: за правилами {{v.baseMaxHP}} плюс надбавка з «Налаштування → Захист»">/ {{v.maxHP}}</b>
           <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="1" title="Плюс 1 ОЗ">+</button>
-          {{#if v.hpCustom}}<button type="button" data-action="cact" data-act="hpMaxReset" title="Повернути стандартний максимум ({{v.baseMaxHP}})">↺</button>{{/if}}
         </div></div>
-        <div class="pust-qi q-arm"><span><i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>Броня</span><div>
-          <input type="text" class="{{#if v.armorCustom}}custom{{/if}}" data-k="armorVal" value="{{v.armor}}" aria-label="Броня" title="{{#if v.armorCustom}}Встановлено вручну. Стандартно: {{v.baseArmor}}{{else}}Броню можна змінити вручну{{/if}}">
-          <input type="text" class="pust-qarmtype {{#if v.armorTypeCustom}}custom{{/if}}" data-k="armorType" value="{{v.armorType}}" aria-label="Тип броні" title="Тип броні">
-          {{#if (or v.armorCustom v.armorTypeCustom)}}<button type="button" data-action="cact" data-act="armorReset" title="Повернути стандартну броню ({{v.baseArmor}}, фізична)">↺</button>{{/if}}
-        </div></div>
+        <div class="pust-qi q-arm"><span><i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>Броня</span><div class="pust-qarm" title="Броня: за правилами {{v.baseArmor}} плюс надбавка з «Налаштування → Захист»"><b class="big arm-phys">{{v.armor}}</b><small class="arm-phys">фізична</small></div></div>
         <div class="pust-qi q-bud"><span><i class="fa-solid fa-coins pust-qic" aria-hidden="true"></i>Бюджет кришок</span><div>
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="-1" title="Мінус 1 кришка">−</button>
           <input type="text" class="pust-screen" data-k="budget" value="{{v.budget}}" aria-label="Бюджет кришок">
@@ -115,6 +109,7 @@
     <a data-action="pustTab" data-tab="cargo" class="{{#if (eq tab 'cargo')}}active{{/if}}">Вантаж і пасажири</a>
     <a data-action="pustTab" data-tab="counters" class="{{#if (eq tab 'counters')}}active{{/if}}">Лічильники</a>
     <a data-action="pustTab" data-tab="story" class="{{#if (eq tab 'story')}}active{{/if}}">Історія</a>
+    <a data-action="pustTab" data-tab="settings" class="pust-tab-ico {{#if (eq tab 'settings')}}active{{/if}}" title="Налаштування" aria-label="Налаштування"><i class="fa-solid fa-gear"></i></a>
   </nav>
 
   <div class="pust-body">
@@ -215,6 +210,34 @@
     </div>
     <h4>Примітки</h4>
     <textarea class="pust-notes" data-k="notes" rows="5" aria-label="Примітки">{{v.notes}}</textarea>
+  {{/if}}
+
+  {{!-- ===== Налаштування: Захист (Foundry only, author 2026-11-14; like the character sheet's «Ручні надбавки» + «Захист вручну») ===== --}}
+  {{#if (eq tab 'settings')}}
+    <div class="pust-settings">
+      <section class="pust-block">
+        <h3><i class="fa-solid fa-shield-halved"></i> Захист{{#if v.settings.set}} <small class="pust-fold-n">надбавок: {{v.settings.set}}</small>{{/if}}{{#if v.settings.defSet}} <small class="pust-fold-n">змінено: {{v.settings.defSet}}</small>{{/if}}</h3>
+        <div class="pust-defhead"><button type="button" data-action="cact" data-act="def-reset" data-confirm="1" title="Прибрати обидві надбавки й повернути захист до звичайного (натисніть двічі)"><i class="fa-solid fa-rotate-left"></i> Повернути все до стандартних значень</button></div>
+        <div class="pust-ovgrid">
+          {{#each v.settings.bonuses}}
+          <div class="pust-ovrow">
+            <span>{{n}}</span>
+            <span class="pust-ovstep">
+              <button type="button" data-action="cact" data-act="step" data-step="{{k}}" data-d="-1" title="Мінус 1">−</button>
+              <input type="text" class="pust-screen" data-k="{{k}}" value="{{val}}" placeholder="—" aria-label="{{n}}" title="Ціле число, може бути від'ємним; порожньо — без надбавки (за правилами {{base}})">
+              <button type="button" data-action="cact" data-act="step" data-step="{{k}}" data-d="1" title="Плюс 1">+</button>
+            </span>
+            {{#if val}}<button type="button" class="pust-ovreset" data-action="cact" data-act="ov-reset" data-k="{{k}}" data-confirm="1" title="Скинути до стандартного значення"><i class="fa-solid fa-rotate-left"></i></button>{{else}}<span></span>{{/if}}
+          </div>
+          {{/each}}
+        </div>
+        <p class="pust-sub pust-set-hint">Порожньо — за правилами. Максимум ОЗ і броня каравану не редагуються напряму: надбавка (можна від'ємну) додається до того, що порахував аркуш за транспортом і покращеннями. Тип броні — завжди фізична.</p>
+        <h4>Захист за типами шкоди</h4>
+        <div class="pust-defgrid">
+          {{#each v.settings.defTypes}}<label class="pust-defrow"><span>{{n}}</span><select data-k="defOv.{{k}}">{{#each options}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>{{/each}}
+        </div>
+      </section>
+    </div>
   {{/if}}
 
   </div>

@@ -257,38 +257,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Пазурі",
-      "type": "attack",
-      "_id": "zKvOnnPr1nq6jU0J",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>3d6 фізичної шкоди, ближній бій, ігнорує 4 броні.</p>",
-        "damage": "3d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768867398811,
-        "modifiedTime": 1768867421040,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!2zBEt5muroAa9Hol.zKvOnnPr1nq6jU0J"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

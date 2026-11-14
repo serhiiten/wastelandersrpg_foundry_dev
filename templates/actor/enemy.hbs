@@ -42,26 +42,7 @@
       </div>
     </section>
 
-    {{!-- Отримати шкоду / Лікувати --}}
-    {{#if editable}}
-    <section class="pust-en-card pust-en-dmg">
-      <h3><i class="fa-solid fa-burst pust-qic" aria-hidden="true"></i>Отримати шкоду</h3>
-      <div class="pust-en-dmgrow">
-        <input type="text" name="dmgAmount" placeholder="5 або 2d6+1" autocomplete="off" aria-label="Шкода: число або кістки">
-        <select name="dmgType" aria-label="Тип шкоди">{{#each dmgTypes}}<option value="{{k}}">{{n}}</option>{{/each}}</select>
-        <button type="button" class="pust-en-go" data-action="applyDmg" title="Порахувати шкоду з урахуванням броні й стійкості та вирахувати з ОЗ">Завдати</button>
-      </div>
-      <div class="pust-en-opts">
-        <label><input type="checkbox" name="dmgIgnore"> Ігнорує броню</label>
-        <label><input type="checkbox" name="dmgPartial"> Частковий успіх</label>
-      </div>
-      <div class="pust-en-dmgrow heal">
-        <input type="text" name="healAmount" placeholder="Скільки ОЗ повернути" autocomplete="off" aria-label="Лікування: число або кістки">
-        <button type="button" class="pust-en-go ok" data-action="applyHeal" title="Додати ОЗ (не вище максимуму)"><i class="fa-solid fa-kit-medical"></i> Лікувати</button>
-      </div>
-    </section>
-    {{/if}}
-
+    {{!-- «Отримати шкоду» removed (author, 2026-11-14): damage goes through «Завдати виділеним» and the «Битва» panel --}}
     {{!-- Аспекти --}}
     <section class="pust-en-card">
       <h3><i class="fa-solid fa-tags pust-qic" aria-hidden="true"></i>Аспекти</h3>
@@ -70,8 +51,8 @@
         {{#each v.quick}}<button type="button" class="pust-en-q" data-action="quickAsp" data-k="{{key}}" {{#if locked}}disabled{{/if}} title="{{help}}">+ {{label}}</button>{{/each}}
       </div>{{/if}}{{/if}}
       <div class="pust-en-chips">
-        {{#each v.aspects}}<span class="pust-en-chip">{{t}}
-          <span class="pust-en-inv" title="Безкоштовні посилення цього аспекту">{{#if ../editable}}<button type="button" data-action="inv" data-s="s" data-i="{{i}}" data-d="-1" aria-label="Мінус посилення">−</button>{{/if}}<b>{{inv}}</b>{{#if ../editable}}<button type="button" data-action="inv" data-s="s" data-i="{{i}}" data-d="1" aria-label="Плюс посилення">+</button>{{/if}}</span>
+        {{#each v.aspects}}<span class="pust-en-chip"><span>{{t}}</span>
+          {{#if ../editable}}<span class="pust-en-inv" title="Безкоштовні посилення цього аспекту"><button type="button" data-action="inv" data-s="s" data-i="{{i}}" data-d="-1" aria-label="Мінус посилення">−</button><b>+{{inv}}</b><button type="button" data-action="inv" data-s="s" data-i="{{i}}" data-d="1" aria-label="Плюс посилення">+</button></span>{{else}}{{#if inv}}<b class="pust-asp-n" title="Безкоштовні Посилення">+{{inv}}</b>{{/if}}{{/if}}
           {{#if ../editable}}<button type="button" class="pust-en-x" data-action="aspRm" data-s="s" data-i="{{i}}" aria-label="Прибрати аспект">×</button>{{/if}}</span>
         {{else}}<span class="pust-en-muted">Ситуативних аспектів немає</span>{{/each}}
       </div>
@@ -112,10 +93,10 @@
           {{#if ../editable}}<button type="button" class="pust-en-roll" data-action="rollAtk" data-i="{{i}}" {{#if dead}}disabled{{/if}} title="{{#if dead}}Заряди скінчилися{{else}}Кинути шкоду цієї атаки в чат{{/if}}"><i class="fa-solid fa-dice-d6"></i> Кинути</button>{{/if}}
         </div>
         {{#if note}}<div class="pust-en-note">{{note}}</div>{{/if}}
-        {{#if ../editable}}{{#if hasHit}}<div class="pust-en-hit">
-          <span class="pust-en-hitv {{tcls}}" title="Останній кидок цієї атаки (він уже в чаті)"><b>{{hit}}</b> шкоди</span>
-          <button type="button" class="pust-dmg-apply" data-action="hitSel" data-i="{{i}}" title="Шкода виділеним токенам (або цілям, коли нічого не виділено): броня й стійкості кожного враховуються"><i class="fa-solid fa-crosshairs"></i><span>Завдати виділеним</span></button>
-        </div>{{/if}}{{/if}}
+        {{#if ../editable}}<div class="pust-en-hit">
+          {{#if hasHit}}<span class="pust-en-hitv {{tcls}}" title="Кидок «Кинути», ще не завданий (він уже в чаті); «Завдати виділеним» завдасть саме його">кинуто: <b>{{hit}}</b></span>{{/if}}
+          <button type="button" class="pust-dmg-apply" data-action="hitSel" data-i="{{i}}" {{#if dead}}{{#unless hasHit}}disabled{{/unless}}{{/if}} title="{{#if dead}}Заряди скінчилися{{else}}{{#if hasHit}}Завдати кинуту шкоду{{else}}Кинути цю атаку й завдати шкоди{{/if}} виділеним токенам (або цілям, коли нічого не виділено): броня й стійкості кожного враховуються{{/if}}"><i class="fa-solid fa-crosshairs"></i><span>Завдати виділеним</span></button>
+        </div>{{/if}}
         {{#if ammo}}<div class="pust-en-pips" title="Заряди: {{ammo.value}} з {{ammo.max}}">{{#each ammo.pips}}<button type="button" class="pust-en-pip {{#if on}}on{{/if}}" data-action="pip" data-i="{{../i}}" data-n="{{n}}" aria-label="Заряд {{n}}"></button>{{/each}}<small>{{ammo.value}} / {{ammo.max}}</small></div>{{/if}}
       </div>
       {{else}}<div class="pust-en-muted">Атак немає</div>{{/each}}
@@ -131,8 +112,8 @@
       <summary><i class="fa-solid fa-book-skull pust-qic" aria-hidden="true"></i>Деталі: аспекти, ходи, примітки{{#if differs}} <span class="pust-en-flag">змінено</span>{{/if}}</summary>
       <h4>Аспекти за книгою</h4>
       <div class="pust-en-chips">
-        {{#each v.baseAspects}}<span class="pust-en-chip">{{#if ../edit}}<input type="text" class="pust-en-chipin" data-bf="{{i}}" value="{{t}}" aria-label="Аспект">{{else}}{{t}}{{/if}}
-          <span class="pust-en-inv" title="Безкоштовні посилення">{{#if ../editable}}<button type="button" data-action="inv" data-s="b" data-i="{{i}}" data-d="-1" aria-label="Мінус посилення">−</button>{{/if}}<b>{{inv}}</b>{{#if ../editable}}<button type="button" data-action="inv" data-s="b" data-i="{{i}}" data-d="1" aria-label="Плюс посилення">+</button>{{/if}}</span>
+        {{#each v.baseAspects}}<span class="pust-en-chip">{{#if ../edit}}<input type="text" class="pust-en-chipin" data-bf="{{i}}" value="{{t}}" aria-label="Аспект">{{else}}<span>{{t}}</span>{{/if}}
+          {{#if ../editable}}<span class="pust-en-inv" title="Безкоштовні посилення"><button type="button" data-action="inv" data-s="b" data-i="{{i}}" data-d="-1" aria-label="Мінус посилення">−</button><b>+{{inv}}</b><button type="button" data-action="inv" data-s="b" data-i="{{i}}" data-d="1" aria-label="Плюс посилення">+</button></span>{{else}}{{#if inv}}<b class="pust-asp-n" title="Безкоштовні Посилення">+{{inv}}</b>{{/if}}{{/if}}
           {{#if ../edit}}<button type="button" class="pust-en-x" data-action="aspRm" data-s="b" data-i="{{i}}" aria-label="Прибрати аспект">×</button>{{/if}}</span>
         {{else}}<span class="pust-en-muted">Аспектів за книгою немає</span>{{/each}}
       </div>

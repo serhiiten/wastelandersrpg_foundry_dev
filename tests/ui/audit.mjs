@@ -175,7 +175,7 @@ const SCENARIOS = {
   async dock(a) {
     const dock = document.querySelector("#pust-mapdock");
     if (!dock) return a.skip("панелі", "немає #pust-mapdock");
-    const map = dock.querySelector('[data-unit="map"]'), dice = dock.querySelector('[data-unit="dice"]');
+    const map = dock.querySelector('[data-unit="map"]'), dice = dock.querySelector('[data-unit="dice"]'), ctrU = dock.querySelector('[data-unit="ctr"]');
     a.onScreen([...dock.querySelectorAll(".pust-md-unit, .pust-md-panel, .pust-md-travel")], { abovePlayers: true });
     a.noCut(dock);
     a.noRawKeys(dock);
@@ -184,11 +184,24 @@ const SCENARIOS = {
       const btns = [...map.querySelectorAll(".pust-md-map [data-mapdock]")];
       if (btns.length) a.row(btns, { equalWidth: true, label: "кнопки «Мапи Пустки» в один ряд" });
     }
-    if (map && dice && !map.classList.contains("folded") && !dice.classList.contains("folded")) {
+    // default places (author, 2026-11-14): «Мапа Пустки» on the left, «Лічильники» under it, «Кістки» under them (6 px);
+    // «Битва» top right next to the sidebar, «Лічильники» and «Кістки» then on the left by themselves
+    {
       const pos = JSON.parse(localStorage.getItem("pustelnyky-mapdock-pos") || "{}");
-      if (!pos.dice) a.ok("«Кістки» під «Мапою Пустки» з відступом 8 px", Math.abs(R(dice).top - R(map).bottom - 8) <= 1.5, `${Math.round(R(dice).top - R(map).bottom)} px`);
+      const side = document.querySelector("#sidebar"), bar = document.querySelector("#scene-controls");
+      const isBattle = map?.classList.contains("is-battle");
+      const has = (u) => u && R(u).height > 0;
+      if (isBattle && !pos.battle && side) a.ok("«Битва» праворуч, 8 px від бічної панелі", Math.abs(R(side).left - R(map).right - 8) <= 1.5, `${Math.round(R(side).left - R(map).right)} px`);
+      if (!isBattle && has(map) && !pos.map && bar) a.ok("«Мапа Пустки» ліворуч, під кнопками шарів", Math.abs(R(map).left - R(bar).left) <= 1.5, `${Math.round(R(map).left)} / ${Math.round(R(bar).left)}`);
+      for (const [u, k, n] of [[ctrU, "ctr", "«Лічильники»"], [dice, "dice", "«Кістки»"]]) if (has(u) && !pos[k] && bar) a.ok(`${n} ліворуч`, Math.abs(R(u).left - R(bar).left) <= 1.5, `${Math.round(R(u).left)} / ${Math.round(R(bar).left)}`);
+      if (!isBattle && has(map) && has(ctrU) && !pos.map && !pos.ctr && !map.classList.contains("folded")) a.ok("«Лічильники» під «Мапою Пустки», 8 px", Math.abs(R(ctrU).top - R(map).bottom - 8) <= 1.5, `${Math.round(R(ctrU).top - R(map).bottom)} px`);
+      if (has(ctrU) && has(dice) && !pos.ctr && !pos.dice) a.ok("«Кістки» під «Лічильниками», 6 px", Math.abs(R(dice).top - R(ctrU).bottom - 6) <= 1.5, `${Math.round(R(dice).top - R(ctrU).bottom)} px`);
     }
-    for (const u of dock.querySelectorAll(".pust-md-unit.folded > .pust-md-panel:not([hidden]), .pust-md-unit.folded .pust-md-dice")) if (!u.matches(".pust-md-ctr")) a.size(u, 168, 30, `згорнута «${u.querySelector("header span")?.innerText}»`);
+    // folded panels: a 168 × 30 button each (author, 2026-11-14), «Лічильники» too now that they are a panel of their own
+    for (const u of dock.querySelectorAll(".pust-md-unit.folded > .pust-md-panel:not([hidden])")) a.size(u, 168, 30, `згорнута «${u.querySelector("header span")?.innerText}»`);
+    // three panels (author, 2026-11-14): «Лічильники» and «Кістки» apart; players' «Зробити перевірку» over «Лічильники», full width
+    a.ok("«Лічильники» й «Кістки» — окремі панелі", !dice?.querySelector(".pust-md-ctr") && !!ctrU?.querySelector(".pust-md-ctr"));
+    if (ctrU && !ctrU.classList.contains("folded")) a.column([...ctrU.querySelectorAll(":scope > .pust-md-check, :scope > .pust-md-panel")].filter(shown), { gap: 6, label: "«Зробити перевірку» / «Лічильники»" });
     // «Битва» on the battle map: its rows line up, its two buttons are equal
     const battle = dock.querySelector(".pust-md-battle:not([hidden])");
     if (battle && !map.classList.contains("folded")) {
@@ -198,8 +211,17 @@ const SCENARIOS = {
       a.oneLine([...battle.querySelectorAll(".pust-md-blabel")], "підписи рядків «Битви» в один рядок");
       a.column([...battle.querySelectorAll(".pust-md-blabel")], { label: "колонка підписів «Битви»", sameRight: true, gap: false });
       for (const r of battle.querySelectorAll(".pust-md-bround")) a.row([...r.querySelectorAll(":scope > button, :scope > .pust-md-bnum, :scope > .pust-md-n")], { label: "рядок кола / Долі" });
-      a.row([...battle.querySelectorAll(".pust-md-bquick > button")], { equalWidth: true, label: "швидкі кістки" });
+      a.row([...battle.querySelectorAll(".pust-md-bquick > button:not(.pust-md-bmod)")], { equalWidth: true, label: "швидкі кістки" });
+      a.row([...battle.querySelectorAll(".pust-md-bquick > button")], { label: "швидкі кістки з −1 / +1" });
       a.row([...battle.querySelectorAll(".pust-md-bact > button")], { equalWidth: true, label: "«Завдати шкоди» / «Лікувати»" });
+      // the damage form in two columns: the type list and the second tick start where «Лікувати» does
+      const col2 = R(battle.querySelector(".pust-md-bact > button:last-child")).left;
+      a.ok("друга колонка форми шкоди рівна", [battle.querySelector(".pust-md-bdmg select"), battle.querySelector(".pust-md-bchk > label:last-child")].every((e) => e && Math.abs(R(e).left - col2) <= 1.5), `${Math.round(col2)}`);
+      // the ticks (author, 2026-11-14): seen, not smaller than 16 px, centred on their words
+      const ticks = [...battle.querySelectorAll(".pust-md-bchk input[type=checkbox]")];
+      a.ok("галочки без значка Foundry поверх рамки", ticks.every((t) => getComputedStyle(t, "::before").content === "none"));
+      a.ok("галочки «Битви» видимі (≥ 16 px)", ticks.every((t) => R(t).width >= 16 && R(t).height >= 16), ticks.map((t) => `${Math.round(R(t).width)}×${Math.round(R(t).height)}`).join(", "));
+      a.ok("галочки по центру свого тексту", ticks.every((t) => { const l = t.closest("label"), rg = document.createRange(); rg.selectNodeContents(l); const tr = [...rg.getClientRects()].filter((r) => r.width > 20).pop() ?? R(l); return Math.abs((R(t).top + R(t).bottom) / 2 - (tr.top + tr.bottom) / 2) <= 2; }));
       a.readable(battle);
     }
     const ctr = dock.querySelector(".pust-md-ctr");
@@ -208,6 +230,30 @@ const SCENARIOS = {
       a.ok(`«Лічильники» ${empty ? "порожні напівпрозорі" : "непрозорі"}`, empty ? parseFloat(getComputedStyle(ctr).opacity) < 0.6 : getComputedStyle(ctr).opacity === "1", getComputedStyle(ctr).opacity);
     }
     a.counters(dock);
+  },
+
+  /** «Зробити перевірку» next to «Лічильники + Кістки» (players; opened here for the GM's own characters, nothing rolled) */
+  async dockCheck(a) {
+    const unit = document.querySelector('#pust-mapdock [data-unit="ctr"]');
+    if (!unit) return a.skip("панель перевірки", "немає блоку «Лічильники»");
+    const mod = await import(`/systems/${game.system.id}/module/applications/check-panel.mjs`);
+    if (!game.actors.some((x) => x.type === "character" && x.isOwner)) return a.skip("панель перевірки", "немає своїх персонажів");
+    const was = mod.dockCheckOpen();
+    if (!was) await mod.toggleDockCheck(unit.getBoundingClientRect());
+    await sleep(900);
+    const el = document.getElementById("pust-check-dock");
+    if (!el) return a.ok("панель перевірки відкривається", false);
+    a.onScreen([el]);
+    const u = R(unit), p = R(el);
+    a.ok("поруч із блоком, не на ньому (6 px)", Math.abs(p.left - u.right - 6) <= 1.5 || Math.abs(u.left - p.right - 6) <= 1.5, `${Math.round(p.left - u.right)} / ${Math.round(u.left - p.right)} px`);
+    const hd = el.querySelector(".pust-cd-hd");
+    a.row([...hd.querySelectorAll(":scope > select, :scope > button")], { label: "заголовок панелі перевірки" });
+    a.noCut(hd, "span, b, button");
+    a.readable(hd, "span, b, select");
+    // the ready-made checks' buttons tinted by their stripe (author, 2026-11-14): still readable
+    a.readable(el, ".rpre button.chipb, .rpre button.chipb small");
+    a.noRawKeys(el);
+    if (!was) { await mod.toggleDockCheck(unit.getBoundingClientRect()); await sleep(400); }
   },
 
   /** The Actors directory's header buttons */
@@ -304,6 +350,17 @@ const SCENARIOS = {
     a.noCut(el, "button, span");
     a.oneLine([...el.querySelectorAll("button > span, .rdhalf")], "«Завдати виділеним» і «частковий успіх» в один рядок");
     a.readable(el, "button, span");
+  },
+
+  /** «Новий супротивник» (Create Actor → Супротивник, module/applications/enemy-create.mjs), when it is open */
+  async enemyCreate(a) {
+    const el = document.getElementById("pust-enemy-create");
+    if (!el) return a.skip("форма нового супротивника", "відкрий Create Actor → Супротивник");
+    a.onScreen([el]);
+    a.noCut(el, "button, label, h3, span, b, small");
+    a.noRawKeys(el);
+    a.counters(el);
+    a.readable(el);
   },
 
   /** A place card (if the world has a place) */

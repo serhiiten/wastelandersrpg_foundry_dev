@@ -239,68 +239,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Середня зброя",
-      "type": "attack",
-      "_id": "qnFZiCCm7UpHJUYQ",
-      "img": "assets/bayonet.svg",
-      "system": {
-        "description": "<p>1d10 фізичної шкоди, бій на відстані або ближній бій.</p>",
-        "damage": "1d10"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768950825654,
-        "modifiedTime": 1768950844110,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!7sTw77h19MdEGBeY.qnFZiCCm7UpHJUYQ"
-    },
-    {
-      "name": "Пси-удар",
-      "type": "attack",
-      "_id": "GuFlblyAm9cMUrLx",
-      "img": "assets/psychic-waves.svg",
-      "system": {
-        "description": "<p>1d10 психічної шкоди, ігнорує фізичну броню.</p>",
-        "damage": "1d10"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768950825839,
-        "modifiedTime": 1768950870530,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!7sTw77h19MdEGBeY.GuFlblyAm9cMUrLx"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

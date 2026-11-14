@@ -42,8 +42,8 @@ const idRe = new RegExp(`"systemId": "${prev}"`, "g");
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
 const uuidRe = new RegExp(`Compendium\\.${escapeRe(prev)}\\.`, "g");
 let changed = 0;
-for (const file of ["module", "templates", "scss", "css", "src/packs"].flatMap(walk)) {
-  if (!/\.(mjs|js|hbs|scss|css|json|map)$/.test(file)) continue;
+for (const file of ["module", "templates", "css", "src/packs"].flatMap(walk)) {
+  if (!/\.(mjs|js|hbs|css|json|map)$/.test(file)) continue;
   const before = readFileSync(file, "utf8");
   const after = before
     .replace(pathRe, `systems/${next}/`)

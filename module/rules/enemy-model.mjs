@@ -96,15 +96,3 @@ export function attackDice(sys, i) {
 
 /** Damage this enemy takes: computeDamage on its profile */
 export const takeDamage = (sys, base, typeKey, opts = {}) => B.computeDamage(profileOf(sys), base, typeKey, opts);
-
-/** Is this raw system data still the old shape ({type, hp, armor, description})? */
-export const isOldShape = (src) => !!src && typeof src === "object" && !("v" in src) && !Array.isArray(src.attacks);
-
-/**
- * The old shape → the new one, from the description's HTML (the compendium's text). The current HP stay.
- * Used by EnemyData.migrateData on FULL sources only (never on partial updates).
- */
-export function fromOldShape(src, name = "") {
-  const parsed = B.parseEnemyHtml(src.description || "", { name, hp: src.hp?.max ?? 0, armor: src.armor ?? 0, cat: src.type });
-  return toSystem(parsed, { hpValue: src.hp?.value ?? parsed.hp, description: src.description ?? "" });
-}

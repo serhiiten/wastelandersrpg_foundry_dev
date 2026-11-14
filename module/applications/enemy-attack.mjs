@@ -8,13 +8,10 @@
 import { postDamageCard } from "./check-panel.mjs";
 import { attackDice } from "../rules/enemy-model.mjs";
 import { diceLabel } from "../rules/battle.mjs";
-import { DMG_TYPES as BATTLE_TYPES } from "../rules/battle.mjs";
 import { TYPE_EFFECTS } from "../rules/damage-types.mjs";
 
-/** The tracker's damage type → the chat cards' one (they name the psychic type differently) */
-export const chatType = (t) => (t === "psychic" ? "psi" : BATTLE_TYPES[t] ? t : "phys");
-/** …and back */
-export const battleType = (t) => (t === "psi" ? "psychic" : BATTLE_TYPES[t] ? t : "phys");
+export { chatType, battleType } from "../rules/battle.mjs";
+import { chatType } from "../rules/battle.mjs";
 
 export async function rollEnemyAttack(actor, i, { token = null } = {}) {
   const sys = actor.system;
@@ -46,5 +43,6 @@ export async function rollEnemyAttack(actor, i, { token = null } = {}) {
     parts: [{ l: label, v: String(total), t: wt }], fx, spent,
     speaker: token ? ChatMessage.getSpeaker({ token }) : null,
   });
-  return { total, head: `${token?.name || actor.name}: ${a.name}`, data: { total, type: wt, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0 } };
+  const nDice = roll.dice.reduce((n, d) => n + d.number, 0); // radiation that heals: +1 HP a die
+  return { total, head: `${token?.name || actor.name}: ${a.name}`, data: { total, dice: nDice, type: wt, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0 } };
 }

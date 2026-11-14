@@ -13,6 +13,7 @@ import {
   DEFAULT_ARMOR_TYPE,
   QUICK_START,
 } from "./caravan.mjs";
+import { blankDefOv, cleanDefOv } from "./caravan-defence.mjs";
 
 /**
  * The caravan sheet's rules for one caravan state (S, the HTML sheet's .json).
@@ -39,7 +40,7 @@ export function createCaravanLogic(env = {}) {
       imp: blankImps(),
       cargo: [], counters: [],
       story: { meeting: "", face: "", lastJob: "", wentWrong: "" }, notes: "",
-      longHaul: false, hpMaxOverride: null, armorOverride: null, armorType: DEFAULT_ARMOR_TYPE, customImps: [],
+      longHaul: false, hpBonus: 0, armorBonus: 0, defOv: blankDefOv(), armorType: DEFAULT_ARMOR_TYPE, customImps: [],
       manual: blankManual()
     };
   }
@@ -47,9 +48,9 @@ export function createCaravanLogic(env = {}) {
   function derived(st = S) {
     const t = st.tachka;
     const baseMaxHP = (t ? 35 : 25) + 10 * st.imp.structure;
-    const maxHP = st.hpMaxOverride != null ? st.hpMaxOverride : baseMaxHP;
+    const maxHP = Math.max(1, baseMaxHP + int(st.hpBonus));
     const baseArmor = (t ? 2 : 1) + 2 * st.imp.armor;
-    const armor = st.armorOverride != null ? st.armorOverride : baseArmor;
+    const armor = Math.max(0, baseArmor + int(st.armorBonus));
     const maxMove = 10 + 5 * st.imp.feed;
     const supCap = 3 * st.imp.chest;
     const cargoCap = 10 * (1 + st.imp.trunk);
@@ -104,9 +105,11 @@ export function createCaravanLogic(env = {}) {
     st.tachka = !!st.tachka;
     st.longHaul = !!o.longHaul;
     const ov = parseInt(o.hpMaxOverride, 10);
-    st.hpMaxOverride = Number.isFinite(ov) && ov >= 1 ? ov : null;
     const ar = parseInt(o.armorOverride, 10);
-    st.armorOverride = Number.isFinite(ar) && ar >= 0 ? ar : null;
+    st.hpBonus = o.hpBonus !== undefined ? int(o.hpBonus) : Number.isFinite(ov) && ov >= 1 ? ov - ((st.tachka ? 35 : 25) + 10 * st.imp.structure) : 0;
+    st.armorBonus = o.armorBonus !== undefined ? int(o.armorBonus) : Number.isFinite(ar) && ar >= 0 ? ar - ((st.tachka ? 2 : 1) + 2 * st.imp.armor) : 0;
+    delete st.hpMaxOverride; delete st.armorOverride;
+    st.defOv = cleanDefOv(o.defOv);
     st.armorType = typeof o.armorType === "string" ? o.armorType : DEFAULT_ARMOR_TYPE;
     st.customImps = Array.isArray(o.customImps) ? o.customImps.map(c => ({ name: String((c && c.name) || ""), desc: String((c && c.desc) || "") })) : [];
     st.manual = blankManual();

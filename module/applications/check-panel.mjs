@@ -9,7 +9,7 @@ import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
 import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
-import { atkIgnores, atkIgnoreN } from "../rules/battle.mjs";
+import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { sendDamage } from "./apply-damage.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -22,7 +22,7 @@ const STATES = new Map();
 const OPEN = new Map();
 
 /** Buttons whose result goes to chat */
-const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "dmg", "dmgre", "fate", "poolroll"]);
+const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "dmg", "dmgre"]);
 
 export function openCheckPanel(actor, preset = {}) {
   let app = OPEN.get(actor.uuid);
@@ -91,22 +91,18 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   async _prepareContext() {
     const { st, L } = evaluate(this.actor);
     this.#load(L);
-    // Кістка Долі is rolled for this character only: no «Персонаж / Партія» switch (author, 2026-11-13)
     // «Останні кидки» is left out: in Foundry every roll is already in the chat log (author, 2026-11-13)
+    // «Кістка Долі» and «Кістки» (the HTML sheet's «Просто кубики») are left out too: they live in the panel «Кістки» on
+    // the left of the map now (author, 2026-11-14); they are the roller's last two blocks
     const html = L.renderRoller()
       .replace(/<details class="rhist"[\s\S]*?<\/details>/, "")
-      .replace(/<div class="seg" role="group" aria-label="Чия Удача">[\s\S]*?<\/div>/, "")
-      // no rule text under «Кістка Долі»; the result speaks to the player («на твою користь»)
-      .replace(/(<div class="rfate"><h3>Кістка Долі<\/h3>)<p class="rnote">[\s\S]*?<\/p>/, "$1")
-      .replace(/<em>на користь персонажів<\/em>/, "<em>на твою користь</em>")
-      .replace(/<em>не на користь персонажів<\/em>/, "<em>не на твою користь</em>")
+      .replace(/<div class="rfate">[\s\S]*$/, "")
       // ready-made checks: the part in brackets («бій на відстані», «гранати») always on the button's second line
       // ready-made checks in two lines: «СПР+Стрільба» / «бій на відстані», «ВП» / «фізична шкода»
       .replace(/(<button type="button" class="chipb[^"]*"[^>]*>)([^<]*)(<\/button>)/g, (m, open, label, close) => {
         const [, top, sub] = /^(.*?)\s*\((.*)\)\s*$/.exec(label) || /^(.*?)\s+—\s+(.*)$/.exec(label) || [null, label, ""];
         return `${open}${top.replace(/\s*\+\s*/g, "+")}${sub ? `<small class="rsub">${sub}</small>` : ""}${close}`;
       })
-      .replace('<div class="rpool"><h3>Просто кубики</h3>', '<div class="rpool"><h3>Кістки</h3>')
       // attack effects always open (the HTML sheet opens them only on a success)
       .replace(/<details class="rfx">/g, '<details class="rfx" open>')
       // every die knows its type, so CSS can draw its shape (d6 square, d8 diamond, d10 kite, d12 pentagon)
@@ -178,6 +174,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         });
         let parts = [...lis.matchAll(/<li>([\s\S]*?): (-?\d+)<\/li>/g)].map((x) => ({ l: x[1], v: x[2], t: partType(x[1], wt) }));
         if (!/^Максимум/.test(parts[0]?.l || "")) parts = splitDiceParts(parts, choice, D.p, wt, best.vals);
+        // «Завдати виділеним» takes the parts by type when there are several (radiation, poison, psychic meet their own
+        // defence, not the armour) and the dice count (radiation that heals: +1 HP a die)
+        if (this.#apply) Object.assign(this.#apply.data, applyParts(parts));
         const types = [...parts.map((p) => p.t), ...(last.poison && last.poisonRoll ? ["poison"] : [])];
         return `<div class="rdres"><div class="rdrow"><div class="rdice">${chips}</div>`
           + `<div class="rsum rdsum"><b class="rtot dt-${wt}">${total}</b><span class="rform">шкоди</span><span class="dtchips">${typeChips(types.length ? types : [wt])}</span></div></div>`
@@ -221,7 +220,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const R = this.#load(L);
       // the damage as it stands (to post the new result when an option changes it: Психо, effect, crit…)
       const dmgNow = () => (R.last?.dmg && R.last.dmg.key === R.dmgKey ? JSON.stringify(L.dmgTotal(R.last, compute(st))) : null);
-      const before = { last: clone(R.last), fate: clone(R.fate), pool: clone(R.poolRes), dmg: dmgNow() };
+      const before = { last: clone(R.last), dmg: dmgNow() };
       if (kind === "click") L.rollerClick(node);
       else L.rollerChange(node);
       this.#save(L);
@@ -245,8 +244,6 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       return this.#chatCheck(L, verdicts, types, key !== "roll");
     }
     if ((key === "dmg" || key === "dmgre") && L?.dmg && dmgTotal) return this.#chatDamage(L, dmgTotal, key === "dmgre", dmgType, false, dmgFx, dmgChoice);
-    if (key === "fate" && R.fate && JSON.stringify(R.fate) !== JSON.stringify(before.fate)) return this.#chatFate(R.fate);
-    if (key === "poolroll" && R.poolRes) return this.#chatPool(R.poolRes);
   }
 
   /* ---------- chat ---------- */
@@ -297,17 +294,122 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     });
   }
 
-  #chatFate(fate) {
-    return postFateCard(this.actor, { v: fate.v, mod: fate.mod, party: fate.mode !== "char" });
-  }
-
-  #chatPool(res) {
-    return postPoolCard(this.actor, res);
-  }
-
   async close(options) {
     OPEN.delete(this.actor.uuid);
     return super.close(options);
+  }
+}
+
+/* ---------- the players' «Зробити перевірку» next to «Лічильники + Кістки» (author, 2026-11-14) ---------- */
+
+let DOCKED = null;
+let dockActorId = null; // the character picked in the list (this session)
+const DOCK_GAP = 6;
+
+/** The characters this user owns, by name */
+const ownCharacters = () => game.actors.filter((a) => a.type === "character" && a.isOwner).sort((a, b) => a.name.localeCompare(b.name, "uk"));
+
+/** The character the panel is for: the one picked, else the user's Player Character, else the first one owned */
+function dockActor() {
+  const list = ownCharacters();
+  const pc = game.user.character;
+  return list.find((a) => a.id === dockActorId) ?? (pc && list.includes(pc) ? pc : null) ?? list[0] ?? null;
+}
+
+export const dockCheckOpen = () => !!DOCKED?.rendered;
+
+/** Open or close the panel next to the unit at `rect` */
+export async function toggleDockCheck(rect) {
+  if (DOCKED?.rendered) { await DOCKED.close(); return; }
+  const actor = dockActor();
+  if (!actor) return ui.notifications.warn("У тебе ще немає персонажа.");
+  DOCKED = new DockedCheckPanel({ actor });
+  DOCKED.anchor = rect;
+  await DOCKED.render({ force: true });
+}
+
+/** The unit moved: the panel follows */
+export function placeDockCheck(rect) {
+  if (!DOCKED?.rendered) return;
+  DOCKED.anchor = rect;
+  DOCKED.stick();
+}
+
+/**
+ * «Зробити перевірку» without a window of its own: no frame, its own header (the character, or a list of them when the
+ * player owns several; ×), right of the unit «Лічильники + Кістки» (left of it when there is no room), as tall as the
+ * screen allows, scrolling inside.
+ */
+class DockedCheckPanel extends CheckPanel {
+  static DEFAULT_OPTIONS = {
+    id: "pust-check-dock",
+    classes: ["wastelanders", "pust-check", "pust-check-docked"],
+    position: { width: 520, height: "auto" },
+    window: { frame: false, positioned: true, resizable: false },
+  };
+
+  anchor = null;
+
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const el = this.element;
+    el.querySelector(":scope > .pust-cd-hd")?.remove();
+    const list = ownCharacters();
+    const hd = document.createElement("header");
+    hd.className = "pust-cd-hd";
+    const who = list.length > 1
+      ? `<select class="pust-cd-who" aria-label="Персонаж для перевірки" title="Чия перевірка">${list.map((a) => `<option value="${a.id}" ${a.id === this.actor.id ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select>`
+      : `<b class="pust-cd-name">${esc(this.actor.name)}</b>`;
+    hd.innerHTML = `<i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span>${who}<button type="button" class="pust-cd-x" title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>`;
+    el.prepend(hd);
+    hd.querySelector(".pust-cd-x").addEventListener("click", () => this.close());
+    hd.querySelector(".pust-cd-who")?.addEventListener("change", (ev) => {
+      const a = game.actors.get(ev.target.value);
+      if (!a) return;
+      dockActorId = a.id;
+      this.actor = a;
+      this.render();
+    });
+    requestAnimationFrame(() => this.stick());
+  }
+
+  /** Where the panel goes: right of the unit (or left of it), its top with the unit's, kept on screen */
+  #spot() {
+    const r = this.anchor, el = this.element;
+    if (!r) return null;
+    const maxH = window.innerHeight - 16;
+    const w = el?.offsetWidth || 520, h = Math.min(el?.offsetHeight || 0, maxH);
+    let left = r.right + DOCK_GAP;
+    if (left + w > window.innerWidth - 8) left = Math.max(8, r.left - DOCK_GAP - w);
+    return { left: Math.round(left), top: Math.round(Math.max(8, Math.min(r.top, window.innerHeight - 8 - h))) };
+  }
+
+  stick() {
+    const el = this.element, p = this.#spot();
+    if (!el || !p) return;
+    el.style.maxHeight = `${window.innerHeight - 16}px`;
+    el.style.left = `${p.left}px`;
+    el.style.top = `${p.top}px`;
+  }
+
+  /** Foundry's own placing (centred on the first render) is replaced by the place next to the unit */
+  _updatePosition(position) {
+    const out = super._updatePosition(position);
+    const p = this.#spot();
+    if (p) Object.assign(out, p);
+    return out;
+  }
+
+  setPosition(position) {
+    const out = super.setPosition(position);
+    requestAnimationFrame(() => this.stick());
+    return out;
+  }
+
+  async close(options) {
+    const out = await super.close(options);
+    document.querySelector("#pust-mapdock .pust-md-check")?.classList.remove("on");
+    return out;
   }
 }
 
@@ -318,7 +420,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 export function damageData({ total, wt, fx = [], poison = null }) {
   const own = fx.filter((x) => !Object.values(TYPE_EFFECTS).includes(x));
   return {
-    total: Number(total) || 0, type: wt, ignoreArmor: own.some((x) => atkIgnores(x)), ignoreN: Math.max(0, ...own.map((x) => atkIgnoreN(x))),
+    total: Math.max(0, Number(total) || 0), type: wt, ignoreArmor: own.some((x) => atkIgnores(x)), ignoreN: Math.max(0, ...own.map((x) => atkIgnoreN(x))),
     poison: poison?.sum ?? 0,
   };
 }
@@ -328,6 +430,7 @@ export function damageData({ total, wt, fx = [], poison = null }) {
  * the breakdown when there are several parts (each number in its type's colour), the weapon's poison as its own line; no dice.
  */
 export function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null, spent = "", speaker = null }) {
+  total = Math.max(0, Number(total) || 0); // damage is never below 0 (author, 2026-11-14)
   const types = [...parts.map((p) => p.t), ...(poison ? ["poison"] : [])];
   return postChat({
     speaker: speaker ?? ChatMessage.getSpeaker({ actor }),
@@ -377,13 +480,6 @@ export function postFateCard(actor, { v, mod, party = false }) {
       + `<div class="rverd"><b class="rtot">${total}</b><span class="rranges"><span class="${ok ? "" : "hit v0"}">≤5</span><span class="${ok ? "hit v2" : ""}">6+</span></span></div>`
       + `<p class="pust-cbreak"><span class="die d10 kept">${v}</span> · ${party ? "Удача партії" : "Удача"} ${sgn(mod)}</p></div></div>`,
   }, { dice: true });
-}
-
-/** «Кістки» (the HTML sheet's «Просто кубики») to chat: the total, then every die in its shape */
-export function postPoolCard(actor, res) {
-  const dice = [6, 8, 10].flatMap((k) => (res.out[k] || []).map((v) => `<span class="die d${k} kept" title="d${k}">${v}</span>`)).join(" ");
-  const what = [6, 8, 10].filter((k) => res.out[k]?.length).map((k) => `${res.out[k].length}d${k}`).join(" + ");
-  return postDiceCard(ChatMessage.getSpeaker({ actor }), what, res.total, dice);
 }
 
 /** The dice chat card: the check card's screen with the sum and every die in its shape (+ a flat bonus, if any) */

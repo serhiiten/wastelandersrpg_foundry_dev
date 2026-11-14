@@ -15,3 +15,12 @@ export function postChat(data, { dice = false } = {}) {
   else CM.applyRollMode(msg, game.settings.get("core", "rollMode"));
   return CM.create(msg);
 }
+
+/** Is the chat's mode menu on «public» (no whisper, not blind) for this user? */
+export function isPublicMode() {
+  const CM = ChatMessage.implementation;
+  const probe = {};
+  if (typeof CM.applyMode === "function" && game.settings.settings.has("core.messageMode")) CM.applyMode(probe);
+  else CM.applyRollMode(probe, game.settings.get("core", "rollMode"));
+  return !probe.blind && !(probe.whisper?.length);
+}

@@ -237,38 +237,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Мацяльця",
-      "type": "attack",
-      "_id": "EgXUKUcNr6IVvvLH",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>2d6 фізичної шкоди + 1d6 шкоди радіацією, ближній бій, радіація ігнорує броню.</p>",
-        "damage": "2d6[фізична] + 1d6[радіація]"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768867120597,
-        "modifiedTime": 1768867146059,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!MbQQOMmY4Tswce1J.EgXUKUcNr6IVvvLH"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

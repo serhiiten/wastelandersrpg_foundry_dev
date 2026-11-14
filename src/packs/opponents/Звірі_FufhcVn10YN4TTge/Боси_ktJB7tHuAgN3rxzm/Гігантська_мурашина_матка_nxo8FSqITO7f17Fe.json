@@ -237,68 +237,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Мандибули",
-      "type": "attack",
-      "_id": "HqGpWaQznUx7D6vo",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>2d6 фізичної шкоди + 3 шкоди кислотою, ближній бій.</p>",
-        "damage": "2d6[фізична] + 3[кислота]"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768849599001,
-        "modifiedTime": 1768865816565,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!nxo8FSqITO7f17Fe.HqGpWaQznUx7D6vo"
-    },
-    {
-      "name": "Бомбардування кислотою",
-      "type": "attack",
-      "_id": "pNKzpL9qXWkXXfax",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p><em>Хід.</em> раз за сцену обстрілює кислотою одну зону на свій вибір. Усі вороги матки в цій зоні отримують 2d6 шкоди кислотою та −2 до фізичної броні (мінімум 0) до кінця сцени.</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768849673997,
-        "modifiedTime": 1768849741987,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!nxo8FSqITO7f17Fe.pNKzpL9qXWkXXfax"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

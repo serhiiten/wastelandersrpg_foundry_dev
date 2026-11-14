@@ -229,68 +229,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Кулемет",
-      "type": "attack",
-      "_id": "4bZiGdOP10rp7kKO",
-      "img": "assets/winchester-rifle.svg",
-      "system": {
-        "description": "<p>1d10 фізичної шкоди, бій на відстані.</p>",
-        "damage": "1d10"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768938601576,
-        "modifiedTime": 1768938629152,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!srNMq7yol0cccKTT.4bZiGdOP10rp7kKO"
-    },
-    {
-      "name": "Вбудований гранатомет",
-      "type": "attack",
-      "_id": "CE4aToH89sVi5Frz",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p>2d6 фізичної шкоди всім істотам в одній зоні, 2 гранати.</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768938601771,
-        "modifiedTime": 1768938648702,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!srNMq7yol0cccKTT.CE4aToH89sVi5Frz"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

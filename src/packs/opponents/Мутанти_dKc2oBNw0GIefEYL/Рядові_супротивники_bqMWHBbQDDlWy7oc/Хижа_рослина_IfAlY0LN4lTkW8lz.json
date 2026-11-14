@@ -189,38 +189,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Шипи",
-      "type": "attack",
-      "_id": "MgbFtEee2VJesn3l",
-      "img": "assets/winchester-rifle.svg",
-      "system": {
-        "description": "<p>1d6 фізичної шкоди + 2 шкоди отрутою, бій на відстані, отрута ігнорує броню.</p>",
-        "damage": "1d6[фізична] + 2[отрута]"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768865930675,
-        "modifiedTime": 1768865966669,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!IfAlY0LN4lTkW8lz.MgbFtEee2VJesn3l"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

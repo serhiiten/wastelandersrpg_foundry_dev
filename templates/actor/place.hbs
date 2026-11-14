@@ -38,7 +38,7 @@
       {{/if}}
     </div>
     <div class="pust-place-asp">
-      {{#each aspects}}<span class="pust-place-chip">{{t}}{{#if ../editable}}<button type="button" data-action="aspRm" data-i="{{i}}" aria-label="Прибрати аспект">×</button>{{/if}}</span>
+      {{#each aspects}}<span class="pust-place-chip"><span>{{t}}</span>{{#if ../editable}}<span class="pust-sinv" title="Безкоштовні Посилення"><button type="button" data-action="aspInv" data-i="{{i}}" data-d="-1" {{#unless inv}}disabled{{/unless}} aria-label="Мінус 1 безкоштовне Посилення">−</button><b>+{{inv}}</b><button type="button" data-action="aspInv" data-i="{{i}}" data-d="1" aria-label="Плюс 1 безкоштовне Посилення">+</button></span><button type="button" data-action="aspRm" data-i="{{i}}" aria-label="Прибрати аспект">×</button>{{else}}{{#if inv}}<b class="pust-place-inv" title="Безкоштовні Посилення">+{{inv}}</b>{{/if}}{{/if}}</span>
       {{else}}{{#unless editable}}<span class="pust-place-muted">Аспектів немає</span>{{/unless}}{{/each}}
     </div>
     <label class="pust-place-l">Примітка

@@ -209,68 +209,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Легка зброя",
-      "type": "attack",
-      "_id": "BXaJZChZOpQ9j4Cl",
-      "img": "assets/bayonet.svg",
-      "system": {
-        "description": "<p>1d6 фізичної шкоди, бій на відстані або ближній бій.</p>",
-        "damage": "1d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768951164066,
-        "modifiedTime": 1768951180464,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!Rd3Yjm69BrZTf7yX.BXaJZChZOpQ9j4Cl"
-    },
-    {
-      "name": "Саморобна граната",
-      "type": "attack",
-      "_id": "N5vVyab7ndYqzuC0",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p>1d6 фізичної шкоди всім істотам в одній зоні, щонайбільше 1 шт.</p>",
-        "damage": "1d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768951164269,
-        "modifiedTime": 1768951199087,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!Rd3Yjm69BrZTf7yX.N5vVyab7ndYqzuC0"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

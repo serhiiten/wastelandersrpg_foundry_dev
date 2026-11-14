@@ -1,0 +1,74 @@
+/* «Новий супротивник»: форма створення супротивника (module/applications/enemy-create.mjs).
+   Palette and fields are the system's (--pu-* from pust-ui.css); numbers are dark screens with green digits (input.pust-screen),
+   −/+ come from the general button[data-d] rule: a decrease pale red, an increase pale green. */
+.pust-ec-app .window-content { padding: 0; }
+.pust-ec { display: flex; flex-direction: column; min-height: 0; max-height: 82vh; }
+.pust-ec-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 8px; }
+.pust-ec-card { background: rgba(255,252,240,.78); border: 1.5px solid var(--pu-ink-2); border-radius: 3px; box-shadow: 3px 3px 0 rgba(35,27,17,.22); padding: 6px 8px 8px; margin: 0; }
+.pust-ec h3 { margin: 0 0 6px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.pust-ec h3 i { color: var(--pu-rust-3); }
+.pust-ec label { display: flex; flex-direction: column; gap: 2px; margin: 0; font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-ec label small { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 10px; color: var(--pu-ink-3); }
+.pust-ec :is(input[type="text"], select) { height: 28px; font-size: 14px; min-width: 0; }
+.pust-ec textarea { width: 100%; min-height: 30px; resize: vertical; line-height: 1.35; font-size: 14px; }
+.pust-ec-grow { flex: 1 1 auto; min-width: 0; }
+.pust-ec-muted { margin: 2px 0 6px; font-size: 12px; font-style: italic; color: var(--pu-ink-3); }
+.pust-ec-hint { margin: -2px 2px 0; font-size: 12px; color: var(--pu-ink-2); }
+.pust-ec-hint i { color: var(--pu-rust-3); margin-right: 4px; }
+.pust-ec-note { margin: 6px 0 0; font-size: 12px; color: var(--pu-ink-2); }
+.pust-ec-row { display: flex; align-items: flex-end; gap: 6px; margin-bottom: 4px; }
+.pust-ec-row > input[type="text"] { align-self: stretch; }
+
+/* base */
+.pust-ec-base { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+.pust-ec-base > .pust-ec-note { flex: 0 0 100%; margin: 0; }
+
+/* portrait, name, category */
+.pust-ec-head { display: flex; gap: 10px; align-items: stretch; }
+.pust-ec-pic { width: 72px; height: 72px; flex: none; object-fit: cover; border: 2px solid var(--pu-ink-2); border-radius: 4px; background: var(--pu-steel-1); cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.pust-ec-who { flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: 1fr 150px; gap: 8px; align-items: end; }
+
+/* ОЗ / Броня / Пси-броня */
+.pust-ec-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pust-ec-stat { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.pust-ec-lbl { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-ec-lbl i { width: 1.2em; color: var(--pu-rust-3); }
+.pust-ec-num { display: inline-flex; align-items: center; gap: 4px; }
+.wastelanders .pust-ec-num > input.pust-screen[type="text"] { width: 52px !important; flex: none; text-align: center; height: 30px !important; }
+.wastelanders .pust-ec-num > button { flex: none; width: 28px !important; height: 30px !important; margin: 0 !important; padding: 0 !important; font-size: 17px !important; line-height: 28px !important; }
+.pust-ec-qv { display: flex; flex-wrap: wrap; gap: 4px; min-height: 24px; }
+.wastelanders .pust-ec-qv > button { flex: none; min-width: 30px; height: 24px !important; margin: 0 !important; padding: 0 7px !important; line-height: 22px !important; font-family: var(--pu-f-num); font-weight: 700; font-size: 13px; }
+.wastelanders .pust-ec-qv > button.on { background: var(--pu-steel-1) !important; color: var(--pu-green) !important; border-color: var(--pu-steel-0) !important; }
+
+/* defence */
+.pust-ec-defs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 8px; }
+.pust-ec-flags { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; }
+.pust-ec label.pust-ec-chk { flex-direction: row; align-items: center; gap: 5px; font-family: var(--pu-f-text); font-weight: 400; font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--pu-ink); }
+
+/* attacks and moves */
+.pust-ec-atk, .pust-ec-mv { padding: 5px 0 6px; border-bottom: 1px dotted var(--pu-paper-3); }
+.pust-ec-atk .pust-ec-row:last-child { margin-bottom: 0; }
+.pust-ec-mv .pust-ec-row { margin-bottom: 4px; }
+.pust-ec input.pust-ec-dice { flex: none; width: 112px; text-align: center; font-family: var(--pu-f-num); font-weight: 700; }
+.pust-ec input.pust-ec-dice.bad { border-color: var(--pu-red-ink); background: #f2cdc6; color: var(--pu-red-ink); }
+.pust-ec-add { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+.pust-ec-add > select { flex: 1 1 auto; }
+.wastelanders .pust-ec button:not(.header-control, [data-d]) { height: 28px; margin: 0; padding: 0 10px; line-height: 26px; }
+.wastelanders .pust-ec button.pust-ec-x { flex: none; width: 24px; height: 24px; padding: 0; line-height: 22px; background: rgba(0,0,0,.12); color: #241a0c; border: none; border-radius: 2px; font-size: 15px; }
+.wastelanders .pust-ec button.pust-ec-x:hover { background: var(--pu-red-ink); color: #fff; }
+
+/* aspects: a yellow chip, dark bold italic text, free invokes as a green badge */
+.pust-ec-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.pust-ec-chips:empty { display: none; }
+.pust-ec-chip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 3px 1px 8px; background: #e2ad3b; color: #241a0c; border-radius: 3px; min-height: 26px; }
+.pust-ec-chiptxt { font-weight: 800; font-style: italic; font-size: 13px; }
+.pust-ec-inv { display: inline-flex; align-items: center; gap: 2px; }
+.pust-ec-inv > b { min-width: 24px; padding: 0 5px; text-align: center; border-radius: 9px; background: rgba(0,0,0,.2); color: #241a0c; font-family: var(--pu-f-num); font-size: 12px; line-height: 18px; }
+.pust-ec-inv > b.on { background: #2f6b35; color: #fff; }
+.wastelanders .pust-ec-inv > button { width: 20px !important; height: 20px !important; margin: 0 !important; padding: 0 !important; line-height: 18px !important; font-size: 13px !important; }
+.pust-ec input.pust-ec-aspin { width: 100%; margin-top: 6px; }
+
+/* footer */
+.pust-ec-foot { flex: none; display: flex; justify-content: flex-end; gap: 8px; padding: 8px 12px 10px; border-top: 2px solid var(--pu-rust-2); background: var(--pu-paper-2); }
+.wastelanders .pust-ec-foot button.pust-ec-go { background: var(--pu-rust-2) !important; color: #fff4e0 !important; border-color: var(--pu-rust-0) !important; font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.wastelanders .pust-ec-foot button { height: 32px; line-height: 30px; }

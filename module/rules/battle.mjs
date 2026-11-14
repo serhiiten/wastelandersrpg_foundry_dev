@@ -26,7 +26,6 @@ export const DMG_TYPES = {
 
 export const CAT_LABEL = { statists: "статист", regular: "рядовий", elite: "елітний", boss: "бос", pc: "персонаж гравця", caravan: "караван" };
 export const CAT_ORDER = ["boss", "elite", "regular", "statists"];
-export const RES_LABEL = { normal: "звичайна", half: "половина", immune: "невразливість", heal: "лікує (гуль)" };
 /** Resistance choices for three-state (R3) and four-state (R4, radiation) defence fields. */
 export const R3 = { normal: "звичайна", half: "половина", immune: "невразливість" };
 export const R4 = { ...R3, heal: "лікує (гуль)" };
@@ -92,7 +91,7 @@ export const TAG_HELP = {
   "½ від вогню": "Від вогню " + HALF_A,
   "невразливий до енергетичної зброї": "Не отримує шкоди від енергетичної зброї (лазерної, плазмової тощо).",
   "½ від енергетичної зброї": "Від енергетичної зброї (лазерної, плазмової тощо) " + HALF_A,
-  "½ за часткового успіху": "Якщо атака проти нього мала лише частковий успіх, він " + HALF_A,
+  "½ за часткового успіху": "Якщо атака проти нього мала лише частковий успіх, він " + HALF + " будь-якого типу, ще до вирахування броні. Половини додаються: разом з іншою «½» (від вогню, отрути…) шкоди немає зовсім.",
   "не збити з ніг": "Його неможливо збити з ніг: аспект «Збитий з ніг» на нього не накладається.",
   "не приголомшити": "Його неможливо приголомшити: аспект «Приголомшений» на нього не накладається.",
   "не обеззброїти": "Його неможливо обеззброїти: аспект «Без зброї» на нього не накладається.",
@@ -157,6 +156,20 @@ export function lowerDice(dice, note) {
 export function diceLabel(dice) {
   const m = /^(\d*d\d+)kl1([+\-]\d+)?$/i.exec(String(dice || "").replace(/\s+/g, ""));
   return m ? `менша з ${m[1]}${m[2] || ""}` : String(dice || "");
+}
+
+/**
+ * The tracker's «−1» / «+1» by the quick dice: a number goes up or down (not below 0), dice get their modifier changed
+ * («2d6» → «2d6+1», «2d6+1» −1 → «2d6»), an empty field becomes «1» / «0».
+ * @param {string} expr @param {number} d +1 or −1
+ */
+export function bumpExpr(expr, d) {
+  const v = String(expr || "").trim().replace(/\s+/g, "");
+  if (/^\d+$/.test(v)) return String(Math.max(0, +v + d));
+  const m = /^(.*\d*d\d+(?:kl1)?)([+\-]\d+)$/i.exec(v);
+  if (m) { const n = +m[2] + d; return m[1] + (n ? (n > 0 ? "+" : "") + n : ""); }
+  if (!v) return d > 0 ? "1" : "0";
+  return v + (d > 0 ? "+1" : "-1");
 }
 
 /** What the GM typed as an attack's damage: «менша з 2d6» → «2d6kl1», «к6» → «1d6»; else trimmed */
@@ -245,7 +258,8 @@ export function enemyBase(enemy) {
 
 /** Index of the «Психо» move of an enemy (the book's «Інʼєкція Психо», or any move with «Психо» in its name / text); -1 if none. */
 export function psyMoveIdx(e) {
-  return ((e && e.moves) || []).findIndex((m) => m && (/психо/i.test(m.n || "") || /(ширя|вжива|коле)\S*\s+психо/i.test(m.t || "")));
+  // the word «Психо» itself, not «Психометрія», «психологічний» (author, 2026-11-14)
+  return ((e && e.moves) || []).findIndex((m) => m && (/психо(?![а-яіїєґʼ’'])/i.test(m.n || "") || /(ширя|вжива|коле)\S*\s+психо(?![а-яіїєґʼ’'])/i.test(m.t || "")));
 }
 
 /**
@@ -314,6 +328,11 @@ export function computeDamage(target, base, typeKey, opts = {}) {
   return r;
 }
 
+/**
+ * Foundry's rule for halving (author, 2026-11-14), unlike the HTML tracker, which halved one after another: every «½» of a
+ * hit — the type's defence (physical, fire, energy, radiation, poison, psychic) and «½ за часткового успіху», which now
+ * works on every type — adds up; two halves (or more) take the whole damage, a half rounds up. Then the armour.
+ */
 function computeDamageCore(p, base, typeKey, opts) {
   const type = DMG_TYPES[typeKey] || DMG_TYPES.phys;
   const steps = [];
@@ -322,21 +341,31 @@ function computeDamageCore(p, base, typeKey, opts) {
     const r = opts.rollD6 ? opts.rollD6() : randIntWith(opts.rnd || Math.random)(1, 6);
     dmg += r; steps.push(`+1d6 електрика [${r}]`);
   }
-  const half = (why) => { dmg = Math.ceil(dmg / 2); steps.push(`½ ${why} → ${dmg}`); };
+  const halves = [];
+  const cut = () => {
+    if (!halves.length) return;
+    const share = Math.min(1, halves.length / 2);
+    dmg = share >= 1 ? 0 : Math.ceil(dmg * (1 - share));
+    steps.push(`${halves.length > 1 ? "½ + ½ (половини додаються)" : "½"} ${halves.join(", ")} → ${dmg}`);
+  };
+  const partial = () => { if (opts.partial && p.halfPartial) halves.push("частковий успіх"); };
   if (type.special === "rad") {
     if (p.rad === "immune") return { final: 0, steps: ["невразливий до радіації"] };
     if (p.rad === "heal") { const h = Math.max(0, opts.dice || 0); return { final: 0, heal: h, steps: [`радіація лікує: +1 ОЗ за кожну кістку (${h})`] }; }
-    if (p.rad === "half") half("від радіації");
+    if (p.rad === "half") halves.push("від радіації");
+    partial(); cut();
     return { final: Math.max(0, dmg), steps };
   }
   if (type.special === "poison") {
     if (p.poison === "immune") return { final: 0, steps: ["невразливий до отрут"] };
-    if (p.poison === "half") half("від отрути");
+    if (p.poison === "half") halves.push("від отрути");
+    partial(); cut();
     return { final: Math.max(0, dmg), steps };
   }
   if (type.special === "psy") {
     if (p.psy === "immune") return { final: 0, steps: ["невразливий до психічної"] };
-    if (p.psy === "half") half("від психічної");
+    if (p.psy === "half") halves.push("від психічної");
+    partial(); cut();
     const pa = opts.ignoreArmor ? 0 : p.psyArmor;
     if (opts.ignoreArmor && p.psyArmor) steps.push("психічна броня ігнорується");
     if (pa) steps.push(`− психічна броня ${pa}`);
@@ -345,10 +374,10 @@ function computeDamageCore(p, base, typeKey, opts) {
   if (typeKey === "fire" && p.fire === "immune") return { final: 0, steps: ["невразливий до вогню"] };
   if (type.energy && p.energy === "immune") return { final: 0, steps: [...steps, "невразливий до енергетичної зброї"] };
   if (p.phys === "immune") return { final: 0, steps: [...steps, "невразливий до фізичної"] };
-  if (p.phys === "half") half("від фізичної");
-  if (typeKey === "fire" && p.fire === "half") half("від вогню");
-  if (type.energy && p.energy === "half") half("від енергетичної");
-  if (opts.partial && p.halfPartial) half("частковий успіх");
+  if (p.phys === "half") halves.push("від фізичної");
+  if (typeKey === "fire" && p.fire === "half") halves.push("від вогню");
+  if (type.energy && p.energy === "half") halves.push("від енергетичної");
+  partial(); cut();
   let armor = p.armor;
   if (opts.ignoreArmor) { if (armor) steps.push("броня ігнорується"); armor = 0; }
   else if (type.ignore || opts.ignoreN) {
@@ -357,6 +386,78 @@ function computeDamageCore(p, base, typeKey, opts) {
   }
   if (armor) steps.push(`− броня ${armor}`);
   return { final: Math.max(0, dmg - armor), steps };
+}
+
+/** The tracker's damage type → the chat cards' one (they name the psychic type differently) */
+export const chatType = (t) => (t === "psychic" ? "psi" : DMG_TYPES[t] ? t : "phys");
+/** …and back (an unknown type is physical) */
+export const battleType = (t) => (t === "psi" ? "psychic" : DMG_TYPES[t] ? t : "phys");
+
+const diceIn = (l) => [...String(l ?? "").matchAll(/(\d*)d\d+/gi)].reduce((n, m) => n + Number(m[1] || 1), 0);
+/**
+ * «Зробити перевірку»'s damage parts ({l: label, v: value, t: chat type}) for resolveHit: every part with its type and dice
+ * when there are several types; the dice count always (radiation that heals: +1 HP a die)
+ */
+export function applyParts(parts) {
+  const list = (parts || []).map((p) => ({ total: Math.round(Number(p.v) || 0), type: p.t, dice: diceIn(p.l) }));
+  const dice = list.reduce((n, p) => n + p.dice, 0);
+  return new Set(list.map((p) => p.type)).size > 1 ? { parts: list, dice } : { dice };
+}
+
+/** The types that meet no physical armour and are counted on their own: radiation, poison, psychic */
+const SPECIAL = new Set(["rad", "poison", "psychic"]);
+
+/**
+ * One hit on one target, as «Завдати виділеним» / «Завдати шкоди» apply it (author, 2026-11-14): the tracker's computeDamage
+ * for every part, then the HP.
+ *   – a hit of several types («4d6[фізична] + 2d6[радіація]», a weapon's extra poison) splits: the radiation, poison and
+ *     psychic parts each meet only their own defence (no physical armour); every other part adds up into one main part that
+ *     meets the armour once;
+ *   – Камікадзе: +2 once per hit, if at least 1 damage got through;
+ *   – radiation that heals (ghouls): +1 HP a die of that part; healing and damage of one hit both count;
+ *   – nothing below 0: the rolled total, every part, the damage, the healing; HP between 0 and the maximum.
+ * @param {object} target  profile (see normalizeTarget)
+ * @param {number} hp0 @param {number} max
+ * @param {{total:number, type:string, dice?:number, ignoreArmor?:boolean, ignoreN?:number, poison?:number,
+ *   parts?:{total:number, type:string, dice?:number}[]}} hit  types are keys of DMG_TYPES
+ * @param {{partial?:boolean, rollD6?:()=>number, rnd?:()=>number}} [opts]
+ * @returns {{hp:number, damage:number, heal:number, steps:string[], out:boolean}}
+ */
+export function resolveHit(target, hp0, max, hit, opts = {}) {
+  const p = normalizeTarget(target);
+  const n0 = (v) => Math.max(0, Math.round(Number(v) || 0));
+  const type = DMG_TYPES[hit.type] ? hit.type : "phys";
+  // the parts: given, or the whole total in its type; a weapon's poison on top
+  let parts = Array.isArray(hit.parts) && hit.parts.length
+    ? hit.parts.map((x) => ({ total: Math.round(Number(x.total) || 0), type: DMG_TYPES[x.type] ? x.type : type, dice: n0(x.dice) })) // a minus part («мод. −1») lowers the main part
+    : [{ total: n0(hit.total), type, dice: n0(hit.dice) }];
+  if (n0(hit.poison) > 0) parts.push({ total: n0(hit.poison), type: "poison", dice: 0 });
+  // every ordinary part into one main part (armour once), in the hit's own type when it is ordinary
+  const ordinary = parts.filter((x) => !SPECIAL.has(x.type));
+  const special = parts.filter((x) => SPECIAL.has(x.type)).map((x) => ({ ...x, total: n0(x.total) }));
+  const groups = [];
+  if (ordinary.length) {
+    const mainType = SPECIAL.has(type) ? ordinary[0].type : type;
+    groups.push({ total: n0(ordinary.reduce((a, x) => a + x.total, 0)), type: mainType, dice: ordinary.reduce((a, x) => a + x.dice, 0) });
+  }
+  groups.push(...special);
+  const several = groups.length > 1;
+  const noKami = { ...p, kamikaze: false };
+  let damage = 0, heal = 0;
+  const steps = [];
+  for (const g of groups) {
+    const r = computeDamage(noKami, g.total, g.type, { ignoreArmor: !!hit.ignoreArmor, ignoreN: n0(hit.ignoreN), partial: !!opts.partial, dice: g.dice, rollD6: opts.rollD6, rnd: opts.rnd });
+    const h = n0(r.heal), f = n0(r.final);
+    heal += h;
+    if (!r.heal) damage += f;
+    const name = (DMG_TYPES[g.type]?.n || "").split(" (")[0].toLowerCase();
+    if (several) steps.push(`${name} ${g.total}${r.steps.length ? ": " + r.steps.join(", ") : ""} → ${r.heal ? `+${h} ОЗ` : f}`);
+    else steps.push(...r.steps);
+  }
+  if (p.kamikaze && damage >= 1) { damage += 2; steps.push("+2 Камікадзе"); }
+  const top = Math.max(n0(max), n0(hp0));
+  const hp = Math.min(top, Math.max(0, n0(hp0) - damage + heal));
+  return { hp, damage, heal, steps, out: hp === 0 && n0(hp0) > 0 };
 }
 
 /**
@@ -490,7 +591,7 @@ const UNARMED_RE = /беззбройн|кулак|рукопаш|голими р
 export function kamiDice(dice, text, p) {
   const bonus = p ? (p.kamikaze ? 2 : 0) + (p.psycho ? 2 : 0) : 0;
   if (!bonus || !dice || UNARMED_RE.test(text || "") || /пси-удар/i.test(text || "")) return dice;
-  const m = /^(\d*d\d+)([+\-]\d+)?$/i.exec(String(dice).replace(/\s+/g, "")); if (!m) return dice;
+  const m = /^(\d*d\d+(?:kl1)?)([+\-]\d+)?$/i.exec(String(dice).replace(/\s+/g, "")); if (!m) return dice; // «менша з 2d6» too
   const mod = (+m[2] || 0) + bonus;
   return m[1] + (mod > 0 ? "+" + mod : mod < 0 ? String(mod) : "");
 }
@@ -632,7 +733,7 @@ export function buildCustomEnemy(c) {
 }
 
 /* ------------------------------------------------------------------ *
- *  Enemy structure from the battle DB and from compendium HTML
+ *  Enemy structure from the battle DB
  * ------------------------------------------------------------------ */
 
 /**
@@ -685,148 +786,6 @@ export function enemyFromRecord(rec) {
     attacks, aspects: splitAsp(rec.aspects), moves: (rec.moves || []).map((m) => ({ n: m.n, t: m.t })), notes,
     traits: enemyTraits({ armor: armorText, notes }),
   };
-}
-
-const ENTITIES = { "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&#x27;": "'", "&nbsp;": " ", "&amp;": "&" };
-const decode = (s) => String(s).replace(/&(lt|gt|quot|nbsp|amp|#39|#x27);/g, (m) => ENTITIES[m] ?? m);
-const stripTags = (s) => decode(String(s).replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "")).replace(/\s+/g, " ").trim();
-const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-
-/** Category word of the book («елітний супротивник.», «бос») → key. */
-function catFromText(t) {
-  const s = String(t || "").toLowerCase();
-  if (/бос/.test(s)) return "boss";
-  if (/еліт/.test(s)) return "elite";
-  if (/статист/.test(s)) return "statists";
-  if (/рядов/.test(s)) return "regular";
-  return "";
-}
-
-/** Split at commas outside «» and (). */
-function splitTopCommas(s) {
-  const out = []; let cur = "", q = 0, p = 0;
-  for (const ch of s) {
-    if (ch === "«") q++; else if (ch === "»") q = Math.max(0, q - 1);
-    else if (ch === "(") p++; else if (ch === ")") p = Math.max(0, p - 1);
-    if (ch === "," && !q && !p) { out.push(cur); cur = ""; } else cur += ch;
-  }
-  out.push(cur);
-  return out.map((x) => x.replace(/\*/g, "").replace(/[.\s]+$/g, "").trim()).filter(Boolean);
-}
-
-/** Balanced «( … )» starting at s[i] === "(": [content, indexAfter]. */
-function parenAt(s, i) {
-  let d = 0;
-  for (let j = i; j < s.length; j++) {
-    if (s[j] === "(") d++;
-    else if (s[j] === ")") { d--; if (!d) return [s.slice(i + 1, j), j + 1]; }
-  }
-  return [s.slice(i + 1), s.length];
-}
-
-/** Attacks of the «Шкода» line: `<u>Name</u> (3d6 фізичної шкоди, бій на відстані, ігнорує 1 броні)` items. */
-function parseDamageLine(inner) {
-  const out = [];
-  const re = /<u>([\s\S]*?)<\/u>\*?\s*/g;
-  let m, any = false;
-  while ((m = re.exec(inner))) {
-    any = true;
-    let rest = "";
-    if (inner[re.lastIndex] === "(") { const [c, next] = parenAt(inner, re.lastIndex); rest = stripTags(c); re.lastIndex = next; }
-    out.push([stripTags(m[1]).replace(/\*+/g, "").trim(), rest]);
-  }
-  if (!any) {
-    // plain text fallback: «name (dice …); name (dice …)»
-    const plain = stripTags(inner).replace(/^[^:]*:\s*/, "");
-    plain.split(/;\s*/).forEach((piece) => {
-      const p = piece.indexOf("(");
-      if (p > 0) { const [c] = parenAt(piece, p); out.push([piece.slice(0, p).trim().replace(/\*+/g, ""), c]); } else if (piece.trim()) out.push([piece.trim(), piece.trim()]);
-    });
-  }
-  return out.filter(([n]) => n).map(([n, r]) => {
-    const dm = /\d*d\d+(?:[+\-]\d+)?/.exec(r);
-    const dice = dm ? dm[0] : "";
-    const note = dm ? (r.slice(0, dm.index) + r.slice(dm.index + dm[0].length)).replace(/^[\s,]+/, "").replace(/\s+/g, " ").trim() : r.trim();
-    const at = attackFrom(cap(n), note, n + " " + note, atkAmmoEx);
-    at.dice = dice;
-    Object.assign(at, lowerDice(at.dice, at.note));
-    // «… + 1d6 шкоди отрутою, отрута ігнорує броню»: an extra part ignoring armour is not the whole attack
-    if (at.ignoreArmor && /\+\s*\d*d\d+/.test(note)) at.ignoreArmor = false;
-    return at;
-  });
-}
-
-/**
- * Enemy structure from the HTML of a compendium enemy's `system.description`
- * («Категорія / ОЗ / Броня / Шкода / Аспект(и) / Ходи» list, then the note). Regex based, no DOM.
- * @param {string} html
- * @param {{name?:string, cat?:string, hp?:number, armor?:number|string, notes?:string}} [fallback] values used when the HTML lacks a line
- * @returns {EnemyStruct}
- */
-export function parseEnemyHtml(html, fallback = {}) {
-  const h = String(html || "");
-  // the stats list: from the first <ul> to its matching </ul>
-  const a = h.indexOf("<ul>");
-  const end = a >= 0 ? matchClose(h, a, "ul") : -1;
-  const list = a >= 0 ? h.slice(a + 4, end >= 0 ? end - 5 : h.length) : "";
-  let tail = end >= 0 ? h.slice(end) : "";
-  const cutAt = tail.search(/<hr\b|<p>\s*Попередній/i); if (cutAt >= 0) tail = tail.slice(0, cutAt);
-  const res = { name: fallback.name || "", cat: "", hp: 0, armor: 0, armorText: "", attacks: [], aspects: [], moves: [], notes: "", traits: null };
-  let hpSeen = false, armorSeen = false;
-  for (const raw of topLis(list)) {
-    const plain = stripTags(raw.replace(/<ul>[\s\S]*<\/ul>/, "")).replace(/^[*\s]+/, "");
-    const lm = /^([^:*(]+?)\s*(?:\([^)]*\))?\s*:\s*([\s\S]*)$/.exec(plain);
-    if (!lm) continue;
-    const label = lm[1].trim().toLowerCase(), value = lm[2].replace(/\*/g, "").trim();
-    if (label === "категорія") res.cat = catFromText(value);
-    else if (label === "оз") { const n = parseInt(value, 10); if (n >= 0) { res.hp = n; hpSeen = true; } }
-    else if (label === "броня") { res.armorText = value; res.armor = parseInt(value, 10) || 0; armorSeen = true; }
-    else if (label === "шкода") res.attacks = parseDamageLine(raw);
-    else if (label === "аспект") { const v = value.replace(/[.\s]+$/, ""); if (v) res.aspects = [v]; }
-    else if (label === "аспекти") res.aspects = splitTopCommas(value);
-    else if (label === "ходи") {
-      const u0 = raw.indexOf("<ul>");
-      if (u0 >= 0) { const u1 = matchClose(raw, u0, "ul"); res.moves = topLis(raw.slice(u0 + 4, u1 >= 0 ? u1 - 5 : raw.length)).map(parseMove); }
-    }
-  }
-  if (!res.cat) res.cat = catFromText(fallback.cat) || (fallback.cat === "ordinary" ? "regular" : fallback.cat === "statist" ? "statists" : (fallback.cat || "regular"));
-  if (!hpSeen) res.hp = +fallback.hp || 1;
-  if (!armorSeen) { res.armor = parseInt(fallback.armor, 10) || 0; res.armorText = String(fallback.armor ?? res.armor); }
-  res.notes = stripTags(tail) || String(fallback.notes || "");
-  res.traits = enemyTraits({ armor: res.armorText, notes: res.notes });
-  return res;
-}
-
-/** Index just after the tag closing the `<tag>` that opens at h[start]; -1 if unbalanced. */
-function matchClose(h, start, tag) {
-  const re = new RegExp("<(/?)" + tag + "\\b[^>]*>", "g"); re.lastIndex = start;
-  let depth = 0, m;
-  while ((m = re.exec(h))) { depth += m[1] ? -1 : 1; if (!depth) return re.lastIndex; }
-  return -1;
-}
-
-/** Inner HTML of the top-level `<li>` items of a list body (nested lists stay inside their item). */
-function topLis(body) {
-  const out = []; const re = /<(\/?)li\b[^>]*>/g; let depth = 0, from = 0, m;
-  while ((m = re.exec(body))) {
-    if (!m[1]) { if (!depth) from = re.lastIndex; depth++; } else { depth--; if (!depth) out.push(body.slice(from, m.index)); if (depth < 0) depth = 0; }
-  }
-  return out;
-}
-
-/** One move item: `<strong>Name:</strong> text`, optionally followed by a nested list of options (joined with « • »). */
-function parseMove(raw) {
-  const u0 = raw.indexOf("<ul>");
-  let sub = [];
-  if (u0 >= 0) { const u1 = matchClose(raw, u0, "ul"); sub = topLis(raw.slice(u0 + 4, u1 >= 0 ? u1 - 5 : raw.length)).map(stripTags); raw = raw.slice(0, u0) + (u1 >= 0 ? raw.slice(u1) : ""); }
-  const sm = /^\s*<strong>([\s\S]*?)<\/strong>/.exec(raw);
-  let n, t;
-  if (sm) { n = stripTags(sm[1]); t = stripTags(raw.slice(sm[0].length)); }
-  else { const s = stripTags(raw); const k = s.indexOf(":"); n = k > 0 ? s.slice(0, k) : s; t = k > 0 ? s.slice(k + 1) : ""; }
-  t = t.replace(/^\*?\s*:\s*/, "");   // «Псионічний талант*:» — the colon comes after the bold name
-  n = n.replace(/[:*\s]+$/g, "").trim();
-  t = [t.trim(), ...sub].filter(Boolean).join(" • ");
-  return { n, t };
 }
 
 /* ------------------------------------------------------------------ *

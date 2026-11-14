@@ -209,68 +209,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Пилка",
-      "type": "attack",
-      "_id": "NOfi1dTtBVkwMeL1",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>1d6 фізичної шкоди, ближній бій.</p>",
-        "damage": "1d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768937595038,
-        "modifiedTime": 1768937617059,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!bq340PxcZHEiMZCY.NOfi1dTtBVkwMeL1"
-    },
-    {
-      "name": "Вогнемет",
-      "type": "attack",
-      "_id": "pfIa7yP2Pmm6BxWk",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p>1d6 шкоди вогнем всім істотам в одній зоні, 2 заряди.</p>",
-        "damage": "1d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768937619524,
-        "modifiedTime": 1768937652789,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!bq340PxcZHEiMZCY.pfIa7yP2Pmm6BxWk"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

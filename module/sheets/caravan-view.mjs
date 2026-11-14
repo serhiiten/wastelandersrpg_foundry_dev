@@ -3,7 +3,8 @@
  *   buildCaravanView(S, L, ui) → plain object for templates/actor/caravan-v2.hbs
  * Mirrors the HTML sheet's render functions (renderDerived, renderImps, renderCargo, renderCounters…).
  */
-import { ASPECTS, DEFAULT_ARMOR_TYPE, IMPS } from "../rules/caravan.mjs";
+import { ASPECTS, IMPS } from "../rules/caravan.mjs";
+import { CARAVAN_DEF_OPTIONS, CARAVAN_DEF_TYPES, defOvCount } from "../rules/caravan-defence.mjs";
 import { cargoHurtAt, rowSale } from "../rules/caravan-adapter.mjs";
 
 const int = (v, def = 0) => {
@@ -57,9 +58,18 @@ export function buildCaravanView(S, L, ui = {}) {
     budget: int(S.budget),
     locks: { name: locked("name"), karma: locked("karma"), budget: locked("budget"), meeting: locked("meeting"), lastJob: locked("lastJob"), wentWrong: locked("wentWrong"), imps: locked("imps"), rep: locked("rep") },
 
-    hpCurrent: int(S.hpCurrent), maxHP: D.maxHP, baseMaxHP: D.baseMaxHP, hpCustom: S.hpMaxOverride != null,
-    armor: D.armor, baseArmor: D.baseArmor, armorCustom: S.armorOverride != null,
-    armorType: S.armorType || "", armorTypeCustom: String(S.armorType || "").trim() !== DEFAULT_ARMOR_TYPE,
+    hpCurrent: int(S.hpCurrent), maxHP: D.maxHP, baseMaxHP: D.baseMaxHP,
+    armor: D.armor, baseArmor: D.baseArmor,
+    // «Налаштування → Захист» (author, 2026-11-14): bonuses (steppers) and the defence selects
+    settings: {
+      bonuses: [["hpBonus", "до максимуму ОЗ", D.baseMaxHP], ["armorBonus", "до броні", D.baseArmor]]
+        .map(([k, n, base]) => ({ k, n, val: int(S[k]) || "", base })),
+      set: (int(S.hpBonus) ? 1 : 0) + (int(S.armorBonus) ? 1 : 0),
+      defSet: defOvCount(S.defOv),
+      defTypes: CARAVAN_DEF_TYPES.map(([k, n]) => ({
+        k, n, options: CARAVAN_DEF_OPTIONS.map(([v, t]) => ({ v, n: t, sel: (S.defOv?.[k] || "") === v })),
+      })),
+    },
     hpBar: hpBar(int(S.hpCurrent), D.maxHP),
     repair: dmg > 0 ? { dmg, cost: Math.ceil(dmg / 5), hurt: cargoHurtAt(S.hpCurrent, D.maxHP), destroyed: S.hpCurrent === 0 } : null,
 

@@ -1,8 +1,5 @@
 // «Трекер битви»: pure rules (module/rules/battle.mjs) — damage, defence traits, attack / move parsing, zones,
-// random zone names, enemy structures from the battle DB and from compendium HTML. Run: node tests/battle.test.mjs
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+// random zone names, enemy structures from the battle DB. Run: node tests/battle.test.mjs
 import * as B from "../module/rules/battle.mjs";
 import { PUST_ZONE_NAMES, PUST_ZONE_ASPECTS } from "../module/rules/zone-data.mjs";
 import { createTerminal } from "../module/rules/terminal.mjs";
@@ -73,8 +70,9 @@ eq(dmg(T({ kamikaze: true, armor: 5 }), 5, "phys").final, 0, "kamikaze needs ≥
 eq(dmg(T({ kamikaze: true }), 4, "poison").final, 6, "kamikaze with poison");
 // unknown type = phys; nested form
 eq(dmg(T({ armor: 1 }), 4, "nonsense").final, 3, "unknown type is physical");
-// nested: 8 → ½ phys 4 → ½ partial 2 → − armour 1 = 1 → +2 Kamikaze = 3
-eq(dmg({ armor: 1, psiArmor: 2, defense: { phys: "half", rad: "heal" }, flags: { kamikaze: true, partialHalf: true, electric: true } }, 8, "phys", { partial: true }).final, 3, "nested form");
+// nested: ½ phys + ½ partial add up to the whole (Foundry's rule, author 2026-11-14; the tracker halved twice: 3) → 0, no Kamikaze
+eq(dmg({ armor: 1, psiArmor: 2, defense: { phys: "half", rad: "heal" }, flags: { kamikaze: true, partialHalf: true, electric: true } }, 8, "phys", { partial: true }).final, 0, "nested form");
+eq(dmg({ armor: 1, defense: { phys: "half" }, flags: { kamikaze: true } }, 8, "phys").final, 5, "nested form, one half: 4 −1 +2");
 { const n = B.normalizeTarget({ armor: 1, psiArmor: 2, defense: { phys: "half", rad: "heal" }, flags: { kamikaze: true, partialHalf: true, electric: true } });
   eq([n.psyArmor, n.phys, n.rad, n.kamikaze, n.halfPartial, n.electricVuln, n.energy], [2, "half", "heal", true, true, true, "normal"], "normalizeTarget nested"); }
 
@@ -241,66 +239,6 @@ ok(dbCount >= 80, "DB size " + dbCount);
   ok(B.CAT_GUIDE.boss.hp.length === 6 && B.CAT_GUIDE.statists.armor[0] === 0, "CAT_GUIDE");
 }
 
-/* ---------- parseEnemyHtml over every compendium enemy ---------- */
-const files = [];
-(function walk(d) { for (const n of readdirSync(d)) { const p = join(d, n); statSync(p).isDirectory() ? walk(p) : n.endsWith(".json") && files.push(p); } })(fileURLToPath(new URL("../src/packs/opponents", import.meta.url)));
-let enemies = 0;
-const byName = {};
-for (const f of files) {
-  const d = JSON.parse(readFileSync(f, "utf8"));
-  if (d.type !== "enemy") continue;
-  enemies++; byName[d.name] = d;
-  const html = d.system.description || "";
-  let e;
-  try { e = B.parseEnemyHtml(html, { name: d.name, hp: d.system.hp.max, armor: d.system.armor, cat: d.system.type }); } catch (err) { ok(false, `${d.name}: parseEnemyHtml threw ${err.message}`); continue; }
-  const tag = d.name;
-  ok(e.hp === d.system.hp.max, `${tag}: hp ${e.hp} vs ${d.system.hp.max}`);
-  ok(e.armor === d.system.armor, `${tag}: armor ${e.armor} vs ${d.system.armor}`);
-  ok(["statists", "regular", "elite", "boss"].includes(e.cat), `${tag}: cat ${e.cat}`);
-  if (/<strong>Шкода/.test(html)) {
-    ok(e.attacks.length >= 1, `${tag}: attacks`);
-    if (/<u>/.test(html)) ok((html.match(/<u>/g) || []).length === e.attacks.length, `${tag}: attack count ${e.attacks.length} vs <u> ${(html.match(/<u>/g) || []).length}`);
-    e.attacks.forEach((a) => ok(B.DICE_RE.test(a.dice) && B.DMG_TYPES[a.type] && a.name && a.name[0] === a.name[0].toUpperCase(), `${tag}: attack «${a.name}» dice «${a.dice}»`));
-  }
-  // moves: the nested list items
-  const mi = html.search(/<strong>Ходи/);
-  let mvCount = 0;
-  if (mi >= 0) { const u0 = html.indexOf("<ul>", mi); let depth = 0; const re = /<(\/?)(ul|li)\b[^>]*>/g; re.lastIndex = u0; let m; while ((m = re.exec(html))) { if (m[2] === "ul") { depth += m[1] ? -1 : 1; if (!depth) break; } else if (!m[1] && depth === 1) mvCount++; } }
-  ok(e.moves.length === mvCount, `${tag}: moves ${e.moves.length} vs ${mvCount}`);
-  e.moves.forEach((m) => ok(m.n && m.t && !/[<>]/.test(m.n + m.t) && !/[:*]$/.test(m.n), `${tag}: move «${m.n}»`));
-  // aspects: the line exists → at least one aspect, no markup left
-  ok(/Аспект/.test(html) ? e.aspects.length >= 1 : e.aspects.length === 0, `${tag}: aspects ${e.aspects.length}`);
-  e.aspects.forEach((a) => ok(a && !/[<>*]/.test(a), `${tag}: aspect «${a}»`));
-  ok(e.traits && typeof e.traits.armor === "number" && e.traits.armor === e.armor, `${tag}: traits`);
-  ok(!/<|&[a-z]+;/.test(e.notes) && !/Попередній|Наступний/.test(e.notes), `${tag}: notes clean`);
-}
-ok(enemies === 77, "compendium enemies: " + enemies);
-{
-  const find = (n) => byName[n];
-  const pe = B.parseEnemyHtml(find("Паладин Братства Сталі").system.description, {});
-  eq(pe.attacks.map((a) => [a.name, a.dice, a.type, a.ammoMax, a.ignoreN]), [["Рідкісна важка плазмова зброя", "3d6", "plasma", 0, 2], ["Плазмові гранати", "3d6", "phys", 2, 0], ["Кулаки силової броні", "1d10", "phys", 0, 0]], "паладин html attacks");
-  eq(pe.moves.map((m) => m.n), ["Суперстимпак", "Силовий ривок", "Розпад"], "паладин html moves");
-  ok(B.moveHeal(pe.moves[0].t)?.expr === "1d6+4", "move text feeds moveHeal");
-  ok(pe.traits.halfRad && pe.traits.halfPoison && pe.cat === "boss" && pe.armorText.startsWith("5 (силова"), "паладин html traits");
-  const kas = B.parseEnemyHtml(find("Касадор").system.description, {});
-  eq(kas.attacks.map((a) => [a.dice, a.type, a.ignoreArmor]), [["1d10", "phys", false]], "касадор sting: extra poison part is not the whole attack");
-  ok(kas.attacks[0].note.includes("+ 1d6 шкоди отрутою"), "касадор note " + kas.attacks[0].note);
-  const mol = B.parseEnemyHtml(find("Мольфари, відуни, дивні").system.description, {});
-  eq(mol.moves.map((m) => m.n), ["Цілющий порошок", "Псионічний талант"], "мольфар moves (colon after the bold name)");
-  eq(mol.attacks.map((a) => [a.name, a.type]), [["Середня зброя", "phys"], ["Пси-удар", "psychic"]], "мольфар attacks");
-  eq(mol.aspects.length, 2, "мольфар aspects (malformed markup)");
-  ok(mol.notes.includes("псионіків"), "мольфар note");
-  eq(B.parseEnemyHtml(find("Легіонер").system.description, {}).aspects, ["рядовий воїн Легіону"], "single aspect");
-  eq(B.parseEnemyHtml(find("Солдат Анклаву").system.description, {}).aspects, ["важкоозброєний боєць Анклаву", "«ненавиджу, бляха, мутантів»"], "aspects split outside «»");
-  const tur = B.parseEnemyHtml(find("Турель").system.description, {});
-  eq(tur.attacks.map((a) => a.type), ["phys", "laser"], "турель «Шкода (залежно від моделі)»");
-  const ro = B.parseEnemyHtml(find("Робомозок").system.description, {});
-  ok(ro.traits.psyVuln, "робомозок psy vulnerable from the armour note");
-  const g = B.parseEnemyHtml("<ul><li><strong>ОЗ:</strong> 9</li></ul>", { name: "Х", cat: "ordinary", armor: 2 });
-  ok(g.hp === 9 && g.armor === 2 && g.cat === "regular" && g.attacks.length === 0 && g.name === "Х", "fallbacks");
-  ok(B.parseEnemyHtml("", { hp: 3 }).hp === 3 && B.parseEnemyHtml(undefined).attacks.length === 0, "empty html");
-}
-
 /* ---------- zones ---------- */
 {
   const a = { x: 0, y: 0, w: 200, h: 100 }, b = { x: 200, y: 0, w: 100, h: 100 }, c = { x: 150, y: 50, w: 100, h: 100 };
@@ -366,6 +304,25 @@ ok(enemies === 77, "compendium enemies: " + enemies);
   ok(PUST_ZONE_NAMES["Ферма"].includes(B.randomZoneName("Ферма", [])) && PUST_ZONE_ASPECTS["Ферма"].includes(B.randomZoneAspect("Ферма", [])), "place pool used");
 }
 
+/* ---------- Психо / Камікадзе on enemies' attacks (author, 2026-11-14) ---------- */
+{
+  const both = { kamikaze: true, psycho: true }, psy = { psycho: true };
+  eq([B.kamiDice("2d6", "Важка зброя", psy), B.kamiDice("3d6", "Плазмова граната", psy), B.kamiDice("1d6+1", "Ніж", both)], ["2d6+2", "3d6+2", "1d6+5"], "Психо +2, with Камікадзе +4");
+  eq([B.kamiDice("1d6", "Кулаки", psy), B.kamiDice("2d6", "Пси-удар", psy), B.kamiDice("2d6", "Удар голими руками", both)], ["1d6", "2d6", "2d6"], "no bonus for unarmed attacks and Пси-удар");
+  eq([B.kamiDice("2d6kl1", "Укуси", psy), B.kamiDice("2d6kl1-1", "Укуси", both)], ["2d6kl1+2", "2d6kl1+3"], "«менша з 2d6» gets the bonus too");
+  eq([B.kamiDice("2d6", "Важка зброя", {}), B.kamiDice("2d6", "Важка зброя", null)], ["2d6", "2d6"], "no Психо, no bonus");
+  eq(B.psyMoveIdx({ moves: [{ n: "Суперстимпак", t: "" }, { n: "Ін’єкція Психо", t: "" }] }), 1, "«Ін’єкція Психо» found");
+  eq(B.psyMoveIdx({ moves: [{ n: "Шал", t: "раз за сцену ширяється Психо" }] }), 0, "a move that injects Психо found by its text");
+  eq([B.psyMoveIdx({ moves: [{ n: "Психометрія", t: "дізнатися факти" }] }), B.psyMoveIdx({ moves: [{ n: "Психологічний тиск", t: "" }] })], [-1, -1], "«Психометрія», «Психологічний тиск» are not Психо");
+  eq(B.psyMoveIdx({ moves: [{ n: "ПСИХО!", t: "" }] }), 0, "«ПСИХО!» is");
+}
+
+/* ---------- «−1» / «+1» by the quick dice (the tracker's qd mod) ---------- */
+{
+  eq([B.bumpExpr("5", 1), B.bumpExpr("0", -1), B.bumpExpr("2d6", 1), B.bumpExpr("2d6+1", -1), B.bumpExpr("2d6-1", -1), B.bumpExpr("", 1), B.bumpExpr("", -1), B.bumpExpr("2d6kl1", 1)],
+    ["6", "0", "2d6+1", "2d6", "2d6-2", "1", "0", "2d6kl1+1"], "bumpExpr");
+}
+
 /* ---------- «менша з 2d6» (author, 2026-11-14: was read as plain 2d6) ---------- */
 {
   eq(B.lowerDice("2d6", "менша з , фізична шкода, ближній бій"), { dice: "2d6kl1", note: "фізична шкода, ближній бій" }, "compendium «менша з 2d6»");
@@ -377,8 +334,6 @@ ok(enemies === 77, "compendium enemies: " + enemies);
   eq(B.normDice("менша з 2d6"), "2d6kl1", "typed «менша з 2d6»");
   eq(B.normDice("к10 + 2"), "1d10+2", "typed к10");
   ok(B.DICE_RE.test("2d6kl1") && B.DICE_RE.test("2d6kl1+1") && !B.DICE_RE.test("2d6kh1"), "DICE_RE kl1");
-  const civ = B.parseEnemyHtml('<ul><li><strong>Шкода:</strong> <u>Кулаки або імпровізована зброя</u> (менша з 2d6, фізична шкода, ближній бій)</li></ul>', { name: "Цивільні", hp: 3, armor: 0 });
-  eq([civ.attacks[0].dice, civ.attacks[0].note], ["2d6kl1", "фізична шкода, ближній бій"], "parsed from compendium HTML");
   const statist = B.enemyFromRecord({ name: "x", hp: 3, armor: 0, dmg: "кулаки 1d6 кинь двічі, обери менший" });
   eq(statist.attacks[0].dice, "2d6kl1", "parsed from a generator record");
 }

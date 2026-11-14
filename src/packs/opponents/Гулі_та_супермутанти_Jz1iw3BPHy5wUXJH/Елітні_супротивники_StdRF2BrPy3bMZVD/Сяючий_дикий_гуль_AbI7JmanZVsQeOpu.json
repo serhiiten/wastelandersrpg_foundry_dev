@@ -201,68 +201,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Лапи",
-      "type": "attack",
-      "_id": "QG7fKBBPNOAXrkjK",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>1d6 фізичної шкоди + 3 шкоди радіацією, ближній бій, радіація ігнорує броню.</p>",
-        "damage": "1d6[фізична] + 3[радіація]"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768939665871,
-        "modifiedTime": 1768939688957,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!AbI7JmanZVsQeOpu.QG7fKBBPNOAXrkjK"
-    },
-    {
-      "name": "Прощальний подарунок",
-      "type": "attack",
-      "_id": "8SiW5oYLeP9CMtO1",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p><em>Хід.</em> коли ОЗ сяючого гуля падають до 0, він вибухає й завдає всім істотам у своїй зоні 1d6+3 шкоди радіацією, що ігнорує броню.</p>",
-        "damage": "1d6+3"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768939666158,
-        "modifiedTime": 1768939709557,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!AbI7JmanZVsQeOpu.8SiW5oYLeP9CMtO1"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

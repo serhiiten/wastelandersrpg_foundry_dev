@@ -12,6 +12,5 @@ export {
   UpgradeData,
   CargoData,
   PassengerData,
-  AttackData,
 } from "./items-data.mjs";
 export { default as PlaceData } from "./place-data.mjs";

@@ -4,7 +4,7 @@ import { QUICK_START } from "../module/rules/caravan.mjs";
 import { storeSystem } from "./schema-mock.mjs";
 import { createCaravanLogic } from "../module/rules/caravan-logic.mjs";
 import { createCaravanController } from "../module/rules/caravan-controller.mjs";
-import { caravanToState, planCaravanSync, stateToCaravan } from "../module/rules/caravan-adapter.mjs";
+import { caravanHtmlState, caravanToState, planCaravanSync, stateToCaravan } from "../module/rules/caravan-adapter.mjs";
 import { buildCaravanView } from "../module/sheets/caravan-view.mjs";
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
@@ -48,7 +48,9 @@ function randomCaravan(i) {
   if (i % 5 === 0) S.counters.push({ name: "Погоня", size: 8, value: 3 });
   if (i % 6 === 0) S.customImps.push({ name: "Сигналізація", desc: "Гучна." });
   if (i % 7 === 0) S.customImps.push({ name: "", desc: "" });
+  // an HTML sheet's file: absolute max HP / armour (become bonuses), or Foundry's own bonuses and defences
   if (i % 8 === 0) { S.hpMaxOverride = 50; S.armorOverride = 4; S.armorType = "енергетична"; }
+  if (i % 8 === 4) { S.hpBonus = i % 16 === 4 ? 7 : -3; S.armorBonus = i % 16 === 4 ? -1 : 2; S.defOv = { phys: "half", psy: "immune", rad: "bogus" }; }
   S.supplies = Math.min(S.supplies + (i % 2), L.derived().supCap);
   return S;
 }
@@ -91,8 +93,9 @@ const ACTIONS = [
   ["act", "veh", { veh: "1" }], ["act", "imp", { id: "structure", k: "0" }], ["act", "imp", { id: "chest", k: "1" }],
   ["act", "addCargo"], ["field", "cargo.0.name", "Набої"], ["field", "cargo.0.price", "3"], ["act", "addCounter"],
   ["field", "counters.0.name", "Буря"], ["act", "seg", { seg: "0", k: "2" }], ["act", "addCustomImp"], ["field", "customImps.0.name", "Прапор"],
-  ["act", "longHaul"], ["act", "pip", { pip: "move", i: "3" }], ["act", "step", { step: "karma", d: "5" }], ["field", "hpMax", "60"],
-  ["act", "hpMaxReset"], ["field", "armorVal", "5"], ["act", "armorReset"], ["act", "roll", { roll: "meeting" }], ["act", "rollRep"],
+  ["act", "longHaul"], ["act", "pip", { pip: "move", i: "3" }], ["act", "step", { step: "karma", d: "5" }], ["field", "hpBonus", "12"],
+  ["act", "step", { step: "hpBonus", d: "-1" }], ["act", "ov-reset", { k: "hpBonus" }], ["field", "armorBonus", "-2"], ["act", "step", { step: "armorBonus", d: "3" }],
+  ["field", "defOv.phys", "half"], ["field", "defOv.rad", "immune"], ["act", "def-reset"], ["act", "roll", { roll: "meeting" }], ["act", "rollRep"],
   ["act", "rollName"], ["act", "rollKarma"], ["act", "rollBudget"], ["act", "rollImps"], ["act", "cg-del", { i: "0" }],
   ["act", "cnt-del", { i: "0" }], ["act", "cimp-del", { i: "0" }], ["field", "story.face", "Мо"], ["field", "notes", "Тест"],
   ["act", "random"], ["act", "quick"], ["act", "clear"],
@@ -127,6 +130,55 @@ for (let i = 0; i < 60; i++) {
       fail(`${a} on caravan ${i}: ${err.message}`);
     }
   }
+}
+
+/* ---- 3. «Налаштування → Захист»: bonuses, defences, migration, .json, reset (author, 2026-11-14) ---- */
+{
+  const eq = (got, want, what) => { if (JSON.stringify(got) !== JSON.stringify(want)) fail(`${what}: ${JSON.stringify(got)} instead of ${JSON.stringify(want)}`); };
+  const LB = createCaravanLogic({ S: null });
+  const blank = (over = {}) => ({ ...LB.blankState(), ...over });
+  const store = (S) => foundryStore(stateToCaravan(S));
+
+  // bonuses → derived max HP and armour (brahmins 25 / 1; at least 1 HP and 0 armour)
+  const D = (S) => createCaravanLogic({ S }).derived(S);
+  eq([D(blank()).maxHP, D(blank()).armor], [25, 1], "no bonuses");
+  eq([D(blank({ hpBonus: 7, armorBonus: 2 })).maxHP, D(blank({ hpBonus: 7, armorBonus: 2 })).armor], [32, 3], "bonuses");
+  eq([D(blank({ hpBonus: -99, armorBonus: -9 })).maxHP, D(blank({ hpBonus: -99, armorBonus: -9 })).armor], [1, 0], "bonus floors");
+  const tk = blank({ tachka: true, hpBonus: 5, armorBonus: -1, imp: { ...LB.blankImps(), structure: 1, armor: 1 } });
+  eq([D(tk).maxHP, D(tk).armor], [35 + 10 + 5, 2 + 2 - 1], "tachka + upgrades + bonuses");
+  // the actor's final values (the damage code reads system.armor and system.defOv)
+  const a1 = store(blank({ hpBonus: 7, armorBonus: 2, defOv: { phys: "half", psy: "immune" } }));
+  eq([a1.system.hp.max, a1.system.armor, a1.system.hpBonus, a1.system.armorBonus], [32, 3, 7, 2], "actor values");
+  eq(a1.system.defOv, { phys: "half", energy: "", fire: "", rad: "", poison: "", psy: "immune" }, "actor defOv");
+  eq(["hpMaxOverride" in a1.system, "armorOverride" in a1.system], [false, false], "no absolute overrides on the actor");
+  // the current HP follows a changed max when it was full
+  { const S = blank(); const L = createCaravanLogic({ S }); const C = createCaravanController(L); C.setField("hpBonus", "10");
+    eq([L.getS().hpBonus, L.getS().hpCurrent], [10, 35], "hp follows max up"); C.setField("hpBonus", "-30"); eq([L.getS().hpCurrent, D(L.getS()).maxHP], [1, 1], "hp clamped"); }
+
+  // .json: Foundry → HTML sheet (absolute numbers, defences only when set) and back
+  const S2 = LB.normalize(blank({ hpBonus: 7, armorBonus: 2, defOv: { rad: "immune" } }));
+  const html = caravanHtmlState(S2);
+  eq([html.hpMaxOverride, html.armorOverride, "hpBonus" in html, "armorBonus" in html, html.defOv], [32, 3, false, false, { phys: "", energy: "", fire: "", rad: "immune", poison: "", psy: "" }], "export");
+  const back = LB.normalize(JSON.parse(JSON.stringify(html)));
+  eq([back.hpBonus, back.armorBonus, back.defOv, "hpMaxOverride" in back], [7, 2, S2.defOv, false], "import");
+  const plain = caravanHtmlState(blank());
+  eq([plain.hpMaxOverride, plain.armorOverride, "defOv" in plain], [null, null, false], "export without bonuses");
+  // an HTML sheet's own file (absolute override, no Foundry keys)
+  const htmlFile = { ...blank(), hpMaxOverride: 50, armorOverride: 0 };
+  delete htmlFile.hpBonus; delete htmlFile.armorBonus; delete htmlFile.defOv;
+  const fromHtml = LB.normalize(htmlFile);
+  eq([fromHtml.hpBonus, fromHtml.armorBonus], [25, -1], "HTML file import");
+  eq([JSON.stringify(caravanHtmlState(fromHtml).hpMaxOverride), caravanHtmlState(fromHtml).armorOverride], ["50", 0], "HTML file round trip");
+
+  // «Повернути все до стандартних значень» clears both bonuses and every defence
+  { const L = createCaravanLogic({ S: blank({ hpBonus: 9, armorBonus: 3, hpCurrent: 34, defOv: { phys: "half", fire: "immune", psy: "half" } }) });
+    createCaravanController(L).act("def-reset");
+    const s = L.getS();
+    eq([s.hpBonus, s.armorBonus, s.defOv, s.hpCurrent], [0, 0, { phys: "", energy: "", fire: "", rad: "", poison: "", psy: "" }, 25], "reset all"); }
+  // one bonus' ↺ and bad input
+  { const L = createCaravanLogic({ S: blank({ hpBonus: 4, armorBonus: 2 }) }); const C = createCaravanController(L);
+    C.act("ov-reset", { k: "armorBonus" }); eq([L.getS().hpBonus, L.getS().armorBonus], [4, 0], "reset one");
+    C.setField("defOv.phys", "normal"); C.setField("defOv.rad", "immune"); eq([L.getS().defOv.phys, L.getS().defOv.rad], ["", "immune"], "defence select"); }
 }
 
 console.log(`round trips ${cases.length}, actions ${60 * ACTIONS.length}, item operations ${ops}, failures ${failures}`);

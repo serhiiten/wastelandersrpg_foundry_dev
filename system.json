@@ -28,7 +28,8 @@
     "css/pust-ui.css",
     "css/pust-sheet.css",
     "css/pust-check.css",
-    "css/pust-terminal.css"
+    "css/pust-terminal.css",
+    "css/pust-enemy-create.css"
   ],
   "languages": [
     {
@@ -110,11 +111,6 @@
         ]
       },
       "passenger": {
-        "htmlFields": [
-          "description"
-        ]
-      },
-      "attack": {
         "htmlFields": [
           "description"
         ]

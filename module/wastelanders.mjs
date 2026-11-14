@@ -30,9 +30,6 @@ import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
-import { migrateCounterActors } from "./helpers/migrate-counters.mjs";
-import { migrateEnemyActors } from "./helpers/migrate-enemies.mjs";
-import { recolorMapFolder } from "./applications/map-tools.mjs";
 
 Hooks.once("init", async function () {
   // the HP bar over a token keeps the HP colours
@@ -74,7 +71,6 @@ Hooks.once("init", async function () {
     upgrade: models.UpgradeData,
     cargo: models.CargoData,
     passenger: models.PassengerData,
-    attack: models.AttackData,
   };
 
   // Register sheet application classes
@@ -183,16 +179,10 @@ Hooks.on("renderGamePause", (app, html) => {
 // the catalogues show the compendiums' full gear texts
 Hooks.once("ready", () => {
   loadCatalogDescriptions().catch((err) => console.warn("Пустельники | gear descriptions not loaded", err));
-  // characters' tokens: name under, HP bar over, linked; placed tokens take the character's name
-  WastelandersActor.syncCharacterTokens().catch((err) => console.warn("Пустельники | token sync failed", err));
   // «Мапа Пустки»: the system's default scene, given to each world once
   // the battle map after the map of the Wasteland (the map is the one made active)
   ensureMapScene().then(() => ensureBattleScene()).catch((err) => console.warn("Пустельники | default scenes not created", err));
-  // the original system's «counter» actors become game counters in the map panel (the actor type is gone)
-  migrateCounterActors().catch((err) => console.warn("Пустельники | counter actors not migrated", err));
-  recolorMapFolder().catch(() => {});
-  migrateEnemyActors().catch((err) => console.warn("Пустельники | enemies not migrated", err));
-  // the stickers: double-click to write, drag by the title strip, old notes converted
+  // the stickers: double-click to write, drag by the title strip
   readyMapNotes();
   readyBattleZones();
   readyApplyDamage();

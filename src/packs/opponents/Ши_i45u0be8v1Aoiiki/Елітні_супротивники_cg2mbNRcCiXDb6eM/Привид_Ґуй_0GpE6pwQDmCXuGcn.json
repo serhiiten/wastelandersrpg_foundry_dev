@@ -239,68 +239,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Важка снайперська гвинтівка з глушником",
-      "type": "attack",
-      "_id": "Il34WozEQXL150Yl",
-      "img": "assets/winchester-rifle.svg",
-      "system": {
-        "description": "<p>2d6 фізичної шкоди, бій на відстані.</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768952495708,
-        "modifiedTime": 1768952524519,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!0GpE6pwQDmCXuGcn.Il34WozEQXL150Yl"
-    },
-    {
-      "name": "Плазмова граната",
-      "type": "attack",
-      "_id": "f4fsDI2IMUNhIrUG",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p>3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.</p>",
-        "damage": "3d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768952495986,
-        "modifiedTime": 1768952545537,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!0GpE6pwQDmCXuGcn.f4fsDI2IMUNhIrUG"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

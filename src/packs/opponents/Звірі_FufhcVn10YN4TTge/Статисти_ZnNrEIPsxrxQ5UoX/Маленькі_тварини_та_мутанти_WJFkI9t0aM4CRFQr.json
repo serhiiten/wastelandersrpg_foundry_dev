@@ -189,38 +189,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Укуси",
-      "type": "attack",
-      "_id": "yfWs7AEXjSNeGCDl",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>менша з 2d6, фізична шкода, ближній бій.</p>",
-        "damage": "2d6kl1"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768836085034,
-        "modifiedTime": 1768848606399,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!WJFkI9t0aM4CRFQr.yfWs7AEXjSNeGCDl"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 100000,
   "ownership": {

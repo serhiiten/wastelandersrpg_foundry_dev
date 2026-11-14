@@ -8,7 +8,7 @@
  * Wiring (module/wastelanders.mjs): `initMapNotes()` once in `init` (registers the placeable class), `readyMapNotes()` once in `ready`.
  */
 import {
-  MAP_NOTE, NOTE_DEFAULT_TITLE, chipText, dragEnd, foldGeometry, legacyUpdate, normalizeNote, noteSize, onGrabStrip, placeNew, splitLegacyText, unfoldGeometry,
+  MAP_NOTE, NOTE_DEFAULT_TITLE, chipText, dragEnd, foldGeometry, normalizeNote, noteSize, onGrabStrip, placeNew, unfoldGeometry,
 } from "../rules/map-notes.mjs";
 
 export { MAP_NOTE };
@@ -81,8 +81,6 @@ export function initMapNotes() {
       this.#note = null;
       const flag = noteOf(this.document);
       if (!flag || !this.shape || this.shape.destroyed) return;
-      // an old note not yet converted shows its Foundry text as title and body
-      if (!flag.title && !flag.text && this.document.text) Object.assign(flag, splitLegacyText(this.document.text));
       const size = canvas.dimensions.size, k = scaleK();
       const { w, h } = noteSize(flag, size);
       const col = MAP_NOTE.colors[flag.color];
@@ -499,22 +497,7 @@ export async function addMapNote() {
   return doc;
 }
 
-/* ===================== Old notes (made with Foundry's own text) ===================== */
-
-/** The GM's client, once: the words of an old note go from Foundry's text into the flag */
-async function migrateLegacy() {
-  if (!game.users.activeGM?.isSelf) return;
-  for (const scene of game.scenes) {
-    const updates = [];
-    for (const d of scene.drawings) {
-      const u = legacyUpdate({ _id: d.id, text: d.text, flag: d.getFlag(sys(), "mapNote") }, sys());
-      if (u) updates.push(u);
-    }
-    if (updates.length) await scene.updateEmbeddedDocuments("Drawing", updates).catch((err) => console.warn("Пустельники | notes not converted", err));
-  }
-}
-
-/** Once, in `ready`: the listeners, the hooks, the old notes */
+/** Once, in `ready`: the listeners and the hooks */
 export function readyMapNotes() {
   Hooks.on("canvasReady", () => { closeNoteEditor(); attach(); canvas.drawings?.placeables.forEach((p) => p.renderFlags.set({ refreshShape: true })); });
   Hooks.on("canvasTearDown", () => { closeNoteEditor(); detach(); });
@@ -528,5 +511,4 @@ export function readyMapNotes() {
   document.fonts?.load(`800 24px "${MAP_NOTE.fontFamily}"`).then(() => {
     if (canvas.ready) canvas.drawings?.placeables.forEach((p) => p.renderFlags.set({ refreshShape: true }));
   }).catch(() => {});
-  migrateLegacy();
 }

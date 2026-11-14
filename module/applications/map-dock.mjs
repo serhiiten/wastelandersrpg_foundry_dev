@@ -1,20 +1,26 @@
 /**
  * The «Мапа Пустки» and «Кістки» panels (author, 2026-11-14), mirroring the HTML terminal's map bar and dice float:
  *  - each panel is dragged by its header and remembered in this browser (localStorage); a double-click on the header puts it
- *    back in its place (right under Foundry's layer buttons, «Кістки» under «Мапа Пустки»);
+ *    back in its place: «Мапа Пустки» right under Foundry's layer buttons, «Лічильники» under it, «Кістки» under them; on
+ *    the battle map «Битва» goes top right, next to Foundry's sidebar, and «Лічильники», «Кістки» take the left place
+ *    (author, 2026-11-14); «Битва» has a remembered place of its own (key "battle");
  *  - the header's button folds a panel to a small button (its icon and name), a click on it opens the panel again;
  *  - half-transparent until the pointer is over a panel;
  *  - over «Мапа Пустки» (GM): an opaque «Подорож» button with the travel generator in a window that opens under it,
  *    over the panels (they don't move)
  *    (the terminal's generator; Удача партії from the selected caravan token, as in the terminal);
- *  - GM-only buttons are left out for players; «Кістки» are for everyone.
+ *  - GM-only buttons are left out for players; «Кістки» are for everyone;
+ *  - three units (author, 2026-11-14): «Мапа Пустки» / «Битва» (with «Подорож»), «Лічильники», «Кістки» — each dragged,
+ *    folded and put back on its own; players get an opaque «Зробити перевірку» over «Лічильники» (in their unit), opening
+ *    the check panel right next to that unit (check-panel.mjs
+ *    openDockCheck: their Player Character, or a list of the characters they own).
  */
 import { addPlace } from "./map-tools.mjs";
 import { fateInfo, luckCaravan, rollDice, rollFate } from "./map-dice.mjs";
 import { mountCounters } from "./game-counters.mjs";
 import * as G from "../rules/game-counters.mjs";
 import { postChat } from "./chat.mjs";
-import { postTerminalRoll } from "./check-panel.mjs";
+import { postTerminalRoll, toggleDockCheck, placeDockCheck, dockCheckOpen } from "./check-panel.mjs";
 import { battleFromTravel } from "./terminal.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { LUCKS, prettyTravel, travelChat } from "./terminal-view.mjs";
@@ -74,7 +80,7 @@ function countersHtml() {
     const st = G.localState(c);
     return `<div class="pust-md-lc ${st}" style="--h:${G.ctHue(c.val, c.die)}"><span class="pust-md-lc-die">${G.dieSvg(c.die, c.val, `dock${c.id}`)}</span><span class="pust-md-lc-name">${esc(c.name)}</span>${st ? `<small class="pust-md-lc-st">${st === "lost" ? "Загроза настала!" : "Проблему розв'язано"}</small>` : ""}</div>`;
   }).join("");
-  return `<header><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span></header><div class="pust-md-body">${g ? `<div class="pust-md-csec">Гра</div>${g}` : ""}${l ? `<div class="pust-md-csec">Сцена</div>${l}` : ""}</div>`;
+  return `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span>${FOLD_BTN}</header><div class="pust-md-body">${g ? `<div class="pust-md-csec">Гра</div>${g}` : ""}${l ? `<div class="pust-md-csec">Сцена</div>${l}` : ""}</div>`;
 }
 
 /** Players: redraw the counters panel (shown only while there are counters) */
@@ -229,45 +235,70 @@ function defaultPlace(unit) {
   if (!col || !bar || !lis.length) return { x: 16, y: 340 };
   const last = lis[lis.length - 1].getBoundingClientRect();
   const b = bar.getBoundingClientRect();
-  const map = { x: b.left, y: last.bottom + 12 };
-  if (unit === "map") return map;
-  // «Кістки»: under the default place of «Мапа Пустки» (its height as it is now: folded or open), wherever it was dragged
-  const m = document.querySelector(`#${DOCK} [data-unit="map"]`);
-  return { x: map.x, y: map.y + (m ? m.getBoundingClientRect().height : 140) + 8 };
+  const left = { x: b.left, y: last.bottom + 12 };
+  const el = document.querySelector(`#${DOCK} [data-unit="map"]`);
+  const battle = !!el?.classList.contains("is-battle");
+  if (unit === "map") {
+    if (!battle) return left;
+    // «Битва»: top right, next to the sidebar (its tabs when it is folded)
+    const side = document.querySelector("#sidebar")?.getBoundingClientRect();
+    return { x: (side?.left || window.innerWidth) - 8 - (el?.offsetWidth || 340), y: b.top };
+  }
+  // «Лічильники»: under the default place of «Мапа Пустки» (its height as it is now: folded or open), wherever it was
+  // dragged; on the left by themselves while «Битва» is on the right
+  const ctr = battle ? left : { x: left.x, y: left.y + (el ? el.getBoundingClientRect().height : 140) + 8 };
+  if (unit === "ctr") return ctr;
+  // «Кістки»: under the default place of «Лічильники» (6 px, as when they were one unit); right there when it is empty
+  const c = document.querySelector(`#${DOCK} [data-unit="ctr"]`);
+  const ch = c ? c.getBoundingClientRect().height : 0;
+  return { x: ctr.x, y: ctr.y + (ch > 0 ? ch + 6 : 0) };
 }
+
+/** The remembered place's key: «Битва» has its own (it shares its unit with «Мапа Пустки») */
+const posKey = (unit) => (unit === "map" && document.querySelector(`#${DOCK} [data-unit="map"]`)?.classList.contains("is-battle") ? "battle" : unit);
 
 function place(unit) {
   const el = document.querySelector(`#${DOCK} [data-unit="${unit}"]`);
   if (!el) return;
-  const pos = load(POS_KEY)[unit] || defaultPlace(unit);
+  const pos = load(POS_KEY)[posKey(unit)] || defaultPlace(unit);
   // kept on screen: at least the header stays reachable
   const w = el.offsetWidth || 340, h = 30;
-  const x = Math.max(0, Math.min(window.innerWidth - Math.min(w, 120), pos.x));
+  const x = Math.max(0, Math.min(window.innerWidth - w, pos.x)); // the whole width on screen (a place saved in a wider window)
   const y = Math.max(0, Math.min(window.innerHeight - h, pos.y));
   el.style.left = `${Math.round(x)}px`;
   el.style.top = `${Math.round(y)}px`;
 }
 
-/** The counters' list scrolls inside its panel: «Мапа Пустки» with it, and «Кістки» under it in their own place, stay
- *  above Foundry's players list (author, 2026-11-14: long game counters must not push «Кістки» off the screen) */
+/** The counters' list scrolls inside its panel, so «Лічильники» and «Кістки» under them (in their own place) stay above
+ *  Foundry's players list (author, 2026-11-14: long game counters must not push «Кістки» off the screen) */
 function fitCounters() {
-  const unit = document.querySelector(`#${DOCK} [data-unit="map"]`);
-  const body = unit?.querySelector(".pust-md-ctr > .pust-md-body");
-  if (!body || body.hidden || unit.classList.contains("folded")) return;
+  const unit = document.querySelector(`#${DOCK} [data-unit="ctr"]`);
+  const ctr = unit?.querySelector(".pust-md-ctr");
+  const body = ctr?.querySelector(":scope > .pust-md-body");
+  if (!body || ctr.hidden || body.hidden || unit.classList.contains("folded")) return;
   const players = document.querySelector("#players");
   const floor = Math.min(window.innerHeight - 8, players ? players.getBoundingClientRect().top - 8 : Infinity);
   const dice = document.querySelector(`#${DOCK} [data-unit="dice"]`);
-  const diceH = dice && !load(POS_KEY).dice ? dice.offsetHeight + 8 : 0; // only while «Кістки» follow «Мапа Пустки»
+  const diceH = dice && !load(POS_KEY).dice ? dice.offsetHeight + 6 : 0; // only while «Кістки» follow «Лічильники»
   const rest = unit.offsetHeight - body.offsetHeight; // the unit without the list
   const room = floor - unit.getBoundingClientRect().top - rest - diceH;
-  body.style.maxHeight = `${Math.max(120, Math.floor(room))}px`;
+  const mh = `${Math.max(120, Math.floor(room))}px`;
+  if (body.style.maxHeight !== mh) body.style.maxHeight = mh;
+}
+
+/** The players' check panel keeps to the right of «Лічильники» (the unit of its button) */
+function sideCheck() {
+  const unit = document.querySelector(`#${DOCK} [data-unit="ctr"]`);
+  if (unit && dockCheckOpen()) placeDockCheck(unit.getBoundingClientRect());
 }
 
 function placeAll() {
   place("map");
+  place("ctr");
   fitCounters();
   place("dice");
   sideTravel();
+  sideCheck();
 }
 
 function setFold(unit, folded) {
@@ -279,16 +310,14 @@ function setFold(unit, folded) {
 }
 
 /** Drag a panel by its header; a click without moving folds / unfolds it (folded: a click opens it) */
-function bindDrag(unitEl) {
-  // every panel that heads a unit can drag it: «Мапа Пустки» or, on the battle map, «Битва» (one is hidden), «Кістки»
-  const handles = [...unitEl.querySelectorAll(".pust-md-map > header, .pust-md-battle > header, .pust-md-dice > header")];
-  if (!handles.length) { const h = unitEl.querySelector(".pust-md-panel > header"); if (h) handles.push(h); }
-  handles.forEach((h) => bindHandle(unitEl, h));
-}
+const HANDLE = ":is(.pust-md-map, .pust-md-battle, .pust-md-ctr, .pust-md-dice) > header";
 
-function bindHandle(unitEl, handle) {
+function bindDrag(unitEl) {
   const unit = unitEl.dataset.unit;
-  handle.addEventListener("pointerdown", (ev) => {
+  // the header is found at the press: the players' «Лічильники» draw theirs anew with every change
+  unitEl.addEventListener("pointerdown", (ev) => {
+    const handle = ev.target.closest(HANDLE);
+    if (!handle || !unitEl.contains(handle)) return;
     if (ev.button !== 0 || ev.target.closest("button:not(.pust-md-fold)")) return;
     const r = unitEl.getBoundingClientRect();
     // the press decides fold or drag: once captured, the release's target is the header, not the button
@@ -301,6 +330,7 @@ function bindHandle(unitEl, handle) {
       unitEl.classList.add("dragging");
       unitEl.style.left = `${Math.round(start.left + dx)}px`;
       unitEl.style.top = `${Math.round(start.top + dy)}px`;
+      if (unit === "ctr") { sideCheck(); if (!load(POS_KEY).dice) place("dice"); }
     };
     const up = (e) => {
       handle.removeEventListener("pointermove", move);
@@ -309,10 +339,10 @@ function bindHandle(unitEl, handle) {
       unitEl.classList.remove("dragging");
       if (start.moved) {
         const pos = load(POS_KEY);
-        pos[unit] = { x: parseFloat(unitEl.style.left), y: parseFloat(unitEl.style.top) };
+        pos[posKey(unit)] = { x: parseFloat(unitEl.style.left), y: parseFloat(unitEl.style.top) };
         save(POS_KEY, pos);
         place(unit);
-        if (unit === "map") { fitCounters(); place("dice"); sideTravel(); }
+        placeAll();
       } else if (e.type === "pointerup") {
         // a click: on the fold button, or anywhere on a folded panel's button
         if (unitEl.classList.contains("folded") || start.fold) setFold(unit, !unitEl.classList.contains("folded"));
@@ -324,17 +354,18 @@ function bindHandle(unitEl, handle) {
     ev.preventDefault();
   });
   // a double-click on the header: back to its place
-  handle.addEventListener("dblclick", (ev) => {
-    if (ev.target.closest("button")) return;
+  unitEl.addEventListener("dblclick", (ev) => {
+    if (!ev.target.closest(HANDLE) || ev.target.closest("button")) return;
     const pos = load(POS_KEY);
-    delete pos[unit];
+    delete pos[posKey(unit)];
     save(POS_KEY, pos);
     placeAll();
   });
 }
 
+const FOLD_BTN = `<button type="button" class="pust-md-fold" title="Згорнути до кнопки / розгорнути"><i class="fa-solid fa-chevron-up"></i></button>`;
 const header = (icon, name) => `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid ${icon}"></i><span>${name}</span>
-  <button type="button" class="pust-md-fold" title="Згорнути до кнопки / розгорнути"><i class="fa-solid fa-chevron-up"></i></button></header>`;
+  ${FOLD_BTN}</header>`;
 
 /** Build (once) and place the panels; called whenever the scene controls render */
 export function renderMapDock() {
@@ -349,23 +380,35 @@ export function renderMapDock() {
       <div class="pust-md-unit${fold.map ? " folded" : ""}" data-unit="map">
         ${gm ? `<button type="button" class="pust-md-travel" data-mapdock="travel" title="Генератор подорожей поруч із мапою; Удача партії — з обраного каравану"><i class="fa-solid fa-route"></i><span>Подорож</span></button>` : ""}
         ${gm ? `<section class="pust-md-tv" hidden></section>` : ""}
-        ${gm ? "" : `<section class="pust-md-panel pust-md-ctr" hidden></section>`}
         ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
         ${gm ? battleSectionHtml(header) : ""}
-        ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button></header><div class="pust-md-body pust-gc" hidden></div></section>` : ""}
+      </div>
+      <div class="pust-md-unit${fold.ctr ? " folded" : ""}" data-unit="ctr">
+        ${gm ? "" : `<button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити «Зробити перевірку» поруч; персонаж — твій Player Character"><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button>`}
+        ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" title="Новий лічильник" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button>${FOLD_BTN}</header><div class="pust-md-body pust-gc" hidden></div></section>` : `<section class="pust-md-panel pust-md-ctr" hidden></section>`}
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
         <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки")}<div class="pust-md-body">${diceHtml()}</div></section>
       </div>`;
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
     const mapUnit = dock.querySelector('[data-unit="map"]');
+    const ctrUnit = dock.querySelector('[data-unit="ctr"]');
+    const diceUnit = dock.querySelector('[data-unit="dice"]');
     mapUnit.querySelector(".pust-md-map .pust-md-body")?.addEventListener("click", onMap);
     if (gm) mountBattlePanel(mapUnit.querySelector(".pust-md-battle"));
     syncSceneKind();
     // the counters: the GM edits them right in the panel (game-counters.mjs), players read them (redrawCounters)
-    if (gm) mountCounters(mapUnit.querySelector(".pust-md-ctr")).then(() => requestAnimationFrame(placeAll));
+    if (gm) mountCounters(ctrUnit.querySelector(".pust-md-ctr")).then(() => requestAnimationFrame(placeAll));
     else redrawCounters();
     mapUnit.querySelector(".pust-md-travel")?.addEventListener("click", () => { tv.open = !tv.open; redrawTravel(); });
+    const chk = ctrUnit.querySelector(".pust-md-check");
+    if (chk) {
+      syncCheckButton();
+      chk.addEventListener("click", async () => {
+        await toggleDockCheck(ctrUnit.getBoundingClientRect());
+        chk.classList.toggle("on", dockCheckOpen());
+      });
+    }
     mapUnit.querySelector(".pust-md-tv")?.addEventListener("click", onTravel);
     const d = dock.querySelector('[data-unit="dice"] .pust-md-body');
     d.addEventListener("click", onDice);
@@ -381,12 +424,32 @@ export function renderMapDock() {
       rollDice(dice.count, dice.sides).then((r) => { dice.last = r; redrawDice(); });
     });
     dock.querySelectorAll(".pust-md-unit").forEach(bindDrag);
-    // «Кістки» in their own place follow every change of the height of «Мапа Пустки» (travel window, folding)
-    if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(() => { fitCounters(); place("dice"); })).observe(mapUnit);
+    // «Лічильники» and «Кістки» in their own places follow every change of the height of the panels over them
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => requestAnimationFrame(placeAll)).observe(mapUnit);
+      new ResizeObserver(() => requestAnimationFrame(() => { fitCounters(); place("dice"); sideCheck(); })).observe(ctrUnit);
+    }
     window.addEventListener("resize", foundry.utils.debounce(placeAll, 100));
+    // «Битва» keeps to the sidebar while it folds and opens (author, 2026-11-14): the sidebar animates, so its size is
+    // watched (every step of the animation and its end), not only the fold event
+    const side = document.querySelector("#sidebar");
+    if (side && window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(placeAll)).observe(side);
+    side?.addEventListener("transitionend", () => requestAnimationFrame(placeAll));
   }
   requestAnimationFrame(placeAll);
 }
+
+/** Players: «Зробити перевірку» only while they own a character */
+function syncCheckButton() {
+  const b = document.querySelector(`#${DOCK} .pust-md-check`);
+  if (!b) return;
+  b.hidden = !game.actors.some((a) => a.type === "character" && a.isOwner);
+  b.classList.toggle("on", dockCheckOpen());
+}
+for (const h of ["createActor", "deleteActor", "updateActor", "updateUser"]) Hooks.on(h, foundry.utils.debounce(syncCheckButton, 150));
+
+// «Битва» in its own place keeps to the sidebar as it folds and opens (also watched by size, see renderMapDock)
+Hooks.on("collapseSidebar", () => requestAnimationFrame(placeAll));
 
 // the Fate button and the travel luck follow the selected caravan
 Hooks.on("controlToken", foundry.utils.debounce(() => { redrawDice(); if (tv.open) redrawTravel(); }, 100));

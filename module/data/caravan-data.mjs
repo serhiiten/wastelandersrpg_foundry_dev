@@ -61,9 +61,14 @@ export default class CaravanData extends foundry.abstract.TypeDataModel {
       supplies: new fields.NumberField({ ...requiredPositiveInteger, initial: 0 }),
       // «Далека доставка (понад 15 клітин)» — raises cargo sale prices
       longHaul: new fields.BooleanField({ initial: false }),
-      // Manual max HP / armor; null = calculated from vehicle and upgrades
-      hpMaxOverride: new fields.NumberField({ integer: true, min: 1, nullable: true, initial: null }),
-      armorOverride: new fields.NumberField({ integer: true, min: 0, nullable: true, initial: null }),
+      // Max HP and armor = the rules' value (vehicle, upgrades) + a bonus (author, 2026-11-14): «Налаштування → Захист».
+      // The bonuses may be negative; 0 = none
+      hpBonus: new fields.NumberField({ ...requiredInteger, initial: 0 }),
+      armorBonus: new fields.NumberField({ ...requiredInteger, initial: 0 }),
+      // Defence per damage type: "" (normal) / "half" / "immune" (module/rules/caravan-defence.mjs)
+      defOv: new fields.SchemaField(
+        Object.fromEntries(["phys", "energy", "fire", "rad", "poison", "psy"].map((k) => [k, new fields.StringField({ initial: "" })])),
+      ),
 
       // Caravan history (each has a roll table)
       story: new fields.SchemaField({

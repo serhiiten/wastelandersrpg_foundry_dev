@@ -189,38 +189,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Вбудована вибухівка",
-      "type": "attack",
-      "_id": "9nOkBWAmn5nvDsSb",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p>2d6 фізичної шкоди всім істотам у своїй зоні, під час атаки самознищується.</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768937400483,
-        "modifiedTime": 1768937470490,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!ug9DXMHo46hHiGCz.9nOkBWAmn5nvDsSb"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 200000,
   "ownership": {

@@ -285,14 +285,6 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
     };
   }
 
-  /** Characters made before attribute points were tracked: their values become the spent points. */
-  static migrateData(source) {
-    if (source.attributes && !source.baseAttributes) {
-      source.baseAttributes = { ...source.attributes };
-    }
-    return super.migrateData(source);
-  }
-
   /* -------------------------------------------- */
 
   /** @inheritdoc */

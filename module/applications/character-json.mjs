@@ -10,8 +10,8 @@
  * their texts and pictures; anything not found becomes a plain item with the file's data.
  */
 import { actorToState, stateToActor } from "../rules/character-adapter.mjs";
-import { FEAT, PERK, SPECIES } from "../rules/core.mjs";
-import { CARAVAN_TYPES, caravanToState } from "../rules/caravan-adapter.mjs";
+import { SPECIES } from "../rules/core.mjs";
+import { CARAVAN_TYPES, caravanHtmlState, caravanToState } from "../rules/caravan-adapter.mjs";
 import { createCaravanLogic } from "../rules/caravan-logic.mjs";
 import { saveCaravan } from "./caravan-actions.mjs";
 import { joinPrices, splitPrices } from "../rules/prices.mjs";
@@ -242,13 +242,6 @@ function pickFile() {
   });
 }
 
-/** Create characters from HTML sheet states (a parsed .json file; also for macros and tests) */
-export async function createCharacters(list) {
-  const created = [];
-  for (const st of Array.isArray(list) ? list : [list]) created.push(await createCharacter(st));
-  return created;
-}
-
 /* ---------------------------- caravans ---------------------------- */
 
 /** A caravan file's state as the HTML caravan sheet opens it: normalize(), then clampAfter() */
@@ -302,7 +295,7 @@ export async function replaceCaravanFromFile(actor) {
 
 /** Caravan sheet button: save the caravan as the HTML caravan sheet's .json («Караван — Назва.json») */
 export function exportCaravan(actor) {
-  const S = caravanToState(actor.toObject());
+  const S = caravanHtmlState(caravanToState(actor.toObject()));
   // the HTML caravan sheet has one «Далека доставка» for the whole caravan: on when any cargo row has it
   S.longHaul = (S.cargo || []).some((r) => r.kind !== "pass" && r.far);
   const n = String(S.companyName || "").trim().replace(/[\\/:*?"<>|]+/g, "").slice(0, 60);
@@ -366,5 +359,3 @@ export async function exportCharacter(actor) {
   foundry.utils.saveDataToFile(JSON.stringify(st), "application/json", fileName(st));
 }
 
-/** Engine name tables (for macros and debugging) */
-export const ENGINE_NAMES = { PERK, FEAT };

@@ -35,17 +35,4 @@ export const WASTELANDERS = {
     8: "WASTELANDERS.Actor.Character.SkillLevels.Assistant",
     10: "WASTELANDERS.Actor.Character.SkillLevels.Master",
   },
-  rollAdvantage: {
-    0: "",
-    1: "WASTELANDERS.Roll.Advantage",
-    "-1": "WASTELANDERS.Roll.Disadvantage",
-    2: "WASTELANDERS.Roll.DoubleAdvantage",
-    "-2": "WASTELANDERS.Roll.DoubleDisadvantage",
-  },
-  enemyType: {
-    statistician: "WASTELANDERS.Actor.Enemy.Types.Statistician",
-    ordinary: "WASTELANDERS.Actor.Enemy.Types.Ordinary",
-    elite: "WASTELANDERS.Actor.Enemy.Types.Elite",
-    boss: "WASTELANDERS.Actor.Enemy.Types.Boss",
-  },
 };

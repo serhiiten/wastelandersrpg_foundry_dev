@@ -217,68 +217,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Мандибули",
-      "type": "attack",
-      "_id": "u140clTfJOU8bp0j",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>1d10 фізичної шкоди, ближній бій.</p>",
-        "damage": "1d10"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768849035745,
-        "modifiedTime": 1768849111421,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!8J9IlEJYgwfA3GiX.u140clTfJOU8bp0j"
-    },
-    {
-      "name": "Плювок кислотою",
-      "type": "attack",
-      "_id": "gq944841BXvPxcmZ",
-      "img": "assets/winchester-rifle.svg",
-      "system": {
-        "description": "<p><em>Хід.</em> раз за сцену плює їдкою кислотою в ціль у своїй або сусідній зоні. Кислота завдає 2d6 шкоди, а ціль до кінця сцени отримує −2 до фізичної броні (мінімум 0).</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768849114017,
-        "modifiedTime": 1768849797691,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!8J9IlEJYgwfA3GiX.gq944841BXvPxcmZ"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

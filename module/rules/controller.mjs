@@ -10,7 +10,7 @@
  * («натисни ще раз») are the sheet's job before calling act().
  * Ported from pustelnyky-character-generator/src/app.js — keep in step with it.
  */
-import { GRANTS, GRANT_FEATS, SKILL_IMPS, grantOptions, grantTarget, lastingCaps, startPicks, stepSkill } from "./skill-sources.mjs";
+import { GRANTS, GRANT_FEATS, SKILL_IMPS, grantTarget, lastingCaps, startPicks, stepSkill } from "./skill-sources.mjs";
 import {
   AKEYS, BUILTIN_CAT, CLAW_WEAPON_MSG, FEAT, LVL, PERK, PRESETS, SKILLS, SPECIES,
   addOtherItem, applyArchetypeSkills, blankState, catalogAll, compute, countedFeats, countedPerks,

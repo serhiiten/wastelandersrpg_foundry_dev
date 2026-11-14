@@ -221,38 +221,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Затиснути гашетку",
-      "type": "attack",
-      "_id": "Htzj62T7ycnemorG",
-      "img": "assets/bayonet.svg",
-      "system": {
-        "description": "<p><em>Хід.</em> раз за сцену поливає вогнем зі стрілецької зброї одну зону на свій вибір і завдає 1d10 шкоди всім істотам у ній, після чого мусить перейти на зброю ближнього бою.</p>",
-        "damage": "1d10"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768939783005,
-        "modifiedTime": 1768940195276,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!fnLVLTzxaXAn2xOD.Htzj62T7ycnemorG"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

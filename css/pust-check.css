@@ -23,6 +23,17 @@
 .pust-roller .rpre:has(.dodge) { border-left-color: var(--pu-steel-3); }
 .pust-roller .rpre.psi { border-left-color: #6b4fa0; }
 .pust-roller .chipb { font-size: 11.5px !important; padding: 0 6px !important; line-height: 21px !important; }
+/* the ready-made checks' buttons in their stripe's colour (author, 2026-11-14): a tinted paper plate, its edge and step
+   in the stripe's colour — Атаки red, Уникнення шкоди steel, Інші перевірки brown, Перки / Доповнення violet */
+.pust-roller .rpre { --g: var(--pu-ink-3); }
+.pust-roller .rpre:has(.atk) { --g: var(--pu-red-ink); }
+.pust-roller .rpre:has(.dodge) { --g: var(--pu-steel-3); }
+.pust-roller .rpre.psi { --g: #6b4fa0; }
+.wastelanders .pust-roller .rpre > button.chipb:not(.on) {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--g) 20%, #f6ecd0), color-mix(in srgb, var(--g) 38%, var(--pu-paper-2))) !important;
+  border-color: var(--g) !important; color: color-mix(in srgb, var(--g) 35%, #1a140c) !important;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--g) 75%, #000), inset 0 1px 0 rgba(255,255,255,.5) !important; }
+.wastelanders .pust-roller .rpre > button.chipb:not(.on):hover:not(:disabled) { filter: brightness(1.05) saturate(1.15); }
 .pust-roller .travelb { align-self: flex-start; }
 .pust-roller .travelb .ico, .pust-roller .ico { display: inline-flex; vertical-align: -2px; margin-right: 4px; }
 .pust-roller .ico svg { width: 14px; height: 14px; }

@@ -6,9 +6,21 @@
  *     bar1 just under it (the name moves down under bar1); the labels are half-transparent, as if printed on the bar;
  *   – an enemy at 0 HP or less is crossed out with a red cross over its picture;
  *   – when its HP change, the token flashes green (up) or red (down), as the battle tracker's cards do, for everyone; the
- *     change itself («+3», «−4») floats up over it for those who may see its HP (author, 2026-11-14).
+ *     change itself («+3», «−4») floats up over it for those who may see its HP (author, 2026-11-14);
+ *   – situational aspects as small chips under the token, for everyone (author, 2026-11-14): a character's situational
+ *     aspects, an enemy's situational ones (not the book's), a place's aspects — the yellow italic chip of the sheets, free
+ *     invokes as a green «+N».
  */
 const LABELS = { hp: "ОЗ", range: "Запас ходу" };
+
+/** The aspects shown under a token: [{t, inv}] */
+export function tokenAspects(actor) {
+  if (!actor) return [];
+  let list = [];
+  if (actor.type === "enemy" || actor.type === "place") list = actor.system?.aspects ?? [];
+  else if (actor.type === "character") list = (actor.system?.situational ?? []).map((a) => ({ t: a.name, inv: a.invoked }));
+  return list.filter((a) => String(a?.t ?? "").trim()).map((a) => ({ t: String(a.t).trim(), inv: Math.max(0, Number(a.inv) || 0) }));
+}
 
 export class WastelandersToken extends foundry.canvas.placeables.Token {
   /** A short flash over the token: green when it healed, red when it was hurt */
@@ -59,6 +71,75 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
     const { bh, gap } = this.#barSize();
     this.nameplate.position.set(width / 2, height + offset + (this.#barShown(0) ? bh + gap : 0));
     this.tooltip.position.set(width / 2, -offset - (this.#barShown(1) ? bh + gap : 0));
+    this.refreshAspectChips();
+  }
+
+  /** The chips of the situational aspects under the name (built anew only when the aspects or the size change) */
+  refreshAspectChips() {
+    if (this.destroyed || !this.nameplate) return;
+    const list = tokenAspects(this.actor);
+    let box = this.children.find((c) => c.name === "pust-asp-chips");
+    if (!list.length) { if (box) box.visible = false; return; }
+    const { width, height } = this.document.getSize();
+    const s = canvas.dimensions.uiScale;
+    const key = JSON.stringify([list, width, s]);
+    if (!box) {
+      box = new PIXI.Container();
+      box.name = "pust-asp-chips";
+      box.eventMode = "none";
+      this.addChild(box);
+    }
+    if (box._pustKey !== key) {
+      box._pustKey = key;
+      box.removeChildren().forEach((c) => c.destroy({ children: true }));
+      const fs = 11 * s, chipH = 17 * s, padX = 6 * s, gapX = 4 * s, gapY = 3 * s, lean = 3 * s;
+      const maxW = Math.max(width * 1.6, 130 * s);
+      const chips = list.map((a) => {
+        const c = new PIXI.Container();
+        const text = new PIXI.Text(a.t, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
+        const inv = a.inv > 0 ? new PIXI.Text(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: "PT Mono", fontSize: fs * 0.95, fontWeight: "700", fill: 0xe7ffd9 })) : null;
+        const tw = Math.min(text.width, maxW - 2 * padX - (inv ? inv.width + 8 * s : 0));
+        const iw = inv ? inv.width + 6 * s : 0;
+        const w = padX + tw + lean + (inv ? 4 * s + iw : 0) + (inv ? 2 * s : padX);
+        const bg = new PIXI.Graphics();
+        bg.beginFill(0x000000, 0.35).drawRoundedRect(0, s, w, chipH, 3 * s).endFill(); // a soft shadow
+        bg.beginFill(0xe2ad3b, 0.97).drawRoundedRect(0, 0, w, chipH, 3 * s).endFill();
+        c.addChild(bg);
+        const m = new PIXI.Graphics();
+        m.beginFill(0xffffff).drawRect(0, 0, padX + tw + lean, chipH).endFill();
+        text.position.set(padX, (chipH - text.height) / 2);
+        text.mask = m;
+        c.addChild(m, text);
+        if (inv) {
+          const ib = new PIXI.Graphics();
+          ib.beginFill(0x2f6b35, 1).drawRoundedRect(w - iw - 2 * s, 2 * s, iw, chipH - 4 * s, 2 * s).endFill();
+          inv.position.set(w - iw - 2 * s + 3 * s, (chipH - inv.height) / 2);
+          c.addChild(ib, inv);
+        }
+        c._w = w;
+        return c;
+      });
+      // rows, each centred under the token
+      const rows = [[]];
+      let rw = 0;
+      for (const c of chips) {
+        if (rows.at(-1).length && rw + gapX + c._w > maxW) { rows.push([]); rw = 0; }
+        rw += (rows.at(-1).length ? gapX : 0) + c._w;
+        rows.at(-1).push(c);
+      }
+      rows.forEach((row, r) => {
+        const total = row.reduce((sum, c) => sum + c._w, 0) + gapX * (row.length - 1);
+        let x = -total / 2;
+        for (const c of row) { c.position.set(x, r * (chipH + gapY)); box.addChild(c); x += c._w + gapX; }
+      });
+    }
+    // under the name when it is shown, else under the bar / the picture
+    const { bh, gap } = this.#barSize();
+    const below = this.nameplate.visible && this.nameplate.text
+      ? this.nameplate.y + this.nameplate.height
+      : height + (this.#barShown(0) ? bh + gap : 0);
+    box.position.set(width / 2, below + 3 * s);
+    box.visible = true;
   }
 
   /** An enemy at 0 HP or less: a red cross from corner to corner over its picture (author, 2026-11-14) */
@@ -184,5 +265,9 @@ function checkHp(tokens) {
 }
 Hooks.on("drawToken", (t) => { t._pustHp = hpOf(t); });
 // a linked token follows its actor; an unlinked one its own (synthetic) actor, through the token's delta
-Hooks.on("updateActor", (actor) => checkHp((canvas?.tokens?.placeables ?? []).filter((t) => t.actor === actor || (t.document.actorLink && t.document.actorId === actor.id))));
-Hooks.on("updateToken", (doc) => { if (doc.object) checkHp([doc.object]); });
+Hooks.on("updateActor", (actor) => {
+  const toks = (canvas?.tokens?.placeables ?? []).filter((t) => t.actor === actor || (t.document.actorLink && t.document.actorId === actor.id));
+  checkHp(toks);
+  toks.forEach((t) => t.refreshAspectChips?.()); // the aspects under the token follow the sheet
+});
+Hooks.on("updateToken", (doc) => { if (doc.object) { checkHp([doc.object]); doc.object.refreshAspectChips?.(); } });

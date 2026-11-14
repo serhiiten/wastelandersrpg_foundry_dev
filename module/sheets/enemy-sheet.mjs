@@ -8,12 +8,12 @@ import { generatorRecord } from "../applications/terminal-battle.mjs";
 import {
   CAT_GUIDE, CAT_LABEL, DICE_RE, normDice, QUICK_ASPECTS, psyMoveIdx, buildAttackPresets, buildMovePresets, atkType, atkIgnoreN, atkIgnores, atkAmmoEx, moveHeal, zoneOfPoint,
 } from "../rules/battle.mjs";
-import { CATS, resetToBook, takeDamage } from "../rules/enemy-model.mjs";
+import { CATS, resetToBook } from "../rules/enemy-model.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { postChat } from "../applications/chat.mjs";
 import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
-import { sendDamage } from "../applications/apply-damage.mjs";
-import { enemyView, typeOptions } from "./enemy-view.mjs";
+import { sendDamage, chosenTokens } from "../applications/apply-damage.mjs";
+import { enemyView } from "./enemy-view.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -50,8 +50,6 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       revealToggle: WastelandersEnemySheet.#onReveal,
       editToggle: WastelandersEnemySheet.#onEditToggle,
       hpStep: WastelandersEnemySheet.#onHpStep,
-      applyDmg: WastelandersEnemySheet.#onApplyDmg,
-      applyHeal: WastelandersEnemySheet.#onApplyHeal,
       quickAsp: WastelandersEnemySheet.#onQuickAsp,
       inv: WastelandersEnemySheet.#onInv,
       aspRm: WastelandersEnemySheet.#onAspRm,
@@ -99,7 +97,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     for (const a of v.attacks) { a.hit = this.#hits.get(this.#hitKey(a.i))?.total ?? null; a.hasHit = a.hit != null; }
     Object.assign(context, {
       v, editable, gm, edit, ui: this.#ui, name: doc.name, img: doc.img, differs: v.differs,
-      notes: s.notes, dmgTypes: typeOptions("phys"),
+      notes: s.notes,
       cats: CATS.map((k) => ({ k, l: CAT_LABEL[k], sel: k === v.cat })), catGuide: CAT_GUIDE[v.cat]?.txt ?? "",
     });
     // a random name only for kinds with a name pool (humanoids)
@@ -152,11 +150,6 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       this.#focus = "baseIn";
       await this.document.update({ "system.baseAspects": [...clone(this.document.system.baseAspects), { t, inv: 0 }] });
     });
-    on("input[name='dmgAmount'], input[name='healAmount']", "keydown", (el, e) => {
-      if (e.key !== "Enter") return;
-      e.preventDefault();
-      el.name === "dmgAmount" ? WastelandersEnemySheet.#onApplyDmg.call(this) : WastelandersEnemySheet.#onApplyHeal.call(this);
-    });
     on("textarea[name='notes']", "change", (el) => this.document.update({ "system.notes": el.value }));
     on("select[name='cat']", "change", (el) => this.document.update({ "system.cat": el.value }));
     on("[data-used]", "change", (el) => this.#setUsed(int(el.dataset.used), el.checked));
@@ -190,45 +183,6 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
 
   static async #onHpStep(event, target) {
     await this.#setHp(this.document.system.hp.value + int(target.dataset.d));
-  }
-
-  /** «Завдати»: computeDamage on the card's own defence, HP down, a short line to chat */
-  static async #onApplyDmg() {
-    const root = this.element;
-    const r = rollExpr(root.querySelector("[name='dmgAmount']").value);
-    if (!r) return ui.notifications.warn("Шкода: число або кістки, наприклад 5 чи 2d6+1.");
-    const type = root.querySelector("[name='dmgType']").value;
-    const ignoreArmor = root.querySelector("[name='dmgIgnore']").checked;
-    const partial = root.querySelector("[name='dmgPartial']").checked;
-    const s = this.document.system;
-    const res = takeDamage(s, r.total, type, {
-      ignoreArmor, partial, dice: r.dice, rollD6: () => new Roll("1d6").evaluateSync({ allowInteractive: false }).total,
-    });
-    const was = s.hp.value;
-    const now = res.heal ? Math.min(s.hp.max, was + res.heal) : Math.max(0, was - res.final);
-    await this.document.update({ "system.hp.value": now });
-    const head = res.heal ? `лікується радіацією: +${now - was} ОЗ` : `отримує ${res.final} шкоди`;
-    const steps = res.steps.length ? `<p>${esc(r.text)} · ${res.steps.map(esc).join(" · ")}</p>` : `<p>${esc(r.text)}</p>`;
-    await postChat({
-      content: `<div class="pust-chat"><h4>${esc(this.document.name)} ${head}</h4>${steps}<p>ОЗ: ${was} → ${now} з ${s.hp.max}${now <= 0 ? " — виведений з бою" : ""}</p></div>`,
-      speaker: ChatMessage.getSpeaker({ actor: this.document, token: this.token }),
-    });
-    root.querySelector("[name='dmgAmount']").value = "";
-  }
-
-  static async #onApplyHeal() {
-    const root = this.element;
-    const r = rollExpr(root.querySelector("[name='healAmount']").value);
-    if (!r) return ui.notifications.warn("Лікування: число або кістки, наприклад 4 чи 1d6+2.");
-    const s = this.document.system;
-    const was = s.hp.value;
-    const now = Math.min(s.hp.max, was + r.total);
-    await this.document.update({ "system.hp.value": now });
-    await postChat({
-      content: `<div class="pust-chat"><h4>${esc(this.document.name)} лікується: +${now - was} ОЗ</h4><p>${esc(r.text)} · ОЗ: ${was} → ${now} з ${s.hp.max}</p></div>`,
-      speaker: ChatMessage.getSpeaker({ actor: this.document, token: this.token }),
-    });
-    root.querySelector("[name='healAmount']").value = "";
   }
 
   /* ---------- aspects ---------- */
@@ -265,12 +219,22 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     if (r?.data) { this.#hits.set(this.#hitKey(i), r); this.render(); }
   }
 
-  /** «Завдати виділеним» (author, 2026-11-14: on the card, not in chat): the attack's last roll to the selected tokens */
+  /**
+   * «Завдати виділеним» on every attack (author, 2026-11-14): the attack's roll goes to the selected tokens (or the
+   * targets) — the roll made with «Кинути», if there is one not applied yet, else a new one (to chat, one charge spent)
+   */
   static async #onHitSel(event, target) {
-    const r = this.#hits.get(this.#hitKey(int(target.dataset.i)));
-    if (!r) return;
+    const i = int(target.dataset.i), key = this.#hitKey(i);
+    if (!chosenTokens().length) {
+      return ui.notifications.warn(game.user.isGM ? "Спершу виділи токени (клік, Shift+клік, рамка або «Обрати всіх» у зоні) чи познач цілі (T)." : "Спершу познач цілі (T над токеном).");
+    }
     target.disabled = true;
-    try { await sendDamage(r.data, { head: r.head }); } finally { target.disabled = false; }
+    try {
+      let r = this.#hits.get(key);
+      if (!r) r = await rollEnemyAttack(this.document, i, { token: this.token });
+      if (!r?.data) return;
+      if (await sendDamage(r.data, { head: r.head })) this.#hits.delete(key);
+    } finally { target.disabled = false; this.render(); }
   }
 
   /** The last roll of each attack, until the sheet closes; keyed by place and name, so edits don't mix them up */

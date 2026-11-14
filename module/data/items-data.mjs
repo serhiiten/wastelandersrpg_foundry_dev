@@ -269,14 +269,3 @@ export class PassengerData extends foundry.abstract.TypeDataModel {
     };
   }
 }
-
-export class AttackData extends foundry.abstract.TypeDataModel {
-  static defineSchema() {
-    const fields = foundry.data.fields;
-
-    return {
-      damage: new fields.StringField(),
-      description: new fields.HTMLField(),
-    };
-  }
-}

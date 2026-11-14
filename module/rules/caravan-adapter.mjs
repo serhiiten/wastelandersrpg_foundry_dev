@@ -11,6 +11,7 @@
  */
 import { IMPS } from "./caravan.mjs";
 import { createCaravanLogic } from "./caravan-logic.mjs";
+import { cleanDefOv, defOvCount } from "./caravan-defence.mjs";
 import { UNNAMED } from "./character-adapter.mjs";
 
 const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
@@ -29,7 +30,7 @@ const norm = (s) => String(s || "").toLowerCase().replace(/\s*\(.*\)\s*$/, "").r
 /** Caravan sheet keys of the «filled in by hand» locks ↔ Foundry `locked` keys */
 const LOCKS = { name: "name", karma: "karma", budget: "budget", meeting: "meeting", lastJob: "lastJob", wentWrong: "wentWrong", imps: "upgrades", rep: "reputation" };
 const MAPPED = new Set(["companyName", "luck", "karma", "karmaAspect", "reputation", "budget", "tachka", "hpCurrent", "moveCurrent",
-  "supplies", "imp", "cargo", "counters", "story", "notes", "longHaul", "hpMaxOverride", "armorOverride", "armorType", "customImps", "manual"]);
+  "supplies", "imp", "cargo", "counters", "story", "notes", "longHaul", "hpBonus", "armorBonus", "defOv", "hpMaxOverride", "armorOverride", "armorType", "customImps", "manual"]);
 
 /** S → actor data. Derived values (max HP, armor, range) are filled in for Foundry. */
 export function stateToCaravan(S0) {
@@ -50,8 +51,10 @@ export function stateToCaravan(S0) {
     range: { value: int(S.moveCurrent), max: D.maxMove },
     supplies: Math.max(0, int(S.supplies)),
     longHaul: !!S.longHaul,
-    hpMaxOverride: S.hpMaxOverride ?? null,
-    armorOverride: S.armorOverride ?? null,
+    // max HP and armour = the rules' value + bonus (the final values are system.hp.max / system.armor above)
+    hpBonus: int(S.hpBonus),
+    armorBonus: int(S.armorBonus),
+    defOv: cleanDefOv(S.defOv),
     story: { meeting: S.story.meeting || "", face: S.story.face || "", lastJob: S.story.lastJob || "", wentWrong: S.story.wentWrong || "" },
     locked: Object.fromEntries(Object.entries(LOCKS).map(([k, f]) => [f, !!S.manual?.[k]])),
     counters: (S.counters || []).map((c) => ({ name: c.name || "", size: int(c.size, 6), value: Math.max(0, int(c.value)) })),
@@ -103,9 +106,10 @@ export function caravanToState(actor, { withIds = false } = {}) {
   S.moveCurrent = int(s.range?.value);
   S.supplies = int(s.supplies);
   S.longHaul = !!s.longHaul;
-  S.hpMaxOverride = s.hpMaxOverride ?? null;
-  S.armorOverride = s.armorOverride ?? null;
   S.armorType = s.armorType || "";
+  S.hpBonus = int(s.hpBonus);
+  S.armorBonus = int(s.armorBonus);
+  S.defOv = cleanDefOv(s.defOv);
   const st = s.story || {};
   S.story = Object.fromEntries(["meeting", "face", "lastJob", "wentWrong"].map((k) => [k, rowText(raw.story?.[k], st[k])]));
   S.notes = rowText(raw.notes, s.notes);
@@ -145,6 +149,22 @@ export function caravanToState(actor, { withIds = false } = {}) {
     S.longHaul = false;
   }
   return S;
+}
+
+/**
+ * S → the HTML caravan sheet's state (its .json): the bonuses become the sheet's absolute max HP / armour (the rules' value
+ * + bonus, only when a bonus is set, so the HTML sheet shows the same numbers). The defences have no place there: `defOv`
+ * is written only when one is set (the HTML sheet ignores the key; Foundry reads it back on import).
+ */
+export function caravanHtmlState(S0) {
+  const L = createCaravanLogic({ S: null });
+  const S = clone(S0);
+  const D = L.derived(S);
+  const out = { ...S, hpMaxOverride: int(S.hpBonus) ? D.maxHP : null, armorOverride: int(S.armorBonus) ? D.armor : null };
+  delete out.hpBonus;
+  delete out.armorBonus;
+  if (!defOvCount(S.defOv)) delete out.defOv;
+  return out;
 }
 
 /**

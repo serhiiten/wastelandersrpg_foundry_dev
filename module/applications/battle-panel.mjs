@@ -15,11 +15,12 @@
  *   – the count «У строю X з Y · Гравців N».
  * Players don't get this panel. map-dock.mjs shows it instead of «Мапа Пустки» while the battle map is viewed.
  */
+import { tokenLevel } from "../helpers/token-level.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { battleFolder } from "./terminal-battle.mjs";
 import { sceneZones, zoneOf, addBattleZone } from "../canvas/battle-zones.mjs";
 import { applyDamage, applyHeal, chosenTokens } from "./apply-damage.mjs";
-import { DMG_TYPES } from "../rules/battle.mjs";
+import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
 import { chatType } from "./enemy-attack.mjs";
 import { postChat } from "./chat.mjs";
 
@@ -88,7 +89,7 @@ export async function tokensIntoZone(scene, actor, count, zone) {
   const docs = [];
   for (let i = 0; i < count; i++) {
     const pos = cells?.[i] ?? { x: Math.round(c.x / g + i) * g, y: Math.round(c.y / g) * g };
-    const td = await actor.getTokenDocument({ ...pos, name: names[i], actorLink: false });
+    const td = await actor.getTokenDocument({ ...pos, name: names[i], actorLink: false, ...tokenLevel(scene) });
     docs.push(td.toObject());
   }
   return scene.createEmbeddedDocuments("Token", docs);
@@ -170,7 +171,7 @@ function damageHtml() {
       <div class="pust-md-bdmg-hd"><i class="fa-solid fa-burst"></i><span>Шкода й лікування</span><small title="Виділені токени, а коли нічого не виділено — цілі (T)">${n ? `виділено: ${n}` : "нікого не виділено"}</small></div>
       <div class="pust-md-row"><input type="text" class="pust-md-bexpr" data-battle-d="expr" value="${esc(d.expr)}" placeholder="5 або 2d6+1" aria-label="Шкода або лікування: число чи кістки" spellcheck="false">
         <select data-battle-d="type" aria-label="Тип шкоди">${types}</select></div>
-      <div class="pust-md-row pust-md-bquick">${QUICK_DICE.map((q) => `<button type="button" data-battle="quick" data-q="${q}" title="Підставити ${q}">${q}</button>`).join("")}</div>
+      <div class="pust-md-row pust-md-bquick">${QUICK_DICE.map((q) => `<button type="button" data-battle="quick" data-q="${q}" title="Підставити ${q}">${q}</button>`).join("")}<button type="button" class="pust-md-bmod" data-battle="mod" data-mod="-1" title="Модифікатор −1">−1</button><button type="button" class="pust-md-bmod" data-battle="mod" data-mod="1" title="Модифікатор +1">+1</button></div>
       <div class="pust-md-row pust-md-bchk">
         <label><input type="checkbox" data-battle-d="ignore" ${d.ignore ? "checked" : ""}> Ігнорує броню</label>
         <label title="Ті, хто за часткового успіху атаки отримує лише половину, отримають ½"><input type="checkbox" data-battle-d="partial" ${d.partial ? "checked" : ""}> Частковий успіх</label>
@@ -184,12 +185,14 @@ function damageHtml() {
 
 /** The amount typed: a number, or dice rolled now; null when it can't be read */
 async function amountOf(expr) {
+  // any minus on dice may be typed; the result is never below 0 (author, 2026-11-14), the label shows what is applied
   const e = String(expr || "").trim().replace(/^d/i, "1d");
   if (!e) return null;
   if (/^\d+$/.test(e)) return { total: +e, label: e };
   try {
     const r = await new Roll(e).evaluate();
-    return { total: Math.max(0, r.total), label: `${e} = ${r.total}` };
+    const total = Math.max(0, r.total);
+    return { total, dice: r.dice.reduce((n, d) => n + d.number, 0), label: `${e} = ${r.total}${r.total < 0 ? " → 0" : ""}` };
   } catch (_) { return null; }
 }
 
@@ -243,6 +246,8 @@ async function onClick(ev) {
   if (act === "fate" && scene) return scene.setFlag(sys(), "battleFate", Math.max(0, (Number(scene.getFlag(sys(), "battleFate")) || 0) + Number(b.dataset.d)));
   if (act === "fateset" && scene) return scene.setFlag(sys(), "battleFate", pcCount(scene));
   if (act === "quick") { ui_.dmg.expr = b.dataset.q; return redrawBattlePanel(); }
+  // the tracker's «−1» / «+1» (author, 2026-11-14): the number or the dice's modifier one up or down
+  if (act === "mod") { ui_.dmg.expr = bumpExpr(ui_.dmg.expr, Number(b.dataset.mod)); return redrawBattlePanel(); }
   if (act === "hit" || act === "heal") {
     const who = chosenTokens();
     if (!who.length) return ui.notifications.warn("Спершу виділи токени (клік, Shift+клік, рамка або «Обрати всіх» у зоні) чи познач цілі (T).");
@@ -253,7 +258,7 @@ async function onClick(ev) {
       if (act === "heal") await applyHeal(who, amt.total, { head: amt.label });
       else {
         const type = ui_.dmg.type;
-        await applyDamage(who, { total: amt.total, type: chatType(type), ignoreArmor: ui_.dmg.ignore, ignoreN: 0 }, { partial: ui_.dmg.partial, head: `${amt.label} · ${DMG_TYPES[type]?.n ?? type}` });
+        await applyDamage(who, { total: amt.total, dice: amt.dice || 0, type: chatType(type), ignoreArmor: ui_.dmg.ignore, ignoreN: 0 }, { partial: ui_.dmg.partial, head: `${amt.label} · ${DMG_TYPES[type]?.n ?? type}` });
       }
     } finally { b.disabled = false; }
     return;

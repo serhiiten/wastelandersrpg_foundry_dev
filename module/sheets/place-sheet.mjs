@@ -27,6 +27,7 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
       rndExp: WastelandersPlaceSheet.#onRndExp,
       rndAsp: WastelandersPlaceSheet.#onRndAsp,
       aspRm: WastelandersPlaceSheet.#onAspRm,
+      aspInv: WastelandersPlaceSheet.#onAspInv,
       toggleVis: WastelandersPlaceSheet.#onToggleVis,
       toggleLock: WastelandersPlaceSheet.#onToggleLock,
       toChat: WastelandersPlaceSheet.#onToChat,
@@ -65,7 +66,7 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
     context.isTown = s.kind === "town";
     context.showExp = s.kind === "town" && s.type === "vault" && (this.isEditable || !!s.exp);
     context.exp = s.exp;
-    context.aspects = s.aspects.map((a, i) => ({ t: a.t, i }));
+    context.aspects = s.aspects.map((a, i) => ({ t: a.t, i, inv: a.inv || 0 }));
     context.note = s.note;
     context.namePh = kind.ph;
     context.nameTitle = s.kind === "town" ? "Випадкова назва за типом поселення" : s.kind === "danger" ? "Випадкова назва з небезпек генератора натхнення" : "Випадкова назва";
@@ -141,6 +142,15 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
     await this.document.update({ "system.aspects": list });
   }
 
+  /** Free invokes of an aspect (author, 2026-11-14: every situational aspect has its counter), never below 0 */
+  static async #onAspInv(event, target) {
+    const i = Number(target.dataset.i), d = Number(target.dataset.d);
+    const list = this.document.system.aspects.map((a) => ({ t: a.t, inv: a.inv || 0 }));
+    if (!list[i]) return;
+    list[i].inv = Math.max(0, Math.min(9, list[i].inv + d));
+    await this.document.update({ "system.aspects": list });
+  }
+
   /** «В чат»: the place's card in chat (the chat's roll-mode menu decides who sees it) */
   static async #onToChat() {
     await postChat({ content: placeCard(this.document), speaker: ChatMessage.getSpeaker({ alias: game.user.isGM ? "Термінал Доглядача" : game.user.name }) });
@@ -193,7 +203,7 @@ function placeCard(actor) {
   const s = actor.system;
   const kind = PLACE_KINDS[s.kind] ?? PLACE_KINDS.town;
   const type = typeLabel(s);
-  const asp = s.aspects.filter((a) => a.t).map((a) => `<span class="pust-pc-asp">${escH(a.t)}</span>`).join("");
+  const asp = s.aspects.filter((a) => a.t).map((a) => `<span class="pust-pc-asp">${escH(a.t)}${a.inv > 0 ? ` <b class="pust-pc-inv" title="Безкоштовні Посилення">+${a.inv}</b>` : ""}</span>`).join("");
   return `<div class="pust-chat pust-pcard k-${s.kind}" style="--kc:${kind.color}"><h3><i class="fa-solid ${PLACE_ICONS[s.kind] ?? "fa-location-dot"}"></i><span>${escH(kind.label)}</span>${type ? `<small>${escH(type)}</small>` : ""}</h3>`
     + `<div class="pust-pc-body"><div class="pust-pc-name">${escH(actor.name)}</div>`
     + (s.kind === "town" && s.type === "vault" && s.exp ? `<p class="pust-pc-exp"><b>Експеримент:</b> ${escH(s.exp)}</p>` : "")
@@ -209,7 +219,7 @@ function placePage(actor) {
   const type = typeLabel(s);
   return `<p><strong>${escH(kind.label)}</strong>${type ? ` · ${escH(type)}` : ""}</p>`
     + (s.kind === "town" && s.type === "vault" && s.exp ? `<p><strong>Експеримент:</strong> ${escH(s.exp)}</p>` : "")
-    + (s.aspects.some((a) => a.t) ? `<p><strong>Аспекти:</strong> ${s.aspects.filter((a) => a.t).map((a) => escH(a.t)).join("; ")}</p>` : "")
+    + (s.aspects.some((a) => a.t) ? `<p><strong>Аспекти:</strong> ${s.aspects.filter((a) => a.t).map((a) => escH(a.t) + (a.inv > 0 ? ` (+${a.inv} безкоштовних Посилень)` : "")).join("; ")}</p>` : "")
     + (s.note ? `<p>${escH(s.note).replace(/\n/g, "<br>")}</p>` : "");
 }
 

@@ -9,7 +9,8 @@
  * Confirmations («Ви впевнені?», delete in two clicks) are the sheet's job before calling act().
  * Ported from pustelnyky-caravan/src/caravan.src.html — keep in step with it.
  */
-import { ASPECTS, COMPANY, DEFAULT_ARMOR_TYPE, QUICK_START, REPUTATIONS } from "./caravan.mjs";
+import { ASPECTS, COMPANY, QUICK_START, REPUTATIONS } from "./caravan.mjs";
+import { blankDefOv } from "./caravan-defence.mjs";
 
 const int = (v, def = 0) => {
   const n = parseInt(v, 10);
@@ -45,23 +46,15 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
       }
       case "karma": s.karma = int(v); s.manual.karma = text.trim() !== ""; s.karmaAspect = L.aspectFor(s.karma); return true;
       case "budget": s.budget = Math.max(0, int(v)); s.manual.budget = text.trim() !== ""; return true;
-      case "hpMax": {
+      // Foundry (author, 2026-11-14): the max HP and armour are the rules' value + a bonus («Налаштування → Захист»;
+      // empty = 0); the armour type stays «фізична» and is not edited
+      case "hpBonus": {
         const p = L.derived();
-        const raw = text.trim();
-        const n = int(raw);
-        s.hpMaxOverride = raw === "" || n < 1 || n === p.baseMaxHP ? null : n;
+        s.hpBonus = int(v);
         L.clampAfter(p);
-        if (s.hpMaxOverride != null) toast(`Максимум ОЗ встановлено вручну: ${n}. Покращення його більше не змінюють, доки не повернете стандартне значення.`);
         return true;
       }
-      case "armorVal": {
-        const p = L.derived();
-        const raw = text.trim();
-        const n = Math.max(0, int(raw));
-        s.armorOverride = raw === "" || n === p.baseArmor ? null : n;
-        return true;
-      }
-      case "armorType": s.armorType = text.trim() ? text : DEFAULT_ARMOR_TYPE; return true;
+      case "armorBonus": s.armorBonus = int(v); return true;
       case "hpCurrent": s.hpCurrent = int(v); L.clampAfter(); return true;
     }
     // rows: counters.N.name / counters.N.size, cargo.N.<field>, customImps.N.<name|desc>
@@ -92,6 +85,11 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
       s.customImps[+m[1]][m[2]] = m[2] === "name" ? text.replace(/\n/g, " ") : text;
       return true;
     }
+    m = k.match(/^defOv\.(\w+)$/);
+    if (m && m[1] in s.defOv) {
+      s.defOv[m[1]] = text === "half" || text === "immune" ? text : "";
+      return true;
+    }
     toast(`Невідоме поле: ${k}`);
     return false;
   }
@@ -100,16 +98,22 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
   function act(a, data = {}) {
     const s = S();
     switch (a) {
-      case "armorReset":
-        s.armorOverride = null;
-        s.armorType = DEFAULT_ARMOR_TYPE;
-        toast(`Броню повернуто до стандартної: ${L.derived().armor}, ${DEFAULT_ARMOR_TYPE}`);
-        return true;
-      case "hpMaxReset": {
+      // «Налаштування → Захист» (Foundry, author 2026-11-14): ↺ of one bonus, and everything back to the rules
+      case "ov-reset": {
         const p = L.derived();
-        s.hpMaxOverride = null;
+        if (data.k === "hpBonus") s.hpBonus = 0;
+        else if (data.k === "armorBonus") s.armorBonus = 0;
+        else return false;
         L.clampAfter(p);
-        toast(`Максимум ОЗ повернуто до стандартного: ${L.derived().maxHP}`);
+        return true;
+      }
+      case "def-reset": {
+        const p = L.derived();
+        s.hpBonus = 0;
+        s.armorBonus = 0;
+        s.defOv = blankDefOv();
+        L.clampAfter(p);
+        toast("Усе повернуто до стандартних значень: без надбавок, захист звичайний");
         return true;
       }
       case "veh": {
@@ -125,6 +129,8 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         const dd = int(data.d);
         if (data.step === "karma") { s.manual.karma = true; s.karma += dd; s.karmaAspect = L.aspectFor(s.karma); }
         if (data.step === "hpCurrent") { s.hpCurrent += dd; L.clampAfter(); }
+        if (data.step === "hpBonus") { const p = L.derived(); s.hpBonus = int(s.hpBonus) + dd; L.clampAfter(p); }
+        if (data.step === "armorBonus") s.armorBonus = int(s.armorBonus) + dd;
         if (data.step === "budget") { s.budget = Math.max(0, s.budget + dd); s.manual.budget = true; }
         return true;
       }

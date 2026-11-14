@@ -239,68 +239,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Важка лазерна зброя",
-      "type": "attack",
-      "_id": "icBnttBiDaswbVF3",
-      "img": "icons/svg/item-bag.svg",
-      "system": {
-        "description": "<p>2d6 фізичної шкоди, бій на відстані або ближній бій, ігнорує 1 броні.</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768952944913,
-        "modifiedTime": 1768952966700,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!NMsY5M4KaUBqMVQS.icBnttBiDaswbVF3"
-    },
-    {
-      "name": "Плазмова граната",
-      "type": "attack",
-      "_id": "dCEQl4AdqxqtqrlC",
-      "img": "assets/grenade.svg",
-      "system": {
-        "description": "<p>3d6 фізичної шкоди всім істотам в одній зоні, 1 шт.</p>",
-        "damage": "3d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768952945229,
-        "modifiedTime": 1768952987494,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!NMsY5M4KaUBqMVQS.dCEQl4AdqxqtqrlC"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

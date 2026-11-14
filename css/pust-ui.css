@@ -366,6 +366,7 @@
 .chat-message .pust-chat.pust-pcard .pust-pc-exp { font-style: italic; }
 .chat-message .pust-chat.pust-pcard .pust-pc-exp b { font-style: normal; color: var(--pu-rust-2); }
 .chat-message .pust-chat.pust-pcard .pust-pc-asps { display: flex; flex-wrap: wrap; gap: 4px; }
+.chat-message .pust-chat.pust-pcard .pust-pc-inv { padding: 0 4px; border-radius: 2px; background: #2f6b35; color: #e7ffd9; font-style: normal; font-size: 11.5px; }
 .chat-message .pust-chat.pust-pcard .pust-pc-asp { padding: 0 6px; border-radius: 3px; background: #e2ad3b; color: #241a0c; font-style: italic; font-size: 12.5px; line-height: 19px; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
 
 /* Actors directory: «Відкрити .json Пустельників» on a row of its own under Create Actor / Create Folder, in the gold of the
@@ -430,3 +431,40 @@
 .pust-chat.pust-dmgapply ul { margin: 4px 0 0; padding-left: 16px; }
 .pust-chat.pust-dmgapply li { margin: 2px 0; }
 .pust-chat.pust-dmgapply small { color: var(--pu-ink-3, #5a5244); }
+
+/* ===== Аспекти: один вигляд скрізь (author, 2026-11-14) =====
+   Situational aspects of characters, enemies' aspects (situational and the book's), places', zones' (editor): a yellow chip,
+   dark bold italic text; free invokes in a green box «− +N +» (− reddish, + greenish) for those who may edit, a green «+N»
+   badge for the others (only above 0); × to remove. Not the characters' main aspects nor the caravan's karma / reputation
+   (they are typed fields). Zones and token chips on the canvas are drawn the same way (module/canvas). */
+:is(.pust-sitchip, .pust-en-chip, .pust-place-chip, .pust-bz-chip) {
+  display: inline-flex !important; align-items: center; gap: 5px !important; max-width: 100%; min-height: 24px; padding: 2px 3px 2px 9px !important;
+  background: #e2ad3b !important; color: #241a0c !important; border: none !important; border-radius: 4px !important; box-shadow: 0 1px 0 rgba(0,0,0,.25) !important;
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif !important; font-size: 14px !important; font-weight: 700 !important; font-style: italic !important; line-height: 20px !important;
+}
+:is(.pust-sitchip, .pust-en-chip, .pust-place-chip, .pust-bz-chip) > :is(span:first-child, .pust-bz-chip-t):not(.pust-sinv, .pust-en-inv, .pust-bz-inv) { font: inherit !important; color: inherit !important; padding-right: 2px; overflow-wrap: anywhere; }
+:is(.pust-sitchip, .pust-en-chip, .pust-place-chip, .pust-bz-chip) input { font-style: normal; }
+:is(.pust-sinv, .pust-en-inv, .pust-bz-inv) {
+  display: inline-flex !important; align-items: center; gap: 2px !important; padding: 1px 2px !important; border-radius: 3px !important;
+  background: #2f6b35 !important; color: #e7ffd9 !important; font-style: normal !important;
+}
+:is(.pust-sinv, .pust-en-inv, .pust-bz-inv) > b { min-width: 22px !important; text-align: center; font-family: "PT Mono", monospace !important; font-size: 12.5px !important; font-weight: 700 !important; color: #e7ffd9 !important; }
+:is(.pust-sinv, .pust-en-inv, .pust-bz-inv) > button {
+  flex: none !important; width: 18px !important; height: 18px !important; min-width: 0 !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important;
+  border: 1px solid rgba(0,0,0,.35) !important; border-radius: 2px !important; box-shadow: none !important;
+  font: 800 13px/16px "PT Mono", monospace !important; font-style: normal !important; cursor: pointer;
+}
+:is(.pust-sinv, .pust-en-inv, .pust-bz-inv) > button[data-d="-1"] { background: #f2cdc6 !important; color: #8a2116 !important; }
+:is(.pust-sinv, .pust-en-inv, .pust-bz-inv) > button[data-d="1"] { background: #cfe6c2 !important; color: #2a5a1c !important; }
+:is(.pust-sinv, .pust-en-inv, .pust-bz-inv) > button:disabled { opacity: .45 !important; cursor: default; }
+:is(.pust-sitchip, .pust-en-chip, .pust-place-chip, .pust-bz-chip) :is(.pust-asp-n, .pust-place-inv) {
+  padding: 0 5px; border-radius: 3px; background: #2f6b35 !important; color: #e7ffd9 !important; font-family: "PT Mono", monospace; font-style: normal; font-weight: 700; font-size: 12.5px; line-height: 18px;
+}
+:is(.pust-sitchip > .pust-x, .pust-en-chip > .pust-en-x, .pust-place-chip > button[data-action="aspRm"], .pust-bz-chip > .pust-bz-x) {
+  flex: none !important; width: 20px !important; height: 20px !important; min-width: 0 !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important;
+  display: inline-flex !important; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.14) !important; color: #241a0c !important; border: none !important; border-radius: 3px !important; box-shadow: none !important;
+  font: 800 13px/20px "PT Mono", monospace !important; font-style: normal !important;
+}
+:is(.pust-sitchip > .pust-x, .pust-en-chip > .pust-en-x, .pust-place-chip > button[data-action="aspRm"], .pust-bz-chip > .pust-bz-x):hover { background: #a8121a !important; color: #fff !important; }
+:is(.pust-sitchip > .pust-x) i { font-size: 11px; }

@@ -10,7 +10,7 @@ import { loadHtmlCaravan } from "./caravan-sandbox.mjs";
 import { storeSystem } from "./schema-mock.mjs";
 import { createCaravanLogic } from "../module/rules/caravan-logic.mjs";
 import { createCaravanController } from "../module/rules/caravan-controller.mjs";
-import { caravanToState, planCaravanSync, stateToCaravan } from "../module/rules/caravan-adapter.mjs";
+import { caravanHtmlState, caravanToState, planCaravanSync, stateToCaravan } from "../module/rules/caravan-adapter.mjs";
 
 const HBS = readFileSync(new URL("../templates/actor/caravan-v2.hbs", import.meta.url), "utf8");
 let failures = 0;
@@ -27,7 +27,7 @@ const fail = (m) => {
 const SAME = {
   // buttons by id
   vehBrahmin: 'data-act="veh" data-veh="0"', vehTachka: 'data-act="veh" data-veh="1"',
-  foldImps: 'data-key="foldImps"', armorReset: 'data-act="armorReset"', hpMaxReset: 'data-act="hpMaxReset"',
+  foldImps: 'data-key="foldImps"',
   longHaul: 'data-k="cargo.{{i}}.far"' /* Foundry: a tick on each cargo row (author, 2026-11-14) */, addCustomImp: 'data-act="addCustomImp"', addCounter: 'data-act="addCounter"',
   addCargo: 'data-act="addCargo"', rollRep: 'data-act="rollRep"', luckPanel: 'data-act="rollFate"',
   rollName: 'data-act="rollName"', rollKarma: 'data-act="rollKarma"', rollBudget: 'data-act="rollBudget"',
@@ -37,8 +37,8 @@ const SAME = {
   // fields by id
   companyName: 'data-k="companyName"', reputation: 'data-k="reputation"', storyMeeting: 'data-k="story.meeting"',
   storyFace: 'data-k="story.face"', storyLastJob: 'data-k="story.lastJob"', storyWentWrong: 'data-k="story.wentWrong"',
-  notes: 'data-k="notes"', karma: 'data-k="karma"', budget: 'data-k="budget"', armorType: 'data-k="armorType"',
-  luck: 'data-k="luck"', karmaAspect: 'data-k="karmaAspect"', hpMax: 'data-k="hpMax"', armorVal: 'data-k="armorVal"',
+  notes: 'data-k="notes"', karma: 'data-k="karma"', budget: 'data-k="budget"',
+  luck: 'data-k="luck"', karmaAspect: 'data-k="karmaAspect"',
   hpCurrent: 'data-k="hpCurrent"',
   // delegated buttons and fields (data-*)
   "data-step": 'data-act="step"', "data-pip": 'data-act="pip"', "data-imp-btn": 'data-act="imp"', "data-seg": 'data-act="seg"',
@@ -52,6 +52,12 @@ const SKIP = {
   btnTxt: "текст аркуша — у Foundry експорту в текст немає (рішення автора)",
   btnPdf: "PDF — у Foundry експорту в PDF немає (рішення автора)",
   themeBtn: "тема — у Foundry своя світла й темна тема",
+  // author, 2026-11-14: max HP and armour are the rules' value + a bonus, edited in «Налаштування → Захист» (tests/caravan.test.mjs)
+  hpMax: "максимум ОЗ не редагується: надбавка в «Налаштування → Захист»",
+  armorVal: "броня не редагується: надбавка в «Налаштування → Захист»",
+  armorType: "тип броні завжди «фізична», не редагується",
+  armorReset: "скидання надбавок — «Повернути все до стандартних значень» в «Налаштування → Захист»",
+  hpMaxReset: "скидання надбавок — «Повернути все до стандартних значень» в «Налаштування → Захист»",
 };
 
 const H = loadHtmlCaravan();
@@ -111,8 +117,6 @@ const foundryStore = (data) => {
 const STEPS = {
   vehTachka: [(h) => h.click("vehTachka"), (C) => C.act("veh", { veh: "1" })],
   vehBrahmin: [(h) => h.click("vehBrahmin"), (C) => C.act("veh", { veh: "0" })],
-  armorReset: [(h) => h.click("armorReset"), (C) => C.act("armorReset")],
-  hpMaxReset: [(h) => h.click("hpMaxReset"), (C) => C.act("hpMaxReset")],
   addCustomImp: [(h) => h.click("addCustomImp"), (C) => C.act("addCustomImp")],
   addCounter: [(h) => h.click("addCounter"), (C) => C.act("addCounter")],
   addCargo: [(h) => h.click("addCargo"), (C) => C.act("addCargo")],
@@ -137,10 +141,9 @@ Object.assign(STEPS, {
   rep: field("reputation", "reputation", "Ті, що завжди повертаються"), meeting: field("storyMeeting", "story.meeting", "У барі «Аткінс»"),
   face: field("storyFace", "story.face", "Мо"), lastJob: field("storyLastJob", "story.lastJob", ""), wentWrong: field("storyWentWrong", "story.wentWrong", "Усе"),
   notes: field("notes", "notes", "Не довіряти Біллі"), karma: field("karma", "karma", "7"), karmaNeg: field("karma", "karma", "-12"), karmaEmpty: field("karma", "karma", ""),
-  budget: field("budget", "budget", "42"), budgetNeg: field("budget", "budget", "-3"), armorType: field("armorType", "armorType", "енергетична"),
-  armorTypeEmpty: field("armorType", "armorType", "  "), luck: field("luck", "luck", "2"), luckNeg: field("luck", "luck", "-1"),
-  aspect: field("karmaAspect", "karmaAspect", "Темні особи"), hpMax: field("hpMax", "hpMax", "60"), hpMaxLow: field("hpMax", "hpMax", "0"),
-  armorVal: field("armorVal", "armorVal", "5"), hpCurrent: field("hpCurrent", "hpCurrent", "7"), hpCurrentHigh: field("hpCurrent", "hpCurrent", "999"),
+  budget: field("budget", "budget", "42"), budgetNeg: field("budget", "budget", "-3"), luck: field("luck", "luck", "2"), luckNeg: field("luck", "luck", "-1"),
+  aspect: field("karmaAspect", "karmaAspect", "Темні особи"), 
+  hpCurrent: field("hpCurrent", "hpCurrent", "7"), hpCurrentHigh: field("hpCurrent", "hpCurrent", "999"),
   karmaUp: data({ step: "karma", d: "1" }, "step", { step: "karma", d: "1" }), karmaDown: data({ step: "karma", d: "-1" }, "step", { step: "karma", d: "-1" }),
   hpDown: data({ step: "hpCurrent", d: "-1" }, "step", { step: "hpCurrent", d: "-1" }), hpUp: data({ step: "hpCurrent", d: "1" }, "step", { step: "hpCurrent", d: "1" }),
   budgetDown: data({ step: "budget", d: "-1" }, "step", { step: "budget", d: "-1" }),
@@ -225,7 +228,7 @@ for (let c = 0; c < CASES; c++) {
     }
     compared++;
     const want = H.getState();
-    const got = caravanToState(actor);
+    const got = caravanHtmlState(caravanToState(actor)); // the HTML sheet's state: the bonuses are absolute numbers there
     if (!same(want, got)) {
       fail(`case ${c}, step ${s} «${n}»: ${firstDiff(want, got)}`);
       H.setState(got); // carry on from the same caravan

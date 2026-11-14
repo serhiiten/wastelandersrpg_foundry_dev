@@ -2,6 +2,7 @@
  * «Мапа Пустки» — what its panel's buttons do (the panels themselves: map-dock.mjs): places («Поселення», «Небезпека»,
  * «Точка інтересу») on a free cell of the view; stickers are module/canvas/map-notes.mjs. Mirrors the HTML terminal's map.js (mapAdd, mapFreeCell, MAP_NOTE).
  */
+import { tokenLevel } from "../helpers/token-level.mjs";
 import { PLACE_KINDS } from "../rules/map-place.mjs";
 
 // the stickers' sizes and colours live with the stickers (module/canvas/map-notes.mjs); re-exported for old imports
@@ -58,16 +59,9 @@ export async function addPlace(kind) {
   const pt = freeCellPoint();
   const actor = await Actor.create({ name: PLACE_KINDS[kind].label, type: "place", folder: folder.id, system: { kind } });
   if (!actor) return;
-  const td = await actor.getTokenDocument({ x: pt.x, y: pt.y, hidden: false });
+  const td = await actor.getTokenDocument({ x: pt.x, y: pt.y, hidden: false, ...tokenLevel(canvas.scene) });
   const [made] = await canvas.scene.createEmbeddedDocuments("Token", [td.toObject()]);
   canvas.tokens.get(made?.id)?.control({ releaseOthers: true });
   actor.sheet.focusName = true;
   actor.sheet.render({ force: true });
-}
-
-/** A world made before the folder turned red: recolour it once the active GM is in */
-export async function recolorMapFolder() {
-  if (!game.users.activeGM?.isSelf) return;
-  const f = game.folders.find((x) => x.type === "Actor" && x.getFlag(sys(), "mapFolder"));
-  if (f && f.color?.css !== MAP_FOLDER_COLOR && String(f.color) !== MAP_FOLDER_COLOR) await f.update({ color: MAP_FOLDER_COLOR });
 }

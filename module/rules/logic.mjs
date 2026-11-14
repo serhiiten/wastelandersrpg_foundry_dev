@@ -1002,11 +1002,12 @@ function isElectric(c){ return !!(c.w && (c.w.en==='electric' || (c.w.auto==='ps
 function dmgBonuses(mode, d, opt, c){
   const has=p=>d.allPerks.includes(p); const b=[];
   const psi=!!(c && c.w && c.w.auto==='psi');
+  const bare=!!(c && (c.key==='unarmed' || /беззбройн|кулак|рукопаш|голими руками|удар рукою/i.test(c.name||'')));
   if(mode==='ranged' && !psi && has('Бонусна шкода в бою на відстані')) b.push(['Бонусна шкода в бою на відстані',2]);
   if(mode==='melee' && has('Бонусна шкода в ближньому бою')) b.push(['Бонусна шкода в ближньому бою',2]);
   if(mode==='explosive' && has('Бонусна шкода вибухівкою')) b.push(['Бонусна шкода вибухівкою',2]);
-  if(!psi && d.has('Камікадзе')) b.push(['Камікадзе',2]);
-  if(!psi && !robotBody() && (opt.psycho || (typeof chemHas==='function' && chemHas('Психо')))) b.push(['Психо',2]);
+  if(!psi && !bare && d.has('Камікадзе')) b.push(['Камікадзе',2]);
+  if(!psi && !bare && !robotBody() && (opt.psycho || (typeof chemHas==='function' && chemHas('Психо')))) b.push(['Психо',2]);
   if(opt.norm2) b.push(['Звичайний ефект',2]);
   return b;
 }
@@ -1062,7 +1063,8 @@ function renderDamage(L, d){
   if(L.verdict>=2 || (L.verdict===1 && ((mode==='ranged'&&has('Прицільний постріл'))||(mode==='melee'&&has('Точний удар'))))) toggles.push(tog('norm2','Звичайний ефект: +2 шкоди'));
   if(L.verdict===3) toggles.push(tog('crit','Критичний ефект: +1d6 шкоди'));
   const psiW = !!(c && c.w && c.w.auto==='psi');
-  if(!psiW && !robotBody()) toggles.push(typeof chemHas==='function' && chemHas('Психо') ? '<label class="tog"><input type="checkbox" checked disabled> Психо діє (+2 шкоди) — вжито з мотлоху</label>' : tog('psycho','Психо діє (+2 шкоди)'));
+  const bareW = !!(c && (c.key==='unarmed' || /беззбройн|кулак|рукопаш|голими руками|удар рукою/i.test(c.name||'')));
+  if(!psiW && !bareW && !robotBody()) toggles.push(typeof chemHas==='function' && chemHas('Психо') ? '<label class="tog"><input type="checkbox" checked disabled> Психо діє (+2 шкоди) — вжито з мотлоху</label>' : tog('psycho','Психо діє (+2 шкоди)'));
   if(c && isElectric(c)) toggles.push(tog('robot','Ціль — робот чи електроніка (+1d6)'));
   if(!psiW && has('Тиха смерть')) toggles.push(tog('silent','Тиха смерть: ціль не очікує атаки (максимум + 1d6)'));
   if(!psiW && has('Автоматний псих') && mode==='ranged' && !(gunsOn() && c && c.w && c.w.rof && c.w.rof!=='auto')) toggles.push(tog('auto','Автоматний псих: витратити 1 Припас, кинути двічі'));

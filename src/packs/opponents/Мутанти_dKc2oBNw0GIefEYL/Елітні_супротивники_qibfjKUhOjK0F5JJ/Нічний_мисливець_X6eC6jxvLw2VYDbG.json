@@ -209,38 +209,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Укус",
-      "type": "attack",
-      "_id": "RqmSsvo3U7wqKIfw",
-      "img": "assets/poison-bottle.svg",
-      "system": {
-        "description": "<p>1d6 фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню.</p>",
-        "damage": "1d6[фізична] + 1d6[отрута]"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768866626857,
-        "modifiedTime": 1768866662010,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!X6eC6jxvLw2VYDbG.RqmSsvo3U7wqKIfw"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

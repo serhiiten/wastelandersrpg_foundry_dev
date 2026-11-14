@@ -189,38 +189,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Роги",
-      "type": "attack",
-      "_id": "qb6CLwRwTyXPpZbz",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>1d6 фізичної шкоди, ближній бій, лише якщо його дуже роздратувати.</p>",
-        "damage": "1d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768836448590,
-        "modifiedTime": 1768848639046,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!vqiElcmKsfGV56eh.qb6CLwRwTyXPpZbz"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

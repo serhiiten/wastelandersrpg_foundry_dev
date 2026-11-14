@@ -189,38 +189,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Лапи",
-      "type": "attack",
-      "_id": "sxat87dZ4rY927SE",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>1d6 фізичної шкоди + 1 шкоди радіацією, ближній бій, радіація ігнорує броню.</p>",
-        "damage": "1d6[фізична] + 1[радіація]"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768939585503,
-        "modifiedTime": 1768939626383,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!ylt0dl9NL10e7SQP.sxat87dZ4rY927SE"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {

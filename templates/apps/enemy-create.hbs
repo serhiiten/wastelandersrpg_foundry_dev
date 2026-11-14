@@ -1,0 +1,118 @@
+{{!-- «Новий супротивник»: форма створення (module/applications/enemy-create.mjs), порт «свого супротивника» з трекера битви --}}
+<div class="pust-ec">
+  <div class="pust-ec-body">
+    <section class="pust-ec-card pust-ec-base">
+      <label class="pust-ec-grow">За основу
+        <select name="base" aria-label="Взяти супротивника за основу">
+          <option value="" {{#if noBase}}selected{{/if}}>— з нуля —</option>
+          {{#each baseGroups}}<optgroup label="{{label}}">{{#each items}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</optgroup>{{/each}}
+        </select>
+      </label>
+      <button type="button" data-action="fresh" title="Забути обраного супротивника й почати з порожньої форми"><i class="fa-solid fa-eraser"></i> Почати з нуля</button>
+      {{#if baseName}}<p class="pust-ec-note">За основу взято: <b>{{baseName}}</b>. Усе нижче можна міняти — компендіум чи світ це не зачепить.</p>{{/if}}
+    </section>
+
+    <section class="pust-ec-card pust-ec-head">
+      <img class="pust-ec-pic" src="{{imgSrc}}" alt="" data-action="pickImg" title="Обрати зображення (воно ж стане токеном)">
+      <div class="pust-ec-who">
+        <label>Назва<input type="text" data-f="name" value="{{f.name}}" placeholder="Напр., Божевільний механік" autocomplete="off"></label>
+        <label>Категорія
+          <select data-f="cat" aria-label="Категорія">{{#each cats}}<option value="{{k}}" {{#if sel}}selected{{/if}}>{{l}}</option>{{/each}}</select>
+        </label>
+      </div>
+    </section>
+    <p class="pust-ec-hint"><i class="fa-solid fa-book-skull"></i> За книгою для категорії: {{guide}}.</p>
+
+    <section class="pust-ec-card pust-ec-stats">
+      <div class="pust-ec-stat">
+        <span class="pust-ec-lbl"><i class="fa-solid fa-heart-pulse"></i> ОЗ</span>
+        <div class="pust-ec-num"><button type="button" data-action="step" data-f="hp" data-d="-1" aria-label="Мінус 1 ОЗ">−</button><input class="pust-screen" type="text" inputmode="numeric" data-f="hp" value="{{f.hp}}" aria-label="ОЗ"><button type="button" data-action="step" data-f="hp" data-d="1" aria-label="Плюс 1 ОЗ">+</button></div>
+        <div class="pust-ec-qv">{{#each hpQuick}}<button type="button" class="{{#if on}}on{{/if}}" data-action="quick" data-f="hp" data-v="{{v}}">{{v}}</button>{{/each}}</div>
+      </div>
+      <div class="pust-ec-stat">
+        <span class="pust-ec-lbl"><i class="fa-solid fa-shield-halved"></i> Броня</span>
+        <div class="pust-ec-num"><button type="button" data-action="step" data-f="armor" data-d="-1" aria-label="Мінус 1 броні">−</button><input class="pust-screen" type="text" inputmode="numeric" data-f="armor" value="{{f.armor}}" aria-label="Броня"><button type="button" data-action="step" data-f="armor" data-d="1" aria-label="Плюс 1 броні">+</button></div>
+        <div class="pust-ec-qv">{{#each armorQuick}}<button type="button" class="{{#if on}}on{{/if}}" data-action="quick" data-f="armor" data-v="{{v}}">{{v}}</button>{{/each}}</div>
+      </div>
+      <div class="pust-ec-stat">
+        <span class="pust-ec-lbl"><i class="fa-solid fa-brain"></i> Пси-броня</span>
+        <div class="pust-ec-num"><button type="button" data-action="step" data-f="psiArmor" data-d="-1" aria-label="Мінус 1 пси-броні">−</button><input class="pust-screen" type="text" inputmode="numeric" data-f="psiArmor" value="{{f.psiArmor}}" aria-label="Психічна броня"><button type="button" data-action="step" data-f="psiArmor" data-d="1" aria-label="Плюс 1 пси-броні">+</button></div>
+      </div>
+    </section>
+
+    <section class="pust-ec-card">
+      <h3><i class="fa-solid fa-shield-halved"></i> Захист</h3>
+      <div class="pust-ec-defs">
+        {{#each defs}}<label>{{l}}<select data-f="def.{{f}}">{{#each opts}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{l}}</option>{{/each}}</select></label>{{/each}}
+      </div>
+      <div class="pust-ec-flags">
+        {{#each flags}}<label class="pust-ec-chk"><input type="checkbox" data-f="flag.{{f}}" {{#if on}}checked{{/if}}> {{l}}</label>{{/each}}
+      </div>
+    </section>
+
+    <section class="pust-ec-card">
+      <h3><i class="fa-solid fa-burst"></i> Атаки</h3>
+      {{#each attacks}}
+      <div class="pust-ec-atk">
+        <div class="pust-ec-row">
+          <input type="text" class="pust-ec-grow" data-k="attacks" data-i="{{i}}" data-f="n" value="{{n}}" placeholder="Назва атаки" aria-label="Назва атаки">
+          <input type="text" class="pust-ec-dice {{#if bad}}bad{{/if}}" data-k="attacks" data-i="{{i}}" data-f="d" value="{{d}}" placeholder="1d10" aria-label="Шкода: кістки" title="Кістки: 1d10, 2d6+2, «менша з 2d6»">
+          <button type="button" class="pust-ec-x" data-action="rm" data-k="attacks" data-i="{{i}}" aria-label="Прибрати атаку" title="Прибрати атаку">×</button>
+        </div>
+        <div class="pust-ec-row">
+          <input type="text" class="pust-ec-grow" data-k="attacks" data-i="{{i}}" data-f="note" value="{{note}}" placeholder="Опис: ігнорує 1 броні, влучає по всіх у зоні…" aria-label="Опис атаки">
+        </div>
+        <div class="pust-ec-row">
+          <label class="pust-ec-grow">Тип шкоди<select data-k="attacks" data-i="{{i}}" data-f="type">{{#each types}}<option value="{{k}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
+          <label>Заряди <small>(0 — без обмежень)</small>
+            <span class="pust-ec-num"><button type="button" data-action="step" data-k="attacks" data-i="{{i}}" data-d="-1" aria-label="Мінус заряд">−</button><input class="pust-screen" type="text" inputmode="numeric" data-k="attacks" data-i="{{i}}" data-f="ammo" value="{{ammo}}" aria-label="Заряди"><button type="button" data-action="step" data-k="attacks" data-i="{{i}}" data-d="1" aria-label="Плюс заряд">+</button></span>
+          </label>
+        </div>
+      </div>
+      {{else}}<p class="pust-ec-muted">Атак ще немає.</p>{{/each}}
+      <div class="pust-ec-add">
+        <select name="atkpreset" aria-label="Додати атаку із заготовки"><option value="">+ Додати атаку…</option><option value="blank">Порожня атака</option>
+          {{#each atkPresets}}<optgroup label="{{g}}">{{#each items}}<option value="{{v}}">{{t}}</option>{{/each}}</optgroup>{{/each}}</select>
+        <button type="button" data-action="addAtk"><i class="fa-solid fa-plus"></i> Порожня</button>
+      </div>
+    </section>
+
+    <section class="pust-ec-card">
+      <h3><i class="fa-solid fa-chess-pawn"></i> Ходи</h3>
+      {{#each moves}}
+      <div class="pust-ec-mv">
+        <div class="pust-ec-row">
+          <input type="text" class="pust-ec-grow" data-k="moves" data-i="{{i}}" data-f="n" value="{{n}}" placeholder="Назва ходу" aria-label="Назва ходу">
+          <button type="button" class="pust-ec-x" data-action="rm" data-k="moves" data-i="{{i}}" aria-label="Прибрати хід" title="Прибрати хід">×</button>
+        </div>
+        <textarea rows="1" data-k="moves" data-i="{{i}}" data-f="t" placeholder="Що робить: раз за сцену завдає 2d6 шкоди…" aria-label="Опис ходу">{{t}}</textarea>
+      </div>
+      {{else}}<p class="pust-ec-muted">Ходів немає (у статистів і рядових їх зазвичай немає).</p>{{/each}}
+      <div class="pust-ec-add">
+        <select name="mvpreset" aria-label="Додати хід із заготовки"><option value="">+ Додати хід…</option><option value="blank">Порожній хід</option>
+          <optgroup label="З бази супротивників">{{#each movePresets}}<option value="{{v}}">{{t}}</option>{{/each}}</optgroup></select>
+        <button type="button" data-action="addMove"><i class="fa-solid fa-plus"></i> Порожній</button>
+      </div>
+    </section>
+
+    <section class="pust-ec-card">
+      <h3><i class="fa-solid fa-tag"></i> Аспекти</h3>
+      <div class="pust-ec-chips">
+        {{#each aspects}}
+        <span class="pust-ec-chip"><span class="pust-ec-chiptxt">{{t}}</span>
+          <span class="pust-ec-inv" title="Безкоштовні посилення аспекту"><button type="button" data-action="inv" data-i="{{i}}" data-d="-1" aria-label="Мінус посилення">−</button><b class="{{#if inv}}on{{/if}}">+{{inv}}</b><button type="button" data-action="inv" data-i="{{i}}" data-d="1" aria-label="Плюс посилення">+</button></span>
+          <button type="button" class="pust-ec-x" data-action="rm" data-k="aspects" data-i="{{i}}" aria-label="Прибрати аспект">×</button></span>
+        {{/each}}
+      </div>
+      <input type="text" name="aspadd" class="pust-ec-aspin" placeholder="+ аспект, Enter" aria-label="Новий аспект" autocomplete="off">
+    </section>
+
+    <section class="pust-ec-card">
+      <label>Примітка<textarea rows="2" data-f="notes" placeholder="Що можна забрати з тіла, особливі правила…">{{f.notes}}</textarea></label>
+    </section>
+  </div>
+  <footer class="pust-ec-foot">
+    <button type="button" data-action="cancel"><i class="fa-solid fa-xmark"></i> Скасувати</button>
+    <button type="button" class="pust-ec-go" data-action="create"><i class="fa-solid fa-skull"></i> Створити супротивника</button>
+  </footer>
+</div>

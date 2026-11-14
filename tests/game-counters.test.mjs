@@ -67,14 +67,6 @@ ok(G.logStepLocal({ name: "Т", die: 6 }, 5, 6, 1) === "«Т»: 5 → 6 (усп�
 ok(G.logStepLocal({ name: "Т", die: 6 }, 3, 5, 2) === "«Т»: 3 → 5 (критичний успіх)", "log crit");
 ok(G.logCreateLocal({ name: "Т", die: 6, val: 4 }) === "Новий лічильник «Т»: d6, починається з 4", "log create");
 
-// the old «counter» actor → a game counter
-let m = G.fromCounterActor({ name: " Бомба ", system: { progress: { value: 3, max: 5, descriptions: ["a", "b", "c", "d", "e"] } } });
-ok(m.name === "Бомба" && m.size === 6 && m.val === 3 && m.labels[4] === "e", "actor → counter: " + JSON.stringify(m));
-m = G.addCounter([], m).counter;
-ok(m.size === 6 && m.labels.length === 6 && m.labels[5] === "" && m.labels[0] === "a", "padded to the size");
-m = G.fromCounterActor({ name: "", system: { progress: { value: 99, max: 12, descriptions: null } } });
-ok(m.name === "Лічильник" && m.size === 12 && m.val === 12 && m.labels.length === 0, "defaults and clamps");
-ok(G.fromCounterActor({}).size === 4 && G.fromCounterActor({ system: { progress: { max: 1 } } }).size === 4, "small → 4");
 ok(G.removeLocal(a.list, lid).list.length === 0, "local remove");
 ok(G.renameLocal(a.list, lid, " Нове ")[0].name === "Нове" && G.renameLocal(a.list, lid, " ")[0].name === "Тунель", "local rename");
 ok(G.normalizeLocalList("x").length === 0 && G.normalizeLocalList([{ id: 2, die: 4, val: 9 }, { id: 2 }]).map((c) => c.id).join() === "2,3", "local normalize");

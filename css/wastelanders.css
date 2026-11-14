@@ -28,12 +28,6 @@
   font-weight: bold;
 }
 
-.flex-group-center {
-  display: flex;
-  justify-content: center;
-  text-align: center;
-}
-
 .flex-centration {
   display: flex;
   justify-content: flex-start;
@@ -188,140 +182,12 @@ select.clear-select {
   min-height: 200px;
 }
 
-.wastelanders .items-block {
-  position: relative;
-}
-.wastelanders .items-block .item-create {
-  position: absolute;
-  top: 2px;
-  right: 5px;
-}
-.wastelanders .items-block .items-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.wastelanders .items-block .items-list .item {
-  position: relative;
-  margin-bottom: 5px;
-}
-.wastelanders .items-block .items-list .item .item-description {
-  align-items: center;
-  padding-right: 55px;
-}
-.wastelanders .items-block .items-list .item .item-description .item-image {
-  flex: 0 0 20px;
-  transition: 0.5s ease;
-  margin-right: 2px;
-  background-position: center;
-  background-size: 18px;
-  background-repeat: no-repeat;
-  width: 20px;
-  height: 20px;
-}
-.wastelanders .items-block .items-list .item .item-description:hover .item-image {
-  background-image: url("/icons/svg/d20-grey.svg") !important;
-}
-.wastelanders .items-block .items-list .item .item-description .item-image:hover {
-  background-image: url("/icons/svg/d20-black.svg") !important;
-}
-.wastelanders .items-block .items-list .item .item-description .item-name {
-  cursor: pointer;
-  margin-right: 3px;
-  margin-left: 5px;
-  font-size: large;
-  font-family: "Handjet", sans-serif;
-}
-.wastelanders .items-block .items-list .item .item-description .item-damage {
-  margin-left: 3px;
-}
-.wastelanders .items-block .items-list .item .item-summary {
-  flex: auto;
-  transition: height 0.3s ease;
-  margin: 0;
-  margin-left: 2px;
-  border-left: 1px solid #b5b3a4;
-  padding-left: 3px;
-  height: 0;
-  overflow: hidden;
-}
-.wastelanders .items-block .items-list .item .item-controls {
-  display: flex;
-  position: absolute;
-  top: 4px;
-  right: 0;
-  justify-content: flex-end;
-}
-.wastelanders .items-block .items-list .item .item-controls a {
-  margin: 0 3px;
-  font-size: 12px;
-  text-align: center;
-}
-.wastelanders .items-block .items-list .item.weapon .item-description,
-.wastelanders .items-block .items-list .item.attack .item-description {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-.wastelanders .items-block .items-list .item.heavy .item-name {
-  font-weight: bold;
-}
-
 .wastelanders.actor .sheet-header {
   display: grid;
   grid-template-columns: 120px 1fr;
   column-gap: 10px;
 }
-.wastelanders.actor .sheet-header .img-block {
-  position: relative;
-}
-.wastelanders.actor .sheet-header .img-block .hp-bar {
-  position: relative;
-  top: -10px;
-  border: 1px solid #222;
-  border-radius: 10px;
-  background-color: white;
-  width: 100%;
-  height: 20px;
-  overflow: hidden;
-}
-.wastelanders.actor .sheet-header .img-block .hp-bar .hp-bar-fill {
-  transition: width 1s ease-in-out;
-  border-radius: 8px;
-  background-color: #d1b879;
-  height: 100%;
-}
-.wastelanders.actor .sheet-header .img-block .hp-bar .hp-values {
-  display: flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  font-weight: bold;
-  font-size: small;
-}
-.wastelanders.actor .sheet-header .img-block .hp-bar .hp-values .hp-input {
-  background-color: transparent;
-  font-weight: bold;
-  font-size: small;
-  font-family: inherit;
-  text-align: center;
-  text-shadow: inherit;
-}
-.wastelanders.actor .sheet-header .profile-img {
-  height: auto;
-}
-.wastelanders.actor .sheet-header .character-name {
-  margin: 0;
-  margin-bottom: 5px;
-  border-bottom: 2px solid black;
-  width: 100%;
-  font-size: x-large;
-  font-family: "Overseer", sans-serif;
-}
+
 .wastelanders.actor .sheet-header .brief-info {
   gap: 2px 5px;
 }

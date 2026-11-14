@@ -69,14 +69,6 @@ export function unfoldGeometry(flag, x, y, size, rect) {
   return { min: false, w, h, ...clampToRect(x, y, w, h, rect) };
 }
 
-/** An old note kept its words in Foundry's own text: the first line is the title, the rest the body */
-export function splitLegacyText(text) {
-  const lines = String(text ?? "").split(/\r?\n/);
-  const first = lines.findIndex((l) => l.trim() !== "");
-  if (first < 0) return { title: "", text: "" };
-  return { title: lines[first].trim(), text: lines.slice(first + 1).join("\n").replace(/^\n+/, "").replace(/\s+$/, "") };
-}
-
 /** Is a point inside a note's rectangle */
 export function hitNote(px, py, note) {
   return px >= note.x && px < note.x + note.w && py >= note.y && py < note.y + note.h;
@@ -92,22 +84,4 @@ export function onGrabStrip(px, py, note, flag, size) {
 export function chipText(title, max = 18) {
   const t = String(title ?? "").trim() || NOTE_DEFAULT_TITLE;
   return t.length > max ? `${t.slice(0, max - 1)}…` : t;
-}
-
-/**
- * The update that moves an old note's words from Foundry's text into the flag (or null when there is nothing to do):
- * `drawing` = { _id, text, flag }. An old folded note kept its full text in `flag.full.text` (its own text was only the label).
- */
-export function legacyUpdate(drawing, systemId) {
-  const flag = drawing.flag;
-  if (!flag || flag.title !== undefined || flag.text !== undefined) return null;
-  const src = flag.min && flag.full && flag.full.text ? flag.full.text : drawing.text;
-  const hasOld = !!String(drawing.text ?? "").trim() || !!(flag.full && "text" in flag.full);
-  if (!hasOld) return null;
-  const { title, text } = splitLegacyText(src);
-  const p = `flags.${systemId}.mapNote`;
-  const u = { _id: drawing._id, text: "", [`${p}.title`]: title, [`${p}.text`]: text };
-  if (flag.full && "text" in flag.full) u[`${p}.full.-=text`] = null;
-  if (flag.full && "fontSize" in flag.full) u[`${p}.full.-=fontSize`] = null;
-  return u;
 }

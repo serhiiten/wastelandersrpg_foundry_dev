@@ -10,9 +10,6 @@
  *
  * A world gets the scene once (hidden world setting «mapSceneVersion»): it is created, made the active scene, and
  * Foundry's own starter scene is removed when nothing was put on it. Delete the scene and it stays deleted.
- * A newer MAP_SCENE_VERSION upgrades the world's scene in place (picture, size, grid); when the cell size changes,
- * tokens and journal notes on it are moved with the map, so they stay on their cells.
- * Versions: 1 — 72 px a cell; 2 — the Real-ESRGAN picture, 108 px a cell (author, 2026-11-14).
  */
 export const MAP_SCENE_VERSION = 2;
 export const CELL = 108;
@@ -59,55 +56,29 @@ async function thumbnail(scene) {
   }
 }
 
-/** Bring an older «Мапа Пустки» to this version: picture, size, grid; tokens and notes move with the map */
-async function upgradeMapScene(scene, sys) {
-  const data = mapSceneData(sys);
-  const k = CELL / (scene.grid.size || CELL);
-  await scene.update({
-    width: data.width, height: data.height, padding: data.padding,
-    grid: { size: CELL }, [`flags.${sys}.mapScene`]: MAP_SCENE_VERSION,
-    levels: scene.levels.map((l) => (l.id === LEVEL_ID ? { _id: l.id, background: { src: data.levels[0].background.src } } : { _id: l.id })),
-  });
-  if (k !== 1) {
-    // the padding is a whole number of cells, so every position on the canvas scales by the same factor
-    const move = (c) => c.map((d) => ({ _id: d.id, x: Math.round(d.x * k), y: Math.round(d.y * k) }));
-    if (scene.tokens.size) await scene.updateEmbeddedDocuments("Token", move(scene.tokens));
-    if (scene.notes.size) await scene.updateEmbeddedDocuments("Note", move(scene.notes));
-  }
-  await thumbnail(scene);
-}
-
-/** Give the world its «Мапа Пустки» (the first GM, once), or bring the one it has to this version */
+/** Give the world its «Мапа Пустки» (the first GM, once; a world that got it doesn't get it again) */
 export async function ensureMapScene() {
   if (!game.user.isGM || game.users.activeGM?.id !== game.user.id) return;
   const sys = game.system.id;
-  const had = game.settings.get(sys, "mapSceneVersion") ?? 0;
-  if (had >= MAP_SCENE_VERSION) return;
+  if ((game.settings.get(sys, "mapSceneVersion") ?? 0) > 0) return;
   let scene = findMapScene();
-  if (had > 0) {
-    // the world got the map before: upgrade it in place (a deleted one stays deleted)
-    if (scene) await upgradeMapScene(scene, sys);
-  } else {
-    if (!scene) {
-      scene = await Scene.implementation.create(mapSceneData(sys));
-      await thumbnail(scene);
-    }
-    await scene.activate();
-    // Foundry's starter scene goes, unless something was put on it
-    const starter = game.scenes.get(FOUNDRY_STARTER);
-    if (starter && starter.id !== scene.id && !starter.tokens.size && !starter.notes.size && !starter.drawings.size && !starter.walls.size) {
-      await starter.delete();
-    }
+  if (!scene) {
+    scene = await Scene.implementation.create(mapSceneData(sys));
+    await thumbnail(scene);
+  }
+  await scene.activate();
+  // Foundry's starter scene goes, unless something was put on it
+  const starter = game.scenes.get(FOUNDRY_STARTER);
+  if (starter && starter.id !== scene.id && !starter.tokens.size && !starter.notes.size && !starter.drawings.size && !starter.walls.size) {
+    await starter.delete();
   }
   await game.settings.set(sys, "mapSceneVersion", MAP_SCENE_VERSION);
 }
 
 /* ---------- «Бойова мапа» — the second default scene (author, 2026-11-14) ----------
- * A dark, quiet ground (assets/maps/battle.webp, tools/make_battle_bg.py) for the battle's zones and tokens: zones are
- * drawn on it (module/canvas/battle-zones.mjs), the left panel «Битва» shows on it (map-dock.mjs). A world gets it once,
- * not activated (the GM switches to it when a fight starts); deleted, it stays deleted. A newer BATTLE_SCENE_VERSION
- * upgrades it in place (picture, size, grid). Versions: 1 — 40 × 30 cells of 100 px, dark concrete; 2 — light sand
- * (author, 2026-11-14), a dark brown grid. */
+ * Light sand (assets/maps/battle-sand.webp, tools/make_battle_bg.py) with a dark brown grid, 40 × 30 cells of 100 px, for
+ * the battle's zones and tokens: zones are drawn on it (module/canvas/battle-zones.mjs), the panel «Битва» shows on it
+ * (map-dock.mjs). A world gets it once, not activated (the GM switches to it when a fight starts); deleted, it stays deleted. */
 export const BATTLE_SCENE_VERSION = 2;
 export const BATTLE_CELL = 100;
 export const BATTLE_COLS = 40;
@@ -145,24 +116,12 @@ export const findBattleScene = () => game.scenes.find((s) => s.getFlag(game.syst
 /** Is this scene the battle map? */
 export const isBattleScene = (scene) => !!scene?.getFlag(game.system.id, "battleScene");
 
-/** Give the world its «Бойова мапа» (the first GM, once), or bring the one it has to this version */
+/** Give the world its «Бойова мапа» (the first GM, once; a world that got it doesn't get it again) */
 export async function ensureBattleScene() {
   if (!game.user.isGM || game.users.activeGM?.id !== game.user.id) return;
   const sys = game.system.id;
-  const had = game.settings.get(sys, "battleSceneVersion") ?? 0;
-  if (had >= BATTLE_SCENE_VERSION) return;
-  const scene = findBattleScene();
-  if (had > 0) {
-    if (scene) {
-      const data = battleSceneData(sys);
-      await scene.update({
-        width: data.width, height: data.height, padding: data.padding, grid: { size: BATTLE_CELL, color: data.grid.color, alpha: data.grid.alpha },
-        [`flags.${sys}.battleScene`]: BATTLE_SCENE_VERSION,
-        levels: scene.levels.map((l) => (l.id === BATTLE_LEVEL_ID ? { _id: l.id, background: { src: data.levels[0].background.src, color: data.levels[0].background.color } } : { _id: l.id })),
-      });
-      await thumbnail(scene);
-    }
-  } else if (!scene) {
+  if ((game.settings.get(sys, "battleSceneVersion") ?? 0) > 0) return;
+  if (!findBattleScene()) {
     const made = await Scene.implementation.create(battleSceneData(sys));
     await thumbnail(made);
   }

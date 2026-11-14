@@ -8,6 +8,7 @@
  * folder is reused, so pressing both buttons does not make doubles. Tokens are unlinked and get personal
  * names: the travel battle's names (Горкі й Моркі…) or «Ім'я 2»; personal names are rolled by the GM on the card.
  */
+import { tokenLevel } from "../helpers/token-level.mjs";
 import { enemyFromRecord } from "../rules/battle.mjs";
 import { toSystem } from "../rules/enemy-model.mjs";
 
@@ -166,7 +167,7 @@ export async function createBattle(T, st, mode = "folder") {
     if (cells) for (const t of tokens) { const k = cells.findIndex((c) => c.x === t.x && c.y === t.y); if (k >= 0) cells.splice(k, 1); }
     for (const name of personalNames(T, e.enemy, count, st.battle.names, used)) {
       const pos = cells ? (cells.shift() ?? { x: zones[0].x, y: zones[0].y + scene.grid.size }) : free.shift();
-      const td = await actor.getTokenDocument({ ...pos, name, actorLink: false });
+      const td = await actor.getTokenDocument({ ...pos, name, actorLink: false, ...tokenLevel(scene) });
       tokens.push(td.toObject());
     }
   }

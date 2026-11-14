@@ -237,68 +237,7 @@
     "prependAdjective": false,
     "depth": 1
   },
-  "items": [
-    {
-      "name": "Пазурі",
-      "type": "attack",
-      "_id": "GDOUjkczACJDafWc",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p>2d6+3 фізичної шкоди, ближній бій, ігнорує 2 броні.</p>",
-        "damage": "2d6+3"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 100000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768867224641,
-        "modifiedTime": 1768867247750,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!73JWof5plr7uuURv.GDOUjkczACJDafWc"
-    },
-    {
-      "name": "Підйом-переворот",
-      "type": "attack",
-      "_id": "iZhJrOlO7wJ6j8wq",
-      "img": "assets/bowie-knife.svg",
-      "system": {
-        "description": "<p><em>Хід.</em> раз за сцену хапає ціль у своїй зоні й жбурляє її в іншого персонажа в тій самій або сусідній зоні. Обидва отримують 2d6 шкоди.</p>",
-        "damage": "2d6"
-      },
-      "effects": [],
-      "folder": null,
-      "sort": 200000,
-      "ownership": {
-        "default": 0,
-        "Te0NoAFEwBAH20vC": 3
-      },
-      "flags": {},
-      "_stats": {
-        "compendiumSource": null,
-        "duplicateSource": null,
-        "exportSource": null,
-        "coreVersion": "14.359",
-        "systemId": "wastelanders-dev",
-        "systemVersion": "0.3",
-        "createdTime": 1768867224641,
-        "modifiedTime": 1768867247750,
-        "lastModifiedBy": "Te0NoAFEwBAH20vC"
-      },
-      "_key": "!actors.items!73JWof5plr7uuURv.iZhJrOlO7wJ6j8wq"
-    }
-  ],
+  "items": [],
   "effects": [],
   "sort": 0,
   "ownership": {
