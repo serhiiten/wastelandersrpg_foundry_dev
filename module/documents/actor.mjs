@@ -116,6 +116,12 @@ export class WastelandersActor extends Actor {
     this.updateSource({ prototypeToken, ...(img ? { img } : {}) });
   }
 
+  /** «Create Actor» offers no «Місце»: places are made by the «Мапа Пустки» panel, on the map (author, 2026-11-14) */
+  static async createDialog(data = {}, createOptions = {}, options = {}, renderOptions = {}) {
+    if (!options?.types) options = { ...options, types: this.TYPES.filter((t) => t !== "place") };
+    return super.createDialog(data, createOptions, options, renderOptions);
+  }
+
   /** @override */
   static getDefaultArtwork(actorData) {
     const data = super.getDefaultArtwork(actorData);

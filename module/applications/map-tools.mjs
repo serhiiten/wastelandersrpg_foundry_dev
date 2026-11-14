@@ -11,9 +11,12 @@ const sys = () => game.system.id;
 const warn = (m) => ui.notifications.warn(m);
 
 /** The Actors folder «Мапа Пустки» (created when missing) */
+/** The Actors folder «Мапа Пустки»: red, like the «Термінал Доглядача» plate (author, 2026-11-14) */
+export const MAP_FOLDER_COLOR = "#a3261a";
+
 async function mapFolder() {
   let f = game.folders.find((x) => x.type === "Actor" && x.getFlag(sys(), "mapFolder"));
-  if (!f) f = await Folder.create({ name: "Мапа Пустки", type: "Actor", color: "#4a453d", flags: { [sys()]: { mapFolder: true } } });
+  if (!f) f = await Folder.create({ name: "Мапа Пустки", type: "Actor", color: MAP_FOLDER_COLOR, flags: { [sys()]: { mapFolder: true } } });
   return f;
 }
 
@@ -60,4 +63,11 @@ export async function addPlace(kind) {
   canvas.tokens.get(made?.id)?.control({ releaseOthers: true });
   actor.sheet.focusName = true;
   actor.sheet.render({ force: true });
+}
+
+/** A world made before the folder turned red: recolour it once the active GM is in */
+export async function recolorMapFolder() {
+  if (!game.users.activeGM?.isSelf) return;
+  const f = game.folders.find((x) => x.type === "Actor" && x.getFlag(sys(), "mapFolder"));
+  if (f && f.color?.css !== MAP_FOLDER_COLOR && String(f.color) !== MAP_FOLDER_COLOR) await f.update({ color: MAP_FOLDER_COLOR });
 }

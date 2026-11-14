@@ -367,3 +367,11 @@
 .chat-message .pust-chat.pust-pcard .pust-pc-exp b { font-style: normal; color: var(--pu-rust-2); }
 .chat-message .pust-chat.pust-pcard .pust-pc-asps { display: flex; flex-wrap: wrap; gap: 4px; }
 .chat-message .pust-chat.pust-pcard .pust-pc-asp { padding: 0 6px; border-radius: 3px; background: #e2ad3b; color: #241a0c; font-style: italic; font-size: 12.5px; line-height: 19px; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+
+/* Actors directory: «Відкрити .json Пустельників» on a row of its own under Create Actor / Create Folder, in the gold of the
+   «Доля» button, so it reads as the system's own, not Foundry's (author, 2026-11-14) */
+#actors .header-actions > button.wastelanders-json-open { flex: 1 0 100%; white-space: nowrap; justify-content: center; gap: 7px;
+  background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c;
+  border: 1px solid #6e5608; border-radius: 5px; box-shadow: 0 2px 6px rgba(0,0,0,.5);
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; }
+#actors .header-actions > button.wastelanders-json-open:hover { background: linear-gradient(180deg, #f0c04e, #c99a2c); color: #000; border-color: #f4d11a; }

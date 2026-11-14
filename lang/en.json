@@ -122,7 +122,7 @@
     },
     "Description": "Опис",
     "Json": {
-      "Open": "Open .json",
+      "Open": "Відкрити .json Пустельників",
       "OpenHint": "Create characters and caravans from electronic sheet files",
       "Unnamed": "Unnamed",
       "NotJson": "This is not a .json file.",

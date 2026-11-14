@@ -29,6 +29,7 @@ import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 import { ensureMapScene } from "./helpers/default-scene.mjs";
 import { migrateCounterActors } from "./helpers/migrate-counters.mjs";
+import { recolorMapFolder } from "./applications/map-tools.mjs";
 
 Hooks.once("init", async function () {
   // the HP bar over a token keeps the HP colours
@@ -184,6 +185,7 @@ Hooks.once("ready", () => {
   ensureMapScene().catch((err) => console.warn("Пустельники | map scene not created", err));
   // the original system's «counter» actors become game counters in the map panel (the actor type is gone)
   migrateCounterActors().catch((err) => console.warn("Пустельники | counter actors not migrated", err));
+  recolorMapFolder().catch(() => {});
   // the stickers: double-click to write, drag by the title strip, old notes converted
   readyMapNotes();
 });
@@ -272,4 +274,33 @@ async function syncPlaceVisibility(actorId) {
 }
 Hooks.on("createToken", (token) => syncPlaceVisibility(token.actorId));
 Hooks.on("updateToken", (token, changes) => { if ("hidden" in changes || "actorId" in changes) syncPlaceVisibility(token.actorId); });
-Hooks.on("deleteToken", (token) => syncPlaceVisibility(token.actorId));
+// Actors that live only on the map (author, 2026-11-14): places («Мапа Пустки») and the battle generator's enemies
+// (Actors folder «Битви» and its battle folders). When the last token of one is deleted from every scene, the actor goes
+// too; an actor deleted from the Actors directory takes its tokens off every scene; a battle folder left empty is removed.
+const BATTLES = "Битви";
+const inBattles = (folder) => !!folder && [folder, ...(folder.ancestors ?? [])].some((f) => f.name === BATTLES && !f.folder);
+const mapBound = (actor) => actor?.type === "place" || (actor?.type === "enemy" && inBattles(actor.folder));
+const mapGoing = new Set();
+async function dropWithoutTokens(actorId) {
+  if (!game.users.activeGM?.isSelf || mapGoing.has(actorId)) return;
+  const actor = game.actors.get(actorId);
+  if (!mapBound(actor)) return;
+  if (game.scenes.some((sc) => sc.tokens.some((t) => t.actorId === actorId))) return actor.type === "place" ? syncPlaceVisibility(actorId) : undefined;
+  mapGoing.add(actorId);
+  try {
+    await actor.sheet?.close();
+    await actor.delete();
+  } finally { mapGoing.delete(actorId); }
+}
+Hooks.on("deleteToken", (token) => dropWithoutTokens(token.actorId));
+Hooks.on("deleteActor", async (actor) => {
+  if (!game.users.activeGM?.isSelf || !mapBound(actor)) return;
+  for (const scene of game.scenes) {
+    const ids = scene.tokens.filter((t) => t.actorId === actor.id).map((t) => t.id);
+    if (ids.length) await scene.deleteEmbeddedDocuments("Token", ids);
+  }
+  // the battle's own folder, once empty, goes too («Битви» itself stays)
+  const folder = actor.folder;
+  if (actor.type === "enemy" && folder && folder.name !== BATTLES && inBattles(folder)
+    && game.folders.has(folder.id) && !folder.contents.length && !folder.children?.length) await folder.delete().catch(() => {}); // a folder deleted with its contents is gone already
+});
