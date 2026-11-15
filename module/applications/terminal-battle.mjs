@@ -8,6 +8,7 @@
  * folder is reused, so pressing both buttons does not make doubles. Tokens are unlinked and get personal
  * names: the travel battle's names (Горкі й Моркі…) or «Ім'я 2»; personal names are rolled by the GM on the card.
  */
+import { variantTextures } from "../helpers/token-variants.mjs";
 import { tokenLevel } from "../helpers/token-level.mjs";
 import { enemyFromRecord } from "../rules/battle.mjs";
 import { toSystem } from "../rules/enemy-model.mjs";
@@ -161,17 +162,22 @@ export async function createBattle(T, st, mode = "folder") {
   const free = zones.length ? null : spots(scene, total);
   const tokens = [];
   let zi = 0;
+  const seen = { tokens: [...scene.tokens].map((t) => ({ texture: { src: t.texture.src } })) };
   for (const { e, count, actor } of actors) {
+    // different faces of one kind (token-variants.mjs), counting the ones given earlier in this same battle
+    const tex = variantTextures(seen, actor, count);
+    let ti = 0;
     const cells = zones.length ? zoneCells(scene, zones[zi++ % zones.length], count) : null;
     // cells already given to an earlier kind in this same battle are taken now
     if (cells) for (const t of tokens) { const k = cells.findIndex((c) => c.x === t.x && c.y === t.y); if (k >= 0) cells.splice(k, 1); }
     for (const name of personalNames(T, e.enemy, count, st.battle.names, used)) {
       const pos = cells ? (cells.shift() ?? { x: zones[0].x, y: zones[0].y + scene.grid.size }) : free.shift();
-      const td = await actor.getTokenDocument({ ...pos, name, actorLink: false, ...tokenLevel(scene) });
+      const td = await actor.getTokenDocument({ ...pos, name, actorLink: false, ...tokenLevel(scene), ...(tex ? { texture: { src: tex[ti++] } } : {}) });
       tokens.push(td.toObject());
+      seen.tokens.push({ texture: { src: td.texture.src } });
     }
   }
-  const made = await scene.createEmbeddedDocuments("Token", tokens);
+  const made = await scene.createEmbeddedDocuments("Token", tokens, { pustTokens: true });
   ui.notifications.info(`Токени на сцені «${scene.name}»: ${made.length}. Супротивники — в Акторах, у теці ${where}. Бій почни, коли будеш готовий.`);
   return made;
 }

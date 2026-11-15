@@ -1457,3 +1457,167 @@
 /* a value and its label wrap together */
 .pust-qarm-v { display: inline-flex; align-items: baseline; gap: 4px; white-space: nowrap; }
 .pust-qarm-v > small { margin-right: 0 !important; }
+/* «Мотлох» (author, 2026-11-15): every thing is a card — paper a shade lighter than the block, a stripe of its list's colour
+   (Зброя rust, Броня steel, Інший мотлох brown); a weapon in hand / worn armour glows green. The header row gets the cards'
+   border and padding, so its titles stay over their columns (the cards are subgrids of the list) */
+.pust-glist:has(> .pust-gcard) { row-gap: 6px; }
+.pust-glist > .pust-grow.pust-gcard { --gc: #8a6a3e; position: relative; border: 1px solid var(--pu-paper-3); border-left: 4px solid var(--gc); border-radius: 4px;
+  padding: 6px 7px; background: var(--pu-sheet); box-shadow: 0 1px 0 rgba(35,27,17,.14); }
+.pust-glist-weapons > .pust-grow.pust-gcard { --gc: var(--pu-rust-3); }
+.pust-glist-armor > .pust-grow.pust-gcard { --gc: #5d6d78; }
+.pust-glist:has(> .pust-gcard) > .pust-ghead { border: 1px solid transparent; border-left-width: 4px; border-bottom: 1px solid var(--pu-paper-3) !important; padding: 0 7px 3px !important; margin-bottom: 0; }
+/* in hand / worn */
+.pust-glist > .pust-grow.pust-gcard.on { --gc: #2f8a32; border-color: #7fb46e; background: linear-gradient(90deg, rgba(61,170,64,.16), rgba(61,170,64,.05) 55%, rgba(61,170,64,0)), #f6fbec;
+  box-shadow: 0 0 0 1px rgba(47,138,50,.30), 0 0 10px rgba(61,170,64,.22), 0 1px 0 rgba(35,27,17,.14); }
+.pust-glist > .pust-grow.pust-gcard.on > .pust-gh input[type="checkbox"] { accent-color: #2f8a32; }
+/* the in-hand / worn mark is louder: a deeper green wash and a small tab «У руках» / «Вдягнена» on the card's top edge */
+.pust-glist:has(> .pust-gcard.on) { row-gap: 12px; }
+.pust-glist:has(> .pust-gcard.on) > .pust-ghead { margin-bottom: 4px; }
+.pust-glist > .pust-grow.pust-gcard.on { border-color: #5fa152; background: linear-gradient(90deg, rgba(61,170,64,.26), rgba(61,170,64,.10) 55%, rgba(61,170,64,.04)), #f3faea; }
+.pust-glist > .pust-grow.pust-gcard.on::before { position: absolute; top: -8px; left: 8px; padding: 0 6px; height: 15px; line-height: 15px; border-radius: 3px;
+  background: #2f8a32; color: #f3faea; font: 700 10px/15px var(--pu-f-label); letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 1px 0 rgba(35,27,17,.25); pointer-events: none; }
+.pust-glist-weapons > .pust-grow.pust-gcard.on::before { content: "У руках"; }
+.pust-glist-armor > .pust-grow.pust-gcard.on::before { content: "Вдягнена"; }
+.pust-glist-weapons > .pust-ghead > span:first-child, .pust-glist-armor > .pust-ghead > span:first-child { overflow: visible; display: flex; justify-content: center; } /* the hand / shirt icon over the tick, not clipped by the narrower first cell */
+/* (author, 2026-11-15) the cards' padding: a subgrid's padding pushes its edge items in, but the list's fixed first / last
+   tracks didn't grow with it, so «✕» stuck out over the card's right padding. The edge tracks now include the cards'
+   frame — left 4 px stripe + 7 px padding, right 1 px border + 7 px padding */
+.pust-glist-weapons:has(> .pust-gcard), .pust-glist-armor:has(> .pust-gcard), .pust-glist-other:has(> .pust-gcard) { grid-template-columns: 35px minmax(0, 1.3fr) minmax(0, 1.2fr) 142px 64px 44px 64px 36px; }
+/* «Вилікувати» / «Поповнити» on the title row keep 4 px from the block's top border (they used to hang 2 px under it) */
+@container (min-width: 710px) {
+  .wastelanders.pust-sheet .pust-qgrp > .pust-qi:first-child > button.pust-buy-btn:not(.header-control) { height: 19px !important; margin: -2px 0 -2px !important; }
+}
+@container (max-width: 620px) { /* the narrow sheet: «Шкода» / «К-сть», «Важка», «Вартість» a little narrower, so «Примітка» keeps room for its title */
+  .pust-glist-weapons:has(> .pust-gcard), .pust-glist-armor:has(> .pust-gcard), .pust-glist-other:has(> .pust-gcard) { grid-template-columns: 35px minmax(0, 1.3fr) minmax(0, 1.2fr) 142px 56px 40px 52px 36px; }
+}
+/* (author, 2026-11-15) a heading's small count («вільних пунктів: 0 з 3», «3 з 3», «Припасів: 3») keeps clear of its rule */
+.pust-sheet h3:has(> small) { padding-bottom: 3px; }
+/* ===== «Мотлох» as cards in two columns (author, 2026-11-15) =====
+   Зброя and Броня on the left, Інший мотлох on the right on the usual sheet; one column on a narrower one. Each thing is a
+   card read top to bottom: its name (with «У руках» / «Вдягнена» and ✕) on top, the note under it, then the fields two by
+   two, each field with a chip naming it. No table header. A weapon in hand / worn armour glows green. */
+.pust-gear-cols { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 12px; align-items: start; }
+@container (min-width: 820px) { .pust-gear-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.pust-gear-col { min-width: 0; }
+.pust-gcards { display: flex; flex-direction: column; gap: 8px; }
+.pust-gc { --gc: #8a6a3e; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 10px; align-items: center;
+  border: 1px solid var(--pu-paper-3); border-left: 4px solid var(--gc); border-radius: 4px; padding: 7px 8px; background: var(--pu-sheet); box-shadow: 0 1px 0 rgba(35,27,17,.14); }
+.pust-gcards-weapons > .pust-gc { --gc: var(--pu-rust-3); }
+.pust-gcards-armor > .pust-gc { --gc: #5d6d78; }
+.pust-gc.on { --gc: #2f8a32; border-color: #5fa152; background: linear-gradient(90deg, rgba(61,170,64,.24), rgba(61,170,64,.08) 55%, rgba(61,170,64,.03)), #f3faea;
+  box-shadow: 0 0 0 1px rgba(47,138,50,.30), 0 0 10px rgba(61,170,64,.22), 0 1px 0 rgba(35,27,17,.14); }
+.pust-gc-head { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.pust-gc-head > .pust-gname { flex: 1 1 0; width: 0; min-width: 0; font-weight: 700; }
+.pust-gc-head > .pust-x { flex: 0 0 auto; }
+.pust-gc-full { grid-column: 1 / -1; }
+.pust-gf2 { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.pust-gf2 > input[type="text"], .pust-gf2 > select, .pust-gf2 > textarea { flex: 1 1 0; width: 0 !important; min-width: 0; }
+.pust-gf2 > input[type="checkbox"] { flex: 0 0 auto; margin: 0; }
+.pust-gf2 > .pust-roll { flex: 0 0 auto; }
+.pust-gf2 > .pust-qty, .pust-gf2 > .pust-price, .pust-gf2 > .pust-dmg { text-align: center; }
+/* the chip that names a field */
+.pust-fchip { flex: 0 0 auto; display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--pu-paper-3); border-radius: 3px;
+  background: var(--pu-paper-2); color: var(--pu-ink-2); font: 700 10px/1 var(--pu-f-label); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.pust-gc-on { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; margin: 0; }
+.pust-gc-on > input[type="checkbox"] { margin: 0; accent-color: #2f8a32; }
+.pust-gc.on .pust-gc-on > .pust-fchip { background: #2f8a32; border-color: #2f8a32; color: #f3faea; }
+.pust-gc-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pust-gc-acts > .pust-gf2 { flex: 1 1 140px; }
+.pust-gc > .pust-guns, .pust-gc > .pust-mods { margin: 0; }
+.pust-gf2 > .pust-fchip { min-width: 70px; justify-content: center; } /* one width, so the fields of a column start on one line */
+.pust-gf2:has(> textarea.pust-gnote-ta) { align-items: flex-start; } /* a long note: its chip stays at the first line */
+.pust-gf2:has(> textarea.pust-gnote-ta) > .pust-fchip { margin-top: 3px; }
+/* (author, 2026-11-15) the chip and its field are one piece: no gap, the chip rounds on the left, the field on the right */
+.pust-gc .pust-gf2 { gap: 0; align-items: stretch; }
+.pust-gc .pust-gf2 > .pust-fchip { height: auto; min-height: 26px; width: 88px; min-width: 88px; box-sizing: border-box; border-radius: 3px 0 0 3px; border-right: 0; justify-content: flex-start; }
+.wastelanders.pust-sheet .pust-gc .pust-gf2 > input, .wastelanders.pust-sheet .pust-gc .pust-gf2 > select, .wastelanders.pust-sheet .pust-gc .pust-gf2 > textarea { border-radius: 0 3px 3px 0 !important; margin: 0 !important; }
+.pust-gc .pust-gf2 > .pust-roll { align-self: center; margin-left: 6px; }
+.pust-gf2:has(> textarea.pust-gnote-ta) > .pust-fchip { margin-top: 0; align-items: flex-start; padding-top: 6px; }
+/* a chip with a tick inside: «У руках», «Вдягнена», «Важка» */
+.pust-fchip-tog { gap: 5px; cursor: pointer; margin: 0; }
+.pust-fchip-tog > input[type="checkbox"] { width: 13px; height: 13px; margin: 0; flex: 0 0 auto; }
+.pust-gc-head { align-items: stretch; }
+.pust-gc-head > .pust-gf2 { flex: 1 1 0; min-width: 0; }
+.pust-gc-head > .pust-gf2 > .pust-gname { flex: 1 1 0; width: 0 !important; min-width: 0; }
+.pust-gc-head > .pust-x { align-self: center; }
+.pust-gc .pust-gc-on > input[type="checkbox"] { accent-color: #2f8a32; }
+.pust-gc.on .pust-gc-on { background: #2f8a32; border-color: #2f8a32; color: #f3faea; }
+/* «Важка»: always in the head row, between the name and ✕; red while ticked */
+.pust-gc-head > .pust-heavy { flex: 0 0 auto; align-self: stretch; min-height: 26px; border-radius: 3px; }
+.pust-gc-head > .pust-heavy > input[type="checkbox"] { accent-color: #a8121a; }
+.pust-gc-head > .pust-heavy:has(> input:checked) { background: #a8121a; border-color: #8a0f15; color: #fbe9e6; }
+/* the stripe by the kind of thing; a weapon in hand / worn armour keeps its stripe and glows green */
+.pust-gc.on { --gc: inherit; }
+.pust-gcards > .pust-gc.kind-gun { --gc: var(--pu-rust-3); }
+.pust-gcards > .pust-gc.kind-energy { --gc: #c0392b; }
+.pust-gcards > .pust-gc.kind-melee { --gc: #6b4a2b; }
+.pust-gcards > .pust-gc.kind-boom { --gc: #e07b25; }
+.pust-gcards > .pust-gc.kind-psi { --gc: #7b4fb0; }
+.pust-gcards > .pust-gc.kind-natural { --gc: #6f7d2c; }
+.pust-gcards > .pust-gc.kind-armor { --gc: #5d6d78; }
+.pust-gcards > .pust-gc.kind-heavy-armor { --gc: #34404a; }
+.pust-gcards > .pust-gc.kind-power-armor { --gc: #2f6aa3; }
+.pust-gcards > .pust-gc.kind-gear { --gc: #8a6a3e; }
+.pust-gcards > .pust-gc.kind-chem { --gc: #1f8a80; }
+.pust-gcards > .pust-gc.kind-power { --gc: #c9a227; }
+/* a glued chip and its field are always one height: the field stretches with the row (the head row is as tall as «Важка») */
+.wastelanders.pust-sheet .pust-gc .pust-gf2 > input[type="text"], .wastelanders.pust-sheet .pust-gc .pust-gf2 > select { height: 26px !important; min-height: 26px; box-sizing: border-box; }
+.pust-gc .pust-gf2 > .pust-fchip, .pust-gc-head > .pust-heavy { min-height: 26px; box-sizing: border-box; }
+.pust-gc-head { align-items: center; } /* the name's row isn't stretched by «Важка» or ✕: every glued pair stays 26 px */
+.pust-gc-head > .pust-heavy { height: 26px; align-self: center; }
+.pust-gc .pust-gf2:has(> textarea.pust-gnote-ta) { align-items: stretch; } /* a long note: the chip runs its whole height, its word at the top */
+/* «Записи» (author, 2026-11-15): «Біографія» and «Інші» in Foundry's own editor (its formatting toolbar on top), written on
+   ruled paper — a line every 24 px with a red margin, as a notebook page; text, headings and lists sit on the lines */
+.pust-sheet prose-mirror.pust-notes-ed { --nl: 24px; display: flex; flex-direction: column; margin: 0 0 12px; border: 1px solid var(--pu-paper-3); border-radius: 4px;
+  background: #fffaf0; box-shadow: inset 0 1px 2px rgba(35,27,17,.12); overflow: hidden; }
+.pust-sheet prose-mirror.pust-notes-ed .editor-menu { background: var(--pu-paper-2); border-bottom: 1px solid var(--pu-paper-3); }
+.pust-sheet prose-mirror.pust-notes-ed .editor-content,
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror { min-height: calc(var(--nl) * 8 + 8px); }
+.pust-sheet prose-mirror.pust-notes-ed[data-note="others"] .editor-content,
+.pust-sheet prose-mirror.pust-notes-ed[data-note="others"] .ProseMirror { min-height: calc(var(--nl) * 6 + 8px); }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror { padding: 4px 12px 4px 40px; font-family: var(--pu-f-text); font-size: 14px; line-height: var(--nl); color: var(--pu-ink);
+  background-color: transparent; background-attachment: local;
+  background-image: linear-gradient(to right, transparent 30px, rgba(190,60,50,.38) 30px 31px, transparent 31px),
+    repeating-linear-gradient(to bottom, transparent 0 calc(var(--nl) - 1px), rgba(95,120,160,.30) calc(var(--nl) - 1px) var(--nl));
+  background-position: 0 4px; outline: none; }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror > * { margin: 0; line-height: var(--nl); }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror :is(h1, h2, h3, h4, h5, h6) { font-size: 16px; line-height: var(--nl); margin: 0; border: 0; padding: 0; }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror :is(ul, ol) { margin: 0; padding-left: 20px; }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror li, .pust-sheet prose-mirror.pust-notes-ed .ProseMirror li > p { margin: 0; line-height: var(--nl); }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror blockquote { margin: 0; padding-left: 10px; border-left: 3px solid var(--pu-rust-4); }
+.pust-sheet prose-mirror.pust-notes-ed .editor-menu { flex-wrap: wrap; row-gap: 4px; height: auto; } /* a narrow sheet: the tools wrap to a second row */
+.pust-sheet prose-mirror.pust-notes-ed > .menu-container { flex: 0 0 auto; height: auto; } /* its fixed 42 px would cut the second row */
+.pust-sheet prose-mirror.pust-notes-ed > .menu-container > menu.editor-menu { position: static; inset: auto; } /* Foundry pins it over a fixed-height strip; in flow, its rows set the height */
+/* (author, 2026-11-15) no ruled lines after all: plain paper, ordinary spacing */
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror { background-image: none; padding: 6px 12px; line-height: 1.5; }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror > *, .pust-sheet prose-mirror.pust-notes-ed .ProseMirror li,
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror li > p { line-height: 1.5; }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror > * + * { margin-top: .35em; }
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror :is(h1, h2, h3, h4, h5, h6) { line-height: 1.3; margin-top: .5em; }
+.pust-sheet prose-mirror.pust-notes-ed[data-note="notes"] .editor-content,
+.pust-sheet prose-mirror.pust-notes-ed[data-note="notes"] .ProseMirror { min-height: calc(var(--nl) * 6 + 8px); }
+.pust-sheet prose-mirror.pust-notes-ed { margin-top: 8px; } /* a little room between the heading and the toolbar (author, 2026-11-15) */
+/* (author, 2026-11-15) the editor box doesn't clip: its dropdowns (tables, fonts…) open over the sheet; the writing area
+   has a height of its own, scrolls when the text is longer, and is resized by its corner (the sheet remembers the size) */
+.pust-sheet prose-mirror.pust-notes-ed { overflow: visible; }
+.pust-sheet prose-mirror.pust-notes-ed > .menu-container { padding-top: 6px; z-index: 2; }
+.pust-sheet prose-mirror.pust-notes-ed .editor-content { flex: 0 0 auto; height: 220px; min-height: 90px; overflow: auto; resize: vertical; }
+.pust-sheet prose-mirror.pust-notes-ed[data-note="others"] .editor-content,
+.pust-sheet prose-mirror.pust-notes-ed[data-note="notes"] .editor-content { height: 170px; }
+.pust-sheet prose-mirror.pust-notes-ed .editor-content.ProseMirror, .pust-sheet prose-mirror.pust-notes-ed[data-note] .editor-content.ProseMirror { min-height: 90px; } /* the editor-content is the ProseMirror itself */
+.pust-sheet prose-mirror.pust-notes-ed .ProseMirror table { width: 100%; margin: .35em 0; }
+/* Foundry gives the editor a fixed 200 px and clips its inner box, with the writing area pinned over it: the area's
+   scrollbar and resize corner fell in the clipped part. The editor now takes its writing area's height (author, 2026-11-15) */
+.pust-sheet prose-mirror.pust-notes-ed { height: auto; }
+.pust-sheet prose-mirror.pust-notes-ed > .editor-container { flex: 0 0 auto; height: auto; overflow: visible; }
+.pust-sheet prose-mirror.pust-notes-ed > .editor-container > .editor-content { position: static; inset: auto; }
+/* (author, 2026-11-15) the enemy card's bar stays one row: category, «Видимий / Прихований», «Редагувати»; where the three
+   don't fit (a narrow card), the switch keeps only its eye (open / crossed; its tooltip says which), «Редагувати» stays whole */
+.pust-en .pust-en-who { container-type: inline-size; }
+.pust-en .pust-en-bar { flex-wrap: nowrap; }
+.pust-en .pust-en-bar > .pust-en-cat { flex: 0 0 auto; white-space: nowrap; }
+@container (max-width: 370px) {
+  .wastelanders .pust-en .pust-en-bar > button.pust-en-reveal:not(.header-control) { padding: 0 !important; width: 30px !important; justify-content: center; }
+  .pust-en .pust-en-bar > button.pust-en-reveal > span { display: none; }
+  .pust-en .pust-en-bar > button.pust-en-reveal.on > i { color: #3dff47; }
+}

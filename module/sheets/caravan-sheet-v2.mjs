@@ -2,7 +2,8 @@
  * Електронний аркуш каравану in Foundry: the HTML caravan sheet's features, rebuilt natively.
  * Every field and button goes to the HTML caravan sheet's handlers (caravan-controller.mjs).
  */
-import { refitOnResize } from "./refit.mjs";
+import { textToHtml } from "../rules/rich-text.mjs";
+import { keepNoteSizes, refitOnResize, rememberScroll, watchNotes } from "./refit.mjs";
 import { caravanLogicFor, readCaravan, runCaravanAction, saveCaravan } from "../applications/caravan-actions.mjs";
 import { caravanToState } from "../rules/caravan-adapter.mjs";
 import { exportCaravan, replaceCaravanFromFile } from "../applications/character-json.mjs";
@@ -80,6 +81,12 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     return context;
   }
 
+  /** @override — remember the scroll, so a re-render keeps it (refit.mjs) */
+  async _preRender(context, options) {
+    await super._preRender(context, options);
+    rememberScroll(this);
+  }
+
   _onRender(context, options) {
     super._onRender(context, options);
     const root = this.element;
@@ -116,11 +123,29 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       }
       await this.document.setFlag(game.system.id, "turret", t);
     }));
+    // «Примітки» in Foundry's editor (author, 2026-11-15): saved as you write (refit.mjs watchNotes) and before the sheet closes
+    keepNoteSizes(this, root);
+    watchNotes(this, root, (el) => this.#saveNote(el), this.isEditable);
     root.querySelectorAll("[data-k]").forEach((el) => el.addEventListener("change", (ev) => {
       const t = ev.currentTarget;
       this.dropUndo();
       return runCaravanAction(this.document, (C) => C.setField(t.dataset.k, t.type === "checkbox" ? t.checked : t.value));
     }));
+  }
+
+  /** Save a note editor's text when it changed (the state keeps the editor's HTML; the .json gets plain text) */
+  #saveNote(el) {
+    const path = { notes: "system.notes" }[el.dataset.note];
+    if (!path || !el.isConnected || !this.isEditable) return undefined;
+    const v = String(el.value ?? "");
+    if (v === textToHtml(foundry.utils.getProperty(this.document, path))) return undefined;
+    return this.document.update({ [path]: v }, { render: false }); // no re-render: the editor keeps its state
+  }
+
+  /** @override — an unsaved note is kept when the sheet closes */
+  async _preClose(options) {
+    for (const el of this.element?.querySelectorAll?.("prose-mirror[data-note]") ?? []) await this.#saveNote(el);
+    return super._preClose(options);
   }
 
   /** A button of the HTML caravan sheet (data-act + its dataset); data-confirm asks twice */

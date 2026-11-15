@@ -521,3 +521,16 @@
 .pust-chat.pust-round p { margin: 4px 0 0; }
 /* the terminal's narrowest width (author, 2026-11-15): below it the «Складність» / «Тип події» switches run out of their rows */
 .application.pust-terminal-app { min-width: 620px; }
+/* «Справа» (author, 2026-11-15): every block a stripe of its own colour, its icon in that colour too */
+.pust-case-f { --cf: var(--pu-rust-3); border-left-color: var(--cf); }
+.pust-case-f .pust-case-fh > i { color: var(--cf); }
+.pust-case-f[data-field="customer"] { --cf: #9a4a20; }
+.pust-case-f[data-field="goal"] { --cf: #2f6aa3; }
+.pust-case-f[data-field="complication"] { --cf: #b3261e; }
+.pust-case-f[data-field="location"] { --cf: #6f7d2c; }
+.pust-case-f[data-field="danger"] { --cf: #3f8f2f; }
+.pust-case-f[data-field="destination"] { --cf: #1f8a80; }
+.pust-case-f[data-field="cargo"] { --cf: #8a6a3e; }
+.pust-case-f[data-field="enemies"] { --cf: #6b1f2a; }
+.pust-case-f[data-field="enemyPower"] { --cf: #d06a1f; }
+.pust-case-f[data-field="reward"] { --cf: #b8901c; }

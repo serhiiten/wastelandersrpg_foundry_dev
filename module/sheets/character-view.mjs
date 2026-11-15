@@ -3,6 +3,7 @@
  *   buildView(st, d, L, ui) → plain object for templates/actor/character-v2.hbs
  * st: HTML sheet state, d: compute(st), L: createLogic(st), ui: sheet UI state (open pickers, search…)
  */
+import { textToHtml } from "../rules/rich-text.mjs";
 import {
   ARCH_ORDER, ATTRS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
   DRUGS, IMP_ATTR, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, catProps, countedFeats,
@@ -79,6 +80,18 @@ function catDesc(e) {
 /** The HTML sheet's catalogue sorting (app.js CAT_SORT) */
 const CAT_SORT = { price: "за ціною ↑", pdesc: "за ціною ↓", power: "за шкодою чи бронею", name: "за назвою" };
 const IMP_TARGET = { attr2: "attr", attr3: "attr", attr4: "attr", skill: "skill", skill2: "skill", skill3: "skill" };
+
+/** A weapon's kind for its card's stripe (author, 2026-11-15): energy weapons, psychic powers, built-in / natural ones,
+ *  melee, explosives, the rest firearms */
+function weaponKind(w) {
+  const txt = `${w.n || ""} ${w.note || ""}`;
+  if (w.auto === "psi") return "psi";
+  if (w.claw || w.auto === "builtin") return "natural";
+  if (w.en || /лазер|плазм|гаус|електр|кріо|енергетичн/i.test(txt)) return "energy";
+  if (/гранат|динаміт|вибух|ракет|\bміна\b/i.test(txt)) return "boom";
+  if (/ближн|ніж|кастет|молот|бита|меч|сокир|спис|кийок|беззбройн|кулак/i.test(txt)) return "melee";
+  return "gun";
+}
 
 export function buildView(st, d, L, ui = {}) {
   const c = L.chem();
@@ -288,7 +301,8 @@ export function buildView(st, d, L, ui = {}) {
     dEff: weaponDmg(w) !== (w.d || "").trim() ? weaponDmg(w) : "",
     en: w.en || "", note: w.note || "", price: w.price || "", hand: !!w.hand, fav: !!w.fav,
     dt: weaponDmgType({ w }), // the damage type, for the colour of the «Шкода» field
-    auto: !!(w.auto || w.claw), energyOptions: typeOptions(w),
+    auto: !!(w.auto || w.claw), locked: !!(w.claw || w.auto === "builtin"), energyOptions: typeOptions(w),
+    kind: weaponKind(w),
     guns: gunsOn(st), r: w.r || "", rof: w.rof || "", cls: w.cls || "",
     rangeOptions: opts(GUN_RANGE, w.r), rofOptions: opts(GUN_ROF, w.rof), clsOptions: opts(GUN_CLS, w.cls),
     mods: (w.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })), sharp: !!w.sharp,
@@ -303,6 +317,7 @@ export function buildView(st, d, L, ui = {}) {
   const armor = st.armor.map((a, i) => ({
     i, n: a.n || "", v: a.v ?? "", h: !!a.h, w: a.w !== false, note: a.note || "", price: a.price || "",
     guns: gunsOn(st), mods: (a.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })),
+    kind: /силов/i.test(a.n || "") ? "power-armor" : /важк/i.test(`${a.n} ${a.note}`) || a.h ? "heavy-armor" : "armor",
   }));
   const consL = String(st.cons?.l || "").trim();
   const other = st.other.map((o, i) => {
@@ -317,6 +332,8 @@ export function buildView(st, d, L, ui = {}) {
       treat: !!(D && (D.heal || D.superHeal) && consL && !st.consT?.l),
     };
     row.hasActs = row.usable || row.power || !!row.booster || row.treat; // «Вжити» and the rest take the end of the note's column
+    // the card's stripe by the kind of thing (author, 2026-11-15): chems, explosives, power cells, everything else
+    row.kind = row.usable || row.booster || row.treat ? "chem" : row.power ? "power" : /гранат|динаміт|вибухівк|\bміна\b|\bміни\b/i.test(`${o.n} ${o.note}`) ? "boom" : "gear";
     return row;
   });
   const robotBody = st.species === "robot" && !d.has("Кіборг");
@@ -391,7 +408,7 @@ export function buildView(st, d, L, ui = {}) {
     cat: !!ui.cat, catQ: ui.catQ || "", catalog, designerBig, designerAdd, catSecs, catSorts, addPick, addCat, addQ: ui.addQ || "",
     adren: ai >= 0 ? { i: ai, n: drugOf(st.other[ai].n) } : null,
     presets: PRESETS.map((p, i) => ({ i, n: presetLabel ? presetLabel(p) : p[1] })),
-    bio: st.bio || "", others: st.others || "",
+    bio: textToHtml(st.bio), others: textToHtml(st.others), // Foundry's editor (rich-text.mjs; author, 2026-11-15)
     set: { ...st.set },
     overrides: { hpMaxOv: st.hpMaxOv ?? "", fdOv: st.fdOv ?? "", armorOv: st.armorOv ?? "", psiArmorOv: st.psiArmorOv ?? "", supMax: st.supMax ?? "" },
     ovList: [["hpMaxOv", "до максимуму ОЗ"], ["fdOv", "до жетонів Долі"], ["armorOv", "до броні"], ["psiArmorOv", "до пси-броні"]]

@@ -466,7 +466,17 @@ export function createController(st, L, { toast = () => {} } = {}) {
             : { n: "", q: "1", note: "" });
         return true;
       }
-      case "row-del": st[data.l].splice(+data.i, 1); return true;
+      case "row-del": {
+        // any thing may go but the Deathclaw's claws and a robot's built-in weapon (author, 2026-11-15); «Пси-удар» and
+        // the Vault dweller's things removed by hand are remembered (st.gone), so the rules don't bring them back
+        const row = st[data.l]?.[+data.i];
+        if (!row) return false;
+        if (row.claw || row.auto === "builtin") return false; // the sheet shows no ✕ there; the rules would bring them back anyway
+        if (row.auto === "psi") st.gone = { ...(st.gone || {}), psi: true };
+        if (row.auto === "vault") st.gone = { ...(st.gone || {}), vault: [...new Set([...(st.gone?.vault || []), row.n])] };
+        st[data.l].splice(+data.i, 1);
+        return true;
+      }
       case "cat-add": return addCatalog(data.id);
       case "preset": {
         const p = PRESETS[+data.i];

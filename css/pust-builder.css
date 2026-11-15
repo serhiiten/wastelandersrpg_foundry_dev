@@ -83,3 +83,5 @@
 .pust-bld-err { color: var(--pu-red); margin-top: 3px; font-size: 13px; }
 .pust-bld-warn { color: var(--pu-amber); margin-top: 3px; font-size: 13px; }
 .pust-bld-screen.bad .pust-bld-sum b { color: var(--pu-red); }
+/* a heading with a button («1d10 побічка»): the button keeps 4 px above the heading's rule (author, 2026-11-15) */
+.pust-bld h3:has(> button) { padding-bottom: 4px; }

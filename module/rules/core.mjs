@@ -850,7 +850,8 @@ function syncAuto(st){
   // Пси-удар як зброя
   const psiN=(st.perks||[]).filter(p=>p.n==='Пси-удар');
   st.weapons=st.weapons.filter(w=>w.auto!=='psi' || psiN.length);
-  if(psiN.length){
+  if(!psiN.length && st.gone) delete st.gone.psi;
+  if(psiN.length && !(st.gone && st.gone.psi)){
     let w=st.weapons.find(x=>x.auto==='psi'); if(!w){ w={auto:'psi'}; st.weapons.push(w); }
     const note=psiN.map(p=>p.note||'').join(' ').toLowerCase();
     const el = /вогон|вогн/.test(note)?'вогонь' : /електр/.test(note)?'електрика' : /холод|мороз|кріо/.test(note)?'холод' : '';
@@ -872,8 +873,10 @@ function syncAuto(st){
   // Сховище
   const vault=[['Pip-Boy 3000',PIPBOY_NOTE],['Комбінезон Сховища','стильний синій комбінезон Сховища з жовтим номером на спині']];
   st.other = st.other.filter(o=>o.auto!=='vault' || has('Виходець зі Сховища'));
+  if(!has('Виходець зі Сховища') && st.gone) delete st.gone.vault;
   if(has('Виходець зі Сховища')){
     vault.forEach(([n,note],k)=>{
+      if(st.gone && Array.isArray(st.gone.vault) && st.gone.vault.includes(n)) return;
       let o=st.other.find(x=>x.auto==='vault' && x.n===n) || st.other.find(x=>x.n===n);
       if(!o){ o={n, q:'1', note}; st.other.splice(k,0,o); }
       o.auto='vault';

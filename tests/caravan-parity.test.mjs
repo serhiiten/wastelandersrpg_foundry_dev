@@ -37,7 +37,7 @@ const SAME = {
   // fields by id
   companyName: 'data-k="companyName"', reputation: 'data-k="reputation"', storyMeeting: 'data-k="story.meeting"',
   storyFace: 'data-k="story.face"', storyLastJob: 'data-k="story.lastJob"', storyWentWrong: 'data-k="story.wentWrong"',
-  notes: 'data-k="notes"', karma: 'data-k="karma"', budget: 'data-k="budget"',
+  notes: 'data-note="notes"' /* «Примітки» in Foundry's editor (prose-mirror; author, 2026-11-15) */, karma: 'data-k="karma"', budget: 'data-k="budget"',
   luck: 'data-k="luck"', karmaAspect: 'data-k="karmaAspect"',
   hpCurrent: 'data-k="hpCurrent"',
   // delegated buttons and fields (data-*)

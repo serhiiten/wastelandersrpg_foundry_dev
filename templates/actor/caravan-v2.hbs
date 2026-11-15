@@ -210,7 +210,8 @@
         <button type="button" class="pust-die {{#if v.locks.wentWrong}}locked{{/if}}" data-action="cact" data-act="roll" data-roll="wentWrong" title="{{#if v.locks.wentWrong}}Заповнено вручну. Очистіть поле, щоб знову кидати{{else}}Кинути кістки{{/if}}"><i class="fa-solid {{#if v.locks.wentWrong}}fa-lock{{else}}fa-dice{{/if}}"></i></button></div>
     </div>
     <h4>Примітки</h4>
-    <textarea class="pust-notes" data-k="notes" rows="5" aria-label="Примітки">{{v.notes}}</textarea>
+    {{!-- Foundry's own editor with its formatting tools, as the character sheet's «Записи» (author, 2026-11-15) --}}
+    <prose-mirror class="pust-notes-ed" data-note="notes" value="{{v.notes}}"></prose-mirror>
   {{/if}}
 
   {{!-- ===== Налаштування: Захист (Foundry only, author 2026-11-14; like the character sheet's «Ручні надбавки» + «Захист вручну») ===== --}}

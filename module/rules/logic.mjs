@@ -310,6 +310,21 @@ function treatLight(i){
   chem().last=key+': легкий наслідок «'+String(st.cons.l).trim()+'» проліковано — ОЗ не відновлюються. Перейменуй наслідок; він зникне наприкінці наступної сцени (або наступного дня).';
   toast('Легкий наслідок проліковано.'); render();
 }
+/* Пролікований наслідок минає сам (вікі «Відновлення ОЗ та лікування наслідків»): легкий — наприкінці наступної сцени
+   (або наступного дня), середній — наприкінці наступної сесії, тяжкий — наприкінці другої сесії після лікування */
+function healTreated(when){
+  const c=chem(); const T=st.consT||(st.consT={}); const A=st.consAt||(st.consAt={}); const out=[];
+  const N={l:'Легкий',m:'Середній',m2:'Середній',h:'Тяжкий'};
+  ['l','m','m2','h'].forEach(k=>{
+    if(!T[k] || !String(st.cons[k]||'').trim()){ delete A[k]; return; }
+    const a=A[k]; let go=false;
+    if(!a){ A[k]={scene:c.sceneAbs||0, session:c.session||1}; if(k==='l' && when!=='scene') go=true; }
+    else if(k==='l') go = when==='scene' ? (c.sceneAbs||0)>a.scene : true;
+    else if(when==='session') go = (c.session||1) >= a.session + (k==='h'?2:1);
+    if(go){ out.push(N[k]+' пролікований наслідок «'+String(st.cons[k]).trim()+'» минув — слот вільний.'); st.cons[k]=''; T[k]=false; delete A[k]; }
+  });
+  return out;
+}
 function endScene(quiet){
   const d=compute(st); const c=chem(); c.superKO=''; const msgs=[]; let cur=curHp(d); const hp0=cur;
   c.scene.forEach(e=>{ if(e.scenes<=1 && e.rage){ if(e.ko || cur<=0) msgs.push('Лють ботана минула: персонаж вибув під час люті — шкоди немає (додатковий легкий наслідок уже мав отримати).'); else { const r=rnd(10); cur=Math.max(0,cur-r); msgs.push('Лють ботана минула: 1d10 = '+r+' фізичної шкоди, яку неможливо зменшити.'); } } });
@@ -322,14 +337,16 @@ function endScene(quiet){
   if(cur!==hp0){ st.hpCur=String(cur); if(cur===0) msgs.push('ОЗ упали до 0 — зроби перевірку отримання наслідків.'); }
   const un=unsatAddictions();
   if(un.length) msgs.push('Без дози в цій сцені: '+un.map(a=>a.drug).join(', ')+'. Якщо персонаж не вживав довше ніж одну сцену (або день), він отримує середній наслідок «ломка».');
-  c.used=[]; c.sceneNo=(c.sceneNo||1)+1;
+  msgs.push(...healTreated('scene'));
+  c.used=[]; c.sceneNo=(c.sceneNo||1)+1; c.sceneAbs=(c.sceneAbs||0)+1;
   c.last='Кінець сцени. '+(msgs.join(' ')||'Сценові ефекти скинуто.');
   if(!quiet) toast('Сцену завершено.'); render();
 }
 function newDay(){
   endScene(true); const sceneMsg=chem().last;
   const c=chem(); c.uses={}; const gone=c.day.map(e=>e.drug); c.day=[]; c.dayNo=(c.dayNo||1)+1;
-  c.last='День '+c.dayNo+'. Лічильники стимпаків і порошку скинуто, можна знову відпочити'+(gone.length?'; закінчилася дія: '+gone.join(', '):'')+'. '+sceneMsg;
+  const healed=healTreated('day');
+  c.last='День '+c.dayNo+'. Лічильники стимпаків і порошку скинуто, можна знову відпочити'+(gone.length?'; закінчилася дія: '+gone.join(', '):'')+'. '+(healed.length?healed.join(' ')+' ':'')+sceneMsg;
   toast('Новий день.'); render();
 }
 function endSession(){
@@ -337,11 +354,12 @@ function endSession(){
   const d=compute(st); const c=chem(); const S=c.session; const cured=[];
   c.addictions=c.addictions.filter(a=>{ if(a.incurable) return true; if(a.since<S && a.lastUse<S){ cured.push(a.drug); return false; } return true; });
   const sess=c.scene.filter(e=>e.session); c.scene=c.scene.filter(e=>!e.session);
+  const healed=healTreated('session');
   c.session=S+1; c.sceneNo=1;
   let modN=0; [...st.weapons, ...st.armor].forEach(x=>(x.mods||[]).forEach(m=>{ if(m.u){ m.u=false; modN++; } }));
   const fd=(st.fdCur===''||st.fdCur==null)?d.fd:(parseInt(st.fdCur,10)||0); let fdMsg='';
   if(fd<d.fd){ st.fdCur=String(d.fd); fdMsg=' Жетони Долі відновлено до '+d.fd+'.'; }
-  c.last='Кінець сесії '+S+'.'+(sess.length?' Штраф до кінця сесії минув: '+sess.map(e=>e.drug).join(', ')+'.':'')+(cured.length?' Минула залежність: '+cured.join(', ')+'.':'')+fdMsg+(modN?' Модифікації знову дають безкоштовне Посилення.':'')+(c.addictions.some(a=>!a.incurable)?' Залежність минає наприкінці наступної сесії, якщо протягом неї персонаж жодного разу не вживав.':'')+' '+sceneMsg;
+  c.last='Кінець сесії '+S+'.'+(sess.length?' Штраф до кінця сесії минув: '+sess.map(e=>e.drug).join(', ')+'.':'')+(cured.length?' Минула залежність: '+cured.join(', ')+'.':'')+fdMsg+(modN?' Модифікації знову дають безкоштовне Посилення.':'')+(c.addictions.some(a=>!a.incurable)?' Залежність минає наприкінці наступної сесії, якщо протягом неї персонаж жодного разу не вживав.':'')+(healed.length?' '+healed.join(' '):'')+' '+sceneMsg;
   toast('Сесію завершено.'); render();
 }
 function chemAct(a, b){
@@ -1514,6 +1532,7 @@ function statusChips(d){
     chemSeq,
     useItem,
     treatLight,
+    healTreated,
     endScene,
     newDay,
     endSession,

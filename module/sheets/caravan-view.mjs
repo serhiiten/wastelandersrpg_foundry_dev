@@ -3,6 +3,7 @@
  *   buildCaravanView(S, L, ui) → plain object for templates/actor/caravan-v2.hbs
  * Mirrors the HTML sheet's render functions (renderDerived, renderImps, renderCargo, renderCounters…).
  */
+import { textToHtml } from "../rules/rich-text.mjs";
 import { ASPECTS, IMPS } from "../rules/caravan.mjs";
 import { CARAVAN_DEF_LABEL, CARAVAN_DEF_OPTIONS, CARAVAN_DEF_TYPES, caravanDefAuto, caravanDefences, defOvCount } from "../rules/caravan-defence.mjs";
 
@@ -165,7 +166,7 @@ export function buildCaravanView(S, L, ui = {}) {
     })),
 
     story: { meeting: S.story?.meeting || "", face: S.story?.face || "", lastJob: S.story?.lastJob || "", wentWrong: S.story?.wentWrong || "" },
-    notes: S.notes || "",
+    notes: textToHtml(S.notes), // Foundry's editor (rich-text.mjs; author, 2026-11-15)
     guide: ui.guide ? GUIDE.map((t, i) => ({ n: i + 1, t })) : null,
   };
 }
