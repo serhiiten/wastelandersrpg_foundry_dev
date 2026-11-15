@@ -12,14 +12,19 @@ import { QUICK_CHARS } from "../rules/quickstart.mjs";
 import { evaluate, readState, runAction } from "../applications/character-actions.mjs";
 import { exportCharacter, replaceCharacter, replaceCharacterFromFile } from "../applications/character-json.mjs";
 import { buildView } from "./character-view.mjs";
+import { useOnTarget } from "../applications/chem-target.mjs";
 import { openCheckPanel, rollWeaponDamage } from "../applications/check-panel.mjs";
 import { EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
+import { fateNow, fateSnap, postFateChange, postFateIfChanged, postSupIfChanged, supSnap } from "../applications/fate-card.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
 /** Buttons whose result is hard to undo ask twice (like the HTML sheet's «Натисни ще раз») */
 const CONFIRM_MS = 3000;
+
+/** Actions that make the character anew: their Fate count is no token spent or gained */
+const FATE_QUIET = new Set(["new", "random", "preset", "apply-arch", "species-x", "roll-species", "roll-perks", "roll-feats", "roll-gear"]);
 
 export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -236,7 +241,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   static #measure = null;
   #searchTimer = null;
 
-  #onField(event) {
+  async #onField(event) {
     const t = event.currentTarget;
     const k = t.dataset.k;
     let v = t.type === "checkbox" || t.type === "radio" ? t.checked : t.value;
@@ -246,6 +251,12 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       return this.#takeSpecies(game.items.get(String(v).slice(2)));
     }
     const num = !!t.dataset.num;
+    if (k === "fdCur") { // a typed count of Fate tokens posts a chat card too (author, 2026-11-15)
+      const was = fateNow(this.document);
+      const out = await this.#run((C) => C.setField(k, v, { num }));
+      await postFateChange(this.document, was, fateNow(this.document));
+      return out;
+    }
     return this.#run((C) => C.setField(k, v, { num }));
   }
 
@@ -319,7 +330,15 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     const { action, act, confirm, ...data } = target.dataset;
     if (confirm && !WastelandersCharacterSheetV2.#armed(target)) return;
     if (target.type === "checkbox") event.preventDefault?.();
+    // «На ціль» (author, 2026-11-15): the medicine goes to the user's one target (applications/chem-target.mjs)
+    if (act === "chem-target") return void (await useOnTarget(this.document, +data.i));
+    // a change of the Fate tokens posts a chat card (author, 2026-11-15; fate-card.mjs): the counter's −/+, +1 for
+    // dropping to 0 ОЗ, «Кінець сесії»… — not a character made anew
+    const fdWas = FATE_QUIET.has(act) ? null : fateSnap(this.document);
+    const supWas = FATE_QUIET.has(act) ? null : supSnap(this.document); // Припаси too: lamps, rest, «Поповнити» (author, 2026-11-15)
     const ok = await this.#run((C) => C.act(act, data));
+    if (fdWas) await postFateIfChanged(this.document, fdWas);
+    if (supWas) await postSupIfChanged(this.document, supWas);
     // «Очистити аркуш» also puts back the default picture (portrait and token)
     if (act === "new" && ok !== false) {
       const img = this.document.constructor.getDefaultArtwork({ type: this.document.type }).img;

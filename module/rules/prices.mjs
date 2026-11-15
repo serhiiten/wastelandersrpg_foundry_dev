@@ -55,6 +55,28 @@ export function syncFavNotes(st) {
   return st;
 }
 
+/**
+ * «Гостра» (Guns) is a word of the weapon's note, not a tick (author, 2026-11-15): the note is the truth — a weapon whose
+ * note has «гостра» (a part of it between «;» / «,») is sharp, one without isn't. A weapon that came sharp from elsewhere
+ * (the Guns catalogue, an HTML .json) gets the word once (`sharpSync` marks it), so deleting the word later takes the
+ * sharpness away.
+ */
+export const SHARP_NOTE = "гостра";
+const noteParts = (note) => String(note ?? "").split(/[;,]\s*/).map((x) => x.trim().toLowerCase());
+export function syncSharpNotes(st) {
+  (st?.weapons || []).forEach((w) => {
+    if (!w || w.claw || w.auto === "psi") return;
+    let has = noteParts(w.note).includes(SHARP_NOTE);
+    if (!has && w.sharp && !w.sharpSync) {
+      w.note = [String(w.note ?? "").trim(), SHARP_NOTE].filter(Boolean).join("; ");
+      has = true;
+    }
+    w.sharp = has;
+    if (has) w.sharpSync = true;
+  });
+  return st;
+}
+
 /** Chems with an addiction chance always say so in their note («…; залежність 3»), whoever added them */
 export function syncAddictionNotes(st) {
   registerCustomDrugs(st);

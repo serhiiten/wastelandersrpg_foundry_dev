@@ -582,3 +582,20 @@
 .pust-case-f[data-field="enemies"] { --cf: #6b1f2a; }
 .pust-case-f[data-field="enemyPower"] { --cf: #d06a1f; }
 .pust-case-f[data-field="reward"] { --cf: #b8901c; }
+
+/* players' Fate tokens under «Кістки» (author, 2026-11-15): «Витратити ЖД» with the count, «Отримати ЖД»; opaque, the
+   Fate button's gold; «Витратити» off and half-transparent at 0 */
+#pust-mapdock .pust-md-fdrow { display: flex; gap: 6px; }
+#pust-mapdock .pust-md-fdrow[hidden], #pust-mapdock .pust-md-unit.folded > .pust-md-fdrow { display: none; }
+#pust-mapdock .pust-md-fdrow > button { flex: 1 1 0; height: 32px; opacity: 1; gap: 6px; font-size: 13px; letter-spacing: .03em; text-transform: uppercase; font-weight: 800;
+  background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border: 1px solid #6e5608; box-shadow: 0 2px 4px rgba(0,0,0,.45); }
+#pust-mapdock .pust-md-fdrow > button:hover:not(:disabled) { color: #000; border-color: #f4d11a; box-shadow: 0 0 6px rgba(244,209,26,.45); }
+#pust-mapdock .pust-md-fdrow > button:disabled { opacity: .45; }
+#pust-mapdock .pust-md-fdrow > .pust-md-fdgain { background: linear-gradient(180deg, #4b8a3f, #2f6b35); color: #e7ffd9; border-color: #1f4a1a; }
+#pust-mapdock .pust-md-fdrow > .pust-md-fdgain:hover:not(:disabled) { color: #fff; border-color: #8fd18a; box-shadow: 0 0 6px rgba(143,209,138,.45); }
+#pust-mapdock .pust-md-fdn { flex: none; min-width: 24px; padding: 0 5px; border-radius: 3px; background: #241a0c; color: #f4d11a; font-family: "PT Mono", monospace; font-size: 15px; line-height: 22px; text-align: center; }
+/* Припаси under the Fate tokens (author, 2026-11-15): «Витратити Припас» in rust (the supplies' colour), «Отримати» green */
+#pust-mapdock .pust-md-suprow > .pust-md-supspend { background: linear-gradient(180deg, #b0582a, #8a3f1a); color: #fbe9d6; border-color: #5a2a10; }
+#pust-mapdock .pust-md-suprow > .pust-md-supspend:hover:not(:disabled) { color: #fff; border-color: #f0a070; box-shadow: 0 0 6px rgba(240,160,112,.45); }
+#pust-mapdock .pust-md-fdrow > button { padding: 0 6px; font-size: 12px; letter-spacing: .01em; gap: 5px; }
+#pust-mapdock .pust-md-fdrow > .pust-md-fdspend { flex: 1.3 1 0; }

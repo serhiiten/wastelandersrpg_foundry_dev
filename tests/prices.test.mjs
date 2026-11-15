@@ -2,7 +2,7 @@
 // and a .json for the HTML sheet gets it back at the start of the note (round trip without losses).
 // Run: node tests/prices.test.mjs
 import * as Rc from "../module/rules/core.mjs";
-import { FAV_NOTE, isPrice, joinPrices, splitPrices, syncAddictionNotes, syncFavNotes } from "../module/rules/prices.mjs";
+import { FAV_NOTE, isPrice, joinPrices, splitPrices, syncAddictionNotes, syncFavNotes, syncSharpNotes } from "../module/rules/prices.mjs";
 
 let failures = 0;
 const ok = (cond, msg) => { if (!cond) { failures++; if (failures < 15) console.log("FAIL " + msg); } };
@@ -55,6 +55,16 @@ for (let n = 0; n < 300; n++) {
   ok(s3.other[1].note === "від рейдерів; залежність 5", "Психо: " + s3.other[1].note);
   ok(s3.other[2].note === "", "Стимпак got an addiction: " + s3.other[2].note);
   ok(s3.other[3].note === "залежність 3", "Бустер doubled: " + s3.other[3].note);
+}
+// «гостра» is a word of the note (author, 2026-11-15)
+{
+  const s4 = { weapons: [{ n: "Мачете", note: "ближній бій", sharp: true }, { n: "Ніж", note: "гостра, ближній бій" }, { n: "Лом", note: "" }] };
+  syncSharpNotes(s4);
+  ok(s4.weapons[0].note === "ближній бій; гостра" && s4.weapons[0].sharp, "a sharp weapon gets the word once: " + s4.weapons[0].note);
+  ok(s4.weapons[1].sharp, "the word makes it sharp");
+  ok(!s4.weapons[2].sharp, "no word, not sharp");
+  s4.weapons[0].note = "ближній бій"; syncSharpNotes(s4);
+  ok(!s4.weapons[0].sharp && s4.weapons[0].note === "ближній бій", "deleting the word takes sharpness away");
 }
 console.log(failures ? `FAIL (${failures})` : "OK");
 if (failures) process.exit(1);

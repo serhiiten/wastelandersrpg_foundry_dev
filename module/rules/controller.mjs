@@ -597,6 +597,17 @@ export function createController(st, L, { toast = () => {} } = {}) {
         st.sit = st.sit || [];
         if (!st.sit.some((x) => x.t === data.t)) st.sit.push({ t: data.t, inv: 0 });
         return true;
+      // a mod's free invokes and its «крит» mark (author, 2026-11-15: mods are aspects; crit = 2 a session)
+      case "mod-inv": {
+        const m = (st[data.l] || [])[+data.i]?.mods?.[+data.j];
+        if (m) { m.inv = Math.max(0, (m.inv || 0) + +data.d); m.u = m.inv <= 0; }
+        return true;
+      }
+      case "mod-crit": {
+        const m = (st[data.l] || [])[+data.i]?.mods?.[+data.j];
+        if (m) { m.crit = !m.crit; m.inv = m.crit ? Math.max(m.inv || 0, 2) : Math.min(m.inv || 0, 1); m.u = m.inv <= 0; }
+        return true;
+      }
       case "sit-inv": {
         const x = (st.sit || [])[+data.i];
         if (x) x.inv = Math.max(0, (x.inv || 0) + +data.d);

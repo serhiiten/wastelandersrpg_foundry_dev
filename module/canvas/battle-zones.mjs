@@ -5,7 +5,9 @@
  * colour, a title strip, the aspects as chips with their free invokes), under the tokens. The GM moves a zone by its strip,
  * resizes it by its corner (whole cells; zones may overlap — author, 2026-11-14) and edits it on double-click in an inline editor: the
  * name (with a die: a name from the battle place's pool), the colour, the aspects (+, a die, −/+ free invokes, ×),
- * «Обрати всіх» (targets every token still standing in the zone), delete (asks twice). Players see the zones, read-only.
+ * «Обрати всіх» (targets every token still standing in the zone), delete (asks twice). Players see the zones, read-only;
+ * everyone has «Обрати всіх» as a button (crosshair + label) at the strip's right end (author, 2026-11-15); a second click
+ * while exactly the zone's tokens are the targets takes them off.
  * Pure parts: module/rules/battle-zones.mjs, module/rules/battle.mjs.
  *
  * Wiring (wastelanders.mjs): `initBattleZones()` in `init` after `initMapNotes()`, `readyBattleZones()` in `ready`.
@@ -32,6 +34,18 @@ const rectOf = (doc) => ({ id: doc.id, x: doc.x, y: doc.y, w: doc.shape.width, h
 export const sceneZones = (scene = canvas?.scene) => (scene?.drawings ?? []).filter((d) => zoneOf(d)).map((d) => ({ ...rectOf(d), doc: d }));
 const k = () => canvas.dimensions.size / 100;
 const stripH = () => ZONE.stripH * canvas.dimensions.size;
+/** «Обрати всіх» on the strip, for everyone (author, 2026-11-15: players had no way to target a zone): a crosshair button
+ *  at the strip's right end; its box in the zone's own coordinates */
+const TGT_LABEL = "Обрати всіх";
+const tgtStyle = (K) => new PIXI.TextStyle({ fontFamily: FONT, fontSize: 17 * K, fontWeight: "800", fill: 0xf2ecd8, letterSpacing: 0.3 * K });
+/** The plate fits its content: 9 px, the crosshair (17), 7 px, the label, 10 px; never wider than 60 % of the zone */
+const tgtBox = (w) => {
+  const K = k(), h = 30 * K;
+  let lw = 95 * K;
+  try { lw = (PIXI.CanvasTextMetrics ?? PIXI.TextMetrics).measureText(TGT_LABEL, tgtStyle(K)).width; } catch (_) { /* the estimate */ }
+  const bw = Math.min(9 * K + 18 * K + 7 * K + lw + 11 * K, Math.max(h, w * 0.6));
+  return { x: w - 12 * K - bw, y: (stripH() - h) / 2, s: h, w: bw };
+};
 /** The height each zone's strip was drawn with (it grows with the aspects' rows): the drag handle follows it */
 const STRIP_H = new Map();
 
@@ -77,7 +91,8 @@ export function initBattleZones() {
       const box = new PIXI.Container();
       box.eventMode = "none";
       const pad = 12 * K;
-      const right = w - pad - (isGM() ? 26 * K : 0); // where the strip's contents end
+      const tb = tgtBox(w);
+      const right = tb.x - 8 * K; // where the strip's contents end: the «Обрати всіх» button is past it
       const title = new T(z.name, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", fill: ink, letterSpacing: 0.3 * K }));
       // the aspects (author, 2026-11-15): chips in the strip, right after the name; rows that don't fit wrap under it and
       // the strip grows with them (never past the zone)
@@ -136,6 +151,20 @@ export function initBattleZones() {
           box.addChild(ib, inv);
         }
       }
+      // «Обрати всіх» (everyone): a dark plate with a crosshair at the strip's right end
+      const tbg = new PIXI.Graphics();
+      tbg.lineStyle({ width: 2 * K, color: line, alpha: 0.95 }).beginFill(0x241a0c, 0.85).drawRoundedRect(tb.x, tb.y, tb.w, tb.s, 5 * K).endFill();
+      const tg = new PIXI.Text("", new PIXI.TextStyle({ fontFamily: "Font Awesome 7 Pro, Font Awesome 6 Pro, Font Awesome 6 Free", fontWeight: "900", fontSize: 17 * K, fill: 0xf2ecd8, padding: 2 }));
+      tg.anchor.set(0, 0.5);
+      tg.position.set(tb.x + 9 * K, tb.y + tb.s / 2);
+      const tl = new T(TGT_LABEL, tgtStyle(K));
+      tl.anchor.set(0, 0.5);
+      tl.position.set(tg.x + tg.width + 7 * K, tb.y + tb.s / 2);
+      // a narrow zone: the label is cut at the plate's edge
+      const tlm = new PIXI.Graphics();
+      tlm.beginFill(0xffffff).drawRect(tb.x, tb.y, tb.w - 6 * K, tb.s).endFill();
+      tl.mask = tlm;
+      box.addChild(tbg, tg, tlm, tl);
       this.#zone = this.shape.addChild(box);
     }
   };
@@ -164,7 +193,9 @@ function zoneAt(pt) {
     if (key > bestKey) {
       bestKey = key;
       const c = 30 * k();
-      const part = pt.x >= r.x + r.w - c && pt.y >= r.y + r.h - c ? "corner" : pt.y < r.y + (STRIP_H.get(doc.id) ?? stripH()) ? "strip" : "body";
+      const tb = tgtBox(r.w);
+      const onTgt = pt.x >= r.x + tb.x && pt.x <= r.x + tb.x + tb.w && pt.y >= r.y + tb.y && pt.y <= r.y + tb.y + tb.s;
+      const part = onTgt ? "target" : pt.x >= r.x + r.w - c && pt.y >= r.y + r.h - c ? "corner" : pt.y < r.y + (STRIP_H.get(doc.id) ?? stripH()) ? "strip" : "body";
       best = { doc, placeable: p, zone: z, rect: r, part };
     }
   });
@@ -173,11 +204,19 @@ function zoneAt(pt) {
 
 let drag = null;
 function onPointerDown(ev) {
-  if (ev.button !== 0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey || !isGM()) return;
+  if (ev.button !== 0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey) return;
   if (!canvas.ready || !canvas.scene) return;
   const pt = pointOf(ev);
   if (tokenAt(pt)) return;
   const hit = zoneAt(pt);
+  // «Обрати всіх» on the strip: for everyone, players too
+  if (hit?.part === "target") {
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    selectZone(hit.doc);
+    return;
+  }
+  if (!isGM()) return;
   if (!hit || hit.part === "body") return;
   ev.preventDefault();
   ev.stopImmediatePropagation();
@@ -379,6 +418,13 @@ export function selectZone(doc) {
   const down = (t) => (Number(t.actor?.system?.hp?.value) <= 0) || (t.document.hidden && !isGM());
   const inZone = canvas.tokens.placeables.filter((t) => zoneOfToken(t, [z])?.id === z.id && !down(t));
   canvas.tokens.activate();
+  // a second click when exactly these are the targets already takes them off (author, 2026-11-15)
+  const now = new Set([...(game.user.targets ?? [])].map((t) => t.id));
+  if (inZone.length && now.size === inZone.length && inZone.every((t) => now.has(t.id))) {
+    canvas.tokens.setTargets([], { mode: "replace" });
+    ui.notifications.info(`Цілі в зоні «${zoneOf(doc).name}» знято.`);
+    return;
+  }
   canvas.tokens.setTargets(inZone.map((t) => t.id), { mode: "replace" });
   ui.notifications.info(inZone.length ? `Цілі в зоні «${zoneOf(doc).name}»: ${inZone.length}` : `У зоні «${zoneOf(doc).name}» нікого, хто ще стоїть.`);
 }
@@ -398,6 +444,10 @@ function layoutEditor() {
   editor.root.style.width = `${ew}px`;
   editor.root.style.height = "auto";
   editor.root.classList.toggle("bar-below", r.top + p.y < 56);
+  // kept wholly on screen by its real width (its frame and the bar may be wider than the width set)
+  const real = Math.max(editor.root.offsetWidth, ...[...editor.root.children].map((e) => e.offsetWidth));
+  const left = parseFloat(editor.root.style.left);
+  if (left + real > innerWidth - 4) editor.root.style.left = `${Math.max(4, innerWidth - real - 4)}px`;
 }
 
 /* ===================== Double-click, creating, hooks ===================== */
@@ -410,6 +460,7 @@ function onDblClick(ev) {
   if (!hit) return;
   ev.preventDefault();
   ev.stopImmediatePropagation();
+  if (hit.part === "target") return; // two quick clicks on «Обрати всіх» select and clear — no editor
   openZoneEditor(hit.doc);
 }
 const onDocPointerDown = (ev) => { if (editor && !editor.root.contains(ev.target)) closeZoneEditor(); };

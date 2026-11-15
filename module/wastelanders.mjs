@@ -8,6 +8,7 @@ import { initMapNotes, readyMapNotes } from "./canvas/map-notes.mjs";
 import { initBattleZones, readyBattleZones } from "./canvas/battle-zones.mjs";
 import { initCaravanMove } from "./canvas/caravan-move.mjs";
 import { readyApplyDamage } from "./applications/apply-damage.mjs";
+import { readyChemTarget } from "./applications/chem-target.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
@@ -216,6 +217,7 @@ Hooks.once("ready", () => {
   readyMapNotes();
   readyBattleZones();
   readyApplyDamage();
+  readyChemTarget();
   readyTokenVariants();
 });
 

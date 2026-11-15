@@ -26,6 +26,9 @@ import { createTerminal } from "../rules/terminal.mjs";
 import { LUCKS, prettyTravel, travelChat } from "./terminal-view.mjs";
 import { battleSectionHtml, mountBattlePanel, redrawBattlePanel } from "./battle-panel.mjs";
 import { isBattleScene } from "../helpers/default-scene.mjs";
+import { evaluate, runAction } from "./character-actions.mjs";
+import { compute } from "../rules/core.mjs";
+import { fdOf, postFateChange, postSupChange } from "./fate-card.mjs";
 
 const DOCK = "pust-mapdock";
 const POS_KEY = "pustelnyky-mapdock-pos";   // { map: {x, y}, dice: {x, y} } in window pixels; absent = the default place
@@ -535,6 +538,8 @@ export function renderMapDock() {
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
         <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки")}<div class="pust-md-body">${diceHtml()}</div></section>
+        ${gm ? "" : `<div class="pust-md-fdrow" hidden><button type="button" class="pust-md-fdspend" data-mapdock="fd-spend"><i class="fa-solid fa-clover"></i><span>Витратити ЖД</span><b class="pust-md-fdn">0</b></button><button type="button" class="pust-md-fdgain" data-mapdock="fd-gain"><i class="fa-solid fa-plus"></i><span>Отримати ЖД</span></button></div>
+        <div class="pust-md-fdrow pust-md-suprow" hidden><button type="button" class="pust-md-fdspend pust-md-supspend" data-mapdock="sup-spend"><i class="fa-solid fa-backpack"></i><span>Витратити Припас</span><b class="pust-md-fdn pust-md-supn">0</b></button><button type="button" class="pust-md-fdgain pust-md-supgain" data-mapdock="sup-gain"><i class="fa-solid fa-plus"></i><span>Отримати Припас</span></button></div>`}
       </div>
       ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
@@ -558,6 +563,12 @@ export function renderMapDock() {
     });
     syncUntarget();
     syncPlayerTargets();
+    // players' Fate tokens under «Кістки» (author, 2026-11-15)
+    dock.querySelector(".pust-md-fdspend:not(.pust-md-supspend)")?.addEventListener("click", () => stepFd(-1));
+    dock.querySelector(".pust-md-fdgain:not(.pust-md-supgain)")?.addEventListener("click", () => stepFd(1));
+    dock.querySelector(".pust-md-supspend")?.addEventListener("click", () => stepSup(-1));
+    dock.querySelector(".pust-md-supgain")?.addEventListener("click", () => stepSup(1));
+    syncFdRow();
     const chk = ctrUnit.querySelector(".pust-md-check");
     if (chk) {
       syncCheckButton();
@@ -594,6 +605,75 @@ export function renderMapDock() {
     side?.addEventListener("transitionend", () => requestAnimationFrame(placeAll));
   }
   requestAnimationFrame(placeAll);
+}
+
+/* ---------------- players' Fate tokens (author, 2026-11-15) ---------------- */
+/**
+ * Under the players' «Кістки», on every scene: «Витратити ЖД» (−1, with the count of the player's Жетони Долі; off and
+ * half-transparent at 0) and «Отримати ЖД» (+1). The count is their Player Character's, as the sheet's counter (`fdCur`,
+ * blank = the maximum).
+ */
+function syncFdRow() {
+  syncSupRow();
+  const row = document.querySelector(`#${DOCK} .pust-md-fdrow:not(.pust-md-suprow)`);
+  if (!row) return;
+  const a = game.user.character;
+  row.hidden = !(a && a.type === "character" && a.isOwner);
+  if (row.hidden) return;
+  let n = 0;
+  try { const { st, d } = evaluate(a); n = fdOf(st, d); } catch (_) { /* a broken sheet: 0 */ }
+  const spend = row.querySelector(".pust-md-fdspend");
+  row.querySelector(".pust-md-fdn").textContent = String(n);
+  spend.disabled = n <= 0;
+  spend.title = n > 0 ? `Витратити 1 жетон Долі персонажа «${a.name}» (зараз: ${n})` : `У «${a.name}» немає жетонів Долі`;
+  row.querySelector(".pust-md-fdgain").title = `Отримати 1 жетон Долі для «${a.name}»`;
+}
+async function stepFd(dd) {
+  const a = game.user.character;
+  if (!a || a.type !== "character") return ui.notifications.warn("У тебе немає свого персонажа.");
+  const res = await runAction(a, (st) => {
+    const cur = fdOf(st, compute(st));
+    if (dd < 0 && cur <= 0) return null;
+    st.fdCur = String(Math.max(0, cur + dd));
+    return { was: cur, now: Math.max(0, cur + dd) };
+  }, { quiet: true });
+  syncFdRow();
+  // a line in chat, so the GM sees it (author, 2026-11-15; fate-card.mjs)
+  if (res) await postFateChange(a, res.was, res.now);
+}
+for (const h of ["updateActor", "updateUser", "createActor", "deleteActor"]) Hooks.on(h, foundry.utils.debounce(syncFdRow, 120));
+
+/**
+ * The same for Припаси (author, 2026-11-15): «Витратити Припас» with the count (off and half-transparent at 0),
+ * «Отримати Припас» (off at the maximum — more is over the limit); a chat card each (fate-card.mjs postSupChange).
+ */
+function syncSupRow() {
+  const row = document.querySelector(`#${DOCK} .pust-md-suprow`);
+  if (!row) return;
+  const a = game.user.character;
+  row.hidden = !(a && a.type === "character" && a.isOwner);
+  if (row.hidden) return;
+  let n = 0, max = 0;
+  try { const { st, d } = evaluate(a); n = parseInt(st.supplies, 10) || 0; max = d.supMax; } catch (_) { /* a broken sheet */ }
+  const spend = row.querySelector(".pust-md-supspend"), gain = row.querySelector(".pust-md-supgain");
+  row.querySelector(".pust-md-supn").textContent = String(n);
+  spend.disabled = n <= 0;
+  gain.disabled = n >= max;
+  spend.title = n > 0 ? `Витратити 1 Припас персонажа «${a.name}» (зараз: ${n} з ${max})` : `У «${a.name}» немає Припасів`;
+  gain.title = n < max ? `Отримати 1 Припас для «${a.name}» (максимум ${max})` : `Припасів уже максимум: ${max}`;
+}
+async function stepSup(dd) {
+  const a = game.user.character;
+  if (!a || a.type !== "character") return ui.notifications.warn("У тебе немає свого персонажа.");
+  const res = await runAction(a, (st) => {
+    const cur = parseInt(st.supplies, 10) || 0, max = compute(st).supMax;
+    const now = Math.max(0, Math.min(Math.max(cur, max), cur + dd));
+    if (now === cur || (dd > 0 && cur >= max)) return null;
+    st.supplies = now;
+    return { was: cur, now };
+  }, { quiet: true });
+  syncSupRow();
+  if (res) await postSupChange(a, res.was, res.now);
 }
 
 /** Players: «Зробити перевірку» only while they own a character */

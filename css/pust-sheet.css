@@ -181,10 +181,6 @@
 .pust-gf { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .pust-gf > span, .pust-gl { font-family: var(--pu-f-label); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-3); }
 .pust-gf select { width: 100%; }
-.pust-gf-sharp { padding-bottom: 5px; }
-.pust-mods { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: 28px; }
-.pust-modf { display: inline-flex; align-items: center; gap: 4px; flex: 1 1 200px; }
-.pust-modf .pust-mod { flex: 1 1 auto; width: auto !important; min-width: 80px; }
 
 /* Припаси (prominent) and Кришки, side by side */
 .pust-supcaps { grid-template-columns: 1fr 1fr; margin-bottom: 10px; }
@@ -573,11 +569,8 @@
 .pust-grow > .pust-en { width: 100%; min-width: 0; }
 .pust-grow > .pust-roll { justify-self: center; align-self: center; }
 .pust-grow.with-guns { background: rgba(223,207,156,.25); box-shadow: inset 3px 0 0 var(--pu-rust-4); }
-.pust-grow > .pust-guns.pust-grow-full { margin-left: 0; }
 .pust-grow > .pust-gnote-l.pust-grow-full > select { flex: 1; min-width: 0; border-radius: 0 3px 3px 0; }
-.pust-grow > .pust-mods.pust-grow-full { margin-left: 0; }
 .wastelanders .pust-grow > button.pust-x:not(.header-control) { height: 26px !important; min-height: 0; line-height: 24px !important; }
-.pust-grow > .pust-guns.pust-grow-full { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 6px; align-items: end; } /* Дальність · Режим вогню · Клас · гостра in one row */
 /* «Вартість»: its own column after the note, in all three lists */
 .pust-glist-weapons { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 72px 64px 112px 44px 26px 28px; }
 .pust-glist-armor { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 72px 64px 44px 28px; }
@@ -683,6 +676,8 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 0 rgba(35,27,17,.3) !important; font-weight: 700; }
 .wastelanders button.pust-use-btn:not(.header-control):hover:not(:disabled) { filter: brightness(1.12); }
 .pust-use-btn > i { margin-right: 3px; }
+/* «На ціль» next to «Вжити»: the same button in steel blue */
+.wastelanders button.pust-use-btn.pust-use-tgt:not(.header-control) { background: linear-gradient(180deg, #4f7ea0, #345a78) !important; border-color: #233f55 !important; color: #eef7ff !important; }
 /* Покращення: the hint line close to the list */
 .pust-imp-hint { margin: 0 0 6px; }
 /* «Як заробляти ОД»: folded help, like the HTML sheet's hint box */
@@ -1528,7 +1523,6 @@
 .pust-gc.on .pust-gc-on > .pust-fchip { background: #2f8a32; border-color: #2f8a32; color: #f3faea; }
 .pust-gc-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .pust-gc-acts > .pust-gf2 { flex: 1 1 140px; }
-.pust-gc > .pust-guns, .pust-gc > .pust-mods { margin: 0; }
 .pust-gf2 > .pust-fchip { min-width: 70px; justify-content: center; } /* one width, so the fields of a column start on one line */
 .pust-gf2:has(> textarea.pust-gnote-ta) { align-items: flex-start; } /* a long note: its chip stays at the first line */
 .pust-gf2:has(> textarea.pust-gnote-ta) > .pust-fchip { margin-top: 3px; }
@@ -1626,3 +1620,23 @@
   .pust-en .pust-en-bar > button.pust-en-reveal > span { display: none; }
   .pust-en .pust-en-bar > button.pust-en-reveal.on > i { color: #3dff47; }
 }
+
+/* ----- «Мотлох» with the Guns add-on (author, 2026-11-15): one look for every card -----
+   Дальність / Режим вогню / Клас are glued chip + field pairs like Тип / Шкода; «гостра» is a word of the note (prices.mjs syncSharpNotes)
+   each mod a row «Мод N» + the mod as an aspect: the yellow chip with its name typed
+   in place, the free invokes «− +N +» and «крит» (2 a session). An unnamed mod is a muted empty chip. */
+.wastelanders.pust-sheet .pust-gc .pust-modrow > .pust-modchip { flex: 1 1 0; min-width: 0; min-height: 26px; box-sizing: border-box; margin: 0; border: 1px solid #b98a22 !important; border-left: 0 !important; border-radius: 0 3px 3px 0 !important;
+  padding: 3px 3px 3px 6px !important; align-items: center; background: #e2ad3b !important; box-shadow: none !important; } /* no shadow: glued to its chip, nothing below its frame */
+/* the name wraps (a long mod takes more lines; the counters stay at its right) */
+.wastelanders.pust-sheet .pust-gc .pust-modchip > textarea.pust-mod { flex: 1 1 0; width: 0 !important; min-width: 0; height: auto !important; min-height: 20px; margin: 0 !important; padding: 0 2px !important;
+  field-sizing: content; resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere;
+  background: transparent !important; border: none !important; box-shadow: none !important; color: #241a0c !important;
+  font: italic 700 14px/20px "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif !important; }
+.wastelanders.pust-sheet .pust-gc .pust-modchip > textarea.pust-mod::placeholder { color: rgba(36,26,12,.5); font-weight: 400; }
+.wastelanders.pust-sheet .pust-gc .pust-modchip > textarea.pust-mod:focus { background: rgba(255,255,255,.35) !important; outline: none; }
+.wastelanders.pust-sheet .pust-gc .pust-modrow > .pust-modchip.empty { background: color-mix(in srgb, #e2ad3b 35%, var(--pu-paper-2)) !important; border-color: color-mix(in srgb, #b98a22 45%, var(--pu-paper-3)) !important; box-shadow: none !important; }
+.wastelanders.pust-sheet .pust-gc .pust-modchip > :is(.pust-sinv, .pust-modcrit) { align-self: center; }
+.wastelanders.pust-sheet .pust-gc .pust-modchip > .pust-modcrit { flex: none; width: auto !important; height: 20px !important; min-height: 0; margin: 0 !important; padding: 0 6px !important;
+  border: 1px solid rgba(0,0,0,.35) !important; border-radius: 3px !important; box-shadow: none !important; background: rgba(0,0,0,.12) !important; color: #241a0c !important;
+  font: 800 11px/18px "Roboto Condensed", "PT Sans Narrow", sans-serif !important; font-style: normal !important; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+.wastelanders.pust-sheet .pust-gc .pust-modchip > .pust-modcrit.on { background: #a8121a !important; border-color: #6e0c11 !important; color: #fff4ef !important; }

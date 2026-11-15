@@ -356,7 +356,7 @@ function endSession(){
   const sess=c.scene.filter(e=>e.session); c.scene=c.scene.filter(e=>!e.session);
   const healed=healTreated('session');
   c.session=S+1; c.sceneNo=1;
-  let modN=0; [...st.weapons, ...st.armor].forEach(x=>(x.mods||[]).forEach(m=>{ if(m.u){ m.u=false; modN++; } }));
+  let modN=0; [...st.weapons, ...st.armor].forEach(x=>(x.mods||[]).forEach(m=>{ const want=m.crit?2:1; if(String(m.n||'').trim() && (m.inv||0)<want){ m.inv=want; modN++; } m.u=(m.inv||0)<=0; }));
   const fd=(st.fdCur===''||st.fdCur==null)?d.fd:(parseInt(st.fdCur,10)||0); let fdMsg='';
   if(fd<d.fd){ st.fdCur=String(d.fd); fdMsg=' Жетони Долі відновлено до '+d.fd+'.'; }
   c.last='Кінець сесії '+S+'.'+(sess.length?' Штраф до кінця сесії минув: '+sess.map(e=>e.drug).join(', ')+'.':'')+(cured.length?' Минула залежність: '+cured.join(', ')+'.':'')+fdMsg+(modN?' Модифікації знову дають безкоштовне Посилення.':'')+(c.addictions.some(a=>!a.incurable)?' Залежність минає наприкінці наступної сесії, якщо протягом неї персонаж жодного разу не вживав.':'')+(healed.length?' '+healed.join(' '):'')+' '+sceneMsg;
@@ -660,7 +660,7 @@ function autoMods(d){
 /* Отрути: змащують зброю з лезом, стріли, болти й кулі; енергетичну — ні. 1 доза на перевірку атаки */
 function poisonStock(){ const m={}; st.other.forEach((o,i)=>{ const k=poisonOf(o.n); if(!k) return; const q=parseInt(o.q,10); const n=isNaN(q)?1:q; if(n>0){ m[k]=m[k]||{n:0,idx:[]}; m[k].n+=n; m[k].idx.push(i); } }); return m; }
 function poisonWeaponOk(){ const mode=attackMode(R.skill, R.attr); if(R.type!=='attack' || (mode!=='ranged' && mode!=='melee')) return {ok:false, why:''}; const w=rollWeapon(); if(!w) return {ok:false, why:'Без зброї отруту нанести нікуди.'}; if(w.auto==='psi') return {ok:false, why:'Пси-удар отрутою не змастиш.'}; if(isEnergyW(w)) return {ok:false, why:'Енергетичну зброю змастити отрутою неможливо.'};
-  if(gunsOn()){ if(w.zone) return {ok:false, why:'Гранати, ракети й паливо отрутою не змастиш.'}; if(mode==='melee' && !w.sharp && !w.claw) return {ok:false, why:'Змастити отрутою можна лише гостру зброю. Познач «гостра» в Мотлосі, якщо в зброї є лезо чи вістря.'}; }
+  if(gunsOn()){ if(w.zone) return {ok:false, why:'Гранати, ракети й паливо отрутою не змастиш.'}; if(mode==='melee' && !w.sharp && !w.claw) return {ok:false, why:'Змастити отрутою можна лише гостру зброю. Допиши «гостра» в примітку цієї зброї в Мотлосі, якщо в неї є лезо чи вістря.'}; }
   return {ok:true, w}; }
 function poisonHtml(){
   if(R.type!=='attack') return ''; const s=poisonStock(); const keys=Object.keys(s); if(!keys.length) return '';
@@ -833,7 +833,7 @@ function renderRoller(){
       (notes.length?'<ul class="rsteps">'+notes.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>':'')+
       '<div class="rasp"><button type="button" class="btn sm" data-r="aspect" '+(canAsp?'':'disabled')+'>Викликати аспект: +1d10</button>'+
       (st.sit||[]).map((a,j)=>a.inv>0?'<button type="button" class="btn sm modasp" data-r="sitasp" data-v="'+j+'" '+(canAsp?'':'disabled')+' title="Ситуативний аспект: безкоштовних Посилень '+a.inv+'">«'+esc(a.t)+'» <svg class="xcross" viewBox="0 0 10 10" aria-hidden="true"><path d="M3.6 0h2.8v3.6H10v2.8H6.4V10H3.6V6.4H0V3.6h3.6z" fill="currentColor"/></svg>'+a.inv+': +1d10</button>':'').join('')+
-      rollMods().map((x,j)=>'<button type="button" class="btn sm modasp" data-r="modasp" data-v="'+j+'" '+(canAsp&&!x.m.u?'':'disabled')+' title="'+esc(x.of)+': безкоштовне Посилення раз на сесію'+(x.m.u?' — уже використано':'')+'">Мод. «'+esc(x.m.n.trim())+'»: +1d10</button>').join('')+
+      rollMods().map((x,j)=>'<button type="button" class="btn sm modasp" data-r="modasp" data-v="'+j+'" '+(canAsp&&x.m.inv>0?'':'disabled')+' title="'+esc(x.of)+': безкоштовних Посилень '+(x.m.inv||0)+' (на сесію: '+(x.m.crit?2:1)+')">Мод. «'+esc(x.m.n.trim())+'» +'+(x.m.inv||0)+': +1d10</button>').join('')+
       '<label class="tog"><input type="checkbox" id="r-spend" data-r="spend"'+(R.spend?' checked':'')+'> витратити жетон Долі <small>зараз: '+esc(fd)+'</small></label>'+
       (L.aspect?'<small>Аспект на цю перевірку вже викликано.</small>':(L.xpGiven||L.savGiven)?'<small>ОД за цей кидок уже отримано — аспект викликати не можна.</small>':L.dmgDone?'<small>Шкоду вже кинуто — аспект викликати не можна.</small>':L.verdict>=3?'<small>Уже критичний успіх — аспект не потрібен.</small>':(L.B>=2?'<small>Уже діють два Посилення.</small>':''))+'</div>'+
     '</div>';
@@ -892,7 +892,7 @@ function rollerClick(b){ if(!b) return;
     case 'poolroll': rollPool(); break;
     case 'roll': doRoll(); break;
     case 'aspect': invokeAspect(); render(); return;
-    case 'modasp': { const x=rollMods()[+b.dataset.v]; if(x && !x.m.u){ const n=x.m.n.trim(); invokeAspect({label:'модифікації «'+n+'»', use:()=>{ x.m.u=true; }, msg:'Модифікація «'+n+'»: безкоштовне Посилення на цю сесію використано.'}); } render(); return; }
+    case 'modasp': { const x=rollMods()[+b.dataset.v]; if(x && x.m.inv>0){ const n=x.m.n.trim(); invokeAspect({label:'модифікації «'+n+'»', use:()=>{ x.m.inv=Math.max(0,x.m.inv-1); x.m.u=x.m.inv<=0; }, msg:'Модифікація «'+n+'»: безкоштовне Посилення використано, лишилося '+Math.max(0,x.m.inv-1)+'.'}); } render(); return; }
     case 'sitasp': { const a=(st.sit||[])[+b.dataset.v]; if(a && a.inv>0){ invokeAspect({label:'аспекту «'+a.t+'»', use:()=>{ a.inv=Math.max(0,a.inv-1); }, msg:'Аспект «'+a.t+'»: безкоштовне Посилення використано, лишилося '+Math.max(0,a.inv-1)+'.'}); } render(); return; }
     case 'xp': giveXp(+b.dataset.v, b.dataset.k); return;
     case 'fmode': R.fateMode=b.dataset.v; break;
@@ -908,6 +908,7 @@ function rollerChange(t){ if(!t || !t.dataset || !t.dataset.r) return;
   else if(k==='spend') R.spend=t.checked;
   else if(k==='addon') R.addOn=t.checked;
   else if(k==='poison') R.poison=t.value;
+  else if(k==='gasPoison'){ R.gasPoison=t.value; if(R.last) R.last.dmg=null; }
   else if(k==='am'){ R.am=R.am||{}; R.am[t.dataset.k]=t.checked; }
   else if(k==='party') R.party=+t.value;
   else if(k==='dmgw'){ R.dmgKey=t.value; R.dmgUser=true; if(R.last) R.last.dmg=null; }
@@ -990,6 +991,7 @@ function dmgChoicesFor(d, skill){
 function dmgChoices(d){
   const out=st.weapons.map((w,i)=>({key:'w'+i, name:weaponName(w)||'Зброя', d:weaponDmg(w), w}));
   st.other.forEach((o,i)=>{ const m=String(o.note||'').match(/(\d+d\d+(?:\s*[+-]\s*\d+(?:d\d+)?)*)/); if(m && /гранат|динаміт|c-4|с-4|вибух|ракет|постріл|молотов|заряд/i.test(o.n||'')) out.push({key:'o'+i, name:o.n+(String(o.q||'').trim()!==''?' ×'+String(o.q).trim():''), d:m[1].replace(/\s+/g,''), o, expl:true}); });
+  st.other.forEach((o,i)=>{ if(/газов\S*\s+гранат/i.test(o.n||'') && !/\d+d\d+/.test(String(o.note||''))){ const pk=R.gasPoison && POISONS[R.gasPoison]; out.push({key:'o'+i, name:o.n+(String(o.q||'').trim()!==''?' ×'+String(o.q).trim():''), d:pk||'отрута', o, expl:true, gas:true}); } });
   if(R.last && R.last.gone && !out.some(c=>c.key==='gone')) out.push(R.last.gone);
   if(st.species!=='claw') out.push({key:'unarmed', name:'Беззбройні атаки', d:d?unarmedDmg(d):''});
   return out;
@@ -1067,10 +1069,12 @@ function doDamage(){
   const c=ch.find(x=>x.key===R.dmgKey) || ch.find(x=>x.key===defaultDmgKey(ch,mode)); if(!c) return;
   const psiW=!!(c.w && c.w.auto==='psi');
   let dstr=c.d; if(R.dmgOpt.dual && !psiW && DICE_UP[dstr]) dstr=DICE_UP[dstr];
+  let gasKey=''; if(c.gas){ gasKey=R.gasPoison && poisonStock()[R.gasPoison] ? R.gasPoison : ''; if(!gasKey){ toast('Заклади в газову гранату отруту: обери її в блоці «Шкода».','bad'); return; } dstr=POISONS[gasKey]; }
   const p=parseDmg(dstr); if(!p){ toast('Не вдалося розібрати шкоду зброї «'+c.d+'». Виправ поле «Шкода» у Мотлосі.','bad'); return; }
   let spent=''; let dkey=c.key;
   if(c.o){ const qs=String(c.o.q==null?'':c.o.q).trim(); const q=qs===''?1:parseInt(qs,10);
     if(!isNaN(q)){ if(q<=0){ toast('«'+c.o.n+'» не лишилося — кинути нічого.','bad'); return; } if(q-1<=0){ const gi=st.other.indexOf(c.o); if(gi>=0) st.other.splice(gi,1); L.gone={key:'gone', name:c.o.n+' ×0', d:c.d, o:Object.assign({}, c.o, {q:'0'}), expl:true}; dkey='gone'; R.dmgKey='gone'; spent='Витрачено: '+c.o.n+' — це була остання, рядок прибрано з мотлоху.'; } else { c.o.q=String(q-1); spent='Витрачено: '+c.o.n+', лишилося '+(q-1)+'.'; } persist(); } }
+  if(gasKey){ const s=poisonStock()[gasKey]; if(s){ const i=s.idx[0]; const o=st.other[i]; const q=parseInt(o.q,10); if(!isNaN(q)){ if(q-1<=0) st.other.splice(i,1); else o.q=String(q-1); } } spent=(spent?spent+' ':'')+'Отрута в гранаті: '+gasKey+', одну дозу витрачено.'; if(!poisonStock()[gasKey]) R.gasPoison=''; }
   const r1=rollDice(p); const r2 = R.dmgOpt.auto && !psiW ? rollDice(p) : null;
   L.dmg={key:dkey, name:c.name, dstr, p, r1, r2, extra:{}, rerolled:L.dmg?L.dmg.rerolled:false, time:Date.now(), spent};
   L.dmgDone=true; if(spent) toast(spent);
@@ -1110,6 +1114,8 @@ function renderDamage(L, d){
   const toggles=[];
   if(L.verdict>=2 || (L.verdict===1 && ((mode==='ranged'&&has('Прицільний постріл'))||(mode==='melee'&&has('Точний удар'))))) toggles.push(tog('norm2','Звичайний ефект: +2 шкоди'));
   if(L.verdict===3) toggles.push(tog('crit','Критичний ефект: +1d6 шкоди'));
+  if(c && c.gas){ const s=poisonStock(); const keys=Object.keys(s); if(R.gasPoison && !s[R.gasPoison]) R.gasPoison=''; if(!R.gasPoison && keys.length) R.gasPoison=keys[0];
+    toggles.push(keys.length ? '<div class="rgrp rpois rgas"><label for="r-gas">Отрута в гранаті</label><select id="r-gas" data-r="gasPoison">'+keys.map(k=>'<option value="'+esc(k)+'"'+(R.gasPoison===k?' selected':'')+'>'+esc(k)+' · '+POISONS[k]+' · '+s[k].n+' '+plural(s[k].n,'доза','дози','доз')+'</option>').join('')+'</select></div>' : '<p class="rhint">Газова граната без отрути не подіє: у мотлосі немає жодної отрути.</p>'); }
   const psiW = !!(c && c.w && c.w.auto==='psi');
   const bareW = !!(c && (c.key==='unarmed' || /беззбройн|кулак|рукопаш|голими руками|удар рукою/i.test(c.name||'')));
   if(!psiW && !bareW && !robotBody()) toggles.push(typeof chemHas==='function' && chemHas('Психо') ? '<label class="tog"><input type="checkbox" checked disabled> Психо діє (+2 шкоди) — вжито з мотлоху</label>' : tog('psycho','Психо діє (+2 шкоди)'));

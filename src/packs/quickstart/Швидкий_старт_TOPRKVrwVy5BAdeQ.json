@@ -686,7 +686,7 @@
             },
             "description": "",
             "heavy": false,
-            "price": 0
+            "price": 10
           },
           "sort": 900,
           "_id": "QY2Cg96zDNX5bE49",
@@ -761,7 +761,7 @@
             },
             "description": "",
             "heavy": false,
-            "price": 0
+            "price": 2
           },
           "sort": 1100,
           "_id": "IKR6THfntGRA9esJ",
@@ -1382,7 +1382,7 @@
               "note": ""
             },
             "description": "",
-            "price": 0
+            "price": 5
           },
           "sort": 700,
           "_id": "MFqhi50L6rsbCRgl",
@@ -1429,7 +1429,7 @@
               "hand": true
             },
             "description": "",
-            "price": 0
+            "price": 5
           },
           "sort": 600,
           "_id": "Nq0rJGeaYnXLdsvd",
@@ -2077,7 +2077,7 @@
               "hand": true
             },
             "description": "",
-            "price": 0
+            "price": 10
           },
           "sort": 600,
           "_id": "YcW3EZaqOLr4k1L9",
@@ -2868,7 +2868,7 @@
             },
             "description": "",
             "heavy": false,
-            "price": 0
+            "price": 1
           },
           "sort": 900,
           "_id": "WFc5JNM4F6gOIdIW",

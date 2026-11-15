@@ -11,7 +11,7 @@
 import { actorToState, mergeSystem, planSync } from "../rules/character-adapter.mjs";
 import { compute, syncAuto } from "../rules/core.mjs";
 import { createLogic } from "../rules/logic.mjs";
-import { splitPrices, syncAddictionNotes, syncFavNotes } from "../rules/prices.mjs";
+import { splitPrices, syncAddictionNotes, syncFavNotes, syncSharpNotes } from "../rules/prices.mjs";
 import { adoptGrants } from "../rules/skill-sources.mjs";
 import { resolveItem } from "./character-json.mjs";
 
@@ -76,6 +76,7 @@ export function normalize(st, L) {
   L.chemKO();
   splitPrices(st); // gear just added (catalogue, starting gear) has its price in the note
   syncFavNotes(st); // «особлива, улюблена» follows the favourite weapon
+  syncSharpNotes(st); // «гостра» lives in the weapon's note (Guns; author, 2026-11-15)
   syncAddictionNotes(st); // a chem's addiction chance is always in its note
   if (!st.set?.free) adoptGrants(st, compute(st)); // a skill-granting perk / feat names the skill it raised
 }
