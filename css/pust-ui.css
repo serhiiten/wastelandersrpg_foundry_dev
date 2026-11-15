@@ -15,7 +15,7 @@
    ===================================================================================== */
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;800&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&family=Handjet:wght@500;700&family=Marck+Script&display=swap");
 
-.wastelanders, .pust-chat, .chat-message .pust-card, #pust-mapdock {
+.wastelanders, .pust-chat, .chat-message .pust-card, #pust-mapdock, .pust-journal {
   /* colours */
   --pu-rust-0: #2a150c; --pu-rust-1: #4a2616; --pu-rust-2: #6e3b22; --pu-rust-3: #94552f; --pu-rust-4: #b8774a;
   --pu-paper: #ebdfb6; --pu-paper-2: #dfcf9c; --pu-paper-3: #cbb882; --pu-sheet: #fbf6e6;
@@ -492,3 +492,92 @@
 }
 :is(.pust-sitchip > .pust-x, .pust-en-chip > .pust-en-x, .pust-place-chip > button[data-action="aspRm"], .pust-bz-chip > .pust-bz-x):hover { background: #a8121a !important; color: #fff !important; }
 :is(.pust-sitchip > .pust-x) i { font-size: 11px; }
+
+/* ---------------------------------- journals of the system (author, 2026-11-15) ----------------------------------
+   The rules compendium (a copy of the wiki): text pages as sheets of paper. Scoped by .pust-journal, which the hook in
+   wastelanders.mjs puts on the journal window (and on a single page window) of this system's journals; Foundry's own
+   window, sidebar and buttons are left as they are. Headings in the label font, tables with a rust head and zebra rows,
+   Notion callouts (blockquote.aside) as framed cards, aspects (bold italic) like the chips, internal links as small tags. */
+.pust-journal .journal-entry-page.text {
+  background: var(--pu-grain), var(--pu-paper); color: var(--pu-ink);
+  padding: 14px 22px 18px; border: 1px solid var(--pu-rust-0); border-radius: 3px; box-shadow: 0 3px 0 rgba(42,21,12,.35);
+}
+.pust-journal .journal-entry-page.text .journal-page-content { font-size: 15px; line-height: 1.5; color: var(--pu-ink); }
+.pust-journal .journal-entry-page.text .journal-page-content :is(p, li, td, th) { color: var(--pu-ink); }
+.pust-journal .journal-entry-page.text :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--pu-f-label); font-weight: 800; color: var(--pu-rust-2); text-transform: uppercase; letter-spacing: .04em; line-height: 1.2;
+  border: none; text-shadow: none; margin: 18px 0 8px;
+}
+.pust-journal .journal-entry-page.text .journal-page-header { margin: 0 0 10px; }
+.pust-journal .journal-entry-page.text .journal-page-header > :is(h1, h2, h3, h4, h5, h6) { margin: 0; font-size: 26px; padding-bottom: 3px; border-bottom: 3px solid var(--pu-ink); }
+.pust-journal .journal-entry-page.text .journal-page-content h1 { font-size: 22px; padding-bottom: 2px; border-bottom: 2px solid var(--pu-ink); }
+.pust-journal .journal-entry-page.text .journal-page-content h2 { font-size: 19px; border-bottom: 1px solid var(--pu-ink-3); }
+.pust-journal .journal-entry-page.text .journal-page-content h3 { font-size: 16px; }
+.pust-journal .journal-entry-page.text .journal-page-content :is(h4, h5, h6) { font-size: 14px; color: var(--pu-ink-2); }
+.pust-journal .journal-entry-page.text .journal-page-content > :first-child { margin-top: 0; }
+.pust-journal .journal-entry-page.text :is(ul, ol) { padding-left: 22px; }
+.pust-journal .journal-entry-page.text li::marker { color: var(--pu-rust-3); font-weight: 700; }
+.pust-journal .journal-entry-page.text hr { border: none; border-top: 2px solid var(--pu-rust-3); margin: 14px 0; }
+.pust-journal .journal-entry-page.text table { width: 100%; border-collapse: collapse; margin: 10px 0; background: var(--pu-sheet); border: 1px solid var(--pu-rust-1); }
+.pust-journal .journal-entry-page.text :is(th, td) { padding: 4px 8px; border: 1px solid rgba(74,61,43,.45); text-align: left; vertical-align: top; }
+/* table heads (author, 2026-11-15: dark ink on rust read badly): light paper capitals on the rust plate, a dark rule under
+   them; stronger than the page's «text in ink» rule above */
+.pust-journal .journal-entry-page.text .journal-page-content thead,
+.pust-journal .journal-entry-page.text .journal-page-content thead tr { background: var(--pu-rust-2); }
+.pust-journal .journal-entry-page.text .journal-page-content thead :is(th, td),
+.pust-journal .journal-entry-page.text .journal-page-content th {
+  background: var(--pu-rust-2); color: #fbf1dc; border: 1px solid var(--pu-rust-0); border-bottom: 2px solid #2a1a10;
+  font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .05em;
+  text-shadow: 0 1px 0 rgba(0,0,0,.45);
+}
+.pust-journal .journal-entry-page.text .journal-page-content thead :is(th, td) :is(strong, em, b, a),
+.pust-journal .journal-entry-page.text .journal-page-content th :is(strong, em, b, a) { color: inherit; }
+.pust-journal .journal-entry-page.text tbody tr:nth-child(even) td { background: var(--pu-paper-2); color: var(--pu-ink); }
+/* a wide table scrolls sideways in its own frame (author, 2026-11-15: tables ran off the page); wrapped by tidyJournalTables
+   in wastelanders.mjs; narrow columns keep a readable width, the frame scrolls instead */
+.pust-journal .journal-entry-page.text .pust-tablewrap { max-width: 100%; overflow-x: auto; margin: 10px 0; }
+.pust-journal .journal-entry-page.text .pust-tablewrap > table { margin: 0; }
+.pust-journal .journal-entry-page.text .journal-page-content :is(th, td) { min-width: 3.2em; }
+/* a header cell's note after its line break: a small plain-case subtitle */
+.pust-journal .journal-entry-page.text .journal-page-content th .pust-th-sub { display: block; margin-top: 2px; font-family: var(--pu-f-body, inherit); font-size: 11.5px; font-weight: 600; text-transform: none; letter-spacing: 0; line-height: 1.3; }
+.pust-journal .journal-entry-page.text blockquote { margin: 12px 0; font-style: normal; }
+.pust-journal .journal-entry-page.text blockquote.aside {
+  background: var(--pu-sheet); color: var(--pu-ink); padding: 8px 14px; border: 2px solid var(--pu-rust-2); border-left-width: 8px; border-radius: 3px;
+  box-shadow: 0 2px 0 rgba(42,21,12,.35);
+}
+.pust-journal .journal-entry-page.text blockquote.aside > :first-child { margin-top: 0; }
+.pust-journal .journal-entry-page.text blockquote.aside > :last-child { margin-bottom: 0; }
+.pust-journal .journal-entry-page.text blockquote.aside :is(h1, h2, h3, h4) { font-size: 15px; border: none; margin: 4px 0 6px; }
+.pust-journal .journal-entry-page.text :is(strong em, em strong) {
+  font-weight: 700; font-style: italic; color: var(--pu-ink); background: rgba(226,173,59,.32); border-radius: 3px; padding: 0 3px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.pust-journal .journal-entry-page.text thead :is(strong em, em strong), .pust-journal .journal-entry-page.text th :is(strong em, em strong) { background: none; color: inherit; padding: 0; }
+.pust-journal .journal-entry-page.text a:not(.content-link) { color: var(--pu-rust-2); text-decoration: underline; text-underline-offset: 2px; }
+.pust-journal .journal-entry-page.text a:not(.content-link):hover { color: var(--pu-red-ink); }
+.pust-journal .journal-entry-page.text a.content-link {
+  display: inline; padding: 0 5px; background: rgba(110,59,34,.1); color: var(--pu-rust-2); border: 1px solid var(--pu-rust-3); border-radius: 3px;
+  font-weight: 700; text-decoration: none; white-space: normal;
+}
+.pust-journal .journal-entry-page.text a.content-link:hover { background: var(--pu-rust-2); color: var(--pu-paper); border-color: var(--pu-rust-0); text-shadow: none; }
+.pust-journal .journal-entry-page.text a.content-link > i { color: inherit; margin-right: 3px; font-size: .85em; }
+.pust-journal .journal-entry-page.text a.content-link.broken { color: var(--pu-red-ink); border-color: var(--pu-red-ink); border-style: dashed; background: rgba(168,18,26,.08); }
+/* Warning / notice boxes of the PDF («ПОПЕРЕДЖЕННЯ», «НАСТУПНИЙ РОЗДІЛ…», the terminal tip): a dark screen with a red bar. */
+.pust-journal .journal-entry-page.text blockquote.aside.warning {
+  background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)); color: var(--pu-green); border: 2px solid var(--pu-steel-0); border-left: 8px solid var(--pu-red);
+  box-shadow: inset 0 0 16px rgba(0,0,0,.5), 0 2px 0 rgba(42,21,12,.35); text-shadow: 0 0 6px rgba(61,255,71,.4); font-family: var(--pu-f-screen);
+}
+.pust-journal .journal-entry-page.text .journal-page-content blockquote.aside.warning :is(p, li) { color: var(--pu-green); }
+.pust-journal .journal-entry-page.text blockquote.aside.warning :is(strong, b) { color: var(--pu-amber); }
+.pust-journal .journal-entry-page.text blockquote.aside.warning a:not(.content-link) { color: var(--pu-amber); }
+.pust-journal .journal-entry-page.text blockquote.aside.warning a:not(.content-link):hover { color: var(--pu-red); }
+/* «Створити лічильник» (@Counter enricher, author 2026-11-15): a rust plate with yellow capitals, as the sheets' main buttons */
+a.pust-counter-btn, .pust-journal .journal-entry-page.text a.pust-counter-btn {
+  display: inline-flex; align-items: center; gap: 6px; margin: 2px 0; padding: 3px 10px; border: 1px solid var(--pu-rust-0); border-radius: 3px;
+  background: var(--pu-rust-2); color: var(--pu-yellow); font-family: Oswald, var(--pu-f-head, sans-serif); font-size: 13px; font-weight: 600;
+  letter-spacing: .04em; text-transform: uppercase; text-decoration: none; line-height: 1.3; box-shadow: 0 2px 0 rgba(42,21,12,.35); cursor: pointer;
+}
+a.pust-counter-btn:hover, .pust-journal .journal-entry-page.text a.pust-counter-btn:hover { background: var(--pu-rust-3); color: var(--pu-yellow); text-shadow: none; }
+a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; background: var(--pu-steel-1, #1e1b17); color: var(--pu-green); font-family: var(--pu-f-screen, monospace); text-transform: none; letter-spacing: 0; }
+/* «(у Foundry: …)» notes of the quick start (author, 2026-11-15): which tool does it, set apart from the book's text */
+.pust-journal .journal-entry-page.text .pust-fvtt { color: var(--pu-rust-2); font-style: italic; font-size: .92em; }

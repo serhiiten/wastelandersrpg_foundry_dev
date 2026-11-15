@@ -11,6 +11,18 @@ export function registerSystemSettings() {
   });
 
   // Which version of the token rules this world's existing tokens were brought to (author, 2026-11-14): the rules are applied
+  // The item compendiums the sheets read their lists, texts and .json imports from (author, 2026-11-15): hidden in the
+  // Compendium Packs tab for everyone unless the GM shows them here (module/wastelanders.mjs, renderCompendiumDirectory)
+  game.settings.register(game.system.id, "showDataPacks", {
+    name: "Показувати довідники аркушів у компендіумах",
+    hint: "Види, Особливості, Перки, Зброя, Броня, Спорядження, Покращення й «Guns. Lots of Guns» — їх уже показують списки й каталоги аркушів, тож у вкладці компендіумів вони сховані. Познач, щоб бачити їх там (лише Доглядач).",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: () => ui.compendium?.render(),
+  });
+
   // «Лічильники гри» (module/applications/game-counters.mjs): the world's global counters; only the Gamemaster writes
   game.settings.register(game.system.id, "gameCounters", {
     scope: "world",

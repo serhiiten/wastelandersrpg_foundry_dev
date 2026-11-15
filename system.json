@@ -2,7 +2,7 @@
   "id": "wastelanders-dev",
   "title": "Пустельники (DEV)",
   "description": "Система для Пустельники (автор: Сергій Тен) від GMonline",
-  "version": "1.1.0-dev.22",
+  "version": "1.1.0-dev.23",
   "compatibility": {
     "minimum": "13",
     "verified": "14.367",
@@ -208,6 +208,17 @@
       }
     },
     {
+      "label": "Швидкий старт",
+      "type": "Adventure",
+      "name": "quickstart",
+      "path": "packs/quickstart",
+      "system": "wastelanders-dev",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
       "name": "guns-lots-of-guns",
       "label": "Guns. Lots of Guns (доповнення)",
       "path": "packs/guns-lots-of-guns",
@@ -235,6 +246,6 @@
   "primaryTokenAttribute": "hp",
   "url": "https://github.com/serhiiten/wastelandersrpg_foundry_dev",
   "manifest": "https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry_dev/main/system.json",
-  "download": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/releases/download/v1.1.0-dev.22/foundry.zip",
+  "download": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/releases/download/v1.1.0-dev.23/foundry.zip",
   "license": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/blob/main/LICENSE.md"
 }

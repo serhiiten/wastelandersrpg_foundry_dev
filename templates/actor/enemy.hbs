@@ -12,9 +12,9 @@
       <div class="pust-en-bar">
         <span class="pust-en-cat">{{{v.catIcon}}}{{v.catLabel}}</span>
         <span class="pust-en-sp"></span>
-        {{#if gm}}<button type="button" class="pust-en-sw {{#if v.reveal}}on{{/if}}" data-action="revealToggle" role="switch" aria-checked="{{#if v.reveal}}true{{else}}false{{/if}}"
-          title="{{#if v.reveal}}Гравці бачать цю картку (лише для читання). Натисни, щоб сховати{{else}}Гравці не бачать картки. Натисни, щоб показати{{/if}}">
-          <span class="pust-place-sw" aria-hidden="true"></span><i class="fa-solid {{#if v.reveal}}fa-eye{{else}}fa-eye-slash{{/if}}"></i><span>{{#if v.reveal}}Відкрите{{else}}Приховане{{/if}}</span></button>{{/if}}
+        {{#if gm}}<button type="button" class="pust-en-sw pust-en-reveal {{#if v.reveal}}on{{/if}}" data-action="revealToggle" role="switch" aria-checked="{{#if v.reveal}}true{{else}}false{{/if}}"
+          title="{{#if v.reveal}}Гравці бачать токени й картку (лише для читання). Натисни, щоб сховати{{else}}Токени й картку від гравців сховано. Натисни, щоб показати{{/if}}">
+          <span class="pust-place-sw" aria-hidden="true"></span><i class="fa-solid {{#if v.reveal}}fa-eye{{else}}fa-eye-slash{{/if}}"></i><span>{{#if v.reveal}}Видимий{{else}}Прихований{{/if}}</span></button>{{/if}}
         {{#if editable}}<button type="button" class="pust-en-sw pust-en-edit {{#if edit}}on{{/if}}" data-action="editToggle" title="{{#if edit}}Закрити редактор{{else}}Редагувати атаки, аспекти, ходи й примітки{{/if}}">
           <i class="fa-solid {{#if edit}}fa-check{{else}}fa-pen{{/if}}"></i><span>{{#if edit}}Готово{{else}}Редагувати{{/if}}</span></button>{{/if}}
       </div>

@@ -79,7 +79,9 @@ function countersHtml() {
   const glob = G.normalizeList(game.settings.get(sys, "gameCounters"));
   const loc = G.normalizeLocalList(canvas?.scene?.getFlag(sys, "sceneCounters") || []);
   if (!glob.length && !loc.length) return "";
-  const lamps = (n, v) => `<span class="pust-md-lamps">${Array.from({ length: n }, (_, k) => `<i class="${k < v ? "on" : ""}"></i>`).join("")}</span>`;
+  // above 20 segments a solid bar (author, 2026-11-15), as in the GM's panel
+  const lamps = (n, v) => (n > G.GC_LAMPS_MAX ? `<span class="pust-md-bar"><i style="width: ${Math.round((v / n) * 1000) / 10}%"></i></span>`
+    : `<span class="pust-md-lamps">${Array.from({ length: n }, (_, k) => `<i class="${k < v ? "on" : ""}"></i>`).join("")}</span>`);
   const g = glob.map((c) => {
     const cur = G.currentLabel(c);
     return `<div class="pust-md-gc" style="--h:${G.ctHue(c.val, c.size)}"><div class="pust-md-gc-hd"><span>${esc(c.name)}</span><b>${c.val}<small>/${c.size}</small></b></div>${lamps(c.size, c.val)}${cur ? `<div class="pust-md-gc-cur">${esc(cur)}</div>` : ""}</div>`;
@@ -480,7 +482,12 @@ Hooks.on("controlToken", foundry.utils.debounce(() => { redrawDice(); if (tv.ope
 
 // players' counters follow the GM's changes: the game's (a world setting) and the viewed scene's (a scene flag)
 Hooks.on("updateSetting", (setting) => { if (setting.key === `${game.system.id}.gameCounters`) redrawCounters(); });
-Hooks.on("updateScene", (scene) => { if (scene.id === canvas?.scene?.id) redrawCounters(); });
+Hooks.on("updateScene", (scene, changed) => {
+  if (scene.id !== canvas?.scene?.id) return;
+  redrawCounters();
+  // the scene's type switched in its settings (author, 2026-11-15): the panels follow at once
+  if (foundry.utils.hasProperty(changed, `flags.${game.system.id}.battleScene`) || foundry.utils.hasProperty(changed, `flags.${game.system.id}.-=battleScene`)) syncSceneKind();
+});
 Hooks.on("canvasReady", () => { redrawCounters(); syncSceneKind(); });
 
 /**

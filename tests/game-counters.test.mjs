@@ -7,7 +7,10 @@ const ok = (cond, msg) => { if (!cond) { failures++; if (failures < 15) console.
 let r = G.addCounter([], { name: "  Наступ Легіону ", size: 8, val: 99, labels: ["a", "b"] });
 ok(r.counter.name === "Наступ Легіону" && r.counter.size === 8 && r.counter.val === 8, "add clamps");
 ok(r.counter.labels.length === 8 && r.counter.labels[1] === "b" && r.counter.labels[7] === "", "labels padded");
-ok(G.addCounter([], { size: 7 }).counter.size === 6, "bad size → 6");
+ok(G.addCounter([], { size: 3 }).counter.size === 6 && G.addCounter([], { size: 101 }).counter.size === 6, "bad size → 6");
+ok(G.addCounter([], { size: 7 }).counter.size === 7 && G.addCounter([], { size: 100, val: 40 }).counter.val === 40, "any size 4…100");
+ok(G.isBarCounter({ size: 21 }) && !G.isBarCounter({ size: 20 }), "a bar above 20");
+ok(G.addCounter([], { size: 20, val: 20 }).counter.val === 20 && G.addCounter([], { size: 120 }).counter.size === 6, "up to 20 segments");
 ok(G.addCounter([], { name: "" }).counter.name === "Лічильник", "default name");
 ok(G.addCounter([], { val: -3 }).counter.val === 0, "negative val");
 
