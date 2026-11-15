@@ -65,6 +65,8 @@ export default class CaravanData extends foundry.abstract.TypeDataModel {
       // The bonuses may be negative; 0 = none
       hpBonus: new fields.NumberField({ ...requiredInteger, initial: 0 }),
       armorBonus: new fields.NumberField({ ...requiredInteger, initial: 0 }),
+      // Psychic armour (author, 2026-11-15): none by the rules, set in «Налаштування → Надбавки»
+      psiArmor: new fields.NumberField({ ...requiredInteger, min: 0, initial: 0 }),
       // Defence per damage type: "" (normal) / "half" / "immune" (module/rules/caravan-defence.mjs)
       defOv: new fields.SchemaField(
         Object.fromEntries(["phys", "energy", "fire", "rad", "poison", "psy"].map((k) => [k, new fields.StringField({ initial: "" })])),

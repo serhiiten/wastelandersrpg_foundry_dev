@@ -12,6 +12,7 @@
  */
 import { speciesToX } from "./designer.mjs";
 import { usePowerCell } from "./power-cell.mjs";
+import { CONS_PRICE, consPlan, healPlan, supPlan } from "./char-services.mjs";
 import { GRANTS, GRANT_FEATS, SKILL_IMPS, grantTarget, lastingCaps, startPicks, stepSkill } from "./skill-sources.mjs";
 import {
   AKEYS, BUILTIN_CAT, CLAW_WEAPON_MSG, FEAT, LVL, PERK, PRESETS, SKILLS, SPECIES,
@@ -473,6 +474,36 @@ export function createController(st, L, { toast = () => {} } = {}) {
         return !!p;
       }
       case "portrait-del": st.portrait = null; return true;
+      // Foundry only (author, 2026-11-15): HP, Припаси and consequences bought with the character's caps (char-services.mjs)
+      case "buy-heal": {
+        const cur = L.curHp(d), dmg = L.hpMaxNow(d) - cur;
+        if (dmg <= 0) return refuse("ОЗ уже повні.");
+        const r = healPlan(dmg, st.caps);
+        if (!r.units) return refuse("Кришок немає.");
+        st.hpCur = String(cur + r.units);
+        st.caps = (parseInt(st.caps, 10) || 0) - r.cost;
+        toast(`Вилікувано ${r.units} ОЗ за ${r.cost}(к)${r.units < dmg ? ": на більше кришок не вистачило" : ""}.`);
+        return true;
+      }
+      case "buy-sup": {
+        const cur = parseInt(st.supplies, 10) || 0, lack = d.supMax - cur;
+        if (lack <= 0) return refuse("Припасів уже повно.");
+        const r = supPlan(lack, st.caps);
+        if (!r.units) return refuse("Кришок немає.");
+        st.supplies = cur + r.units;
+        st.caps = (parseInt(st.caps, 10) || 0) - r.cost;
+        toast(`Припаси +${r.units} за ${r.cost}(к)${r.units < lack ? ": на більше кришок не вистачило" : ""}.`);
+        return true;
+      }
+      case "buy-cons": {
+        const k = data.k, text = String(st.cons?.[k] || "").trim();
+        const p = consPlan(k, text, st.consT?.[k], st.caps);
+        if (!p.can) return refuse(!text ? "Цього наслідку немає." : st.consT?.[k] ? "Лікування вже почалося." : `Лікування коштує ${CONS_PRICE[k]}(к), а кришок менше.`);
+        st.consT = { ...(st.consT || {}), [k]: true };
+        st.caps = (parseInt(st.caps, 10) || 0) - p.price;
+        toast(`Лікування наслідку «${text}» почалося: −${p.price}(к).`);
+        return true;
+      }
       case "step": {
         const k = data.k;
         const dd = +data.d;

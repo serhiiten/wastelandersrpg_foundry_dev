@@ -30,7 +30,7 @@ const norm = (s) => String(s || "").toLowerCase().replace(/\s*\(.*\)\s*$/, "").r
 /** Caravan sheet keys of the «filled in by hand» locks ↔ Foundry `locked` keys */
 const LOCKS = { name: "name", karma: "karma", budget: "budget", meeting: "meeting", lastJob: "lastJob", wentWrong: "wentWrong", imps: "upgrades", rep: "reputation" };
 const MAPPED = new Set(["companyName", "luck", "karma", "karmaAspect", "reputation", "budget", "tachka", "hpCurrent", "moveCurrent",
-  "supplies", "imp", "cargo", "counters", "story", "notes", "longHaul", "hpBonus", "armorBonus", "defOv", "hpMaxOverride", "armorOverride", "armorType", "customImps", "manual"]);
+  "supplies", "imp", "cargo", "counters", "story", "notes", "longHaul", "hpBonus", "armorBonus", "psiArmor", "defOv", "hpMaxOverride", "armorOverride", "armorType", "customImps", "manual"]);
 
 /** S → actor data. Derived values (max HP, armor, range) are filled in for Foundry. */
 export function stateToCaravan(S0) {
@@ -54,6 +54,7 @@ export function stateToCaravan(S0) {
     // max HP and armour = the rules' value + bonus (the final values are system.hp.max / system.armor above)
     hpBonus: int(S.hpBonus),
     armorBonus: int(S.armorBonus),
+    psiArmor: Math.max(0, int(S.psiArmor)),
     defOv: cleanDefOv(S.defOv),
     story: { meeting: S.story.meeting || "", face: S.story.face || "", lastJob: S.story.lastJob || "", wentWrong: S.story.wentWrong || "" },
     locked: Object.fromEntries(Object.entries(LOCKS).map(([k, f]) => [f, !!S.manual?.[k]])),
@@ -109,6 +110,7 @@ export function caravanToState(actor, { withIds = false } = {}) {
   S.armorType = s.armorType || "";
   S.hpBonus = int(s.hpBonus);
   S.armorBonus = int(s.armorBonus);
+  S.psiArmor = Math.max(0, int(s.psiArmor));
   S.defOv = cleanDefOv(s.defOv);
   const st = s.story || {};
   S.story = Object.fromEntries(["meeting", "face", "lastJob", "wentWrong"].map((k) => [k, rowText(raw.story?.[k], st[k])]));
@@ -163,6 +165,7 @@ export function caravanHtmlState(S0) {
   const out = { ...S, hpMaxOverride: int(S.hpBonus) ? D.maxHP : null, armorOverride: int(S.armorBonus) ? D.armor : null };
   delete out.hpBonus;
   delete out.armorBonus;
+  if (!int(S.psiArmor)) delete out.psiArmor; // Foundry only (the HTML sheet has no psychic armour)
   if (!defOvCount(S.defOv)) delete out.defOv;
   return out;
 }

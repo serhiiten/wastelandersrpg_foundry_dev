@@ -3,6 +3,7 @@
  * The sheet reads the character through the rules engine (evaluate), shows buildView(), and sends
  * every field change and button to the HTML sheet's handlers (controller) via runAction().
  */
+import { refitOnResize } from "./refit.mjs";
 import { createController } from "../rules/controller.mjs";
 import { FEAT, PERK, SPECIES, blankState } from "../rules/core.mjs";
 import { recipeToDef, recipeTotals, speciesToX } from "../rules/designer.mjs";
@@ -92,10 +93,12 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   _onRender(context, options) {
     super._onRender(context, options);
     const root = this.element;
+    const fits = []; // every wrapping field's fit, run again when the window's width changes (refitOnResize)
     // aspects wrap: the field grows with its text; Enter doesn't add a line break (the value stays one line)
     root.querySelectorAll(".pust-asp-ta").forEach((ta) => {
       const fit = () => { ta.style.height = "auto"; ta.style.height = `${ta.scrollHeight + 2}px`; };
       fit();
+      fits.push(fit);
       ta.addEventListener("input", () => {
         if (/\n/.test(ta.value)) ta.value = ta.value.replace(/\n/g, " ");
         fit();
@@ -134,6 +137,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     };
     const dmgFields = root.querySelectorAll("textarea.pust-dmg-in");
     requestAnimationFrame(() => dmgFields.forEach(fitDmg));
+    dmgFields.forEach((el) => fits.push(() => fitDmg(el)));
     dmgFields.forEach((el) => {
       el.addEventListener("input", () => {
         if (/\n/.test(el.value)) el.value = el.value.replace(/\n/g, "");
@@ -157,20 +161,23 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         ta.style.height = "auto";
         ta.style.height = `${ta.scrollHeight + 2}px`;
       };
-      const fit = () => {
+      const fit = (resized = false) => {
+        if (row && resized) row.classList.remove("wide"); // a wider window may fit the note on its row again
         if (row && !row.classList.contains("wide")) {
           ta.style.height = "";
           if (ta.scrollHeight > ta.clientHeight + 2) row.classList.add("wide");
         }
         grow();
       };
-      requestAnimationFrame(fit);
+      requestAnimationFrame(() => fit());
+      fits.push(fit);
       ta.addEventListener("input", () => {
         if (/\n/.test(ta.value)) ta.value = ta.value.replace(/\n/g, " ");
         fit();
       });
       ta.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); ta.blur(); } });
     });
+    refitOnResize(this, fits);
     if (!this.isEditable) {
       root.querySelectorAll("input, select, textarea, button[data-action='act'], button[data-action='drugAdd']").forEach((el) => (el.disabled = true));
       return;

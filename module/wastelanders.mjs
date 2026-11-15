@@ -5,6 +5,7 @@ import { WastelandersScene, addSceneKindField } from "./documents/scene.mjs";
 import { WastelandersToken } from "./canvas/token.mjs";
 import { initMapNotes, readyMapNotes } from "./canvas/map-notes.mjs";
 import { initBattleZones, readyBattleZones } from "./canvas/battle-zones.mjs";
+import { initCaravanMove } from "./canvas/caravan-move.mjs";
 import { readyApplyDamage } from "./applications/apply-damage.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
@@ -39,6 +40,7 @@ Hooks.once("init", async function () {
   // «Примітки» of «Мапа Пустки»: stickers drawn by the system (module/canvas/map-notes.mjs)
   initMapNotes();
   initBattleZones(); // after the stickers: the zones' Drawing class extends theirs
+  initCaravanMove(); // a caravan moved on a map spends its range (asks, or by the caravan's switch)
   game.wastelanders = {
     WastelandersActor,
     WastelandersItem,

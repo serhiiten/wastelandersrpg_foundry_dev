@@ -802,6 +802,28 @@
 .pust-caravan .q-moverow { display: flex; align-items: center; gap: 12px; }
 .pust-caravan .q-moverow > .pust-qpips { display: grid; grid-template-columns: repeat(10, 18px); gap: 4px 3px; padding: 2px 0; }
 .pust-caravan .pust-qi.q-movecell > small { line-height: 1.25; }
+/* «Витрачати автоматично» and «Поповнити за N(к)» (author, 2026-11-15; module/canvas/caravan-move.mjs, caravan-range.mjs) */
+.pust-caravan .pust-qi.q-movecell > span:first-child { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.wastelanders .pust-caravan button.pust-autorange:not(.header-control) { margin: 0 0 0 auto !important; flex: none; display: inline-flex; align-items: center; gap: 6px; width: auto !important; height: 22px !important; padding: 0 9px 0 5px !important;
+  background: rgba(0,0,0,.35) !important; color: #9fdca4 !important; border: 1px solid #3d4241 !important; border-radius: 11px !important; box-shadow: none !important; font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; letter-spacing: .02em; text-transform: none; white-space: nowrap; line-height: 20px !important; cursor: pointer; }
+.wastelanders .pust-caravan button.pust-autorange.on:not(.header-control) { color: #3dff47 !important; border-color: #21b52a !important; }
+.wastelanders .pust-caravan button.pust-autorange:not(.header-control):hover { background: rgba(0,0,0,.55) !important; }
+.pust-caravan .pust-autorange .pust-place-sw { position: relative; width: 24px; height: 12px; border-radius: 6px; background: #5a605e; box-shadow: inset 0 1px 2px rgba(0,0,0,.5); flex: none; }
+.pust-caravan .pust-autorange .pust-place-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: #f2ecd8; transition: left .12s ease; }
+.pust-caravan .pust-autorange.on .pust-place-sw { background: #3dff47; }
+.pust-caravan .pust-autorange.on .pust-place-sw::after { left: 14px; background: #0e1a10; }
+.pust-caravan .q-refillrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 24px; }
+.wastelanders .pust-caravan button.pust-refill-btn:not(.header-control) { flex: none; display: inline-flex; align-items: center; gap: 5px; width: auto !important; height: 22px !important; margin: 0 !important; padding: 0 9px !important;
+  background: #1d7d25 !important; color: #eaffea !important; border: 1px solid #3dff47 !important; border-radius: 3px !important; box-shadow: 0 0 6px rgba(61,255,71,.35) !important; font-family: var(--pu-f-label); font-weight: 700; font-size: 11.5px; white-space: nowrap; line-height: 20px !important; cursor: pointer; }
+.wastelanders .pust-caravan button.pust-refill-btn:not(.header-control):hover:not(:disabled) { background: #21b52a !important; }
+.wastelanders .pust-caravan button.pust-refill-btn:not(.header-control):disabled { background: #2c302f !important; color: #7d8a80 !important; border-color: #3d4241 !important; box-shadow: none !important; cursor: default; }
+/* «Породисті браміни» / «Паливний регулятор»: which bonus this trip takes (author, 2026-11-15) */
+.pust-caravan .q-brahmins { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 5px; font-family: var(--pu-f-label); font-size: 11.5px; color: #9fdca4; }
+.pust-caravan .q-brahmins > b { color: #3dff47; }
+.pust-caravan .pust-seg2 { display: inline-flex; border: 1px solid #3d4241; border-radius: 3px; overflow: hidden; }
+.wastelanders .pust-caravan .pust-seg2 > button:not(.header-control) { width: auto !important; height: 20px !important; margin: 0 !important; padding: 0 7px !important; border: none !important; border-radius: 0 !important; box-shadow: none !important;
+  background: rgba(0,0,0,.35) !important; color: #9fdca4 !important; font: 700 11px var(--pu-f-label); line-height: 20px !important; white-space: nowrap; cursor: pointer; }
+.wastelanders .pust-caravan .pust-seg2 > button.on:not(.header-control) { background: #1d7d25 !important; color: #eaffea !important; }
 /* Припаси: lamps as in the character quick panel (as many as the chest holds) */
 .pust-caravan .pust-qlamps { width: auto; max-width: none; }
 .wastelanders .pust-caravan .pust-qlamps > button.pust-qlamp:not(.header-control) { flex: 0 0 26px; max-width: none; }
@@ -1271,3 +1293,167 @@
 .wastelanders .pust-en.readonly :is(input, select, textarea) { pointer-events: none; opacity: 1; background: rgba(255,252,240,.85); border: 1px solid var(--pu-paper-3); color: var(--pu-ink); -webkit-text-fill-color: var(--pu-ink); }
 .wastelanders .pust-en.readonly textarea { resize: none; }
 .wastelanders .pust-en.readonly :is(input, textarea)::placeholder { color: transparent; -webkit-text-fill-color: transparent; }
+
+/* round 6 (author, 2026-11-15: «візуально погано на стандартній ширині»): the state and «Відремонтувати» in one row; in
+   «Запас ходу» the refill button in the header, one small line of state, then the switch and the brahmins' choice */
+.pust-caravan .q-all > .pust-qstate { grid-area: auto; }
+.pust-caravan .q-all > .q-staterow { grid-area: state; align-self: end; display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap; min-width: 0; }
+.pust-caravan .q-staterow > .pust-qstate { flex: 1 1 auto; min-width: 0; margin: 0; }
+/* a long state (damaged, cargo hurt) wraps instead of widening the columns and pushing «Запас ходу» out */
+.pust-caravan .q-all > .q-staterow { contain: inline-size; width: 100%; }
+.pust-caravan .q-staterow > .pust-qstate { white-space: normal; overflow-wrap: anywhere; }
+.pust-caravan .q-movecell > span:first-child { flex-wrap: nowrap; }
+.wastelanders .pust-caravan .q-movecell > span:first-child > button.pust-refill-btn:not(.header-control) { margin-left: auto !important; }
+.wastelanders .pust-caravan button.pust-refill-btn:not(.header-control) { font-size: 11.5px !important; height: 21px !important; line-height: 19px !important; padding: 0 8px !important; text-transform: none; letter-spacing: 0; }
+.pust-caravan .q-all .pust-qi.q-movecell > small.q-refill { display: block; margin-top: 1px; color: var(--pu-green-dim); }
+.pust-caravan .q-all .pust-qi.q-movecell > small.q-refill.low { color: var(--pu-amber); }
+.pust-caravan .q-autorow { display: flex; margin-top: 5px; }
+.wastelanders .pust-caravan .q-autorow > button.pust-autorange:not(.header-control) { margin: 0 !important; }
+.wastelanders .pust-caravan button.pust-autorange:not(.header-control), .wastelanders .pust-caravan button.pust-autorange:not(.header-control) span { font-size: 11px !important; text-transform: none; letter-spacing: 0; }
+.pust-caravan .q-brahmins { gap: 4px 6px; margin-top: 5px; }
+.pust-caravan .q-brahmins > .q-brah-name { flex: 1 0 100%; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--pu-green-dim); }
+.wastelanders .pust-caravan .pust-seg2 > button:not(.header-control) { font-size: 11px !important; text-transform: none; letter-spacing: 0; padding: 0 6px !important; }
+
+/* round 7 (author, 2026-11-15): «Броня» under «Очки здоров'я», «Бюджет кришок» at the right edge, room between them */
+.pust-caravan .pust-qgrp.q-all { grid-template-columns: auto minmax(12px, 1fr) auto; grid-template-areas: "hp . bud" "arm . ." "state state state"; row-gap: 6px; }
+.pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(max-content, 1fr) minmax(290px, 320px) !important; }
+@container (max-width: 720px) {
+  .pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) !important; }
+}
+
+/* narrow sheet (author, 2026-11-15): «Запас ходу» under the main block as a plain column — header with the refill button,
+   the lamps, the state line, the switch, the brahmins — instead of the old three-column grid that left the lamps 0 px wide */
+@container (max-width: 720px) {
+  .pust-caravan .q-move .q-movecell { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
+  .pust-caravan .q-move .q-movecell > .q-moverow { height: auto; }
+  .pust-caravan .q-move .q-movecell > .q-autorow, .pust-caravan .q-move .q-movecell > .q-brahmins { margin-top: 3px; }
+}
+
+/* caravan settings (author, 2026-11-15): «Надбавки» and «Захист» side by side, the defences in one column, as on the character sheet */
+.pust-car-settings > .pust-block { margin: 0; }
+.pust-car-settings .pust-defgrid { grid-template-columns: 1fr; gap: 6px; }
+.pust-car-settings .pust-defrow { grid-template-columns: minmax(110px, 1fr) minmax(0, 1.2fr); }
+@container (min-width: 600px) { .pust-sheet .pust-car-settings { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; } }
+
+/* «Повернути все до стандартних значень» resets both blocks: over them, at the left (author, 2026-11-15) */
+.pust-car-reset { display: flex; justify-content: flex-start; margin: 0 0 8px; }
+.wastelanders .pust-car-reset > button:not(.header-control) { width: auto !important; font-size: 12.5px !important; height: 26px !important; line-height: 24px !important; padding: 0 10px !important; margin: 0 !important; }
+
+/* defence chips next to the caravan's armour (author, 2026-11-15): psychic armour violet, ½ amber, immune green */
+.pust-caravan .pust-qgrp.q-all { grid-template-areas: "hp . bud" "arm arm arm" "state state state"; }
+.pust-caravan .q-all > .q-arm { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: center; }
+.pust-caravan .q-all > .q-arm > span:first-child { grid-column: 1 / -1; }
+.pust-caravan .q-all > .q-arm { contain: inline-size; width: 100%; } /* many chips wrap; they never widen the block */
+.pust-caravan .pust-defchips { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+.pust-caravan .pust-dchip { display: inline-flex; align-items: center; height: 19px; padding: 0 7px; border-radius: 10px; font: 700 11px var(--pu-f-label); white-space: nowrap; text-transform: none; letter-spacing: 0;
+  background: rgba(0,0,0,.35); border: 1px solid #3d4241; color: #b6ffb9; cursor: default; }
+.pust-caravan .pust-dchip.immune { border-color: #21b52a; color: #3dff47; }
+.pust-caravan .pust-dchip.half { border-color: #b8872a; color: var(--pu-amber); }
+.pust-caravan .pust-dchip.psi { border-color: #7a4fc0; color: #c9a8ff; }
+
+/* «Турель» (author, 2026-11-15): the damage chip in the type's colours (css/pust-check.css .dt-*), the type and «Завдати цілям»
+   in the upgrade's card, as on an enemy's attack; its dice and type in «Надбавки» */
+.pust-caravan .pust-imp .pust-turret { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; margin-right: 10px; }
+.wastelanders .pust-caravan button.pust-turret-dice:not(.header-control), .pust-caravan .pust-turret-dice, .pust-caravan .pust-turret-type { display: inline-flex; align-items: center; gap: 5px; width: auto !important;
+  height: 24px !important; min-height: 0 !important; margin: 0 !important; padding: 0 8px !important; border-radius: 3px !important; white-space: nowrap;
+  background: var(--dt-bg, #6e3b22) !important; border: 1px solid var(--dt-bd, #f0a070) !important; color: var(--dt-fg, #f4d11a) !important; box-shadow: 0 2px 0 rgba(0,0,0,.35) !important; line-height: 22px !important; }
+.wastelanders .pust-caravan button.pust-turret-dice:not(.header-control), .pust-caravan .pust-turret-dice { font: 700 14px var(--pu-f-num) !important; cursor: pointer; }
+.wastelanders .pust-caravan button.pust-turret-dice:not(.header-control) > i { font-size: 12px; opacity: .85; }
+.wastelanders .pust-caravan button.pust-turret-dice:not(.header-control):hover { filter: brightness(1.2); box-shadow: 0 0 6px var(--dt-glow, rgba(255,120,60,.5)), 0 2px 0 rgba(0,0,0,.35) !important; }
+.pust-caravan .pust-turret-type { height: 22px !important; font: 700 11px var(--pu-f-label) !important; text-transform: uppercase; letter-spacing: .05em; box-shadow: none !important; }
+.wastelanders .pust-caravan button.pust-turret-hit:not(.header-control) { flex: none; width: auto !important; height: 28px !important; min-height: 0 !important; margin: 0 !important; padding: 0 12px !important;
+  display: inline-flex; align-items: center; gap: 6px; line-height: 1; background: linear-gradient(180deg, #a3261a, #7d1c13) !important; color: #fbeee4 !important; border: 1px solid #d8371f !important; border-radius: 4px !important;
+  font: 800 12px/1 var(--pu-f-label, "Oswald"), "PT Sans Narrow", sans-serif !important; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; box-shadow: none !important; }
+.wastelanders .pust-caravan button.pust-turret-hit:not(.header-control):hover { background: linear-gradient(180deg, #c22e1e, #8f2116) !important; color: #fff !important; }
+.pust-caravan .pust-turret + .pust-imp-ctrl { margin-left: 0; }
+
+/* the turret in one row (author, 2026-11-15: «нащо там таке величезне поле»): «Шкода [2d6]  Тип [select]» */
+.pust-caravan .pust-turretset { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; }
+.pust-caravan .pust-turretset > label { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; min-width: 0; }
+.pust-caravan .pust-turretset > label:last-child { flex: 1 1 160px; }
+.wastelanders .pust-caravan .pust-turretset input.pust-screen { width: 76px !important; height: 30px !important; flex: none; font-size: 15px !important; text-align: center; padding: 0 4px !important; }
+.wastelanders .pust-caravan .pust-turretset select { flex: 1 1 auto; width: auto !important; min-width: 0; height: 30px !important; }
+
+/* «Вилікувати за N(к)» / «Поповнити за N(к)» on the character sheet (author, 2026-11-15; char-services.mjs): the caravan's
+   refill button on the dark quick block, a paper one on the consequences */
+.wastelanders.pust-sheet button.pust-buy-btn:not(.header-control) { flex: none; display: inline-flex; align-items: center; gap: 5px; width: auto !important; height: 22px !important; min-height: 0 !important;
+  margin: 5px 0 0 !important; padding: 0 8px !important; background: #1d7d25 !important; color: #eaffea !important; border: 1px solid #3dff47 !important; border-radius: 3px !important;
+  box-shadow: 0 0 6px rgba(61,255,71,.35) !important; font: 700 11.5px var(--pu-f-label) !important; text-transform: none; letter-spacing: 0; white-space: nowrap; line-height: 20px !important; cursor: pointer; }
+.wastelanders.pust-sheet button.pust-buy-btn:not(.header-control):hover:not(:disabled) { background: #21b52a !important; }
+.wastelanders.pust-sheet button.pust-buy-btn:not(.header-control):disabled { background: #2c302f !important; color: #7d8a80 !important; border-color: #3d4241 !important; box-shadow: none !important; cursor: default; }
+.pust-sheet .pust-qi > button.pust-buy-btn { align-self: flex-start; }
+.wastelanders.pust-sheet button.pust-buy-btn.pust-buy-paper:not(.header-control) { margin: 0 !important; box-shadow: 0 1px 0 rgba(35,27,17,.25) !important; border-color: #1d5c22 !important; }
+.wastelanders.pust-sheet button.pust-buy-btn.pust-buy-paper:not(.header-control):disabled { background: var(--pu-paper-2) !important; color: var(--pu-ink-3) !important; border-color: var(--pu-paper-3) !important; }
+.pust-cons { grid-template-columns: 1fr auto auto; grid-template-areas: "lbl buy tog" "inp inp inp"; }
+.pust-cons > .pust-buy-btn { grid-area: buy; }
+
+/* «Інший мотлох»: the actions cell (142 px) wraps — «Лікувати легкий наслідок» takes a row of its own, its label on two lines */
+.pust-glist-other .pust-grow > .pust-gacts { flex-wrap: wrap; min-width: 0; }
+.pust-glist-other .pust-gacts > button[data-act="chem-treat"] { flex: 1 1 100%; min-width: 0; white-space: normal; line-height: 1.15; height: auto; min-height: 26px; padding: 2px 6px; }
+/* «Припаси» + «Кришки»: when the column is too narrow for both, «Кришки» go under «Припаси» */
+.pust-quickbar .pust-qgrp.q-goods { flex-wrap: wrap; row-gap: 8px; }
+/* a wrapped actions cell makes the row taller: the row's fields stay on its first line */
+.pust-glist-other .pust-grow.acts > :not(.pust-gnote-in) { align-self: start; }
+.pust-glist-other .pust-grow.acts > .pust-gh { margin-top: 5px; }
+/* narrowest widths (author, 2026-11-15): 580 px is the character / caravan sheets' and the builders' floor; an enemy's card
+   goes down to its own width (460), a place's card to 420 — its kind label wraps there rather than push the switches out */
+.application.pust-sheet.pust-en-sheet { min-width: 460px; }
+.application.pust-sheet.pust-place-sheet { min-width: 420px; }
+.pust-place .pust-place-hd { gap: 6px; }
+.pust-place .pust-place-hd > .pust-place-kind { min-width: 0; white-space: normal; line-height: 1.1; }
+/* «Швидкий доступ» (author, 2026-11-15). Wide (body ≥ 836 px): «Жетони Долі» / «Зароблено ОД» only as wide as their
+   content, «Зробити перевірку» (two lines, 172 px) and the «0 ОЗ» box in the column on the right, as before.
+   «Вилікувати» / «Поповнити» on the title row, right after «Очки здоров'я» / «Припаси» (under the counter / lamps below
+   710 px); «Броня» and «Кришки» one width (114 px) at the group's right edge.
+   Narrower: two columns, the check button and the «0 ОЗ» box each a full row under them. */
+.pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1fr) auto auto !important; grid-template-rows: auto auto !important; grid-template-areas: "life fate roll" "goods xp ko" !important; }
+.pust-qgrp.q-life > .pust-qi:first-child, .pust-qgrp.q-goods > .pust-qi:first-child { display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center; justify-content: start; flex: 0 1 auto; max-width: none; }
+.pust-qgrp.q-life > .pust-qi:first-child > span, .pust-qgrp.q-goods > .pust-qi:first-child > span { grid-column: 1; grid-row: 1; }
+.pust-qgrp.q-life > .pust-qi:first-child > :not(span):not(.pust-buy-btn), .pust-qgrp.q-goods > .pust-qi:first-child > :not(span):not(.pust-buy-btn) { grid-column: 1 / -1; grid-row: 2; justify-self: start; width: 172px; }
+.pust-qgrp.q-goods > .pust-qi:first-child > .pust-qlamps { width: 157px; }
+.wastelanders.pust-sheet .pust-qgrp > .pust-qi:first-child > button.pust-buy-btn:not(.header-control) { grid-column: 2; grid-row: 1; justify-self: start; margin: -4px 0 -3px !important; }
+.pust-quickbar .q-life > .pust-qi:nth-child(2), .pust-quickbar .q-goods > .pust-qi:nth-child(2) { flex: 0 0 114px; width: 114px; margin-left: auto; }
+.wastelanders.pust-sheet .pust-qgrid > .pust-qroll > .pust-check-btn:not(.header-control) { white-space: normal !important; line-height: 1.1 !important; padding: 0 14px !important; width: 172px !important; }
+.pust-qko { contain: none; margin-left: 4px; }
+.pust-qko .pust-ko { display: flex !important; flex-direction: column; align-items: stretch; gap: 4px; width: 172px; box-sizing: border-box; padding: 6px; margin: 0; }
+.pust-qko .pust-ko > b { align-self: center; font-size: 17px; padding: 0; }
+.wastelanders.pust-sheet .pust-qko .pust-ko > button:not(.header-control) { width: 100% !important; height: 26px !important; white-space: nowrap; overflow: visible; text-overflow: clip; font-size: 12px !important; padding: 0 6px !important; }
+@container (max-width: 835px) {
+  .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) !important; grid-template-areas: "life fate" "goods xp" "roll roll" "ko ko" !important; grid-template-rows: auto !important; }
+  .pust-qgrid > .pust-qroll, .pust-qko { margin-left: 0; }
+  .wastelanders.pust-sheet .pust-qgrid > .pust-qroll > .pust-check-btn:not(.header-control) { width: 100% !important; height: 44px !important; white-space: nowrap !important; }
+  .pust-qko .pust-ko { width: 100%; flex-direction: row; align-items: center; }
+  .wastelanders.pust-sheet .pust-qko .pust-ko > button:not(.header-control) { flex: 1 1 0; min-width: 0; width: auto !important; }
+  .pust-qko .pust-ko > b { padding: 0 6px; }
+}
+@container (max-width: 709px) {
+  .pust-qgrp.q-life > .pust-qi:first-child > .pust-buy-btn, .pust-qgrp.q-goods > .pust-qi:first-child > .pust-buy-btn { grid-column: 1 / -1 !important; grid-row: 3 !important; margin: 2px 0 0 !important; }
+  .pust-quickbar .q-life > .pust-qi:nth-child(2) { flex: 0 1 auto; width: auto; }
+}
+/* (author, 2026-11-15) more room between a block's title row (with «Вилікувати» / «Поповнити») and its counter / lamps,
+   so a press on the button doesn't land on −/+ or a lamp; every block of the row the same, so they stay level */
+.pust-quickbar .pust-qgrid .pust-qi, .pust-quickbar .pust-qgrp.q-life > .pust-qi:first-child, .pust-quickbar .pust-qgrp.q-goods > .pust-qi:first-child { row-gap: 10px !important; }
+@container (max-width: 709px) {
+  .wastelanders.pust-sheet .pust-qgrp > .pust-qi:first-child > button.pust-buy-btn:not(.header-control) { margin: 0 !important; }
+}
+/* (author, 2026-11-15) a narrow sheet: «Кришки» stay on the row of «Припаси» — six lamps go in two rows of three, a counter
+   (more than 6 Припасів) is squeezed */
+@container (max-width: 600px) {
+  .pust-quickbar .pust-qgrp.q-goods { flex-wrap: nowrap; column-gap: 8px; }
+  .pust-quickbar .q-goods > .pust-qi:first-child > .pust-qlamps:has(> :nth-child(6)) { display: grid !important; grid-template-columns: repeat(3, 26px); gap: 4px !important; width: auto; height: auto; }
+  .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) { width: auto; gap: 3px; }
+  .wastelanders.pust-sheet .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) > input { flex: 0 0 38px !important; width: 38px !important; min-width: 0; }
+  .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) > b { white-space: nowrap; }
+}
+/* (author, 2026-11-15) the name's row never wraps: on a narrow sheet the name field gives way, so its die stays beside it */
+.pust-sheet .pust-who > .pust-row:first-child { flex-wrap: nowrap !important; }
+.pust-sheet .pust-who > .pust-row:first-child > .pust-name { flex: 1 1 0; min-width: 0; width: 0; } /* width 0: the field adds nothing to the column's minimum */
+.pust-sheet .pust-who > .pust-row:first-child > .pust-die { flex: 0 0 auto; }
+/* (author, 2026-11-15) «Броня» with psychic armour on a narrow sheet: the ОЗ counter keeps its width (it used to shrink and
+   run under «Броня»); «Броня» gives way and its values wrap, «3 псих.» under «1 фіз.» */
+.pust-quickbar .pust-qgrp.q-life > .pust-qi:first-child { flex-shrink: 0; }
+.pust-quickbar .q-life > .pust-qi:nth-child(2) { flex-shrink: 1; min-width: 0; }
+.pust-quickbar .q-life .pust-qarm { flex-wrap: wrap; row-gap: 0; column-gap: 10px !important; height: auto; min-height: 32px; }
+/* a value and its label wrap together */
+.pust-qarm-v { display: inline-flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.pust-qarm-v > small { margin-right: 0 !important; }

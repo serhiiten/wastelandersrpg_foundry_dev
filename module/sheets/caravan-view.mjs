@@ -4,8 +4,12 @@
  * Mirrors the HTML sheet's render functions (renderDerived, renderImps, renderCargo, renderCounters…).
  */
 import { ASPECTS, IMPS } from "../rules/caravan.mjs";
-import { CARAVAN_DEF_OPTIONS, CARAVAN_DEF_TYPES, defOvCount } from "../rules/caravan-defence.mjs";
+import { CARAVAN_DEF_LABEL, CARAVAN_DEF_OPTIONS, CARAVAN_DEF_TYPES, caravanDefAuto, caravanDefences, defOvCount } from "../rules/caravan-defence.mjs";
+
+/** Short damage-type names for the defence chips next to the armour */
+const DEF_SHORT = { phys: "фізична", energy: "енергетична", fire: "вогонь", rad: "радіація", poison: "отрути", psy: "психічна" };
 import { cargoHurtAt, rowSale } from "../rules/caravan-adapter.mjs";
+import { refillPlan, repairPlan } from "../rules/caravan-range.mjs";
 
 const int = (v, def = 0) => {
   const n = parseInt(v, 10);
@@ -44,6 +48,7 @@ export function buildCaravanView(S, L, ui = {}) {
   // «Сума продажу»: the cargo rows' sale prices (each with its own long-haul and damage ticks)
   const sale = (S.cargo || []).filter((r) => r.kind !== "pass").reduce((t, r) => t + rowSale(r), 0);
   const dmg = D.maxHP - S.hpCurrent;
+  const defAuto = caravanDefAuto({ tachka: !!S.tachka, lead: (parseInt(S.imp?.lead, 10) || 0) > 0 });
   const lack = D.maxMove - S.moveCurrent;
   const need = D.impCount < 2;
   const locked = (k) => !!S.manual?.[k];
@@ -62,23 +67,64 @@ export function buildCaravanView(S, L, ui = {}) {
     armor: D.armor, baseArmor: D.baseArmor,
     // «Налаштування → Захист» (author, 2026-11-14): bonuses (steppers) and the defence selects
     settings: {
-      bonuses: [["hpBonus", "до максимуму ОЗ", D.baseMaxHP], ["armorBonus", "до броні", D.baseArmor]]
-        .map(([k, n, base]) => ({ k, n, val: int(S[k]) || "", base })),
-      set: (int(S.hpBonus) ? 1 : 0) + (int(S.armorBonus) ? 1 : 0),
+      bonuses: [["hpBonus", "до максимуму ОЗ", D.baseMaxHP], ["armorBonus", "до броні", D.baseArmor],
+        ["psiArmor", "пси-броня", 0, "Пси-броня каравану: зменшує кожну психічну шкоду на це число (від 0); за правилами її немає"]]
+        .map(([k, n, base, tip]) => ({ k, n, val: int(S[k]) || "", base, tip })),
+      set: (int(S.hpBonus) ? 1 : 0) + (int(S.armorBonus) ? 1 : 0) + (int(S.psiArmor) ? 1 : 0),
       defSet: defOvCount(S.defOv),
       defTypes: CARAVAN_DEF_TYPES.map(([k, n]) => ({
-        k, n, options: CARAVAN_DEF_OPTIONS.map(([v, t]) => ({ v, n: t, sel: (S.defOv?.[k] || "") === v })),
+        // «за правилами: …» shows what the rules give (author, 2026-11-15: cart immunities, lead ½ radiation)
+        k, n, options: [{ v: "", n: `за правилами: ${CARAVAN_DEF_LABEL[defAuto[k]]}`, sel: !S.defOv?.[k] }]
+          .concat(CARAVAN_DEF_OPTIONS.map(([v, t]) => ({ v, n: t, sel: S.defOv?.[k] === v }))),
       })),
     },
+    // the defences beyond the plain armour, as chips next to it (author, 2026-11-15): psychic armour, ½ / immune by type
+    defChips: (() => {
+      const now = caravanDefences(defAuto, S.defOv);
+      const psi = Math.max(0, int(S.psiArmor));
+      return [
+        ...(psi ? [{ t: `пси-броня ${psi}`, cls: "psi", tip: `Пси-броня: зменшує кожну психічну шкоду на ${psi}` }] : []),
+        ...CARAVAN_DEF_TYPES.filter(([k]) => now[k] !== "normal").map(([k, n]) => ({
+          t: `${DEF_SHORT[k]}: ${now[k] === "half" ? "½" : "імунітет"}`, cls: now[k],
+          tip: `${n}: ${CARAVAN_DEF_LABEL[now[k]]} (${S.defOv?.[k] ? "задано вручну" : "за правилами"})`,
+        })),
+      ];
+    })(),
     hpBar: hpBar(int(S.hpCurrent), D.maxHP),
     repair: dmg > 0 ? { dmg, cost: Math.ceil(dmg / 5), hurt: cargoHurtAt(S.hpCurrent, D.maxHP), destroyed: S.hpCurrent === 0 } : null,
+    // «Відремонтувати за N(к)» (author, 2026-11-15): 5 HP a cap from the budget, as much as the caps pay for
+    repairBtn: (() => {
+      const r = repairPlan(dmg, S.budget);
+      const caps = Math.max(0, int(S.budget));
+      return {
+        label: dmg > 0 && r.cost ? `Відремонтувати за ${r.cost}(к)` : "Відремонтувати",
+        off: dmg <= 0 || caps <= 0,
+        title: dmg <= 0 ? "Караван цілий"
+          : caps <= 0 ? "У бюджеті каравану немає кришок"
+          : r.units < dmg ? `Кришок вистачить на ${r.units} з ${dmg} ОЗ: 1(к) за 5 ОЗ`
+          : `Відремонтувати ${dmg} ОЗ за ${r.cost}(к) з бюджету: 1(к) за 5 ОЗ`,
+      };
+    })(),
 
     movePips1: pips(0, 10, D.maxMove, S.moveCurrent, "move"),
     movePips2: pips(10, 20, D.maxMove, S.moveCurrent, "move"),
     moveNow: `${S.moveCurrent} / ${D.maxMove}`,
     cellRule: S.tachka ? "3 клітини за день і одиницю" : "1 клітина за день і одиницю",
-    refill: lack > 0 ? `Поповнити: ${Math.ceil(lack / 3)}(к)` : "Повний запас",
+    refill: lack > 0 ? `Бракує ${lack}` : "Повний запас",
     moveLack: lack > 0,
+    // «Поповнити за N(к)» (author, 2026-11-15): 3 units a cap from the budget, as much as the caps pay for
+    refillBtn: (() => {
+      const r = refillPlan(lack, S.budget);
+      const caps = Math.max(0, int(S.budget));
+      return {
+        label: lack > 0 && r.cost ? `Поповнити за ${r.cost}(к)` : "Поповнити",
+        off: lack <= 0 || caps <= 0,
+        title: lack <= 0 ? "Запас ходу повний"
+          : caps <= 0 ? "У бюджеті каравану немає кришок"
+          : r.units < lack ? `Кришок вистачить на ${r.units} з ${lack}: 1(к) за 3 одиниці`
+          : `Поповнити ${lack} од. за ${r.cost}(к) з бюджету: 1(к) за 3 одиниці`,
+      };
+    })(),
 
     impCount: D.impCount, impNeed: need,
     impHint: need ? `оберіть ще ${2 - D.impCount}` : D.impCount === 2 ? "стартові обрано" : `докуплено ${D.impCount - 2} × 25(к)`,
@@ -91,7 +137,8 @@ export function buildCaravanView(S, L, ui = {}) {
       const n = int(S.imp?.[i.id]);
       const lockedImp = !!(i.requires && !S.imp?.[i.requires]);
       return {
-        id: i.id, name: L.impName(i, S), sub: L.impSub(i, S), desc: i.desc, taken: n > 0, locked: lockedImp,
+        // no «Паливні цистерни, якщо у вас тачка» under the name: it follows the transport by itself (author, 2026-11-15)
+        id: i.id, name: L.impName(i, S), sub: "", desc: i.desc, taken: n > 0, locked: lockedImp,
         hidden: !!ui.foldImps && n <= 0,
         btns: Array.from({ length: i.max }, (_, k) => ({ k, on: k < n })),
         supPips: i.id === "chest" && D.supCap ? pips(0, D.supCap, D.supCap, S.supplies, "sup") : null,

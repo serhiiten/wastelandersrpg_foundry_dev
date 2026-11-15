@@ -72,3 +72,5 @@
 .pust-ec-foot { flex: none; display: flex; justify-content: flex-end; gap: 8px; padding: 8px 12px 10px; border-top: 2px solid var(--pu-rust-2); background: var(--pu-paper-2); }
 .wastelanders .pust-ec-foot button.pust-ec-go { background: var(--pu-rust-2) !important; color: #fff4e0 !important; border-color: var(--pu-rust-0) !important; font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
 .wastelanders .pust-ec-foot button { height: 32px; line-height: 30px; }
+/* the form's narrowest width (author, 2026-11-15): below it «Категорія» runs out of its row */
+.application.pust-ec-app { min-width: 480px; }

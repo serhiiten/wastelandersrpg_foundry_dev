@@ -123,6 +123,10 @@ export async function ensureBattleScene() {
   if ((game.settings.get(sys, "battleSceneVersion") ?? 0) > 0) return;
   if (!findBattleScene()) {
     const made = await Scene.implementation.create(battleSceneData(sys));
+    // in a new world Foundry makes the new scene active while the map's activation hasn't reached this client yet
+    // (author, 2026-11-15: a fresh world opened on «Бойова мапа»); the map stays the active one
+    const map = findMapScene();
+    if (made.active && map) await map.activate();
     await thumbnail(made);
   }
   await game.settings.set(sys, "battleSceneVersion", BATTLE_SCENE_VERSION);

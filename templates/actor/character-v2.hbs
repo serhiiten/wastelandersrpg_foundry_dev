@@ -43,14 +43,14 @@
         <button type="button" class="pust-die {{#if v.locks.name}}locked{{/if}}" data-action="act" data-act="roll-name" title="{{#if v.locks.name}}Заповнено вручну. Очисти поле, щоб знову кидати{{else}}Кинути ім'я{{/if}}"><i class="fa-solid {{#if v.locks.name}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
       </div>
       <div class="pust-row">
+        <select data-k="arch" aria-label="Архетип">
+          {{#each v.archetypes}}<option value="{{v}}" {{#if sel}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{n}}</option>{{/each}}
+        </select>
         <select data-k="species" aria-label="Вид">
           {{#each v.species}}<option value="{{v}}" {{#if sel}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{n}}</option>{{/each}}
           {{#if v.speciesX.length}}<optgroup label="Власні види">{{#each v.speciesX}}<option value="{{v}}" {{#if sel}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{n}}</option>{{/each}}</optgroup>{{/if}}
         </select>
         <button type="button" class="pust-die" data-action="act" data-act="roll-species" title="Кинути вид"><i class="fa-solid fa-dice"></i></button>
-        <select data-k="arch" aria-label="Архетип">
-          {{#each v.archetypes}}<option value="{{v}}" {{#if sel}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{n}}</option>{{/each}}
-        </select>
         <span class="pust-seg">
           {{#each v.genders}}<button type="button" class="{{#if sel}}on{{/if}}" data-action="act" data-act="gender" data-v="{{v}}">{{n}}</button>{{/each}}
         </span>
@@ -78,8 +78,8 @@
         <div class="pust-qi {{#if (lt v.hp 1)}}bad{{/if}}"><span><i class="fa-solid fa-heart-pulse pust-qic" aria-hidden="true"></i>Очки здоров'я</span><div>
           <button type="button" data-action="act" data-act="step" data-k="hpCur" data-d="-1" title="Мінус 1 ОЗ">−</button>
           <input class="pust-screen" type="text" data-k="hpCur" value="{{v.hp}}" aria-label="Поточні ОЗ"><b>/ {{v.hpMax}}</b>
-          <button type="button" data-action="act" data-act="step" data-k="hpCur" data-d="1" title="Плюс 1 ОЗ">+</button></div></div>
-        <div class="pust-qi"><span><i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>Броня</span><div class="pust-qarm"><b class="big arm-phys">{{v.armor}}</b><small class="arm-phys">фіз.</small>{{#if v.psi}}<b class="big arm-psi">{{v.psi}}</b><small class="arm-psi">псих.</small>{{/if}}</div></div>
+          <button type="button" data-action="act" data-act="step" data-k="hpCur" data-d="1" title="Плюс 1 ОЗ">+</button></div><button type="button" class="pust-buy-btn" data-action="act" data-act="buy-heal" title="{{v.buy.heal.title}}" {{#if v.buy.heal.off}}disabled{{/if}}><i class="fa-solid fa-kit-medical"></i> {{v.buy.heal.label}}</button></div>
+        <div class="pust-qi"><span><i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>Броня</span><div class="pust-qarm"><span class="pust-qarm-v"><b class="big arm-phys">{{v.armor}}</b><small class="arm-phys">фіз.</small></span>{{#if v.psi}}<span class="pust-qarm-v"><b class="big arm-psi">{{v.psi}}</b><small class="arm-psi">псих.</small></span>{{/if}}</div></div>
       </div>
       <div class="pust-qgrp q-fate">
         <div class="pust-qi"><span><i class="fa-solid fa-clover pust-qic" aria-hidden="true"></i>Жетони Долі</span><div>
@@ -94,12 +94,12 @@
       <div class="pust-qgrp q-goods">
         {{#if v.supLamps}}
         <div class="pust-qi"><span><i class="fa-solid fa-backpack pust-qic" aria-hidden="true"></i>Припаси</span><div class="pust-qlamps">
-          {{#each v.supDots}}<button type="button" class="pust-qlamp dot {{#if on}}on{{/if}}" data-action="act" data-act="sup-set" data-n="{{n}}" title="Припасів: {{n}}" aria-label="Припасів: {{n}}"></button>{{/each}}</div></div>
+          {{#each v.supDots}}<button type="button" class="pust-qlamp dot {{#if on}}on{{/if}}" data-action="act" data-act="sup-set" data-n="{{n}}" title="Припасів: {{n}}" aria-label="Припасів: {{n}}"></button>{{/each}}</div><button type="button" class="pust-buy-btn" data-action="act" data-act="buy-sup" title="{{v.buy.sup.title}}" {{#if v.buy.sup.off}}disabled{{/if}}><i class="fa-solid fa-cart-shopping"></i> {{v.buy.sup.label}}</button></div>
         {{else}}
         <div class="pust-qi"><span><i class="fa-solid fa-backpack pust-qic" aria-hidden="true"></i>Припаси</span><div>
           <button type="button" data-action="act" data-act="step" data-k="supplies" data-d="-1" title="Мінус 1 Припас">−</button>
           <input class="pust-screen" type="text" data-k="supplies" data-num="1" value="{{v.supplies}}" aria-label="Припаси"><b>/ {{v.supMax}}</b>
-          <button type="button" data-action="act" data-act="step" data-k="supplies" data-d="1" title="Плюс 1 Припас">+</button></div></div>
+          <button type="button" data-action="act" data-act="step" data-k="supplies" data-d="1" title="Плюс 1 Припас">+</button></div><button type="button" class="pust-buy-btn" data-action="act" data-act="buy-sup" title="{{v.buy.sup.title}}" {{#if v.buy.sup.off}}disabled{{/if}}><i class="fa-solid fa-cart-shopping"></i> {{v.buy.sup.label}}</button></div>
         {{/if}}
         <div class="pust-qi"><span><i class="fa-solid fa-coins pust-qic" aria-hidden="true"></i>Кришки</span><div>
           <button type="button" data-action="act" data-act="step" data-k="caps" data-d="-1" title="Мінус 1 кришка">−</button>
@@ -369,6 +369,7 @@
           <div class="pust-row pust-cons cons-{{k}} {{#if v}}filled{{/if}} {{#if treated}}treated{{/if}}">
             <label>{{label}}</label>
             <input type="text" data-k="cons.{{k}}" value="{{v}}">
+            {{#if v}}{{#unless treated}}<button type="button" class="pust-buy-btn pust-buy-paper" data-action="act" data-act="buy-cons" data-k="{{k}}" title="{{buy.title}}" {{#if buy.off}}disabled{{/if}}><i class="fa-solid fa-kit-medical"></i> Вилікувати за {{buy.price}}(к)</button>{{/unless}}{{/if}}
             <label class="pust-tog" title="Лікування почалося"><input type="checkbox" data-k="consT.{{k}}" {{#if treated}}checked{{/if}} {{#unless v}}disabled{{/unless}}> проліковано</label>
           </div>
           {{/each}}

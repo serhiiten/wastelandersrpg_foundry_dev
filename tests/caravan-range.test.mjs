@@ -1,0 +1,36 @@
+// The caravan's range on the map (author, 2026-11-15): moving cost and refills (module/rules/caravan-range.mjs)
+import { brahminSaving, rangeCost, refillPlan, repairPlan } from "../module/rules/caravan-range.mjs";
+import { createCaravanLogic } from "../module/rules/caravan-logic.mjs";
+import { createCaravanController } from "../module/rules/caravan-controller.mjs";
+let n = 0, bad = 0;
+const ok = (c, m) => { n++; if (!c) { bad++; console.error("FAIL", m); } };
+ok(rangeCost(5) === 5 && rangeCost(0) === 0 && rangeCost(-2) === 0, "brahmins: a unit a cell");
+ok(rangeCost(3, true) === 1 && rangeCost(4, true) === 2 && rangeCost(1, true) === 1 && rangeCost(9, true) === 3, "cart: 3 cells a unit, rounded up");
+ok(rangeCost(5, false, 0.25) === 4 && rangeCost(5, false, 0.5) === 3 && rangeCost(4, false, 0.25) === 3 && rangeCost(1, false, 0.25) === 1, "brahmins: the cost rounded up (5 × ¾ = 3.75 → 4), never below 1 unit");
+ok(rangeCost(2, false, 0.5) === 1 && rangeCost(1, true, 0.5) === 1 && rangeCost(0, false, 0.5) === 0, "a move takes at least 1 unit; no move, nothing");
+ok(rangeCost(9, true, 0.25) === 3 && rangeCost(9, true, 0.5) === 2, "fuel regulator on a cart: 3 units × ¾ → 3, × ½ → 2");
+ok(brahminSaving(true) === 0.25 && brahminSaving(true, true) === 0.5 && brahminSaving(false, true) === 0, "brahmins' share");
+const eq = (a, b) => a.units === b.units && a.cost === b.cost;
+ok(eq(refillPlan(5, 10), { units: 5, cost: 2 }), "full refill: 5 units for 2 caps");
+ok(eq(refillPlan(6, 10), { units: 6, cost: 2 }), "6 units for 2 caps");
+ok(eq(refillPlan(10, 2), { units: 6, cost: 2 }), "not enough caps: as much as 2 caps buy");
+ok(eq(refillPlan(10, 0), { units: 0, cost: 0 }) && eq(refillPlan(0, 5), { units: 0, cost: 0 }), "nothing to buy");
+ok(eq(repairPlan(7, 10), { units: 7, cost: 2 }) && eq(repairPlan(12, 2), { units: 10, cost: 2 }) && eq(repairPlan(5, 0), { units: 0, cost: 0 }), "repairs: 5 HP a cap");
+// the controller's actions
+const L0 = createCaravanLogic({ S: null });
+const S0 = L0.blankState(); S0.moveCurrent = 3; S0.budget = 2;
+const L = createCaravanLogic({ S: S0, toast() {} });
+const C = createCaravanController(L, { toast() {} });
+const max = L.derived().maxMove;
+C.act("refill");
+ok(L.getS().moveCurrent === Math.min(max, 3 + 6) && L.getS().budget === 0, "refill spends the budget");
+C.act("spendRange", { n: 4 });
+ok(L.getS().moveCurrent === Math.min(max, 9) - 4, "spendRange");
+C.act("spendRange", { n: 99 });
+ok(L.getS().moveCurrent === 0, "never below 0");
+const L2 = createCaravanLogic({ S: Object.assign(L0.blankState(), { hpCurrent: 10, budget: 1 }), toast() {} });
+const C2 = createCaravanController(L2, { toast() {} });
+C2.act("repair");
+ok(L2.getS().hpCurrent === 15 && L2.getS().budget === 0, "repair spends the budget");
+console.log(bad ? `caravan-range: ${bad} of ${n} failed` : `caravan-range: OK (${n} checks)`);
+if (bad) process.exit(1);

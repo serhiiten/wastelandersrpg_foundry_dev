@@ -40,7 +40,7 @@ export function createCaravanLogic(env = {}) {
       imp: blankImps(),
       cargo: [], counters: [],
       story: { meeting: "", face: "", lastJob: "", wentWrong: "" }, notes: "",
-      longHaul: false, hpBonus: 0, armorBonus: 0, defOv: blankDefOv(), armorType: DEFAULT_ARMOR_TYPE, customImps: [],
+      longHaul: false, hpBonus: 0, armorBonus: 0, psiArmor: 0, defOv: blankDefOv(), armorType: DEFAULT_ARMOR_TYPE, customImps: [],
       manual: blankManual()
     };
   }
@@ -61,7 +61,7 @@ export function createCaravanLogic(env = {}) {
       const v = int(r.price) * Math.max(0, int(r.qty, 1));
       if (r.kind === "pass") passengers += Math.max(0, int(r.qty, 1)); else cargoVal += v;
     });
-    return { maxHP, baseMaxHP, armor, baseArmor, maxMove, supCap, cargoCap, impCount, cargoVal, passengers, cells: t ? 3 : 1 };
+    return { maxHP, baseMaxHP, armor, baseArmor, psiArmor: Math.max(0, int(st.psiArmor)), maxMove, supCap, cargoCap, impCount, cargoVal, passengers, cells: t ? 3 : 1 };
   }
 
   function aspectFor(k) {
@@ -110,6 +110,7 @@ export function createCaravanLogic(env = {}) {
     st.armorBonus = o.armorBonus !== undefined ? int(o.armorBonus) : Number.isFinite(ar) && ar >= 0 ? ar - ((st.tachka ? 2 : 1) + 2 * st.imp.armor) : 0;
     delete st.hpMaxOverride; delete st.armorOverride;
     st.defOv = cleanDefOv(o.defOv);
+    st.psiArmor = Math.max(0, int(o.psiArmor));
     st.armorType = typeof o.armorType === "string" ? o.armorType : DEFAULT_ARMOR_TYPE;
     st.customImps = Array.isArray(o.customImps) ? o.customImps.map(c => ({ name: String((c && c.name) || ""), desc: String((c && c.desc) || "") })) : [];
     st.manual = blankManual();
