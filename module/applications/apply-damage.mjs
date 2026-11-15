@@ -9,7 +9,7 @@
  * and the HP «до → після» only of characters and caravans (players see those bars anyway) — and the GMs get the full one
  * whispered (enemies' HP, armour, defences, every step). In the other modes the full card follows the mode as before.
  */
-import { resolveHit } from "../rules/battle.mjs";
+import { chatType, resolveHit } from "../rules/battle.mjs";
 import { targetProfile as profileOf } from "../rules/target-profile.mjs";
 import { battleType } from "./enemy-attack.mjs";
 import { postChat, isPublicMode } from "./chat.mjs";
@@ -49,18 +49,41 @@ export async function applyHeal(tokenUuids, amount, { head = "" } = {}) {
     const hp = Math.min(max, hp0 + Math.max(0, int(amount))); // never below 0 (the general rule)
     if (hp !== hp0) await actor.update({ "system.hp.value": hp });
     const name = esc(tok.name || actor.name);
-    lines.push({
-      full: `<li><b>${name}</b>: +${hp - hp0} ОЗ · ОЗ ${hp0} → ${hp}</li>`,
-      short: `<li><b>${name}</b>: +${hp - hp0} ОЗ${hpOpen(actor) ? ` · ОЗ ${hp0} → ${hp}` : ""}</li>`,
-    });
+    const row = { name, delta: hp - hp0, gain: true, hp0, hp, max };
+    lines.push({ full: targetRow({ ...row, showHp: true }), short: targetRow({ ...row, showHp: hpOpen(actor) }) });
   }
-  const card = (ls, gmNote = "") => `<div class="pust-chat pust-dmgapply pust-healapply"><h4><i class="fa-solid fa-kit-medical"></i> Лікування${head ? `: ${esc(head)}` : ""}${gmNote}</h4><ul>${ls.join("")}</ul></div>`;
+  const card = (ls, gmNote = "") => applyCard({ heal: true, icon: "fa-kit-medical", title: `Лікування${head ? `: ${esc(head)}` : ""}`, chips: gmNote, rows: ls });
   await postSplit("Лікування", lines, card);
   return lines.length;
 }
 
 /** HP everyone may see: characters' and caravans' (their bars are open to all), not enemies' */
 const hpOpen = (actor) => actor?.type === "character" || actor?.type === "caravan";
+
+/**
+ * One target's row of a damage / healing card (author, 2026-11-15: the cards made handsome): the name, the change as a big
+ * number on the right, «вибуває», and — where HP may be shown — a small HP bar «до → після» (the lost part in red, the
+ * gained part in green); the GM's version adds the steps (armour, defences) in small type.
+ */
+function targetRow({ name, delta, gain, hp0, hp, max, showHp, out = false, note = "", steps = [] }) {
+  const pct = (v) => Math.max(0, Math.min(100, max > 0 ? (v / max) * 100 : 0));
+  const lo = Math.min(hp0, hp), hi = Math.max(hp0, hp);
+  const bar = showHp && max > 0
+    ? `<div class="pust-da-hp"><span class="pust-da-bar"><i class="now" style="width:${pct(lo).toFixed(1)}%"></i><i class="${gain ? "gain" : "lost"}" style="left:${pct(lo).toFixed(1)}%;width:${(pct(hi) - pct(lo)).toFixed(1)}%"></i></span><span class="pust-da-hpn">ОЗ ${hp0} → <b>${hp}</b> / ${max}</span></div>`
+    : "";
+  return `<div class="pust-da-row${out ? " out" : ""}"><div class="pust-da-main"><span class="pust-da-name">${name}</span>`
+    + `${out ? `<span class="pust-da-out"><i class="fa-solid fa-skull"></i>вибуває</span>` : ""}`
+    + `<span class="pust-da-delta ${gain ? "gain" : delta === 0 ? "zero" : "lost"}">${gain ? "+" : delta === 0 ? "" : "−"}${delta}</span></div>`
+    + bar + (note ? `<div class="pust-da-note">${note}</div>` : "")
+    + (steps.length ? `<div class="pust-da-steps">${esc(steps.join(" · "))}</div>` : "") + `</div>`;
+}
+
+/** The card's frame: a header (icon, title, chips) and the rows */
+function applyCard({ heal = false, dt = "", icon, title, chips = "", rows }) {
+  // a damage card's header in its damage type's chip colours (author, 2026-11-15; .dt-* in css/pust-check.css)
+  return `<div class="pust-chat pust-dmgapply${heal ? " pust-healapply" : ""}${dt ? ` pust-da-typed dt-${dt}` : ""}"><div class="pust-da-hd"><i class="fa-solid ${icon}"></i><span class="pust-da-title">${title}</span>${chips}</div>`
+    + `<div class="pust-da-list">${rows.join("")}</div></div>`;
+}
 
 /**
  * The summary to chat: in the public mode a short card for all and the full one whispered to the GMs; otherwise the full
@@ -74,7 +97,7 @@ async function postSplit(alias, lines, card) {
   // nothing more to tell the GM when the short card already says it all
   if (full.join("") === short.join("")) return;
   const CM = ChatMessage.implementation;
-  await CM.create({ speaker: { alias }, whisper: CM.getWhisperRecipients("GM").map((u) => u.id), content: card(full, ` <small class="pust-gmonly" title="Бачить лише Доглядач">· розпис для Доглядача</small>`, true) });
+  await CM.create({ speaker: { alias }, whisper: CM.getWhisperRecipients("GM").map((u) => u.id), content: card(full, `<span class="pust-da-chip gm" title="Бачить лише Доглядач"><i class="fa-solid fa-eye-slash"></i>Доглядачу</span>`, true) });
 }
 
 export async function applyDamage(tokenUuids, data, { partial = false, head = "" } = {}) {
@@ -93,17 +116,17 @@ export async function applyDamage(tokenUuids, data, { partial = false, head = ""
     const hp = r.hp, steps = r.steps;
     if (hp !== hp0) await actor.update({ "system.hp.value": hp });
     const name = esc(tok.name || actor.name);
-    const out = r.out ? " · <b>вибуває</b>" : "";
-    const delta = hp >= hp0 && r.heal ? `+${hp - hp0} ОЗ` : `−${hp0 - hp} ОЗ`;
-    lines.push({
-      full: `<li><b>${name}</b>: ${delta}${r.heal ? ` (лікує ${r.heal})` : ""} · ОЗ ${hp0} → ${hp}${out}${steps.length ? `<br><small>${esc(steps.join(" · "))}</small>` : ""}</li>`,
-      // the short line: no steps (armour, defences); HP only where everyone sees them
-      short: `<li><b>${name}</b>: ${delta}${hpOpen(actor) ? ` · ОЗ ${hp0} → ${hp}` : ""}${out}</li>`,
-    });
+    const gain = hp >= hp0 && !!r.heal;
+    const row = { name, delta: gain ? hp - hp0 : hp0 - hp, gain, hp0, hp, max, out: !!r.out, note: r.heal ? `лікує ${esc(r.heal)}` : "" };
+    // the short row (everyone): no steps (armour, defences); HP only where everyone sees them
+    lines.push({ full: targetRow({ ...row, showHp: true, steps }), short: targetRow({ ...row, showHp: hpOpen(actor) }) });
   }
   // the full card's header also says what the dice gave, before armour and defences (author, 2026-11-15)
-  const rolled = Number.isFinite(Number(data.total)) ? ` <span class="pust-dmg-rolled" title="Скільки випало на кістках (з модифікаторами), до броні й стійкостей">· випало <b>${Math.max(0, int(data.total))}</b></span>` : "";
-  const card = (ls, gmNote = "", full = false) => `<div class="pust-chat pust-dmgapply"><h4><i class="fa-solid fa-burst"></i> Шкода${head ? `: ${esc(head)}` : " застосована"}${partial ? " (частковий успіх)" : ""}${full ? rolled : ""}${gmNote}</h4><ul>${ls.join("")}</ul></div>`;
+  const rolled = Number.isFinite(Number(data.total)) ? `<span class="pust-dmg-rolled" title="Скільки випало на кістках (з модифікаторами), до броні й стійкостей">випало <b>${Math.max(0, int(data.total))}</b></span>` : "";
+  const card = (ls, gmNote = "", full = false) => applyCard({
+    dt: chatType(type), icon: "fa-burst", title: `Шкода${head ? `: ${esc(head)}` : ""}`,
+    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
+  });
   await postSplit("Шкода", lines, card);
   return lines.length;
 }
@@ -123,7 +146,7 @@ export async function sendDamage(data, { partial = false, head = "" } = {}) {
   if (game.user.isGM) { await applyDamage(targets, data, { partial, head }); clearTargets(); return true; }
   if (!game.users.activeGM) { ui.notifications.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
   game.socket.emit(SOCKET(), { op: "applyDamage", targets, data, partial, head, from: game.user.id });
-  ui.notifications.info("Запит надіслано Доглядачеві.");
+  // no «Запит надіслано Доглядачеві» notice (author, 2026-11-15): the chat card shows the result
   clearTargets();
   return true;
 }

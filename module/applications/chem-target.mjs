@@ -55,7 +55,7 @@ function pcCard(giver, key, target, last) {
   let text = String(last || "").startsWith(key + ". ") ? String(last).slice(key.length + 2) : String(last || "");
   // the engine's line about the row it used up speaks of the dose's copy, not of anyone's gear
   text = text.replace(/\s*Це була остання[^.]*\./g, "").trim();
-  return `<div class="pust-chat pust-dmgapply pust-healapply"><h4><i class="fa-solid fa-syringe"></i> ${esc(key)}: ${esc(giver)} → ${esc(target)}</h4><p>${esc(text)}</p></div>`;
+  return `<div class="pust-chat pust-dmgapply pust-healapply"><div class="pust-da-hd"><i class="fa-solid fa-syringe"></i><span class="pust-da-title">${esc(key)}: ${esc(giver)} → ${esc(target)}</span></div><div class="pust-da-text">${esc(text)}</div></div>`;
 }
 
 /** The target's side for a player character (whoever writes it: the user or the GM) */
@@ -139,7 +139,6 @@ export async function useOnTarget(giverActor, i) {
     if (canWrite) await applyHeal([tok.uuid], healPlan.amount, { head });
     else game.socket.emit(SOCKET(), { op: "chemHeal", token: tok.uuid, amount: healPlan.amount, head, from: game.user.id });
   }
-  if (!canWrite) ui.notifications.info("Запит надіслано Доглядачеві.");
   clearTargets();
   return true;
 }

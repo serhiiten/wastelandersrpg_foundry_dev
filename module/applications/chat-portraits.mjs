@@ -29,6 +29,13 @@ export function preprocessChatMessage(messageData, options, userId, diff) {
 
 // Render chat message
 export function renderChatMessage(message, html, context) {
+  // the system's own cards spoken by no actor («Шкода», «Лікування», «Коло дій», «Хімія», «Термінал Доглядача»…; author,
+  // 2026-11-15): no picture and no sender name — the card's own header says what it is; the time, delete and «To:» stay
+  const sp = message.speaker ?? {};
+  if (!sp.actor && !sp.token && String(message.content ?? "").includes("pust-chat")) {
+    html.classList.add("pust-bare");
+    return;
+  }
   const { src: portraitSource } = message.flags?.["portrait"] || {};
   if (!portraitSource) return;
 

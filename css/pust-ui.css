@@ -447,13 +447,47 @@
   font: 800 12px/1 var(--pu-f-label, "Oswald"), "PT Sans Narrow", sans-serif !important; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; box-shadow: none !important; }
 .pust-roller button.pust-dmg-apply:hover, .wastelanders .pust-en button.pust-dmg-apply:not(.header-control):hover { background: linear-gradient(180deg, #c22e1e, #8f2116) !important; color: #fff !important; }
 .pust-roller button.pust-dmg-apply:disabled, .wastelanders .pust-en button.pust-dmg-apply:disabled { opacity: .5; cursor: default; }
-.pust-chat.pust-dmgapply ul { margin: 4px 0 0; padding-left: 16px; }
-.pust-chat.pust-dmgapply li { margin: 2px 0; }
-.pust-chat.pust-dmgapply small { color: var(--pu-ink-3, #5a5244); }
-/* «випало N» in the GM's full card (author, 2026-11-15): the dice total as a bright yellow number on the dark header */
-.pust-chat.pust-dmgapply h4 .pust-dmg-rolled { white-space: nowrap; }
-.pust-chat.pust-dmgapply h4 .pust-dmg-rolled b { display: inline-block; min-width: 1.6em; margin-left: 2px; padding: 0 5px; border-radius: 3px;
-  background: #13231a; color: #f4d11a; font-family: "PT Mono", monospace; font-size: 1.1em; font-weight: 700; text-align: center; letter-spacing: 0; }
+/* «Завдати цілям» / «Лікувати» summaries in chat (author, 2026-11-15: made handsome; apply-damage.mjs targetRow / applyCard):
+   a dark header (damage red, healing green) with chips — «частковий успіх», «випало N» and «Доглядачу» on the GM's copy —,
+   then one row per target: the name, «вибуває», the change as a big number on the right, an HP bar «до → після» where HP
+   may be shown, and on the GM's copy the steps (armour, defences) in small type */
+.chat-message .pust-chat.pust-dmgapply { --da: #8a1c12; --da-2: #5a120b; --da-ink: #fbe9e6; padding: 0; overflow: hidden; border: 2px solid var(--da-2); border-radius: 5px; background: #f4eedc; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.chat-message .pust-chat.pust-dmgapply.pust-healapply { --da: #2f6b35; --da-2: #1f4a1a; --da-ink: #e7ffd9; }
+.pust-chat.pust-dmgapply .pust-da-hd { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; padding: 7px 9px; background: linear-gradient(180deg, color-mix(in srgb, var(--da) 82%, #fff), var(--da)); color: var(--da-ink);
+  font-family: "Oswald", "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pust-chat.pust-dmgapply .pust-da-hd > i { flex: none; font-size: 15px; }
+/* a damage card's header in its type's chip colours (author, 2026-11-15): the chip's face, its number colour as the ink, its border */
+.chat-message .pust-chat.pust-dmgapply.pust-da-typed { border-color: var(--dt-bd); }
+.pust-chat.pust-dmgapply.pust-da-typed .pust-da-hd { background: var(--dt-bg); color: var(--dt-fg); border-bottom: 2px solid var(--dt-bd); }
+.pust-chat.pust-dmgapply.pust-da-typed .pust-da-chip:not(.gm) { color: var(--dt-fg); }
+.pust-chat.pust-dmgapply .pust-da-title { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pust-chat.pust-dmgapply .pust-da-chip { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: 3px; background: rgba(0,0,0,.28); color: var(--da-ink);
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; text-transform: none; text-shadow: none; }
+.pust-chat.pust-dmgapply .pust-da-chip.gm { background: #1e1b17; color: #f4d11a; }
+.pust-chat.pust-dmgapply .pust-dmg-rolled { flex: none; display: inline-flex; align-items: center; gap: 4px; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 11.5px; font-weight: 700; text-transform: none; text-shadow: none; }
+.pust-chat.pust-dmgapply .pust-dmg-rolled b { min-width: 1.6em; padding: 0 5px; border-radius: 3px; background: #13231a; color: #f4d11a; font-family: "PT Mono", monospace; font-size: 14px; text-align: center; }
+.pust-chat.pust-dmgapply .pust-da-list { display: flex; flex-direction: column; }
+.pust-chat.pust-dmgapply .pust-da-row { display: flex; flex-direction: column; gap: 3px; padding: 6px 9px; border-top: 1px solid #d9cfb2; }
+.pust-chat.pust-dmgapply .pust-da-row:first-child { border-top: 0; }
+.pust-chat.pust-dmgapply .pust-da-row.out { background: repeating-linear-gradient(-45deg, rgba(168,18,26,.07) 0 8px, transparent 8px 16px); }
+.pust-chat.pust-dmgapply .pust-da-main { display: flex; align-items: center; gap: 6px; }
+.pust-chat.pust-dmgapply .pust-da-name { flex: 1 1 auto; min-width: 0; color: #2a261c; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 800; font-size: 14px; overflow-wrap: anywhere; }
+.pust-chat.pust-dmgapply .pust-da-out { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: 3px; background: #a8121a; color: #fff0ec; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.pust-chat.pust-dmgapply .pust-da-delta { flex: none; min-width: 42px; padding: 1px 6px; border-radius: 4px; text-align: center; font-family: "PT Mono", monospace; font-size: 19px; font-weight: 700; line-height: 1.2; }
+.pust-chat.pust-dmgapply .pust-da-delta.lost { background: #a8121a; color: #fff0ec; }
+.pust-chat.pust-dmgapply .pust-da-delta.gain { background: #2f6b35; color: #e7ffd9; }
+.pust-chat.pust-dmgapply .pust-da-delta.zero { background: #d9cfb2; color: #5a5244; }
+.pust-chat.pust-dmgapply .pust-da-hp { display: flex; align-items: center; gap: 7px; }
+.pust-chat.pust-dmgapply .pust-da-bar { position: relative; flex: 1 1 auto; height: 8px; border-radius: 4px; background: #d9cfb2; overflow: hidden; box-shadow: inset 0 1px 1px rgba(0,0,0,.2); }
+.pust-chat.pust-dmgapply .pust-da-bar > i { position: absolute; top: 0; bottom: 0; left: 0; }
+.pust-chat.pust-dmgapply .pust-da-bar > i.now { background: #4f8f3c; }
+.pust-chat.pust-dmgapply .pust-da-bar > i.lost { background: repeating-linear-gradient(-45deg, #c0281c 0 3px, #8a1c12 3px 6px); }
+.pust-chat.pust-dmgapply .pust-da-bar > i.gain { background: #8fd18a; }
+.pust-chat.pust-dmgapply .pust-da-hpn { flex: none; color: #5a5244; font-family: "PT Mono", monospace; font-size: 11.5px; }
+.pust-chat.pust-dmgapply .pust-da-hpn b { color: #2a261c; }
+.pust-chat.pust-dmgapply .pust-da-note { color: #2f6b35; font-size: 12px; font-weight: 700; }
+.pust-chat.pust-dmgapply .pust-da-steps { color: #5a5244; font-family: "PT Mono", monospace; font-size: 11px; line-height: 1.35; }
+.pust-chat.pust-dmgapply .pust-da-text { padding: 6px 9px 7px; color: #2a261c; font-size: 13px; line-height: 1.35; }
 
 /* ===== Аспекти: один вигляд скрізь (author, 2026-11-14) =====
    Situational aspects of characters, enemies' aspects (situational and the book's), places', zones' (editor): a yellow chip,
@@ -609,3 +643,20 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
 .chat-message .pust-chat.pust-fdcard b { color: inherit; font-weight: 800; }
 .chat-message .pust-chat.pust-fdcard .pust-fdcard-n { flex: none; min-width: 26px; padding: 0 6px; border-radius: 3px; background: #241a0c; color: #f4d11a; font-family: "PT Mono", monospace; font-size: 16px; line-height: 24px; text-align: center; }
 .chat-message .pust-chat.pust-fdcard.pust-supcard.spend { background: linear-gradient(180deg, #b0582a, #8a3f1a); border-color: #5a2a10; color: #fbe9d6; }
+/* an enemy's move in chat (author, 2026-11-15; enemy-sheet.mjs): a coloured head strip with the enemy's name, the result
+   under it — a healing move green, Психо red while it acts, grey when it wears off */
+.chat-message .pust-chat.pust-encard { --ec: #2f6b35; --ec-ink: #e7ffd9; padding: 0; overflow: hidden; border: 2px solid color-mix(in srgb, var(--ec) 70%, #000); border-radius: 5px; background: #f4eedc; }
+.chat-message .pust-chat.pust-encard.psycho { --ec: #a8121a; --ec-ink: #fff0ec; }
+.chat-message .pust-chat.pust-encard.psycho-off { --ec: #5d5a52; --ec-ink: #f1ece0; }
+.chat-message .pust-chat.pust-encard .pust-encard-hd { display: flex; align-items: center; gap: 8px; padding: 6px 9px; background: linear-gradient(180deg, color-mix(in srgb, var(--ec) 85%, #fff), var(--ec)); color: var(--ec-ink);
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 14px; line-height: 1.2; }
+.chat-message .pust-chat.pust-encard .pust-encard-hd > i { flex: none; font-size: 15px; }
+.chat-message .pust-chat.pust-encard .pust-encard-hd b { color: inherit; font-weight: 800; }
+.chat-message .pust-chat.pust-encard p { margin: 0; padding: 6px 9px 7px; color: #2a261c; font-family: "PT Mono", monospace; font-size: 13px; line-height: 1.35; }
+/* the system's own cards spoken by no actor (author, 2026-11-15; chat-portraits.mjs): no picture, no sender name; the time
+   and delete stay on the right */
+.chat-message.pust-bare .message-header .portrait, .chat-message.pust-bare .message-header .message-sender { display: none; }
+.chat-message.pust-bare .message-header { justify-content: flex-end; min-height: 0; padding-bottom: 2px; }
+/* the GM spending a Fate token (author, 2026-11-15; battle-panel.mjs): the players' card in the GM's colours — dark crimson, a gold number */
+.chat-message .pust-chat.pust-fdcard.pust-gmfd { background: linear-gradient(180deg, #6b1a2a, #3e0e19); border-color: #2a0810; color: #f6dfe4; }
+.chat-message .pust-chat.pust-fdcard.pust-gmfd > i { color: #f4d11a; }
