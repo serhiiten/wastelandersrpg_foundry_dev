@@ -1,4 +1,4 @@
-// Damage and healing as «Завдати виділеним» / «Завдати шкоди» / «Лікувати» apply them (author, 2026-11-14: «усі можливі
+// Damage and healing as «Завдати цілям» / «Завдати шкоди» / «Лікувати» apply them (author, 2026-11-14: «усі можливі
 // варіанти … з урахуванням усіх можливих захистів по усім типам акторів»): resolveHit (module/rules/battle.mjs) on the
 // profiles of module/rules/target-profile.mjs — enemies (their card), characters (the rules engine, every species, manual
 // defences, chems), caravans (armour). Places have no HP and take no damage. Run: node tests/apply-hit.test.mjs

@@ -1,0 +1,85 @@
+/* Конструктори виду й наркотика (module/sheets/species-builder.mjs, drug-builder.mjs).
+   Palette and fields are the system's (--pu-* from pust-ui.css); numbers are dark screens with green digits (input.pust-screen),
+   −/+ come from the general button[data-d] rule: a decrease pale red, an increase pale green. */
+.pust-builder-sheet .window-content { padding: 0; overflow: hidden !important; }
+.pust-bld.pust-sheet-inner { padding: 0; gap: 0; height: auto; min-height: 0; max-height: calc(100vh - 80px); }
+.pust-bld-hd { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: linear-gradient(180deg, var(--pu-rust-3), var(--pu-rust-2)); color: var(--pu-yellow); font-family: var(--pu-f-label); font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 3px solid var(--pu-rust-1); }
+.pust-bld-hd small { margin-left: auto; font-size: 11px; font-weight: 400; color: #f1e4c0; text-transform: none; letter-spacing: 0; }
+.pust-bld-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; }
+.pust-bld-card { background: rgba(255,252,240,.78); border: 1.5px solid var(--pu-ink-2); border-radius: 3px; box-shadow: 3px 3px 0 rgba(35,27,17,.22); padding: 6px 8px 8px; margin: 0; flex: none; }
+.pust-bld h3 { margin: 0 0 6px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.pust-bld h3 i { color: var(--pu-rust-3); }
+.pust-bld label { display: flex; flex-direction: column; gap: 2px; margin: 0; font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-bld :is(input[type="text"], select) { height: 28px; font-size: 14px; min-width: 0; }
+.pust-bld textarea { width: 100%; min-height: 30px; resize: none; line-height: 1.35; font-size: 14px; overflow: hidden; }
+.pust-bld-hint { margin: 6px 2px 0; font-size: 12px; color: var(--pu-ink-2); }
+.pust-bld-hint i { color: var(--pu-rust-3); margin-right: 4px; }
+.pust-bld-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pust-bld-lbl { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-bld-lbl i { width: 1.2em; color: var(--pu-rust-3); }
+
+/* −/+ counters */
+.pust-bld-num { display: inline-flex; align-items: center; gap: 3px; flex: none; }
+.wastelanders .pust-bld-num > input.pust-screen[type="text"] { width: 46px !important; flex: none; text-align: center; height: 28px !important; padding: 0 !important; }
+.wastelanders .pust-bld-num > button { flex: none; width: 26px !important; height: 28px !important; margin: 0 !important; padding: 0 !important; font-size: 16px !important; line-height: 26px !important; }
+
+/* buttons */
+.wastelanders .pust-bld button.pust-bld-btn:not(.header-control) { flex: none; width: auto; height: 26px !important; min-height: 0; margin: 0 !important; padding: 0 10px !important; line-height: 24px !important; font-size: 12px; font-family: var(--pu-f-label); font-weight: 700; white-space: nowrap; }
+.wastelanders .pust-bld button.pust-bld-x:not(.header-control) { flex: none; width: 26px !important; height: 26px !important; margin: 0 !important; padding: 0 !important; line-height: 24px !important; font-size: 16px; background: #f2cdc6 !important; border-color: #b0574a !important; color: #8a2116 !important; }
+.wastelanders .pust-bld button.pust-bld-d10:not(.header-control) { margin-left: auto !important; }
+
+/* attribute limits */
+.pust-bld-attrs { display: flex; flex-direction: column; gap: 3px; }
+.pust-bld-attr { display: grid; grid-template-columns: 44px repeat(3, 1fr) 112px; align-items: center; gap: 6px; padding: 2px 4px; border-radius: 3px; }
+.pust-bld-attr.changed { background: rgba(239,157,98,.22); }
+.pust-bld-head { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-bld-head span { text-align: center; }
+.pust-bld-attr > .pust-bld-num { justify-self: center; }
+.pust-bld-an b { font-family: var(--pu-f-label); font-size: 14px; color: var(--pu-ink); }
+.pust-bld-rst { display: flex; justify-content: flex-end; }
+
+/* body and defences */
+.pust-bld-counters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+.pust-bld-cnt { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.pust-bld-defs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+
+/* properties */
+.pust-bld-props { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
+.pust-bld-prop { display: flex; align-items: flex-start; gap: 4px; }
+.pust-bld-prop textarea { flex: 1 1 auto; min-width: 0; }
+/* a property as «Назва» over «Опис» (author, 2026-11-15) */
+.pust-bld-propf { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.pust-bld-propf > input { font-weight: 700; }
+.pust-bld-propnew { margin: 0 30px 6px 0; } /* its right edge on the fields above (they have × next to them) */
+.pust-bld-propf > textarea { resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pust-bld-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pust-bld-row > input[type="text"] { flex: 1 1 220px; min-width: 0; }
+
+/* short description / preview */
+.pust-bld-short { margin: 0; font-size: 13px; line-height: 1.4; color: var(--pu-ink); }
+.pust-bld-desc { font-size: 14px; line-height: 1.45; }
+.pust-bld-desc p:first-child { margin-top: 0; }
+
+/* effects and side effects */
+.pust-bld-eff { padding: 3px 4px; border-radius: 3px; border-bottom: 1px dashed var(--pu-paper-3); }
+.pust-bld-eff.on { background: rgba(159,205,108,.3); }
+.pust-bld-eff.side.on { background: rgba(229,154,140,.35); }
+.pust-bld-effhd { display: flex; align-items: center; gap: 8px; min-height: 26px; }
+.pust-bld-chk { display: flex; flex-direction: row !important; align-items: center; gap: 6px !important; flex: 1 1 auto; min-width: 0; font-family: var(--pu-f-text) !important; font-weight: 400 !important; font-size: 13px !important; text-transform: none !important; letter-spacing: 0 !important; color: var(--pu-ink); cursor: pointer; }
+.pust-bld-chk > i { color: var(--pu-rust-3); }
+.pust-bld-chk input[type="checkbox"] { flex: none; margin: 0; }
+.pust-bld-cost { flex: none; font-family: var(--pu-f-num); font-size: 12px; color: var(--pu-ink-3); white-space: nowrap; }
+.pust-bld-entry { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 3px 0 2px 22px; }
+.pust-bld-entry > select { flex: 1 1 160px; max-width: 260px; }
+.pust-bld-entry > .pust-bld-perk { flex: 1 1 200px; max-width: none; }
+.pust-bld-pc { display: inline-flex; align-items: center; gap: 4px; }
+.pust-bld-pc small { font-size: 11px; color: var(--pu-ink-3); white-space: nowrap; }
+
+/* footer screen */
+.pust-bld-screen { flex: none; margin: 0; padding: 8px 12px; background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29); color: var(--pu-green); border-top: 3px solid var(--pu-steel-0); box-shadow: inset 0 0 18px rgba(0,0,0,.45); font-family: var(--pu-f-num); font-size: 14px; }
+.pust-bld-sum { font-size: 15px; }
+.pust-bld-sum b { color: #b6ffb9; font-size: 18px; }
+.pust-bld-sum i { color: var(--pu-green-dim); font-style: normal; margin: 0 4px; }
+.pust-bld-err { color: var(--pu-red); margin-top: 3px; font-size: 13px; }
+.pust-bld-warn { color: var(--pu-amber); margin-top: 3px; font-size: 13px; }
+.pust-bld-screen.bad .pust-bld-sum b { color: var(--pu-red); }

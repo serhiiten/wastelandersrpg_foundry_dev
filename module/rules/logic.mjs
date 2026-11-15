@@ -9,6 +9,10 @@ import {
   LVLDIE,
   SPECIES,
   SPECIES_ORDER,
+  SPECIES_NATIVE,
+  speciesNative,
+  speciesExtra,
+  spOf,
   ARCH,
   ARCH_ORDER,
   PRICE,
@@ -99,6 +103,8 @@ import {
   officialName,
   DRUGS,
   DRUG_ALIAS,
+  OFFICIAL_DRUGS,
+  registerCustomDrugs,
   drugOf,
   ATTR_BY_NAME,
   boosterAttr,
@@ -205,12 +211,13 @@ function chemKO(){
   }
 }
 /* Лікувальна хімія без інших корисних ефектів: не вживається, якщо ОЗ на максимумі */
-function healOnly(D){ if(!D || !(D.heal||D.superHeal)) return false; const e=D.eff; const pos = e && (Object.values(e.attr||{}).some(v=>v>0) || e.armor || e.psi || e.dmg); return !pos; }
+function healOnly(D){ if(!D || !(D.heal||D.superHeal)) return false; const e=D.eff; const pos = !!(D.hpDice || (D.drug && D.info) || (e && (Object.values(e.attr||{}).some(v=>v>0) || e.armor || e.psi || e.dmg || e.half))); return !pos; }
 function hpIsFull(){ const d=compute(st); return curHp(d) >= d.hp + chemHpTemp(); }
 function curHp(d){ return (st.hpCur===''||st.hpCur==null) ? d.hp : (parseInt(st.hpCur,10)||0); }
 let chemSeq=0;
 
 function useItem(i){
+  registerCustomDrugs(st);
   const o=st.other[i]; if(!o) return; const key=drugOf(o.n); if(!key) return;
   const D=DRUGS[key]; const d=compute(st); const c=chem();
   const robotBody = st.species==='robot' && !d.has('Кіборг');
@@ -231,20 +238,31 @@ function useItem(i){
   let cur=curHp(d); const max=d.hp+chemHpTemp();
   const heal=(n,label)=>{ if(resist) n=Math.ceil(n/2); const nv=Math.max(cur, Math.min(max, cur+n)); msgs.push(label+': +'+(nv-cur)+' ОЗ'+(resist?' (Опірність до хімії: удвічі менше)':'')+(cur+n>max?' — уже максимум':'')+'.'); cur=nv; st.hpCur=String(cur); };
   const dupKey = key+(D.booster?':'+attr:'');
-  const dup = [...c.scene, ...c.day].some(x=>(x.key||x.drug)===dupKey);
+  const dup = [...c.scene, ...c.day].some(x=>!x.session && (x.key||x.drug)===dupKey);
   const addEff=(e)=>{ if(dup) return; const list = D.day ? c.day : c.scene; list.push(Object.assign({id:++chemSeq+'-'+Date.now(), drug:key, key:dupKey, scenes}, e)); };
   if(D.loot){ st.loot[D.loot]=true; if(D.loot==='egg'){ { const mx=hpMaxNow(compute(st)); const nv=Math.max(cur, Math.min(mx, cur+10)); msgs.push('Омлет: +'+(nv-cur)+' ОЗ.'); cur=nv; st.hpCur=String(cur); } msgs.push('+1 пункт атрибутів — розподіли його в Атрибутах. Голод втамовано на тиждень.'); } else msgs.push('Максимум ОЗ назавжди +2.'); }
   if(D.heal){ const used=c.uses[key]||0; const n=Math.max(0, D.heal.base-used*D.heal.dec); c.uses[key]=used+1; if(n>0) heal(n, key+(used?' ('+(used+1)+'-й за день)':'')); else msgs.push(key+': сьогодні вже без ефекту.'); }
   if(D.superHeal){ const r=rnd(6); heal(r+4, key+' (1d6 = '+r+', + 4)'); c.superDice++; msgs.push('Відкладено 1d6 шкоди на кінець сцени (усього кісток: '+c.superDice+').'); }
-  if(dup && (D.eff||D.booze||D.booster)) msgs.push('Повторна доза «'+key+'» '+(D.day?'цього дня':'в цій сцені')+' не посилює ефект.');
+  if(dup && (D.eff||D.booze||D.booster||D.hpDice||D.endDice||D.aspect||D.sessionAttr)) msgs.push('Повторна доза «'+key+'» '+(D.day?'цього дня':'в цій сцені')+' не посилює ефект.');
   else if(D.booze){ const r=rnd(6); addEff({t:'+'+r+' до максимуму ОЗ', hpTemp:r}); cur+=r; st.hpCur=String(cur); msgs.push('Міцне бухло: +'+r+' до максимуму й поточних ОЗ до кінця сцени.'); }
   if(D.booster && !dup){
     const v0=effAttr(d,attr); addEff({t:'+1 '+ASHORT[attr], attr:{[attr]:1}}); const v1=effAttr(d,attr);
     msgs.push('Бустер: +1 '+ASHORT[attr]+' до кінця сцени'+(v1===v0?' (атрибут уже на межі +4 — без ефекту)':'')+'.');
     if(attr==='VTR' && v1>v0){ const e=(D.day?c.day:c.scene).slice(-1)[0]; const n=3*(v1-v0); e.hpTemp=n; e.t+=', +'+n+' до максимуму ОЗ'; cur+=n; st.hpCur=String(cur); msgs.push('Витривалість вища — максимум ОЗ +'+n+' (і поточні ОЗ +'+n+'), поки діє бустер.'); }
   }
-  if(D.eff && !dup){ const v0=effAttr(d,'VTR'); addEff({t:D.eff.t, attr:D.eff.attr, floor:D.eff.floor, armor:D.eff.armor, psi:D.eff.psi, dmg:D.eff.dmg}); const v1=effAttr(d,'VTR');
+  if(D.eff && !dup){ const v0=effAttr(d,'VTR'); addEff({t:D.eff.t, attr:D.eff.attr, floor:D.eff.floor, armor:D.eff.armor, psi:D.eff.psi, dmg:D.eff.dmg, half:D.eff.half}); const v1=effAttr(d,'VTR');
     if(v1!==v0){ const e=(D.day?c.day:c.scene).slice(-1)[0]; const n=3*(v1-v0); e.hpTemp=n; e.t+=', '+(n>0?'+':'−')+Math.abs(n)+' до максимуму ОЗ'; const nm=hpMaxNow(d); if(n>0){ cur+=n; } else { cur=Math.min(cur, nm); } st.hpCur=String(cur); msgs.push('Витривалість '+(n>0?'вища':'нижча')+' — максимум ОЗ '+(n>0?'+':'−')+Math.abs(n)+' до кінця дії'+(n<0?' (поточні ОЗ не вищі за новий максимум)':'')+'.'); } if(!D.heal) msgs.push(key+': '+D.eff.t+(D.day?' (до кінця дня)':longer?' (дві сцени)':' (до кінця сцени)')+'.'); }
+  if(D.hpDice && !dup){ const rolls=Array.from({length:D.hpDice},()=>rnd(6)); const r=rolls.reduce((a,b)=>a+b,0);
+    addEff({t:'+'+r+' до максимуму ОЗ', hpTemp:r}); cur+=r; st.hpCur=String(cur);
+    msgs.push(key+': '+D.hpDice+'d6 = '+rolls.join(' + ')+' — максимум ОЗ +'+r+' (і поточні ОЗ +'+r+') до кінця сцени.'); }
+  if(D.sessionAttr && !dup && !c.scene.some(x=>x.session && x.key===key+':сесія')){
+    const v0=effAttr(d,'VTR'); const tx=Object.keys(D.sessionAttr).map(k=>(D.sessionAttr[k]>0?'+':'−')+Math.abs(D.sessionAttr[k])+' '+ASHORT[k]).join(', ')+' до кінця сесії';
+    addEff({t:tx, attr:D.sessionAttr, session:true, key:key+':сесія'}); const v1=effAttr(d,'VTR');
+    if(v1!==v0){ const e=c.scene.slice(-1)[0]; const n=3*(v1-v0); e.hpTemp=n; e.t+=', '+(n>0?'+':'−')+Math.abs(n)+' до максимуму ОЗ'; if(n<0) cur=Math.min(cur, hpMaxNow(d)); st.hpCur=String(cur); }
+    msgs.push(key+': '+tx+' (минає лише з «Кінець сесії»).'); }
+  if(D.aspect && !dup){ st.sit=st.sit||[]; const had=st.sit.some(a=>a.t===D.aspect); if(!had) st.sit.push({t:D.aspect, inv:0});
+    addEff({t:'аспект «'+D.aspect+'»', aspect:D.aspect, aspectAdded:!had}); msgs.push(key+': аспект «'+D.aspect+'» до кінця сцени.'); }
+  if(D.endDice && !dup){ c.endDice=(c.endDice||0)+D.endDice; msgs.push(key+': наприкінці сцени втратиш '+D.endDice+'d6 ОЗ (шкода ігнорує броню).'); }
   if(D.info) msgs.push(D.info);
   if(longer && (D.eff||D.booze||D.booster)) msgs.push((d.has('Чутливість до хімії')?'Чутливість до хімії':'Покращений метаболізм')+': діє на одну сцену довше.');
   if(!c.used.includes(key)) c.used.push(key);
@@ -281,6 +299,7 @@ function useItem(i){
 
 /* Лікування легкого наслідку медикаментом: ОЗ не відновлюються, наслідок мине наприкінці наступної сцени */
 function treatLight(i){
+  registerCustomDrugs(st);
   const o=st.other[i]; if(!o) return; const key=drugOf(o.n); const D=DRUGS[key]; if(!D) return; const d=compute(st);
   const robotBody = st.species==='robot' && !d.has('Кіборг');
   if(D.robot && !robotBody){ toast('«'+key+'» працює лише на механізми.','bad'); return; }
@@ -294,10 +313,12 @@ function treatLight(i){
 function endScene(quiet){
   const d=compute(st); const c=chem(); c.superKO=''; const msgs=[]; let cur=curHp(d); const hp0=cur;
   c.scene.forEach(e=>{ if(e.scenes<=1 && e.rage){ if(e.ko || cur<=0) msgs.push('Лють ботана минула: персонаж вибув під час люті — шкоди немає (додатковий легкий наслідок уже мав отримати).'); else { const r=rnd(10); cur=Math.max(0,cur-r); msgs.push('Лють ботана минула: 1d10 = '+r+' фізичної шкоди, яку неможливо зменшити.'); } } });
-  c.scene.forEach(e=>{ if(e.scenes<=1 && e.hpTemp>0){ cur=Math.max(0,cur-e.hpTemp); msgs.push((DRUGS[e.drug]&&DRUGS[e.drug].booster?'Бустер ВТР вичерпався':'Бухло вивітрилося')+': −'+e.hpTemp+' ОЗ.'); } });
-  c.scene=c.scene.map(e=>Object.assign(e,{scenes:e.scenes-1})).filter(e=>e.scenes>0);
+  c.scene.forEach(e=>{ if(e.scenes<=1 && !e.session && e.hpTemp>0){ cur=Math.max(0,cur-e.hpTemp); msgs.push((DRUGS[e.drug]&&DRUGS[e.drug].booster?'Бустер ВТР вичерпався':(DRUGS[e.drug]&&DRUGS[e.drug].booze)?'Бухло вивітрилося':e.drug+': додаткові ОЗ зникли')+': −'+e.hpTemp+' ОЗ.'); } });
+  c.scene.forEach(e=>{ if(e.scenes<=1 && !e.session && e.aspect && e.aspectAdded){ const j=(st.sit||[]).findIndex(a=>a.t===e.aspect); if(j>=0){ st.sit.splice(j,1); msgs.push('Аспект «'+e.aspect+'» зник.'); } } });
+  c.scene=c.scene.map(e=>e.session?e:Object.assign(e,{scenes:e.scenes-1})).filter(e=>e.session||e.scenes>0);
   if(c.superDice && cur<=0){ msgs.push('Персонаж уже вибув із 0 ОЗ: '+c.superDice+'d6 від суперстимпака списано, але він отримує додатковий легкий наслідок.'); c.superKO='Накопичені кістки ('+c.superDice+'d6) списано — одразу отримай додатковий легкий наслідок.'; c.superDice=0; }
   if(c.superDice){ const rolls=Array.from({length:c.superDice},()=>rnd(6)); const sum=rolls.reduce((a,b)=>a+b,0); cur=Math.max(0,cur-sum); msgs.push('Суперстимпак: '+c.superDice+'d6 = '+rolls.join(' + ')+' = '+sum+' шкоди, що ігнорує броню.'); c.superDice=0; }
+  if(c.endDice){ if(cur<=0) msgs.push('Побічна дія: '+c.endDice+'d6 списано — персонаж і так на 0 ОЗ.'); else { const rolls=Array.from({length:c.endDice},()=>rnd(6)); const sum=rolls.reduce((a,b)=>a+b,0); cur=Math.max(0,cur-sum); msgs.push('Побічна дія: '+c.endDice+'d6 = '+rolls.join(' + ')+' = '+sum+' шкоди, що ігнорує броню.'); } c.endDice=0; }
   if(cur!==hp0){ st.hpCur=String(cur); if(cur===0) msgs.push('ОЗ упали до 0 — зроби перевірку отримання наслідків.'); }
   const un=unsatAddictions();
   if(un.length) msgs.push('Без дози в цій сцені: '+un.map(a=>a.drug).join(', ')+'. Якщо персонаж не вживав довше ніж одну сцену (або день), він отримує середній наслідок «ломка».');
@@ -315,11 +336,12 @@ function endSession(){
   endScene(true); const sceneMsg=chem().last;
   const d=compute(st); const c=chem(); const S=c.session; const cured=[];
   c.addictions=c.addictions.filter(a=>{ if(a.incurable) return true; if(a.since<S && a.lastUse<S){ cured.push(a.drug); return false; } return true; });
+  const sess=c.scene.filter(e=>e.session); c.scene=c.scene.filter(e=>!e.session);
   c.session=S+1; c.sceneNo=1;
   let modN=0; [...st.weapons, ...st.armor].forEach(x=>(x.mods||[]).forEach(m=>{ if(m.u){ m.u=false; modN++; } }));
   const fd=(st.fdCur===''||st.fdCur==null)?d.fd:(parseInt(st.fdCur,10)||0); let fdMsg='';
   if(fd<d.fd){ st.fdCur=String(d.fd); fdMsg=' Жетони Долі відновлено до '+d.fd+'.'; }
-  c.last='Кінець сесії '+S+'.'+(cured.length?' Минула залежність: '+cured.join(', ')+'.':'')+fdMsg+(modN?' Модифікації знову дають безкоштовне Посилення.':'')+(c.addictions.some(a=>!a.incurable)?' Залежність минає наприкінці наступної сесії, якщо протягом неї персонаж жодного разу не вживав.':'')+' '+sceneMsg;
+  c.last='Кінець сесії '+S+'.'+(sess.length?' Штраф до кінця сесії минув: '+sess.map(e=>e.drug).join(', ')+'.':'')+(cured.length?' Минула залежність: '+cured.join(', ')+'.':'')+fdMsg+(modN?' Модифікації знову дають безкоштовне Посилення.':'')+(c.addictions.some(a=>!a.incurable)?' Залежність минає наприкінці наступної сесії, якщо протягом неї персонаж жодного разу не вживав.':'')+' '+sceneMsg;
   toast('Сесію завершено.'); render();
 }
 function chemAct(a, b){
@@ -433,31 +455,37 @@ function defensesAuto(d){
   const out=[]; const robot=st.species==='robot'; const cyborg=d.has('Кіборг'); const has=p=>d.allPerks.includes(p);
   const worn=d.wornList||[]; const suit=worn.some(a=>/хімзахист|силова броня/i.test(a.n||'') && (d.paAllowed || !/силова броня/i.test(a.n||'')));
   const ch=typeof chemEffects==='function'?chemEffects():[];
+  const sx=speciesExtra(st)||{}; const xn=sx.n||'вид';
+  const xd=sx.base ? (robot && cyborg ? {} : (sx.def||{})) : {};
+  const halfBy=k=>ch.filter(e=>(e.half||[]).includes(k) || (k==='rad' && e.drug==='Рад-Ікс') || (k==='poison' && e.drug==='Отрута-Ікс'));
   // радіація
   let rad=0, radT=[];
-  if(st.species==='mutant'){ out.push(['good','Радіація: імунітет (супермутант)']); }
-  else if(st.species==='ghoul'){ out.push(['good','Радіація лікує: +1 ОЗ за кожну кістку шкоди (гуль)']); }
+  if(sx.base ? xd.rad==='immune' : st.species==='mutant'){ out.push(['good','Радіація: імунітет ('+(sx.base?xn:'супермутант')+')']); }
+  else if(sx.base ? xd.rad==='heal' : st.species==='ghoul'){ out.push(['good','Радіація лікує: +1 ОЗ за кожну кістку шкоди ('+(sx.base?xn:'гуль')+')']); }
   else {
-    if(robot && !cyborg){ rad++; radT.push('робот'); }
+    if(!sx.base && robot && !cyborg){ rad++; radT.push('робот'); }
     if(has('Свинцева шкіра')){ rad++; radT.push('Свинцева шкіра'); }
     if(suit){ rad++; radT.push('костюм/силова броня'); }
-    if(ch.some(e=>e.drug==='Рад-Ікс')){ rad++; radT.push('Рад-Ікс'); }
+    if(xd.rad==='half'){ rad++; radT.push(xn); }
+    halfBy('rad').forEach(e=>{ rad++; radT.push(e.drug); });
     if(rad) out.push(['good','Радіація: '+(rad>=2?'імунітет':'½ шкоди')+' ('+radT.join(', ')+')']);
   }
   // отрути
-  if(robot && !cyborg) out.push(['good','Отрути: імунітет (робот)']);
+  if(sx.base ? xd.poison==='immune' : (robot && !cyborg)) out.push(['good','Отрути: імунітет ('+(sx.base?xn:'робот')+')']);
   else { let po=0, poT=[];
-    if(st.species==='ghoul'){ po++; poT.push('гуль'); }
+    if(!sx.base && st.species==='ghoul'){ po++; poT.push('гуль'); }
     if(has('Стійкість до отрут')){ po++; poT.push('Стійкість до отрут'); }
     if(suit){ po++; poT.push('костюм/силова броня'); }
-    if(ch.some(e=>e.drug==='Отрута-Ікс')){ po++; poT.push('Отрута-Ікс'); }
+    if(xd.poison==='half'){ po++; poT.push(xn); }
+    halfBy('poison').forEach(e=>{ po++; poT.push(e.drug); });
     if(po) out.push(['good','Отрути: '+(po>=2?'імунітет':'½ шкоди')+' ('+poT.join(', ')+')']); }
   // психічна
-  if(robot && !cyborg) out.push(['good','Психічна шкода: імунітет (робот)']);
+  if(sx.base ? xd.psy==='immune' : (robot && !cyborg)) out.push(['good','Психічна шкода: імунітет ('+(sx.base?xn:'робот')+')']);
   else { let ps=0, psT=[];
     worn.forEach(a=>{ const m=String(a.v||'').match(/(\d+)\s*пси/i); if(m||/пси-обруч/i.test(a.n||'')){ const v=m?+m[1]:2; ps+=v; psT.push((a.n||'пси-броня')+' '+v); } });
     if(has('Ментальний щит')){ ps+=2; psT.push('Ментальний щит 2'); }
     const px=typeof chemPsi==='function'?chemPsi():0; if(px){ ps+=px; psT.push('Пси-Ікс '+px); }
+    if(xd.psy==='half') out.push(['good','Психічна шкода: ½ шкоди ('+xn+')']);
   }
   if(robot) out.push(['bad','Електрика: +1d6 шкоди (вразливість робота)']);
   if(d.has('Камікадзе')) out.push(['bad','Камікадзе: кожна отримана шкода (після броні) +2']);
@@ -1008,6 +1036,7 @@ function dmgBonuses(mode, d, opt, c){
   if(mode==='explosive' && has('Бонусна шкода вибухівкою')) b.push(['Бонусна шкода вибухівкою',2]);
   if(!psi && !bare && d.has('Камікадзе')) b.push(['Камікадзе',2]);
   if(!psi && !bare && !robotBody() && (opt.psycho || (typeof chemHas==='function' && chemHas('Психо')))) b.push(['Психо',2]);
+  { const cd=chemEffects().filter(e=>e.dmg && e.drug!=='Психо'); if(cd.length) b.push([[...new Set(cd.map(e=>e.drug))].join(', '), cd.reduce((s,e)=>s+e.dmg,0)]); }
   if(opt.norm2) b.push(['Звичайний ефект',2]);
   return b;
 }

@@ -2,6 +2,14 @@
 // Run: node tests/names.test.mjs
 import * as Rc from "../module/rules/core.mjs";
 
+// a seeded generator (mulberry32): the same rolls every run, so the share of women's / men's names never falls under the
+// threshold by bad luck (the robot's 30 % human names made it flaky)
+function seeded(seed) {
+  let t = seed >>> 0;
+  return () => { t = (t + 0x6d2b79f5) >>> 0; let r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; };
+}
+Rc.setRandom(seeded(20261115));
+
 let failures = 0;
 const ok = (cond, msg) => { if (!cond) { failures++; console.log("FAIL " + msg); } };
 const F = new Set([...Rc.NAMES.firstF, ...Rc.NAMES.hf.flat(), ...Rc.NAMES.cf]);

@@ -415,9 +415,31 @@
 .pust-bz-edit .pust-bz-x { background: rgba(0,0,0,.12); color: #241a0c; }
 .pust-bz-edit .pust-bz-x:hover { background: #a8121a; color: #fff; }
 
-/* «Завдати виділеним» (module/applications/apply-damage.mjs sendDamage): in «Зробити перевірку» and on an enemy's attack */
-.pust-roller .rdapply, .pust-en .pust-en-hit { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
-.pust-en .pust-en-hit { margin-top: 5px; }
+/* «Завдати цілям» (module/applications/apply-damage.mjs sendDamage): in «Зробити перевірку» and on an enemy's attack */
+.pust-roller .rdapply { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+/* the enemy's attack row (author, 2026-11-14): the dice chip rolls the attack to chat, «Завдати цілям» at the row's end */
+.wastelanders .pust-en .pust-en-card button.pust-en-dicechip:not(.header-control) { flex: none; width: auto !important; height: 24px !important; min-height: 0 !important; margin: 0 !important; padding: 0 8px !important; gap: 5px;
+  background: var(--dt-bg, #6e3b22) !important; border: 1px solid var(--dt-bd, #f0a070) !important; color: var(--dt-fg, #f4d11a) !important; border-radius: 3px !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,.35) !important; font-family: var(--pu-f-num) !important; font-weight: 700 !important; font-size: 14px !important; line-height: 22px !important; cursor: pointer; }
+.wastelanders .pust-en .pust-en-card button.pust-en-dicechip:not(.header-control) > i { font-size: 12px; opacity: .85; }
+.wastelanders .pust-en .pust-en-card button.pust-en-dicechip:not(.header-control):hover:not(:disabled) { filter: brightness(1.2); box-shadow: 0 0 6px var(--dt-glow, rgba(255,120,60,.5)), 0 2px 0 rgba(0,0,0,.35) !important; }
+.wastelanders .pust-en button.pust-en-dicechip:disabled { opacity: .45; cursor: default; }
+.pust-en .pust-en-atkhd > .pust-dmg-apply { margin-left: auto !important; }
+.pust-en .pust-en-atkhd { flex-wrap: nowrap !important; }
+/* dice in a move's / note's text (author, 2026-11-14): a screen chip that rolls to chat; a damage die is red with a crosshair
+   and hits the selected tokens, as «Завдати цілям» */
+.pust-en .pust-en-notes { font-size: 13px; color: var(--pu-ink-2); line-height: 1.5; white-space: normal; }
+.pust-en :is(.pust-en-mvt, .pust-en-notes) { line-height: 1.55; }
+.pust-en .pust-dc { display: inline-flex; align-items: center; gap: 4px; vertical-align: baseline; height: 20px; padding: 0 6px; margin: 0 1px; border-radius: 3px;
+  background: #13231a; color: #3dff47; border: 1px solid #0d0f0e; font-family: "PT Mono", monospace; font-weight: 700; font-size: 12.5px; line-height: 18px; }
+.pust-en .pust-dc.pust-dc-hit { background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border-color: #d8371f; }
+.wastelanders .pust-en button.pust-dc:not(.header-control) { width: auto !important; height: 20px !important; min-height: 0 !important; margin: 0 1px !important; padding: 0 6px !important;
+  line-height: 18px !important; font: 700 12.5px/18px "PT Mono", monospace !important; box-shadow: none !important; cursor: pointer; vertical-align: baseline; }
+.wastelanders .pust-en button.pust-dc:not(.pust-dc-hit):not(.header-control) { background: #13231a !important; color: #3dff47 !important; border: 1px solid #0d0f0e !important; }
+.wastelanders .pust-en button.pust-dc.pust-dc-hit:not(.header-control) { background: linear-gradient(180deg, #a3261a, #7d1c13) !important; color: #fbeee4 !important; border: 1px solid #d8371f !important; }
+.wastelanders .pust-en button.pust-dc:not(.header-control):hover:not(:disabled) { filter: brightness(1.2); }
+.wastelanders .pust-en button.pust-dc > i { font-size: 10.5px; }
+.pust-en .pust-en-atkhd > .pust-en-atkn { flex: 1 1 0 !important; min-width: 70px; }
 .pust-roller button.pust-dmg-apply, .wastelanders .pust-en button.pust-dmg-apply:not(.header-control) {
   flex: none; width: auto !important; height: 28px !important; min-height: 0 !important; margin: 0 !important; padding: 0 12px !important;
   display: inline-flex; align-items: center; gap: 6px; line-height: 1;
@@ -426,11 +448,13 @@
 .pust-roller button.pust-dmg-apply:hover, .wastelanders .pust-en button.pust-dmg-apply:not(.header-control):hover { background: linear-gradient(180deg, #c22e1e, #8f2116) !important; color: #fff !important; }
 .pust-roller button.pust-dmg-apply:disabled, .wastelanders .pust-en button.pust-dmg-apply:disabled { opacity: .5; cursor: default; }
 .pust-roller .rdhalf { font-family: var(--pu-f-label, "Oswald"); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #f4d11a; }
-.pust-en .pust-en-hitv { display: inline-flex; align-items: baseline; gap: 5px; height: 28px; box-sizing: border-box; padding: 0 9px; border-radius: 3px; background: var(--dt-bg, #6e3b22); border: 1px solid var(--dt-bd, #f0a070); color: var(--dt-fg, #f4d11a); font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; line-height: 26px; }
-.pust-en .pust-en-hitv b { font-family: var(--pu-f-num); font-size: 17px; }
 .pust-chat.pust-dmgapply ul { margin: 4px 0 0; padding-left: 16px; }
 .pust-chat.pust-dmgapply li { margin: 2px 0; }
 .pust-chat.pust-dmgapply small { color: var(--pu-ink-3, #5a5244); }
+/* «випало N» in the GM's full card (author, 2026-11-15): the dice total as a bright yellow number on the dark header */
+.pust-chat.pust-dmgapply h4 .pust-dmg-rolled { white-space: nowrap; }
+.pust-chat.pust-dmgapply h4 .pust-dmg-rolled b { display: inline-block; min-width: 1.6em; margin-left: 2px; padding: 0 5px; border-radius: 3px;
+  background: #13231a; color: #f4d11a; font-family: "PT Mono", monospace; font-size: 1.1em; font-weight: 700; text-align: center; letter-spacing: 0; }
 
 /* ===== Аспекти: один вигляд скрізь (author, 2026-11-14) =====
    Situational aspects of characters, enemies' aspects (situational and the book's), places', zones' (editor): a yellow chip,

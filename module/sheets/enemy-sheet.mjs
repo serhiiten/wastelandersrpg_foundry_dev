@@ -12,8 +12,10 @@ import { CATS, resetToBook } from "../rules/enemy-model.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { postChat } from "../applications/chat.mjs";
 import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
-import { sendDamage, chosenTokens } from "../applications/apply-damage.mjs";
-import { enemyView } from "./enemy-view.mjs";
+import { sendDamage, chosenTokens, warnNoTargets } from "../applications/apply-damage.mjs";
+import { enemyView, diceTextHtml } from "./enemy-view.mjs";
+import { postDamageCard, postExprRoll } from "../applications/check-panel.mjs";
+import { chatType } from "../rules/battle.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -55,6 +57,8 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       aspRm: WastelandersEnemySheet.#onAspRm,
       rollAtk: WastelandersEnemySheet.#onRollAtk,
       hitSel: WastelandersEnemySheet.#onHitSel,
+      textDice: WastelandersEnemySheet.#onTextDice,
+      textHit: WastelandersEnemySheet.#onTextHit,
       pip: WastelandersEnemySheet.#onPip,
       addAtk: WastelandersEnemySheet.#onAddAtk,
       rmAtk: WastelandersEnemySheet.#onRmAtk,
@@ -94,10 +98,9 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const gm = game.user.isGM;
     const edit = this.#ui.edit && editable;
     const v = enemyView(s, { editable, gm });
-    for (const a of v.attacks) { a.hit = this.#hits.get(this.#hitKey(a.i))?.total ?? null; a.hasHit = a.hit != null; }
     Object.assign(context, {
       v, editable, gm, edit, ui: this.#ui, name: doc.name, img: doc.img, differs: v.differs,
-      notes: s.notes,
+      notes: s.notes, notesHtml: diceTextHtml(s.notes, "Примітки", editable),
       cats: CATS.map((k) => ({ k, l: CAT_LABEL[k], sel: k === v.cat })), catGuide: CAT_GUIDE[v.cat]?.txt ?? "",
     });
     // a random name only for kinds with a name pool (humanoids)
@@ -124,7 +127,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     root.querySelectorAll("details[data-fold]").forEach((d) => d.addEventListener("toggle", () => { this.#ui[d.dataset.fold] = d.open; requestAnimationFrame(() => this.rendered && this.setPosition({ height: "auto" })); }));
     if (this.#focus) { root.querySelector(`input[name='${this.#focus}']`)?.focus(); this.#focus = null; }
     if (!this.isEditable) {
-      root.querySelectorAll("input, select, textarea, button[data-action]").forEach((el) => { if (!el.closest("summary")) el.disabled = true; });
+      root.querySelectorAll("input, select, textarea, button[data-action]").forEach((el) => { if (!el.closest("summary") && !el.closest(".window-header")) el.disabled = true; }); // the frame's header (close, import…) stays usable
       return;
     }
     const on = (sel, ev, fn) => root.querySelectorAll(sel).forEach((el) => el.addEventListener(ev, (e) => fn(e.currentTarget, e)));
@@ -213,33 +216,56 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
 
   /* ---------- attacks ---------- */
 
+  /** The dice chip: the attack rolled to chat, one charge spent (author, 2026-11-14) */
   static async #onRollAtk(event, target) {
-    const i = int(target.dataset.i);
-    const r = await rollEnemyAttack(this.document, i, { token: this.token });
-    if (r?.data) { this.#hits.set(this.#hitKey(i), r); this.render(); }
+    if (target.disabled) return;
+    target.disabled = true; // one roll per click, even a quick double click
+    try { await rollEnemyAttack(this.document, int(target.dataset.i), { token: this.token }); } finally { target.disabled = false; }
   }
 
   /**
-   * «Завдати виділеним» on every attack (author, 2026-11-14): the attack's roll goes to the selected tokens (or the
-   * targets) — the roll made with «Кинути», if there is one not applied yet, else a new one (to chat, one charge spent)
+   * «Завдати цілям» on every attack (author, 2026-11-14): always a new roll — to chat, one charge spent — and its damage
+   * to the targets; nobody targeted: a warning, no roll, no charge
    */
   static async #onHitSel(event, target) {
-    const i = int(target.dataset.i), key = this.#hitKey(i);
+    if (target.disabled) return;
+    const i = int(target.dataset.i);
     if (!chosenTokens().length) {
-      return ui.notifications.warn(game.user.isGM ? "Спершу виділи токени (клік, Shift+клік, рамка або «Обрати всіх» у зоні) чи познач цілі (T)." : "Спершу познач цілі (T над токеном).");
+      return warnNoTargets();
     }
     target.disabled = true;
     try {
-      let r = this.#hits.get(key);
-      if (!r) r = await rollEnemyAttack(this.document, i, { token: this.token });
-      if (!r?.data) return;
-      if (await sendDamage(r.data, { head: r.head })) this.#hits.delete(key);
-    } finally { target.disabled = false; this.render(); }
+      const r = await rollEnemyAttack(this.document, i, { token: this.token });
+      if (r?.data) await sendDamage(r.data, { head: r.head });
+    } finally { target.disabled = false; }
   }
 
-  /** The last roll of each attack, until the sheet closes; keyed by place and name, so edits don't mix them up */
-  #hits = new Map();
-  #hitKey(i) { const a = this.document.system.attacks?.[i]; return `${i}:${a?.name ?? ""}:${a?.dice ?? ""}`; }
+  /* ---------- dice in the moves' and notes' text (author, 2026-11-14) ---------- */
+
+  /** A die of a move / note: rolled to chat */
+  static async #onTextDice(event, target) {
+    const speaker = ChatMessage.getSpeaker({ actor: this.document, token: this.token });
+    try { await postExprRoll(target.dataset.expr, speaker); } catch (_) { ui.notifications.warn(`Не вдалося кинути ${target.dataset.expr}`); }
+  }
+
+  /** A damage die of a move / note: rolled, the damage card to chat and the damage to the targets (as «Завдати цілям») */
+  static async #onTextHit(event, target) {
+    if (!chosenTokens().length) {
+      return warnNoTargets();
+    }
+    const { expr, src } = target.dataset;
+    let roll;
+    try { roll = await new Roll(expr).evaluate(); } catch (_) { return ui.notifications.warn(`Не вдалося кинути ${expr}`); }
+    const total = Math.max(0, roll.total), wt = chatType(target.dataset.type), dice = roll.dice.reduce((n, d) => n + d.number, 0);
+    const name = this.token?.name || this.document.name;
+    target.disabled = true;
+    try {
+      await postDamageCard(this.document, { head: `${name}: ${src} (${expr})`, wt, total, parts: [{ l: expr, v: String(total), t: wt }], speaker: ChatMessage.getSpeaker({ actor: this.document, token: this.token }) });
+      await sendDamage({ total, dice, type: wt, ignoreArmor: target.dataset.ia === "1", ignoreN: Number(target.dataset.in) || 0 }, { head: `${name}: ${src}` });
+    } finally { target.disabled = false; }
+  }
+
+
 
   /** A pip is an ammo charge: a click sets the ammo to it; the last lit pip clicked again spends it */
   static async #onPip(event, target) {

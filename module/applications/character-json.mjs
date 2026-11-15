@@ -10,7 +10,7 @@
  * their texts and pictures; anything not found becomes a plain item with the file's data.
  */
 import { actorToState, stateToActor } from "../rules/character-adapter.mjs";
-import { SPECIES } from "../rules/core.mjs";
+import { spOf } from "../rules/core.mjs";
 import { CARAVAN_TYPES, caravanHtmlState, caravanToState } from "../rules/caravan-adapter.mjs";
 import { createCaravanLogic } from "../rules/caravan-logic.mjs";
 import { saveCaravan } from "./caravan-actions.mjs";
@@ -346,7 +346,7 @@ export async function replaceCharacterFromFile(actor) {
 
 /** The HTML sheet's file name: «Електронний аркуш - Ім'я (Вид, Архетип)» */
 function fileName(st) {
-  const parts = [(SPECIES[st.species] || SPECIES.human).n, st.arch].filter(Boolean).join(", ");
+  const parts = [spOf(st).n, st.arch].filter(Boolean).join(", ");
   const base = `Електронний аркуш - ${st.name || T("Unnamed")}${parts ? ` (${parts})` : ""}`;
   return `${base.replace(/[\\/:*?"<>|]+/g, "_")}.json`;
 }

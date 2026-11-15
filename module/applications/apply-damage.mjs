@@ -1,6 +1,6 @@
 /**
- * «Завдати виділеним» (author, 2026-11-14) — in «Зробити перевірку» (a partial success halves it for those who take ½),
- * on an enemy's attack and in the «Битва» panel: the damage goes to the selected tokens through the battle tracker's rules (module/rules/battle.mjs
+ * «Завдати цілям» (author, 2026-11-14) — in «Зробити перевірку» (a partial success halves it for those who take ½),
+ * on an enemy's attack and in the «Битва» panel: the damage goes to the targets through the battle tracker's rules (module/rules/battle.mjs
  * computeDamage: armour, half / immune / heal, laser–plasma–gauss, «ігнорує N», electricity +1d6, ½ on a partial
  * success, Камікадзе +2). Enemies use their card's defence (module/rules/enemy-model.mjs), characters the rules engine's
  * (armour, psychic armour, species / perks / chems, manual defences), caravans their armour. The GM applies at once;
@@ -20,13 +20,22 @@ const int = (v, d = 0) => { const n = Math.round(Number(v)); return Number.isFin
 
 /** Apply one card's damage to tokens (GM side); returns the summary lines */
 /**
- * The tokens a damage goes to (author, 2026-11-14): the GM's selected tokens (the tracker's «Обрати ціллю»), or the targets
- * when none are selected; a player's targets (players can't select others' tokens)
+ * The tokens a damage or a healing goes to (author, 2026-11-15): only the user's targets (T), never the selection
  */
 export function chosenTokens() {
-  const sel = game.user.isGM ? (canvas?.tokens?.controlled ?? []) : [];
-  const list = sel.length ? sel : [...game.user.targets];
-  return list.map((t) => t.document.uuid);
+  return [...(game.user.targets ?? [])].filter((t) => t?.document).map((t) => t.document.uuid);
+}
+
+/** After every damage or healing the user's targets are cleared (author, 2026-11-15) */
+export function clearTargets() {
+  if (game.user.targets?.size) canvas?.tokens?.setTargets([], { mode: "replace" });
+}
+
+/** Nobody targeted: the hint where targets come from */
+export function warnNoTargets() {
+  ui.notifications.warn(game.user.isGM
+    ? "Спершу познач цілі: T над токеном, «Вибрати цілі» в панелі «Битва» або «Обрати всіх» у зоні."
+    : "Спершу познач цілі (T над токеном).");
 }
 
 /** Heal tokens by `amount` up to their maximum (the tracker's trHealCore); returns the summary lines */
@@ -60,12 +69,12 @@ const hpOpen = (actor) => actor?.type === "character" || actor?.type === "carava
 async function postSplit(alias, lines, card) {
   if (!lines.length) return;
   const full = lines.map((l) => l.full), short = lines.map((l) => l.short);
-  if (!isPublicMode()) return postChat({ speaker: { alias }, content: card(full) });
+  if (!isPublicMode()) return postChat({ speaker: { alias }, content: card(full, "", true) });
   await postChat({ speaker: { alias }, content: card(short) });
   // nothing more to tell the GM when the short card already says it all
   if (full.join("") === short.join("")) return;
   const CM = ChatMessage.implementation;
-  await CM.create({ speaker: { alias }, whisper: CM.getWhisperRecipients("GM").map((u) => u.id), content: card(full, ` <small class="pust-gmonly" title="Бачить лише Доглядач">· розпис для Доглядача</small>`) });
+  await CM.create({ speaker: { alias }, whisper: CM.getWhisperRecipients("GM").map((u) => u.id), content: card(full, ` <small class="pust-gmonly" title="Бачить лише Доглядач">· розпис для Доглядача</small>`, true) });
 }
 
 export async function applyDamage(tokenUuids, data, { partial = false, head = "" } = {}) {
@@ -92,27 +101,30 @@ export async function applyDamage(tokenUuids, data, { partial = false, head = ""
       short: `<li><b>${name}</b>: ${delta}${hpOpen(actor) ? ` · ОЗ ${hp0} → ${hp}` : ""}${out}</li>`,
     });
   }
-  const card = (ls, gmNote = "") => `<div class="pust-chat pust-dmgapply"><h4><i class="fa-solid fa-burst"></i> Шкода${head ? `: ${esc(head)}` : " застосована"}${partial ? " (частковий успіх)" : ""}${gmNote}</h4><ul>${ls.join("")}</ul></div>`;
+  // the full card's header also says what the dice gave, before armour and defences (author, 2026-11-15)
+  const rolled = Number.isFinite(Number(data.total)) ? ` <span class="pust-dmg-rolled" title="Скільки випало на кістках (з модифікаторами), до броні й стійкостей">· випало <b>${Math.max(0, int(data.total))}</b></span>` : "";
+  const card = (ls, gmNote = "", full = false) => `<div class="pust-chat pust-dmgapply"><h4><i class="fa-solid fa-burst"></i> Шкода${head ? `: ${esc(head)}` : " застосована"}${partial ? " (частковий успіх)" : ""}${full ? rolled : ""}${gmNote}</h4><ul>${ls.join("")}</ul></div>`;
   await postSplit("Шкода", lines, card);
   return lines.length;
 }
 
 /**
- * «Завдати виділеним» (author, 2026-11-14: a button in «Зробити перевірку» and on an enemy's attack, not in chat):
- * the damage goes to the selected tokens (or the targets); the GM applies it, a player's press goes to the active GM.
+ * «Завдати цілям» (author, 2026-11-14: a button in «Зробити перевірку» and on an enemy's attack, not in chat):
+ * the damage goes to the targets; the GM applies it, a player's press goes to the active GM.
  * @param {{total:number, type:string, ignoreArmor?:boolean, ignoreN?:number, poison?:number}} data
  * @returns {Promise<boolean>} false when there was nobody to hit
  */
 export async function sendDamage(data, { partial = false, head = "" } = {}) {
   const targets = chosenTokens();
   if (!targets.length) {
-    ui.notifications.warn(game.user.isGM ? "Спершу виділи токени (клік, Shift+клік, рамка або «Обрати всіх» у зоні) чи познач цілі (T)." : "Спершу познач цілі (T над токеном).");
+    warnNoTargets();
     return false;
   }
-  if (game.user.isGM) { await applyDamage(targets, data, { partial, head }); return true; }
+  if (game.user.isGM) { await applyDamage(targets, data, { partial, head }); clearTargets(); return true; }
   if (!game.users.activeGM) { ui.notifications.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
   game.socket.emit(SOCKET(), { op: "applyDamage", targets, data, partial, head, from: game.user.id });
   ui.notifications.info("Запит надіслано Доглядачеві.");
+  clearTargets();
   return true;
 }
 

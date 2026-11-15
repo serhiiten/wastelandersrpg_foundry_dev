@@ -87,7 +87,7 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
     }
     if (this.#focusAsp) { this.#focusAsp = false; root.querySelector("input[name='aspin']")?.focus(); }
     if (!this.isEditable) {
-      root.querySelectorAll("input, select, textarea, button[data-action]").forEach((el) => (el.disabled = true));
+      root.querySelectorAll("input, select, textarea, button[data-action]").forEach((el) => { if (!el.closest(".window-header")) el.disabled = true; }); // not the frame's header
       return;
     }
     root.querySelector("input[name='name']")?.addEventListener("change", (ev) => {

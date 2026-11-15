@@ -1,0 +1,90 @@
+{{!-- Конструктор виду (Foundry): власний вид на основі одного з п'яти --}}
+<div class="pust-sheet-inner pust-bld {{#unless editable}}readonly{{/unless}}">
+  {{#if hasBuilder}}
+  <header class="pust-bld-hd"><i class="fa-solid fa-dna" aria-hidden="true"></i><span>Власний вид</span><small>на основі: {{baseName}}</small></header>
+  <div class="pust-bld-body">
+    <section class="pust-bld-card">
+      <div class="pust-bld-grid2">
+        <label>Назва <input type="text" data-f="name" value="{{name}}" autocomplete="off" placeholder="Нічний гуль"></label>
+        <label>Основа <select data-f="base">{{#each bases}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
+      </div>
+      <p class="pust-bld-hint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Вид успадковує всю автоматику основи. Нижче — його значення: вони підставлені з основи, зміни ті, якими твій вид від неї відрізняється.</p>
+    </section>
+
+    <section class="pust-bld-card">
+      <h3><i class="fa-solid fa-sliders" aria-hidden="true"></i> Межі атрибутів</h3>
+      <div class="pust-bld-attrs">
+        <div class="pust-bld-attr pust-bld-head" aria-hidden="true"><span></span><span>мін</span><span>старт</span><span>макс</span><span></span></div>
+        {{#each attrs}}
+        <div class="pust-bld-attr {{#if changed}}changed{{/if}}">
+          <span class="pust-bld-an" title="{{n}}"><b>{{s}}</b></span>
+          {{#each cells}}
+          <span class="pust-bld-num">
+            {{#if ../../editable}}<button type="button" data-action="bnd" data-k="{{../k}}" data-i="{{i}}" data-d="-1" aria-label="Мінус 1: {{label}} {{../s}}">−</button>{{/if}}
+            <input class="pust-screen" type="text" data-f="b:{{../k}}:{{i}}" value="{{v}}" aria-label="{{label}} {{../s}}">
+            {{#if ../../editable}}<button type="button" data-action="bnd" data-k="{{../k}}" data-i="{{i}}" data-d="1" aria-label="Плюс 1: {{label}} {{../s}}">+</button>{{/if}}
+          </span>
+          {{/each}}
+          <span class="pust-bld-rst">{{#if changed}}<button type="button" class="pust-bld-btn" data-action="bndReset" data-k="{{k}}" title="Повернути межі основи: {{base}}"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> як в основи</button>{{/if}}</span>
+        </div>
+        {{/each}}
+      </div>
+      <p class="pust-bld-hint">Межі від −2 до 4; мінімум ≤ старт ≤ максимум.</p>
+    </section>
+
+    <section class="pust-bld-card">
+      <h3><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Параметри</h3>
+      <div class="pust-bld-counters">
+        {{#each counters}}
+        <div class="pust-bld-cnt" title="{{hint}}">
+          <span class="pust-bld-lbl"><i class="fa-solid {{icon}}" aria-hidden="true"></i>{{n}}</span>
+          <span class="pust-bld-num">
+            {{#if ../editable}}<button type="button" data-action="cnt" data-f="{{f}}" data-d="-1" aria-label="Мінус 1: {{n}}">−</button>{{/if}}
+            <input class="pust-screen" type="text" data-f="{{f}}" value="{{v}}" aria-label="{{n}}">
+            {{#if ../editable}}<button type="button" data-action="cnt" data-f="{{f}}" data-d="1" aria-label="Плюс 1: {{n}}">+</button>{{/if}}
+          </span>
+        </div>
+        {{/each}}
+      </div>
+      <div class="pust-bld-defs">
+        {{#each defs}}
+        <label>{{n}} <select data-f="def:{{k}}">{{#each options}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
+        {{/each}}
+      </div>
+    </section>
+
+    <section class="pust-bld-card">
+      <h3><i class="fa-solid fa-list-check" aria-hidden="true"></i> Властивості виду</h3>
+      <div class="pust-bld-props">
+        {{#each props}}
+        <div class="pust-bld-prop">
+          <div class="pust-bld-propf">
+            <input type="text" data-f="pn:{{i}}" value="{{n}}" placeholder="Назва" aria-label="Назва властивості" autocomplete="off">
+            <textarea data-f="pd:{{i}}" rows="1" placeholder="Опис" aria-label="Опис властивості">{{d}}</textarea>
+          </div>
+          {{#if ../editable}}<button type="button" class="pust-bld-x" data-action="propRm" data-i="{{i}}" aria-label="Прибрати властивість" title="Прибрати">×</button>{{/if}}
+        </div>
+        {{else}}<p class="pust-bld-hint">Властивостей немає.</p>{{/each}}
+      </div>
+      {{#if editable}}
+      <div class="pust-bld-propf pust-bld-propnew">
+        <input type="text" name="propNewN" placeholder="Назва нової властивості" aria-label="Назва нової властивості" autocomplete="off">
+        <textarea name="propNewD" rows="1" placeholder="Опис (Enter — додати, Shift+Enter — новий рядок)" aria-label="Опис нової властивості"></textarea>
+      </div>
+      <div class="pust-bld-row">
+        <button type="button" class="pust-bld-btn" data-action="propAdd"><i class="fa-solid fa-plus" aria-hidden="true"></i> Додати</button>
+        <button type="button" class="pust-bld-btn" data-action="propsBase" title="Замінити список властивостями основи"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Властивості основи</button>
+      </div>
+      {{/if}}
+    </section>
+
+    <section class="pust-bld-card pust-bld-out">
+      <h3><i class="fa-solid fa-align-left" aria-hidden="true"></i> Короткий опис</h3>
+      <p class="pust-bld-short">{{short}}</p>
+    </section>
+  </div>
+  {{else}}
+  <header class="pust-bld-hd"><i class="fa-solid fa-dna" aria-hidden="true"></i><span>{{name}}</span><small>{{type}}</small></header>
+  <div class="pust-bld-body"><section class="pust-bld-card pust-bld-desc">{{{description}}}</section></div>
+  {{/if}}
+</div>

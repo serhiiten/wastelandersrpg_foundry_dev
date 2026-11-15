@@ -1,0 +1,77 @@
+{{!-- Конструктор наркотика (Foundry): дизайнерський наркотик за правилами «Guns. Lots of Guns» --}}
+<div class="pust-sheet-inner pust-bld {{#unless editable}}readonly{{/unless}}">
+  {{#if hasBuilder}}
+  <header class="pust-bld-hd"><i class="fa-solid fa-flask-vial" aria-hidden="true"></i><span>Дизайнерський наркотик</span><small>діє 1 сцену</small></header>
+  <div class="pust-bld-body">
+    <section class="pust-bld-card">
+      <label>Назва <input type="text" data-f="name" value="{{name}}" autocomplete="off" placeholder="Назва наркотика"></label>
+      <p class="pust-bld-hint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Сума ціни виробництва й шансу залежності: не вище 9; ціна й шанс не нижчі за 1. Тут будується лише рецепт, варіння — окремо.</p>
+    </section>
+
+    <section class="pust-bld-card">
+      <h3><i class="fa-solid fa-bolt" aria-hidden="true"></i> Ефекти</h3>
+      {{#each effects}}
+      <div class="pust-bld-eff {{#if on}}on{{/if}}">
+        <div class="pust-bld-effhd">
+          {{#if multi}}<span class="pust-bld-chk"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span class="pust-bld-effn">{{n}}</span></span>
+          {{else}}<label class="pust-bld-chk"><input type="checkbox" data-action="eff" data-src="{{src}}" data-k="{{k}}" {{#if on}}checked{{/if}}><span class="pust-bld-effn">{{n}}</span></label>{{/if}}
+          <small class="pust-bld-cost">{{cost}}</small>
+          {{#if multi}}{{#if ../editable}}<button type="button" class="pust-bld-btn" data-action="effAdd" data-src="{{src}}" data-k="{{k}}" {{#unless canAdd}}disabled{{/unless}}><i class="fa-solid fa-plus" aria-hidden="true"></i> атрибут</button>{{/if}}{{/if}}
+        </div>
+        {{#each entries}}
+        <div class="pust-bld-entry">
+          {{#if attrOptions}}<select data-f="attr:{{src}}:{{i}}" aria-label="Атрибут">{{#each attrOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>{{/if}}
+          {{#if perkOptions}}
+          <select class="pust-bld-perk" data-f="perk:{{i}}" aria-label="Перк">{{#each perkOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
+          <span class="pust-bld-pc"><small>ціна {{priceRange}}</small>
+            <span class="pust-bld-num">{{#if ../../editable}}<button type="button" data-action="pc" data-i="{{i}}" data-f="price" data-d="-1" aria-label="Мінус 1: ціна">−</button>{{/if}}<input class="pust-screen" type="text" data-f="price:{{i}}" value="{{price}}" aria-label="Ціна виробництва">{{#if ../../editable}}<button type="button" data-action="pc" data-i="{{i}}" data-f="price" data-d="1" aria-label="Плюс 1: ціна">+</button>{{/if}}</span></span>
+          <span class="pust-bld-pc"><small>шанс {{chRange}}</small>
+            <span class="pust-bld-num">{{#if ../../editable}}<button type="button" data-action="pc" data-i="{{i}}" data-f="ch" data-d="-1" aria-label="Мінус 1: шанс">−</button>{{/if}}<input class="pust-screen" type="text" data-f="ch:{{i}}" value="{{ch}}" aria-label="Шанс залежності">{{#if ../../editable}}<button type="button" data-action="pc" data-i="{{i}}" data-f="ch" data-d="1" aria-label="Плюс 1: шанс">+</button>{{/if}}</span></span>
+          {{/if}}
+          {{#if ../multi}}{{#if ../../editable}}<button type="button" class="pust-bld-x" data-action="effRm" data-src="{{src}}" data-i="{{i}}" aria-label="Прибрати" title="Прибрати">×</button>{{/if}}{{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{/each}}
+    </section>
+
+    <section class="pust-bld-card">
+      <h3><i class="fa-solid fa-skull-crossbones" aria-hidden="true"></i> Побічні ефекти
+        {{#if editable}}<button type="button" class="pust-bld-btn pust-bld-d10" data-action="rollSide" title="Кинути d10 по таблиці побічок і додати випалу"><i class="fa-solid fa-dice-d10" aria-hidden="true"></i> 1d10 побічка</button>{{/if}}</h3>
+      {{#each sides}}
+      <div class="pust-bld-eff side {{#if on}}on{{/if}}">
+        <div class="pust-bld-effhd">
+          {{#if multi}}<span class="pust-bld-chk"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span class="pust-bld-effn">{{n}}</span></span>
+          {{else}}<label class="pust-bld-chk"><input type="checkbox" data-action="eff" data-src="{{src}}" data-k="{{k}}" {{#if on}}checked{{/if}}><span class="pust-bld-effn">{{n}}</span></label>{{/if}}
+          <small class="pust-bld-cost">{{cost}}</small>
+          {{#if multi}}{{#if ../editable}}<button type="button" class="pust-bld-btn" data-action="effAdd" data-src="{{src}}" data-k="{{k}}" {{#unless canAdd}}disabled{{/unless}}><i class="fa-solid fa-plus" aria-hidden="true"></i> атрибут</button>{{/if}}{{/if}}
+        </div>
+        {{#each entries}}
+        <div class="pust-bld-entry">
+          {{#if attrOptions}}<select data-f="attr:{{src}}:{{i}}" aria-label="Атрибут">{{#each attrOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>{{/if}}
+          {{#if ../multi}}{{#if ../../editable}}<button type="button" class="pust-bld-x" data-action="effRm" data-src="{{src}}" data-i="{{i}}" aria-label="Прибрати" title="Прибрати">×</button>{{/if}}{{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{/each}}
+    </section>
+
+    <section class="pust-bld-card">
+      <label>Примітка <textarea data-f="note" rows="2" placeholder="Що ще варто знати про цей наркотик">{{note}}</textarea></label>
+    </section>
+
+    <section class="pust-bld-card pust-bld-out">
+      <h3><i class="fa-solid fa-align-left" aria-hidden="true"></i> Опис</h3>
+      <p class="pust-bld-short">{{preview}}</p>
+    </section>
+  </div>
+  <footer class="pust-bld-screen {{#unless totals.ok}}bad{{/unless}}">
+    <div class="pust-bld-sum">Ціна виробництва <b>{{totals.price}}</b> (к) <i>·</i> Шанс залежності <b>{{totals.ch}}</b> (d10 ≤ {{totals.ch}})</div>
+    {{#each totals.errors}}<div class="pust-bld-err"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> {{this}}</div>{{/each}}
+    {{#each totals.warnings}}<div class="pust-bld-warn"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{this}}</div>{{/each}}
+  </footer>
+  {{else}}
+  <header class="pust-bld-hd"><i class="fa-solid fa-flask-vial" aria-hidden="true"></i><span>{{name}}</span><small>{{type}}</small></header>
+  <div class="pust-bld-body"><section class="pust-bld-card pust-bld-desc">{{{description}}}</section></div>
+  {{/if}}
+</div>

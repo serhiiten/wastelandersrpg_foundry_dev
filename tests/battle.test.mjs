@@ -317,6 +317,34 @@ ok(dbCount >= 80, "DB size " + dbCount);
   eq(B.psyMoveIdx({ moves: [{ n: "ПСИХО!", t: "" }] }), 0, "«ПСИХО!» is");
 }
 
+/* ---------- attack notes without their own damage type (author, 2026-11-14: the chip shows it) ---------- */
+{
+  const n = (t, k) => B.noteWithoutType(t, k);
+  eq([n("фізичної шкоди, ближній бій", "phys"), n("фізична шкода, ближній бій", "phys"), n("фізичної шкоди всім істотам в одній зоні, 2 шт.", "phys")],
+    ["ближній бій", "ближній бій", "всім істотам в одній зоні, 2 шт."], "physical words go");
+  eq(n("фізичної шкоди + 3 шкоди радіацією, ближній бій", "phys"), "+ 3 шкоди радіацією, ближній бій", "another type's part stays");
+  eq(n("фізичної шкоди вогнем, бій на відстані", "phys"), "фізичної шкоди вогнем, бій на відстані", "«фізичної шкоди вогнем» stays whole");
+  eq([n("шкоди радіацією, бій на відстані, ігнорує броню", "rad"), n("шкоди вогнем, ближній бій, підпалює ціль", "fire"), n("психічної шкоди, ігнорує фізичну броню", "psychic")],
+    ["бій на відстані, ігнорує броню", "ближній бій, підпалює ціль", "ігнорує фізичну броню"], "radiation, fire, psychic");
+  eq([n("фізичної шкоди, бій на відстані, ігнорує 1 броні", "laser"), n("фізичної шкоди всім істотам в одній зоні, 1 заряд", "plasma")], ["бій на відстані, ігнорує 1 броні", "всім істотам в одній зоні, 1 заряд"], "energy weapons: the book's «фізичної шкоди» goes");
+  eq([n("фізичної шкоди вогнем, бій на відстані", "fire"), n("ігнорує 1 броні", "phys"), n("", "phys"), n("шкоди вогнем, ближній бій", "phys")], ["бій на відстані", "ігнорує 1 броні", "", "шкоди вогнем, ближній бій"], "fire's words, no words, empty, another type's words stay");
+  // the attack's own type from «шкоди вогнем» / «шкоди радіацією» (author, 2026-11-14: Полумʼя, Шишкебаб, Рад-вибух were physical)
+  eq([B.atkType("Полумʼя фізичної шкоди вогнем"), B.atkType("Шишкебаб шкоди вогнем, ближній бій"), B.atkType("Рад-вибух шкоди радіацією всім")], ["fire", "fire", "rad"], "fire / radiation words");
+  eq([B.atkType("кігті фізичної шкоди + 3 шкоди радіацією"), B.atkType("укус фізичної шкоди + 2 шкоди вогнем"), B.atkType("лапи 1d6 +3 радіацією (ігнорує броню)")], ["phys", "phys", "phys"], "an extra part doesn't set the type");
+}
+
+/* ---------- dice in moves' / notes' text (author, 2026-11-14) ---------- */
+{
+  const dice = (t) => B.diceInText(t).filter((p) => typeof p !== "string").map((p) => [p.dice, p.damage, p.type]);
+  eq(dice("раз за сцену обстрілює ракетами будь-які дві зони й завдає 3d6 шкоди всім істотам у них."), [["3d6", true, "phys"]], "Бомбардування: damage");
+  eq(dice("Раз за сцену відновлює ОЗ 1d6+4"), [["1d6+4", false, "phys"]], "healing is not damage");
+  eq(dice("раз за сцену кидає 1d6 гранат, кожна завдає 2d6 шкоди вогнем."), [["1d6", false, "phys"], ["2d6", true, "fire"]], "a count, then fire damage");
+  eq(dice("укус: 1к6 шкоди отрутою"), [["1d6", true, "poison"]], "к6 and poison");
+  eq(dice("вибух завдає 2d6 всім у зоні"), [["2d6", true, "phys"]], "«завдає» before the die");
+  eq(dice("Ніякого кидка, 12 ОЗ"), [], "no dice");
+  eq(B.diceInText("a 2d6 b").join("|").replace(/\[object Object\]/, "X"), "a |X| b", "the text around stays");
+}
+
 /* ---------- «−1» / «+1» by the quick dice (the tracker's qd mod) ---------- */
 {
   eq([B.bumpExpr("5", 1), B.bumpExpr("0", -1), B.bumpExpr("2d6", 1), B.bumpExpr("2d6+1", -1), B.bumpExpr("2d6-1", -1), B.bumpExpr("", 1), B.bumpExpr("", -1), B.bumpExpr("2d6kl1", 1)],

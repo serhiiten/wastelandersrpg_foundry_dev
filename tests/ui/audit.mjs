@@ -1,6 +1,7 @@
 /**
  * Visual test of design and placement (author, 2026-11-14): runs INSIDE a live Foundry page (it measures the real
- * layout), never changes world data — it only opens and closes sheets and reads the DOM.
+ * layout), never changes the world's data — it only opens and closes sheets and reads the DOM (the two builder scenarios make a temporary
+ * item of their own and delete it).
  *
  *   const { runAudit } = await import(`/systems/${game.system.id}/tests/ui/audit.mjs?${Date.now()}`);
  *   await runAudit();               // every scenario; returns { failures, report } and logs a table
@@ -330,8 +331,8 @@ const SCENARIOS = {
       a.counters(el);
       a.readable(el);
       for (const row of el.querySelectorAll(".pust-en-atk-row, .pust-en-head-btns, .pust-en-quick")) a.row([...row.querySelectorAll(":scope > button")], { label: "кнопки в ряду" });
-      // «Завдати виділеним» under an attack rolled (author, 2026-11-14): the result and the button in one row
-      for (const row of el.querySelectorAll(".pust-en-hit")) a.row([...row.children], { label: "«Завдати виділеним»: результат і кнопка" });
+      // the attack row (author, 2026-11-14): dice chip, type and «Завдати цілям» on one line, centred
+      for (const row of el.querySelectorAll(".pust-en-atkhd")) { const kids = [...row.querySelectorAll(":scope > .pust-en-dicechip, :scope > .pust-en-type, :scope > .pust-dmg-apply")].filter(shown); const mid = (e) => (R(e).top + R(e).bottom) / 2; a.ok("рядок атаки: чіп, тип і «Завдати цілям» по одній лінії", kids.every((k) => Math.abs(mid(k) - mid(kids[0])) <= 1.5), kids.map((k) => Math.round(mid(k))).join(" / ")); }
     };
     check("перегляд");
     sheet.element.querySelectorAll("details[data-fold]").forEach((d) => { d.open = true; });
@@ -342,13 +343,13 @@ const SCENARIOS = {
     if (!was) await sheet.close();
   },
 
-  /** «Зробити перевірку» already open with a damage rolled: «Завдати виділеним» and «частковий успіх» (nothing is rolled here) */
+  /** «Зробити перевірку» already open with a damage rolled: «Завдати цілям» and «частковий успіх» (nothing is rolled here) */
   async checkPanel(a) {
     const el = document.querySelector(".pust-roller .rdapply");
-    if (!el) return a.skip("«Завдати виділеним» у перевірці", "відкрий «Зробити перевірку» й кинь шкоду");
+    if (!el) return a.skip("«Завдати цілям» у перевірці", "відкрий «Зробити перевірку» й кинь шкоду");
     a.onScreen([el]);
     a.noCut(el, "button, span");
-    a.oneLine([...el.querySelectorAll("button > span, .rdhalf")], "«Завдати виділеним» і «частковий успіх» в один рядок");
+    a.oneLine([...el.querySelectorAll("button > span, .rdhalf")], "«Завдати цілям» і «частковий успіх» в один рядок");
     a.readable(el, "button, span");
   },
 
@@ -361,6 +362,64 @@ const SCENARIOS = {
     a.noRawKeys(el);
     a.counters(el);
     a.readable(el);
+  },
+
+  /** «Конструктор виду»: a temporary world species item is made, its sheet opened (as made, then edited), and the item deleted */
+  async speciesBuilder(a) {
+    if (!game.user.isGM) return a.skip("конструктор виду", "лише Доглядач створює предмети");
+    const item = await CONFIG.Item.documentClass.create({ name: "Аудит-вид", type: "species" }, { pustBuilder: true, renderSheet: false });
+    try {
+      await item.sheet.render({ force: true }); await sleep(900);
+      const check = (label) => {
+        const el = item.sheet.element;
+        a.scenario = `конструктор виду: ${label}`;
+        a.onScreen([el]);
+        a.noRawKeys(el);
+        a.noCut(el, "button, label, h3, summary, span:not(.pust-bld-num), b, small");
+        a.counters(el);
+        a.readable(el);
+        for (const row of el.querySelectorAll(".pust-bld-attr:not(.pust-bld-head)")) a.row([...row.querySelectorAll(".pust-bld-num")], { label: "лічильники рядка атрибута" });
+        const attrs = [...el.querySelectorAll(".pust-bld-attr:not(.pust-bld-head)")];
+        for (const col of [1, 2, 3]) a.ok(`стовпець ${col} атрибутів вирівняно`, attrs.every((r) => Math.abs(R(r.children[col]).left - R(attrs[0].children[col]).left) <= 1.01), "");
+      };
+      check("як створено");
+      // a base with other limits, props added: the sheet re-renders and still fits
+      await item.update({ "system.custom": { ...item.system.custom, base: "robot", hp: 3, armor: 1, def: { rad: "immune", poison: "half", psy: "normal" }, props: [...item.system.custom.props, "Довга властивість: дуже довгий текст, який має переноситися на кілька рядків і не вилазити за межі вікна конструктора."] } });
+      await sleep(700);
+      check("змінено");
+    } finally {
+      await item.sheet.close();
+      await item.delete();
+    }
+  },
+
+  /** «Конструктор наркотика»: a temporary world drug item with a few effects and side effects (a broken one too), then deleted */
+  async drugBuilder(a) {
+    if (!game.user.isGM) return a.skip("конструктор наркотика", "лише Доглядач створює предмети");
+    const item = await CONFIG.Item.documentClass.create({ name: "Аудит-наркотик", type: "drug" }, { pustBuilder: true, renderSheet: false });
+    try {
+      await item.sheet.render({ force: true }); await sleep(900);
+      const check = (label) => {
+        const el = item.sheet.element;
+        a.scenario = `конструктор наркотика: ${label}`;
+        a.onScreen([el]);
+        a.noRawKeys(el);
+        a.noCut(el, "button, label, h3, summary, span:not(.pust-bld-num), b, small, .pust-bld-sum, .pust-bld-err, .pust-bld-warn");
+        a.counters(el);
+        a.readable(el);
+        a.ok("екран із ціною й шансом є", !!el.querySelector(".pust-bld-sum b"), "");
+      };
+      check("порожній рецепт");
+      await item.update({ "system.recipe": { name: item.name, note: "", effects: [{ k: "attr", attr: "SL" }, { k: "perkC", perk: "", price: 4, ch: 3 }, { k: "dmg" }], sides: [{ k: "attrScene", attr: "PV" }, { k: "loss1" }] } });
+      await sleep(700);
+      check("рецепт із ефектами (є помилка: перк не обрано)");
+      await item.update({ "system.recipe": { name: item.name, note: "", effects: [{ k: "armor" }, { k: "psi" }], sides: [{ k: "berserk" }] } });
+      await sleep(700);
+      check("правильний рецепт");
+    } finally {
+      await item.sheet.close();
+      await item.delete();
+    }
   },
 
   /** A place card (if the world has a place) */

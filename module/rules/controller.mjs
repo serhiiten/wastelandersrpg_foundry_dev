@@ -10,13 +10,15 @@
  * («натисни ще раз») are the sheet's job before calling act().
  * Ported from pustelnyky-character-generator/src/app.js — keep in step with it.
  */
+import { speciesToX } from "./designer.mjs";
+import { usePowerCell } from "./power-cell.mjs";
 import { GRANTS, GRANT_FEATS, SKILL_IMPS, grantTarget, lastingCaps, startPicks, stepSkill } from "./skill-sources.mjs";
 import {
   AKEYS, BUILTIN_CAT, CLAW_WEAPON_MSG, FEAT, LVL, PERK, PRESETS, SKILLS, SPECIES,
   addOtherItem, applyArchetypeSkills, blankState, catalogAll, compute, countedFeats, countedPerks,
   drugOf, equipmentFor, featElig, firstWornArmor, fitAttributes, gunsOn, isPsiArmor, officialName,
   perkElig, presetText, roll, rollAspect, rollCharacter, rollDetail, rollFeaturesFor, rollName,
-  rollPerksFor, rollSpecies, skillBudget, syncAuto, weaponName,
+  OFFICIAL_DRUGS, registerCustomDrugs, rollPerksFor, rollSpecies, skillBudget, spOf, syncAuto, weaponName,
 } from "./core.mjs";
 
 /** Text fields with a die: filled in by hand → the die is locked (Foundry only, like the caravan sheet) */
@@ -156,6 +158,7 @@ export function createController(st, L, { toast = () => {} } = {}) {
       toast("Вбудована зброя: " + c.n + ", " + c.d + (c.cost ? " — заміна коштує " + c.cost : "") + ".");
     }
     if (k === "species") {
+      delete st.speciesX; // a plain species: the custom one (species builder) no longer applies
       dropInvalidSpeciesFeats();
       if (st.species === "mutant") st.gender = "n";
       else if (st.gender === "n") st.gender = "m";
@@ -164,6 +167,7 @@ export function createController(st, L, { toast = () => {} } = {}) {
     if (k === "arch" && v === "Псионік") {
       if (st.species !== "human") {
         st.species = "human";
+        delete st.speciesX;
         dropInvalidSpeciesFeats();
         toast("Псионік — завжди людина. Вид змінено на «Людина».");
       }
@@ -292,11 +296,50 @@ export function createController(st, L, { toast = () => {} } = {}) {
         return true;
       case "roll-species": {
         st.species = rollSpecies(st.arch, st.set.claws);
+        delete st.speciesX;
         dropInvalidSpeciesFeats();
         if (st.species === "mutant") st.gender = "n";
         else if (st.gender === "n") st.gender = "m";
         clampAttrs();
-        toast("Вид: " + SPECIES[st.species].n + ".");
+        toast("Вид: " + spOf(st).n + ".");
+        return true;
+      }
+      case "species-x": {
+        // a custom species from the species builder: the base becomes st.species, the rest st.speciesX
+        const x = speciesToX(data && data.x ? data.x : data);
+        if (!x) return refuse("Цей вид не вдалося прочитати: немає назви або основи.", "bad");
+        st.species = x.base;
+        st.speciesX = x;
+        dropInvalidSpeciesFeats();
+        if (st.species === "mutant") st.gender = "n";
+        else if (st.gender === "n") st.gender = "m";
+        if (st.arch === "Псионік" && st.species !== "human") toast("Псионіком може бути лише людина.", "bad");
+        clampAttrs();
+        toast("Вид: " + x.n + ".");
+        return true;
+      }
+      case "power-use": {
+        // a robot's power cell (author, 2026-11-15): no effect, one less
+        const msg = usePowerCell(st, +((data && data.i) ?? -1));
+        if (!msg) return refuse("Елементи живлення споживають лише роботи (не Синти).", "bad");
+        toast(msg);
+        return true;
+      }
+      case "drug-add-custom": {
+        // a designer drug: its recipe's def joins the character's own list, one dose goes to the gear
+        const n = String((data && data.n) || "").trim();
+        const def = data && data.def;
+        if (!n || !def || typeof def !== "object") return refuse("У наркотика немає назви або рецепта.", "bad");
+        if (OFFICIAL_DRUGS.has(n)) return refuse("«" + n + "» — назва справжньої хімії зі списку. Дай наркотику іншу назву.", "bad");
+        st.customDrugs = (st.customDrugs || []).filter((x) => x && x.n !== n).concat([{ n, def: JSON.parse(JSON.stringify(def)) }]);
+        registerCustomDrugs(st);
+        // its effects go into the gear row's note (author, 2026-11-15): the recipe's description without the heading and the
+        // production price («залежність N» joins it by itself, prices.mjs)
+        const note = String(def.d || "").replace(/^Дизайнерський наркотик\.\s*(Діє[^.]*\.\s*)?/, "").replace(/\s*Ціна виробництва[^]*$/, "").trim().replace(/\.$/, ""); // «; залежність N» follows
+        const it = addOtherItem(st.other, { n, q: "1", note });
+        if (!String(it.note || "").trim()) it.note = note; // a row that was there without a note gets it too
+        syncAuto(st);
+        toast("Додано в мотлох: " + n + (it.q !== "1" ? " (тепер ×" + it.q + ")" : "") + ".");
         return true;
       }
       case "apply-arch":
@@ -489,7 +532,7 @@ export function createController(st, L, { toast = () => {} } = {}) {
         if (String(st.bio || "").trim()) fresh.bio = st.bio;
         if (String(st.others || "").trim()) fresh.others = st.others;
         replaceAll(fresh);
-        toast("Новий пустельник: " + st.name + " — " + st.arch.toLowerCase() + ", " + SPECIES[st.species].n.toLowerCase() + "."
+        toast("Новий пустельник: " + st.name + " — " + st.arch.toLowerCase() + ", " + spOf(st).n.toLowerCase() + "."
           + (kept.length ? " Заповнене вручну лишилося." : ""));
         return true;
       }

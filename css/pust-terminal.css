@@ -303,7 +303,8 @@
 #pust-mapdock button.pust-md-travel:hover, #pust-mapdock button.pust-md-travel.on { background: linear-gradient(180deg, rgba(255,215,195,.25), rgba(0,0,0,.1)), #c22e1e; color: #fff; border-color: #f4d11a; }
 /* «Зробити перевірку» (players, author 2026-11-14): over «Лічильники + Кістки», opaque, the full width of the unit;
    looks as on the character sheet (pust-ui.css .pust-check-btn): rust plate, yellow capitals, a dark step under it */
-#pust-mapdock button.pust-md-check { flex: none; width: 100%; height: 44px; margin: 0 0 3px; padding: 0 16px; opacity: 1; gap: 8px;
+#pust-mapdock .pust-md-prow { display: flex; gap: 6px; margin: 0 0 3px; }
+#pust-mapdock button.pust-md-check { flex: 1 1 auto; min-width: 0; height: 44px; margin: 0; padding: 0 16px; opacity: 1; gap: 8px;
   background: var(--pu-rust-2) var(--pu-noise); color: var(--pu-yellow); border: 1.5px solid var(--pu-rust-0); border-radius: 3px;
   box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 1px 0 rgba(255,225,190,.35);
   font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .06em; text-transform: uppercase;
@@ -313,6 +314,18 @@
 #pust-mapdock button.pust-md-check:hover:not(:disabled) { color: var(--pu-yellow); border-color: var(--pu-rust-0); filter: brightness(1.12); box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 1px 0 rgba(255,225,190,.35); }
 #pust-mapdock button.pust-md-check:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--pu-rust-0); }
 #pust-mapdock button.pust-md-check.on { filter: brightness(1.15); box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 0 0 1px var(--pu-yellow); }
+/* «Зняти цілі» (players, author 2026-11-15): next to it, the same height, steel; dim while there are no targets */
+#pust-mapdock button.pust-md-untarget { flex: none; width: 84px; height: 44px; margin: 0; padding: 2px 6px; opacity: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  background: linear-gradient(180deg, #5a554c, #3a362f); color: #f1e6c8; border: 1.5px solid #1e1b17; border-radius: 3px; box-shadow: 0 3px 0 #1e1b17;
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 700; font-size: 12px; line-height: 1.05; letter-spacing: .03em; text-transform: uppercase; }
+/* the icon: a target crossed out by an X */
+#pust-mapdock .pust-untgt-ico { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 16px; }
+#pust-mapdock .pust-untgt-ico > .fa-crosshairs { font-size: 15px; color: #f1e6c8; }
+#pust-mapdock .pust-untgt-ico > .fa-xmark { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: auto; line-height: 1; font-size: 19px; color: #ff6a4f; text-shadow: 0 0 2px #1e1b17, 0 0 2px #1e1b17; }
+#pust-mapdock button.pust-md-untarget:hover:not(:disabled) { filter: brightness(1.15); border-color: #ff8a6a; }
+#pust-mapdock button.pust-md-untarget:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #1e1b17; }
+#pust-mapdock button.pust-md-untarget:disabled { background: linear-gradient(180deg, #4a453d, #34302a); color: #b9b09a; cursor: default; }
+#pust-mapdock button.pust-md-untarget:disabled .pust-untgt-ico > i { color: #9a9282; }
 /* its panel, next to the unit: no window frame, a header of the dock's kind (check-panel.mjs DockedCheckPanel) */
 .pust-check-docked { position: fixed; z-index: var(--z-index-window, 100); display: flex; flex-direction: column; min-width: 460px; padding: 0; border: 2px solid #111; border-radius: 6px;
   overflow: hidden; background: var(--pu-paper, #d9cfb2); box-shadow: 0 8px 26px rgba(0,0,0,.6); }

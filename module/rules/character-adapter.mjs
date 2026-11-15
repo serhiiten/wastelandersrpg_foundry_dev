@@ -12,7 +12,7 @@
  * Values the HTML sheet stores that Foundry has no field for travel in `system.engine`
  * (actor and items), so a .json round trip loses nothing.
  */
-import { AKEYS, SKILLS, SPECIES, PERK, FEAT, IMPS, blankState, compute, drugOf } from "./core.mjs";
+import { AKEYS, SKILLS, SPECIES, PERK, FEAT, IMPS, blankState, compute, drugOf, spOf } from "./core.mjs";
 
 /** HTML attribute key ↔ Foundry attribute key */
 export const ATTR = {
@@ -140,7 +140,8 @@ export function stateToActor(st) {
     items.push(it);
   };
 
-  items.push({ type: "species", name: (SPECIES[st.species] || SPECIES.human).n, system: {}, sort: 0 });
+  // a custom species (st.speciesX, the species builder) carries its own name; st.species stays the base id
+items.push({ type: "species", name: spOf(st).n, system: {}, sort: 0 });
 
   st.perks.forEach((p) => {
     const { n, note, ...rest } = p;
@@ -197,7 +198,8 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
   st.portrait = portrait ?? (actor.img?.startsWith("data:") ? actor.img : null);
   st.arch = s.archetype || "";
   const sp = items.find((i) => i.type === "species");
-  st.species = Object.keys(SPECIES).find((k) => SPECIES[k].n === sp?.name) || "human";
+  // a custom species item has its own name: the base is then the one st.speciesX (read from the extras above) names
+  st.species = Object.keys(SPECIES).find((k) => SPECIES[k].n === sp?.name) || (SPECIES[st.speciesX?.base] ? st.speciesX.base : "human");
   st.gender = GENDERS.includes(s.gender) ? s.gender : "m";
   st.concept = s.concept || "";
   st.problem = s.problem || "";

@@ -5,6 +5,7 @@
  */
 import { createController } from "../rules/controller.mjs";
 import { FEAT, PERK, SPECIES, blankState } from "../rules/core.mjs";
+import { recipeToDef, recipeTotals, speciesToX } from "../rules/designer.mjs";
 import { QUICK_CHARS } from "../rules/quickstart.mjs";
 import { evaluate, readState, runAction } from "../applications/character-actions.mjs";
 import { exportCharacter, replaceCharacter, replaceCharacterFromFile } from "../applications/character-json.mjs";
@@ -39,6 +40,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       jsonSave: WastelandersCharacterSheetV2.#onJsonSave,
       quickStart: WastelandersCharacterSheetV2.#onQuickStart,
       addPick: WastelandersCharacterSheetV2.#onAddPick,
+      drugAdd: WastelandersCharacterSheetV2.#onDrugAdd,
     },
   };
 
@@ -58,7 +60,14 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const { st, d, L } = evaluate(this.document);
-    context.v = buildView(st, d, L, this.ui);
+    // the world's custom species and designer drugs (author, 2026-11-15): the view stays pure, the sheet hands them over
+    const world = {
+      worldSpecies: game.items.filter((i) => i.type === "species" && i.system.custom && speciesToX({ ...i.system.custom, n: i.name }))
+        .map((i) => ({ id: i.id, n: i.name, base: i.system.custom.base })).sort((a, b) => a.n.localeCompare(b.n, "uk")),
+      worldDrugs: game.items.filter((i) => i.type === "drug" && i.system.recipe)
+        .map((i) => ({ id: i.id, n: i.name, recipe: i.system.recipe, desc: recipeToDef(i.system.recipe).d })).sort((a, b) => a.n.localeCompare(b.n, "uk")),
+    };
+    context.v = buildView(st, d, L, { ...this.ui, ...world });
     context.actor = this.document;
     context.tab = this.ui.tab;
     context.quickFold = !!this.ui.quickFold;
@@ -163,7 +172,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       ta.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); ta.blur(); } });
     });
     if (!this.isEditable) {
-      root.querySelectorAll("input, select, textarea, button[data-action='act']").forEach((el) => (el.disabled = true));
+      root.querySelectorAll("input, select, textarea, button[data-action='act'], button[data-action='drugAdd']").forEach((el) => (el.disabled = true));
       return;
     }
     // fields bound to the HTML sheet's state
@@ -198,8 +207,36 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     const t = event.currentTarget;
     const k = t.dataset.k;
     let v = t.type === "checkbox" || t.type === "radio" ? t.checked : t.value;
+    // a custom species of the world («Власні види», value «x:<id>»): the character takes a copy of its definition
+    if (k === "species" && String(v).startsWith("x:")) {
+      if (v === "x:cur") return undefined; // the character's own copy is already chosen
+      return this.#takeSpecies(game.items.get(String(v).slice(2)));
+    }
     const num = !!t.dataset.num;
     return this.#run((C) => C.setField(k, v, { num }));
+  }
+
+  /** A custom species item → the character's species (st.speciesX); true when taken */
+  async #takeSpecies(item) {
+    const x = item?.type === "species" && item.system.custom ? speciesToX({ ...item.system.custom, n: item.name }) : null;
+    if (!x) {
+      ui.notifications.warn("Цей вид не вдалося прочитати: у нього немає назви чи основи.");
+      this.render();
+      return false;
+    }
+    return this.#run((C) => C.act("species-x", { x }));
+  }
+
+  /** A designer drug item → the character's own drug (st.customDrugs) and one dose in «Інший мотлох»; false when refused */
+  async #takeDrug(item) {
+    const recipe = item?.type === "drug" ? item.system.recipe : null;
+    if (!recipe) return false;
+    const err = recipeTotals(recipe).errors[0];
+    if (err) {
+      ui.notifications.warn(`«${item.name}»: ${err}`);
+      return false;
+    }
+    return this.#run((C) => C.act("drug-add-custom", { n: item.name, def: recipeToDef(recipe) }));
   }
 
   #onSpecialChange(event) {
@@ -328,6 +365,12 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     }
   }
 
+  /** «Дизайнерські» in the gear catalogue: a world drug with a recipe */
+  static #onDrugAdd(event, target) {
+    if (!this.isEditable) return undefined;
+    return this.#takeDrug(game.items.get(target.dataset.id));
+  }
+
   /** «+ Зброя / + Броня / + Річ»: open (or close) that list's catalogue under it */
   static #onAddPick(event, target) {
     const l = target.dataset.l || "";
@@ -390,6 +433,9 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     if (!this.document.isOwner) return null;
     if (item.parent?.uuid === this.document.uuid) return super._onDropItem(event, item);
     const base = (n) => n.replace(/\s*\([^)]*\)\s*$/, "");
+    // a custom species / a designer drug of the world: the character takes a copy of the definition, no embedded item is made
+    if (item.type === "species" && item.system.custom) return this.#takeSpecies(item);
+    if (item.type === "drug" && item.system.recipe) return this.#takeDrug(item);
     if (item.type === "perk") {
       const n = PERK[item.name] ? item.name : base(item.name);
       if (PERK[n]) return this.#run((C) => C.act("perk-add", { n }));

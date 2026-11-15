@@ -37,6 +37,34 @@ for (let i = 0; i < 200; i++) {
     }
   }
 }
+// ---- custom species and designer drugs in the view (author, 2026-11-15) ----
+{
+  const D = await import("../module/rules/designer.mjs");
+  let bad = 0;
+  const ck = (c, m) => { if (!c) { bad++; console.log("FAIL " + m); } };
+  R.setRandom(R.mulberry32(5));
+  const st = R.rollCharacter(null);
+  st.set.guns = true;
+  const x = D.speciesToX({ ...D.speciesDefaults("ghoul"), n: "Нічний гуль", hp: 2 });
+  const recipe = { name: "Тест", effects: [{ k: "armor" }], sides: [], note: "" };
+  const worldSpecies = [{ id: "a1", n: "Нічний гуль", base: "ghoul" }, { id: "a2", n: "Залізяка", base: "robot" }];
+  const worldDrugs = [{ id: "d1", n: "Тест", recipe, desc: "" }, { id: "d2", n: "Зламаний", recipe: { name: "З", effects: [{ k: "attr" }], sides: [] }, desc: "" }];
+  const ui = { worldSpecies, worldDrugs, cat: true, addPick: "other" };
+  let v = buildView(st, R.compute(st), createLogic({ st }), ui);
+  ck(v.speciesX.length === 2 && !v.speciesX.some((o) => o.sel), "plain character: world species listed, none chosen");
+  ck(v.species.some((o) => o.sel), "plain character: a base is selected");
+  ck(v.designerBig.length === 1 && v.designerBig[0].id === "d1" && v.designerBig[0].price === 2 && v.designerBig[0].addict === 3, "only the valid designer drug is offered");
+  ck(v.designerAdd.length === 1, "designer drugs in «+ Річ»");
+  st.species = "ghoul"; st.speciesX = x;
+  v = buildView(st, R.compute(st), createLogic({ st }), ui);
+  ck(v.speciesX.find((o) => o.v === "x:a1")?.sel && !v.species.some((o) => o.sel), "custom species selected, no base selected");
+  v = buildView(st, R.compute(st), createLogic({ st }), { cat: true });
+  ck(v.speciesX.length === 1 && v.speciesX[0].v === "x:cur" && v.speciesX[0].sel, "the character's own copy stays listed when the world item is gone");
+  ck(v.speciesProps.length === x.props.length, "species properties come from the custom species");
+  if (bad) errors++;
+  console.log("custom species / designer drugs in the view: OK");
+}
+
 R.setRandom(null);
 console.log(`views ${views}, errors ${errors}`);
 console.log(errors ? "FAIL" : "OK");

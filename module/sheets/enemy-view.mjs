@@ -4,9 +4,40 @@
  * the portrait, the GM switch, the enriched description.
  */
 import {
-  diceLabel, CAT_LABEL, QUICK_ASPECTS, DEF_FIELDS, R3, R4, DMG_TYPES, profileTags, tagHelp, moveHeal, psyMoveIdx, DICE_RE,
+  diceInText, diceLabel, noteWithoutType, CAT_LABEL, QUICK_ASPECTS, DEF_FIELDS, R3, R4, DMG_TYPES, profileTags, tagHelp, moveHeal, psyMoveIdx, DICE_RE,
 } from "../rules/battle.mjs";
 import { profileOf, attackDice, normCat, bookCopy } from "../rules/enemy-model.mjs";
+
+const escH = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+/**
+ * A move's or a note's text with its dice as chips (author, 2026-11-14): a damage die is a red chip with a crosshair that
+ * rolls and hits the targets (data-action="textHit"), any other die a chip that rolls to chat (textDice); for
+ * those who can't edit the card, plain chips. `src` names the move / note in the chat card. Returns safe HTML.
+ */
+export function diceTextHtml(text, src, editable) {
+  return diceInText(text).map((p) => {
+    if (typeof p === "string") return escH(p).replace(/\r?\n/g, "<br>");
+    const cls = `pust-dc${p.damage ? " pust-dc-hit" : ""}`;
+    if (!editable) return `<span class="${cls}">${escH(p.label)}</span>`;
+    const data = `data-expr="${escH(p.dice)}" data-src="${escH(src)}"${p.damage ? ` data-type="${p.type}" data-ia="${p.ignoreArmor ? 1 : 0}" data-in="${p.ignoreN}"` : ""}`;
+    return p.damage
+      ? `<button type="button" class="${cls}" data-action="textHit" ${data} title="Кинути ${escH(p.dice)} і завдати шкоди цілям: броня й стійкості кожного враховуються"><i class="fa-solid fa-crosshairs" aria-hidden="true"></i>${escH(p.label)}</button>`
+      : `<button type="button" class="${cls}" data-action="textDice" ${data} title="Кинути ${escH(p.dice)} у чат"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>${escH(p.label)}</button>`;
+  }).join("");
+}
+
+/**
+ * The category's mark, as on the token's badge (author, 2026-11-15; canvas/token.mjs CAT_MARK): статист one chevron,
+ * рядовий two, елітний three (drawn), бос a skull. Safe HTML.
+ */
+export function catIconHtml(cat) {
+  const n = { statists: 1, regular: 2, elite: 3 }[cat];
+  if (!n) return '<i class="fa-solid fa-skull" aria-hidden="true"></i>';
+  const step = 5, h = 4, top = (16 - ((n - 1) * step + h)) / 2;
+  const lines = Array.from({ length: n }, (_, k) => { const y = top + k * step; return `<polyline points="3,${y + h} 8,${y} 13,${y + h}"/>`; }).join("");
+  return `<svg class="pust-cat-ico" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${lines}</svg>`;
+}
 
 /** The strip colour of the card by category (like a place's kind colour) */
 export const CAT_COLOR = { statists: "#6b6f6c", regular: "#9a4a20", elite: "#a8700a", boss: "#a3261a" };
@@ -98,7 +129,7 @@ export function enemyView(sys, o = {}) {
     const ammo = a.ammoMax > 0;
     return {
       i, name: a.name, dice, diceText: diceLabel(dice), base: diceLabel(a.dice), plus, plusText: plus ? `+${plus}` : "", plusTitle: plus ? `${who}: +${plus} шкоди` : "",
-      type: a.type, typeOpts: typeOptions(a.type), ammoMax: a.ammoMax || 0, typeLabel: typeLabel(a.type), tcls: typeClass(a.type), note: a.note,
+      type: a.type, typeOpts: typeOptions(a.type), ammoMax: a.ammoMax || 0, typeLabel: typeLabel(a.type), tcls: typeClass(a.type), note: noteWithoutType(a.note, a.type), noteRaw: a.note,
       ammo: ammo ? { max: a.ammoMax, value: a.ammo, empty: a.ammo <= 0, pips: Array.from({ length: a.ammoMax }, (_, k) => ({ n: k + 1, on: k < a.ammo })) } : null,
       dead: ammo && a.ammo <= 0, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0, diceOk: DICE_RE.test(String(a.dice).trim()),
     };
@@ -106,13 +137,13 @@ export function enemyView(sys, o = {}) {
   const moves = (sys.moves ?? []).map((m, i) => {
     const psy = i === psyIdx;
     const heal = moveHeal(m.t);
-    return { i, n: m.n, t: m.t, used: !!m.used, psy, once: onceMove(m.t, psy), heal: heal ? heal.expr : "", healGroup: !!heal?.group };
+    return { i, n: m.n, t: m.t, tHtml: diceTextHtml(m.t, m.n, !!o.editable), used: !!m.used, psy, once: onceMove(m.t, psy), heal: heal ? heal.expr : "", healGroup: !!heal?.group };
   });
   return {
-    cat, catLabel: CAT_LABEL[cat] ?? "", catColor: CAT_COLOR[cat] ?? CAT_COLOR.regular,
+    cat, catLabel: CAT_LABEL[cat] ?? "", catColor: CAT_COLOR[cat] ?? CAT_COLOR.regular, catIcon: catIconHtml(cat),
     hp, armor: sys.armor ?? 0, psiArmor: sys.psiArmor ?? 0, armorText: sys.armorText ?? "",
     tags, quick, aspects: aspects.map((a, i) => ({ i, t: a.t, inv: a.inv })),
-    baseAspects: (sys.baseAspects ?? []).map((a, i) => ({ i, t: a.t, inv: a.inv })),
+    baseAspects: (sys.baseAspects ?? []).map((a, i) => ({ i, t: a.t, inv: a.inv, len: Math.max(6, String(a.t ?? "").length + 1) })),
     attacks, moves, psycho, psyIdx, psyMove: psyIdx >= 0 ? moves[psyIdx] : null,
     changed: !!sys.orig && JSON.stringify(sys.orig.attacks ?? null) !== JSON.stringify(sys.attacks) ? true : false,
     canReset: !!sys.orig, differs: differsFromBook(sys), defence: o.gm ? defenceRows(sys) : [],

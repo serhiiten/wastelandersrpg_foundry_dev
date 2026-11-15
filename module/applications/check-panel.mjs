@@ -126,7 +126,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    * The damage block: coloured by the damage type (Foundry only, author 2026-11-14), the total in one row with the dice,
    * each die drawn with its own sides, the parts only when there are several, each number in its type's colour, type chips.
    */
-  /** What «Завдати виділеним» sends: the damage shown in the panel now */
+  /** What «Завдати цілям» sends: the damage shown in the panel now */
   #apply = null;
 
   #damageBlock(html, L, st) {
@@ -151,14 +151,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const choice = choices.find((x) => x.key === D.key);
     const dtypes = dieTypes(choice, D.p, wt);
     const best = D.r2 && D.r2.sum > D.r1.sum ? D.r2 : D.r1;
-    // «Завдати виділеним» (author, 2026-11-14): here, not in chat; a partial success of the check halves the damage
+    // «Завдати цілям» (author, 2026-11-14): here, not in chat; a partial success of the check halves the damage
     // for those who take ½ on a partial success (the tracker's «Частковий успіх», set by the verdict itself)
     const partial = last.verdict === 1;
     this.#apply = {
       data: damageData({ total: L.dmgTotal(last, compute(st)).total, wt, fx, poison: last.poison && last.poisonRoll ? last.poisonRoll : null }),
       partial, head: D.name,
     };
-    const applyBtn = `<div class="rdapply"><button type="button" class="pust-dmg-apply" data-apply="1" title="Шкода виділеним токенам (або цілям, коли нічого не виділено): броня й стійкості кожного враховуються${partial ? "; частковий успіх — ½ тим, хто за нього отримує половину" : ""}"><i class="fa-solid fa-crosshairs"></i><span>Завдати виділеним</span></button>`
+    const applyBtn = `<div class="rdapply"><button type="button" class="pust-dmg-apply" data-apply="1" title="Шкода цілям: броня й стійкості кожного враховуються${partial ? "; частковий успіх — ½ тим, хто за нього отримує половину" : ""}"><i class="fa-solid fa-crosshairs"></i><span>Завдати цілям</span></button>`
       + (partial ? `<span class="rdhalf" title="Перевірка — частковий успіх: хто за часткового успіху отримує половину, отримає ½">частковий успіх</span>` : "") + `</div>`;
     return html.replace(
       /<div class="rdres"><div class="rdice">([\s\S]*?)<\/div><div class="rsum"><span class="rform">[^<]*=<\/span><b class="rtot">([^<]*)<\/b><span class="rform">шкоди<\/span><\/div><ul class="rsteps">([\s\S]*?)<\/ul>/,
@@ -174,7 +174,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         });
         let parts = [...lis.matchAll(/<li>([\s\S]*?): (-?\d+)<\/li>/g)].map((x) => ({ l: x[1], v: x[2], t: partType(x[1], wt) }));
         if (!/^Максимум/.test(parts[0]?.l || "")) parts = splitDiceParts(parts, choice, D.p, wt, best.vals);
-        // «Завдати виділеним» takes the parts by type when there are several (radiation, poison, psychic meet their own
+        // «Завдати цілям» takes the parts by type when there are several (radiation, poison, psychic meet their own
         // defence, not the armour) and the dice count (radiation that heals: +1 HP a die)
         if (this.#apply) Object.assign(this.#apply.data, applyParts(parts));
         const types = [...parts.map((p) => p.t), ...(last.poison && last.poisonRoll ? ["poison"] : [])];
@@ -414,7 +414,7 @@ class DockedCheckPanel extends CheckPanel {
 }
 
 /**
- * What «Завдати виділеним» needs (module/applications/apply-damage.mjs): the total, its type, armour ignored — for a
+ * What «Завдати цілям» needs (module/applications/apply-damage.mjs): the total, its type, armour ignored — for a
  * character's weapon read from its effect lines (not the damage type's own line: the type is counted by the rules already)
  */
 export function damageData({ total, wt, fx = [], poison = null }) {

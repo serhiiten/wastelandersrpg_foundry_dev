@@ -311,7 +311,8 @@ for (let c = 0; c < 60; c++) {
     }
     compared++;
     // Foundry writes «менша з 2d6» where the HTML sheet has «менший з 2d6» (author, 2026-11-14)
-    const lesser = (o) => JSON.parse(JSON.stringify(o).replace(/менший з 2d6/g, "менша з 2d6"));
+    // (and the chem effects' «half» marker, which the HTML sheet doesn't write: Рад-Ікс / Отрута-Ікс go through it here)
+    const lesser = (o) => { const r = JSON.parse(JSON.stringify(o).replace(/менший з 2d6/g, "менша з 2d6")); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; return r; };
     const A = lesser(canon(h.st));
     const B = lesser(canon(f.st));
     if (step.fix) { step.fix(A); step.fix(B); }

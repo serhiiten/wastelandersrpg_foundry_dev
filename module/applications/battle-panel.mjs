@@ -10,7 +10,7 @@
  *     reminder), the GM's Fate tokens − / + and «За гравцями» (as many as the player characters on the scene);
  *     scene flags `battleRound` / `battleFate`;
  *   – «Шкода й лікування» (the tracker's damage panel): a number or dice, the type, «Ігнорує броню», «Частковий успіх»,
- *     quick dice; «Завдати шкоди» / «Лікувати» go to the selected tokens (or the targets) through apply-damage.mjs —
+ *     quick dice; «Завдати шкоди» / «Лікувати» go to the targets through apply-damage.mjs —
  *     armour, defences, Камікадзе counted as in the tracker;
  *   – the count «У строю X з Y · Гравців N».
  * Players don't get this panel. map-dock.mjs shows it instead of «Мапа Пустки» while the battle map is viewed.
@@ -19,7 +19,7 @@ import { tokenLevel } from "../helpers/token-level.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { battleFolder } from "./terminal-battle.mjs";
 import { sceneZones, zoneOf, addBattleZone } from "../canvas/battle-zones.mjs";
-import { applyDamage, applyHeal, chosenTokens } from "./apply-damage.mjs";
+import { applyDamage, applyHeal, chosenTokens, warnNoTargets, clearTargets } from "./apply-damage.mjs";
 import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
 import { chatType } from "./enemy-attack.mjs";
 import { postChat } from "./chat.mjs";
@@ -162,13 +162,17 @@ function roundHtml(scene) {
 
 const pcCount = (scene) => (scene?.tokens ?? []).filter((t) => t.actor?.type === "character").length;
 
-/** «Шкода й лікування»: what to deal and to whom (the selected tokens, or the targets) */
+/** «Шкода й лікування»: what to deal and to whom (the targets) */
 function damageHtml() {
   const d = ui_.dmg;
   const n = chosenTokens().length;
   const types = Object.entries(DMG_TYPES).map(([k, v]) => `<option value="${k}" ${k === d.type ? "selected" : ""}>${esc(v.n)}</option>`).join("");
   return `<div class="pust-md-bdmg">
-      <div class="pust-md-bdmg-hd"><i class="fa-solid fa-burst"></i><span>Шкода й лікування</span><small title="Виділені токени, а коли нічого не виділено — цілі (T)">${n ? `виділено: ${n}` : "нікого не виділено"}</small></div>
+      <div class="pust-md-bdmg-hd"><i class="fa-solid fa-burst"></i><span>Шкода й лікування</span><small title="Шкода й лікування йдуть лише цілям (T)">${n ? `цілей: ${n}` : "цілей немає"}</small></div>
+      <div class="pust-md-row pust-md-btgt">
+        <button type="button" data-battle="tgtsel" title="Зробити виділені токени цілями (попередні цілі знімаються)"><i class="fa-solid fa-bullseye"></i><span>Вибрати цілі</span></button>
+        <button type="button" data-battle="tgtclear" ${n ? "" : "disabled"} title="Зняти всі цілі"><i class="fa-solid fa-xmark"></i><span>Зняти вибір</span></button>
+      </div>
       <div class="pust-md-row"><input type="text" class="pust-md-bexpr" data-battle-d="expr" value="${esc(d.expr)}" placeholder="5 або 2d6+1" aria-label="Шкода або лікування: число чи кістки" spellcheck="false">
         <select data-battle-d="type" aria-label="Тип шкоди">${types}</select></div>
       <div class="pust-md-row pust-md-bquick">${QUICK_DICE.map((q) => `<button type="button" data-battle="quick" data-q="${q}" title="Підставити ${q}">${q}</button>`).join("")}<button type="button" class="pust-md-bmod" data-battle="mod" data-mod="-1" title="Модифікатор −1">−1</button><button type="button" class="pust-md-bmod" data-battle="mod" data-mod="1" title="Модифікатор +1">+1</button></div>
@@ -177,8 +181,8 @@ function damageHtml() {
         <label title="Ті, хто за часткового успіху атаки отримує лише половину, отримають ½"><input type="checkbox" data-battle-d="partial" ${d.partial ? "checked" : ""}> Частковий успіх</label>
       </div>
       <div class="pust-md-row pust-md-bact">
-        <button type="button" class="pust-md-bhit" data-battle="hit" ${n ? "" : "disabled"} title="Шкода виділеним: броня й стійкості кожного враховуються, як у трекері"><i class="fa-solid fa-burst"></i><span>Завдати шкоди</span></button>
-        <button type="button" class="pust-md-bheal" data-battle="heal" ${n ? "" : "disabled"} title="Лікувати виділених (не вище максимуму ОЗ)"><i class="fa-solid fa-kit-medical"></i><span>Лікувати</span></button>
+        <button type="button" class="pust-md-bhit" data-battle="hit" ${n ? "" : "disabled"} title="Шкода цілям: броня й стійкості кожного враховуються, як у трекері"><i class="fa-solid fa-burst"></i><span>Завдати шкоди</span></button>
+        <button type="button" class="pust-md-bheal" data-battle="heal" ${n ? "" : "disabled"} title="Лікувати цілі (не вище максимуму ОЗ)"><i class="fa-solid fa-kit-medical"></i><span>Лікувати</span></button>
       </div>
     </div>`;
 }
@@ -248,9 +252,17 @@ async function onClick(ev) {
   if (act === "quick") { ui_.dmg.expr = b.dataset.q; return redrawBattlePanel(); }
   // the tracker's «−1» / «+1» (author, 2026-11-14): the number or the dice's modifier one up or down
   if (act === "mod") { ui_.dmg.expr = bumpExpr(ui_.dmg.expr, Number(b.dataset.mod)); return redrawBattlePanel(); }
+  // targets (author, 2026-11-15): the selected tokens become the targets; or all targets cleared
+  if (act === "tgtsel") {
+    const ids = (canvas?.tokens?.controlled ?? []).map((t) => t.id);
+    if (!ids.length) return ui.notifications.warn("Спершу виділи токени (клік, Shift+клік, рамка), а тоді зроби їх цілями.");
+    canvas.tokens.setTargets(ids, { mode: "replace" });
+    return;
+  }
+  if (act === "tgtclear") { canvas.tokens.setTargets([], { mode: "replace" }); return; }
   if (act === "hit" || act === "heal") {
     const who = chosenTokens();
-    if (!who.length) return ui.notifications.warn("Спершу виділи токени (клік, Shift+клік, рамка або «Обрати всіх» у зоні) чи познач цілі (T).");
+    if (!who.length) return warnNoTargets();
     const amt = await amountOf(ui_.dmg.expr);
     if (!amt) return ui.notifications.warn("Впиши число або кістки, наприклад 5 чи 2d6+1.");
     b.disabled = true;
@@ -260,6 +272,7 @@ async function onClick(ev) {
         const type = ui_.dmg.type;
         await applyDamage(who, { total: amt.total, dice: amt.dice || 0, type: chatType(type), ignoreArmor: ui_.dmg.ignore, ignoreN: 0 }, { partial: ui_.dmg.partial, head: `${amt.label} · ${DMG_TYPES[type]?.n ?? type}` });
       }
+      clearTargets();
     } finally { b.disabled = false; }
     return;
   }

@@ -45,6 +45,7 @@
       <div class="pust-row">
         <select data-k="species" aria-label="Вид">
           {{#each v.species}}<option value="{{v}}" {{#if sel}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{n}}</option>{{/each}}
+          {{#if v.speciesX.length}}<optgroup label="Власні види">{{#each v.speciesX}}<option value="{{v}}" {{#if sel}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{n}}</option>{{/each}}</optgroup>{{/if}}
         </select>
         <button type="button" class="pust-die" data-action="act" data-act="roll-species" title="Кинути вид"><i class="fa-solid fa-dice"></i></button>
         <select data-k="arch" aria-label="Архетип">
@@ -447,6 +448,9 @@
           <button type="button" class="pust-x" data-action="uiToggle" data-key="cat" title="Сховати довідник"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="pust-addcat-list">
           <p class="pust-sub pust-cat-count">Знайдено {{v.catalog.total}} з {{v.catalog.all}}</p>
+          {{#if v.designerBig.length}}<h4>Дизайнерські</h4>
+          {{#each v.designerBig}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b> <small class="pust-cat-d">дизайнерський</small> <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span><small class="pust-cat-price">{{price}} к</small>
+            <button type="button" class="pust-pick-add" data-action="drugAdd" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}{{/if}}
           {{#each v.catalog.groups}}<h4>{{g}}</h4>
           {{#each items}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b>{{#if d}} <small class="pust-cat-d">{{d}}</small>{{/if}}{{#if addict}} <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{/if}}{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span>{{#if price}}<small class="pust-cat-price">{{price}} к</small>{{/if}}
             <button type="button" class="pust-pick-add" data-action="act" data-act="cat-add" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}
@@ -559,6 +563,7 @@
           <textarea rows="1" data-k="other.{{i}}.note" placeholder="Примітка" class="pust-gnote-in" aria-label="Примітка">{{note}}</textarea>
           {{#if hasActs}}<span class="pust-gacts pust-gextra">
             {{#if usable}}<button type="button" class="pust-use-btn" data-action="act" data-act="chem-use" data-i="{{i}}" title="Вжити одну дозу"><i class="fa-solid fa-syringe"></i> Вжити</button>{{/if}}
+            {{#if power}}<button type="button" class="pust-use-btn" data-action="act" data-act="power-use" data-i="{{i}}" title="Спожити один елемент живлення"><i class="fa-solid fa-battery-half"></i> Вжити</button>{{/if}}
             {{#if booster}}<select data-k="other.{{i}}.attr" title="Атрибут бустера">{{#each booster}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>{{/if}}
             {{#if treat}}<button type="button" data-action="act" data-act="chem-treat" data-i="{{i}}" title="Замість ОЗ — пролікувати легкий наслідок">Лікувати легкий наслідок</button>{{/if}}
           </span>{{/if}}
@@ -581,6 +586,9 @@
         <div class="pust-addcat-list">
           <div class="pust-cat-row pust-cat-blank"><span><b>Інше</b> <small class="pust-sub">порожня річ — заповни сам</small></span>
             <button type="button" class="pust-pick-add" data-action="act" data-act="row-add" data-l="other"><i class="fa-solid fa-plus"></i> Додати</button></div>
+          {{#if v.designerAdd.length}}<h4>Дизайнерські</h4>
+          {{#each v.designerAdd}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b> <small class="pust-cat-d">дизайнерський</small> <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span><small class="pust-cat-price">{{price}} к</small>
+            <button type="button" class="pust-pick-add" data-action="drugAdd" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}{{/if}}
           {{#each v.addCat.groups}}<h4>{{g}}</h4>
           {{#each items}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b>{{#if d}} <small class="pust-cat-d">{{d}}</small>{{/if}}{{#if addict}} <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{/if}}{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span>{{#if price}}<small class="pust-cat-price">{{price}} к</small>{{/if}}
             <button type="button" class="pust-pick-add" data-action="act" data-act="cat-add" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}

@@ -57,6 +57,17 @@ const SPECIES = {
     short:'Розумний Пазур Смерті: живе до 20 років; мусить ховатися (без маскування — Посилення на залякування); лапи 1d10, ігнорують 1 броні; людські речі недоступні, Послаблення на дрібну моторику; броня 1; +5 ОЗ.'}
 };
 const SPECIES_ORDER = ['human','ghoul','mutant','robot','claw'];
+/* Власний вид: основа (st.species) і st.speciesX поверх неї */
+/* Власні значення видів (конструктор показує їх; власний вид їх заміняє, author 2026-11-15) */
+const SPECIES_NATIVE = {human:{hp:0,armor:0,perk:1,skill:1,def:{}}, ghoul:{hp:0,armor:0,perk:0,skill:0,def:{rad:'heal',poison:'half'}}, mutant:{hp:5,armor:0,perk:0,skill:0,def:{rad:'immune'}}, robot:{hp:0,armor:2,perk:0,skill:0,def:{rad:'half',poison:'immune',psy:'immune'}}, claw:{hp:5,armor:1,perk:0,skill:0,def:{}}};
+function speciesNative(id){ const n=SPECIES_NATIVE[id]||SPECIES_NATIVE.human; return {hp:n.hp, armor:n.armor, perk:n.perk, skill:n.skill, def:{rad:n.def.rad||'normal', poison:n.def.poison||'normal', psy:n.def.psy||'normal'}}; }
+function speciesExtra(st){ const x=st && st.speciesX; return (x && typeof x==='object' && x.base===st.species && SPECIES[x.base]) ? x : null; }
+function spOf(st){
+  const base=SPECIES[st && st.species] || SPECIES.human; const x=speciesExtra(st); if(!x) return base;
+  const b=Object.assign({}, base.b);
+  Object.keys(x.b||{}).forEach(k=>{ const r=x.b[k]; if(b[k] && Array.isArray(r) && r.length===3 && r.every(v=>Number.isFinite(+v))) b[k]=r.map(v=>Math.round(+v)); });
+  return Object.assign({}, base, {n:String(x.n||'').trim()||base.n, b, props:Array.isArray(x.props)?x.props.slice():base.props, short:x.short||base.short});
+}
 
 const ARCH = {
   'Здоровило':{a:[2,0,2,-1,-1,1,0], sk:['Герць','Атлетика','Виживання'], use:['SL','VTR','VP'], sp:[2,3,6,8,10],
@@ -434,7 +445,7 @@ const PRESETS = [
   ['o','Сильна отрута','+2d6 шкоди отрутою; рідкісна річ; змащує зброю з лезом, стріли, болти й кулі (не енергетичну); 1 доза на перевірку атаки; спершу атака має завдати хоча б 1 фізичної шкоди; ігнорує броню, крім силової та хімзахисту'],
   ['o','Смертельна отрута','+3d6 шкоди отрутою; дуже рідкісна річ; змащує зброю з лезом, стріли, болти й кулі (не енергетичну); 1 доза на перевірку атаки; спершу атака має завдати хоча б 1 фізичної шкоди; ігнорує броню, крім силової та хімзахисту'],
   ['o','Цілющий порошок','1 к; +3 ОЗ, СПР −1 до кінця сцени; кожне наступне за день — на 1 ОЗ менше, після третього — без ефекту'],
-  ['o','Електронна відмичка','5 к; корисна технологічна штуковина для зламу замків'],['o','Детектор руху','5 к; корисна технологічна штуковина'],['o','Лічильник Гейгера','5 к; корисна технологічна штуковина'],['o','Набір майстерних інструментів','корисна технологічна штуковина для ремонту й складання техніки'],['o','Розкішний довоєнний одяг','5 к'],['o','Pip-Boy 3000','10 к; '+PIPBOY_NOTE],
+  ['o','Елемент живлення','1 к; роботам замість їжі: раз на тиждень щонайменше 1 кришка на заміну елементів живлення'],['o','Електронна відмичка','5 к; корисна технологічна штуковина для зламу замків'],['o','Детектор руху','5 к; корисна технологічна штуковина'],['o','Лічильник Гейгера','5 к; корисна технологічна штуковина'],['o','Набір майстерних інструментів','корисна технологічна штуковина для ремонту й складання техніки'],['o','Розкішний довоєнний одяг','5 к'],['o','Pip-Boy 3000','10 к; '+PIPBOY_NOTE],
   ['o','Елементи живлення','заряд для робота на тиждень'],
   ['o','Хотфікс','стимпак для механізмів'],['o','Критфікс','суперстимпак для механізмів'],['o','Ребут','адреналін для механізмів'],['o','Адреналін','повертає до тями з 0 ОЗ (1 ОЗ)'],['o','Стелс-бой','невидимість до кінця сцени; одноразовий']
 ];
@@ -755,7 +766,7 @@ const PRESET_PRICE = {
   'Стимпак':2,'Суперстимпак':4,'Міцне бухло':1,'Бустер':2,'Джет':2,'Мед-Ікс':4,'Пси-Ікс':4,'Рад-Ікс':3,'Отрута-Ікс':3,'Психо':4,
   'Гідра':10,'Меланжева кислота':10,'Цілющий порошок':1,'Мурашиний нектар':3,'Феромони мурашиної матки':10,'М\'ясо яо-ґая':10,'Яйце Пазура Смерті':25,
   'Слабка отрута':1,'Середня отрута':2,'Сильна отрута':3,'Смертельна отрута':5,
-  'Електронна відмичка':5,'Детектор руху':5,'Лічильник Гейгера':5,'Набір майстерних інструментів':5,'Розкішний довоєнний одяг':5,'Pip-Boy 3000':10,
+  'Елемент живлення':1,'Електронна відмичка':5,'Детектор руху':5,'Лічильник Гейгера':5,'Набір майстерних інструментів':5,'Розкішний довоєнний одяг':5,'Pip-Boy 3000':10,
   'Хотфікс':3,'Критфікс':5,'Ребут':5,'Адреналін':5,'Стелс-бой':15,'Елементи живлення':1
 };
 // прибрати ціни, вписані в примітки, — тепер ціна окремим полем
@@ -944,8 +955,8 @@ const DRUGS = {
   'Джет':{ch:7, drug:true, eff:{attr:{VP:1}, t:'+1 ВП, ефекти «Верткість» і «Я — швидкість»'}, d:'До кінця сцени +1 ВП, а також ефекти перків «Верткість» і «Я — швидкість».'},
   'Мед-Ікс':{ch:3, drug:true, eff:{armor:1, t:'+1 фізичної броні'}, d:'Знеболювальне: +1 фізичної броні до кінця сцени.'},
   'Пси-Ікс':{ch:2, drug:true, eff:{psi:2, t:'+2 психічної броні'}, d:'Пси-блокатор: +2 психічної броні до кінця сцени.'},
-  'Рад-Ікс':{ch:2, drug:true, day:true, eff:{t:'радіація завдає лише половини шкоди'}, d:'Протягом дня радіація завдає лише половини шкоди.'},
-  'Отрута-Ікс':{ch:2, drug:true, day:true, eff:{t:'отрути завдають лише половини шкоди'}, d:'Протягом дня отрути завдають лише половини шкоди.'},
+  'Рад-Ікс':{ch:2, drug:true, day:true, eff:{half:['rad'], t:'радіація завдає лише половини шкоди'}, d:'Протягом дня радіація завдає лише половини шкоди.'},
+  'Отрута-Ікс':{ch:2, drug:true, day:true, eff:{half:['poison'], t:'отрути завдають лише половини шкоди'}, d:'Протягом дня отрути завдають лише половини шкоди.'},
   'Психо':{ch:5, drug:true, eff:{attr:{VTR:-1,IN:-1}, dmg:2, t:'+2 шкоди будь-якою зброєю, −1 ВТР і −1 ІН'}, d:'До кінця сцени +2 шкоди будь-якою зброєю, але −1 ВТР і −1 ІН.'},
   'Гідра':{ch:2, drug:true, info:'Обери один наслідок фізичної шкоди, познач його як вилікуваний і перейменуй. Легкий минає одразу, середній — до кінця наступної сцени, тяжкий — до кінця поточної сесії.'},
   'Меланжева кислота':{ch:2, drug:true, info:'Обери один наслідок психічної шкоди, познач його як вилікуваний і перейменуй. Легкий минає одразу, середній — до кінця наступної сцени, тяжкий — до кінця поточної сесії. Також притлумлює невиліковну залежність і знімає ломку на одну сесію.'},
@@ -956,8 +967,14 @@ const DRUGS = {
   'Стелс-бой':{ch:3, gadget:true, eff:{t:'невидимість до кінця сцени (або кілька хвилин)'}, d:'Одноразовий: робить невидимим до кінця сцени або на кілька хвилин.'}
 };
 const DRUG_ALIAS = {'бустер':'Бустер','бустери':'Бустер','ментати':'Бустер','бафаут':'Бустер','мед-х':'Мед-Ікс','мед-ікс':'Мед-Ікс','пси-х':'Пси-Ікс','рад-х':'Рад-Ікс','отрута-х':'Отрута-Ікс','стелс-бой':'Стелс-бой','стелсбой':'Стелс-бой','плід бонсаю':'Стимпак'};
+const OFFICIAL_DRUGS = new Set(Object.keys(DRUGS));
+/* Дизайнерські наркотики персонажа стають звичайною хімією: drugOf, «Вжити», ціна, шанс залежності */
+function registerCustomDrugs(st){
+  ((st && st.customDrugs) || []).forEach(x=>{ if(x && typeof x.n==='string' && x.n.trim() && x.def && typeof x.def==='object' && !OFFICIAL_DRUGS.has(x.n.trim())) DRUGS[x.n.trim()] = x.def; });
+}
 function drugOf(name){
-  const l=String(name||'').trim().toLowerCase(); if(!l) return null;
+  const ex=String(name||'').trim(); if(ex && Object.prototype.hasOwnProperty.call(DRUGS, ex)) return ex;
+  const l=ex.toLowerCase(); if(!l) return null;
   for(const k of Object.keys(DRUGS)){ const kl=k.toLowerCase(); if(l===kl || l.startsWith(kl+' ') || l.startsWith(kl+'(')) return k; }
   for(const a of Object.keys(DRUG_ALIAS)){ if(l===a || l.startsWith(a+' ') || l.startsWith(a+'(')) return DRUG_ALIAS[a]; }
   return null;
@@ -989,7 +1006,7 @@ const ATTR_DESC = {
   PV:'переконати замовника заплатити більше кришок. Обдурити довірливих простаків. Розлякати місцеву шпану. Причарувати дочку впливового кримінального боса. Усе це — твоя Привабливість.',
   IN:'зрозуміти, що робить он та червона кнопка. Знати, які трави лікують, а від яких краще триматися подалі. Що вищий Інтелект, то кмітливіший персонаж. Також Інтелект використовується, коли персонаж намагається уникнути психічної шкоди.',
   VP:'пройти краєм небезпечного урвища. Жонглювати ножами. Потай кудись пробратися. Вчасно ухилитися від шквалу куль. Вправність визначає, наскільки добре персонаж володіє своїм тілом. Також вона використовується, коли персонаж намагається уникнути фізичної шкоди.',
-  UDCH:'визначає, наскільки часто Фортуна всміхається персонажеві. Сама по собі Удача рідко використовується в перевірках, хіба що в азартних іграх і схожих випадках. Проте вона визначає кількість жетонів Долі на початку сесії (2 + УДЧ), а Доглядач додає її до Кубика Долі, коли справа стосується персонажа.'
+  UDCH:'визначає, наскільки часто Фортуна всміхається персонажеві. Сама по собі Удача рідко використовується в перевірках, хіба що в азартних іграх і схожих випадках. Проте вона визначає кількість жетонів Долі на початку сесії (2 + УДЧ), а Доглядач додає її до кістки Долі, коли справа стосується персонажа.'
 };
 const SKILL_DESC = {
   'Атлетика':'усе, що пов\'язане з доброю фізичною підготовкою: стрибки, біг, плавання, поштовхи, акробатичні трюки, метання тощо.',
@@ -1067,7 +1084,8 @@ function blankState(){
 
 function compute(st){
   const d = {};
-  const sp = SPECIES[st.species] || SPECIES.human;
+  registerCustomDrugs(st);
+  const sp = spOf(st); const sx = speciesExtra(st) || {};
   const has = f => st.feats.includes(f);
   d.has = has;
   const free = !!st.set.free;
@@ -1128,15 +1146,15 @@ function compute(st){
   if(st.perks.some(p=>p.n==='Ерудит')) flexSrc.push('Ерудит');
   st.feats.forEach(fn=>{ if(FEAT[fn]&&FEAT[fn].flex) flexSrc.push(fn); });
   d.flexSrc=flexSrc;
-  d.sk = {base: 2+(d.human?1:0), newImp:taken('skill').length, jImp:taken('skill2').length, mImp:taken('skill3').length, flex:flexSrc.length};
+  d.sk = {base: 2+(sx.base ? (parseInt(sx.skill,10)||0) : (d.human?1:0)), newImp:taken('skill').length, jImp:taken('skill2').length, mImp:taken('skill3').length, flex:flexSrc.length};
   d.skillCheck = skillBudget(st.skills, d);
   // перки
   d.freePerks = st.feats.map(fn=>FEAT[fn]&&FEAT[fn].freePerk).filter(Boolean);
-  d.perkSlots = 2 + (d.human?1:0) + (has('Експериментальна модель')&&st.exp==='perk'?1:0) - (has('Обдарований')?1:0) + taken('perk').length;
+  d.perkSlots = 2 + (sx.base ? (parseInt(sx.perk,10)||0) : (d.human?1:0)) + (has('Експериментальна модель')&&st.exp==='perk'?1:0) - (has('Обдарований')?1:0) + taken('perk').length;
   d.allPerks = [...st.perks.map(p=>p.n), ...d.freePerks];
   // похідні
   const nHealthy = d.allPerks.filter(n=>n==='Здоровань').length;
-  d.hp = 15 + 3*d.eff.VTR + ((st.species==='mutant'||st.species==='claw')?5:0) + 5*nHealthy
+  d.hp = 15 + 3*d.eff.VTR + (sx.base ? (parseInt(sx.hp,10)||0) : ((st.species==='mutant'||st.species==='claw')?5:0)) + 5*nHealthy
         + (has('Бонсай')?-3:0) + (has('Експериментальна модель')?-5:0) + (d.loot.yao?2:0);
   d.hpBase = Math.max(1,d.hp);
   d.hpRed = Math.max(0, parseInt(st.hpRed,10)||0);
@@ -1147,7 +1165,7 @@ function compute(st){
   d.fdAuto = Math.max(0, 2 + d.eff.UDCH);
   d.fdBonus = parseInt(st.fdOv,10)||0; d.fdOv = d.fdBonus!==0;
   d.fd = Math.max(0, d.fdAuto + d.fdBonus);
-  d.natArmor = (st.species==='robot' && !has('Синт') ? 2 : 0) + (st.species==='claw'?1:0) + (d.allPerks.includes('Невколупний')?1:0);
+  d.natArmor = (sx.base ? (st.species==='robot' && has('Синт') ? 0 : (parseInt(sx.armor,10)||0)) : (st.species==='robot' && !has('Синт') ? 2 : 0) + (st.species==='claw'?1:0)) + (d.allPerks.includes('Невколупний')?1:0);
   d.wornArmor = d.wornList.filter(a=>d.paAllowed||!PA_RE.test(a.n||'')).reduce((m,a)=>{ const v=parseInt(a.v,10); return (!isNaN(v) && !/пси/i.test(a.v+'') && !/пси-обруч/i.test(a.n||'')) ? (free ? m+v : Math.max(m,v)) : m; },0);
   d.psiWorn = d.wornList.reduce((m,a)=>{ const mm=String(a.v||'').match(/(\d+)\s*пси/i); return mm||/пси-обруч/i.test(a.n||'') ? m+(mm?+mm[1]:2) : m; },0);
   d.armorTotal = d.natArmor + d.wornArmor;
@@ -1292,7 +1310,7 @@ function collectIssues(st, d){
   if(d.has('Вбудована зброя')){ const hw=st.weapons.filter(isHeavyWeapon); if(hw.length) out.push(['bad','«Вбудована зброя»: персонаж не може користуватися звичайною важкою зброєю ('+hw.map(w=>w.n||'без назви').join(', ')+'). Важкою чи рідкісною може стати лише сама вбудована зброя.']); }
   if(st.species==='claw'){ const hw=st.weapons.filter(w=>!w.claw && w.auto!=='psi'); if(hw.length) out.push(['bad',CLAW_WEAPON_MSG.replace(/\.$/,'')+': '+hw.map(w=>w.n||'без назви').join(', ')+'. Доступні лише Пазурі, гранати й медикаменти.']); }
   if(d.has('Однорукий')){ const hw=st.weapons.filter(isHeavyWeapon); if(hw.length) out.push(['bad','«Однорукий»: персонаж не може користуватися важкою зброєю ('+hw.map(w=>w.n||'без назви').join(', ')+').']); }
-  if(d.paListed && !PA_SPECIES.includes(st.species)) out.push([d.wornList.some(a=>PA_RE.test(a.n||''))?'bad':'warn','Силову броню й покращену силову броню можуть носити лише люди та гулі. '+SPECIES[st.species].n+' не отримує від неї ні броні, ні +1 СЛ.']);
+  if(d.paListed && !PA_SPECIES.includes(st.species)) out.push([d.wornList.some(a=>PA_RE.test(a.n||''))?'bad':'warn','Силову броню й покращену силову броню можуть носити лише люди та гулі. '+spOf(st).n+' не отримує від неї ні броні, ні +1 СЛ.']);
   if(!d.free){ const ov=[]; if(d.hpOv) ov.push('додаткові макс. ОЗ '+sgn(d.hpBonus)); if(d.fdOv) ov.push('відновлення жетонів Долі '+sgn(d.fdBonus)); if(d.armorOv) ov.push('додаткова броня '+sgn(d.armorBonus)); if(d.psiOv) ov.push('додаткова психічна броня '+sgn(d.psiBonus)); if(d.defOv.length) ov.push('захист: '+d.defOv.map(k=>(DEF_TYPES[k]||{n:k}).n.toLowerCase()).join(', '));
     if(ov.length) out.push(['warn','Задано у вільному режимі й досі діє: '+ov.join('; ')+'. Щоб змінити чи скинути, увімкни вільний режим.']); }
   if(d.hpRed) out.push([d.hp<=0?'bad':'info', d.hp<=0 ? 'Максимум ОЗ упав до 0 через невдале лікування наслідків — персонаж приречений і помре за кілька хвилин.' : 'Максимум ОЗ зменшено на '+d.hpRed+' через невдале лікування наслідків — до одужання.']);
@@ -1491,7 +1509,7 @@ function rollCharacter(prev){
 function perkLabel(p){ return p.note ? p.n+' ('+p.note+')' : p.n; }
 function featLabel(st, fn){ const n=st.featNotes&&st.featNotes[fn]; return n? fn+' ('+n+')' : fn; }
 function speciesShort(st){
-  let s = SPECIES[st.species].short;
+  let s = spOf(st).short;
   if(st.species==='robot' && st.feats.includes('Кіборг')) s += ' Кіборг: не «неживий» — їсть, п\'є, спить, дихає, відновлює ОЗ на відпочинку, вживає хімію; радіація — повна шкода.';
   if(st.species==='robot' && st.feats.includes('Синт')) s += ' Синт: немає броні 2, може носити людську броню, не потребує живлення.';
   return s;
@@ -1500,7 +1518,7 @@ function buildText(st){
   const d=compute(st); const L=[]; const hr='—'.repeat(46);
   L.push('ПУСТЕЛЬНИКИ · АРКУШ ПЕРСОНАЖА'); L.push(hr);
   L.push("Ім'я: "+(st.name||'—'));
-  L.push('Архетип: '+(st.arch||'—')+' · Вид: '+SPECIES[st.species].n);
+  L.push('Архетип: '+(st.arch||'—')+' · Вид: '+spOf(st).n);
   L.push('Концепція: '+(st.concept||'—'));
   L.push('Проблема: '+(st.problem||'—'));
   L.push('Ціль: '+(st.goal||'—'));
@@ -1533,8 +1551,8 @@ function buildText(st){
   if(ch.addictions.length){ L.push(''); L.push('ЗАЛЕЖНОСТІ'); ch.addictions.forEach(a=>L.push('• '+a.drug+(a.incurable?' (невиліковна'+(a.src?', '+a.src:'')+')':''))); L.push('  Штраф у сцені без дози: '+(ch.addictions.length>=3?'Послаблення на всі перевірки':'−'+ch.addictions.length+' до всіх перевірок')+'.'); }
   const effs=[...ch.scene,...ch.day]; if(effs.length){ L.push(''); L.push('ДІЄ ЗАРАЗ'); effs.forEach(x=>L.push('• '+x.drug+': '+x.t)); }
   L.push('');
-  L.push('ВЛАСТИВОСТІ ВИДУ — '+SPECIES[st.species].n.toUpperCase());
-  SPECIES[st.species].props.forEach(p=>L.push('• '+p));
+  L.push('ВЛАСТИВОСТІ ВИДУ — '+spOf(st).n.toUpperCase());
+  spOf(st).props.forEach(p=>L.push('• '+p));
   L.push('');
   L.push('ДОСВІД І ПОКРАЩЕННЯ');
   L.push('ОД зароблено: '+(+st.xp||0)+' · витрачено: '+d.xpSpent+' · лишилося: '+d.xpLeft);
@@ -1567,6 +1585,10 @@ export {
   LVLDIE,
   SPECIES,
   SPECIES_ORDER,
+  SPECIES_NATIVE,
+  speciesNative,
+  speciesExtra,
+  spOf,
   ARCH,
   ARCH_ORDER,
   PRICE,
@@ -1657,6 +1679,8 @@ export {
   officialName,
   DRUGS,
   DRUG_ALIAS,
+  OFFICIAL_DRUGS,
+  registerCustomDrugs,
   drugOf,
   ATTR_BY_NAME,
   boosterAttr,

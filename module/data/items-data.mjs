@@ -195,6 +195,8 @@ export class DrugData extends foundry.abstract.TypeDataModel {
 
     return {
       // Values the HTML sheet keeps that have no Foundry field (lossless .json export)
+      // A designer drug's recipe made in the drug builder (author, 2026-11-15; shape: Recipe in rules/designer.mjs); null in the official ones
+      recipe: new fields.ObjectField({ required: false, nullable: true, initial: null }),
       engine: new fields.ObjectField(),
       description: new fields.HTMLField(),
       note: new fields.StringField(),

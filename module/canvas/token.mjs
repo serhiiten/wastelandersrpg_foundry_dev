@@ -10,8 +10,17 @@
  *   – situational aspects as small chips under the token, for everyone (author, 2026-11-14): a character's situational
  *     aspects, an enemy's situational ones (not the book's), a place's aspects — the yellow italic chip of the sheets, free
  *     invokes as a green «+N».
+ *   – an enemy's category as a round badge in the top right corner of the token, for everyone (author, 2026-11-15:
+ *     статист one chevron, рядовий two, елітний three, бос a skull (author, 2026-11-15), in the card's category colours); a boss standing
+ *     (HP above 0) glows soft red, pulsing — Foundry's GlowOverlayFilter on the picture (steady in photosensitive mode).
  */
+import { CAT_COLOR } from "../sheets/enemy-view.mjs";
+import { normCat } from "../rules/enemy-model.mjs";
+
 const LABELS = { hp: "ОЗ", range: "Запас ходу" };
+/** The categories' marks: chevrons drawn (статист 1, рядовий 2, елітний 3), the boss a Font Awesome skull */
+const CAT_MARK = { statists: 1, regular: 2, elite: 3, boss: "\uf54c" };
+const CAT_NAME = { statists: "статист", regular: "рядовий", elite: "елітний", boss: "бос" };
 
 /** The aspects shown under a token: [{t, inv}] */
 export function tokenAspects(actor) {
@@ -142,6 +151,74 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
     box.visible = true;
   }
 
+  /** An enemy's category badge (top right corner) and a boss's red pulsing glow (author, 2026-11-15) */
+  refreshCategory() {
+    if (this.destroyed) return;
+    const enemy = this.actor?.type === "enemy";
+    const cat = enemy ? normCat(this.actor.system?.cat) : "";
+    let badge = this.children.find((c) => c.name === "pust-cat-badge");
+    if (!enemy || !CAT_MARK[cat]) { if (badge) badge.visible = false; }
+    else {
+      const { width, height } = this.document.getSize();
+      const s = canvas.dimensions.uiScale;
+      const r = Math.max(11 * s, Math.min(width, height) * 0.13);
+      const key = `${cat}|${r}`;
+      if (!badge) {
+        badge = new PIXI.Container();
+        badge.name = "pust-cat-badge";
+        badge.eventMode = "none";
+        this.addChild(badge);
+      }
+      if (badge._pustKey !== key) {
+        badge._pustKey = key;
+        badge.removeChildren().forEach((c) => c.destroy({ children: true }));
+        const bg = new PIXI.Graphics();
+        bg.beginFill(0x000000, 0.45).drawCircle(0, r * 0.08, r + 1.5 * s).endFill(); // a soft shadow
+        bg.lineStyle({ width: Math.max(1.5, 2 * s), color: 0x1e1b17, alpha: 1 });
+        bg.beginFill(Color.from(CAT_COLOR[cat]), 1).drawCircle(0, 0, r).endFill();
+        const mark = CAT_MARK[cat];
+        let glyph;
+        if (typeof mark === "number") {
+          // stacked chevrons in the middle of the circle (author, 2026-11-15), with room to the rim; a chevron's arms make
+          // it look higher than it is, so the stack sits a touch lower than its geometric centre
+          glyph = new PIXI.Graphics();
+          const w = r * 0.5, h = r * 0.25, step = r * 0.3, lw = Math.max(1.5, r * 0.17);
+          glyph.lineStyle({ width: lw, color: 0xfbeee4, alpha: 1, cap: PIXI.LINE_CAP.ROUND, join: PIXI.LINE_JOIN.ROUND });
+          const top = -((mark - 1) * step + h) / 2 + r * 0.05;
+          for (let k = 0; k < mark; k++) {
+            const y = top + k * step;
+            glyph.moveTo(-w, y + h).lineTo(0, y).lineTo(w, y + h);
+          }
+        } else {
+          glyph = new PIXI.Text(mark, new PIXI.TextStyle({ fontFamily: "Font Awesome 7 Pro, Font Awesome 6 Pro, Font Awesome 6 Free", fontWeight: "900", fontSize: r * 1.05, fill: 0xfbeee4, padding: 2 }));
+          glyph.anchor.set(0.5, 0.5);
+        }
+        badge.addChild(bg, glyph);
+        badge._pustLabel = CAT_NAME[cat];
+      }
+      // the centre a little inside the corner: over the corner's empty space on a round token
+      badge.position.set(width - r * 0.75, r * 0.75);
+      badge.visible = true;
+    }
+    // the boss's glow on the picture (the mesh), only while it stands
+    const mesh = this.mesh;
+    if (!mesh) return;
+    const glow = enemy && cat === "boss" && Number(this.actor.system?.hp?.value) > 0;
+    const has = (mesh.filters ?? []).includes(this._pustGlow);
+    if (glow && !has) {
+      if (!this._pustGlow) {
+        const G = foundry.canvas.rendering.filters.GlowOverlayFilter;
+        const f = G.create({ glowColor: [0.92, 0.14, 0.08, 1], distance: 14, knockout: false });
+        f.animated = true;   // Foundry's own pulse (0.5…2 over 2 s), steady in photosensitive mode
+        f.outerStrength = 2.6;
+        f.innerStrength = 0;
+        f.padding = 18;
+        this._pustGlow = f;
+      }
+      mesh.filters = [...(mesh.filters ?? []), this._pustGlow];
+    } else if (!glow && has) mesh.filters = mesh.filters.filter((f) => f !== this._pustGlow);
+  }
+
   /** An enemy at 0 HP or less: a red cross from corner to corner over its picture (author, 2026-11-14) */
   #refreshCross() {
     const down = this.actor?.type === "enemy" && Number(this.actor.system?.hp?.value) <= 0;
@@ -171,6 +248,7 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
     super._refreshSize();
     this.#placeAroundBars();
     this.#refreshCross();
+    this.refreshCategory();
   }
 
   /** @override */
@@ -178,6 +256,7 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
     super._refreshState();
     this.#placeAroundBars();
     this.#refreshCross();
+    this.refreshCategory();
   }
 
   /** @override — the HP change also toggles «Unconscious», which refreshes the effects for every viewer (players don't
@@ -185,6 +264,7 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
   _refreshEffects() {
     super._refreshEffects();
     this.#refreshCross();
+    this.refreshCategory();
   }
 
   /** @override */
@@ -268,6 +348,6 @@ Hooks.on("drawToken", (t) => { t._pustHp = hpOf(t); });
 Hooks.on("updateActor", (actor) => {
   const toks = (canvas?.tokens?.placeables ?? []).filter((t) => t.actor === actor || (t.document.actorLink && t.document.actorId === actor.id));
   checkHp(toks);
-  toks.forEach((t) => t.refreshAspectChips?.()); // the aspects under the token follow the sheet
+  toks.forEach((t) => { t.refreshAspectChips?.(); t.refreshCategory?.(); }); // the aspects, the category follow the sheet
 });
-Hooks.on("updateToken", (doc) => { if (doc.object) { checkHp([doc.object]); doc.object.refreshAspectChips?.(); } });
+Hooks.on("updateToken", (doc) => { if (doc.object) { checkHp([doc.object]); doc.object.refreshAspectChips?.(); doc.object.refreshCategory?.(); } });

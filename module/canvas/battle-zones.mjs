@@ -32,6 +32,8 @@ const rectOf = (doc) => ({ id: doc.id, x: doc.x, y: doc.y, w: doc.shape.width, h
 export const sceneZones = (scene = canvas?.scene) => (scene?.drawings ?? []).filter((d) => zoneOf(d)).map((d) => ({ ...rectOf(d), doc: d }));
 const k = () => canvas.dimensions.size / 100;
 const stripH = () => ZONE.stripH * canvas.dimensions.size;
+/** The height each zone's strip was drawn with (it grows with the aspects' rows): the drag handle follows it */
+const STRIP_H = new Map();
 
 /** The zone a token stands in (its centre), or null; where zones overlap, the one drawn on top */
 export function zoneOfToken(token, zones = sceneZones(token?.parent)) {
@@ -69,11 +71,33 @@ export function initBattleZones() {
       this.#zone = null;
       const z = zoneOf(this.document);
       if (!z || !this.shape || this.shape.destroyed) return;
-      const K = k(), w = this.document.shape.width, h = this.document.shape.height, sh = stripH();
+      const K = k(), w = this.document.shape.width, h = this.document.shape.height, sh0 = stripH();
       const col = COLORS[z.color] ?? COLORS.yellow, fill = hex(col.fill), line = hex(col.line), ink = hex(MAP_NOTE.ink);
       const T = TextClass();
       const box = new PIXI.Container();
       box.eventMode = "none";
+      const pad = 12 * K;
+      const right = w - pad - (isGM() ? 26 * K : 0); // where the strip's contents end
+      const title = new T(z.name, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", fill: ink, letterSpacing: 0.3 * K }));
+      // the aspects (author, 2026-11-15): chips in the strip, right after the name; rows that don't fit wrap under it and
+      // the strip grows with them (never past the zone)
+      const chipH = 30 * K, gap = 6 * K, rowH = chipH + gap;
+      const chips = [];
+      let x = pad + Math.min(title.width, right - pad) + 14 * K, row = 0;
+      for (const a of z.aspects) {
+        // italic leans past the width PIXI measures (author, 2026-11-14: «курсив зрізає закінчення»): the texture gets padding,
+        // the chip room for the lean
+        const lean = 6 * K;
+        const text = new T(a.t, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 19 * K, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
+        const inv = a.inv > 0 ? new T(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 18 * K, fontWeight: "800", fill: 0xf2ecd8 })) : null;
+        const cw = Math.min(right - pad, text.width + lean + 18 * K + (inv ? inv.width + 14 * K : 0));
+        if (x + cw > right && x > pad) { x = pad; row += 1; }
+        chips.push({ text, inv, cw, x, row });
+        x += cw + gap;
+      }
+      const rows = chips.length ? chips.at(-1).row : 0;
+      const sh = Math.min(h, sh0 + rows * rowH);
+      STRIP_H.set(this.document.id, sh);
       // the field: a see-through wash of the colour with a solid border
       const field = new PIXI.Graphics();
       field.lineStyle({ width: 4 * K, color: line, alpha: 0.95, alignment: 1 }).beginFill(fill, 0.13).drawRoundedRect(0, 0, w, h, 8 * K).endFill();
@@ -82,11 +106,9 @@ export function initBattleZones() {
       strip.beginFill(fill, 0.92).drawRoundedRect(0, 0, w, sh, 8 * K).drawRect(0, sh / 2, w, sh / 2).endFill();
       strip.lineStyle({ width: 2 * K, color: line, alpha: 0.9 }).moveTo(0, sh).lineTo(w, sh);
       box.addChild(field, strip);
-      const pad = 12 * K;
-      const title = new T(z.name, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", fill: ink, letterSpacing: 0.3 * K }));
-      title.position.set(pad, (sh - title.height) / 2);
+      title.position.set(pad, (sh0 - title.height) / 2);
       const tmask = new PIXI.Graphics();
-      tmask.beginFill(0xffffff).drawRect(0, 0, w - pad - (isGM() ? 26 * K : 0), sh).endFill();
+      tmask.beginFill(0xffffff).drawRect(0, 0, right, sh0).endFill();
       box.addChild(tmask, title);
       title.mask = tmask;
       // the corner for resizing (GM)
@@ -95,33 +117,24 @@ export function initBattleZones() {
         c.beginFill(line, 0.95).drawPolygon([w - 4 * K, h - s, w - 4 * K, h - 4 * K, w - s, h - 4 * K]).endFill();
         box.addChild(c);
       }
-      // the aspects: chips under the strip, wrapping
-      let x = pad, y = sh + 10 * K;
-      const chipH = 30 * K;
-      for (const a of z.aspects) {
-        // italic leans past the width PIXI measures (author, 2026-11-14: «курсив зрізає закінчення»): the texture gets padding,
-        // the chip room for the lean
-        const lean = 6 * K;
-        const text = new T(a.t, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 19 * K, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
-        const inv = a.inv > 0 ? new T(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 18 * K, fontWeight: "800", fill: 0xf2ecd8 })) : null;
-        const cw = Math.min(w - 2 * pad, text.width + lean + 18 * K + (inv ? inv.width + 14 * K : 0));
-        if (x + cw > w - pad && x > pad) { x = pad; y += chipH + 6 * K; }
-        if (y + chipH > h - 6 * K) break;
+      for (const { text, inv, cw, x: cx, row: cr } of chips) {
+        const y = cr === 0 ? (sh0 - chipH) / 2 : sh0 + (cr - 1) * rowH;
+        if (y + chipH > sh - 2 * K) break; // the zone is too short for more rows
         const bg = new PIXI.Graphics();
-        bg.beginFill(0xe2ad3b, 0.95).drawRoundedRect(x, y, cw, chipH, 4 * K).endFill();
+        bg.beginFill(0x000000, 0.25).drawRoundedRect(cx, y + 1.5 * K, cw, chipH, 4 * K).endFill(); // a soft shadow on the strip
+        bg.beginFill(0xe2ad3b, 1).drawRoundedRect(cx, y, cw, chipH, 4 * K).endFill();
         box.addChild(bg);
         const tm = new PIXI.Graphics();
-        tm.beginFill(0xffffff).drawRect(x, y, cw - (inv ? inv.width + 14 * K : 0) - 4 * K, chipH).endFill();
-        text.position.set(x + 9 * K, y + (chipH - text.height) / 2);
+        tm.beginFill(0xffffff).drawRect(cx, y, cw - (inv ? inv.width + 14 * K : 0) - 4 * K, chipH).endFill();
+        text.position.set(cx + 9 * K, y + (chipH - text.height) / 2);
         box.addChild(tm, text);
         text.mask = tm;
         if (inv) {
           const ib = new PIXI.Graphics(), iw = inv.width + 10 * K;
-          ib.beginFill(0x2f6b35, 1).drawRoundedRect(x + cw - iw - 3 * K, y + 3 * K, iw, chipH - 6 * K, 3 * K).endFill();
-          inv.position.set(x + cw - iw + 2 * K, y + (chipH - inv.height) / 2);
+          ib.beginFill(0x2f6b35, 1).drawRoundedRect(cx + cw - iw - 3 * K, y + 3 * K, iw, chipH - 6 * K, 3 * K).endFill();
+          inv.position.set(cx + cw - iw + 2 * K, y + (chipH - inv.height) / 2);
           box.addChild(ib, inv);
         }
-        x += cw + 6 * K;
       }
       this.#zone = this.shape.addChild(box);
     }
@@ -151,7 +164,7 @@ function zoneAt(pt) {
     if (key > bestKey) {
       bestKey = key;
       const c = 30 * k();
-      const part = pt.x >= r.x + r.w - c && pt.y >= r.y + r.h - c ? "corner" : pt.y < r.y + stripH() ? "strip" : "body";
+      const part = pt.x >= r.x + r.w - c && pt.y >= r.y + r.h - c ? "corner" : pt.y < r.y + (STRIP_H.get(doc.id) ?? stripH()) ? "strip" : "body";
       best = { doc, placeable: p, zone: z, rect: r, part };
     }
   });
@@ -233,7 +246,7 @@ function editorHtml(z) {
     + `<button type="button" class="pust-bz-x" data-act="rmasp" data-i="${i}" title="Прибрати аспект «${esc(a.t)}»" aria-label="Прибрати аспект">×</button></span>`).join("");
   return `<div class="pust-mn-bar pust-bz-bar" role="toolbar" aria-label="Зона">
       <span class="pust-mn-sws">${sw}</span>
-      <button type="button" class="pust-mn-btn" data-act="select" title="Виділити кожного, хто ще стоїть у цій зоні"><i class="fa-solid fa-crosshairs"></i><span>Обрати всіх</span></button>
+      <button type="button" class="pust-mn-btn" data-act="select" title="Зробити ціллю кожного, хто ще стоїть у цій зоні"><i class="fa-solid fa-crosshairs"></i><span>Обрати всіх</span></button>
       <button type="button" class="pust-mn-btn pust-mn-del" data-act="delete"><i class="fa-solid fa-trash"></i><span>Видалити</span></button>
     </div>
     <div class="pust-bz-paper">
@@ -349,8 +362,8 @@ async function onBarClick(ev) {
   } catch (err) { console.warn("Пустельники | zone action failed", err); ui.notifications.warn("Не вдалося змінити зону."); }
 }
 
-/** «Обрати всіх»: every token still standing in the zone gets selected (the tracker's zsel; author, 2026-11-14: «Завдати
- *  виділеним» works on the selection); with overlapping zones a token in both is in both */
+/** «Обрати всіх»: every token still standing in the zone becomes a target (the tracker's zsel; author, 2026-11-15: damage
+ *  and healing go to the targets only); with overlapping zones a token in both is in both */
 export function selectZone(doc) {
   const zones = sceneZones();
   const z = zones.find((x) => x.id === doc.id);
@@ -358,9 +371,8 @@ export function selectZone(doc) {
   const down = (t) => (Number(t.actor?.system?.hp?.value) <= 0) || (t.document.hidden && !isGM());
   const inZone = canvas.tokens.placeables.filter((t) => zoneOfToken(t, [z])?.id === z.id && !down(t));
   canvas.tokens.activate();
-  canvas.tokens.releaseAll();
-  inZone.forEach((t) => t.control({ releaseOthers: false }));
-  ui.notifications.info(inZone.length ? `Виділено в зоні «${zoneOf(doc).name}»: ${inZone.length}` : `У зоні «${zoneOf(doc).name}» нікого, хто ще стоїть.`);
+  canvas.tokens.setTargets(inZone.map((t) => t.id), { mode: "replace" });
+  ui.notifications.info(inZone.length ? `Цілі в зоні «${zoneOf(doc).name}»: ${inZone.length}` : `У зоні «${zoneOf(doc).name}» нікого, хто ще стоїть.`);
 }
 
 /** The editor over the zone, following pan and zoom; the bar above, or under the strip when there is no room */

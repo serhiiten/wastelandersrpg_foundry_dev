@@ -6,8 +6,10 @@
 import {
   ARCH_ORDER, ATTRS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
   DRUGS, IMP_ATTR, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, catProps, countedFeats,
-  countedPerks, drugOf, featElig, gunsOn, perkElig, presetLabel, CAT_SECS, weaponDmg,
+  countedPerks, drugOf, featElig, gunsOn, perkElig, presetLabel, CAT_SECS, weaponDmg, spOf, speciesExtra,
 } from "../rules/core.mjs";
+import { recipeTotals } from "../rules/designer.mjs";
+import { isPowerCell, usesPowerCells } from "../rules/power-cell.mjs";
 import { catalogDescription } from "../applications/catalog-descriptions.mjs";
 import { DMG_TYPES, EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
 import { GRANT_FEATS, grantOptions, lastingCaps, startPicks } from "../rules/skill-sources.mjs";
@@ -82,9 +84,16 @@ export function buildView(st, d, L, ui = {}) {
   const free = !!d.free;
 
   /* ---------- who ---------- */
+  // the five species, then the world's custom ones (ui.worldSpecies: [{ id, n, base }] from the sheet; author, 2026-11-15)
+  const sx = speciesExtra(st);
   const species = SPECIES_ORDER.map((k) => ({
-    v: k, n: SPECIES[k].n, sel: st.species === k, disabled: k === "claw" && !st.set.claws && st.species !== "claw",
+    v: k, n: SPECIES[k].n, sel: st.species === k && !sx, disabled: k === "claw" && !st.set.claws && st.species !== "claw",
   }));
+  const speciesX = (ui.worldSpecies || []).map((w) => ({
+    v: `x:${w.id}`, n: w.n, sel: !!sx && sx.n === w.n && sx.base === w.base, disabled: w.base === "claw" && !st.set.claws && st.species !== "claw",
+  }));
+  // the character's own copy stays listed (selected) even when the world item is gone or renamed
+  if (sx && !speciesX.some((o) => o.sel)) speciesX.push({ v: "x:cur", n: sx.n, sel: true, disabled: false });
   const archetypes = [{ v: "", n: "— архетип —", sel: !st.arch }].concat(
     ARCH_ORDER.map((a) => ({ v: a, n: a, sel: st.arch === a, disabled: a === "Псионік" && !st.set.psi })),
   );
@@ -287,12 +296,13 @@ export function buildView(st, d, L, ui = {}) {
     const D = key ? DRUGS[key] : null;
     const row = {
       i, n: o.n || "", q: o.q ?? "1", note: o.note || "", price: o.price || "", h: !!o.h, auto: !!o.auto, usable: !!key,
+      power: !key && isPowerCell(o.n) && usesPowerCells(st), // a robot's power cell (author, 2026-11-15)
       booster: D?.booster && !/\(/.test(o.n || "")
         ? [{ v: "", n: "атрибут…", sel: !o.attr }].concat(ATTRS.filter((A) => A.k !== "UDCH").map((A) => ({ v: A.k, n: A.s, sel: o.attr === A.k })))
         : null,
       treat: !!(D && (D.heal || D.superHeal) && consL && !st.consT?.l),
     };
-    row.hasActs = row.usable || !!row.booster || row.treat; // «Вжити» and the rest take the end of the note's column
+    row.hasActs = row.usable || row.power || !!row.booster || row.treat; // «Вжити» and the rest take the end of the note's column
     return row;
   });
   const robotBody = st.species === "robot" && !d.has("Кіборг");
@@ -324,13 +334,20 @@ export function buildView(st, d, L, ui = {}) {
       .filter((g) => g.items.length);
     addCat = { groups, total: groups.reduce((n, g) => n + g.items.length, 0) };
   }
+  // «Дизайнерські» (author, 2026-11-15): the world's designer drugs with a valid recipe (ui.worldDrugs: [{ id, n, recipe }])
+  const designer = (ui.worldDrugs || []).map((w) => ({ w, T: recipeTotals(w.recipe) }))
+    .filter(({ T }) => !T.errors.length)
+    .map(({ w, T }) => ({ id: w.id, n: w.n, price: T.price, addict: T.ch, desc: w.desc || "" }));
+  const dq = (s) => { const q = String(s || "").trim().toLowerCase(); return q ? designer.filter((e) => e.n.toLowerCase().includes(q)) : designer; };
+  const designerBig = catSec === "all" ? dq(ui.catQ) : [];
+  const designerAdd = addPick === "other" ? dq(ui.addQ) : [];
   const catSecs = [{ v: "all", n: "усі розділи", sel: catSec === "all" }].concat(secs.map((k) => ({ v: k, n: CAT_SECS[k] || k, sel: catSec === k })));
   const catSorts = Object.entries(CAT_SORT).map(([v, n]) => ({ v, n, sel: catSort === v }));
 
   return {
     name: st.name || "", gender: st.gender, genders: [["m", "чол."], ["f", "жін."], ["n", "без статі"]].map(([v, n]) => ({ v, n, sel: st.gender === v })),
-    species, // «Назва: опис» → a name and a description, like the feats above (props without a name stay text only)
-    speciesProps: (SPECIES[st.species]?.props || []).map((p) => {
+    species, speciesX, // «Назва: опис» → a name and a description, like the feats above (props without a name stay text only)
+    speciesProps: (spOf(st).props || []).map((p) => {
       const m = /^([^:.]{2,60}):\s*(.+)$/s.exec(p);
       return m ? { n: m[1], text: m[2].charAt(0).toUpperCase() + m[2].slice(1) } : { n: "", text: p };
     }), archetypes, arch: st.arch || "",
@@ -357,7 +374,7 @@ export function buildView(st, d, L, ui = {}) {
     caps: parseInt(st.caps, 10) || 0,
     chem, rest,
     weapons, favWeapon, armorList: armor, other, heavy: { n: d.heavyN, cap: d.heavyCap, over: d.heavyN > d.heavyCap },
-    cat: !!ui.cat, catQ: ui.catQ || "", catalog, catSecs, catSorts, addPick, addCat, addQ: ui.addQ || "",
+    cat: !!ui.cat, catQ: ui.catQ || "", catalog, designerBig, designerAdd, catSecs, catSorts, addPick, addCat, addQ: ui.addQ || "",
     adren: ai >= 0 ? { i: ai, n: drugOf(st.other[ai].n) } : null,
     presets: PRESETS.map((p, i) => ({ i, n: presetLabel ? presetLabel(p) : p[1] })),
     bio: st.bio || "", others: st.others || "",

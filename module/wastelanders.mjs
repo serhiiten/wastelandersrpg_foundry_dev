@@ -11,7 +11,8 @@ import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
 import { WastelandersPlaceSheet } from "./sheets/place-sheet.mjs";
 import { renderMapDock } from "./applications/map-dock.mjs";
 import { WastelandersItemSheet } from "./sheets/item-sheet.mjs";
-import { WastelandersSpeciesSheet } from "./sheets/species-sheet.mjs";
+import { WastelandersSpeciesBuilder } from "./sheets/species-builder.mjs";
+import { WastelandersDrugBuilder } from "./sheets/drug-builder.mjs";
 import { registerSystemSettings } from "./helpers/settings.mjs";
 
 // Import modules
@@ -128,13 +129,17 @@ Hooks.once("init", async function () {
     WastelandersItemSheet,
     { makeDefault: true },
   );
+  // The builders (author, 2026-11-15): a Вид and a Наркотик made in «Create Item» open in their constructor; an official one
+  // (from a compendium) shows its description. The generic item sheet stays available for the drug.
   foundry.documents.collections.Items.registerSheet(
     game.system.id,
-    WastelandersSpeciesSheet,
-    {
-      types: ["species"],
-      makeDefault: true
-    },
+    WastelandersSpeciesBuilder,
+    { types: ["species"], makeDefault: true, label: "Конструктор виду" },
+  );
+  foundry.documents.collections.Items.registerSheet(
+    game.system.id,
+    WastelandersDrugBuilder,
+    { types: ["drug"], makeDefault: true, label: "Конструктор наркотика" },
   );
 
   registerHandlebarsHelpers();
@@ -198,6 +203,10 @@ Hooks.on("preCreateChatMessage", preprocessChatMessage);
 
 // Render chat message hook
 Hooks.on("renderChatMessageHTML", renderChatMessage);
+
+// Items directory (author, 2026-11-15): «Create Item» is back, but it offers only a Вид and a Наркотик (WastelandersItem.createDialog):
+// they have builders (module/sheets/species-builder.mjs, drug-builder.mjs); every other item is made on the sheets (catalogues,
+// «+» buttons, drag from compendiums). Nothing to hide here any more.
 
 // Actors directory: «Відкрити .json» creates characters and caravans from electronic sheet files
 Hooks.on("renderActorDirectory", (app, html) => {

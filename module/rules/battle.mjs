@@ -152,6 +152,65 @@ export function lowerDice(dice, note) {
   return { dice: dice2, note: clean };
 }
 
+/**
+ * An attack's note without the words of its own damage type at its start (author, 2026-11-14: the chip shows the type):
+ * «фізичної шкоди, ближній бій» → «ближній бій», «шкоди радіацією всім істотам в одній зоні» → «всім істотам в одній
+ * зоні». Other types in the note stay («+ 3 шкоди радіацією»), and so does «фізичної шкоди вогнем» on a physical attack.
+ * @param {string} note @param {string} type key of DMG_TYPES
+ */
+const PHYS_WORDS = String.raw`фізичн\S*\s+шкод[а-яіїєґ]*(?![а-яіїєґ])`;
+const TYPE_WORDS = {
+  phys: new RegExp(String.raw`^${PHYS_WORDS}(?!\s+(?:вогнем|радіацією|отрутою|кислотою))`, "i"),
+  laser: new RegExp(String.raw`^(?:(?:лазерн\S*|енергетичн\S*)\s+(?:\(\S+\)\s+)?шкод\S*|${PHYS_WORDS})`, "i"),
+  plasma: new RegExp(String.raw`^(?:(?:плазмов\S*|енергетичн\S*)\s+(?:\(\S+\)\s+)?шкод\S*|${PHYS_WORDS})`, "i"),
+  gauss: new RegExp(String.raw`^(?:(?:гаус\S*|енергетичн\S*)\s+шкод\S*|${PHYS_WORDS})`, "i"),
+  electric: new RegExp(String.raw`^(?:електричн\S*\s+шкод\S*|шкод\S*\s+електрикою|${PHYS_WORDS})`, "i"),
+  cryo: new RegExp(String.raw`^(?:кріо\S*\s+шкод\S*|шкод\S*\s+холодом|${PHYS_WORDS})`, "i"),
+  fire: /^(?:(?:фізичн\S*\s+)?шкод\S*\s+вогнем|вогнян\S*\s+шкод\S*)/i,
+  rad: /^(?:(?:фізичн\S*\s+)?шкод\S*\s+радіацією|радіаційн\S*\s+шкод\S*)/i,
+  poison: /^(?:шкод\S*\s+отрутою|отруйн\S*\s+шкод\S*)/i,
+  psychic: /^психічн\S*\s+шкод\S*/i,
+};
+export function noteWithoutType(note, type) {
+  const t = String(note ?? "").trim();
+  const re = TYPE_WORDS[type] || TYPE_WORDS.phys;
+  return re.test(t) ? t.replace(re, "").replace(/^[\s,;.]+/, "") : t;
+}
+
+/**
+ * Dice in a move's or a note's text (author, 2026-11-14): the text cut into pieces, every die a chip — a damage die (its
+ * clause speaks of «шкод…» and doesn't heal) carries the clause's damage type and armour piercing, so it can hit the
+ * selected tokens; any other die (healing, a count) is rolled to chat.
+ * «раз за сцену обстрілює … і завдає 3d6 шкоди всім істотам у них» → [text, {dice:"3d6", damage:true, type:"phys"}, text]
+ * @param {string} text
+ * @returns {(string|{dice:string, label:string, damage:boolean, type:string, ignoreArmor:boolean, ignoreN:number})[]}
+ */
+export function diceInText(text) {
+  const t = String(text ?? "");
+  const out = [];
+  const re = /(^|[^\p{L}\d])(\d*[dк]\d+(?:\s*[+\-]\s*\d+(?![dк]))?)(?![\p{L}\d])/giu;
+  let last = 0, m;
+  while ((m = re.exec(t))) {
+    const at = m.index + m[1].length;
+    const raw = m[2];
+    if (at > last) out.push(t.slice(last, at));
+    // the clause the die stands in: from the last «.;» before it to the next «.;» after it
+    const from = Math.max(t.lastIndexOf(".", at), t.lastIndexOf(";", at)) + 1;
+    const ends = [t.indexOf(".", at + raw.length), t.indexOf(";", at + raw.length)].filter((x) => x >= 0);
+    const clause = t.slice(from, ends.length ? Math.min(...ends) : t.length);
+    // damage when «шкод…» follows the die closely (before a comma) or «завдає / отримує» stands right before it
+    const after = t.slice(at + raw.length).split(/[,.;:(]/)[0];
+    const before = t.slice(Math.max(from, at - 24), at);
+    const damage = (/^\s*(?:\S+\s+){0,2}шкод/i.test(after) || /(?:завда\S*|отриму\S*)\s*$/i.test(before)) && !/відновлю|лікує|зцілю|повертає\s+\S*\s*оз/i.test(clause);
+    const dice = raw.replace(/\s+/g, "").replace(/к/gi, "d").replace(/^d/i, "1d");
+    const near = `${raw} ${after}`;
+    out.push({ dice, label: raw, damage, type: atkType(near), ignoreArmor: atkIgnores(clause), ignoreN: atkIgnoreN(clause) });
+    last = at + raw.length;
+  }
+  if (last < t.length) out.push(t.slice(last));
+  return out;
+}
+
 /** «2d6kl1» → «менша з 2d6» (how the book says it); other dice as they are */
 export function diceLabel(dice) {
   const m = /^(\d*d\d+)kl1([+\-]\d+)?$/i.exec(String(dice || "").replace(/\s+/g, ""));
@@ -408,7 +467,7 @@ export function applyParts(parts) {
 const SPECIAL = new Set(["rad", "poison", "psychic"]);
 
 /**
- * One hit on one target, as «Завдати виділеним» / «Завдати шкоди» apply it (author, 2026-11-14): the tracker's computeDamage
+ * One hit on one target, as «Завдати цілям» / «Завдати шкоди» apply it (author, 2026-11-14): the tracker's computeDamage
  * for every part, then the HP.
  *   – a hit of several types («4d6[фізична] + 2d6[радіація]», a weapon's extra poison) splits: the radiation, poison and
  *     psychic parts each meet only their own defence (no physical armour); every other part adds up into one main part that
@@ -538,16 +597,16 @@ export function attackParts(a) {
  * @param {string} text @returns {string} key of `DMG_TYPES`
  */
 export function atkType(text) {
-  const t = String(text || "").toLowerCase().replace(/\+\s*\d*d?\d+\s+[^\s,;)]+/g, " ");
+  const t = String(text || "").toLowerCase().replace(/\+\s*\d*d?\d+\s+(?:шкод\S*\s+)?[^\s,;)]+/g, " ");
   if (/гаус/.test(t)) return "gauss";
   if (/плазм\S*\s+гранат|гранат\S*\s+плазм/.test(t)) return "phys"; // a plasma grenade is the exception: physical damage
   if (/плазм/.test(t)) return "plasma";
   if (/лазер/.test(t)) return "laser";
   if (/електр|імпульсн|тазер|ем[іi]-/.test(t)) return "electric";
   if (/кріо|морозн/.test(t)) return "cryo";
-  if (/вогнемет|напалм|вогнян|запальн|молотова|струмін\S*\s+вогн|шкода вогнем|вогнем\s+\d/.test(t)) return "fire";
-  if (/радіаційн|радіоактивн|гамма/.test(t)) return "rad";
-  if (/отруйн|токсичн/.test(t)) return "poison";
+  if (/вогнемет|напалм|вогнян|запальн|молотова|струмін\S*\s+вогн|шкод\S*\s+вогнем|вогнем\s+\d/.test(t)) return "fire"; // «шкоди вогнем» too (author, 2026-11-14)
+  if (/радіаційн|радіоактивн|гамма|шкод\S*\s+радіацією/.test(t)) return "rad";
+  if (/отруйн|токсичн|шкод\S*\s+отрутою/.test(t)) return "poison";
   if (/психічн|пси[- ]/.test(t)) return "psychic";
   return "phys";
 }

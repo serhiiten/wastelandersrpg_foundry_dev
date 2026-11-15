@@ -25,6 +25,8 @@ export default class SpeciesData extends foundry.abstract.TypeDataModel {
         }),
       ),
 
+      // A custom species made in the species builder (author, 2026-11-15; shape: speciesDefaults in rules/designer.mjs); null in the official ones
+      custom: new fields.ObjectField({ required: false, nullable: true, initial: null }),
       description: new fields.HTMLField(),
     };
   }

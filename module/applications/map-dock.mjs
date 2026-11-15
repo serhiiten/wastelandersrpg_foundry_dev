@@ -31,8 +31,16 @@ const DOCK = "pust-mapdock";
 const POS_KEY = "pustelnyky-mapdock-pos";   // { map: {x, y}, dice: {x, y} } in window pixels; absent = the default place
 const FOLD_KEY = "pustelnyky-mapdock-fold"; // { map: bool, dice: bool }
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
-const load = (k) => { try { return JSON.parse(localStorage.getItem(k) || "{}") || {}; } catch (_) { return {}; } };
-const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) { /* no storage: not remembered */ } };
+// each user of the browser has places and folds of their own (author, 2026-11-15: the GM's dragged panels moved a player's
+// in the same browser); a GM's old shared keys are read until they save anew
+const userKey = (k) => `${k}-${game.user?.id ?? ""}`;
+const load = (k) => {
+  try {
+    const own = localStorage.getItem(userKey(k));
+    return JSON.parse(own ?? (game.user?.isGM ? localStorage.getItem(k) : null) ?? "{}") || {};
+  } catch (_) { return {}; }
+};
+const save = (k, v) => { try { localStorage.setItem(userKey(k), JSON.stringify(v)); } catch (_) { /* no storage: not remembered */ } };
 
 /* ---------------- «Мапа Пустки» ---------------- */
 const btn = (act, icon, label, title) =>
@@ -246,7 +254,9 @@ function defaultPlace(unit) {
   }
   // «Лічильники»: under the default place of «Мапа Пустки» (its height as it is now: folded or open), wherever it was
   // dragged; on the left by themselves while «Битва» is on the right
-  const ctr = battle ? left : { x: left.x, y: left.y + (el ? el.getBoundingClientRect().height : 140) + 8 };
+  // players have no «Мапа Пустки» panel (an empty unit): their panels start right under the layer buttons
+  const mh = el ? el.getBoundingClientRect().height : 140;
+  const ctr = battle || !mh ? left : { x: left.x, y: left.y + mh + 8 };
   if (unit === "ctr") return ctr;
   // «Кістки»: under the default place of «Лічильники» (6 px, as when they were one unit); right there when it is empty
   const c = document.querySelector(`#${DOCK} [data-unit="ctr"]`);
@@ -384,7 +394,7 @@ export function renderMapDock() {
         ${gm ? battleSectionHtml(header) : ""}
       </div>
       <div class="pust-md-unit${fold.ctr ? " folded" : ""}" data-unit="ctr">
-        ${gm ? "" : `<button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити «Зробити перевірку» поруч; персонаж — твій Player Character"><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button>`}
+        ${gm ? "" : `<div class="pust-md-prow"><button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити «Зробити перевірку» поруч; персонаж — твій Player Character"><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}
         ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" title="Новий лічильник" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button>${FOLD_BTN}</header><div class="pust-md-body pust-gc" hidden></div></section>` : `<section class="pust-md-panel pust-md-ctr" hidden></section>`}
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
@@ -401,6 +411,9 @@ export function renderMapDock() {
     if (gm) mountCounters(ctrUnit.querySelector(".pust-md-ctr")).then(() => requestAnimationFrame(placeAll));
     else redrawCounters();
     mapUnit.querySelector(".pust-md-travel")?.addEventListener("click", () => { tv.open = !tv.open; redrawTravel(); });
+    // players: «Зняти цілі» (author, 2026-11-15) — damage goes to the targets only
+    ctrUnit.querySelector(".pust-md-untarget")?.addEventListener("click", () => canvas?.tokens?.setTargets([], { mode: "replace" }));
+    syncUntarget();
     const chk = ctrUnit.querySelector(".pust-md-check");
     if (chk) {
       syncCheckButton();
@@ -447,6 +460,17 @@ function syncCheckButton() {
   b.classList.toggle("on", dockCheckOpen());
 }
 for (const h of ["createActor", "deleteActor", "updateActor", "updateUser"]) Hooks.on(h, foundry.utils.debounce(syncCheckButton, 150));
+
+/** Players: «Зняти цілі» is on while they have targets; its tooltip counts them */
+function syncUntarget() {
+  const b = document.querySelector(`#${DOCK} .pust-md-untarget`);
+  if (!b) return;
+  const n = game.user.targets?.size ?? 0;
+  b.disabled = !n;
+  b.title = n ? `Зняти всі твої цілі (зараз: ${n})` : "Цілей немає. Познач ціль: T над токеном, Shift+T — додати ще";
+}
+Hooks.on("targetToken", (user) => { if (user?.isSelf) syncUntarget(); });
+Hooks.on("canvasReady", () => syncUntarget());
 
 // «Битва» in its own place keeps to the sidebar as it folds and opens (also watched by size, see renderMapDock)
 Hooks.on("collapseSidebar", () => requestAnimationFrame(placeAll));

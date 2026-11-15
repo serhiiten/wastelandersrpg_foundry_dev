@@ -8,7 +8,7 @@
  *   splitPrices(st)  rows without `price` take it from the start of their note (in place; idempotent)
  *   joinPrices(st)   a copy for the HTML sheet: price back at the start of the note, no `price` key
  */
-import { DRUGS, drugOf } from "./core.mjs";
+import { DRUGS, drugOf, registerCustomDrugs } from "./core.mjs";
 
 const LISTS = ["weapons", "armor", "other"];
 
@@ -57,6 +57,7 @@ export function syncFavNotes(st) {
 
 /** Chems with an addiction chance always say so in their note («…; залежність 3»), whoever added them */
 export function syncAddictionNotes(st) {
+  registerCustomDrugs(st);
   (st?.other || []).forEach((o) => {
     const key = drugOf(o.n);
     const ch = key ? DRUGS[key]?.ch : 0;

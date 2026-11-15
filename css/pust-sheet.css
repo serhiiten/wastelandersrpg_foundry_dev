@@ -1150,6 +1150,7 @@
 .pust-en .pust-en-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .pust-en .pust-en-sp { flex: 1 1 auto; }
 .pust-en .pust-en-cat { display: inline-flex; align-items: center; gap: 6px; font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); white-space: nowrap; }
+.pust-en .pust-en-cat > .pust-cat-ico { width: 16px; height: 16px; flex: none; filter: drop-shadow(0 1px 0 rgba(0,0,0,.35)); } /* the token badge's chevrons */
 .wastelanders .pust-en .pust-en-bar > button.pust-en-sw:not(.header-control) { flex: none; display: inline-flex; align-items: center; gap: 6px; width: auto !important; height: 26px !important; margin: 0 !important; padding: 0 9px 0 6px !important;
   background: rgba(0,0,0,.35) !important; color: #fff !important; border: 1px solid rgba(255,255,255,.4) !important; border-radius: 13px !important; box-shadow: none !important; font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; line-height: 24px !important; }
 .wastelanders .pust-en .pust-en-bar > button.pust-en-sw:not(.header-control):hover { background: rgba(0,0,0,.5) !important; }
@@ -1221,8 +1222,6 @@
 .pust-en .pust-en-dicechip { font-family: var(--pu-f-num); font-weight: 700; font-size: 14px; }
 .pust-en .pust-en-type { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
 .pust-en .pust-en-plus { display: inline-flex; align-items: center; height: 22px; padding: 0 6px; background: var(--pu-red-ink); color: #fff; border-radius: 3px; font-family: var(--pu-f-num); font-weight: 700; font-size: 12px; cursor: help; }
-.wastelanders .pust-en button.pust-en-roll:not(.header-control) { flex: none; background: var(--pu-rust-2) !important; color: #fff4e0 !important; border-color: var(--pu-rust-0) !important; font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-.wastelanders .pust-en button.pust-en-roll:disabled { opacity: .45; }
 .pust-en .pust-en-note { margin-top: 3px; font-size: 13px; color: var(--pu-ink-2); }
 .pust-en .pust-en-atk.spent .pust-en-atkn { text-decoration: line-through; color: var(--pu-ink-3); }
 .pust-en .pust-en-pips { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
@@ -1252,7 +1251,8 @@
 .pust-en input.pust-en-num { width: 48px; flex: none; text-align: center; font-family: var(--pu-f-num); }
 .pust-en .pust-en-edadd { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
 .pust-en .pust-en-edadd > select { flex: 1 1 auto; min-width: 0; }
-.pust-en .pust-en-chipin { width: 150px; height: 22px !important; font-size: 13px !important; padding: 0 4px; }
+/* the book's aspects edited in place (author, 2026-11-14: no text cut): the field is as wide as its words, up to the card */
+.pust-en .pust-en-chipin { width: auto !important; min-width: 6ch; max-width: 100%; field-sizing: content; height: 22px !important; font-size: 13px !important; padding: 0 4px; }
 .wastelanders .pust-en button.pust-en-reset:not(.header-control) { margin-top: 8px !important; }
 
 /* defence */
