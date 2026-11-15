@@ -149,8 +149,8 @@
     "name": "Легенадрний касадор",
     "displayName": 50,
     "actorLink": true,
-    "width": 1,
-    "height": 1,
+    "width": 2,
+    "height": 2,
     "texture": {
       "src": "systems/wastelanders-dev/assets/kasador.png",
       "anchorX": 0.5,

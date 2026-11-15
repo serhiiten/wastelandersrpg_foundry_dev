@@ -169,8 +169,8 @@
     "name": "Самиця Пазура Смерті",
     "displayName": 50,
     "actorLink": true,
-    "width": 1,
-    "height": 1,
+    "width": 3,
+    "height": 3,
     "texture": {
       "src": "systems/wastelanders-dev/assets/samytsya-pazurya-smerti.png",
       "anchorX": 0.5,

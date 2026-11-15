@@ -335,13 +335,20 @@ Hooks.once("ready", () => requestAnimationFrame(dockTerminal));
 Hooks.on("updateScene", (scene) => { if (scene.id === canvas?.scene?.id) import("./applications/game-counters.mjs").then((m) => m.refreshGameCounters()); });
 Hooks.on("canvasReady", () => import("./applications/game-counters.mjs").then((m) => m.refreshGameCounters()));
 // an enemy's token hidden or shown (Foundry's Hide) sets its card «Прихований / Видимий» (author, 2026-11-15; the card's
-// switch hides its tokens in enemy-sheet.mjs #onReveal). Only on a change: a new enemy is placed visible with a hidden card.
+// switch hides its tokens in enemy-sheet.mjs #onReveal).
+const revealEnemy = (actor, open) => actor.update({ "system.reveal": open, "ownership.default": open ? CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED : CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE });
 Hooks.on("updateToken", (token, changes, _opts, userId) => {
   if (!("hidden" in changes) || userId !== game.user.id) return;
   const actor = token.actor, open = !changes.hidden;
   if (actor?.type !== "enemy" || actor.system.reveal === open) return;
-  actor.update({ "system.reveal": open, "ownership.default": open ? CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED : CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE })
-    .then(() => WastelandersActor.syncEnemyTokens(actor, open)); // the enemy's other tokens follow
+  revealEnemy(actor, open).then(() => WastelandersActor.syncEnemyTokens(actor, open)); // the enemy's other tokens follow
+});
+// an enemy placed on a scene in any way (the battle generator, «Битва», a drag) with a visible token gets a visible card
+// too (author, 2026-11-16: the card used to say «Прихований» over a visible token); a token placed hidden keeps it hidden
+Hooks.on("createToken", (token, _opts, userId) => {
+  if (userId !== game.user.id || token.hidden) return;
+  const actor = token.actor;
+  if (actor?.type === "enemy" && !actor.system.reveal) revealEnemy(actor, true);
 });
 // «Тип сцени» in a scene's settings (module/documents/scene.mjs)
 Hooks.on("renderSceneConfig", addSceneKindField);

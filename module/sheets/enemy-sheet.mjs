@@ -364,12 +364,16 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     await doc.update(upd);
     if (h) {
       await postChat({
-        content: `<div class="pust-chat"><h4>${esc(doc.name)} використовує «${esc(mv.n)}»</h4><p>${lines.length ? lines.join(", ") : "ОЗ уже повні"}</p></div>`,
+        // a healing move (author, 2026-11-15: a card of its own, the healing green)
+        content: `<div class="pust-chat pust-encard heal"><div class="pust-encard-hd"><i class="fa-solid fa-kit-medical"></i><span><b>${esc(doc.name)}</b> використовує «${esc(mv.n)}»</span></div>`
+          + `<p>${lines.length ? lines.map(esc).join(", ") : "ОЗ уже повні"}</p></div>`,
         speaker: ChatMessage.getSpeaker({ actor: doc, token: this.token }),
       });
     } else if (i === psyMoveIdx(doc.system)) {
       await postChat({
-        content: `<div class="pust-chat"><h4>${esc(doc.name)}</h4><p>${checked ? "Діє Психо: +2 шкоди атаками до кінця сцени" : "Психо більше не діє"}</p></div>`,
+        // Психо on / off (author, 2026-11-15: a card of its own — the chem's red while it acts, grey when it wears off)
+        content: `<div class="pust-chat pust-encard ${checked ? "psycho" : "psycho-off"}"><div class="pust-encard-hd"><i class="fa-solid fa-syringe"></i><span><b>${esc(doc.name)}</b> ${checked ? "під Психо" : "більше не під Психо"}</span></div>`
+          + `<p>${checked ? "+2 шкоди атаками до кінця сцени." : "Атаки знову без +2 шкоди."}</p></div>`,
         speaker: ChatMessage.getSpeaker({ actor: doc, token: this.token }),
       });
     }

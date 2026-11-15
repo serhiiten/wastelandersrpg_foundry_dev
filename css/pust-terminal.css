@@ -566,7 +566,17 @@
 #pust-mapdock button.pust-md-bhit { background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border-color: #d8371f; }
 #pust-mapdock button.pust-md-bhit:hover:not(:disabled) { border-color: #ff6a4f; box-shadow: 0 0 6px rgba(255,106,79,.4); }
 #pust-mapdock button.pust-md-bheal { background: linear-gradient(180deg, #2f6b35, #1f4a24); color: #e7ffd9; border-color: #3dff47; }
-.pust-chat.pust-round p { margin: 4px 0 0; }
+/* «Почалося коло дій» in chat (author, 2026-11-15: stands out): a rust banner with yellow capitals and the round's number
+   in a big badge, the reminder under it on paper */
+.chat-message .pust-chat.pust-round { padding: 0; overflow: hidden; border: 2px solid #5a2410; border-radius: 5px; background: #f4eedc; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+.chat-message .pust-chat.pust-round .pust-round-hd { display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+  background: repeating-linear-gradient(-45deg, rgba(0,0,0,.08) 0 8px, transparent 8px 16px), linear-gradient(180deg, #b0451c, #7d2a10); color: #f4d11a;
+  font-family: "Oswald", "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 15px; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.45); }
+.chat-message .pust-chat.pust-round .pust-round-hd > i { font-size: 18px; }
+.chat-message .pust-chat.pust-round .pust-round-hd > span { flex: 1 1 auto; min-width: 0; }
+.chat-message .pust-chat.pust-round .pust-round-hd > b { flex: none; min-width: 38px; height: 38px; padding: 0 6px; display: grid; place-items: center; border-radius: 5px;
+  background: #1e1b17; color: #f4d11a; border: 2px solid #f4d11a; font-family: "PT Mono", monospace; font-size: 24px; text-shadow: none; }
+.chat-message .pust-chat.pust-round p { margin: 0; padding: 7px 10px 8px; color: #2a261c; font-size: 13.5px; line-height: 1.35; }
 /* the terminal's narrowest width (author, 2026-11-15): below it the «Складність» / «Тип події» switches run out of their rows */
 .application.pust-terminal-app { min-width: 620px; }
 /* «Справа» (author, 2026-11-15): every block a stripe of its own colour, its icon in that colour too */

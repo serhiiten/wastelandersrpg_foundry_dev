@@ -209,8 +209,8 @@
     "name": "Генетично модифікований суперсолдат Анклаву",
     "displayName": 50,
     "actorLink": true,
-    "width": 1,
-    "height": 1,
+    "width": 2,
+    "height": 2,
     "texture": {
       "src": "systems/wastelanders-dev/assets/henetychno-modyfikovanyy-supersoldat.png",
       "anchorX": 0.5,

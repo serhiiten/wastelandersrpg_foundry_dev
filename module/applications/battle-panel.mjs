@@ -144,10 +144,37 @@ async function bodyHtml() {
     <p class="pust-md-bcount">${countLine(scene)}</p>`;
 }
 
+/**
+ * The round and the GM's Fate tokens change at once on a click (author, 2026-11-15: each click used to wait for the
+ * server and redraw the whole panel — slow, and a click before the answer read the old number and got lost): the value
+ * lives here until it is written, the shown number and buttons are set directly, and the scene flag is written once a
+ * quarter of a second after the last click
+ */
+const pend = { scene: null, battleRound: null, battleFate: null };
+const flagNow = (scene, k, def) => (pend.scene === scene?.id && pend[k] != null ? pend[k] : (Number(scene?.getFlag(sys(), k)) || def));
+const writePending = foundry.utils.debounce(async () => {
+  const scene = game.scenes.get(pend.scene);
+  if (!scene) return;
+  const upd = {};
+  for (const k of ["battleRound", "battleFate"]) if (pend[k] != null) upd[`flags.${sys()}.${k}`] = pend[k];
+  const sent = { battleRound: pend.battleRound, battleFate: pend.battleFate };
+  if (Object.keys(upd).length) await scene.update(upd);
+  // clicked again while writing: keep the newer value for the next write
+  for (const k of ["battleRound", "battleFate"]) if (pend[k] === sent[k]) pend[k] = null;
+}, 250);
+function showRoundFate(body, round, fate) {
+  const n = body?.querySelector(".pust-md-bnum");
+  if (n) n.textContent = String(round);
+  const prev = body?.querySelector('[data-battle="round"][data-step="-1"]');
+  if (prev) prev.disabled = round <= 1;
+  const f = body?.querySelector('[data-battle="fate"][data-d="-1"]')?.parentElement;
+  if (f) { f.querySelector("input").value = String(fate); f.querySelector('[data-d="-1"]').disabled = fate <= 0; }
+}
+
 /** «Коло й Доля»: the round and the GM's Fate tokens of this scene */
 function roundHtml(scene) {
-  const round = Math.max(1, Number(scene?.getFlag(sys(), "battleRound")) || 1);
-  const fate = Math.max(0, Number(scene?.getFlag(sys(), "battleFate")) || 0);
+  const round = Math.max(1, flagNow(scene, "battleRound", 1));
+  const fate = Math.max(0, flagNow(scene, "battleFate", 0));
   const pcs = pcCount(scene);
   return `<div class="pust-md-bround">
       <span class="pust-md-blabel"><i class="fa-solid fa-rotate"></i>Коло дій</span>
@@ -241,16 +268,38 @@ async function onClick(ev) {
   if (act === "zone") return addBattleZone();
   if (act === "enemy") { ui_.open = !ui_.open; return redrawBattlePanel(); }
   if (act === "cancel") { ui_.open = false; return redrawBattlePanel(); }
+  if ((act === "round" || act === "fate") && scene && pend.scene !== scene.id) { pend.scene = scene.id; pend.battleRound = null; pend.battleFate = null; }
   if (act === "round" && scene) {
-    const r = Math.max(1, (Number(scene.getFlag(sys(), "battleRound")) || 1) + Number(b.dataset.step));
-    await scene.setFlag(sys(), "battleRound", r);
+    const r0 = Math.max(1, flagNow(scene, "battleRound", 1));
+    const r = Math.max(1, r0 + Number(b.dataset.step));
+    if (r === r0) return;
+    pend.battleRound = r;
+    showRoundFate(section?.querySelector(".pust-md-body"), r, Math.max(0, flagNow(scene, "battleFate", 0)));
+    writePending();
     if (Number(b.dataset.step) > 0) {
-      await postChat({ speaker: { alias: "Коло дій" }, content: `<div class="pust-chat pust-round"><h4><i class="fa-solid fa-play"></i> Почалося коло дій ${r}</h4><p>Спершу діють гравці, потім Доглядач робить хід і переміщує одного НІПа.</p></div>` });
+      postChat({ speaker: { alias: "Коло дій" }, content: `<div class="pust-chat pust-round"><div class="pust-round-hd"><i class="fa-solid fa-rotate"></i><span>Почалося коло дій</span><b>${r}</b></div><p>Спершу діють гравці, потім Доглядач робить хід і переміщує одного НІПа.</p></div>` });
     }
     return;
   }
-  if (act === "fate" && scene) return scene.setFlag(sys(), "battleFate", Math.max(0, (Number(scene.getFlag(sys(), "battleFate")) || 0) + Number(b.dataset.d)));
-  if (act === "fateset" && scene) return scene.setFlag(sys(), "battleFate", pcCount(scene));
+  if (act === "fate" && scene) {
+    const cur = Math.max(0, flagNow(scene, "battleFate", 0));
+    const next = Math.max(0, cur + Number(b.dataset.d));
+    if (next === cur) return;
+    pend.battleFate = next;
+    showRoundFate(section?.querySelector(".pust-md-body"), Math.max(1, flagNow(scene, "battleRound", 1)), next);
+    writePending();
+    // the GM spending a Fate token: a chat card like the players' but in the GM's colours (author, 2026-11-15)
+    if (next < cur) {
+      postChat({ speaker: { alias: "Доглядач" }, content: `<div class="pust-chat pust-fdcard pust-gmfd"><i class="fa-solid fa-clover"></i><span><b>Доглядач</b> витрачає жетон Долі</span></div>` }); // no count: the GM's tokens stay hidden from the players
+    }
+    return;
+  }
+  if (act === "fateset" && scene) {
+    if (pend.scene !== scene.id) { pend.scene = scene.id; pend.battleRound = null; }
+    pend.battleFate = pcCount(scene);
+    showRoundFate(section?.querySelector(".pust-md-body"), Math.max(1, flagNow(scene, "battleRound", 1)), pend.battleFate);
+    return writePending();
+  }
   if (act === "quick") { ui_.dmg.expr = b.dataset.q; return redrawBattlePanel(); }
   // the tracker's «−1» / «+1» (author, 2026-11-14): the number or the dice's modifier one up or down
   if (act === "mod") { ui_.dmg.expr = bumpExpr(ui_.dmg.expr, Number(b.dataset.mod)); return redrawBattlePanel(); }
