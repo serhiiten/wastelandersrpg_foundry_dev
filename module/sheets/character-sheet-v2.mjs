@@ -3,7 +3,8 @@
  * The sheet reads the character through the rules engine (evaluate), shows buildView(), and sends
  * every field change and button to the HTML sheet's handlers (controller) via runAction().
  */
-import { refitOnResize } from "./refit.mjs";
+import { textToHtml } from "../rules/rich-text.mjs";
+import { keepNoteSizes, refitOnResize, rememberScroll, watchNotes } from "./refit.mjs";
 import { createController } from "../rules/controller.mjs";
 import { FEAT, PERK, SPECIES, blankState } from "../rules/core.mjs";
 import { recipeToDef, recipeTotals, speciesToX } from "../rules/designer.mjs";
@@ -90,6 +91,12 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   }
 
   /** @override */
+  /** @override — remember the scroll, so a re-render keeps it (refit.mjs) */
+  async _preRender(context, options) {
+    await super._preRender(context, options);
+    rememberScroll(this);
+  }
+
   _onRender(context, options) {
     super._onRender(context, options);
     const root = this.element;
@@ -178,6 +185,9 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       ta.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); ta.blur(); } });
     });
     refitOnResize(this, fits);
+    // «Біографія» / «Інші» in Foundry's editor (author, 2026-11-15): saved as you write (refit.mjs watchNotes) and before the sheet closes (_preClose)
+    keepNoteSizes(this, root);
+    watchNotes(this, root, (el) => this.#saveNote(el), this.isEditable);
     if (!this.isEditable) {
       root.querySelectorAll("input, select, textarea, button[data-action='act'], button[data-action='drugAdd']").forEach((el) => (el.disabled = true));
       return;
@@ -206,6 +216,22 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   }
 
   #refocus = null;
+
+  /** Save a note editor's text when it changed: straight into the actor, no re-render (the editor keeps its state);
+   *  the .json gets plain text */
+  #saveNote(el) {
+    const path = { bio: "system.description", others: "system.others" }[el.dataset.note];
+    if (!path || !el.isConnected || !this.isEditable) return undefined;
+    const v = String(el.value ?? "");
+    if (v === textToHtml(foundry.utils.getProperty(this.document, path))) return undefined;
+    return this.document.update({ [path]: v }, { render: false });
+  }
+
+  /** @override — an unsaved note is kept when the sheet closes */
+  async _preClose(options) {
+    for (const el of this.element?.querySelectorAll?.("prose-mirror[data-note]") ?? []) await this.#saveNote(el);
+    return super._preClose(options);
+  }
   /** A canvas context for measuring text (the damage field fit) */
   static #measure = null;
   #searchTimer = null;

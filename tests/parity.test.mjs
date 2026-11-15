@@ -101,6 +101,8 @@ const SAME = {
   "act:open": "action:jsonOpen",
   "act:consq-roll": "action:checkPanel",
   "k:supplies": "act:sup-set", // Припаси are set by lamps (Мотлох and the quick panel), no number field
+  "k:bio": "note:bio", // «Біографія» / «Інші» in Foundry's editor (prose-mirror data-note; author, 2026-11-15)
+  "k:others": "note:others",
   "k:weapons.N.en": "change:dtype", // «Тип»: the energy version plus fire / psi / poison / radiation (Foundry only, author 2026-11-14)
   "act:dismiss": "SKIP",
   "ui:restN": "ui:restMedic",
@@ -135,6 +137,7 @@ function covered(kind, feature) {
   if (same) {
     const [k2, f2] = same.split(":");
     if (k2 === "action") return new RegExp(`data-action="${f2}"|${f2}:`).test(foundry);
+    if (k2 === "note") return new RegExp(`data-note="${f2}"`).test(foundry);
     return F[k2]?.has(f2);
   }
   return F[kind]?.has(feature);
@@ -312,7 +315,7 @@ for (let c = 0; c < 60; c++) {
     compared++;
     // Foundry writes «менша з 2d6» where the HTML sheet has «менший з 2d6» (author, 2026-11-14)
     // (and the chem effects' «half» marker, which the HTML sheet doesn't write: Рад-Ікс / Отрута-Ікс go through it here)
-    const lesser = (o) => { const r = JSON.parse(JSON.stringify(o).replace(/менший з 2d6/g, "менша з 2d6")); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; return r; };
+    const lesser = (o) => { const r = JSON.parse(JSON.stringify(o).replace(/менший з 2d6/g, "менша з 2d6")); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; delete r.consAt; if (r.chem) delete r.chem.sceneAbs; return r; }; // consAt / sceneAbs: when a treated consequence goes (Foundry only, author 2026-11-15)
     const A = lesser(canon(h.st));
     const B = lesser(canon(f.st));
     if (step.fix) { step.fix(A); step.fix(B); }

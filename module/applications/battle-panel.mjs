@@ -15,6 +15,7 @@
  *   – the count «У строю X з Y · Гравців N».
  * Players don't get this panel. map-dock.mjs shows it instead of «Мапа Пустки» while the battle map is viewed.
  */
+import { variantTextures } from "../helpers/token-variants.mjs";
 import { tokenLevel } from "../helpers/token-level.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { battleFolder } from "./terminal-battle.mjs";
@@ -87,12 +88,13 @@ export async function tokensIntoZone(scene, actor, count, zone) {
   const g = scene.grid.size;
   const c = canvas.scene?.id === scene.id ? canvas.stage.pivot : { x: scene.width / 2, y: scene.height / 2 };
   const docs = [];
+  const tex = variantTextures(scene, actor, count); // different faces of one kind (token-variants.mjs)
   for (let i = 0; i < count; i++) {
     const pos = cells?.[i] ?? { x: Math.round(c.x / g + i) * g, y: Math.round(c.y / g) * g };
-    const td = await actor.getTokenDocument({ ...pos, name: names[i], actorLink: false, ...tokenLevel(scene) });
+    const td = await actor.getTokenDocument({ ...pos, name: names[i], actorLink: false, ...tokenLevel(scene), ...(tex ? { texture: { src: tex[i] } } : {}) });
     docs.push(td.toObject());
   }
-  return scene.createEmbeddedDocuments("Token", docs);
+  return scene.createEmbeddedDocuments("Token", docs, { pustTokens: true });
 }
 
 /* ---------------- the panel ---------------- */

@@ -15,7 +15,12 @@
  *   – sizes the author fixed: folded panels 168 × 30, the place card's switches 132 px wide, the map panel one row of
  *     equal buttons, «Відкрити .json Пустельників» full width under Create Actor / Create Folder (those two equal);
  *   – every −/+ counter: the input is a dark screen (`pust-screen`), − reddish, + greenish;
- *   – text is readable: contrast at least 3:1 against the nearest opaque background; nothing under 10 px.
+ *   – text is readable: contrast at least 3:1 against the nearest opaque background; nothing under 10 px;
+ *   – (author, 2026-11-15) at the window's narrowest width and at its usual one, on every tab: no element runs out of its
+ *     visual block (the nearest ancestor with a border or a background), no two elements overlap, and no button lies on a
+ *     border or a divider line (scenario `minWidth`; the rules `noSpill`, `noOverlap`, `buttonsClear` serve any scenario);
+ *     and nothing presses against its block's frame: where a block has padding, the elements keep clear of its border
+ *     (`noCrowd`; a «✕» glued to a card's edge, 2026-11-15).
  * Each scenario adds results { scenario, rule, ok, detail }.
  */
 const PX = 1.01; // tolerance, px
@@ -30,6 +35,7 @@ const shown = (el) => {
   if (!el?.isConnected) return false;
   const cs = getComputedStyle(el);
   if (cs.display === "none" || cs.visibility === "hidden") return false;
+  if (el.checkVisibility && !el.checkVisibility({ visibilityProperty: true })) return false; // e.g. inside a closed <details>
   const r = R(el);
   return r.width > 0 && r.height > 0;
 };
@@ -168,6 +174,226 @@ class Audit {
     this.ok("шрифт не менший за 10 px", !small.length, small.slice(0, 5).join("; "));
     return this.ok("контраст тексту ≥ 3:1", !bad.length, bad.slice(0, 6).join("; "));
   }
+
+  /* ---------- layout rules (author, 2026-11-15): spills, overlaps, buttons on lines ---------- */
+
+  /** No element runs out of its visual block — the nearest ancestor with a visible border or background (inside its border) */
+  noSpill(root, label = "елементи не вилазять за свій блок") {
+    const cs = styleCache();
+    const bad = [];
+    for (const el of layoutLeaves(root, cs)) {
+      const r = boxOf(el);
+      let block = null, scrolled = false;
+      for (let e = el.parentElement; e && root.contains(e); e = e.parentElement) {
+        const s = cs(e);
+        if (/(auto|scroll)/.test(s.overflowX + " " + s.overflowY)) { scrolled = true; break; } // a scroller's content may run on
+        if (s.display !== "contents" && !/^inline/.test(s.display) && isBlock(s)) { block = e; break; }
+        if (e === root) break;
+      }
+      if (!block || scrolled) continue;
+      const s = cs(block), b = R(block);
+      const inner = { left: b.left + parseFloat(s.borderLeftWidth), right: b.right - parseFloat(s.borderRightWidth), top: b.top + parseFloat(s.borderTopWidth), bottom: b.bottom - parseFloat(s.borderBottomWidth) };
+      const over = Math.max(inner.left - r.left, r.right - inner.right, inner.top - r.top, r.bottom - inner.bottom);
+      if (over > PX) bad.push(`${name(el)} з ${name(block)} на ${Math.round(over)} px`);
+    }
+    return this.ok(label, !bad.length, bad.slice(0, 6).join("; "));
+  }
+
+  /** Nothing presses against its block's frame (author, 2026-11-15): on every side where the block has padding, its
+   *  elements keep at least min(padding, 4) − 1 px from the border's inner edge */
+  noCrowd(root, label = "елементи не тиснуться до меж блоку") {
+    const cs = styleCache();
+    const bad = [];
+    for (const el of layoutLeaves(root, cs)) {
+      const r = boxOf(el);
+      let block = null, scrolled = false;
+      for (let e = el.parentElement; e && root.contains(e); e = e.parentElement) {
+        const s = cs(e);
+        if (/(auto|scroll)/.test(s.overflowX + " " + s.overflowY)) { scrolled = true; break; }
+        if (s.display !== "contents" && !/^inline/.test(s.display) && isBlock(s)) { block = e; break; }
+        if (e === root) break;
+      }
+      if (!block || scrolled) continue;
+      const s = cs(block), b = R(block);
+      const sides = [
+        ["ліво", parseFloat(s.paddingLeft), r.left - (b.left + parseFloat(s.borderLeftWidth))],
+        ["право", parseFloat(s.paddingRight), (b.right - parseFloat(s.borderRightWidth)) - r.right],
+        ["верх", parseFloat(s.paddingTop), r.top - (b.top + parseFloat(s.borderTopWidth))],
+        ["низ", parseFloat(s.paddingBottom), (b.bottom - parseFloat(s.borderBottomWidth)) - r.bottom],
+      ];
+      for (const [side, pad, gap] of sides) {
+        if (!(pad >= 2)) continue; // a block without padding there lets its content sit flush on purpose
+        const need = Math.min(pad, 4) - 1;
+        if (gap < need - 0.01) { bad.push(`${name(el)} у ${name(block)}: ${side} ${Math.max(0, Math.round(gap * 10) / 10)} px (поле ${Math.round(pad)} px)`); break; }
+      }
+    }
+    return this.ok(label, !bad.length, bad.slice(0, 6).join("; "));
+  }
+
+  /** Glued pieces are one height (author, 2026-11-15: a green «У руках» chip stuck out under its name field): two framed
+   *  neighbours that touch side by side — a chip and its field — share their top and bottom */
+  gluedEven(root, label = "склеєні елементи однакової висоти") {
+    const cs = styleCache();
+    const framed = (el) => { const s = cs(el); return isBlock(s); };
+    const items = [...root.querySelectorAll("*")].filter((el) => shown(el) && !el.closest(".pust-audit-skip, .window-header") && cs(el).display !== "contents" && framed(el));
+    const bad = [];
+    for (const A of items) {
+      const B = A.nextElementSibling;
+      if (!B || !shown(B) || !framed(B)) continue;
+      const a = R(A), b = R(B);
+      const touch = Math.abs(a.right - b.left) <= 1;
+      const side = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > Math.min(a.height, b.height) * 0.5;
+      if (!touch || !side) continue;
+      const dt = Math.abs(a.top - b.top), db = Math.abs(a.bottom - b.bottom);
+      if (dt > PX || db > PX) bad.push(`${name(A)} + ${name(B)}: верх ${Math.round(dt)} px, низ ${Math.round(db)} px`);
+    }
+    return this.ok(label, !bad.length, bad.slice(0, 6).join("; "));
+  }
+
+  /** No two elements overlap (controls, pictures and text; one inside the other doesn't count) */
+  noOverlap(root, label = "елементи не налазять одне на одного") {
+    const cs = styleCache();
+    const items = layoutLeaves(root, cs).map((el) => ({ el, r: boxOf(el), sc: scrollerOf(el, cs) }));
+    const bad = [];
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const A = items[i], B = items[j];
+        if (A.el.contains(B.el) || B.el.contains(A.el)) continue;
+        if (A.sc !== B.sc) continue; // one scrolls under the other (a bar over a scrolling list)
+        const w = Math.min(A.r.right, B.r.right) - Math.max(A.r.left, B.r.left);
+        const h = Math.min(A.r.bottom, B.r.bottom) - Math.max(A.r.top, B.r.top);
+        if (w > 1.5 && h > 1.5) bad.push(`${name(A.el)} × ${name(B.el)} (${Math.round(w)}×${Math.round(h)} px)`);
+      }
+    }
+    return this.ok(label, !bad.length, bad.slice(0, 6).join("; "));
+  }
+
+  /** Nothing — buttons, fields, chips, text — lies on a border or a divider line of another element (its own block's frame
+   *  included; author, 2026-11-15: «1d10 побічка» sat on its heading's bottom rule) */
+  buttonsClear(root, label = "елементи не налазять на межі й лінії") {
+    const cs = styleCache();
+    const lines = [];
+    for (const e of [root, ...root.querySelectorAll("*")]) {
+      if (e.matches("button, input, select, textarea, option, a.button, [role=button], img, svg, svg *") || e.closest(".pust-audit-skip, .window-resizable-handle, .window-header")) continue;
+      if (!shown(e)) continue;
+      const s = cs(e);
+      if (s.display === "contents") continue;
+      const b = R(e);
+      const sides = [["top", s.borderTopWidth, s.borderTopStyle, s.borderTopColor], ["bottom", s.borderBottomWidth, s.borderBottomStyle, s.borderBottomColor], ["left", s.borderLeftWidth, s.borderLeftStyle, s.borderLeftColor], ["right", s.borderRightWidth, s.borderRightStyle, s.borderRightColor]];
+      const drawn = sides.filter(([, w, st, c]) => parseFloat(w) > 0 && st !== "none" && st !== "hidden" && alphaOf(c) >= 0.15);
+      const rule = drawn.length > 0 && drawn.length <= 2; // a divider (one or two sides), not a frame — a chip glued to its field has three: it wants clear space around it
+      for (const [side, w, st, c] of sides) {
+        const bw = parseFloat(w);
+        if (!(bw > 0) || st === "none" || st === "hidden" || alphaOf(c) < 0.15) continue;
+        const L = side === "top" ? { left: b.left, right: b.right, top: b.top, bottom: b.top + bw }
+          : side === "bottom" ? { left: b.left, right: b.right, top: b.bottom - bw, bottom: b.bottom }
+          : side === "left" ? { left: b.left, right: b.left + bw, top: b.top, bottom: b.bottom }
+          : { left: b.right - bw, right: b.right, top: b.top, bottom: b.bottom };
+        lines.push({ e, side, L, rule });
+      }
+    }
+    const bad = [];
+    for (const btn of layoutLeaves(root, cs)) {
+      if (btn.matches(".header-control")) continue;
+      // the part of the element its scrolling / clipping ancestors let through
+      const b0 = boxOf(btn);
+      const r = { left: b0.left, right: b0.right, top: b0.top, bottom: b0.bottom };
+      const scrollers = [];
+      for (let e = btn.parentElement; e && root.contains(e); e = e.parentElement) {
+        const s = cs(e);
+        if (s.overflowX === "visible" && s.overflowY === "visible") continue;
+        scrollers.push(e);
+        const b = R(e), c = { left: b.left + e.clientLeft, top: b.top + e.clientTop, right: b.left + e.clientLeft + e.clientWidth, bottom: b.top + e.clientTop + e.clientHeight }; // inside its frame
+        r.left = Math.max(r.left, c.left); r.right = Math.min(r.right, c.right); r.top = Math.max(r.top, c.top); r.bottom = Math.min(r.bottom, c.bottom);
+      }
+      if (r.right - r.left < 2 || r.bottom - r.top < 2) continue;
+      const inner = { left: r.left + 1, right: r.right - 1, top: r.top + 1, bottom: r.bottom - 1 };
+      const near = { left: r.left - 2, right: r.right + 2, top: r.top - 2, bottom: r.bottom + 2 }; // a divider wants 2 px clear
+      const sc = scrollerOf(btn, cs);
+      for (const { e, side, L, rule } of lines) {
+        if (btn.contains(e)) continue;
+        if (!e.contains(btn) && scrollerOf(e, cs) !== sc && e !== sc) continue; // they scroll apart
+        const box = rule && !scrollers.includes(e) ? near : inner; // content scrolls up to a scroller's own frame
+        if (e.contains(btn) && scrollers.some((sc) => e.contains(sc) && sc !== e)) continue; // content scrolls under that frame
+        if (Math.min(box.right, L.right) - Math.max(box.left, L.left) > 0 && Math.min(box.bottom, L.bottom) - Math.max(box.top, L.top) > 0) {
+          bad.push(`${name(btn)} ${rule ? "впритул до лінії" : "на межі"} (${side}) ${name(e)}`);
+          break;
+        }
+      }
+    }
+    return this.ok(label, !bad.length, bad.slice(0, 6).join("; "));
+  }
+
+  /** The three layout rules and the text rule at once */
+  layout(root, where = "") {
+    const t = where ? ` (${where})` : "";
+    this.noSpill(root, `елементи не вилазять за свій блок${t}`);
+    this.noOverlap(root, `елементи не налазять одне на одного${t}`);
+    this.buttonsClear(root, `елементи не налазять на межі й лінії${t}`);
+    this.noCrowd(root, `елементи не тиснуться до меж блоку${t}`);
+    this.gluedEven(root, `склеєні елементи однакової висоти${t}`);
+    this.noCut(root, "button, label, span, b, small, h1, h2, h3, h4, a, .pust-chip, li");
+  }
+}
+
+/* ---------- layout helpers ---------- */
+/** The nearest ancestor that scrolls (overflow auto / scroll), or null */
+const scrollerOf = (el, cs) => {
+  for (let e = el.parentElement; e; e = e.parentElement) { const s = cs(e); if (/(auto|scroll)/.test(s.overflowX + " " + s.overflowY)) return e; }
+  return null;
+};
+const styleCache = () => { const m = new Map(); return (el) => { let s = m.get(el); if (!s) { s = getComputedStyle(el); m.set(el, s); } return s; }; };
+/** The alpha of a computed colour («rgb(…)», «rgba(…)», «color(srgb … / a)») */
+const alphaOf = (c) => {
+  c = String(c);
+  if (/^color\(/.test(c)) { const a = c.split("/")[1]; return a == null ? 1 : parseFloat(a); }
+  const m = c.match(/rgba?\(([^)]+)\)/);
+  if (!m) return 0;
+  const p = m[1].split(/[ ,/]+/).filter(Boolean).map(Number);
+  return p.length > 3 ? p[3] : 1;
+};
+/** A visual block: a visible border on some side, a background colour or a background picture */
+const isBlock = (s) => {
+  const side = (w, st, c) => parseFloat(w) > 0 && st !== "none" && st !== "hidden" && alphaOf(c) >= 0.15;
+  return side(s.borderTopWidth, s.borderTopStyle, s.borderTopColor) || side(s.borderBottomWidth, s.borderBottomStyle, s.borderBottomColor)
+    || side(s.borderLeftWidth, s.borderLeftStyle, s.borderLeftColor) || side(s.borderRightWidth, s.borderRightStyle, s.borderRightColor)
+    || alphaOf(s.backgroundColor) >= 0.3 || (s.backgroundImage && s.backgroundImage !== "none");
+};
+/** The elements the layout rules look at: controls, pictures, chips, and elements with text of their own */
+const LEAF_CTL = "button, input:not([type=hidden]), select, textarea, img, svg, [role=button], .pust-chip";
+const layoutLeaves = (root, cs) => {
+  const out = [];
+  for (const el of root.querySelectorAll("*")) {
+    if (el.closest(".pust-audit-skip, .window-header, .window-resizable-handle, option, svg *") || !shown(el)) continue;
+    const s = cs(el);
+    if (s.position === "fixed" || parseFloat(s.opacity) === 0 || s.display === "contents") continue;
+    const ctl = el.matches(LEAF_CTL);
+    const ownText = !ctl && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+    if (!ctl && !ownText) continue;
+    if (el.parentElement?.closest("button, select, textarea, [role=button], .pust-chip")) continue; // inside a control: counts with it
+    out.push(el);
+  }
+  return out;
+};
+/** A control's box; for text, the box of its own text (an inline box may be wider than its words) */
+const boxOf = (el) => {
+  if (el.matches(LEAF_CTL)) return R(el);
+  const rs = [];
+  for (const n of el.childNodes) if (n.nodeType === 3 && n.textContent.trim()) { const rg = document.createRange(); rg.selectNodeContents(n); rs.push(...rg.getClientRects()); }
+  if (!rs.length) return R(el);
+  return { left: Math.min(...rs.map((r) => r.left)), right: Math.max(...rs.map((r) => r.right)), top: Math.min(...rs.map((r) => r.top)), bottom: Math.max(...rs.map((r) => r.bottom)) };
+};
+
+/** The layout rules on one window at its narrowest width and at its usual one; the window keeps its place */
+async function layoutAt(a, app, label) {
+  const pos = { ...app.position };
+  for (const w of [100, app.options?.position?.width ?? 600]) {
+    app.setPosition({ width: w }); await sleep(350);
+    a.scenario = `${label}, ${Math.round(R(app.element).width)} px`;
+    a.layout(app.element);
+  }
+  app.setPosition({ width: pos.width, left: pos.left, top: pos.top });
+  await sleep(250);
 }
 
 /* ---------- scenarios ---------- */
@@ -331,6 +557,8 @@ const SCENARIOS = {
       a.counters(el);
       a.readable(el);
       for (const row of el.querySelectorAll(".pust-en-atk-row, .pust-en-head-btns, .pust-en-quick")) a.row([...row.querySelectorAll(":scope > button")], { label: "кнопки в ряду" });
+      // the bar under the name (author, 2026-11-15): category, «Видимий / Прихований», «Редагувати» in one row
+      { const kids = [...el.querySelectorAll(".pust-en-bar > *:not(.pust-en-sp)")].filter(shown); const mid = (e) => (R(e).top + R(e).bottom) / 2; if (kids.length > 1) a.ok("смуга під назвою в один ряд", kids.every((k) => Math.abs(mid(k) - mid(kids[0])) <= 1.5), kids.map((k) => Math.round(mid(k))).join(" / ")); }
       // the attack row (author, 2026-11-14): dice chip, type and «Завдати цілям» on one line, centred
       for (const row of el.querySelectorAll(".pust-en-atkhd")) { const kids = [...row.querySelectorAll(":scope > .pust-en-dicechip, :scope > .pust-en-type, :scope > .pust-dmg-apply")].filter(shown); const mid = (e) => (R(e).top + R(e).bottom) / 2; a.ok("рядок атаки: чіп, тип і «Завдати цілям» по одній лінії", kids.every((k) => Math.abs(mid(k) - mid(kids[0])) <= 1.5), kids.map((k) => Math.round(mid(k))).join(" / ")); }
     };
@@ -370,7 +598,8 @@ const SCENARIOS = {
     const item = await CONFIG.Item.documentClass.create({ name: "Аудит-вид", type: "species" }, { pustBuilder: true, renderSheet: false });
     try {
       await item.sheet.render({ force: true }); await sleep(900);
-      const check = (label) => {
+      const check = async (label) => {
+        await layoutAt(a, item.sheet, `конструктор виду: ${label}`);
         const el = item.sheet.element;
         a.scenario = `конструктор виду: ${label}`;
         a.onScreen([el]);
@@ -382,11 +611,11 @@ const SCENARIOS = {
         const attrs = [...el.querySelectorAll(".pust-bld-attr:not(.pust-bld-head)")];
         for (const col of [1, 2, 3]) a.ok(`стовпець ${col} атрибутів вирівняно`, attrs.every((r) => Math.abs(R(r.children[col]).left - R(attrs[0].children[col]).left) <= 1.01), "");
       };
-      check("як створено");
+      await check("як створено");
       // a base with other limits, props added: the sheet re-renders and still fits
       await item.update({ "system.custom": { ...item.system.custom, base: "robot", hp: 3, armor: 1, def: { rad: "immune", poison: "half", psy: "normal" }, props: [...item.system.custom.props, "Довга властивість: дуже довгий текст, який має переноситися на кілька рядків і не вилазити за межі вікна конструктора."] } });
       await sleep(700);
-      check("змінено");
+      await check("змінено");
     } finally {
       await item.sheet.close();
       await item.delete();
@@ -399,7 +628,8 @@ const SCENARIOS = {
     const item = await CONFIG.Item.documentClass.create({ name: "Аудит-наркотик", type: "drug" }, { pustBuilder: true, renderSheet: false });
     try {
       await item.sheet.render({ force: true }); await sleep(900);
-      const check = (label) => {
+      const check = async (label) => {
+        await layoutAt(a, item.sheet, `конструктор наркотика: ${label}`);
         const el = item.sheet.element;
         a.scenario = `конструктор наркотика: ${label}`;
         a.onScreen([el]);
@@ -409,13 +639,13 @@ const SCENARIOS = {
         a.readable(el);
         a.ok("екран із ціною й шансом є", !!el.querySelector(".pust-bld-sum b"), "");
       };
-      check("порожній рецепт");
+      await check("порожній рецепт");
       await item.update({ "system.recipe": { name: item.name, note: "", effects: [{ k: "attr", attr: "SL" }, { k: "perkC", perk: "", price: 4, ch: 3 }, { k: "dmg" }], sides: [{ k: "attrScene", attr: "PV" }, { k: "loss1" }] } });
       await sleep(700);
-      check("рецепт із ефектами (є помилка: перк не обрано)");
+      await check("рецепт із ефектами (є помилка: перк не обрано)");
       await item.update({ "system.recipe": { name: item.name, note: "", effects: [{ k: "armor" }, { k: "psi" }], sides: [{ k: "berserk" }] } });
       await sleep(700);
-      check("правильний рецепт");
+      await check("правильний рецепт");
     } finally {
       await item.sheet.close();
       await item.delete();
@@ -436,6 +666,52 @@ const SCENARIOS = {
     a.noRawKeys(el);
     a.readable(el);
     if (!was) await actor.sheet.close();
+  },
+
+  /** Every window at its narrowest width and at its usual one, on every tab (author, 2026-11-15): nothing runs out of its
+   *  block, nothing overlaps, no button on a border or a line, no text cut. Sheets of the world's first character, caravan,
+   *  enemy (also in edit mode) and place, and the GM terminal; each window is put back where it was. */
+  async minWidth(a) {
+    const run = async (app, label, { tabs = "nav [data-tab]", edit = null } = {}) => {
+      const was = app.rendered;
+      if (!was) { await app.render({ force: true }); await sleep(1100); }
+      const pos = { ...app.position };
+      try {
+        for (const w of [100, app.options?.position?.width ?? 900]) { // 100: the window's CSS minimum takes over
+          app.setPosition({ width: w }); await sleep(350);
+          const wReal = Math.round(R(app.element).width);
+          const keys = [...app.element.querySelectorAll(tabs)].filter(shown).map((n) => n.dataset.tab);
+          for (const k of keys.length ? keys : [null]) {
+            if (k) { [...app.element.querySelectorAll(tabs)].find((n) => n.dataset.tab === k)?.click(); await sleep(350); }
+            a.scenario = `${label}, ${wReal} px${k ? `, вкладка ${k}` : ""}`;
+            a.layout(app.element);
+          }
+          if (keys.length) { app.element.querySelector(tabs)?.click(); await sleep(250); }
+          const b = edit && app.element.querySelector(edit);
+          if (b) {
+            b.click(); await sleep(900);
+            a.scenario = `${label}, ${wReal} px, редагування`;
+            a.layout(app.element);
+            app.element.querySelector(edit)?.click(); await sleep(600);
+          }
+        }
+      } finally {
+        app.setPosition({ width: pos.width, height: pos.height, left: pos.left, top: pos.top });
+        if (!was) await app.close();
+      }
+    };
+    for (const [type, label, opts] of [["character", "аркуш персонажа", {}], ["caravan", "аркуш каравану", {}], ["enemy", "картка ворога", { edit: '[data-action="editToggle"]' }], ["place", "картка місця", {}]]) {
+      const actor = game.actors.find((x) => x.type === type);
+      if (!actor) { a.scenario = label; a.skip("найвужча ширина", "немає актора"); continue; }
+      await run(actor.sheet, `${label} «${actor.name}»`, opts);
+    }
+    if (game.user.isGM) {
+      const T = await import(`/systems/${game.system.id}/module/applications/terminal.mjs`);
+      const open = !!foundry.applications.instances.get("pust-terminal")?.rendered;
+      if (!open) { T.openTerminal(); await sleep(1300); }
+      const app = foundry.applications.instances.get("pust-terminal");
+      if (app) { await run(app, "термінал", { tabs: '[data-action="termTab"]' }); if (!open) await app.close(); }
+    }
   },
 };
 

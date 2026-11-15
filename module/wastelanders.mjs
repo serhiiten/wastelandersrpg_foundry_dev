@@ -25,6 +25,7 @@ import {
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { registerHandlebarsHelpers } from "./helpers/handlebars-helpers.mjs";
 import { WASTELANDERS } from "./helpers/config.mjs";
+import { readyTokenVariants } from "./helpers/token-variants.mjs";
 // Rules data generated from the HTML sheets (tools/port_rules.py in the workspace)
 import * as core from "./rules/core.mjs";
 import * as caravanRules from "./rules/caravan.mjs";
@@ -213,6 +214,7 @@ Hooks.once("ready", () => {
   readyMapNotes();
   readyBattleZones();
   readyApplyDamage();
+  readyTokenVariants();
 });
 
 // a character, caravan or enemy dropped on a scene: its token carries the actor's current name

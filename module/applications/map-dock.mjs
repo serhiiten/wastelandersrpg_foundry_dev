@@ -118,7 +118,7 @@ function diceHtml() {
     </div>
     <div class="pust-md-row">
       <output class="pust-md-out" aria-live="polite">${last}</output>
-      <button type="button" class="pust-md-fate" data-mapdice="fate" title="${f ? `Кістка Долі: 1d10 + Удача партії каравану «${esc(f.name)}» (${f.luck})` : "Кістка Долі каравану: обери на мапі токен каравану"}"><i class="fa-solid fa-clover"></i><span>Доля${f ? ` ${f.luck}` : ""}</span></button>
+      <button type="button" class="pust-md-fate" data-mapdice="fate" title="${f ? (f.n > 1 ? `Кістка Долі за кожного вибраного: ${esc(f.name)}` : `Кістка Долі: 1d10 + ${f.what} «${esc(f.name)}» (${f.luck})`) : "Кістка Долі: обери на мапі токени персонажів або каравану"}"><i class="fa-solid fa-clover"></i><span>Доля${f ? ` ${f.luck}` : ""}</span></button>
     </div>`;
 }
 

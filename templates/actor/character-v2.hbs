@@ -459,35 +459,37 @@
         </div>
       </div>
     {{/if}}
+    {{!-- «Мотлох» (author, 2026-11-15): Зброя and Броня on the left, Інший мотлох on the right (one column on a narrower
+         sheet); every thing is a card read top to bottom, each field with a chip naming it --}}
+    <div class="pust-gear-cols">
+    <div class="pust-gear-col">
     <section class="pust-block">
       <h3>Зброя</h3>
       {{#if v.weapons.length}}
-      <div class="pust-glist pust-glist-weapons">
-        <div class="pust-grow pust-ghead" aria-hidden="true">
-          <span title="У руках"><i class="fa-solid fa-hand"></i></span><span>Назва</span><span>Примітка</span><span class="pust-gextra"><span>Тип</span><span title="Атака цією зброєю"><i class="fa-solid fa-crosshairs"></i></span></span><span>Шкода</span><span>Важка</span><span>Вартість</span><span></span>
-        </div>
+      <div class="pust-gcards pust-gcards-weapons">
         {{#each v.weapons}}
-        <div class="pust-grow {{#if guns}}with-guns{{/if}}">
-          <label class="pust-tog pust-gh" title="У руках"><input type="checkbox" data-k="weapons.{{i}}.hand" {{#if hand}}checked{{/if}}></label>
-          <input type="text" data-k="weapons.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" {{#if auto}}readonly{{/if}}>
-          <textarea rows="1" data-k="weapons.{{i}}.note" placeholder="Примітка" class="pust-gnote-in" aria-label="Примітка">{{note}}</textarea>
-          <span class="pust-gextra">
-            <select data-change="dtype" data-i="{{i}}" title="Тип шкоди: енергетична версія (лазерна, електрична, плазмова, кріо, гаус) змінює правила зброї; вогонь, пси, отрута й радіація — лише колір шкоди" class="pust-en">{{#each energyOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
-            <a class="pust-roll" data-action="weaponDamage" data-weapon="{{i}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i></a>
-          </span>
-          <span class="pust-dmgcell"><span class="pust-dmgchip">Шкода</span><textarea rows="1" data-k="weapons.{{i}}.d" placeholder="Шкода" class="pust-dmg pust-dmg-in pust-dtin dt-{{dt}} {{#if dEff}}pust-cryo{{/if}}" {{#if dEff}}data-base="{{d}}" data-eff="{{dEff}}" title="Кріо: шкода на ступінь нижча — {{dEff}} (базова {{d}}). Клацни, щоб змінити базову"{{else}}title="Шкода. Кілька типів — у квадратних дужках: 1d10[отрута]+2d6[пси]"{{/if}}>{{#if dEff}}{{dEff}}{{else}}{{d}}{{/if}}</textarea></span>
-          <label class="pust-tog pust-gh" title="Важка"><input type="checkbox" data-k="weapons.{{i}}.h" {{#if h}}checked{{/if}}></label>
-          <input type="text" data-k="weapons.{{i}}.price" value="{{price}}" placeholder="—" class="pust-price" title="Вартість" aria-label="Вартість">
-          {{#unless auto}}<button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="weapons" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>{{else}}<span></span>{{/unless}}
-          {{#if builtin}}<label class="pust-grow-full pust-gnote-l"><span>Вбудована</span><select data-k="weapons.{{i}}.cat" title="Вбудована зброя">{{#each builtin}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>{{/if}}
+        <div class="pust-gcard pust-gc kind-{{kind}} {{#if hand}}on{{/if}}">
+          <div class="pust-gc-head">
+            <div class="pust-gf2"><label class="pust-fchip pust-fchip-tog pust-gc-on" title="Зброя в руках"><input type="checkbox" data-k="weapons.{{i}}.hand" {{#if hand}}checked{{/if}} aria-label="У руках"> У руках</label><input type="text" data-k="weapons.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" aria-label="Назва" {{#if auto}}readonly{{/if}}></div>
+            <label class="pust-fchip pust-fchip-tog pust-heavy {{#if h}}on{{/if}}" title="Важка річ: рахується у важких речах"><input type="checkbox" data-k="weapons.{{i}}.h" {{#if h}}checked{{/if}} aria-label="Важка"> Важка</label>
+            {{#unless locked}}<button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="weapons" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>{{/unless}}
+          </div>
+          <label class="pust-gf2 pust-gc-full"><span class="pust-fchip">Примітка</span><textarea rows="1" data-k="weapons.{{i}}.note" placeholder="—" class="pust-gnote-ta" aria-label="Примітка">{{note}}</textarea></label>
+          <label class="pust-gf2"><span class="pust-fchip">Тип</span>
+            <select data-change="dtype" data-i="{{i}}" title="Тип шкоди: енергетична версія (лазерна, електрична, плазмова, кріо, гаус) змінює правила зброї; вогонь, пси, отрута й радіація — лише колір шкоди" class="pust-en">{{#each energyOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
+          <div class="pust-gf2"><span class="pust-fchip">Шкода</span>
+            <textarea rows="1" data-k="weapons.{{i}}.d" placeholder="—" aria-label="Шкода" class="pust-dmg pust-dmg-in pust-dtin dt-{{dt}} {{#if dEff}}pust-cryo{{/if}}" {{#if dEff}}data-base="{{d}}" data-eff="{{dEff}}" title="Кріо: шкода на ступінь нижча — {{dEff}} (базова {{d}}). Клацни, щоб змінити базову"{{else}}title="Шкода. Кілька типів — у квадратних дужках: 1d10[отрута]+2d6[пси]"{{/if}}>{{#if dEff}}{{dEff}}{{else}}{{d}}{{/if}}</textarea>
+            <a class="pust-roll" data-action="weaponDamage" data-weapon="{{i}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i></a></div>
+          <label class="pust-gf2"><span class="pust-fchip">Вартість</span><input type="text" data-k="weapons.{{i}}.price" value="{{price}}" placeholder="—" class="pust-price" aria-label="Вартість"></label>
+          {{#if builtin}}<label class="pust-gf2 pust-gc-full"><span class="pust-fchip">Вбудована</span><select data-k="weapons.{{i}}.cat" title="Вбудована зброя">{{#each builtin}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>{{/if}}
           {{#if guns}}
-          <div class="pust-guns pust-grow-full" title="Доповнення «Зброя, багато зброї»">
+          <div class="pust-guns pust-gc-full" title="Доповнення «Зброя, багато зброї»">
             <label class="pust-gf"><span>Дальність</span><select data-k="weapons.{{i}}.r">{{#each rangeOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
             <label class="pust-gf"><span>Режим вогню</span><select data-k="weapons.{{i}}.rof">{{#each rofOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
             <label class="pust-gf"><span>Клас</span><select data-k="weapons.{{i}}.cls">{{#each clsOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
             <label class="pust-tog pust-gf-sharp" title="Гостру зброю можна змастити отрутою"><input type="checkbox" data-k="weapons.{{i}}.sharp" {{#if sharp}}checked{{/if}}> гостра</label>
           </div>
-          <div class="pust-mods pust-grow-full"><span class="pust-gl">Моди</span>
+          <div class="pust-mods pust-gc-full"><span class="pust-gl">Моди</span>
             {{#each mods}}<span class="pust-modf"><input type="text" data-k="weapons.{{../i}}.mods.{{j}}.n" value="{{n}}" placeholder="Мод {{add j 1}}" class="pust-mod"><label class="pust-tog" title="Встановлено"><input type="checkbox" data-k="weapons.{{../i}}.mods.{{j}}.u" {{#if u}}checked{{/if}}> встановлено</label></span>{{/each}}
           </div>
           {{/if}}
@@ -516,20 +518,18 @@
     <section class="pust-block">
       <h3>Броня</h3>
       {{#if v.armorList.length}}
-      <div class="pust-glist pust-glist-armor">
-        <div class="pust-grow pust-ghead" aria-hidden="true">
-          <span title="Вдягнена"><i class="fa-solid fa-shirt"></i></span><span>Назва</span><span class="pust-gspan-note">Примітка</span><span>Броня</span><span>Важка</span><span>Вартість</span><span></span>
-        </div>
+      <div class="pust-gcards pust-gcards-armor">
         {{#each v.armorList}}
-        <div class="pust-grow">
-          <label class="pust-tog pust-gh" title="Вдягнена"><input type="checkbox" data-k="armor.{{i}}.w" {{#if w}}checked{{/if}}></label>
-          <input type="text" data-k="armor.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname">
-          <textarea rows="1" data-k="armor.{{i}}.note" placeholder="Примітка" class="pust-gnote-in" aria-label="Примітка">{{note}}</textarea>
-          <input type="text" data-k="armor.{{i}}.v" value="{{v}}" placeholder="Броня" class="pust-dmg">
-          <label class="pust-tog pust-gh" title="Важка"><input type="checkbox" data-k="armor.{{i}}.h" {{#if h}}checked{{/if}}></label>
-          <input type="text" data-k="armor.{{i}}.price" value="{{price}}" placeholder="—" class="pust-price" title="Вартість" aria-label="Вартість">
-          <button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="armor" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>
-          {{#if guns}}<div class="pust-mods pust-grow-full" title="Доповнення «Зброя, багато зброї»"><span class="pust-gl">Моди</span>
+        <div class="pust-gcard pust-gc kind-{{kind}} {{#if w}}on{{/if}}">
+          <div class="pust-gc-head">
+            <div class="pust-gf2"><label class="pust-fchip pust-fchip-tog pust-gc-on" title="Броня вдягнена"><input type="checkbox" data-k="armor.{{i}}.w" {{#if w}}checked{{/if}} aria-label="Вдягнена"> Вдягнена</label><input type="text" data-k="armor.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" aria-label="Назва"></div>
+            <label class="pust-fchip pust-fchip-tog pust-heavy {{#if h}}on{{/if}}" title="Важка річ: рахується у важких речах"><input type="checkbox" data-k="armor.{{i}}.h" {{#if h}}checked{{/if}} aria-label="Важка"> Важка</label>
+            <button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="armor" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <label class="pust-gf2 pust-gc-full"><span class="pust-fchip">Примітка</span><textarea rows="1" data-k="armor.{{i}}.note" placeholder="—" class="pust-gnote-ta" aria-label="Примітка">{{note}}</textarea></label>
+          <label class="pust-gf2"><span class="pust-fchip">Броня</span><input type="text" data-k="armor.{{i}}.v" value="{{v}}" placeholder="—" class="pust-dmg" aria-label="Броня"></label>
+          <label class="pust-gf2"><span class="pust-fchip">Вартість</span><input type="text" data-k="armor.{{i}}.price" value="{{price}}" placeholder="—" class="pust-price" aria-label="Вартість"></label>
+          {{#if guns}}<div class="pust-mods pust-gc-full" title="Доповнення «Зброя, багато зброї»"><span class="pust-gl">Моди</span>
             {{#each mods}}<span class="pust-modf"><input type="text" data-k="armor.{{../i}}.mods.{{j}}.n" value="{{n}}" placeholder="Мод {{add j 1}}" class="pust-mod"><label class="pust-tog" title="Використано"><input type="checkbox" data-k="armor.{{../i}}.mods.{{j}}.u" {{#if u}}checked{{/if}}> використано</label></span>{{/each}}
           </div>{{/if}}
         </div>
@@ -552,26 +552,30 @@
         </div>
       </div>{{/if}}
     </section>
+    </div>
 
+    <div class="pust-gear-col">
     <section class="pust-block">
       <h3>Інший мотлох</h3>
       {{#if v.other.length}}
-      <div class="pust-glist pust-glist-other">
-        <div class="pust-grow pust-ghead" aria-hidden="true"><span class="pust-gspan-name">Назва</span><span class="pust-gspan-note">Примітка</span><span>К-сть</span><span>Важка</span><span>Вартість</span><span></span></div>
+      <div class="pust-gcards pust-gcards-other">
         {{#each v.other}}
-        <div class="pust-grow {{#if hasActs}}acts{{/if}}">
-          <input type="text" data-k="other.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" {{#if auto}}readonly{{/if}}>
-          <textarea rows="1" data-k="other.{{i}}.note" placeholder="Примітка" class="pust-gnote-in" aria-label="Примітка">{{note}}</textarea>
-          {{#if hasActs}}<span class="pust-gacts pust-gextra">
+        <div class="pust-gcard pust-gc kind-{{kind}}">
+          {{!-- «Вжити» and the like on top of the card, over the name (author, 2026-11-15) --}}
+          {{#if hasActs}}<div class="pust-gc-acts pust-gc-full">
             {{#if usable}}<button type="button" class="pust-use-btn" data-action="act" data-act="chem-use" data-i="{{i}}" title="Вжити одну дозу"><i class="fa-solid fa-syringe"></i> Вжити</button>{{/if}}
             {{#if power}}<button type="button" class="pust-use-btn" data-action="act" data-act="power-use" data-i="{{i}}" title="Спожити один елемент живлення"><i class="fa-solid fa-battery-half"></i> Вжити</button>{{/if}}
-            {{#if booster}}<select data-k="other.{{i}}.attr" title="Атрибут бустера">{{#each booster}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>{{/if}}
+            {{#if booster}}<label class="pust-gf2"><span class="pust-fchip">Атрибут</span><select data-k="other.{{i}}.attr" title="Атрибут бустера">{{#each booster}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>{{/if}}
             {{#if treat}}<button type="button" data-action="act" data-act="chem-treat" data-i="{{i}}" title="Замість ОЗ — пролікувати легкий наслідок">Лікувати легкий наслідок</button>{{/if}}
-          </span>{{/if}}
-          <input type="text" data-k="other.{{i}}.q" value="{{q}}" class="pust-qty" title="Кількість">
-          <label class="pust-tog pust-gh" title="Важка: рахується у важких речах (кожна одиниця)"><input type="checkbox" data-k="other.{{i}}.h" {{#if h}}checked{{/if}}></label>
-          <input type="text" data-k="other.{{i}}.price" value="{{price}}" placeholder="—" class="pust-price" title="Вартість" aria-label="Вартість">
-          {{#unless auto}}<button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="other" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>{{else}}<span></span>{{/unless}}
+          </div>{{/if}}
+          <div class="pust-gc-head">
+            <div class="pust-gf2"><span class="pust-fchip">Назва</span><input type="text" data-k="other.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" aria-label="Назва" {{#if auto}}readonly{{/if}}></div>
+            <label class="pust-fchip pust-fchip-tog pust-heavy {{#if h}}on{{/if}}" title="Важка річ: рахується у важких речах"><input type="checkbox" data-k="other.{{i}}.h" {{#if h}}checked{{/if}} aria-label="Важка"> Важка</label>
+            <button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="other" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <label class="pust-gf2 pust-gc-full"><span class="pust-fchip">Примітка</span><textarea rows="1" data-k="other.{{i}}.note" placeholder="—" class="pust-gnote-ta" aria-label="Примітка">{{note}}</textarea></label>
+          <label class="pust-gf2"><span class="pust-fchip">К-сть</span><input type="text" data-k="other.{{i}}.q" value="{{q}}" class="pust-qty" aria-label="Кількість"></label>
+          <label class="pust-gf2"><span class="pust-fchip">Вартість</span><input type="text" data-k="other.{{i}}.price" value="{{price}}" placeholder="—" class="pust-price" aria-label="Вартість"></label>
         </div>
         {{/each}}
       </div>
@@ -597,15 +601,18 @@
         </div>
       </div>{{/if}}
     </section>
+    </div>
+    </div>
   {{/if}}
 
   {{!-- ===== Записи ===== --}}
   {{#if (eq tab 'notes')}}
     <section class="pust-block">
+      {{!-- Foundry's own editor with its formatting tools, on ruled paper (author, 2026-11-15); saved when the editor is left --}}
       <h3>Біографія</h3>
-      <textarea data-k="bio" rows="8">{{v.bio}}</textarea>
+      <prose-mirror class="pust-notes-ed pust-notes-bio" data-note="bio" value="{{v.bio}}"></prose-mirror>
       <h3>Інші</h3>
-      <textarea data-k="others" rows="6">{{v.others}}</textarea>
+      <prose-mirror class="pust-notes-ed" data-note="others" value="{{v.others}}"></prose-mirror>
     </section>
   {{/if}}
 

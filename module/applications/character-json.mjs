@@ -9,6 +9,7 @@
  * Perks, feats, gear and the species are taken from the system's compendiums by name, so they keep
  * their texts and pictures; anything not found becomes a plain item with the file's data.
  */
+import { htmlToText } from "../rules/rich-text.mjs";
 import { actorToState, stateToActor } from "../rules/character-adapter.mjs";
 import { spOf } from "../rules/core.mjs";
 import { CARAVAN_TYPES, caravanHtmlState, caravanToState } from "../rules/caravan-adapter.mjs";
@@ -296,6 +297,7 @@ export async function replaceCaravanFromFile(actor) {
 /** Caravan sheet button: save the caravan as the HTML caravan sheet's .json («Караван — Назва.json») */
 export function exportCaravan(actor) {
   const S = caravanHtmlState(caravanToState(actor.toObject()));
+  S.notes = htmlToText(S.notes); // formatted in Foundry, plain text in the HTML caravan sheet (author, 2026-11-15)
   // the HTML caravan sheet has one «Далека доставка» for the whole caravan: on when any cargo row has it
   S.longHaul = (S.cargo || []).some((r) => r.kind !== "pass" && r.far);
   const n = String(S.companyName || "").trim().replace(/[\\/:*?"<>|]+/g, "").slice(0, 60);
@@ -356,6 +358,9 @@ export async function exportCharacter(actor) {
   const portrait = await portraitData(actor.img);
   // the HTML sheet has no «Вартість» field: the price goes back to the start of the note
   const st = joinPrices(splitPrices(actorToState(actor.toObject(), { portrait })));
+  // «Біографія» / «Інші» are formatted in Foundry; the HTML sheet reads plain text (author, 2026-11-15)
+  st.bio = htmlToText(st.bio);
+  st.others = htmlToText(st.others);
   foundry.utils.saveDataToFile(JSON.stringify(st), "application/json", fileName(st));
 }
 
