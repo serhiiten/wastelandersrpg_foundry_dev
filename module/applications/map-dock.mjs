@@ -16,7 +16,7 @@
  *    openDockCheck: their Player Character, or a list of the characters they own).
  */
 import { addPlace } from "./map-tools.mjs";
-import { fateInfo, luckCaravan, rollDice, rollFate } from "./map-dice.mjs";
+import { fateActors, fateInfo, fatePickList, luckCaravan, rollDice, rollFate } from "./map-dice.mjs";
 import { mountCounters } from "./game-counters.mjs";
 import * as G from "../rules/game-counters.mjs";
 import { postChat } from "./chat.mjs";
@@ -118,7 +118,7 @@ function diceHtml() {
     </div>
     <div class="pust-md-row">
       <output class="pust-md-out" aria-live="polite">${last}</output>
-      <button type="button" class="pust-md-fate" data-mapdice="fate" title="${f ? (f.n > 1 ? `Кістка Долі за кожного вибраного: ${esc(f.name)}` : `Кістка Долі: 1d10 + ${f.what} «${esc(f.name)}» (${f.luck})`) : "Кістка Долі: обери на мапі токени персонажів або каравану"}"><i class="fa-solid fa-clover"></i><span>Доля${f ? ` ${f.luck}` : ""}</span></button>
+      <button type="button" class="pust-md-fate" data-mapdice="fate" title="${f ? (f.n > 1 ? `Кістка Долі за кожного ${game.user.isGM ? "вибраного" : "з цілей"}: ${esc(f.name)}` : `Кістка Долі: 1d10 + ${f.what} «${esc(f.name)}» (${f.luck})${f.own ? ". За іншого — познач його токен ціллю" : ""}`) : (game.user.isGM ? "Кістка Долі: обери у списку, за кого кинути (або виділи токени на мапі)" : "Кістка Долі: познач ціллю токен персонажа чи каравану")}"><i class="fa-solid fa-clover"></i><span>Доля${f ? ` ${f.luck}` : ""}</span></button>
     </div>`;
 }
 
@@ -133,9 +133,103 @@ async function onDice(ev) {
   const k = b.dataset.mapdice;
   const field = document.querySelector(`#${DOCK} [data-mapdice="sides"]`);
   if (field) dice.sides = Math.max(2, Math.min(1000, parseInt(field.value, 10) || 20));
+  // the GM with nothing selected: the list of whom to roll for (author, 2026-11-15)
+  if (k === "fate" && game.user.isGM && !fateActors().length) return toggleFatePick(b);
   const r = k === "fate" ? await rollFate() : await rollDice(dice.count, k === "n" ? dice.sides : +k);
   if (r) { dice.last = r; redrawDice(); }
 }
+
+/* ---------------- the GM's Кістка Долі list ---------------- */
+/**
+ * Nothing selected, the GM's «Доля» opens a list under it (author, 2026-11-15): the players' characters (online first) and
+ * the caravans, each with its luck and a tick; «Кинути (N)» rolls for the ticked ones, a name rolls for that one alone.
+ * The ticks are remembered (FATE_KEY). Closed by ×, Esc, a click elsewhere, a roll, or a scene change.
+ */
+const FATE_KEY = "pustelnyky-fate-pick";
+let fatePick = null; // { el, onDown, onKey }
+
+function closeFatePick() {
+  if (!fatePick) return;
+  fatePick.el.remove();
+  document.removeEventListener("pointerdown", fatePick.onDown, true);
+  document.removeEventListener("keydown", fatePick.onKey, true);
+  fatePick = null;
+}
+
+function fatePickHtml(list, ticked) {
+  const row = (x) => `<li class="pust-fp-row"><input type="checkbox" data-fp-tick="${x.id}" ${ticked.has(x.id) ? "checked" : ""} aria-label="Кинути за «${esc(x.name)}»">
+      <button type="button" class="pust-fp-name" data-fp-one="${x.id}" title="Кинути лише за «${esc(x.name)}»">${x.kind === "caravan" ? '<i class="fa-solid fa-truck" aria-hidden="true"></i>' : `<i class="fa-solid fa-user" aria-hidden="true"></i><span class="pust-fp-dot${x.online ? " on" : ""}" title="${x.online ? "Гравець у грі" : "Гравець не в грі"}"></span>`}<span>${esc(x.name)}</span>${x.player ? `<small>${esc(x.player)}</small>` : ""}</button>
+      <span class="pust-fp-mod" title="${x.what}">${x.mod}</span></li>`;
+  const chars = list.filter((x) => x.kind === "character"), cars = list.filter((x) => x.kind === "caravan");
+  const n = list.filter((x) => ticked.has(x.id)).length;
+  return `<header><i class="fa-solid fa-clover"></i><span>Кістка Долі</span><button type="button" class="pust-fp-x" data-fp-close title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button></header>
+    ${list.length ? `<div class="pust-fp-list">${chars.length ? `<h5>Персонажі гравців</h5><ul>${chars.map(row).join("")}</ul>` : ""}${cars.length ? `<h5>Каравани</h5><ul>${cars.map(row).join("")}</ul>` : ""}</div>
+    <footer><button type="button" class="pust-fp-all" data-fp-all>${n === list.length ? "Зняти всі" : "Позначити всіх"}</button>
+      <button type="button" class="pust-fp-go" data-fp-go ${n ? "" : "disabled"}><i class="fa-solid fa-clover"></i>Кинути${n ? ` (${n})` : ""}</button></footer>`
+    : `<p class="pust-fp-empty">Немає ні персонажів, призначених гравцям, ні караванів. Признач гравцям персонажів у їхніх налаштуваннях або виділи токени на мапі.</p>`}`;
+}
+
+function toggleFatePick(btn) {
+  if (fatePick) return closeFatePick();
+  const el = document.createElement("div");
+  el.className = "pust-fatepick";
+  el.setAttribute("role", "dialog");
+  el.setAttribute("aria-label", "Кістка Долі: за кого кинути");
+  const list = fatePickList();
+  const ids = new Set(list.map((x) => x.id));
+  const ticked = new Set((load(FATE_KEY).ids ?? []).filter((id) => ids.has(id)));
+  const draw = () => { el.innerHTML = fatePickHtml(list, ticked); };
+  draw();
+  document.body.append(el);
+  // under the button, its right edge with the button's; above it when there is no room below
+  // the list scrolls inside (many players or caravans); the window never runs off the screen
+  const r = btn.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+  const left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w));
+  // the floor: the screen's edge, or Foundry's players list / hotbar where they lie under it
+  let floor = window.innerHeight - 8;
+  for (const sel of ["#players", "#hotbar"]) {
+    const f = document.querySelector(sel)?.getBoundingClientRect();
+    if (f?.height && f.left < left + w && f.right > left) floor = Math.min(floor, f.top - 8);
+  }
+  const below = floor - (r.bottom + 6), above = r.top - 6 - 8;
+  const down = h <= below || below >= above;
+  const room = Math.max(120, down ? below : above);
+  el.style.maxHeight = `${Math.floor(room)}px`;
+  const hh = Math.min(h, room);
+  el.style.left = `${Math.round(left)}px`;
+  el.style.top = `${Math.round(down ? r.bottom + 6 : Math.max(8, r.top - 6 - hh))}px`;
+  const remember = () => save(FATE_KEY, { ids: [...ticked] });
+  const roll = async (actors) => {
+    closeFatePick();
+    const res = await rollFate(actors);
+    if (res) { dice.last = res; redrawDice(); }
+  };
+  el.addEventListener("change", (ev) => {
+    const id = ev.target.dataset.fpTick;
+    if (!id) return;
+    if (ev.target.checked) ticked.add(id); else ticked.delete(id);
+    remember();
+    draw();
+  });
+  el.addEventListener("click", (ev) => {
+    const t = ev.target.closest("button");
+    if (!t) return;
+    if (t.dataset.fpClose !== undefined) return closeFatePick();
+    if (t.dataset.fpAll !== undefined) {
+      if (ticked.size === list.length) ticked.clear(); else list.forEach((x) => ticked.add(x.id));
+      remember();
+      return draw();
+    }
+    if (t.dataset.fpOne) return roll([game.actors.get(t.dataset.fpOne)].filter(Boolean));
+    if (t.dataset.fpGo !== undefined) return roll(list.filter((x) => ticked.has(x.id)).map((x) => game.actors.get(x.id)).filter(Boolean));
+  });
+  const onDown = (ev) => { if (!el.contains(ev.target) && !btn.contains(ev.target)) closeFatePick(); };
+  const onKey = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); closeFatePick(); } };
+  document.addEventListener("pointerdown", onDown, true);
+  document.addEventListener("keydown", onKey, true);
+  fatePick = { el, onDown, onKey };
+}
+Hooks.on("canvasTearDown", closeFatePick);
 
 /* ---------------- «Подорож» (GM): the travel generator beside «Мапа Пустки» ---------------- */
 let T = null;
@@ -259,7 +353,13 @@ function defaultPlace(unit) {
   // players have no «Мапа Пустки» panel (an empty unit): their panels start right under the layer buttons
   const mh = el ? el.getBoundingClientRect().height : 140;
   const ctr = battle || !mh ? left : { x: left.x, y: left.y + mh + 8 };
-  if (unit === "ctr") return ctr;
+  if (unit === "ctr") return game.user.isGM ? ctr : { x: ctr.x, y: Math.max(ctr.y, targetsFloor()) };
+  // players' «Кістки» (author, 2026-11-15): top right, next to Foundry's sidebar (its tabs when folded), on every scene
+  if (!game.user.isGM) {
+    const side = document.querySelector("#sidebar")?.getBoundingClientRect();
+    const d = document.querySelector(`#${DOCK} [data-unit="dice"]`);
+    return { x: (side?.left || window.innerWidth) - 8 - (d?.offsetWidth || 340), y: b.top };
+  }
   // «Кістки»: under the default place of «Лічильники» (6 px, as when they were one unit); right there when it is empty
   const c = document.querySelector(`#${DOCK} [data-unit="ctr"]`);
   const ch = c ? c.getBoundingClientRect().height : 0;
@@ -291,20 +391,54 @@ function fitCounters() {
   const players = document.querySelector("#players");
   const floor = Math.min(window.innerHeight - 8, players ? players.getBoundingClientRect().top - 8 : Infinity);
   const dice = document.querySelector(`#${DOCK} [data-unit="dice"]`);
-  const diceH = dice && !load(POS_KEY).dice ? dice.offsetHeight + 6 : 0; // only while «Кістки» follow «Лічильники»
+  // only while «Кістки» follow «Лічильники» (the GM's; players' are top right)
+  const diceH = dice && game.user.isGM && !load(POS_KEY).dice ? dice.offsetHeight + 6 : 0;
   const rest = unit.offsetHeight - body.offsetHeight; // the unit without the list
   const room = floor - unit.getBoundingClientRect().top - rest - diceH;
   const mh = `${Math.max(120, Math.floor(room))}px`;
   if (body.style.maxHeight !== mh) body.style.maxHeight = mh;
 }
 
-/** The players' check panel keeps to the right of «Лічильники» (the unit of its button) */
+/** The players' check panel keeps under its button */
 function sideCheck() {
+  const b = document.querySelector(`#${DOCK} .pust-md-check`);
+  if (b && dockCheckOpen()) placeDockCheck(b.getBoundingClientRect());
+}
+
+/**
+ * Players' «Обрати цілі» / «Зняти цілі» (author, 2026-11-15): right of Foundry's left buttons, level with their last row,
+ * up to the right edge of «Зробити перевірку» (its default place); battle maps only
+ */
+function placeTargets() {
+  const row = document.querySelector(`#${DOCK} .pust-md-trow`);
+  if (!row || row.hidden) return;
+  const bar = document.querySelector("#scene-controls")?.getBoundingClientRect();
+  const lis = document.querySelectorAll("#scene-controls-layers > li, #scene-controls-tools > li");
+  if (!bar || !lis.length) return;
+  const bottom = Math.max(...[...lis].map((li) => li.getBoundingClientRect().bottom).filter((v) => v > 0));
   const unit = document.querySelector(`#${DOCK} [data-unit="ctr"]`);
-  if (unit && dockCheckOpen()) placeDockCheck(unit.getBoundingClientRect());
+  const right = defaultPlace("ctr").x + (unit?.offsetWidth || 340);
+  const left = bar.right + 8, width = Math.max(120, right - left);
+  // under Foundry's scene list where it reaches this far (a player sees the viewed and the active scene there)
+  let top = bottom - row.offsetHeight;
+  for (const li of document.querySelectorAll("#scene-navigation li")) {
+    const r = li.getBoundingClientRect();
+    if (r.height && r.right > left && r.left < left + width) top = Math.max(top, r.bottom + 6);
+  }
+  row.style.left = `${Math.round(left)}px`;
+  row.style.width = `${Math.round(width)}px`;
+  row.style.top = `${Math.round(top)}px`;
+}
+
+/** Players on a battle map: «Зробити перевірку» stays under «Обрати цілі» / «Зняти цілі» when the scene list pushed them down */
+function targetsFloor() {
+  const row = document.querySelector(`#${DOCK} .pust-md-trow`);
+  if (!row || row.hidden || !row.style.top) return 0;
+  return parseFloat(row.style.top) + row.offsetHeight + 6;
 }
 
 function placeAll() {
+  placeTargets();
   place("map");
   place("ctr");
   fitCounters();
@@ -396,12 +530,13 @@ export function renderMapDock() {
         ${gm ? battleSectionHtml(header) : ""}
       </div>
       <div class="pust-md-unit${fold.ctr ? " folded" : ""}" data-unit="ctr">
-        ${gm ? "" : `<div class="pust-md-prow"><button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити «Зробити перевірку» поруч; персонаж — твій Player Character"><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}
+        ${gm ? "" : `<div class="pust-md-prow"><button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити «Зробити перевірку» поруч; персонаж — твій Player Character"><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button></div>`}
         ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" title="Новий лічильник" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button>${FOLD_BTN}</header><div class="pust-md-body pust-gc" hidden></div></section>` : `<section class="pust-md-panel pust-md-ctr" hidden></section>`}
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
         <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки")}<div class="pust-md-body">${diceHtml()}</div></section>
-      </div>`;
+      </div>
+      ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
     const mapUnit = dock.querySelector('[data-unit="map"]');
     const ctrUnit = dock.querySelector('[data-unit="ctr"]');
@@ -414,13 +549,20 @@ export function renderMapDock() {
     else redrawCounters();
     mapUnit.querySelector(".pust-md-travel")?.addEventListener("click", () => { tv.open = !tv.open; redrawTravel(); });
     // players: «Зняти цілі» (author, 2026-11-15) — damage goes to the targets only
-    ctrUnit.querySelector(".pust-md-untarget")?.addEventListener("click", () => canvas?.tokens?.setTargets([], { mode: "replace" }));
+    dock.querySelector(".pust-md-untarget")?.addEventListener("click", () => canvas?.tokens?.setTargets([], { mode: "replace" }));
+    // «Обрати цілі» (author, 2026-11-15): Foundry's own targeting tool on / off — a click on a token makes it the target
+    dock.querySelector(".pust-md-target")?.addEventListener("click", () => {
+      const on = game.activeTool === "target";
+      ui.controls?.activate?.({ control: "tokens", tool: on ? "select" : "target" });
+      setTimeout(syncTargetTool, 150);
+    });
     syncUntarget();
+    syncPlayerTargets();
     const chk = ctrUnit.querySelector(".pust-md-check");
     if (chk) {
       syncCheckButton();
       chk.addEventListener("click", async () => {
-        await toggleDockCheck(ctrUnit.getBoundingClientRect());
+        await toggleDockCheck(chk.getBoundingClientRect()); // opens under the button
         chk.classList.toggle("on", dockCheckOpen());
       });
     }
@@ -472,13 +614,45 @@ function syncUntarget() {
   b.title = n ? `Зняти всі твої цілі (зараз: ${n})` : "Цілей немає. Познач ціль: T над токеном, Shift+T — додати ще";
 }
 Hooks.on("targetToken", (user) => { if (user?.isSelf) syncUntarget(); });
-Hooks.on("canvasReady", () => syncUntarget());
+Hooks.on("canvasReady", () => { syncUntarget(); syncPlayerTargets(); });
+
+/** Players: «Обрати цілі» / «Зняти цілі» under «Зробити перевірку», on battle maps only (author, 2026-11-15) */
+function syncPlayerTargets() {
+  const row = document.querySelector(`#${DOCK} .pust-md-trow`);
+  if (!row) return;
+  row.hidden = !isBattleScene(canvas?.scene);
+  syncTargetTool();
+  requestAnimationFrame(placeTargets);
+}
+
+/** «Обрати цілі» is pressed while Foundry's targeting tool is on (tokens can't be dragged then) */
+function syncTargetTool() {
+  const b = document.querySelector(`#${DOCK} .pust-md-target`);
+  if (!b) return;
+  const on = game.activeTool === "target";
+  b.classList.toggle("on", on);
+  b.setAttribute("aria-pressed", String(on));
+  b.title = on
+    ? "Обирання цілей: клік по токену — ціль, Shift+клік — ще одна. Натисни ще раз, щоб знову рухати токени"
+    : "Обирати цілі кліком по токену (Shift+клік — ще одна). Поки це ввімкнено, токени не перетягуються";
+}
+// Foundry changes tools without a hook: its buttons' aria-pressed is watched instead
+Hooks.on("renderSceneControls", (app, el) => {
+  setTimeout(syncTargetTool, 50);
+  const root = el?.closest?.("#scene-controls") ?? el ?? document.querySelector("#scene-controls");
+  if (!root || root._pustToolWatch || !window.MutationObserver) return;
+  root._pustToolWatch = new MutationObserver(() => syncTargetTool());
+  root._pustToolWatch.observe(root, { subtree: true, attributes: true, attributeFilter: ["aria-pressed"] });
+});
 
 // «Битва» in its own place keeps to the sidebar as it folds and opens (also watched by size, see renderMapDock)
 Hooks.on("collapseSidebar", () => requestAnimationFrame(placeAll));
 
 // the Fate button and the travel luck follow the selected caravan
 Hooks.on("controlToken", foundry.utils.debounce(() => { redrawDice(); if (tv.open) redrawTravel(); }, 100));
+// players' Fate follows their targets (map-dice.mjs fateActors)
+Hooks.on("targetToken", foundry.utils.debounce((user) => { if (user?.isSelf && !game.user.isGM) redrawDice(); }, 100));
+Hooks.on("updateUser", (user, ch) => { if (user.isSelf && "character" in ch) redrawDice(); });
 
 // players' counters follow the GM's changes: the game's (a world setting) and the viewed scene's (a scene flag)
 Hooks.on("updateSetting", (setting) => { if (setting.key === `${game.system.id}.gameCounters`) redrawCounters(); });
@@ -495,6 +669,7 @@ Hooks.on("canvasReady", () => { redrawCounters(); syncSceneKind(); });
  * and «Подорож»; «Лічильники» and «Кістки» stay on both.
  */
 function syncSceneKind() {
+  syncPlayerTargets();
   const unit = document.querySelector(`#${DOCK} [data-unit="map"]`);
   if (!unit || !game.user.isGM) return;
   const battle = isBattleScene(canvas?.scene);

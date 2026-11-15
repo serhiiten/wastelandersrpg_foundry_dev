@@ -35,6 +35,25 @@ export function openCheckPanel(actor, preset = {}) {
   return app;
 }
 
+/**
+ * The ready-made checks' tones (author, 2026-11-15): within their group's colour each button its own — attacks: shooting
+ * red, melee dark red-brown, grenades orange; avoiding damage by its damage chip: ВП physical rust, ІН psychic violet,
+ * ВТР poison / radiation green; medical help and treating consequences green; taking consequences as the «0 ОЗ» box.
+ */
+function presetTone(label) {
+  const l = String(label).toLowerCase();
+  if (/відстан|стрільб/.test(l)) return "shoot";
+  if (/ближн|герц/.test(l)) return "melee";
+  if (/гранат|вибух/.test(l)) return "boom";
+  if (/фізичн/.test(l)) return "phys";
+  if (/психічн/.test(l)) return "psy";
+  if (/отрут|радіац/.test(l)) return "tox";
+  if (/медичн/.test(l)) return "med";
+  if (/лікуван/.test(l)) return "heal";
+  if (/отриманн/.test(l)) return "ko";
+  return "";
+}
+
 class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["wastelanders", "pust-check"],
@@ -101,7 +120,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       // ready-made checks in two lines: «СПР+Стрільба» / «бій на відстані», «ВП» / «фізична шкода»
       .replace(/(<button type="button" class="chipb[^"]*"[^>]*>)([^<]*)(<\/button>)/g, (m, open, label, close) => {
         const [, top, sub] = /^(.*?)\s*\((.*)\)\s*$/.exec(label) || /^(.*?)\s+—\s+(.*)$/.exec(label) || [null, label, ""];
-        return `${open}${top.replace(/\s*\+\s*/g, "+")}${sub ? `<small class="rsub">${sub}</small>` : ""}${close}`;
+        // each its own tone within its group (author, 2026-11-15; css/pust-check.css [data-tone])
+        const tone = presetTone(`${top} ${sub}`);
+        return `${tone ? open.replace(/>$/, ` data-tone="${tone}">`) : open}${top.replace(/\s*\+\s*/g, "+")}${sub ? `<small class="rsub">${sub}</small>` : ""}${close}`;
       })
       // attack effects always open (the HTML sheet opens them only on a success)
       .replace(/<details class="rfx">/g, '<details class="rfx" open>')
@@ -159,7 +180,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       partial, head: D.name,
     };
     const applyBtn = `<div class="rdapply"><button type="button" class="pust-dmg-apply" data-apply="1" title="Шкода цілям: броня й стійкості кожного враховуються${partial ? "; частковий успіх — ½ тим, хто за нього отримує половину" : ""}"><i class="fa-solid fa-crosshairs"></i><span>Завдати цілям</span></button>`
-      + (partial ? `<span class="rdhalf" title="Перевірка — частковий успіх: хто за часткового успіху отримує половину, отримає ½">частковий успіх</span>` : "") + `</div>`;
+      + `</div>`; // no «частковий успіх» chip next to it (author, 2026-11-15: the verdict above says it; the tooltip keeps it)
     return html.replace(
       /<div class="rdres"><div class="rdice">([\s\S]*?)<\/div><div class="rsum"><span class="rform">[^<]*=<\/span><b class="rtot">([^<]*)<\/b><span class="rform">шкоди<\/span><\/div><ul class="rsteps">([\s\S]*?)<\/ul>/,
       (m, chips, total, lis) => {
@@ -179,16 +200,43 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         if (this.#apply) Object.assign(this.#apply.data, applyParts(parts));
         const types = [...parts.map((p) => p.t), ...(last.poison && last.poisonRoll ? ["poison"] : [])];
         return `<div class="rdres"><div class="rdrow"><div class="rdice">${chips}</div>`
-          + `<div class="rsum rdsum"><b class="rtot dt-${wt}">${total}</b><span class="rform">шкоди</span><span class="dtchips">${typeChips(types.length ? types : [wt])}</span></div></div>`
+          // «Завдати цілям» in the same row as the total, on its right; it wraps under it only when there is no room
+          // (author, 2026-11-15)
+          + `<div class="rsum rdsum"><b class="rtot dt-${wt}">${total}</b><span class="rform">шкоди</span><span class="dtchips">${typeChips(types.length ? types : [wt])}</span></div>${applyBtn}</div>`
           + (fx.length ? `<ul class="rdfx">${fx.map((t) => `<li>${t}</li>`).join("")}</ul>` : "")
-          + (parts.length > 1 ? `<p class="rdbrk">${parts.map((p) => `${p.l}: <b class="dt-${p.t}">${p.v}</b>`).join(" · ")}</p>` : "")
-          + applyBtn;
+          + (parts.length > 1 ? `<p class="rdbrk">${parts.map((p) => `${p.l}: <b class="dt-${p.t}">${p.v}</b>`).join(" · ")}</p>` : "");
       },
     );
   }
 
+  /**
+   * The panel keeps its scroll through a re-render (author, 2026-11-15: «Кинути шкоду» threw it back to the top); after
+   * «Кинути перевірку» it scrolls on to show the result. Both possible scrollers are kept: the roller (docked panel)
+   * and the window's content (the panel in its own window).
+   */
+  #scrolls = null;
+  #toResult = false;
+  _preRender(context, options) {
+    const el = this.element;
+    if (el) this.#scrolls = { roller: el.querySelector(".pust-roller")?.scrollTop ?? 0, win: el.querySelector(".window-content")?.scrollTop ?? 0 };
+    return super._preRender(context, options);
+  }
+  #restoreScroll() {
+    const el = this.element, k = this.#scrolls;
+    if (!el || !k) return;
+    const r = el.querySelector(".pust-roller"), w = el.querySelector(".window-content");
+    if (r) r.scrollTop = k.roller;
+    if (w) w.scrollTop = k.win;
+    if (this.#toResult) {
+      const res = el.querySelector(".pust-roller .rres");
+      if (res) res.scrollIntoView({ block: "nearest" });
+    }
+  }
+
   _onRender(context, options) {
     super._onRender(context, options);
+    this.#restoreScroll();
+    requestAnimationFrame(() => { this.#restoreScroll(); this.#toResult = false; this.#scrolls = null; });
     const root = this.element.querySelector(".pust-roller");
     root.addEventListener("click", async (ev) => {
       const ap = ev.target.closest("[data-apply]");
@@ -231,6 +279,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       out = { before, R: clone(L.R), dmgTotal: R.last?.dmg ? L.dmgTotal(R.last, compute(st)) : null, dmgType, dmgFx, dmgChoice, verdicts: L.VERDICTS, types: L.CHECK_TYPES,
         dmgChanged: !!(before.dmg && after && before.dmg !== after && before.last?.dmg?.time === R.last.dmg.time) };
     });
+    this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
     this.render();
     if (kind === "click" && CHAT_ON.has(key)) await this.#post(key, out);
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
@@ -337,7 +386,7 @@ export function placeDockCheck(rect) {
 
 /**
  * «Зробити перевірку» without a window of its own: no frame, its own header (the character, or a list of them when the
- * player owns several; ×), right of the unit «Лічильники + Кістки» (left of it when there is no room), as tall as the
+ * player owns several; ×), right under its button (author, 2026-11-15), above Foundry's players list and hotbar, as tall as the
  * screen allows, scrolling inside.
  */
 class DockedCheckPanel extends CheckPanel {
@@ -373,21 +422,31 @@ class DockedCheckPanel extends CheckPanel {
     requestAnimationFrame(() => this.stick());
   }
 
-  /** Where the panel goes: right of the unit (or left of it), its top with the unit's, kept on screen */
+  /**
+   * Where the panel goes (author, 2026-11-15): right under its button «Зробити перевірку», left edges together, never
+   * under Foundry's sidebar; as tall as the room down to Foundry's players list / hotbar / the screen's edge allows,
+   * scrolling inside (maxH)
+   */
   #spot() {
     const r = this.anchor, el = this.element;
     if (!r) return null;
-    const maxH = window.innerHeight - 16;
-    const w = el?.offsetWidth || 520, h = Math.min(el?.offsetHeight || 0, maxH);
-    let left = r.right + DOCK_GAP;
-    if (left + w > window.innerWidth - 8) left = Math.max(8, r.left - DOCK_GAP - w);
-    return { left: Math.round(left), top: Math.round(Math.max(8, Math.min(r.top, window.innerHeight - 8 - h))) };
+    const w = el?.offsetWidth || 520;
+    const side = document.querySelector("#sidebar")?.getBoundingClientRect();
+    const right = (side?.left || window.innerWidth) - 8;
+    const left = Math.max(8, Math.min(r.left, right - w));
+    const top = r.bottom + DOCK_GAP;
+    let floor = window.innerHeight - 8;
+    for (const sel of ["#players", "#hotbar"]) {
+      const b = document.querySelector(sel)?.getBoundingClientRect();
+      if (b && b.height && b.left < left + w && b.right > left) floor = Math.min(floor, b.top - 8);
+    }
+    return { left: Math.round(left), top: Math.round(top), maxH: Math.max(160, Math.floor(floor - top)) };
   }
 
   stick() {
     const el = this.element, p = this.#spot();
     if (!el || !p) return;
-    el.style.maxHeight = `${window.innerHeight - 16}px`;
+    el.style.maxHeight = `${p.maxH}px`;
     el.style.left = `${p.left}px`;
     el.style.top = `${p.top}px`;
   }
@@ -396,7 +455,7 @@ class DockedCheckPanel extends CheckPanel {
   _updatePosition(position) {
     const out = super._updatePosition(position);
     const p = this.#spot();
-    if (p) Object.assign(out, p);
+    if (p) Object.assign(out, { left: p.left, top: p.top });
     return out;
   }
 

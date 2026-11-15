@@ -28,6 +28,20 @@ export function diceTextHtml(text, src, editable) {
 }
 
 /**
+ * A move's text with a list in it (author, 2026-11-15: the ranger's, the elite ranger's and the super soldier's «вибери
+ * один ефект: • …; • …»): the words before the first «•» as a line, each «•» part an item of a list, without its «;» /
+ * the final «.»; dice chips as in diceTextHtml. A text without «•» is diceTextHtml as it is. Safe HTML.
+ */
+export function moveTextHtml(text, src, editable) {
+  const parts = String(text ?? "").split(/\s*•\s*/);
+  if (parts.length < 2) return diceTextHtml(text, src, editable);
+  const [head, ...items] = parts;
+  const li = items.map((t) => t.trim().replace(/[;.]\s*$/, "")).filter(Boolean)
+    .map((t) => `<li>${diceTextHtml(t, src, editable)}</li>`).join("");
+  return `${head.trim() ? `<span class="pust-en-mvlead">${diceTextHtml(head.trim(), src, editable)}</span>` : ""}<ul class="pust-en-mvlist">${li}</ul>`;
+}
+
+/**
  * The category's mark, as on the token's badge (author, 2026-11-15; canvas/token.mjs CAT_MARK): статист one chevron,
  * рядовий two, елітний three (drawn), бос a skull. Safe HTML.
  */
@@ -137,7 +151,7 @@ export function enemyView(sys, o = {}) {
   const moves = (sys.moves ?? []).map((m, i) => {
     const psy = i === psyIdx;
     const heal = moveHeal(m.t);
-    return { i, n: m.n, t: m.t, tHtml: diceTextHtml(m.t, m.n, !!o.editable), used: !!m.used, psy, once: onceMove(m.t, psy), heal: heal ? heal.expr : "", healGroup: !!heal?.group };
+    return { i, n: m.n, t: m.t, tHtml: moveTextHtml(m.t, m.n, !!o.editable), used: !!m.used, psy, once: onceMove(m.t, psy), heal: heal ? heal.expr : "", healGroup: !!heal?.group };
   });
   return {
     cat, catLabel: CAT_LABEL[cat] ?? "", catColor: CAT_COLOR[cat] ?? CAT_COLOR.regular, catIcon: catIconHtml(cat),

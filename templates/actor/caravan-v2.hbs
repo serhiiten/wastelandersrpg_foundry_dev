@@ -37,8 +37,9 @@
         <span class="pust-veh">
           <span class="pust-hlab">Транспорт</span>
           <span class="pust-seg">
-            <button type="button" class="{{#unless v.tachka}}on{{/unless}}" data-action="cact" data-act="veh" data-veh="0">Браміни</button>
-            <button type="button" class="{{#if v.tachka}}on{{/if}}" data-action="cact" data-act="veh" data-veh="1">Тачка</button>
+            {{!-- the HTML caravan sheet's icons: a cow's head, a car (author, 2026-11-15); the two buttons one width --}}
+            <button type="button" class="{{#unless v.tachka}}on{{/unless}}" data-action="cact" data-act="veh" data-veh="0"><svg class="veh-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 7c-1.2 -1 -1.7 -2.6 -1.2 -4"/><path d="M15.5 7c1.2 -1 1.7 -2.6 1.2 -4"/><path d="M8 7h8a1 1 0 0 1 1 1v5h-10v-5a1 1 0 0 1 1 -1z"/><path d="M7 8.6l-3.2 -.8l1.2 2.6l2 .4"/><path d="M17 8.6l3.2 -.8l-1.2 2.6l-2 .4"/><path d="M8.5 13h7a1.5 1.5 0 0 1 1.5 1.5v1.5a3 3 0 0 1 -3 3h-4a3 3 0 0 1 -3 -3v-1.5a1.5 1.5 0 0 1 1.5 -1.5z"/><path d="M10 10v.01m4 0v.01"/><path d="M10.3 16.2v.01m3.4 0v.01"/></svg><span>Браміни</span></button>
+            <button type="button" class="{{#if v.tachka}}on{{/if}}" data-action="cact" data-act="veh" data-veh="1"><svg class="veh-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5"/></svg><span>Тачка</span></button>
           </span>
         </span>
       </div>
