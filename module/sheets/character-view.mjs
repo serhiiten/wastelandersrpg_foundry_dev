@@ -9,6 +9,7 @@ import {
   countedPerks, drugOf, featElig, gunsOn, perkElig, presetLabel, CAT_SECS, weaponDmg, spOf, speciesExtra,
 } from "../rules/core.mjs";
 import { recipeTotals } from "../rules/designer.mjs";
+import { HP_PER_CAP, SUP_PER_CAP, buyButton, consPlan } from "../rules/char-services.mjs";
 import { isPowerCell, usesPowerCells } from "../rules/power-cell.mjs";
 import { catalogDescription } from "../applications/catalog-descriptions.mjs";
 import { DMG_TYPES, EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
@@ -234,7 +235,20 @@ export function buildView(st, d, L, ui = {}) {
   const fd = st.fdCur === "" || st.fdCur == null ? d.fd : parseInt(st.fdCur, 10) || 0;
   const cons = CONS.filter(([k]) => k !== "m2" || d.medSlots > 1).map(([k, label]) => ({
     k, label, v: st.cons?.[k] || "", treated: !!st.consT?.[k],
+    // «Вилікувати за N(к)» (author, 2026-11-15): at a qualified medic, light 2 / moderate 5 / heavy 8 caps
+    buy: (() => {
+      const p = consPlan(k, st.cons?.[k], st.consT?.[k], st.caps);
+      const text = String(st.cons?.[k] || "").trim();
+      return { price: p.price, off: !p.can, title: !text ? "Наслідку немає" : st.consT?.[k] ? "Лікування вже почалося"
+        : p.can ? `Лікування в кваліфікованого медика: ${p.price}(к) з кришок; наслідок позначиться «проліковано»` : `Лікування коштує ${p.price}(к), а кришок менше` };
+    })(),
   }));
+  // «Вилікувати за N(к)» (HP: 1 cap for 5) and «Поповнити за N(к)» (Припаси: 3 for 1 cap) from the character's caps
+  const supNow = parseInt(st.supplies, 10) || 0;
+  const buy = {
+    heal: buyButton(hpMax - L.curHp(d), st.caps, HP_PER_CAP, { verb: "Вилікувати", unit: "ОЗ", full: "ОЗ повні", rate: "1(к) за 5 ОЗ у кваліфікованого медика" }),
+    sup: buyButton(d.supMax - supNow, st.caps, SUP_PER_CAP, { verb: "Поповнити", unit: "од. Припасів", full: "Припасів повно", rate: "1(к) за 3 Припаси" }),
+  };
   const ovDef = st.defOv || {};
   const sit = (st.sit || []).map((a, i) => ({ i, t: a.t, inv: a.inv || 0 }));
   const quickAspects = L.QUICK_ASPECTS.filter((x) => !sit.some((a) => a.t === x[1]))
@@ -367,7 +381,7 @@ export function buildView(st, d, L, ui = {}) {
     hasModel: d.has("Експериментальна модель"),
     hp: L.curHp(d), hpMax, hpRed: d.hpRed, fd, fdMax: d.fd, hpBar: hpBar(L.curHp(d), hpMax),
     armor: d.armorTotal + L.chemArmor(), psi: d.psiTotal + L.chemPsi(),
-    cons, sit, quickAspects, defenses, restBlock,
+    cons, buy, sit, quickAspects, defenses, restBlock,
     supplies: parseInt(st.supplies, 10) || 0, supMax: d.supMax, supMaxAuto: d.supMaxAuto,
     supLamps: d.supMax <= 6, // more than 6 Припасів: a counter instead of lamps
     supDots: Array.from({ length: d.supMax }, (_, j) => ({ n: j + 1, on: j < (parseInt(st.supplies, 10) || 0) })),

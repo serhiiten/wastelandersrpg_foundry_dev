@@ -206,7 +206,15 @@ eq(dmg(P(), { total: 6, type: "psychic", parts: [{ total: 4, type: "psychic" }, 
   const set = targetProfile({ type: "caravan", system: { armor: 2, vehicle: "brahmin", defOv: { fire: "half", poison: "immune", psy: "", phys: "half" } } });
   eq([dmg(set, { total: 8, type: "fire" }), dmg(set, { total: 8, type: "poison" }), dmg(set, { total: 8, type: "phys" }), dmg(set, { total: 8, type: "psychic" })], [0, 0, 2, 8], "caravan defences: fire ½ + phys ½ = 0, poison immune, phys ½ 4−2, psychic full");
   const cart2 = targetProfile({ type: "caravan", system: { armor: 2, vehicle: "tachka", defOv: { rad: "half" } } });
-  eq(dmg(cart2, { total: 8, type: "rad" }), 0, "Тачка stays immune to radiation whatever is set");
+  eq(dmg(cart2, { total: 8, type: "rad" }), 4, "a defence set by hand replaces the rule (author, 2026-11-15): Тачка set to ½ radiation takes 4");
+  const lead = targetProfile({ type: "caravan", system: { armor: 1, vehicle: "brahmin", imp: { lead: 1 } } });
+  eq([dmg(lead, { total: 7, type: "rad" }), dmg(lead, { total: 7, type: "poison" })], [4, 7], "«Свинцева обшивка»: radiation ½ (rounded up), poison full");
+  const leadCart = targetProfile({ type: "caravan", system: { armor: 2, vehicle: "tachka", imp: { lead: 1 } } });
+  eq(dmg(leadCart, { total: 7, type: "rad" }), 0, "Тачка with «Свинцева обшивка» stays immune to radiation");
+  const leadOff = targetProfile({ type: "caravan", system: { armor: 1, vehicle: "brahmin", imp: { lead: 1 }, defOv: { rad: "normal" } } });
+  eq(dmg(leadOff, { total: 7, type: "rad" }), 7, "«звичайна» set by hand overrides the lead");
+  const psiCar = targetProfile({ type: "caravan", system: { armor: 3, vehicle: "brahmin", psiArmor: 2 } });
+  eq([dmg(psiCar, { total: 7, type: "psychic" }), dmg(psiCar, { total: 7, type: "phys" })], [5, 4], "caravan psychic armour 2 (author, 2026-11-15): psychic 7 → 5, physical meets the armour 3");
   const brahmins = targetProfile({ type: "caravan", system: { armor: 1, vehicle: "brahmin" } });
   eq([dmg(brahmins, { total: 7, type: "psychic" }), dmg(brahmins, { total: 7, type: "poison" })], [7, 7], "brahmins take psychic damage and poison");
   eq(targetProfile({ type: "place", system: {} }), null, "a place takes no damage");

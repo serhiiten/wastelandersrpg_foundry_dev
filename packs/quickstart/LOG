@@ -1,3 +1,5 @@
-2026/11/15-05:56:29.879 5a70 Recovering log #4
-2026/11/15-05:56:29.883 5a70 Delete type=0 #4
-2026/11/15-05:56:29.883 5a70 Delete type=3 #2
+2026/11/15-08:41:18.419 5368 Delete type=3 #1
+2026/11/15-08:41:18.427 78c Level-0 table #5: started
+2026/11/15-08:41:18.430 78c Level-0 table #5: 112678 bytes OK
+2026/11/15-08:41:18.433 78c Delete type=0 #3
+2026/11/15-08:41:18.433 78c Manual compaction at level-0 from '!adventures!TOPRKVrwVy5BAdeQ' @ 72057594037927935 : 1 .. '!adventures!TOPRKVrwVy5BAdeQ' @ 0 : 0; will stop at (end)

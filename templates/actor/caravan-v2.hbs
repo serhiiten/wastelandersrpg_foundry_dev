@@ -80,24 +80,24 @@
           <b title="Максимум ОЗ: за правилами {{v.baseMaxHP}} плюс надбавка з «Налаштування → Захист»">/ {{v.maxHP}}</b>
           <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="1" title="Плюс 1 ОЗ">+</button>
         </div></div>
-        <div class="pust-qi q-arm"><span><i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>Броня</span><div class="pust-qarm" title="Броня: за правилами {{v.baseArmor}} плюс надбавка з «Налаштування → Захист»"><b class="big arm-phys">{{v.armor}}</b><small class="arm-phys">фізична</small></div></div>
+        <div class="pust-qi q-arm"><span><i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>Броня</span><div class="pust-qarm" title="Броня: за правилами {{v.baseArmor}} плюс надбавка з «Налаштування → Захист»"><b class="big arm-phys">{{v.armor}}</b><small class="arm-phys">фізична</small></div>{{#if v.defChips.length}}<span class="pust-defchips">{{#each v.defChips}}<span class="pust-dchip {{cls}}" title="{{tip}}">{{t}}</span>{{/each}}</span>{{/if}}</div>
         <div class="pust-qi q-bud"><span><i class="fa-solid fa-coins pust-qic" aria-hidden="true"></i>Бюджет кришок</span><div>
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="-1" title="Мінус 1 кришка">−</button>
           <input type="text" class="pust-screen" data-k="budget" value="{{v.budget}}" aria-label="Бюджет кришок">
           <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="1" title="Плюс 1 кришка">+</button>
           <button type="button" class="pust-die {{#if v.locks.budget}}locked{{/if}}" data-action="cact" data-act="rollBudget" title="{{#if v.locks.budget}}Заповнено вручну. Змініть бюджет, щоб знову кидати кістки{{else}}Кинути 1d6 + 4{{/if}}"><i class="fa-solid {{#if v.locks.budget}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
         </div></div>
-        <p class="pust-qstate {{#if v.repair}}hurt{{/if}} {{#if v.repair.hurt}}bad{{/if}} {{#if v.repair.destroyed}}bad{{/if}}">{{#if v.repair}}<i class="fa-solid fa-screwdriver-wrench"></i> Пошкоджено на <b>{{v.repair.dmg}}</b> ОЗ · ремонт у техніка: <b>{{v.repair.cost}}(к)</b> (1(к) за 5 ОЗ){{#if v.repair.hurt}} · <b>вантаж постраждав</b>: шкоди більше ніж на половину ОЗ{{/if}}{{#if v.repair.destroyed}} · <b>ОЗ 0 — вантаж знищено</b>{{/if}}{{else}}<i class="fa-solid fa-circle-check"></i> Караван цілий{{/if}}</p>
+        <div class="q-staterow"><p class="pust-qstate {{#if v.repair}}hurt{{/if}} {{#if v.repair.hurt}}bad{{/if}} {{#if v.repair.destroyed}}bad{{/if}}">{{#if v.repair}}<i class="fa-solid fa-screwdriver-wrench"></i> Пошкоджено на <b>{{v.repair.dmg}}</b> ОЗ{{#unless editable}} · ремонт у техніка: <b>{{v.repair.cost}}(к)</b> (1(к) за 5 ОЗ){{/unless}}{{#if v.repair.hurt}} · <b>вантаж постраждав</b>: шкоди більше ніж на половину ОЗ{{/if}}{{#if v.repair.destroyed}} · <b>ОЗ 0 — вантаж знищено</b>{{/if}}{{else}}<i class="fa-solid fa-circle-check"></i> Караван цілий{{/if}}</p>{{#if editable}}<button type="button" class="pust-refill-btn pust-repair-btn" data-action="cact" data-act="repair" title="{{v.repairBtn.title}}" {{#if v.repairBtn.off}}disabled{{/if}}><i class="fa-solid fa-screwdriver-wrench"></i> {{v.repairBtn.label}}</button>{{/if}}</div>
       </div>
       <div class="pust-qgrp q-move">
-        <div class="pust-qi q-movecell"><span><i class="fa-solid fa-route pust-qic" aria-hidden="true"></i>Запас ходу <b class="q-movenow">{{v.moveNow}}</b></span>
+        <div class="pust-qi q-movecell"><span><i class="fa-solid fa-route pust-qic" aria-hidden="true"></i>Запас ходу <b class="q-movenow">{{v.moveNow}}</b>{{#if editable}}<button type="button" class="pust-refill-btn" data-action="cact" data-act="refill" title="{{v.refillBtn.title}}" {{#if v.refillBtn.off}}disabled{{/if}}><i class="fa-solid fa-gas-pump"></i> {{v.refillBtn.label}}</button>{{/if}}</span>
           <div class="q-moverow">
             <div class="pust-qpips">
             {{#each v.movePips1}}{{#if avail}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/if}}{{/each}}
             {{#each v.movePips2}}{{#if avail}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" {{#unless avail}}disabled{{/unless}}></button>{{/if}}{{/each}}
             </div>
           </div>
-          <small class="q-refill {{#if v.moveLack}}low{{/if}}">{{v.refill}}</small><small class="q-cellrule">{{v.cellRule}}</small></div>
+          <small class="q-refill {{#if v.moveLack}}low{{/if}}">{{v.refill}} · {{v.cellRule}}</small><div class="q-autorow">{{#if editable}}<button type="button" class="pust-autorange {{#if autoRange}}on{{/if}}" data-action="autoRange" role="switch" aria-checked="{{#if autoRange}}true{{else}}false{{/if}}" title="Витрачати автоматично: коли караван переміщують на мапі, запас ходу списується сам, без питання (1 клітина — 1 одиниця, тачка — 3 клітини за одиницю). Якщо запасу бракує, караван лишається на місці."><span class="pust-place-sw" aria-hidden="true"></span><span>Витрачати автоматично</span></button>{{/if}}</div>{{#if brahmins.taken}}<div class="q-brahmins"><span class="q-brah-name">{{#if brahmins.tachka}}Паливний регулятор{{else}}Породисті браміни{{/if}}</span>{{#if editable}}<span class="pust-seg2"><button type="button" class="{{#if brahmins.range}}on{{/if}}" data-action="brahminBonus" data-v="range" title="Караван витрачає менше запасу ходу: на чверть, з «Першопроходцем» — наполовину (витрата округлюється вгору, щонайменше 1 одиниця); списання на мапі це враховує">−{{brahmins.share}} запасу</button><button type="button" class="{{#unless brahmins.range}}on{{/unless}}" data-action="brahminBonus" data-v="time" title="Шлях займає менше часу: на чверть, з «Першопроходцем» — наполовину; запас ходу витрачається повністю">−{{brahmins.share}} часу</button></span><span class="pust-seg2"><button type="button" class="{{#if brahmins.pathfinder}}on{{/if}}" data-action="pathfinder" aria-pressed="{{#if brahmins.pathfinder}}true{{else}}false{{/if}}" title="У когось із персонажів є перк «Першопроходець»: бонус зростає до половини"><i class="fa-solid {{#if brahmins.pathfinder}}fa-square-check{{else}}fa-square{{/if}}"></i> Першопроходець</button></span>{{else}}<b>−{{brahmins.share}} {{#if brahmins.range}}запасу ходу{{else}}часу{{/if}}</b>{{/if}}</div>{{/if}}</div>
       </div>
     </div>
 
@@ -128,6 +128,7 @@
       <div class="pust-item-head">
         <b>{{name}}</b>
         {{#if sub}}<small class="pust-sub">{{sub}}</small>{{/if}}
+        {{#if (eq id "turret")}}{{#if @root.turret}}<span class="pust-turret">{{#if @root.editable}}<button type="button" class="pust-turret-dice {{@root.turret.tcls}}" data-action="turretRoll" title="Кинути шкоду турелі в чат"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{@root.turret.diceText}}</button>{{else}}<span class="pust-turret-dice {{@root.turret.tcls}}">{{@root.turret.diceText}}</span>{{/if}}<span class="pust-turret-type {{@root.turret.tcls}}">{{@root.turret.typeLabel}}</span>{{#if @root.editable}}<button type="button" class="pust-turret-hit" data-action="turretHit" title="Вистрілити з турелі по цілях: броня й стійкості кожного враховуються"><i class="fa-solid fa-crosshairs"></i><span>Завдати цілям</span></button>{{/if}}</span>{{/if}}{{/if}}
         <span class="pust-imp-ctrl">
           {{#if supPips}}<span class="pust-pips">{{#each supPips}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="sup" data-i="{{k}}"></button>{{/each}}</span>{{/if}}
           {{#each btns}}<button type="button" class="rbtn {{#if on}}on{{/if}}" data-action="cact" data-act="imp" data-id="{{../id}}" data-k="{{k}}" {{#if ../locked}}disabled{{/if}}></button>{{/each}}
@@ -214,25 +215,35 @@
 
   {{!-- ===== Налаштування: Захист (Foundry only, author 2026-11-14; like the character sheet's «Ручні надбавки» + «Захист вручну») ===== --}}
   {{#if (eq tab 'settings')}}
-    <div class="pust-settings">
+    {{!-- two blocks side by side, as the character sheet's «Ручні надбавки» / «Захист вручну» (author, 2026-11-15) --}}
+    <div class="pust-car-reset"><button type="button" data-action="cact" data-act="def-reset" data-confirm="1" title="Прибрати обидві надбавки й повернути захист до звичайного (натисніть двічі)"><i class="fa-solid fa-rotate-left"></i> Повернути все до стандартних значень</button></div>
+    <div class="pust-cols pust-settings pust-car-settings">
       <section class="pust-block">
-        <h3><i class="fa-solid fa-shield-halved"></i> Захист{{#if v.settings.set}} <small class="pust-fold-n">надбавок: {{v.settings.set}}</small>{{/if}}{{#if v.settings.defSet}} <small class="pust-fold-n">змінено: {{v.settings.defSet}}</small>{{/if}}</h3>
-        <div class="pust-defhead"><button type="button" data-action="cact" data-act="def-reset" data-confirm="1" title="Прибрати обидві надбавки й повернути захист до звичайного (натисніть двічі)"><i class="fa-solid fa-rotate-left"></i> Повернути все до стандартних значень</button></div>
+        <h3><i class="fa-solid fa-screwdriver-wrench"></i> Надбавки{{#if v.settings.set}} <small class="pust-fold-n">задано: {{v.settings.set}}</small>{{/if}}</h3>
         <div class="pust-ovgrid">
           {{#each v.settings.bonuses}}
           <div class="pust-ovrow">
             <span>{{n}}</span>
             <span class="pust-ovstep">
               <button type="button" data-action="cact" data-act="step" data-step="{{k}}" data-d="-1" title="Мінус 1">−</button>
-              <input type="text" class="pust-screen" data-k="{{k}}" value="{{val}}" placeholder="—" aria-label="{{n}}" title="Ціле число, може бути від'ємним; порожньо — без надбавки (за правилами {{base}})">
+              <input type="text" class="pust-screen" data-k="{{k}}" value="{{val}}" placeholder="—" aria-label="{{n}}" title="{{#if tip}}{{tip}}{{else}}Ціле число, може бути від'ємним; порожньо — без надбавки (за правилами {{base}}){{/if}}">
               <button type="button" data-action="cact" data-act="step" data-step="{{k}}" data-d="1" title="Плюс 1">+</button>
             </span>
             {{#if val}}<button type="button" class="pust-ovreset" data-action="cact" data-act="ov-reset" data-k="{{k}}" data-confirm="1" title="Скинути до стандартного значення"><i class="fa-solid fa-rotate-left"></i></button>{{else}}<span></span>{{/if}}
           </div>
           {{/each}}
         </div>
-        <p class="pust-sub pust-set-hint">Порожньо — за правилами. Максимум ОЗ і броня каравану не редагуються напряму: надбавка (можна від'ємну) додається до того, що порахував аркуш за транспортом і покращеннями. Тип броні — завжди фізична.</p>
-        <h4>Захист за типами шкоди</h4>
+        <p class="pust-sub pust-set-hint">Порожньо — за правилами. Максимум ОЗ і броня каравану не редагуються напряму: надбавка (можна від'ємну) додається до того, що порахував аркуш за транспортом і покращеннями.</p>
+        {{#if turret}}
+        <h4><i class="fa-solid fa-crosshairs"></i> Турель</h4>
+        <div class="pust-turretset">
+          <label><span>Шкода</span><input type="text" class="pust-screen" data-tf="dice" value="{{turret.dice}}" placeholder="2d6" aria-label="Шкода турелі" title="Кістки шкоди турелі, напр. 2d6, 3d6+2; за правилами 2d6 (важка зброя)"></label>
+          <label><span>Тип</span><select data-tf="type" aria-label="Тип шкоди турелі">{{#each turret.typeOpts}}<option value="{{k}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
+        </div>
+        {{/if}}
+      </section>
+      <section class="pust-block pust-setstack-like">
+        <h3><i class="fa-solid fa-shield-halved"></i> Захист{{#if v.settings.defSet}} <small class="pust-fold-n">змінено: {{v.settings.defSet}}</small>{{/if}}</h3>
         <div class="pust-defgrid">
           {{#each v.settings.defTypes}}<label class="pust-defrow"><span>{{n}}</span><select data-k="defOv.{{k}}">{{#each options}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>{{/each}}
         </div>

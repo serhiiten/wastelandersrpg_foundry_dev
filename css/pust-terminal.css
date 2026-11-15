@@ -519,3 +519,5 @@
 #pust-mapdock button.pust-md-bhit:hover:not(:disabled) { border-color: #ff6a4f; box-shadow: 0 0 6px rgba(255,106,79,.4); }
 #pust-mapdock button.pust-md-bheal { background: linear-gradient(180deg, #2f6b35, #1f4a24); color: #e7ffd9; border-color: #3dff47; }
 .pust-chat.pust-round p { margin: 4px 0 0; }
+/* the terminal's narrowest width (author, 2026-11-15): below it the «Складність» / «Тип події» switches run out of their rows */
+.application.pust-terminal-app { min-width: 620px; }

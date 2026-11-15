@@ -11,6 +11,7 @@
  */
 import { ASPECTS, COMPANY, QUICK_START, REPUTATIONS } from "./caravan.mjs";
 import { blankDefOv } from "./caravan-defence.mjs";
+import { refillPlan, repairPlan } from "./caravan-range.mjs";
 
 const int = (v, def = 0) => {
   const n = parseInt(v, 10);
@@ -55,6 +56,7 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         return true;
       }
       case "armorBonus": s.armorBonus = int(v); return true;
+      case "psiArmor": s.psiArmor = Math.max(0, int(v)); return true;
       case "hpCurrent": s.hpCurrent = int(v); L.clampAfter(); return true;
     }
     // rows: counters.N.name / counters.N.size, cargo.N.<field>, customImps.N.<name|desc>
@@ -103,6 +105,7 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         const p = L.derived();
         if (data.k === "hpBonus") s.hpBonus = 0;
         else if (data.k === "armorBonus") s.armorBonus = 0;
+        else if (data.k === "psiArmor") s.psiArmor = 0;
         else return false;
         L.clampAfter(p);
         return true;
@@ -111,9 +114,10 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         const p = L.derived();
         s.hpBonus = 0;
         s.armorBonus = 0;
+        s.psiArmor = 0;
         s.defOv = blankDefOv();
         L.clampAfter(p);
-        toast("Усе повернуто до стандартних значень: без надбавок, захист звичайний");
+        toast("Усе повернуто до стандартних значень: без надбавок, захист за правилами");
         return true;
       }
       case "veh": {
@@ -131,6 +135,7 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         if (data.step === "hpCurrent") { s.hpCurrent += dd; L.clampAfter(); }
         if (data.step === "hpBonus") { const p = L.derived(); s.hpBonus = int(s.hpBonus) + dd; L.clampAfter(p); }
         if (data.step === "armorBonus") s.armorBonus = int(s.armorBonus) + dd;
+        if (data.step === "psiArmor") s.psiArmor = Math.max(0, int(s.psiArmor) + dd);
         if (data.step === "budget") { s.budget = Math.max(0, s.budget + dd); s.manual.budget = true; }
         return true;
       }
@@ -191,6 +196,33 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         s.manual.karma = false;
         const r = L.rollKarma();
         toast(`Карма: d6 = ${r} → ${s.karmaAspect} (${signed(s.karma)})`);
+        return true;
+      }
+      // Foundry only (author, 2026-11-15): «Поповнити за N(к)» — range bought with the budget's caps (caravan-range.mjs)
+      case "refill": {
+        const lack = L.derived().maxMove - s.moveCurrent;
+        if (lack <= 0) { toast("Запас ходу вже повний"); return true; }
+        const r = refillPlan(lack, s.budget);
+        if (!r.units) { toast("У бюджеті немає кришок"); return true; }
+        s.moveCurrent += r.units;
+        s.budget -= r.cost;
+        toast(`Запас ходу +${r.units} за ${r.cost}(к)${r.units < lack ? ": на більше кришок не вистачило" : ""}`);
+        return true;
+      }
+      // Foundry only (author, 2026-11-15): «Відремонтувати за N(к)» — HP repaired with the budget's caps, 5 HP a cap
+      case "repair": {
+        const dmg = L.derived().maxHP - s.hpCurrent;
+        if (dmg <= 0) { toast("Караван цілий"); return true; }
+        const r = repairPlan(dmg, s.budget);
+        if (!r.units) { toast("У бюджеті немає кришок"); return true; }
+        s.hpCurrent += r.units;
+        s.budget -= r.cost;
+        toast(`Відремонтовано ${r.units} ОЗ за ${r.cost}(к)${r.units < dmg ? ": на більше кришок не вистачило" : ""}`);
+        return true;
+      }
+      // Foundry only: the caravan moved on the map and spent its range (module/canvas/caravan-move.mjs)
+      case "spendRange": {
+        s.moveCurrent = Math.max(0, s.moveCurrent - Math.max(0, int(data.n)));
         return true;
       }
       case "rollBudget": {

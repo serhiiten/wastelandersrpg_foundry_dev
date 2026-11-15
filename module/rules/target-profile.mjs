@@ -11,6 +11,7 @@
  */
 import { compute } from "./core.mjs";
 import { profileOf as enemyProfile } from "./enemy-model.mjs";
+import { caravanDefAuto, caravanDefences } from "./caravan-defence.mjs";
 import { logicFor, readState } from "../applications/character-actions.mjs";
 
 const int = (v, d = 0) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? n : d; };
@@ -59,9 +60,10 @@ export function targetProfile(actor) {
  * (`defOv`: half / immune by type, author 2026-11-14), and a «Тачка» doesn't feel psychic damage, poisons or radiation
  */
 export function caravanProfile(sys = {}) {
-  const prof = { armor: Math.max(0, int(sys.armor)), psyArmor: 0, phys: "normal", energy: "normal", fire: "normal", rad: "normal", poison: "normal", psy: "normal" };
-  if (sys.vehicle === "tachka") Object.assign(prof, { psy: "immune", poison: "immune", rad: "immune" });
-  const ov = sys.defOv || {};
-  for (const k of RES) prof[k] = combineDefence(prof[k], ov[k]);
-  return prof;
+  // the rules' defences (author, 2026-11-15: «Тачка» immune to psychic / poisons / radiation, «Свинцева обшивка» ½ radiation),
+  // each replaced by a value set in «Налаштування → Захист» (caravan-defence.mjs)
+  const lead = (int(sys.imp?.lead ?? sys.rules?.S?.imp?.lead) || 0) > 0;
+  const def = caravanDefences(caravanDefAuto({ tachka: sys.vehicle === "tachka", lead }), sys.defOv);
+  // psychic armour set in «Надбавки» (author, 2026-11-15)
+  return { armor: Math.max(0, int(sys.armor)), psyArmor: Math.max(0, int(sys.psiArmor)), ...Object.fromEntries(RES.map((k) => [k, def[k] || "normal"])) };
 }
