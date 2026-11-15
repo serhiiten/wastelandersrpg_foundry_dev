@@ -600,3 +600,12 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
 .pust-en .pust-en-mvt ul.pust-en-mvlist { margin: 4px 0 0; padding: 0 0 0 18px; list-style: disc; display: flex; flex-direction: column; gap: 3px; }
 .pust-en .pust-en-mvt ul.pust-en-mvlist > li { margin: 0; padding: 0; line-height: 1.35; }
 .pust-en .pust-en-mvt ul.pust-en-mvlist > li::marker { color: var(--pu-rust-1, #c06a35); }
+
+/* a player's «Витратити ЖД» / «Отримати ЖД» in chat (author, 2026-11-15; map-dock.mjs stepFd): one line, the Fate gold */
+.chat-message .pust-chat.pust-fdcard { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px; border: 1px solid #6e5608;
+  background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 14px; }
+.chat-message .pust-chat.pust-fdcard.gain { background: linear-gradient(180deg, #4b8a3f, #2f6b35); border-color: #1f4a1a; color: #e7ffd9; }
+.chat-message .pust-chat.pust-fdcard > span:not(.pust-fdcard-n) { flex: 1 1 auto; }
+.chat-message .pust-chat.pust-fdcard b { color: inherit; font-weight: 800; }
+.chat-message .pust-chat.pust-fdcard .pust-fdcard-n { flex: none; min-width: 26px; padding: 0 6px; border-radius: 3px; background: #241a0c; color: #f4d11a; font-family: "PT Mono", monospace; font-size: 16px; line-height: 24px; text-align: center; }
+.chat-message .pust-chat.pust-fdcard.pust-supcard.spend { background: linear-gradient(180deg, #b0582a, #8a3f1a); border-color: #5a2a10; color: #fbe9d6; }

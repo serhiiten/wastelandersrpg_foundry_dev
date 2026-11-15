@@ -133,9 +133,13 @@ export class WeaponData extends foundry.abstract.TypeDataModel {
         initial: "",
         choices: ["", "light", "medium", "heavy"],
       }),
-      // Weapon mods («Guns. Lots of Guns»): name and whether it is installed
+      // Weapon mods («Guns. Lots of Guns»): an aspect each (author, 2026-11-15) — name, its free invokes (null: not set,
+      // the rules give 1 / 2), «крит» (2 a session); `used` = no invokes left (the HTML sheet's «used this session»)
       mods: new fields.ArrayField(
-        new fields.SchemaField({ name: new fields.StringField(), used: new fields.BooleanField({ initial: false }) }),
+        new fields.SchemaField({
+          name: new fields.StringField(), used: new fields.BooleanField({ initial: false }),
+          invoked: new fields.NumberField({ initial: null, nullable: true, integer: true, min: 0 }), crit: new fields.BooleanField({ initial: false }),
+        }),
       ),
     };
   }

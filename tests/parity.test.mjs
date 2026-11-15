@@ -110,7 +110,10 @@ const SAME = {
   // the same field under a template loop: loot.yao / loot.egg; weapon and armor mods
   "k:loot.N": "k:loot.yao",
   "k:N.N.mods.N.n": "k:armor.N.mods.N.n",
-  "k:N.N.mods.N.u": "k:armor.N.mods.N.u",
+  // a mod's «used this session» is its free invokes now (mods are aspects; author, 2026-11-15): −/+ and «крит»
+  "k:N.N.mods.N.u": "act:mod-inv",
+  // «гостра» is a word of the weapon's note in Foundry (prices.mjs syncSharpNotes; author, 2026-11-15)
+  "k:weapons.N.sharp": "k:weapons.N.note",
 };
 const SKIP = {
   "act:pdf": "PDF не потрібен у Foundry (рішення автора)",

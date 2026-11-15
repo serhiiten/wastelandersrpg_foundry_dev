@@ -375,3 +375,12 @@
 .chat-message .pust-chat .pust-cpool .rverd > .rtot, .chat-message .pust-chat .pust-cfate .rverd > .rtot { font-size: 22px; }
 /* roll cards (fate, dice): an icon in the header */
 .chat-message .pust-chat.pust-croll > h4 > i { margin-right: 3px; font-size: 11.5px; }
+
+/* «Отрута на зброї» and the gas grenade's poison (author, 2026-11-15): framed and tinted in the poison chip's green, so
+   they stand out */
+.pust-roller .rgrp.rpois { padding: 6px 8px 7px; border: 2px solid #3f7d33; border-radius: 4px; background: color-mix(in srgb, #7cc263 22%, var(--pu-paper, #d9cfb2)); }
+.pust-roller .rgrp.rpois > label { color: #1f4a1a; }
+.pust-roller .rgrp.rpois > select { border-color: #3f7d33; }
+.pust-roller .rgrp.rpois > .rintro { color: #2c4a26; }
+.pust-roller .rdmg .rgrp.rpois { background: #17311a; border-color: #3f7d33; }
+.pust-roller .rdmg .rgrp.rpois > label { color: #7cc263; }

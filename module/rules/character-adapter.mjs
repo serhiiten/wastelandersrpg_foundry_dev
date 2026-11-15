@@ -164,7 +164,7 @@ items.push({ type: "species", name: spOf(st).n, system: {}, sort: 0 });
       range: w.r || "",
       fireRate: w.rof || "",
       weaponClass: w.cls || "",
-      mods: (w.mods || []).map((m) => ({ name: m.n || "", used: !!m.u })),
+      mods: (w.mods || []).map((m) => ({ name: m.n || "", used: !!m.u, invoked: m.inv == null ? null : int(m.inv), crit: !!m.crit })),
     }, clone(w)),
   );
   st.armor.forEach((a) =>
@@ -247,7 +247,14 @@ export function actorToState(actor, { portrait = null, withIds = false } = {}) {
       if (sys.range || "r" in e) w.r = sys.range || "";
       if (sys.fireRate || "rof" in e) w.rof = sys.fireRate || "";
       if (sys.weaponClass || "cls" in e) w.cls = sys.weaponClass || "";
-      if ((sys.mods || []).length || "mods" in e) w.mods = (sys.mods || []).map((m) => ({ n: m.name || "", u: !!m.used }));
+      if ((sys.mods || []).length || "mods" in e) {
+        w.mods = (sys.mods || []).map((m) => {
+          const x = { n: m.name || "", u: !!m.used };
+          if (m.invoked != null) x.inv = int(m.invoked); // mods as aspects (author, 2026-11-15)
+          if (m.crit) x.crit = true;
+          return x;
+        });
+      }
       st.weapons.push(w);
     } else if (it.type === "armor") {
       // the file's own text («2 пси», "") when it means the same protection

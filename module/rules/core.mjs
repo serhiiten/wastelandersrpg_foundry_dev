@@ -742,7 +742,8 @@ const GUN_MOD_D = [
 ];
 function gunsOn(s){ s=s||(typeof st!=='undefined'?st:null); return !!(s && s.set && s.set.guns); }
 function gunsNorm(s){
-  [...(s.weapons||[]), ...(s.armor||[])].forEach(x=>{ if(x.claw||x.auto==='psi') return; if(!Array.isArray(x.mods)) x.mods=[]; x.mods=x.mods.slice(0,GUN_MOD_MAX).map(m=>({n:String((m&&m.n)||''), u:!!(m&&m.u)})); while(x.mods.length<GUN_MOD_MAX) x.mods.push({n:'',u:false}); });
+  (s.weapons||[]).forEach(w=>{ if(w && !w.cls && !w.claw && w.auto!=='psi' && w.auto!=='builtin'){ const m=String(w.n||'').trim().toLowerCase().match(/^(легк|середн|важк|рідкісн)\S*\s.*зброя/); if(m) w.cls=m[1]==='легк'?'light':m[1]==='середн'?'medium':'heavy'; } });
+  [...(s.weapons||[]), ...(s.armor||[])].forEach(x=>{ if(x.claw||x.auto==='psi') return; if(!Array.isArray(x.mods)) x.mods=[]; x.mods=x.mods.slice(0,GUN_MOD_MAX).map(m=>{ const crit=!!(m&&m.crit); const iv=m&&m.inv!=null?parseInt(m.inv,10):NaN; const inv=!isNaN(iv)?Math.max(0,iv):(m&&m.u?0:(crit?2:1)); return {n:String((m&&m.n)||''), u:inv<=0, inv, crit}; }); while(x.mods.length<GUN_MOD_MAX) x.mods.push({n:'',u:false,inv:1,crit:false}); });
 }
 const modList = x => (x.mods||[]).filter(m=>m && String(m.n||'').trim());
 /* Клас зброї: явний у доповненні, інакше — з галочки «важка» */

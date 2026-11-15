@@ -305,7 +305,7 @@ export function buildView(st, d, L, ui = {}) {
     kind: weaponKind(w),
     guns: gunsOn(st), r: w.r || "", rof: w.rof || "", cls: w.cls || "",
     rangeOptions: opts(GUN_RANGE, w.r), rofOptions: opts(GUN_ROF, w.rof), clsOptions: opts(GUN_CLS, w.cls),
-    mods: (w.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })), sharp: !!w.sharp,
+    mods: (w.mods || []).map((m, j) => ({ j, n: m.n || "", inv: m.inv || 0, crit: !!m.crit, set: !!String(m.n || "").trim() })), sharp: !!w.sharp,
     builtin: w.auto === "builtin"
       ? Object.entries(BUILTIN_CAT).map(([v, c]) => ({ v, n: `${c.n} (${c.d})`, sel: (w.cat || "medium") === v }))
       : null,
@@ -316,7 +316,7 @@ export function buildView(st, d, L, ui = {}) {
     : null;
   const armor = st.armor.map((a, i) => ({
     i, n: a.n || "", v: a.v ?? "", h: !!a.h, w: a.w !== false, note: a.note || "", price: a.price || "",
-    guns: gunsOn(st), mods: (a.mods || []).map((m, j) => ({ j, n: m.n || "", u: !!m.u })),
+    guns: gunsOn(st), mods: (a.mods || []).map((m, j) => ({ j, n: m.n || "", inv: m.inv || 0, crit: !!m.crit, set: !!String(m.n || "").trim() })),
     kind: /силов/i.test(a.n || "") ? "power-armor" : /важк/i.test(`${a.n} ${a.note}`) || a.h ? "heavy-armor" : "armor",
   }));
   const consL = String(st.cons?.l || "").trim();

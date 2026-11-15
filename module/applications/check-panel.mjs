@@ -8,6 +8,7 @@
 import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
+import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { sendDamage } from "./apply-damage.mjs";
@@ -264,6 +265,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // a plain copy of what the handlers read from the element
     const node = { tagName: el.tagName, dataset: { ...el.dataset }, value: el.value, checked: el.checked };
     let out;
+    const fdWas = fateSnap(this.actor); // an aspect invoked with a Fate token posts a card (author, 2026-11-15)
+    const supWas = supSnap(this.actor); // a Припас spent by a check («Автоматний псих»…) too
     await runAction(this.actor, (st, L) => {
       const R = this.#load(L);
       // the damage as it stands (to post the new result when an option changes it: Психо, effect, crit…)
@@ -279,6 +282,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       out = { before, R: clone(L.R), dmgTotal: R.last?.dmg ? L.dmgTotal(R.last, compute(st)) : null, dmgType, dmgFx, dmgChoice, verdicts: L.VERDICTS, types: L.CHECK_TYPES,
         dmgChanged: !!(before.dmg && after && before.dmg !== after && before.last?.dmg?.time === R.last.dmg.time) };
     });
+    await postFateIfChanged(this.actor, fdWas);
+    await postSupIfChanged(this.actor, supWas);
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
     this.render();
     if (kind === "click" && CHAT_ON.has(key)) await this.#post(key, out);
