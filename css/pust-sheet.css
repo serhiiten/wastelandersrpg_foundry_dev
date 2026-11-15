@@ -943,6 +943,11 @@
   font-family: var(--pu-f-num); font-weight: 700; font-size: 17px !important; text-align: center; background: var(--pu-steel-0) !important; color: #b6ffb9 !important; }
 .pust-caravan .pust-veh { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
 .pust-caravan .pust-vrow > .pust-veh > .pust-hlab { flex: none; margin: 0; }
+/* «Транспорт» (author, 2026-11-15): both buttons one width, each with its HTML-sheet icon (a cow's head, a car) */
+.pust-caravan .pust-veh > .pust-seg { display: inline-grid; grid-template-columns: 1fr 1fr; }
+.wastelanders .pust-caravan .pust-veh > .pust-seg > button:not(.header-control) { width: 96px !important; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 0 8px !important; }
+.pust-caravan .pust-veh .veh-ico { flex: none; width: 17px; height: 17px; }
+.pust-caravan .pust-veh > .pust-seg > button.on .veh-ico { filter: drop-shadow(0 1px 0 rgba(255,255,255,.35)); }
 
 /* quick panel: row 1 — «ОЗ і броня» | «бюджет, карма, Припаси»; row 2 — «Запас ходу», the whole width */
 .pust-caravan .pust-quickbar .pust-qgrid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) !important; grid-template-areas: "life goods" "move move" !important; grid-template-rows: auto auto; }

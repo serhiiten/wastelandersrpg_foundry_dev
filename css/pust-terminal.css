@@ -289,6 +289,45 @@
 #pust-mapdock .pust-md-out > small.pust-md-what { margin-left: auto; color: #6fae76; overflow: hidden; text-overflow: ellipsis; }
 #pust-mapdock button.pust-md-fate { flex: none; width: 92px; background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border-color: #6e5608; }
 #pust-mapdock button.pust-md-fate:hover { color: #000; border-color: #f4d11a; }
+/* the GM's Кістка Долі list under «Доля» (author, 2026-11-15; map-dock.mjs toggleFatePick): opaque, the dice panel's screen */
+.pust-fatepick { position: fixed; z-index: calc(var(--z-index-window, 100) + 5); width: 290px; max-height: calc(100vh - 16px); display: flex; flex-direction: column;
+  border: 2px solid #111; border-radius: 6px; overflow: hidden; color: #c9f5cc; box-shadow: 0 6px 18px rgba(0,0,0,.6);
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 1px, transparent 1px 4px), linear-gradient(180deg, #2f3433, #232726 60%, #1b1e1d);
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; }
+.pust-fatepick > header { flex: none; display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 4px 0 8px;
+  background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.pust-fatepick > header > span { flex: 1 1 auto; }
+.pust-fatepick button { margin: 0; font-family: inherit; cursor: pointer; }
+.pust-fatepick > header > .pust-fp-x { flex: none; width: 22px; height: 20px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.15); border: 1px solid rgba(0,0,0,.35); border-radius: 3px; color: #241a0c; box-shadow: none; }
+.pust-fatepick > header > .pust-fp-x:hover { background: rgba(0,0,0,.3); }
+/* one list for both groups, scrolling inside: at most ~8 rows tall, less when the screen is short (maxHeight from JS) */
+.pust-fatepick > .pust-fp-list { flex: 0 1 auto; min-height: 0; max-height: 300px; overflow-y: auto; overscroll-behavior: contain; padding: 0 6px 2px; scrollbar-width: thin; }
+.pust-fatepick h5 { margin: 0; padding: 7px 4px 3px; border: 0; color: #8fcf95; font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.pust-fatepick .pust-fp-list > ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.pust-fatepick .pust-fp-row { display: flex; align-items: center; gap: 6px; margin: 0; padding: 0 4px; height: 30px; border-radius: 4px; background: rgba(0,0,0,.25); }
+.pust-fatepick .pust-fp-row > input { flex: none; width: 16px; height: 16px; margin: 0; accent-color: #3dff47; cursor: pointer; }
+.pust-fatepick .pust-fp-name { flex: 1 1 auto; min-width: 0; height: 26px; padding: 0 6px; display: flex; align-items: center; justify-content: flex-start; gap: 6px; text-align: left;
+  background: none; border: 1px solid transparent; border-radius: 3px; box-shadow: none; color: #e7ffd9; font-weight: 700; font-size: 13px; white-space: nowrap; }
+.pust-fatepick .pust-fp-name:hover { border-color: #3dff47; background: rgba(61,255,71,.08); color: #fff; }
+.pust-fatepick .pust-fp-name > span:not(.pust-fp-dot) { overflow: hidden; text-overflow: ellipsis; }
+.pust-fatepick .pust-fp-name > small { flex: none; margin-left: auto; color: #8fcf95; font-weight: 400; font-size: 11px; }
+.pust-fatepick .pust-fp-name > i { flex: none; width: 14px; text-align: center; color: #e2ad3b; font-size: 12px; }
+/* the online dot sits on the person icon's corner */
+.pust-fatepick .pust-fp-name > i.fa-user + .pust-fp-dot { margin-left: -9px; align-self: flex-end; margin-bottom: 4px; width: 7px; height: 7px; border: 1px solid #1b1e1d; }
+.pust-fatepick .pust-fp-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #5d6461; }
+.pust-fatepick .pust-fp-dot.on { background: #3dff47; box-shadow: 0 0 5px rgba(61,255,71,.7); }
+.pust-fatepick .pust-fp-mod { flex: none; min-width: 30px; text-align: center; padding: 2px 4px; border-radius: 3px; background: #0f1412; color: #3dff47; font-family: "PT Mono", monospace; font-size: 13px; }
+.pust-fatepick > footer { flex: none; display: flex; gap: 6px; padding: 8px 6px 6px; }
+.pust-fatepick > footer > button { flex: 1 1 0; height: 30px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 4px; font-weight: 800; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; box-shadow: none; }
+.pust-fatepick .pust-fp-all { background: linear-gradient(180deg, #3a403e, #2a2e2d); color: #c9f5cc; border: 1px solid #0d0f0e; }
+.pust-fatepick .pust-fp-all:hover { border-color: #3dff47; color: #fff; }
+.pust-fatepick .pust-fp-go { background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border: 1px solid #6e5608; }
+.pust-fatepick .pust-fp-go:hover:not(:disabled) { border-color: #f4d11a; filter: brightness(1.08); }
+.pust-fatepick .pust-fp-go:disabled { opacity: .45; cursor: default; }
+.pust-fatepick > .pust-fp-empty { margin: 0; padding: 10px; font-family: inherit; font-size: 13px; line-height: 1.35; color: #c9f5cc; }
 /* folded: only the header, as a small button; a click on it opens the panel */
 /* both folded panels are the same small button (author, 2026-11-14) */
 #pust-mapdock .pust-md-unit.folded { width: 168px; }
@@ -307,6 +346,9 @@
 /* «Зробити перевірку» (players, author 2026-11-14): over «Лічильники + Кістки», opaque, the full width of the unit;
    looks as on the character sheet (pust-ui.css .pust-check-btn): rust plate, yellow capitals, a dark step under it */
 #pust-mapdock .pust-md-prow { display: flex; gap: 6px; margin: 0 0 3px; }
+/* «Обрати цілі» / «Зняти цілі» (players, author 2026-11-15): one row under «Зробити перевірку», battle maps only */
+#pust-mapdock .pust-md-trow { position: absolute; display: flex; gap: 6px; margin: 0; pointer-events: auto; } /* placed by map-dock.mjs placeTargets */
+#pust-mapdock .pust-md-trow[hidden] { display: none; }
 #pust-mapdock button.pust-md-check { flex: 1 1 auto; min-width: 0; height: 44px; margin: 0; padding: 0 16px; opacity: 1; gap: 8px;
   background: var(--pu-rust-2) var(--pu-noise); color: var(--pu-yellow); border: 1.5px solid var(--pu-rust-0); border-radius: 3px;
   box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 1px 0 rgba(255,225,190,.35);
@@ -318,7 +360,8 @@
 #pust-mapdock button.pust-md-check:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--pu-rust-0); }
 #pust-mapdock button.pust-md-check.on { filter: brightness(1.15); box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 0 0 1px var(--pu-yellow); }
 /* «Зняти цілі» (players, author 2026-11-15): next to it, the same height, steel; dim while there are no targets */
-#pust-mapdock button.pust-md-untarget { flex: none; width: 84px; height: 44px; margin: 0; padding: 2px 6px; opacity: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+#pust-mapdock .pust-md-trow > button { flex: 1 1 0; min-width: 0; }
+#pust-mapdock button.pust-md-untarget, #pust-mapdock button.pust-md-target { height: 34px; margin: 0; padding: 0 6px; white-space: nowrap; opacity: 1; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 7px;
   background: linear-gradient(180deg, #5a554c, #3a362f); color: #f1e6c8; border: 1.5px solid #1e1b17; border-radius: 3px; box-shadow: 0 3px 0 #1e1b17;
   font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 700; font-size: 12px; line-height: 1.05; letter-spacing: .03em; text-transform: uppercase; }
 /* the icon: a target crossed out by an X */
@@ -327,8 +370,13 @@
 #pust-mapdock .pust-untgt-ico > .fa-xmark { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: auto; line-height: 1; font-size: 19px; color: #ff6a4f; text-shadow: 0 0 2px #1e1b17, 0 0 2px #1e1b17; }
 #pust-mapdock button.pust-md-untarget:hover:not(:disabled) { filter: brightness(1.15); border-color: #ff8a6a; }
 #pust-mapdock button.pust-md-untarget:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #1e1b17; }
-#pust-mapdock button.pust-md-untarget:disabled { background: linear-gradient(180deg, #4a453d, #34302a); color: #b9b09a; cursor: default; }
-#pust-mapdock button.pust-md-untarget:disabled .pust-untgt-ico > i { color: #9a9282; }
+#pust-mapdock button.pust-md-untarget:disabled { opacity: .45; cursor: default; }
+#pust-mapdock button.pust-md-target > i { font-size: 15px; color: #f1e6c8; }
+#pust-mapdock button.pust-md-target:hover { filter: brightness(1.15); border-color: #8fd18a; }
+#pust-mapdock button.pust-md-target:active { transform: translateY(2px); box-shadow: 0 1px 0 #1e1b17; }
+/* pressed: Foundry's targeting tool is on */
+#pust-mapdock button.pust-md-target.on { background: linear-gradient(180deg, #3f6b3a, #2b4a27); border-color: #8fd18a; box-shadow: 0 3px 0 #1e1b17, inset 0 0 0 1px #8fd18a; }
+#pust-mapdock button.pust-md-target.on > i { color: #c9f5c2; }
 /* its panel, next to the unit: no window frame, a header of the dock's kind (check-panel.mjs DockedCheckPanel) */
 .pust-check-docked { position: fixed; z-index: var(--z-index-window, 100); display: flex; flex-direction: column; min-width: 460px; padding: 0; border: 2px solid #111; border-radius: 6px;
   overflow: hidden; background: var(--pu-paper, #d9cfb2); box-shadow: 0 8px 26px rgba(0,0,0,.6); }

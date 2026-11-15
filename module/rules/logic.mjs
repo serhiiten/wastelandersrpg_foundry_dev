@@ -911,7 +911,7 @@ function rollerChange(t){ if(!t || !t.dataset || !t.dataset.r) return;
   else if(k==='am'){ R.am=R.am||{}; R.am[t.dataset.k]=t.checked; }
   else if(k==='party') R.party=+t.value;
   else if(k==='dmgw'){ R.dmgKey=t.value; R.dmgUser=true; if(R.last) R.last.dmg=null; }
-  else if(k==='dopt'){ R.dmgOpt[t.dataset.k]=t.checked; if(R.last && R.last.dmg){ if(t.dataset.k==='auto'||t.dataset.k==='dual') R.last.dmg=null; else logDamage(R.last, compute(st)); } }
+  else if(k==='dopt'){ R.dmgOpt[t.dataset.k]=t.checked; if(t.checked && (t.dataset.k==='norm2'||t.dataset.k==='crit') && R.last && R.last.verdict===3 && !compute(st).allPerks.includes('Покращені критичні удари')) R.dmgOpt[t.dataset.k==='norm2'?'crit':'norm2']=false; if(R.last && R.last.dmg){ if(t.dataset.k==='auto'||t.dataset.k==='dual') R.last.dmg=null; else logDamage(R.last, compute(st)); } }
   renderRoller();
 }
 
@@ -990,6 +990,7 @@ function dmgChoicesFor(d, skill){
 function dmgChoices(d){
   const out=st.weapons.map((w,i)=>({key:'w'+i, name:weaponName(w)||'Зброя', d:weaponDmg(w), w}));
   st.other.forEach((o,i)=>{ const m=String(o.note||'').match(/(\d+d\d+(?:\s*[+-]\s*\d+(?:d\d+)?)*)/); if(m && /гранат|динаміт|c-4|с-4|вибух|ракет|постріл|молотов|заряд/i.test(o.n||'')) out.push({key:'o'+i, name:o.n+(String(o.q||'').trim()!==''?' ×'+String(o.q).trim():''), d:m[1].replace(/\s+/g,''), o, expl:true}); });
+  if(R.last && R.last.gone && !out.some(c=>c.key==='gone')) out.push(R.last.gone);
   if(st.species!=='claw') out.push({key:'unarmed', name:'Беззбройні атаки', d:d?unarmedDmg(d):''});
   return out;
 }
@@ -1067,11 +1068,11 @@ function doDamage(){
   const psiW=!!(c.w && c.w.auto==='psi');
   let dstr=c.d; if(R.dmgOpt.dual && !psiW && DICE_UP[dstr]) dstr=DICE_UP[dstr];
   const p=parseDmg(dstr); if(!p){ toast('Не вдалося розібрати шкоду зброї «'+c.d+'». Виправ поле «Шкода» у Мотлосі.','bad'); return; }
-  let spent='';
+  let spent=''; let dkey=c.key;
   if(c.o){ const qs=String(c.o.q==null?'':c.o.q).trim(); const q=qs===''?1:parseInt(qs,10);
-    if(!isNaN(q)){ if(q<=0){ toast('«'+c.o.n+'» не лишилося — кинути нічого.','bad'); return; } c.o.q=String(q-1); spent='Витрачено: '+c.o.n+', лишилося '+(q-1)+'.'; persist(); } }
+    if(!isNaN(q)){ if(q<=0){ toast('«'+c.o.n+'» не лишилося — кинути нічого.','bad'); return; } if(q-1<=0){ const gi=st.other.indexOf(c.o); if(gi>=0) st.other.splice(gi,1); L.gone={key:'gone', name:c.o.n+' ×0', d:c.d, o:Object.assign({}, c.o, {q:'0'}), expl:true}; dkey='gone'; R.dmgKey='gone'; spent='Витрачено: '+c.o.n+' — це була остання, рядок прибрано з мотлоху.'; } else { c.o.q=String(q-1); spent='Витрачено: '+c.o.n+', лишилося '+(q-1)+'.'; } persist(); } }
   const r1=rollDice(p); const r2 = R.dmgOpt.auto && !psiW ? rollDice(p) : null;
-  L.dmg={key:c.key, name:c.name, dstr, p, r1, r2, extra:{}, rerolled:L.dmg?L.dmg.rerolled:false, time:Date.now(), spent};
+  L.dmg={key:dkey, name:c.name, dstr, p, r1, r2, extra:{}, rerolled:L.dmg?L.dmg.rerolled:false, time:Date.now(), spent};
   L.dmgDone=true; if(spent) toast(spent);
   logDamage(L, d);
 }

@@ -447,7 +447,6 @@
   font: 800 12px/1 var(--pu-f-label, "Oswald"), "PT Sans Narrow", sans-serif !important; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; box-shadow: none !important; }
 .pust-roller button.pust-dmg-apply:hover, .wastelanders .pust-en button.pust-dmg-apply:not(.header-control):hover { background: linear-gradient(180deg, #c22e1e, #8f2116) !important; color: #fff !important; }
 .pust-roller button.pust-dmg-apply:disabled, .wastelanders .pust-en button.pust-dmg-apply:disabled { opacity: .5; cursor: default; }
-.pust-roller .rdhalf { font-family: var(--pu-f-label, "Oswald"); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #f4d11a; }
 .pust-chat.pust-dmgapply ul { margin: 4px 0 0; padding-left: 16px; }
 .pust-chat.pust-dmgapply li { margin: 2px 0; }
 .pust-chat.pust-dmgapply small { color: var(--pu-ink-3, #5a5244); }
@@ -595,3 +594,9 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
 .pust-cmove .pust-cmove-btns button[data-a="yes"] { background: #1d7d25; border-color: #3dff47; color: #eaffea; }
 .pust-cmove .pust-cmove-btns button:hover { filter: brightness(1.2); }
 .pust-cmove .pust-cmove-btns .pust-cmove-x { margin-left: auto; padding: 0 7px; color: #ff5a4a; border-color: #5a605e; }
+
+/* a move with a list of effects (author, 2026-11-15: rangers, the super soldier): the lead line, then a bulleted list */
+.pust-en .pust-en-mvt .pust-en-mvlead { display: block; }
+.pust-en .pust-en-mvt ul.pust-en-mvlist { margin: 4px 0 0; padding: 0 0 0 18px; list-style: disc; display: flex; flex-direction: column; gap: 3px; }
+.pust-en .pust-en-mvt ul.pust-en-mvlist > li { margin: 0; padding: 0; line-height: 1.35; }
+.pust-en .pust-en-mvt ul.pust-en-mvlist > li::marker { color: var(--pu-rust-1, #c06a35); }

@@ -34,6 +34,19 @@
   border-color: var(--g) !important; color: color-mix(in srgb, var(--g) 35%, #1a140c) !important;
   box-shadow: 0 2px 0 color-mix(in srgb, var(--g) 75%, #000), inset 0 1px 0 rgba(255,255,255,.5) !important; }
 .wastelanders .pust-roller .rpre > button.chipb:not(.on):hover:not(:disabled) { filter: brightness(1.05) saturate(1.15); }
+/* each button its own tone within its group (author, 2026-11-15; check-panel.mjs presetTone) */
+.pust-roller .rpre > button.chipb[data-tone="shoot"] { --g: #b0281a; }
+.pust-roller .rpre > button.chipb[data-tone="melee"] { --g: #6e2a16; }
+.pust-roller .rpre > button.chipb[data-tone="boom"]  { --g: #d0661a; }
+.pust-roller .rpre > button.chipb[data-tone="phys"]  { --g: #9a4a20; } /* the physical damage chip's rust */
+.pust-roller .rpre > button.chipb[data-tone="psy"]   { --g: #7a45b8; } /* psychic violet */
+.pust-roller .rpre > button.chipb[data-tone="tox"]   { --g: #4d8a22; } /* poison / radiation green */
+.pust-roller .rpre > button.chipb[data-tone="med"],
+.pust-roller .rpre > button.chipb[data-tone="heal"]  { --g: #2f8a45; }
+/* «Отримання наслідків»: as the «0 ОЗ» box (red stripes, light text) */
+.wastelanders .pust-roller .rpre > button.chipb[data-tone="ko"]:not(.on) {
+  background: repeating-linear-gradient(-45deg, #b3261a 0 10px, #9c1f15 10px 20px) !important; border-color: #6e130c !important;
+  color: #fff4ef !important; text-shadow: 0 1px 1px rgba(0,0,0,.5); box-shadow: 0 2px 0 #5a0f09, inset 0 1px 0 rgba(255,255,255,.25) !important; }
 .pust-roller .travelb { align-self: flex-start; }
 .pust-roller .travelb .ico, .pust-roller .ico { display: inline-flex; vertical-align: -2px; margin-right: 4px; }
 .pust-roller .ico svg { width: 14px; height: 14px; }
@@ -69,6 +82,8 @@
   text-transform: uppercase; letter-spacing: .06em; font-weight: 800 !important;
 }
 .pust-roller .rgo { height: 40px; line-height: 38px !important; font-size: 15px !important; }
+/* «Кинути шкоду» (author, 2026-11-15): taller than a plain button, a step under «Кинути перевірку» */
+.pust-roller .btn.rust[data-r="dmg"] { height: 36px; line-height: 34px !important; font-size: 14px !important; }
 
 /* the result: a screen */
 .pust-roller .rres {
@@ -341,6 +356,7 @@
 /* the total in one row with the dice */
 .pust-roller .rdmg .rdrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
 .pust-roller .rdmg .rdrow > .rdice { margin: 0; }
+.pust-roller .rdmg .rdrow > .rdapply { margin-left: auto; } /* «Завдати цілям» on the row's right, wraps only when it must */
 .pust-roller .rdmg .rdsum { flex-wrap: wrap; align-items: center; }
 .pust-chat .pust-cdmg .rdrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .pust-chat .pust-cdmg .rdrow > .rdice { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; }

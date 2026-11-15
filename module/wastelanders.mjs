@@ -3,6 +3,7 @@ import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
 import { WastelandersScene, addSceneKindField } from "./documents/scene.mjs";
 import { WastelandersToken } from "./canvas/token.mjs";
+import { WastelandersTokenRuler } from "./canvas/token-ruler.mjs";
 import { initMapNotes, readyMapNotes } from "./canvas/map-notes.mjs";
 import { initBattleZones, readyBattleZones } from "./canvas/battle-zones.mjs";
 import { initCaravanMove } from "./canvas/caravan-move.mjs";
@@ -38,6 +39,7 @@ import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
 Hooks.once("init", async function () {
   // the HP bar over a token keeps the HP colours
   CONFIG.Token.objectClass = WastelandersToken;
+  CONFIG.Token.rulerClass = WastelandersTokenRuler; // no cell counts while dragging on battle maps
   // «Примітки» of «Мапа Пустки»: stickers drawn by the system (module/canvas/map-notes.mjs)
   initMapNotes();
   initBattleZones(); // after the stickers: the zones' Drawing class extends theirs

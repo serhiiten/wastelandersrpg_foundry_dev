@@ -262,7 +262,15 @@ class Audit {
         if (A.sc !== B.sc) continue; // one scrolls under the other (a bar over a scrolling list)
         const w = Math.min(A.r.right, B.r.right) - Math.max(A.r.left, B.r.left);
         const h = Math.min(A.r.bottom, B.r.bottom) - Math.max(A.r.top, B.r.top);
-        if (w > 1.5 && h > 1.5) bad.push(`${name(A.el)} × ${name(B.el)} (${Math.round(w)}×${Math.round(h)} px)`);
+        if (!(w > 1.5 && h > 1.5)) continue;
+        // inline text that wraps (author, 2026-11-15: «Битва:» and the event after it in one paragraph): its box spans both
+        // lines, its lines don't — compared line by line
+        const lines = (el) => (cs(el).display === "inline" ? [...el.getClientRects()] : [el.getBoundingClientRect()]);
+        if (cs(A.el).display === "inline" || cs(B.el).display === "inline") {
+          const hit = lines(A.el).some((a) => lines(B.el).some((b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1.5 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1.5));
+          if (!hit) continue;
+        }
+        bad.push(`${name(A.el)} × ${name(B.el)} (${Math.round(w)}×${Math.round(h)} px)`);
       }
     }
     return this.ok(label, !bad.length, bad.slice(0, 6).join("; "));
@@ -420,9 +428,22 @@ const SCENARIOS = {
       const has = (u) => u && R(u).height > 0;
       if (isBattle && !pos.battle && side) a.ok("«Битва» праворуч, 8 px від бічної панелі", Math.abs(R(side).left - R(map).right - 8) <= 1.5, `${Math.round(R(side).left - R(map).right)} px`);
       if (!isBattle && has(map) && !pos.map && bar) a.ok("«Мапа Пустки» ліворуч, під кнопками шарів", Math.abs(R(map).left - R(bar).left) <= 1.5, `${Math.round(R(map).left)} / ${Math.round(R(bar).left)}`);
-      for (const [u, k, n] of [[ctrU, "ctr", "«Лічильники»"], [dice, "dice", "«Кістки»"]]) if (has(u) && !pos[k] && bar) a.ok(`${n} ліворуч`, Math.abs(R(u).left - R(bar).left) <= 1.5, `${Math.round(R(u).left)} / ${Math.round(R(bar).left)}`);
+      const gmUser = game.user.isGM;
+      for (const [u, k, n] of [[ctrU, "ctr", "«Лічильники»"], ...(gmUser ? [[dice, "dice", "«Кістки»"]] : [])]) if (has(u) && !pos[k] && bar) a.ok(`${n} ліворуч`, Math.abs(R(u).left - R(bar).left) <= 1.5, `${Math.round(R(u).left)} / ${Math.round(R(bar).left)}`);
+      // players' «Кістки» (author, 2026-11-15): top right, 8 px from Foundry's sidebar, level with the layer buttons
+      const sideBar = document.querySelector("#sidebar");
+      if (!gmUser && has(dice) && !pos.dice && sideBar && bar) a.ok("«Кістки» гравця праворуч, 8 px від бічної панелі", Math.abs(R(sideBar).left - R(dice).right - 8) <= 1.5 && Math.abs(R(dice).top - R(bar).top) <= 1.5, `${Math.round(R(sideBar).left - R(dice).right)} px, верх ${Math.round(R(dice).top)} / ${Math.round(R(bar).top)}`);
+      // players' «Обрати цілі» / «Зняти цілі» on a battle map: right of Foundry's buttons, not on them, not past «Зробити перевірку»
+      const trow = dock.querySelector(".pust-md-trow:not([hidden])"), chk = dock.querySelector(".pust-md-check:not([hidden])");
+      if (trow && bar) {
+        const t = R(trow);
+        const hits = [...document.querySelectorAll("#scene-controls li, #scene-navigation li")].filter((li) => { const r = R(li); return r.height && r.left < t.right && r.right > t.left && r.top < t.bottom && r.bottom > t.top; });
+        a.ok("«Обрати / Зняти цілі» не на кнопках Foundry", !hits.length, hits.map((h) => h.className).join(", "));
+        if (chk) a.ok("«Обрати / Зняти цілі» не правіше «Зробити перевірку»", t.right <= R(chk).right + 1, `${Math.round(t.right)} / ${Math.round(R(chk).right)}`);
+        a.row([...trow.querySelectorAll(":scope > button")], { equalWidth: true, label: "«Обрати цілі» / «Зняти цілі»" });
+      }
       if (!isBattle && has(map) && has(ctrU) && !pos.map && !pos.ctr && !map.classList.contains("folded")) a.ok("«Лічильники» під «Мапою Пустки», 8 px", Math.abs(R(ctrU).top - R(map).bottom - 8) <= 1.5, `${Math.round(R(ctrU).top - R(map).bottom)} px`);
-      if (has(ctrU) && has(dice) && !pos.ctr && !pos.dice) a.ok("«Кістки» під «Лічильниками», 6 px", Math.abs(R(dice).top - R(ctrU).bottom - 6) <= 1.5, `${Math.round(R(dice).top - R(ctrU).bottom)} px`);
+      if (gmUser && has(ctrU) && has(dice) && !pos.ctr && !pos.dice) a.ok("«Кістки» під «Лічильниками», 6 px", Math.abs(R(dice).top - R(ctrU).bottom - 6) <= 1.5, `${Math.round(R(dice).top - R(ctrU).bottom)} px`);
     }
     // folded panels: a 168 × 30 button each (author, 2026-11-14), «Лічильники» too now that they are a panel of their own
     for (const u of dock.querySelectorAll(".pust-md-unit.folded > .pust-md-panel:not([hidden])")) a.size(u, 168, 30, `згорнута «${u.querySelector("header span")?.innerText}»`);
