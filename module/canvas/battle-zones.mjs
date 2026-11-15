@@ -290,12 +290,20 @@ function render() {
   if (!z) return closeZoneEditor();
   const focused = document.activeElement?.closest?.(".pust-bz-edit") ? document.activeElement.className : null;
   const asp = editor.root.querySelector(".pust-bz-asp")?.value ?? "";
+  // a name being typed survives a redraw by any other change (colour, aspects…; author, 2026-11-15) unless the name
+  // itself changed meanwhile (the die, another GM)
+  const nameIn = editor.root.querySelector(".pust-bz-name");
+  const typed = nameIn && nameIn.value !== nameIn.dataset.orig && z.name === nameIn.dataset.orig ? nameIn.value : null;
   const col = COLORS[z.color];
   editor.root.style.setProperty("--fill", col.fill);
   editor.root.style.setProperty("--line", col.line);
   editor.root.innerHTML = editorHtml(z);
   editor.root.querySelector(".pust-bz-asp").value = asp;
+  const ni = editor.root.querySelector(".pust-bz-name");
+  ni.dataset.orig = z.name;
+  if (typed !== null) ni.value = typed;
   if (focused?.includes("pust-bz-asp")) editor.root.querySelector(".pust-bz-asp").focus();
+  else if (focused?.includes("pust-bz-name")) ni.focus();
   layoutEditor();
 }
 

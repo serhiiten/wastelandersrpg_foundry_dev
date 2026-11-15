@@ -2,6 +2,7 @@
 // human-readable JSON source (src/packs/).
 //   npm run packs:unpack  — after editing compendiums in Foundry (Foundry must be closed)
 //   npm run packs:pack    — after editing the JSON files
+//   npm run packs:unpack -- quickstart   — only the named packs (author, 2026-11-15: the others' sources stay as they are)
 import { compilePack, extractPack } from "@foundryvtt/foundryvtt-cli";
 import { readFileSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -16,9 +17,10 @@ const transformName = (doc, { folder } = {}) =>
     : path.join(folder ?? "", `${safe(doc)}.json`);
 
 const mode = process.argv[2];
+const only = process.argv.slice(3);
 const { packs } = JSON.parse(readFileSync("system.json", "utf8"));
 
-for (const { name } of packs) {
+for (const { name } of packs.filter((p) => !only.length || only.includes(p.name))) {
   const db = `packs/${name}`;
   const src = `src/packs/${name}`;
   if (mode === "unpack") {

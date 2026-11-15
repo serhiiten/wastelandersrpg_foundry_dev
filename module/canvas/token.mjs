@@ -243,20 +243,53 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
     cross.visible = true;
   }
 
+  /** A token hidden from the players (author, 2026-11-15): half see-through for the GM, with a crossed eye in the top
+   *  left corner (the mirror of the category badge) */
+  #refreshHidden() {
+    let eye = this.children.find((c) => c.name === "pust-hidden-eye");
+    if (!this.document.hidden) { if (eye) eye.visible = false; return; }
+    const { width, height } = this.document.getSize();
+    const s = canvas.dimensions.uiScale;
+    const r = Math.max(11 * s, Math.min(width, height) * 0.13);
+    if (!eye) {
+      eye = new PIXI.Container();
+      eye.name = "pust-hidden-eye";
+      eye.eventMode = "none";
+      this.addChild(eye);
+    }
+    if (eye._pustR !== r) {
+      eye._pustR = r;
+      eye.removeChildren().forEach((c) => c.destroy({ children: true }));
+      const bg = new PIXI.Graphics();
+      bg.beginFill(0x000000, 0.45).drawCircle(0, r * 0.08, r + 1.5 * s).endFill();
+      bg.lineStyle({ width: Math.max(1.5, 2 * s), color: 0x1e1b17, alpha: 1 });
+      bg.beginFill(0x3d4241, 1).drawCircle(0, 0, r).endFill();
+      const glyph = new PIXI.Text("", new PIXI.TextStyle({ fontFamily: "Font Awesome 7 Pro, Font Awesome 6 Pro, Font Awesome 6 Free", fontWeight: "900", fontSize: r * 0.95, fill: 0xffd84a, padding: 2 }));
+      glyph.anchor.set(0.5, 0.5);
+      eye.addChild(bg, glyph);
+    }
+    eye.position.set(r * 0.75, r * 0.75);
+    eye.visible = true;
+  }
+
   /** @override */
   _refreshSize() {
     super._refreshSize();
     this.#placeAroundBars();
     this.#refreshCross();
     this.refreshCategory();
+    this.#refreshHidden();
   }
 
   /** @override */
   _refreshState() {
     super._refreshState();
+    // a hidden token's picture is see-through; its bars, badges and the eye stay solid, so the eye reads at once
+    if (this.document.hidden && this.mesh) this.mesh.alpha = Math.min(this.mesh.alpha, 0.4);
     this.#placeAroundBars();
     this.#refreshCross();
     this.refreshCategory();
+    this.#refreshHidden();
   }
 
   /** @override — the HP change also toggles «Unconscious», which refreshes the effects for every viewer (players don't

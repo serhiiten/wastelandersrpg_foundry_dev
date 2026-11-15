@@ -82,7 +82,10 @@ class CountersPanel {
       sceneName: sc?.name ?? "",
       showScene: locals.length > 0,
       showGame: list.length > 0,
-      sizes: G.GC_SIZES.map((n) => ({ n, sel: n === (f?.size ?? 6) })),
+      sizes: [...G.GC_SIZES.map((n) => ({ n, label: n, sel: !f?.sizeCustom && n === (f?.size ?? 6) })),
+        { n: "custom", label: "Свій", sel: !!f?.sizeCustom }],
+      sizeCustom: !!f?.sizeCustom,
+      sizeMax: G.GC_SIZE_MAX,
       dies: G.LC_DIES.map(([d, label]) => ({ d, label, sel: String(d) === String(f?.die ?? 6) })),
       customDie: String(f?.die) === "custom",
       steps: G.LC_STEPS,
@@ -94,10 +97,12 @@ class CountersPanel {
       counters: list.map((c) => ({
         ...c,
         hue: G.ctHue(c.val, c.size),
-        open: open.has(c.id),
+        bar: G.isBarCounter(c), // above 20 segments: a solid bar, never unfolded (author, 2026-11-15)
+        pct: Math.round((c.val / c.size) * 1000) / 10,
+        open: !G.isBarCounter(c) && open.has(c.id),
         curLabel: G.currentLabel(c),
-        lamps: Array.from({ length: c.size }, (_, k) => ({ on: k < c.val })),
-        rows: Array.from({ length: c.size }, (_, n) => { const k = c.size - n; return { k, i: k - 1, on: k <= c.val, cur: k === c.val, label: c.labels[k - 1] }; }),
+        lamps: G.isBarCounter(c) ? [] : Array.from({ length: c.size }, (_, k) => ({ on: k < c.val })),
+        rows: G.isBarCounter(c) ? [] : Array.from({ length: c.size }, (_, n) => { const k = c.size - n; return { k, i: k - 1, on: k <= c.val, cur: k === c.val, label: c.labels[k - 1] }; }),
       })),
     };
   }
@@ -188,7 +193,11 @@ class CountersPanel {
     const f = this.form ?? (this.form = this.#newForm()), r = this.body;
     const q = (k) => r.querySelector(`[data-f='${k}']`);
     f.name = q("name")?.value ?? f.name;
-    if (q("size")) f.size = +q("size").value || f.size;
+    if (q("size")) {
+      f.sizeCustom = q("size").value === "custom";
+      if (!f.sizeCustom) f.size = +q("size").value || f.size;
+      else if (q("sizeN")) f.size = Math.max(G.GC_SIZE_MIN, Math.min(G.GC_SIZE_MAX, Math.round(+q("sizeN").value) || f.size));
+    }
     if (q("val")) { const v = q("val").value; f.val = v === "" ? 0 : Math.max(0, Math.min(f.size, Math.round(+v) || 0)); }
     if (q("die")) f.die = q("die").value;
     if (q("custom")) f.custom = q("custom").value;
@@ -291,6 +300,29 @@ let PANEL = null;
 export function mountCounters(section) {
   PANEL = new CountersPanel(section);
   return PANEL.render();
+}
+
+/** A scene counter made from outside the panel — the «Створити лічильник» buttons of the adventures' journals
+ *  (`@Counter[…]`, wastelanders.mjs; author, 2026-11-15): on the viewed scene, GM only, logged like the panel's */
+export async function createSceneCounter({ name, die = 6, val = 4 } = {}) {
+  if (!game.user.isGM) return ui.notifications.warn("Лічильники створює Доглядач.");
+  if (!sceneOf()) return ui.notifications.warn("Спершу відкрий сцену: лічильник з'явиться на ній.");
+  const lr = G.addLocal(sceneList(), { name, die, val }, { globalCount: stored().length, next: sceneNext() });
+  if (!lr) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+  await writeScene(lr.list, lr.next);
+  ui.notifications.info(`Лічильник «${lr.counter.name}» додано на сцену «${sceneOf().name}».`);
+  return logCard(G.logCreateLocal(lr.counter));
+}
+
+/** A game counter made from a journal button (`@GameCounter[…]`, author 2026-11-15: the quick start's days to delivery) */
+export async function createGameCounter({ name, size = 6, val = 0 } = {}) {
+  if (!game.user.isGM) return ui.notifications.warn("Лічильники створює Доглядач.");
+  const list = stored();
+  const r = G.isFullTotal(sceneList().length, list.length) ? null : G.addCounter(list, { name, size, val });
+  if (!r) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+  await game.settings.set(game.system.id, "gameCounters", r.list);
+  ui.notifications.info(`Лічильник гри «${r.counter.name}» додано.`);
+  return logCard(G.logCreate(r.counter));
 }
 
 /** The world's or the viewed scene's counters changed (any client): redraw the GM's panel */

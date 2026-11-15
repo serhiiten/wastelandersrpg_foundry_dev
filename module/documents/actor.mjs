@@ -196,10 +196,23 @@ export class WastelandersActor extends Actor {
     if (down !== this.statuses.has("unconscious")) await this.toggleStatusEffect("unconscious", { active: down });
   }
 
+  /** An enemy's card «Видимий / Прихований» and its tokens' Hide go together (author, 2026-11-15): every token of a
+   *  linked enemy on every scene, an unlinked one's own token */
+  static async syncEnemyTokens(actor, open) {
+    const toks = actor.isToken ? [actor.token] : game.scenes.contents.flatMap((s) => s.tokens.filter((t) => t.actorLink && t.actorId === actor.id));
+    const byScene = new Map();
+    for (const t of toks) if (t && t.hidden === open) byScene.set(t.parent, [...(byScene.get(t.parent) ?? []), { _id: t.id, hidden: !open }]);
+    for (const [scene, upd] of byScene) await scene.updateEmbeddedDocuments("Token", upd);
+  }
+
   /** The caravan's own Actors folder (flagged with its id): created in the folder it was made in, the caravan moved in */
   static async caravanFolder(actor) {
     const sys = game.system.id;
     let folder = game.folders.find((f) => f.type === "Actor" && f.getFlag(sys, "caravan") === actor.id);
+    // an adventure import (the quick start) makes the actors before the folders: the caravan's folder named in its
+    // source doesn't exist yet, and it is the caravan's own one, so make none
+    const src = actor._source?.folder;
+    if (!folder && src && !game.folders.has(src)) return;
     if (!folder) {
       const parent = actor.folder;
       const deep = parent && parent.depth >= (CONST.FOLDER_MAX_DEPTH ?? 4);

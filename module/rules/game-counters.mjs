@@ -1,8 +1,15 @@
 /**
  * «Лічильники гри» (global game counters; mirrors the HTML terminal's map.js gcAdd / gcStep): pure helpers, no Foundry.
- * A counter: { id, name, size: 4|6|8|10|12, val: 0..size, labels: [size] } — labels[i] describes segment i + 1.
+ * A counter: { id, name, size: 4…100, val: 0..size, labels: [size] } — labels[i] describes segment i + 1.
+ * Foundry goes up to 100 (author, 2026-11-15; the HTML terminal stops at 12): the form offers 4…20 and «Свій»; above
+ * GC_LAMPS_MAX a counter is a solid bar and never unfolds its segments.
  */
-export const GC_SIZES = [4, 6, 8, 10, 12];
+export const GC_SIZES = [4, 6, 8, 10, 12, 14, 16, 18, 20];
+export const GC_SIZE_MIN = 4;
+export const GC_SIZE_MAX = 100;
+export const GC_LAMPS_MAX = 20;
+/** A counter too long for segments: a solid bar, no unfolding */
+export const isBarCounter = (c) => Number(c?.size) > GC_LAMPS_MAX;
 export const GC_MAX = 10;
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -10,7 +17,8 @@ const int = (v, d = 0) => { const n = Math.round(Number(v)); return Number.isFin
 
 /** One counter brought into shape (unknown size → 6, value and labels clamped) */
 export function normalizeCounter(o, fallbackId = 1) {
-  const size = GC_SIZES.includes(int(o?.size)) ? int(o.size) : 6;
+  const n = int(o?.size);
+  const size = n >= GC_SIZE_MIN && n <= GC_SIZE_MAX ? n : 6;
   return {
     id: Math.max(1, int(o?.id, fallbackId)),
     name: String(o?.name ?? "").trim() || "Лічильник",

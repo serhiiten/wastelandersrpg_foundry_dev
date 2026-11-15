@@ -2,7 +2,7 @@
  * Картка супротивника (author, 2026-11-14): the battle tracker's enemy card (tracker.js unitCard) as an actor sheet
  * on ApplicationV2. The data: module/data/enemy-data.mjs; the rules: module/rules/enemy-model.mjs and battle.mjs; the
  * view model: enemy-view.mjs (pure, tested). Every action saves with `document.update` (no form submit).
- * Players who may only see the card (LIMITED, once the GM switched it to «Відкрите») get it read-only.
+ * Players who may only see the card (LIMITED, once the GM switched it to «Видимий») get it read-only.
  */
 import { generatorRecord } from "../applications/terminal-battle.mjs";
 import {
@@ -427,7 +427,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     if (doc.isToken && doc.token) await doc.token.update({ name: n });
   }
 
-  /** «Відкрите / Приховане»: players may open a read-only card only while it is open */
+  /** «Видимий / Прихований»: players may open a read-only card only while it is open */
   static async #onReveal() {
     if (!game.user.isGM) return;
     const open = !this.document.system.reveal;
@@ -435,6 +435,8 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       "system.reveal": open,
       "ownership.default": open ? CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED : CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
     });
+    // the card hides or shows the enemy's tokens too (author, 2026-11-15); a token's Hide sets the card back (wastelanders.mjs)
+    await this.document.constructor.syncEnemyTokens(this.document, open);
   }
 
   static async #onEditToggle() {
