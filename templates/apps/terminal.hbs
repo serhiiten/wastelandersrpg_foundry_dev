@@ -24,7 +24,7 @@
       <div class="pust-case-f {{#if wide}}wide{{/if}}" data-field="{{k}}">
         <div class="pust-case-fh"><i class="fa-solid {{icon}}"></i> {{n}}
           <button type="button" class="pust-term-reroll" data-action="caseReroll" data-k="{{k}}" title="Перекинути це поле"><i class="fa-solid fa-rotate"></i></button></div>
-        <div class="pust-case-ft">{{t}}{{#if note}} <small>{{note}}</small>{{/if}}</div>
+        <div class="pust-case-ft">{{t}}{{#if note}} <small>{{note}}</small>{{/if}}{{#if (eq k "enemies")}} <button type="button" class="pust-case-battle" data-action="caseBattle" title="Створити в генераторі битв битву з цими супротивниками, міццю й складністю справи"><i class="fa-solid fa-skull"></i> Створити битву</button>{{/if}}</div>
       </div>
     {{/each}}
     </div>
@@ -99,6 +99,7 @@
       <div class="pust-battle-btns">
         <button type="button" data-action="battleCreate" data-mode="folder" title="Додати в Актори теку «Битви → {{v.battle.folder}}» з усіма супротивниками цієї битви"><i class="fa-solid fa-folder-plus"></i> Додати теку в Актори</button>
         <button type="button" class="pust-term-go" data-action="battleCreate" data-mode="place" title="Додати теку в Актори й поставити токени супротивників на поточну сцену. Бій не починається"><i class="fa-solid fa-chess-pawn"></i> Розмістити на сцені</button>
+        <button type="button" class="pust-tvb-fight" data-action="battleFight" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-flag"></i> Почати бій</button>
         <button type="button" class="pust-danger pust-battle-clear" data-action="battleClear" data-confirm="1" title="Очистити результат генерації"><i class="fa-solid fa-eraser"></i> Очистити</button>
       </div>
     </div>

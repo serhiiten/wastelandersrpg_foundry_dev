@@ -40,6 +40,13 @@ function rollExpr(raw) {
   return { total: Math.max(0, roll.total), dice, text: dice ? `${expr} = ${roll.total}` : String(roll.total), expr };
 }
 
+/** The user plays a character with the perk «Спостережливість» (their Player Character, or any character they own) */
+function observantUser() {
+  if (game.user.isGM) return false;
+  const chars = [game.user.character, ...game.actors.filter((a) => a.type === "character" && a.isOwner)].filter(Boolean);
+  return chars.some((a) => a.items.some((it) => it.type === "perk" && /^Спостережливість/.test(it.name)));
+}
+
 export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["wastelanders", "pust-sheet", "pust-en-sheet"],
@@ -105,6 +112,9 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const v = enemyView(s, { editable, gm });
     Object.assign(context, {
       v, editable, gm, edit, ui: this.#ui, limited: !doc.isOwner,
+      // «Спостережливість» (author, 2026-11-17; wiki: «ти завжди знаєш точну кількість ОЗ супротивників і чим вони озброєні»):
+      // a player whose character has the perk sees the enemy's HP and attacks on its card too
+      observant: !doc.isOwner && observantUser(),
       // a card outside the world (the compendium's, one built in memory): no «Видимий / Прихований», no «В чат» (author, 2026-11-16)
       // the tours' example enemy (pust-tour.mjs, in memory) shows them as a world card would, inert
       world: (!!doc.id && !doc.pack) || !!doc.pustTourDemo, name: doc.name, img: doc.img, differs: v.differs,

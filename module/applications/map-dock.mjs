@@ -25,7 +25,7 @@ import { postTerminalRoll, toggleDockCheck, placeDockCheck, dockCheckOpen } from
 import { battleFromTravel, startTravelBattle } from "./terminal.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { LUCKS, prettyTravel, travelChat } from "./terminal-view.mjs";
-import { battleSectionHtml, mountBattlePanel, redrawBattlePanel } from "./battle-panel.mjs";
+import { battleSectionHtml, mountBattlePanel, redrawBattlePanel, travelDamage } from "./battle-panel.mjs";
 import { isBattleScene } from "../helpers/default-scene.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { compute } from "../rules/core.mjs";
@@ -279,6 +279,8 @@ function redrawTravel() {
   if (tv.open) {
     box.innerHTML = travelHtml();
     travelBattleButtons(box);
+    // a hazard's damage die says where it goes (author, 2026-11-16)
+    box.querySelectorAll(".pust-md-tvout button.die[data-dice]").forEach((b) => { if (travelDamage(b)) { b.title = "Перенести в «Шкода й лікування» панелі"; b.classList.add("pust-die-dmg"); } });
   }
   sideTravel();
 }
@@ -303,7 +305,7 @@ function travelBattleButtons(box) {
     btns.className = "pust-tvb-actions";
     btns.innerHTML = (rnd ? `<button type="button" data-tv="kinds" data-i="${i}" title="Перекинути випадкову битву: інші види супротивників"><i class="fa-solid fa-rotate"></i><span>Інші види</span></button>` : "")
       + `<button type="button" class="pust-md-go" data-tv="battle" data-i="${i}" title="Відкрити Термінал Доглядача з цією битвою на вкладці «Битви»"><i class="fa-solid fa-skull"></i><span>Створити битву</span></button>`
-      + `<button type="button" class="pust-md-go pust-tvb-fight" data-tv="fight" data-i="${i}" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-crosshairs"></i><span>Почати бій</span></button>`
+      + `<button type="button" class="pust-md-go pust-tvb-fight" data-tv="fight" data-i="${i}" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-flag"></i><span>Почати бій</span></button>`
       + `<small>${rnd ? "Склад супротивників кинеться за правилами генератора битв." : "Кількість супротивників кинеться за описом битви."} Місце піде у вкладку «Битви».</small>`;
     sec.append(btns);
   });
@@ -329,7 +331,12 @@ function sideTravel() {
 
 async function onTravel(ev) {
   const die = ev.target.closest("button.die[data-dice]");
-  if (die) return postTerminalRoll(die.dataset.dice);
+  if (die) {
+    // a hazard's damage («3d6 шкоди») goes into «Сцена» / «Битва», lit there (author, 2026-11-16); other dice roll to chat
+    const { travelDamage, fillDamage } = await import("./battle-panel.mjs");
+    const dmg = travelDamage(die);
+    return dmg ? fillDamage(dmg) : postTerminalRoll(die.dataset.dice);
+  }
   const b = ev.target.closest("[data-tv]");
   if (!b) return;
   const k = b.dataset.tv;
@@ -479,6 +486,9 @@ function placeAll() {
   sideTravel();
   sideCheck();
 }
+
+/** Open a folded unit (battle-panel.mjs: a travel event's damage put into «Сцена») */
+export function unfoldUnit(unit) { setFold(unit, false); }
 
 function setFold(unit, folded) {
   const f = load(FOLD_KEY);

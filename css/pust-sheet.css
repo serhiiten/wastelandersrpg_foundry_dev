@@ -230,7 +230,6 @@
 .pust-sitq button { font-size: 11.5px !important; }
 .pust-quickbar .pust-status-col { background: rgba(255,252,240,.92); }
 .pust-qbtns { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; border-top: 1px dashed var(--pu-steel-3); padding-top: 6px; }
-.pust-qcnt { margin-left: auto; font-size: 11.5px; color: var(--pu-green-dim); }
 
 /* quick panel: four framed groups in two rows — [ОЗ + Броня] [Доля] / [Припаси + Кришки] [ОД] — and the buttons on the right */
 .pust-qgrid { grid-template-columns: 1.5fr 1fr auto; grid-template-areas: "life fate roll" "goods xp roll"; gap: 8px 10px; align-items: stretch; }
@@ -374,7 +373,7 @@
 /* statuses + rest/scene/day buttons fold on their own: a header bar with the counts stays */
 .pust-qstat { display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed var(--pu-steel-3); padding-top: 5px; }
 .pust-qstat > .pust-qbtns { border-top: 0; padding-top: 0; }
-.wastelanders button.pust-qstat-hd:not(.header-control) { display: flex !important; align-items: center; gap: 8px; width: 100%; height: 24px !important; min-height: 0; padding: 0 6px !important; line-height: 22px !important;
+.wastelanders button.pust-qstat-hd:not(.header-control) { display: flex !important; align-items: center; justify-content: flex-start !important; gap: 8px; width: 100%; height: 24px !important; min-height: 0; padding: 0 6px !important; line-height: 22px !important;
   background: transparent !important; border: 0 !important; box-shadow: none !important; color: var(--pu-green-dim) !important; text-align: left; cursor: pointer;
   font-family: var(--pu-f-label); font-weight: 700; font-size: 11px !important; text-transform: uppercase; letter-spacing: .06em; }
 .wastelanders button.pust-qstat-hd:not(.header-control):hover { color: var(--pu-green) !important; background: rgba(0,0,0,.18) !important; }
@@ -382,7 +381,6 @@
 .pust-qstat-n { font-family: var(--pu-f-num); font-size: 12px; padding: 0 6px; border-radius: 3px; letter-spacing: 0; }
 .pust-qstat-n.good { background: #2f6b35; color: #e7ffd9; }
 .pust-qstat-n.bad { background: #8d2a1f; color: #ffe9e4; }
-.pust-qstat-hd .pust-qcnt { text-transform: none; letter-spacing: 0; font-weight: 400; }
 .pust-qstat.folded > :not(.pust-qstat-hd) { display: none !important; }
 .pust-quickbar.folded .pust-qgrid { display: flex; justify-content: center; padding-right: 0; }
 .pust-quickbar.folded .pust-qroll { margin: 0; }

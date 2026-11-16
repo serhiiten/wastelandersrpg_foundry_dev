@@ -573,19 +573,19 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock .pust-md-bchk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5px; }
 #pust-mapdock .pust-md-bdmg .pust-md-row:has(> .pust-md-bexpr) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5px; }
 #pust-mapdock .pust-md-bdmg .pust-md-row:has(> .pust-md-bexpr) > * { width: 100%; min-width: 0; }
-#pust-mapdock .pust-md-bchk > label { display: inline-flex; align-items: center; gap: 4px; margin: 0;
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) > label { display: inline-flex; align-items: center; gap: 4px; margin: 0;
   font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12.5px; color: #c9f5cc; }
 /* the ticks (author, 2026-11-14: hard to see, not in line with their words): a screen box with a green tick, centred on the text */
-#pust-mapdock .pust-md-bchk > label { gap: 6px; line-height: 18px; cursor: pointer; }
-#pust-mapdock .pust-md-bchk input[type="checkbox"] { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 18px; height: 18px; margin: 0; padding: 0;
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) > label { gap: 6px; line-height: 18px; cursor: pointer; }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"] { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 18px; height: 18px; margin: 0; padding: 0;
   background: #0f1412; border: 1px solid #6fae76; border-radius: 3px; box-shadow: inset 0 1px 2px rgba(0,0,0,.6); cursor: pointer; vertical-align: middle; }
-#pust-mapdock .pust-md-bchk input[type="checkbox"]:checked { border-color: #3dff47; box-shadow: 0 0 5px rgba(61,255,71,.45); }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]:checked { border-color: #3dff47; box-shadow: 0 0 5px rgba(61,255,71,.45); }
 /* Foundry draws its own box as an icon in ::before / ::after (author, 2026-11-14: «тло не співпадає з рамкою»): off */
-#pust-mapdock .pust-md-bchk input[type="checkbox"]::before { content: none !important; display: none !important; }
-#pust-mapdock .pust-md-bchk input[type="checkbox"]::after { content: none; }
-#pust-mapdock .pust-md-bchk input[type="checkbox"]:checked::after { content: "" !important; display: block; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; box-sizing: content-box;
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]::before { content: none !important; display: none !important; }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]::after { content: none; }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]:checked::after { content: "" !important; display: block; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; box-sizing: content-box;
   font: 0/0 a; background: none; border: solid #3dff47; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
-#pust-mapdock .pust-md-bchk input[type="checkbox"]:focus-visible { outline: 2px solid #f4d11a; outline-offset: 1px; }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]:focus-visible { outline: 2px solid #f4d11a; outline-offset: 1px; }
 #pust-mapdock .pust-md-bact > button { height: 32px; }
 #pust-mapdock button.pust-md-bhit { background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border-color: #d8371f; }
 #pust-mapdock button.pust-md-bhit:hover:not(:disabled) { border-color: #ff6a4f; box-shadow: 0 0 6px rgba(255,106,79,.4); }
@@ -639,8 +639,48 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 /* «Перейти на бойову мапу» / «Перейти на Мапу Пустки» at the panel's foot (author, 2026-11-16) */
 #pust-mapdock .pust-md-bgoto { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 32px; margin-top: 2px;
   font-weight: 800; text-transform: uppercase; letter-spacing: .03em; font-size: 12.5px; }
-/* «Почати бій» under a travel battle (author, 2026-11-16): the battle map at once — red, as the battle it starts */
-.pust-tvb-actions > button.pust-tvb-fight, #pust-mapdock .pust-md-tvout .pust-tvb-actions > button.pust-tvb-fight {
-  background: linear-gradient(180deg, #b0301d, #7d1c13); color: #fbeee4; border: 1px solid #d8371f; }
-.pust-tvb-actions > button.pust-tvb-fight:hover:not(:disabled), #pust-mapdock .pust-md-tvout .pust-tvb-actions > button.pust-tvb-fight:hover:not(:disabled) {
-  color: #fff; border-color: #ff6a4a; box-shadow: 0 0 6px rgba(216,55,31,.55); }
+/* «Почати бій» (author, 2026-11-16): hazard tape — dark stripes, a yellow frame and yellow capitals, a flag; unlike the red
+   «Завдати цілям» with its crosshair */
+#pust-terminal :is(.pust-tvb-actions, .pust-battle-btns) > button.pust-tvb-fight, #pust-mapdock .pust-md-tvout .pust-tvb-actions > button.pust-tvb-fight {
+  background: #1a1714; color: #f4d11a; border: 4px solid #f4d11a; border-radius: 3px;
+  border-image: repeating-linear-gradient(-45deg, #f4d11a 0 5px, #14110e 5px 10px) 4;
+  font-weight: 800; text-transform: uppercase; letter-spacing: .04em; text-shadow: 0 1px 0 #000; }
+#pust-terminal :is(.pust-tvb-actions, .pust-battle-btns) > button.pust-tvb-fight:hover:not(:disabled), #pust-mapdock .pust-md-tvout .pust-tvb-actions > button.pust-tvb-fight:hover:not(:disabled) {
+  color: #fff3b0; background: #2a241c; box-shadow: 0 0 8px rgba(244,209,26,.6); }
+
+/* a travel event's damage just put into «Шкода й лікування» (author, 2026-11-16): the fields glow amber for a moment */
+@keyframes pust-flash { 0%, 60% { box-shadow: 0 0 0 2px #f4d11a, 0 0 12px 2px rgba(244,209,26,.75); } 100% { box-shadow: none; } }
+#pust-mapdock .pust-flash { animation: pust-flash 2.4s ease-out 1; }
+#pust-mapdock .pust-md-panel.pust-md-lit { opacity: 1 !important; }
+
+/* «Створити битву» under the case's «Супротивники» (author, 2026-11-17) */
+#pust-terminal .pust-case-ft > button.pust-case-battle { display: inline-flex; align-items: center; gap: 6px; width: auto; height: 26px; margin: 4px 0 0;
+  padding: 0 10px; font-size: 12px; font-weight: 700; vertical-align: middle; }
+
+/* «Кінець сцени» / «Новий день» / «Кінець сесії» for the group (author, 2026-11-17): three equal buttons and the enemies' tick,
+   framed as the damage block */
+#pust-mapdock .pust-md-bend { display: flex; flex-direction: column; gap: 5px; padding: 6px; border-radius: 4px; background: rgba(0,0,0,.28); border: 1px solid #3d4241; }
+#pust-mapdock .pust-md-bendbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+#pust-mapdock .pust-md-bendbtns > button { width: 100%; min-width: 0; height: 30px; padding: 0 4px; gap: 5px; font-size: 12px; white-space: nowrap; }
+#pust-mapdock .pust-md-bendbtns > button > span { overflow: hidden; text-overflow: ellipsis; }
+/* the chat card: a steel banner, a line for each character something happened to */
+.chat-message .pust-chat.pust-endcard { padding: 0; overflow: hidden; border: 2px solid #23282a; border-radius: 5px; background: #f4eedc; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+.chat-message .pust-chat.pust-endcard .pust-end-hd { display: flex; align-items: center; gap: 9px; padding: 8px 10px; background: linear-gradient(180deg, #4a5356, #2b3133); color: #f4d11a;
+  font-family: "Oswald", "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 15px; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.45); }
+.chat-message .pust-chat.pust-endcard.pust-end-day .pust-end-hd { background: linear-gradient(180deg, #b07a1c, #7a5210); color: #fff3c4; }
+.chat-message .pust-chat.pust-endcard.pust-end-session .pust-end-hd { background: linear-gradient(180deg, #34406b, #1d2444); color: #dfe6ff; }
+.chat-message .pust-chat.pust-endcard .pust-end-hd > i { font-size: 17px; }
+.chat-message .pust-chat.pust-endcard .pust-end-body { padding: 7px 10px 8px; color: #2a261c; font-size: 13.5px; line-height: 1.35; display: flex; flex-direction: column; gap: 5px; }
+.chat-message .pust-chat.pust-endcard p { margin: 0; }
+.chat-message .pust-chat.pust-endcard .pust-end-who { color: #5d5543; font-size: 12.5px; }
+.chat-message .pust-chat.pust-endcard ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.chat-message .pust-chat.pust-endcard li { padding: 4px 6px; border-left: 3px solid #9a4a20; background: rgba(154,74,32,.08); }
+.chat-message .pust-chat.pust-endcard li.bad { border-left-color: #a3261a; color: #7d1c13; }
+.chat-message .pust-chat.pust-endcard .pust-end-mv { font-size: 12.5px; color: #5d5543; }
+/* the group's session number and «Скинути відлік» (GM; author, 2026-11-17): on the tick's row, at its right end */
+#pust-mapdock .pust-md-bendft { display: flex; align-items: center; gap: 6px; }
+#pust-mapdock .pust-md-bendft > .pust-md-bendmv { flex: 1 1 auto; min-width: 0; }
+#pust-mapdock .pust-md-bsess { flex: none; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12.5px; color: #c9f5cc; white-space: nowrap; }
+#pust-mapdock .pust-md-bsess > b { color: #3dff47; font-family: "Ubuntu Mono", monospace; font-size: 14px; }
+#pust-mapdock button.pust-md-bsreset { flex: none; width: 26px; height: 24px; padding: 0; display: grid; place-items: center; font-size: 12px; }
+#pust-mapdock button.pust-md-bsreset.armed { color: #fff; background: linear-gradient(180deg, #c8301f, #8a2419); border-color: #ff7a6b; }

@@ -4,6 +4,8 @@
  * this window draws them, keeps the results (per user) and sends them to chat. «Битви» can also create the
  * enemies, place their tokens and start a combat (terminal-battle.mjs).
  */
+import { CASE_DIFF, caseBattle, caseKind, casePower } from "../rules/case-battle.mjs";
+import { travelDamage } from "./battle-panel.mjs";
 import { sharedGet, sharedSet, travelToScene } from "../helpers/scene-shared.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { createBattle, openGeneratedEnemy, generatedEnemyImg, dropGeneratedEnemy, OPPONENT_ALIASES } from "./terminal-battle.mjs";
@@ -49,6 +51,12 @@ export async function startTravelBattle(travel, i) {
   if (!game.user.isGM) return;
   OPEN ??= new TerminalApp();
   if (OPEN.fromTravel(travel, i) === false) return;
+  return startBattle();
+}
+
+/** «Почати бій» (the battle generator's too, author 2026-11-16): the battle map activated, the terminal's battle placed there */
+export async function startBattle() {
+  if (!game.user.isGM || !OPEN?.st?.battle?.state?.last) return;
   const { battleScene } = await import("./battle-panel.mjs");
   const scene = battleScene();
   if (!scene) return ui.notifications.warn("У світі немає бойової мапи. Створи сцену типу «Битва».");
@@ -126,6 +134,8 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       travelKinds: TerminalApp.#on((app, t) => app.#travelKinds(+t.dataset.i)),
       travelBattle: TerminalApp.#on((app, t) => app.#travelBattle(+t.dataset.i)),
       travelFight: TerminalApp.#on((app, t) => { startTravelBattle(clone(app.st.travel), +t.dataset.i); return false; }),
+      battleFight: TerminalApp.#on(() => { startBattle(); return false; }),
+      caseBattle: TerminalApp.#on((app) => app.#caseBattle()),
       tableGen: TerminalApp.#on((app, t) => {
         const card = TABLE_CARDS.find((c) => c.id === t.dataset.card);
         app.st.tables.out[card.id] = runTable(app.T, card, app.st.tables.sel);
@@ -222,6 +232,33 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     return { div, sec: div.querySelectorAll(".battle-encounter")[i] };
   }
 
+  /**
+   * «Створити битву» under the case's «Супротивники» (author, 2026-11-17): the battle generator gets the case's battle — its
+   * group as a kind (rules/case-battle.mjs CASE_KINDS), its «Міць супротивників» as exact counts, its difficulty — and the
+   * terminal turns to «Битви» with it
+   */
+  #caseBattle() {
+    const cs = this.st.case.cs;
+    if (!cs) return false;
+    const B = this.T.battle;
+    const kind = caseKind(cs.f.enemies);
+    const diff = CASE_DIFF[cs.diff] || "easy";
+    B.setDifficulty(diff);
+    const b = caseBattle(B.BT.DB, B.BT.ORDER, kind, casePower(cs.f.enemyPower));
+    if (!b) return ui.notifications.warn("Не вдалося зібрати битву з цієї справи."), false;
+    B.BT.BT_SCENE.place = sharedGet("place") || "";
+    B.BT.BT_SCENE.hazard = sharedGet("hazard") || "";
+    B.BT.renderBattle(b.factionKey, b.pickedCase, b.allocations);
+    const s = B.state();
+    this.st.battle.difficulty = diff;
+    this.st.battle.kinds = [kind];
+    this.st.battle.names = [];
+    this.st.battle.picks = {};
+    this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
+    this.st.tab = "battle";
+    ui.notifications.info(`Битву зі справи перенесено на вкладку «Битви»: ${B.BT.kindName(kind)}, ${cs.f.enemyPower}.`);
+  }
+
   #travelKinds(i) {
     const { div, sec } = this.#travelSection(i);
     const span = sec?.querySelector(".tvb-rnd");
@@ -301,6 +338,12 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onDie(event, target) {
     const expr = target.dataset.dice;
     if (!expr) return;
+    // on «Подорож» a hazard's damage («3d6 шкоди») goes into «Сцена» / «Битва», lit there (author, 2026-11-16)
+    if (target.closest(".pust-travel")) {
+      const { fillDamage } = await import("./battle-panel.mjs");
+      const dmg = travelDamage(target);
+      if (dmg) return fillDamage(dmg);
+    }
     await postTerminalRoll(expr); // the dice card, as «Кістки» (follows the chat's mode menu)
   }
 
@@ -338,6 +381,8 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     }));
     // dice from the generators' HTML: <button class="die" data-dice="2d6">
     root.querySelectorAll("button.die").forEach((b) => { b.type = "button"; b.dataset.action = "die"; b.title = `Кинути ${b.dataset.dice}`; });
+    // on «Подорож» a hazard's damage die goes into the panel (author, 2026-11-16)
+    root.querySelectorAll(".pust-travel button.die").forEach((b) => { if (travelDamage(b)) { b.title = "Перенести в «Шкода й лікування» панелі"; b.classList.add("pust-die-dmg"); } });
     // travel battles: «Перекинути види» and «Створити битву» (the HTML terminal's tvEnhance)
     root.querySelectorAll(".pust-travel .battle-encounter").forEach((sec, i) => {
       const span = sec.querySelector(".tvb");
@@ -348,7 +393,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ? `<button type="button" data-action="travelKinds" data-i="${i}" title="Перекинути випадкову битву: інші види супротивників"><i class="fa-solid fa-rotate"></i> Інші види</button>`
         : "")
         + `<button type="button" class="pust-term-go" data-action="travelBattle" data-i="${i}" title="Перенести битву й місце на вкладку «Битви»"><i class="fa-solid fa-skull"></i> Створити битву</button>`
-        + `<button type="button" class="pust-term-go pust-tvb-fight" data-action="travelFight" data-i="${i}" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-crosshairs"></i> Почати бій</button>`
+        + `<button type="button" class="pust-term-go pust-tvb-fight" data-action="travelFight" data-i="${i}" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-flag"></i> Почати бій</button>`
         + `<span class="pust-sub">${span.classList.contains("tvb-rnd") ? "Склад супротивників кинеться за правилами генератора битв." : "Кількість супротивників кинеться за описом битви."} Місце піде у вкладку «Битви».</span>`;
       sec.append(btns);
     });

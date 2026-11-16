@@ -110,6 +110,7 @@ async function enemyActor(T, e, folder) {
   } else data = enemyFromGenerator(T, e);
   if (e.group) asKind(data, e.name); // «Щур», not «Маленькі тварини…»
   data.folder = folder.id;
+  foundry.utils.setProperty(data, "flags.pust.battleMade", true); // made for this battle: goes with its last token (wastelanders.mjs mapBound)
   return Actor.implementation.create(data);
 }
 

@@ -31,12 +31,13 @@ import { findBattleScene, findMapScene, isBattleScene } from "../helpers/default
 import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
 import { chatType } from "./enemy-attack.mjs";
 import { postChat } from "./chat.mjs";
+import { endForAll, groupSession, resetGroupCounters } from "./group-end.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const sys = () => game.system.id;
 let T = null;
 const term = () => (T ??= createTerminal({ toast: () => {}, icon: () => "" }));
-const ui_ = { open: false, faction: "", enemy: "", count: 1, zone: "", dmg: { expr: "", type: "phys", ignore: false, dodge: false } };
+const ui_ = { open: false, faction: "", enemy: "", count: 1, zone: "", dmg: { expr: "", type: "phys", ignore: false, dodge: false }, moves: false };
 const QUICK_DICE = ["1d6", "1d10", "2d6", "3d6"];
 /** the panel's sections: the battle map's one and the «lite» one (sec → lite) */
 const sections = new Map();
@@ -148,6 +149,7 @@ async function bodyHtml(lite = false) {
   if (lite) return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place)}${row("hazard", "Небезпека", "fa-radiation", hazard)}</div>
     ${roundHtml(scene, true)}
     ${damageHtml(true)}
+    ${endHtml()}
     <button type="button" class="pust-md-bgoto" data-battle="goto" title="Відкрити й активувати бойову мапу: гравці перейдуть туди теж"><i class="fa-solid fa-crosshairs"></i><span>Перейти на бойову мапу</span></button>`;
   return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place)}${row("hazard", "Небезпека", "fa-radiation", hazard)}
     <div class="pust-md-row pust-md-bbtns">
@@ -157,6 +159,7 @@ async function bodyHtml(lite = false) {
     ${roundHtml(scene)}
     ${damageHtml()}
     <p class="pust-md-bcount">${countLine(scene)}</p>
+    ${endHtml()}
     <button type="button" class="pust-md-bgoto" data-battle="goto" title="Відкрити й активувати «Мапу Пустки»: гравці перейдуть туди теж"><i class="fa-solid fa-map-location-dot"></i><span>Перейти на Мапу Пустки</span></button>`;
 }
 
@@ -239,6 +242,27 @@ function damageHtml(lite = false) {
     </div>`;
 }
 
+/**
+ * «Кінець сцени» / «Новий день» / «Кінець сесії» for every character assigned to a player (author, 2026-11-17; group-end.mjs),
+ * «Скинути ходи ворогів» clears every used move of the scene's enemies too
+ */
+function endHtml() {
+  const who = "усіх персонажів, призначених гравцям";
+  const sess = groupSession();
+  return `<div class="pust-md-bend">
+      <div class="pust-md-row pust-md-bendbtns">
+        <button type="button" data-battle="end" data-kind="scene" title="Завершити сцену для ${who}: хімія й ефекти сцени, лють, бухло, кістки суперстимпака, пролікований легкий наслідок"><i class="fa-solid fa-flag-checkered"></i><span>Кінець сцени</span></button>
+        <button type="button" data-battle="end" data-kind="day" title="Новий день для ${who}: спершу кінець сцени, потім ліміти стимпаків і цілющого порошку, відпочинок, хімія на день"><i class="fa-solid fa-sun"></i><span>Новий день</span></button>
+        <button type="button" data-battle="end" data-kind="session" title="Завершити сесію для ${who}: спершу кінець сцени, потім Жетони Долі, модифікації, залежності, проліковані наслідки, штрафи до кінця сесії"><i class="fa-solid fa-moon"></i><span>Кінець сесії</span></button>
+      </div>
+      <div class="pust-md-bendft">
+        <label class="pust-md-bendmv" title="Разом із кінцем сцени зняти «використано» з усіх ходів ворогів на цій сцені (зокрема «раз за сцену» і «Психо»)"><input type="checkbox" data-battle-d="moves" ${ui_.moves ? "checked" : ""}> Скинути ходи ворогів сцени</label>
+        <span class="pust-md-bsess" title="${esc(sess.list.length ? `Номер сесії персонажів гравців: ${sess.list.join(", ")}` : "Жодного персонажа не призначено гравцям")}">Сесія <b>${esc(sess.label)}</b></span>
+        <button type="button" class="pust-md-bsreset" data-battle="sessreset" title="Скинути відлік усім персонажам гравців: сесія 1, день 1, сцена 1. Натисни двічі" aria-label="Скинути відлік сесій, днів і сцен"><i class="fa-solid fa-clock-rotate-left"></i></button>
+      </div>
+    </div>`;
+}
+
 /** The amount typed: a number, or dice rolled now; null when it can't be read */
 async function amountOf(expr) {
   // any minus on dice may be typed; the result is never below 0 (author, 2026-11-14), the label shows what is applied
@@ -277,6 +301,7 @@ export function mountBattlePanel(sec, { lite = false } = {}) {
   body.addEventListener("input", (ev) => { if (ev.target.dataset.battleD === "expr") ui_.dmg.expr = ev.target.value; });
   body.addEventListener("change", (ev) => {
     const dk = ev.target.dataset.battleD;
+    if (dk === "moves") { ui_.moves = ev.target.checked; return; }
     if (dk) { ui_.dmg[dk] = ev.target.type === "checkbox" ? ev.target.checked : ev.target.value; return; }
     const f = ev.target.dataset.battleF;
     if (!f) return;
@@ -342,6 +367,29 @@ async function onClick(ev, lite = false, body = null) {
   if (act === "tgtclear") { canvas.tokens.setTargets([], { mode: "replace" }); return; }
   if (act === "pick") return togglePick(b);
   if (act === "goto") return gotoScene(lite);
+  if (act === "sessreset") {
+    // asks twice, as every destructive button (author, 2026-11-17)
+    if (!b.classList.contains("armed")) {
+      b.classList.add("armed");
+      ui.notifications.info("Натисни ще раз, щоб скинути відлік сесій, днів і сцен.");
+      setTimeout(() => b.classList.remove("armed"), 3000);
+      return;
+    }
+    b.classList.remove("armed");
+    b.disabled = true;
+    try { await resetGroupCounters(); } finally { b.disabled = false; redrawBattlePanel(); }
+    return;
+  }
+  if (act === "end") {
+    b.disabled = true;
+    try {
+      // a new scene starts: round 1, the GM's Fate tokens as «За гравцями» of this panel (author, 2026-11-17)
+      const fate = lite ? litePcCount() : pcCount(scene);
+      const done = await endForAll(b.dataset.kind, { moves: ui_.moves, fate });
+      if (done) { pend.battleRound = null; pend.battleFate = null; redrawBattlePanel(); }
+    } finally { b.disabled = false; }
+    return;
+  }
   if (act === "hit" || act === "heal") {
     const who = lite ? pickedUuids() : chosenTokens();
     if (!who.length) return lite ? ui.notifications.warn("Спершу познач цілі в списку «Вибрати цілі».") : warnNoTargets();
@@ -381,6 +429,7 @@ async function onClick(ev, lite = false, body = null) {
         foundry.utils.setProperty(data, "_stats.compendiumSource", entry.uuid);
         data.folder = folder.id;
         if (kind) asKind(data, kind.name);
+        foundry.utils.setProperty(data, "flags.pust.battleMade", true); // made for this battle: goes with its last token (wastelanders.mjs mapBound)
         actor = await Actor.implementation.create(data);
       }
       const zone = sceneZones().find((z) => z.id === ui_.zone) ?? null;
@@ -493,4 +542,52 @@ async function gotoScene(toBattle) {
   const scene = toBattle ? battleScene() : findMapScene();
   if (!scene) return ui.notifications.warn(toBattle ? "У світі немає бойової мапи. Створи сцену типу «Битва»." : "У світі немає «Мапи Пустки».");
   await scene.activate();
+}
+
+/* ---------------- a travel event's damage into the panel (author, 2026-11-16) ---------------- */
+/**
+ * A die of a travel result followed by «шкоди» («3d6 шкоди», «1d6 шкоди вогнем») is the damage a hazard deals: its dice, and
+ * the type the words name, go into «Шкода й лікування»; null for any other die («2d6 кротощурів» is rolled to chat as before)
+ */
+export function travelDamage(btn) {
+  const expr = btn?.dataset?.dice;
+  if (!expr) return null;
+  let after = "";
+  for (let n = btn.nextSibling; n && after.length < 80; n = n.nextSibling) after += n.textContent ?? "";
+  after = after.trim().toLowerCase();
+  if (!/^шкод/.test(after)) return null;
+  const words = after.split(/[.;)]/)[0];
+  const type = /радіац/.test(words) ? "rad" : /отру/.test(words) ? "poison" : /вогн/.test(words) ? "fire"
+    : /електри/.test(words) ? "electric" : /психічн/.test(words) ? "psychic" : "phys";
+  return { expr, type, ignore: /ігнорує броню/.test(words) };
+}
+
+/** The damage into the panel on view («Сцена» or «Битва»): its fields set, the panel unfolded, the fields lit for a moment */
+export async function fillDamage({ expr, type = "phys", ignore = false }) {
+  ui_.dmg.expr = expr;
+  ui_.dmg.type = type;
+  ui_.dmg.ignore = !!ignore;
+  for (const [sec] of sections) {
+    if (!sec.isConnected || sec.hidden) continue;
+    const unit = sec.closest(".pust-md-unit");
+    if (unit?.classList.contains("folded")) (await import("./map-dock.mjs")).unfoldUnit(unit.dataset.unit);
+  }
+  await redrawBattlePanel();
+  // and a notice on top (author, 2026-11-16)
+  const shown = [...sections].find(([sec]) => sec.isConnected && !sec.hidden);
+  const panel = shown ? (shown[1] ? "«Сцена»" : "«Битва»") : "«Битва»";
+  const tname = (DMG_TYPES[type]?.n ?? "").split(" (")[0].toLowerCase();
+  ui.notifications.info(`Шкоду ${expr} (${tname}${ignore ? ", ігнорує броню" : ""}) перенесено в «Шкода й лікування» панелі ${panel}. Вибери цілі й натисни «Завдати шкоди».`);
+  for (const [sec] of sections) {
+    if (!sec.isConnected || sec.hidden) continue;
+    // the panel opaque while its fields glow (it is half-transparent until hovered)
+    sec.classList.add("pust-md-lit");
+    clearTimeout(sec._lit);
+    sec._lit = setTimeout(() => sec.classList.remove("pust-md-lit"), 3000);
+    for (const el of sec.querySelectorAll('[data-battle-d="expr"], [data-battle-d="type"]')) {
+      el.classList.remove("pust-flash");
+      void el.offsetWidth; // restart the animation
+      el.classList.add("pust-flash");
+    }
+  }
 }

@@ -410,7 +410,9 @@ Hooks.on("updateToken", (token, changes) => { if ("hidden" in changes || "actorI
 // too; an actor deleted from the Actors directory takes its tokens off every scene; a battle folder left empty is removed.
 const BATTLES = "Битви";
 const inBattles = (folder) => !!folder && [folder, ...(folder.ancestors ?? [])].some((f) => f.name === BATTLES && !f.folder);
-const mapBound = (actor) => actor?.type === "place" || (actor?.type === "enemy" && inBattles(actor.folder));
+// an enemy goes with its last token only while it is one the system made for a battle and still lies in «Битви» (author, 2026-11-17:
+// one the GM moved out of the folder, or made by hand — even inside «Битви» — stays, as the players' characters do)
+const mapBound = (actor) => actor?.type === "place" || (actor?.type === "enemy" && !!actor.flags?.pust?.battleMade && inBattles(actor.folder));
 const mapGoing = new Set();
 async function dropWithoutTokens(actorId) {
   if (!game.users.activeGM?.isSelf || mapGoing.has(actorId)) return;

@@ -26,6 +26,29 @@
   {{!-- what players see of a visible enemy (author, 2026-11-16): its state in words and its situational aspects, nothing more --}}
   <div class="pust-en-body">
     <div class="pust-en-state" style="--sc: {{v.state.color}}" title="Стан ворога"><i class="fa-solid {{v.state.icon}}" aria-hidden="true"></i><span>{{v.state.label}}</span></div>
+    {{#if observant}}
+    {{!-- «Спостережливість» (author, 2026-11-17): the exact HP and what it is armed with, read-only --}}
+    <section class="pust-en-hp pust-en-observant">
+      <div class="pust-en-hprow {{#if v.hp.dead}}bad{{/if}}">
+        <span class="pust-en-lbl" title="Перк «Спостережливість»: ти завжди знаєш точну кількість ОЗ супротивників"><i class="fa-solid fa-heart-pulse pust-qic" aria-hidden="true"></i>Очки здоров'я</span>
+        <div class="pust-en-hpctl"><b class="pust-en-hpnum">{{v.hp.value}} / {{v.hp.max}}</b></div>
+      </div>
+      <div class="pust-en-hpbar hp-{{v.hp.level}}" title="Очки здоров'я: {{v.hp.value}} з {{v.hp.max}}"><div class="pust-en-hpfill" style="width: {{v.hp.pct}}%"></div></div>
+    </section>
+    <section class="pust-en-card pust-en-observant">
+      <h3 title="Перк «Спостережливість»: ти завжди знаєш, чим озброєні супротивники"><i class="fa-solid fa-burst pust-qic" aria-hidden="true"></i>Атаки</h3>
+      {{#each v.attacks}}
+      <div class="pust-en-atk">
+        <div class="pust-en-atkhd">
+          <b class="pust-en-atkn">{{name}}</b>
+          <span class="pust-en-dicechip {{tcls}}"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{diceText}}</span>
+          <span class="pust-en-type {{tcls}}">{{typeLabel}}</span>
+        </div>
+        {{#if note}}<div class="pust-en-note">{{note}}</div>{{/if}}
+      </div>
+      {{else}}<div class="pust-en-muted">Атак немає</div>{{/each}}
+    </section>
+    {{/if}}
     <section class="pust-en-card">
       <h3><i class="fa-solid fa-tags pust-qic" aria-hidden="true"></i>Ситуативні аспекти</h3>
       <div class="pust-en-chips">

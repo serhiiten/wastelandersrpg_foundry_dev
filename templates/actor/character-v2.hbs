@@ -130,7 +130,6 @@
       <span><i class="fa-solid fa-campground pust-qic" aria-hidden="true"></i>Статуси й відпочинок</span>
       <span class="pust-qstat-n good" title="Позитивних статусів">+{{v.chipsGood.length}}</span>
       <span class="pust-qstat-n bad" title="Негативних статусів">−{{v.chipsBad.length}}</span>
-      <small class="pust-qcnt">сесія {{v.chem.session}} · день {{v.chem.day}} · сцена {{v.chem.scene}}</small>
     </button>
     {{#if v.chips.length}}
     <div class="pust-status">
@@ -149,8 +148,7 @@
       {{#if v.rest.canHeal}}<button type="button" class="pust-rest-btn" data-action="act" data-act="rest" {{#if v.restBlock}}disabled title="{{v.restBlock}}"{{else}}title="Відпочинок: −1 Припас, половина максимуму ОЗ. Опції — у вкладці «Здоров'я»."{{/if}}>Відпочити · −1 Припас</button>{{/if}}
       <button type="button" data-action="act" data-act="chem-scene">Кінець сцени</button>
       <button type="button" data-action="act" data-act="chem-day">Новий день</button>
-      <button type="button" data-action="act" data-act="chem-session">Кінець сесії {{v.chem.session}}</button>
-      <button type="button" data-action="act" data-act="chem-reset" data-confirm="1" title="Скинути лічильники сесій, днів і сцен">Скинути</button>
+      <button type="button" data-action="act" data-act="chem-session">Кінець сесії</button>
     </div>
     </div>
   </section>
@@ -379,12 +377,11 @@
           </div>
         </section>
       <section class="pust-block">
-          <h3>Хімія та залежності <small>сесія {{v.chem.session}}, день {{v.chem.day}}, сцена {{v.chem.scene}}</small></h3>
+          <h3>Хімія та залежності</h3>
           <div class="pust-tools pust-tools-row">
             <button type="button" data-action="act" data-act="chem-scene">Кінець сцени</button>
             <button type="button" data-action="act" data-act="chem-day">Новий день</button>
             <button type="button" data-action="act" data-act="chem-session">Кінець сесії</button>
-            <button type="button" data-action="act" data-act="chem-reset" data-confirm="1" title="Скинути лічильники сесій, днів і сцен">Скинути</button>
           </div>
           {{#if v.chem.last}}<p class="pust-log">{{v.chem.last}}</p>{{/if}}
           {{#each v.chem.effects}}
