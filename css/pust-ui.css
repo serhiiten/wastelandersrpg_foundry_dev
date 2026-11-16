@@ -344,7 +344,7 @@
 .pust-gc .pust-lc { --c: hsl(var(--h), 85%, 55%); position: relative; display: grid; grid-template-columns: 56px 1fr 26px; grid-template-areas: "die name x" "btns btns btns" "state state state"; gap: 5px 8px; align-items: center; padding: 6px 8px; border-radius: 3px; border-left: 3px solid var(--c); background: linear-gradient(90deg, hsla(var(--h), 70%, 30%, .35), rgba(0,0,0,.25)); }
 .pust-gc .pust-lc-die { grid-area: die; width: 56px; height: 56px; }
 .pust-gc .pust-lc-die svg { width: 100%; height: 100%; display: block; }
-.pust-gc .pust-lc-name { grid-area: name; min-width: 0; height: 26px; font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; }
+.pust-gc .pust-lc-name { grid-area: name; min-width: 0; font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; }
 .pust-gc .pust-lc-x { grid-area: x; }
 .pust-gc .pust-lc-btns { grid-area: btns; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .pust-gc .pust-lc-btns > button { margin: 0; min-width: 0; height: 26px; padding: 0 2px; font-size: 11px; line-height: 1; white-space: nowrap; }
@@ -621,6 +621,11 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
   font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; }
 .pust-cmove p { margin: 0; }
 .pust-cmove .pust-cmove-q { font-weight: 800; font-size: 14px; text-shadow: 0 0 6px rgba(61,255,71,.4); }
+/* the tour's example: the question over the caravan token, both in one frame the tour lights up */
+.pust-cmove-demo { position: fixed; z-index: 1000; display: flex; flex-direction: column; align-items: center; }
+.pust-cmove-demo > .pust-cmove { position: static; }
+/* the tour's target example: a see-through frame over the targeted token, for the tour to light */
+.pust-tgt-demo { position: fixed; z-index: 1000; }
 .pust-cmove .pust-cmove-sub { margin-top: 2px; font-size: 12px; color: #9fdca4; }
 .pust-cmove .pust-cmove-btns { display: flex; gap: 6px; margin-top: 7px; align-items: center; }
 .pust-cmove .pust-cmove-btns button { flex: none; width: auto; height: 24px; margin: 0; padding: 0 9px; line-height: 22px; border-radius: 3px; font: 700 12px "Roboto Condensed", sans-serif; cursor: pointer;
@@ -652,7 +657,7 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
   font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 14px; line-height: 1.2; }
 .chat-message .pust-chat.pust-encard .pust-encard-hd > i { flex: none; font-size: 15px; }
 .chat-message .pust-chat.pust-encard .pust-encard-hd b { color: inherit; font-weight: 800; }
-.chat-message .pust-chat.pust-encard p { margin: 0; padding: 6px 9px 7px; color: #2a261c; font-family: "PT Mono", monospace; font-size: 13px; line-height: 1.35; }
+.chat-message .pust-chat.pust-encard p { margin: 0; padding: 6px 9px 7px; color: #2a261c; font-family: "Ubuntu Mono", "PT Mono", monospace; font-size: 13px; line-height: 1.35; }
 /* the system's own cards spoken by no actor (author, 2026-11-15; chat-portraits.mjs): no picture, no sender name; the time
    and delete stay on the right */
 .chat-message.pust-bare .message-header .portrait, .chat-message.pust-bare .message-header .message-sender { display: none; }
@@ -660,3 +665,81 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
 /* the GM spending a Fate token (author, 2026-11-15; battle-panel.mjs): the players' card in the GM's colours — dark crimson, a gold number */
 .chat-message .pust-chat.pust-fdcard.pust-gmfd { background: linear-gradient(180deg, #6b1a2a, #3e0e19); border-color: #2a0810; color: #f6dfe4; }
 .chat-message .pust-chat.pust-fdcard.pust-gmfd > i { color: #f4d11a; }
+
+/* ===== The system's tours (module/tours/pust-tour.mjs; author, 2026-11-16): the step card as the PDF's info box — a dark
+   green terminal screen in a rusty metal frame with four screws. Tuned for reading: a soft phosphor green body (contrast
+   over 12:1), Roboto Condensed 16 px (the sheets' label face; long text tires in the pixel face), the title in the
+   screens' Handjet, amber capitals; bright green only for names in «». ===== */
+.pust-tour.tour, #tooltip.pust-tour {
+  --tt-scr: #1b2620; --tt-ink: #cfe9d4; --tt-hi: #86f59a; --tt-title: #f2b84b; --tt-dim: #8fb39a; --tt-line: #38503f;
+  padding: 11px; border: 1px solid #1e1b17; border-radius: 7px; max-width: 440px; min-width: 300px; text-align: left; color: var(--tt-ink);
+  background:
+    radial-gradient(circle at 9px 9px, #c9a77f 0 2px, #4a2c16 2.6px 3.6px, transparent 4px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #c9a77f 0 2px, #4a2c16 2.6px 3.6px, transparent 4px),
+    radial-gradient(circle at 9px calc(100% - 9px), #c9a77f 0 2px, #4a2c16 2.6px 3.6px, transparent 4px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #c9a77f 0 2px, #4a2c16 2.6px 3.6px, transparent 4px),
+    linear-gradient(135deg, #8a5430 0%, #6b3d22 35%, #7c4a2a 60%, #4f2c18 100%);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 220, 180, .25);
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-size: 16px; line-height: 1.45;
+}
+.tour-center-step.pust-tour { width: min(500px, calc(100vw - 32px)); max-width: none; }
+.pust-tour .pust-tour-screen { background: var(--tt-scr); border: 2px solid #0e1511; border-radius: 4px;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(134, 245, 154, .08);
+  background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 3px); }
+.pust-tour .pust-tour-hd { display: flex; align-items: center; gap: 10px; padding: 10px 10px 4px 16px; }
+.pust-tour .pust-tour-hd h3 { margin: 0; flex: 1; border: 0; font-family: "Handjet", "Ubuntu Mono", monospace; font-weight: 700; font-size: 24px; line-height: 1;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--tt-title); }
+.pust-tour .pust-tour-x { flex: 0 0 auto; width: 28px; height: 28px; line-height: 1; padding: 0; background: transparent; color: var(--tt-dim);
+  border: 1px solid var(--tt-line); border-radius: 4px; }
+.pust-tour .pust-tour-x:hover { color: var(--tt-ink); border-color: var(--tt-dim); }
+.pust-tour .pust-tour-body { padding: 4px 16px 6px; }
+.pust-tour .pust-tour-body p { margin: 0 0 9px; }
+.pust-tour .pust-tour-body b, .pust-tour .pust-tour-body strong { color: var(--tt-hi); font-weight: 700; }
+/* a button drawn in the text as it looks in the game (author, 2026-11-16) */
+:is(.pust-tour, .pust-journal) .pust-tour-look { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; margin: 0 2px; vertical-align: middle; border-radius: 4px;
+  font: 800 12px/1 "Roboto Condensed", "PT Sans Narrow", sans-serif; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+:is(.pust-tour, .pust-journal) .pust-tour-look-hit { background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border: 1px solid #d8371f; }
+.pust-tour .pust-tour-acts { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 10px; }
+.pust-tour .pust-tour-act { width: auto; background: #2f6b35; color: #effbe9; border: 1px solid #86f59a55; border-radius: 4px; padding: 6px 14px;
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .03em; }
+.pust-tour .pust-tour-act:disabled { opacity: .55; }
+.pust-tour .pust-tour-ft { display: flex; align-items: center; gap: 8px; padding: 8px 10px 10px; border-top: 1px solid var(--tt-line); }
+.pust-tour .pust-tour-ft button { width: auto; flex: 0 0 auto; padding: 5px 12px; background: #26352c; color: var(--tt-ink); border: 1px solid var(--tt-line);
+  border-radius: 4px; font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .03em; }
+.pust-tour .pust-tour-ft button:hover:not(:disabled) { border-color: var(--tt-dim); }
+.pust-tour .pust-tour-ft button.pust-tour-next { background: #9a4a20; color: #fff1e2; border-color: #c06a35; }
+.pust-tour .pust-tour-ft button:disabled { opacity: .35; }
+.pust-tour .pust-tour-n { flex: 1; text-align: center; font-family: "Ubuntu Mono", "PT Mono", Consolas, monospace; font-size: 12px; color: var(--tt-dim); }
+/* the pause banner steps aside while a tour runs (pust-tour.mjs start / exit) */
+body.pust-touring #pause { display: none !important; }
+
+/* ----- An enemy's whole card in chat («В чат», author, 2026-11-16) ----- */
+.chat-message .pust-chat.pust-ecard .pust-ec-hd { display: flex; align-items: center; gap: 9px; padding: 7px 9px; background: var(--ec); color: #fff; }
+.chat-message .pust-chat.pust-ecard .pust-ec-hd > img { width: 42px; height: 42px; flex: none; object-fit: cover; border: 2px solid rgba(255,255,255,.85); border-radius: 4px; background: #2b2f2e; }
+.chat-message .pust-chat.pust-ecard .pust-ec-hd > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.chat-message .pust-chat.pust-ecard .pust-ec-hd b { font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 16px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.35); overflow-wrap: anywhere; }
+.chat-message .pust-chat.pust-ecard .pust-ec-hd span { display: inline-flex; align-items: center; gap: 5px; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.chat-message .pust-chat.pust-ecard .pust-ec-hd .pust-cat-ico { width: 14px; height: 14px; }
+.chat-message .pust-chat.pust-ecard .pust-ec-body { display: flex; flex-direction: column; gap: 7px; padding: 8px 9px 9px; color: #2a261c; font-size: 13px; line-height: 1.35; }
+.chat-message .pust-chat.pust-ecard .pust-ec-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chat-message .pust-chat.pust-ecard .pust-ec-hp { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 4px; background: #1f2322; color: #3dff47; font-family: "Ubuntu Mono", "PT Mono", monospace; font-size: 13px; }
+.chat-message .pust-chat.pust-ecard .pust-ec-hp b { color: #c9ffc4; }
+.chat-message .pust-chat.pust-ecard .pust-ec-state { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 12px; background: var(--sc); color: #fff; border: 1px solid color-mix(in srgb, var(--sc) 70%, #000);
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.chat-message .pust-chat.pust-ecard .pust-ec-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.chat-message .pust-chat.pust-ecard .pust-ec-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 3px; background: #e2dcc6; border: 1px solid #b9b096; font-size: 12px; }
+/* the system's chat heading plate (rust, light letters), in the card's width */
+.chat-message .pust-chat.pust-ecard .pust-ec-sec h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 4px; padding: 2px 7px; border-radius: 3px; color: #f1e3c2;
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.chat-message .pust-chat.pust-ecard .pust-ec-atk, .chat-message .pust-chat.pust-ecard .pust-ec-move { padding: 3px 0; }
+.chat-message .pust-chat.pust-ecard .pust-ec-atk + .pust-ec-atk, .chat-message .pust-chat.pust-ecard .pust-ec-move + .pust-ec-move { border-top: 1px dashed #cfc6aa; }
+.chat-message .pust-chat.pust-ecard .pust-ec-atk > div { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.chat-message .pust-chat.pust-ecard .pust-ec-atk p, .chat-message .pust-chat.pust-ecard .pust-ec-move > div { margin: 2px 0 0; padding: 0; font-family: "Ubuntu Mono", "PT Mono", monospace; font-size: 12px; color: #3d372a; }
+.chat-message .pust-chat.pust-ecard .pust-ec-dice, .chat-message .pust-chat.pust-ecard .pust-ec-type { padding: 1px 7px; border-radius: 3px; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.chat-message .pust-chat.pust-ecard .pust-ec-dice { background: #2b2f2e; color: #e2ad3b; }
+.chat-message .pust-chat.pust-ecard .pust-ec-type { background: var(--dt-bg, #9a4a20); color: var(--dt-fg, #fff); border: 1px solid var(--dt-bd, transparent); } /* the damage type's colours (.dt-*, pust-check.css) */
+.chat-message .pust-chat.pust-ecard .pust-ec-asps { display: flex; flex-wrap: wrap; gap: 4px; }
+.chat-message .pust-chat.pust-ecard .pust-ec-asp { padding: 2px 8px; border-radius: 3px; background: #e2ad3b; color: #241a0c; font-weight: 700; font-style: italic; font-size: 12px; }
+.chat-message .pust-chat.pust-ecard .pust-ec-asp b { font-style: normal; color: #1d5c22; }
+.chat-message .pust-chat.pust-ecard .pust-ec-notes { font-family: "Ubuntu Mono", "PT Mono", monospace; font-size: 12px; }
+.chat-message .pust-chat.pust-ecard .pust-en-mvlist { margin: 2px 0 0 16px; padding: 0; }

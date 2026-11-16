@@ -278,6 +278,16 @@ function redrawTravel() {
   sideTravel();
 }
 
+/** The tours (author, 2026-11-16): the travel window opened with an event in it, or closed */
+export function setTravelOpen(on) {
+  tv.open = !!on;
+  if (on && !tv.main) {
+    T ??= createTerminal({ toast: (m) => ui.notifications.info(m) });
+    Object.assign(tv, T.travel.generate(tv.type, tv.luck));
+  }
+  redrawTravel();
+}
+
 /** Under each battle of the event, as in the terminal: «Інші види» (a random battle) and «Створити битву» → the terminal's «Битви» */
 function travelBattleButtons(box) {
   box.querySelectorAll(".pust-md-tvout .battle-encounter").forEach((sec, i) => {

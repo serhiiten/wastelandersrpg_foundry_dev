@@ -62,11 +62,12 @@ has('data-action="travelBattle"', APP, "travel: «Експорт у трекер
 same([...battleP.matchAll(/<option value="(\w+)">/g)].map((m) => m[1]), BATTLE_DIFFS.map((d) => d.v), "battle difficulties");
 same([...battleP.matchAll(/type="checkbox" value="(\w+)"/g)].map((m) => m[1]), T0.battle.kinds().map((k) => k.key), "battle enemy kinds");
 const BT_IDS = { "bt-gen": 'data-action="battleGen"', "bt-rollPlace": 'data-kind="place"', "bt-rollHazard": 'data-kind="hazard"',
-  "bt-rollRewardBtn": 'data-action="battleReward"', "bt-clearRes": 'data-action="battleClear"', "bt-foldRes": 'data-action="battleFold"',
+  "bt-rollRewardBtn": 'data-action="battleReward"', "bt-clearRes": 'data-action="battleClear"',
   "bt-importTr": 'data-mode="place"' /* «Експорт у трекер» → «Розмістити» (tokens on the scene) */ };
 const SKIP = {
   "bt-copyText": "текст битви — у Foundry кнопка «В чат»", runTests: "діагностика генератора — для розробки HTML",
   copyBtnCase: "копіювання тексту справи — у Foundry кнопка «В чат»",
+  "bt-foldRes": "згорнути картки — у Foundry ворогів показано чіпами, картка відкривається кліком (author, 2026-11-16)",
 };
 for (const id of [...battleP.matchAll(/<button[^>]*id="([\w-]+)"/g)].map((m) => m[1])) {
   inventory++;

@@ -18,7 +18,8 @@
 import { variantTextures } from "../helpers/token-variants.mjs";
 import { tokenLevel } from "../helpers/token-level.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
-import { battleFolder } from "./terminal-battle.mjs";
+import { battleFolder, asKind, OPPONENT_ALIASES } from "./terminal-battle.mjs";
+import { pickKind } from "../rules/enemy-kinds.mjs";
 import { sceneZones, zoneOf, addBattleZone } from "../canvas/battle-zones.mjs";
 import { applyDamage, applyHeal, chosenTokens, warnNoTargets, clearTargets } from "./apply-damage.mjs";
 import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
@@ -134,11 +135,12 @@ async function bodyHtml() {
       <div class="pust-md-bform-btns"><button type="button" data-battle="cancel">Скасувати</button><button type="button" class="pust-md-bgo" data-battle="add"><i class="fa-solid fa-plus"></i><span>Додати</span></button></div>
     </div>`;
   }
-  return `${row("place", "Місце", "fa-location-dot", place)}${row("hazard", "Небезпека", "fa-radiation", hazard)}
+  // the place, the hazard and the zone / enemy buttons in one block (the tour lights them together; author, 2026-11-16)
+  return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place)}${row("hazard", "Небезпека", "fa-radiation", hazard)}
     <div class="pust-md-row pust-md-bbtns">
       <button type="button" data-battle="zone" title="Нова зона 6 × 5 клітинок біля центру огляду"><i class="fa-solid fa-vector-square"></i><span>Зона</span></button>
       <button type="button" data-battle="enemy" class="${ui_.open ? "on" : ""}" title="Додати супротивників із компендіуму в зону"><i class="fa-solid fa-skull"></i><span>Супротивник</span></button>
-    </div>${form}
+    </div></div>${form}
     ${roundHtml(scene)}
     ${damageHtml()}
     <p class="pust-md-bcount">${countLine(scene)}</p>`;
@@ -176,7 +178,8 @@ function roundHtml(scene) {
   const round = Math.max(1, flagNow(scene, "battleRound", 1));
   const fate = Math.max(0, flagNow(scene, "battleFate", 0));
   const pcs = pcCount(scene);
-  return `<div class="pust-md-bround">
+  // both rows in one block (the tour lights them together; author, 2026-11-16)
+  return `<div class="pust-md-brf"><div class="pust-md-bround">
       <span class="pust-md-blabel"><i class="fa-solid fa-rotate"></i>Коло дій</span>
       <button type="button" class="pust-md-barrow" data-battle="round" data-step="-1" ${round > 1 ? "" : "disabled"} title="Попереднє коло" aria-label="Попереднє коло"><i class="fa-solid fa-caret-left"></i></button>
       <span class="pust-md-bnum" title="Коло дій">${round}</span>
@@ -186,7 +189,7 @@ function roundHtml(scene) {
       <span class="pust-md-blabel" title="На кожну сцену Доглядач отримує стільки жетонів Долі, скільки персонажів гравців бере в ній участь"><i class="fa-solid fa-clover"></i>Жетони Долі</span>
       <span class="pust-md-n"><button type="button" data-battle="fate" data-d="-1" ${fate > 0 ? "" : "disabled"} title="Доглядач витрачає жетон Долі" aria-label="Витратити жетон Долі">−</button><input type="text" class="pust-screen" value="${fate}" readonly aria-label="Жетони Долі Доглядача"><button type="button" data-battle="fate" data-d="1" title="Додати жетон Долі" aria-label="Додати жетон Долі">+</button></span>
       <button type="button" class="pust-md-bset" data-battle="fateset" title="Виставити стільки жетонів, скільки персонажів гравців на сцені"><span>За гравцями</span><b>${pcs}</b></button>
-    </div>`;
+    </div></div>`;
 }
 
 const pcCount = (scene) => (scene?.tokens ?? []).filter((t) => t.actor?.type === "character").length;
@@ -237,6 +240,12 @@ export async function redrawBattlePanel() {
   const body = section.querySelector(".pust-md-body");
   if (body.contains(document.activeElement) && document.activeElement.matches("input")) return; // not over typing
   body.innerHTML = await bodyHtml();
+}
+
+/** The tour opens and closes the «Супротивник» form (author, 2026-11-16) */
+export async function setEnemyFormOpen(on) {
+  ui_.open = !!on;
+  await redrawBattlePanel();
 }
 
 export function mountBattlePanel(sec) {
@@ -340,17 +349,21 @@ async function onClick(ev) {
     b.disabled = true;
     try {
       const folder = await battleFolder(byFaction[ui_.faction].name, "");
-      let actor = game.actors.find((a) => a.type === "enemy" && a.folder?.id === folder.id && a.name === entry.name);
+      // a group enemy comes as one concrete kind, the whole batch (author, 2026-11-16)
+      const kind = pickKind(entry.name, OPPONENT_ALIASES);
+      const name = kind?.name ?? entry.name;
+      let actor = game.actors.find((a) => a.type === "enemy" && a.folder?.id === folder.id && a.name === name);
       if (!actor) {
         const data = (await pack.getDocument(entry._id)).toObject();
         delete data._id;
         foundry.utils.setProperty(data, "_stats.compendiumSource", entry.uuid);
         data.folder = folder.id;
+        if (kind) asKind(data, kind.name);
         actor = await Actor.implementation.create(data);
       }
       const zone = sceneZones().find((z) => z.id === ui_.zone) ?? null;
       const made = await tokensIntoZone(scene, actor, ui_.count, zone);
-      ui.notifications.info(`${entry.name} × ${made.length}${zone ? ` → «${zoneOf(zone.doc).name}»` : ""}`);
+      ui.notifications.info(`${name} × ${made.length}${zone ? ` → «${zoneOf(zone.doc).name}»` : ""}`);
     } finally { b.disabled = false; }
   }
 }

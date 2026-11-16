@@ -18,11 +18,32 @@ const CONFIRM_MS = 3000;
 const SAVE_MS = 500;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 
-const stored = () => G.normalizeList(game.settings.get(game.system.id, "gameCounters"));
+/**
+ * The tours' examples (author, 2026-11-16; module/tours): a scene counter and a game counter shown in the panel only while
+ * the tour step is on — never written to the world, never logged; the tour's overlay keeps their buttons out of reach.
+ */
+let DEMO = null;
+const DEMO_GAME = { id: 99901, name: "Приклад: наступ Легіону", size: 6, val: 2, labels: ["Легіон біля воріт", "Перші сутички", "", "", "", ""] };
+const DEMO_SCENE = { id: 99902, name: "Приклад: тунель обвалюється", die: 6, val: 4 };
+export function setCountersDemo(on) {
+  DEMO = on ? { game: G.normalizeList([DEMO_GAME])[0], scene: G.normalizeLocalList([DEMO_SCENE])[0] } : null;
+  return PANEL?.render();
+}
+/** The tour: the new counter's form opened (or closed) as «+» does */
+export function setCountersForm(on) {
+  if (!PANEL) return null;
+  if (on && !PANEL.form) PANEL.openForm();
+  if (!on && PANEL.form) { PANEL.form = null; return PANEL.render(); }
+  return null;
+}
+
+const storedReal = () => G.normalizeList(game.settings.get(game.system.id, "gameCounters"));
+const stored = () => (DEMO ? [...storedReal(), DEMO.game] : storedReal());
 
 /* ---------- the current scene's counters ---------- */
 const sceneOf = () => canvas?.scene ?? null;
-const sceneList = () => G.normalizeLocalList(sceneOf()?.getFlag(game.system.id, "sceneCounters"));
+const sceneListReal = () => G.normalizeLocalList(sceneOf()?.getFlag(game.system.id, "sceneCounters"));
+const sceneList = () => (DEMO ? [...sceneListReal(), DEMO.scene] : sceneListReal());
 const sceneNext = () => Math.max(1, Math.round(Number(sceneOf()?.getFlag(game.system.id, "sceneCounterNext"))) || 1);
 function writeScene(list, next) {
   const sc = sceneOf();
@@ -50,7 +71,6 @@ function logCard(text) {
 function armed(target) {
   if (target.classList.contains("armed")) return true;
   target.classList.add("armed");
-  target.title = "Натисни ще раз, щоб підтвердити";
   ui.notifications.info("Натисни ще раз, щоб підтвердити.");
   setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
   return false;
@@ -137,21 +157,26 @@ class CountersPanel {
   #bind() {
     const root = this.body;
     const fit = (t) => { t.style.height = "auto"; if (t.scrollHeight) t.style.height = `${t.scrollHeight}px`; };
+    const oneLine = (t) => { if (t.value.includes("\n")) t.value = t.value.replace(/\s*\n\s*/g, " "); }; // a pasted name stays one line
     root.querySelectorAll("textarea[data-lbl]").forEach((t) => {
       const key = `l${t.dataset.lbl}.${t.dataset.i}`;
       fit(t);
       t.addEventListener("input", () => { fit(t); this.#save(key, () => this.#write((l) => G.setLabel(l, t.dataset.lbl, +t.dataset.i, t.value))); });
       t.addEventListener("blur", () => this.#flush(key));
     });
-    root.querySelectorAll("input[data-name]").forEach((i) => {
+    root.querySelectorAll("textarea[data-name]").forEach((i) => { // a name wraps, never cut (author, 2026-11-16)
+      fit(i);
+      i.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); i.blur(); } });
       const key = `n${i.dataset.name}`;
-      i.addEventListener("input", () => this.#save(key, () => this.#write((l) => G.renameCounter(l, i.dataset.name, i.value))));
+      i.addEventListener("input", () => { oneLine(i); fit(i); this.#save(key, () => this.#write((l) => G.renameCounter(l, i.dataset.name, i.value))); });
       i.addEventListener("change", () => this.#flush(key));
       i.addEventListener("blur", () => this.#flush(key));
     });
-    root.querySelectorAll("input[data-lname]").forEach((i) => {
+    root.querySelectorAll("textarea[data-lname]").forEach((i) => { // a name wraps, never cut (author, 2026-11-16)
+      fit(i);
+      i.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); i.blur(); } });
       const key = `m${i.dataset.lname}`;
-      i.addEventListener("input", () => this.#save(key, () => this.#writeLocal((l) => G.renameLocal(l, i.dataset.lname, i.value))));
+      i.addEventListener("input", () => { oneLine(i); fit(i); this.#save(key, () => this.#writeLocal((l) => G.renameLocal(l, i.dataset.lname, i.value))); });
       i.addEventListener("change", () => this.#flush(key));
       i.addEventListener("blur", () => this.#flush(key));
     });
@@ -180,11 +205,11 @@ class CountersPanel {
 
   async #write(fn) {
     if (!game.user.isGM) return;
-    return game.settings.set(game.system.id, "gameCounters", fn(stored()));
+    return game.settings.set(game.system.id, "gameCounters", fn(storedReal()));
   }
   async #writeLocal(fn) {
     if (!game.user.isGM || !sceneOf()) return;
-    return writeScene(fn(sceneList()), sceneNext());
+    return writeScene(fn(sceneListReal()), sceneNext());
   }
 
   #newForm() { return { kind: sceneOf() ? "scene" : "game", name: "", size: 6, val: 0, die: "6", custom: 20, start: 4 }; }
@@ -221,10 +246,17 @@ class CountersPanel {
     if (a === "lremove") return this.#lremove(b);
   }
 
+  /** The tour's way in: the form opened without a click */
+  openForm() {
+    if (this.form) return this.render();
+    this.form = this.#newForm();
+    return this.render();
+  }
+
   /** «+»: the form opens on top of the list (a second press closes it) */
   #newCounter() {
     if (this.form) { this.form = null; return this.render(); }
-    if (G.isFullTotal(sceneList().length, stored().length)) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+    if (G.isFullTotal(sceneListReal().length, storedReal().length)) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
     this.form = this.#newForm();
     this.render().then(() => this.body.querySelector("[data-f='name']")?.focus());
   }
@@ -241,10 +273,10 @@ class CountersPanel {
   async #create() {
     if (!this.form) return;
     this.#readForm();
-    const list = stored(), f = this.form;
+    const list = storedReal(), f = this.form;
     if (f.kind === "scene") {
       if (!sceneOf()) return;
-      const lr = G.addLocal(sceneList(), { name: f.name, die: G.formDie(f.die, f.custom), val: f.start }, { globalCount: list.length, next: sceneNext() });
+      const lr = G.addLocal(sceneListReal(), { name: f.name, die: G.formDie(f.die, f.custom), val: f.start }, { globalCount: list.length, next: sceneNext() });
       if (!lr) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
       this.form = null;
       await writeScene(lr.list, lr.next);
@@ -252,7 +284,7 @@ class CountersPanel {
       await logCard(G.logCreateLocal(lr.counter));
       return;
     }
-    const r = G.isFullTotal(sceneList().length, list.length) ? null : G.addCounter(list, f);
+    const r = G.isFullTotal(sceneListReal().length, list.length) ? null : G.addCounter(list, f);
     if (!r) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
     this.form = null;
     await game.settings.set(game.system.id, "gameCounters", r.list);
@@ -263,7 +295,7 @@ class CountersPanel {
 
   async #step(target) {
     await this.#flushAll(); // typed names / descriptions first
-    const r = G.stepCounter(stored(), target.dataset.id, +target.dataset.d);
+    const r = G.stepCounter(storedReal(), target.dataset.id, +target.dataset.d);
     if (!r?.changed) return;
     await game.settings.set(game.system.id, "gameCounters", r.list);
     await logCard(G.logStep(r.counter, r.from, r.to));
@@ -272,7 +304,7 @@ class CountersPanel {
   async #lstep(target) {
     if (!sceneOf()) return;
     await this.#flushAll();
-    const d = +target.dataset.d, r = G.stepLocal(sceneList(), target.dataset.id, d);
+    const d = +target.dataset.d, r = G.stepLocal(sceneListReal(), target.dataset.id, d);
     if (!r?.changed) return;
     await writeScene(r.list, sceneNext());
     await logCard(G.logStepLocal(r.counter, r.from, r.to, d));
@@ -280,7 +312,7 @@ class CountersPanel {
 
   async #remove(target) {
     if (!armed(target)) return; // asks twice, like every destructive button
-    const r = G.removeCounter(stored(), target.dataset.id);
+    const r = G.removeCounter(storedReal(), target.dataset.id);
     if (!r) return;
     setOpen(r.counter.id, false);
     await game.settings.set(game.system.id, "gameCounters", r.list); // removal is not posted to chat (author, 2026-11-14)
@@ -288,7 +320,7 @@ class CountersPanel {
 
   async #lremove(target) {
     if (!sceneOf() || !armed(target)) return;
-    const r = G.removeLocal(sceneList(), target.dataset.id);
+    const r = G.removeLocal(sceneListReal(), target.dataset.id);
     if (!r) return;
     await writeScene(r.list, sceneNext()); // removal is not posted to chat
   }
@@ -307,7 +339,7 @@ export function mountCounters(section) {
 export async function createSceneCounter({ name, die = 6, val = 4 } = {}) {
   if (!game.user.isGM) return ui.notifications.warn("Лічильники створює Доглядач.");
   if (!sceneOf()) return ui.notifications.warn("Спершу відкрий сцену: лічильник з'явиться на ній.");
-  const lr = G.addLocal(sceneList(), { name, die, val }, { globalCount: stored().length, next: sceneNext() });
+  const lr = G.addLocal(sceneListReal(), { name, die, val }, { globalCount: storedReal().length, next: sceneNext() });
   if (!lr) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
   await writeScene(lr.list, lr.next);
   ui.notifications.info(`Лічильник «${lr.counter.name}» додано на сцену «${sceneOf().name}».`);
@@ -317,8 +349,8 @@ export async function createSceneCounter({ name, die = 6, val = 4 } = {}) {
 /** A game counter made from a journal button (`@GameCounter[…]`, author 2026-11-15: the quick start's days to delivery) */
 export async function createGameCounter({ name, size = 6, val = 0 } = {}) {
   if (!game.user.isGM) return ui.notifications.warn("Лічильники створює Доглядач.");
-  const list = stored();
-  const r = G.isFullTotal(sceneList().length, list.length) ? null : G.addCounter(list, { name, size, val });
+  const list = storedReal();
+  const r = G.isFullTotal(sceneListReal().length, list.length) ? null : G.addCounter(list, { name, size, val });
   if (!r) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
   await game.settings.set(game.system.id, "gameCounters", r.list);
   ui.notifications.info(`Лічильник гри «${r.counter.name}» додано.`);

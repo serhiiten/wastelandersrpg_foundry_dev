@@ -713,23 +713,12 @@
 .pust-sheetbar[open] > summary { margin-bottom: 6px; }
 .pust-sheetbar-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
 .pust-sheetbar-btns > button { white-space: nowrap; }
-.pust-qsmenu { position: relative; }
-.pust-qsmenu > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 4px;
-  background: var(--pu-paper-2); border: 1px solid var(--pu-ink-2); box-shadow: 0 2px 0 var(--pu-rust-1); font-weight: 700; font-size: 13px; white-space: nowrap; }
-.pust-qsmenu > summary::-webkit-details-marker { display: none; }
-.pust-qsmenu[open] > summary { background: var(--pu-steel-1); color: var(--pu-green); border-color: var(--pu-steel-0); }
-.pust-qslist { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; min-width: 220px; display: flex; flex-direction: column; gap: 4px; padding: 6px;
-  background: var(--pu-sheet); border: 1px solid var(--pu-rust-3); border-radius: 4px; box-shadow: 0 6px 16px rgba(0,0,0,.35); }
-.wastelanders .pust-qslist > button:not(.header-control) { display: flex !important; flex-direction: column; align-items: flex-start; height: auto !important; min-height: 40px; line-height: 1.15 !important; padding: 5px 9px !important; text-align: left; white-space: normal; }
-.pust-qslist > button b { font-family: var(--pu-f-label); font-size: 14px; }
-.pust-qslist > button small { font-size: 11px; font-weight: 400; opacity: .75; }
-.wastelanders .pust-sheetbar-btns > button:not(.header-control) { height: 30px !important; min-height: 0; line-height: 28px !important; } /* the same height as «Швидкий старт» */
-/* five equal buttons, one row at any width (labels shorten with «…» on a narrow sheet) */
+.wastelanders .pust-sheetbar-btns > button:not(.header-control) { height: 30px !important; min-height: 0; line-height: 28px !important; }
+/* equal buttons, one row at any width (labels shorten with «…» on a narrow sheet) */
 .pust-sheetbar-btns { flex-wrap: nowrap; }
-.pust-sheetbar-btns > button, .pust-sheetbar-btns > .pust-qsmenu { min-width: 0 !important; margin: 0 !important; }
-.pust-sheetbar-btns > button, .pust-qsmenu > summary { overflow: hidden; text-overflow: ellipsis; }
-.pust-qsmenu > summary { width: 100%; box-sizing: border-box; }
-.pust-sheetbar-btns > * { box-sizing: border-box !important; } /* padding inside the width, so all five come out equal */
+.pust-sheetbar-btns > button { min-width: 0 !important; margin: 0 !important; }
+.pust-sheetbar-btns > button { overflow: hidden; text-overflow: ellipsis; }
+.pust-sheetbar-btns > * { box-sizing: border-box !important; } /* padding inside the width, so all come out equal */
 .pust-sheetbar-btns { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); } .pust-sheetbar-btns > * { width: auto !important; } /* a grid: five truly equal columns (flex added the buttons padding on top) */
 /* «Налаштування»: «Захист вручну» under «Ручні надбавки» in the right column */
 .pust-setstack { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -762,7 +751,7 @@
 
 /* ===== Аркуш каравану (stage 7: as the character sheet) ===== */
 /* «Аркуш» bar: six equal buttons, three columns × two rows */
-.pust-sheetbar-btns { grid-template-columns: repeat(3, minmax(0, 1fr)); } /* six buttons, three columns × two rows (character and caravan) */
+.pust-sheetbar-btns { grid-template-columns: repeat(5, minmax(0, 1fr)); } /* five buttons in one row (character and caravan; «Швидкий старт» gone, author 2026-11-16) */
 
 /* header: no portrait, the column takes the whole width */
 .pust-caravan .pust-head { grid-template-columns: minmax(0, 1fr); }
@@ -1398,9 +1387,9 @@
 /* narrowest widths (author, 2026-11-15): 580 px is the character / caravan sheets' and the builders' floor; an enemy's card
    goes down to its own width (460), a place's card to 420 — its kind label wraps there rather than push the switches out */
 .application.pust-sheet.pust-en-sheet { min-width: 460px; }
-.application.pust-sheet.pust-place-sheet { min-width: 420px; }
+.application.pust-sheet.pust-place-sheet { min-width: 430px; } /* the kind label at its longest word + both switches (author, 2026-11-16) */
 .pust-place .pust-place-hd { gap: 6px; }
-.pust-place .pust-place-hd > .pust-place-kind { min-width: 0; white-space: normal; line-height: 1.1; }
+.pust-place .pust-place-hd > .pust-place-kind { min-width: min-content; white-space: normal; line-height: 1.1; } /* never narrower than its longest word: «Поселення» ran into the switch at 420 px (author, 2026-11-16) */
 /* «Швидкий доступ» (author, 2026-11-15). Wide (body ≥ 836 px): «Жетони Долі» / «Зароблено ОД» only as wide as their
    content, «Зробити перевірку» (two lines, 172 px) and the «0 ОЗ» box in the column on the right, as before.
    «Вилікувати» / «Поповнити» on the title row, right after «Очки здоров'я» / «Припаси» (under the counter / lamps below
@@ -1500,11 +1489,11 @@
 @container (min-width: 820px) { .pust-gear-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .pust-gear-col { min-width: 0; }
 .pust-gcards { display: flex; flex-direction: column; gap: 8px; }
-.pust-gc { --gc: #8a6a3e; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 10px; align-items: center;
+.pust-gcards > .pust-gc { --gc: #8a6a3e; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 10px; align-items: center;
   border: 1px solid var(--pu-paper-3); border-left: 4px solid var(--gc); border-radius: 4px; padding: 7px 8px; background: var(--pu-sheet); box-shadow: 0 1px 0 rgba(35,27,17,.14); }
 .pust-gcards-weapons > .pust-gc { --gc: var(--pu-rust-3); }
 .pust-gcards-armor > .pust-gc { --gc: #5d6d78; }
-.pust-gc.on { --gc: #2f8a32; border-color: #5fa152; background: linear-gradient(90deg, rgba(61,170,64,.24), rgba(61,170,64,.08) 55%, rgba(61,170,64,.03)), #f3faea;
+.pust-gcards > .pust-gc.on { border-color: #5fa152; background: linear-gradient(90deg, rgba(61,170,64,.24), rgba(61,170,64,.08) 55%, rgba(61,170,64,.03)), #f3faea;
   box-shadow: 0 0 0 1px rgba(47,138,50,.30), 0 0 10px rgba(61,170,64,.22), 0 1px 0 rgba(35,27,17,.14); }
 .pust-gc-head { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .pust-gc-head > .pust-gname { flex: 1 1 0; width: 0; min-width: 0; font-weight: 700; }
@@ -1640,3 +1629,24 @@
   border: 1px solid rgba(0,0,0,.35) !important; border-radius: 3px !important; box-shadow: none !important; background: rgba(0,0,0,.12) !important; color: #241a0c !important;
   font: 800 11px/18px "Roboto Condensed", "PT Sans Narrow", sans-serif !important; font-style: normal !important; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
 .wastelanders.pust-sheet .pust-gc .pust-modchip > .pust-modcrit.on { background: #a8121a !important; border-color: #6e0c11 !important; color: #fff4ef !important; }
+
+/* «Аркуш» bar (author, 2026-11-16): one row at any width — when the equal buttons can't hold their labels, only the icons
+   stay (the name is in each button's tooltip); thresholds = 5 × the longest label + the gaps */
+.pust-sheetbar-btns { container: sheetbar / inline-size; }
+.pust-sheetbar-btns > button { text-overflow: clip; }
+@container sheetbar (max-width: 880px) { .pust-sheet:not(.pust-caravan-sheet) .pust-sheetbar-btns .pust-sbl { display: none; } }
+@container sheetbar (max-width: 800px) { .pust-caravan-sheet .pust-sheetbar-btns .pust-sbl { display: none; } }
+/* «Швидкий старт» actors (quickstart-lock.mjs): the wiping buttons look off but keep their tooltip with the reason */
+.pust-sheetbar-btns > button[data-locked] { opacity: .45; cursor: not-allowed; filter: grayscale(.6); }
+
+/* ----- The enemy card for players (author, 2026-11-16): the state in words as a chip in its colour, the situational aspects ----- */
+.pust-en .pust-en-state { align-self: flex-start; display: inline-flex; align-items: center; gap: 9px; padding: 7px 16px 7px 12px; border-radius: 18px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--sc) 80%, #fff), var(--sc)); color: #fff; border: 2px solid color-mix(in srgb, var(--sc) 70%, #000);
+  box-shadow: 0 2px 0 rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.3); font-family: var(--pu-f-label); font-weight: 800; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pust-en .pust-en-state > i { font-size: 17px; }
+/* «В чат» (GM): as the other switches of the bar; on a narrow card only its icon */
+.wastelanders .pust-en .pust-en-bar > button.pust-en-chat:not(.header-control) { padding: 0 9px !important; }
+@container (max-width: 370px) {
+  .wastelanders .pust-en .pust-en-bar > button.pust-en-chat:not(.header-control) { padding: 0 !important; width: 30px !important; justify-content: center; }
+  .pust-en .pust-en-bar > button.pust-en-chat > span { display: none; }
+}

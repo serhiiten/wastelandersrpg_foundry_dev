@@ -5,7 +5,8 @@
  * enemies, place their tokens and start a combat (terminal-battle.mjs).
  */
 import { createTerminal } from "../rules/terminal.mjs";
-import { createBattle } from "./terminal-battle.mjs";
+import { createBattle, openGeneratedEnemy, generatedEnemyImg, dropGeneratedEnemy, OPPONENT_ALIASES } from "./terminal-battle.mjs";
+import { concreteKinds } from "../rules/enemy-kinds.mjs";
 import { postChat } from "./chat.mjs";
 import { postTerminalRoll } from "./check-panel.mjs";
 import { luckCaravan } from "./map-dice.mjs";
@@ -67,6 +68,25 @@ export function toggleTerminal() {
 /** Light the plate while the terminal is open */
 const markPlate = (on) => document.querySelectorAll(".wastelanders-terminal-open").forEach((b) => b.classList.toggle("on", on));
 
+/** The right sidebar on the Actors tab with a folder and its parents unfolded, scrolled to it */
+async function revealFolder(folder) {
+  if (!folder) return;
+  for (let f = folder; f; f = f.folder) game.folders._expanded[f.uuid] = true;
+  ui.sidebar.expand();
+  ui.sidebar.changeTab("actors", "primary");
+  await ui.actors.render();
+  setTimeout(() => ui.actors.element?.querySelector(`[data-folder-id="${folder.id}"], [data-uuid="${folder.uuid}"]`)?.scrollIntoView({ block: "start" }), 300);
+}
+
+/** A «Битви» chip dropped on the canvas: its enemy's token there */
+const DROP_TYPE = "PustGeneratedEnemy";
+Hooks.on("dropCanvasData", (cv, data) => {
+  if (data?.type !== DROP_TYPE) return;
+  const app = foundry.applications.instances.get("pust-terminal");
+  if (app) dropGeneratedEnemy(app.T, app.st, data.name, { x: data.x, y: data.y });
+  return false;
+});
+
 class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "pust-terminal",
@@ -90,7 +110,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       battleGen: TerminalApp.#on((app) => app.#battle((B) => B.generate(app.st.battle.difficulty, app.st.battle.kinds), true)),
       battleScene: TerminalApp.#on((app, t) => app.#battle((B) => B.rollScene(t.dataset.kind))),
       battleReward: TerminalApp.#on((app) => app.#battle((B) => B.rollReward())),
-      battleFold: TerminalApp.#on((app) => { app.ui.foldAll = !app.ui.foldAll; }),
+      battleEnemy: TerminalApp.#onEnemy,
       battleClear: TerminalApp.#on((app, t) => {
         if (!TerminalApp.#armed(t)) return false;
         app.st.battle.state = null; app.st.battle.names = [];
@@ -105,8 +125,8 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static PARTS = { main: { template: "systems/wastelanders-dev/templates/apps/terminal.hbs", scrollable: [".pust-term-body"] } };
 
-  /** UI state not saved: folded enemy cards */
-  ui = { foldAll: false };
+  /** UI state not saved */
+  ui = {};
 
   /** The saved terminal (per user) */
   get st() {
@@ -161,8 +181,10 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     B.setKinds(this.st.battle.kinds);
     if (fresh && !this.st.battle.kinds.length) return ui.notifications.warn("Обери щонайменше один вид супротивників.");
     const s = fn(B);
-    if (fresh) this.st.battle.names = [];
-    this.st.battle.state = clone({ ...s, names: undefined });
+    if (fresh) { this.st.battle.names = []; this.st.battle.picks = {}; }
+    // a group enemy («Маленькі тварини…») becomes one concrete kind, kept through rerolls (author, 2026-11-16)
+    this.st.battle.picks ??= {};
+    this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
   }
 
   /* ---------- travel battles: reroll the kinds, or move the battle to «Битви» ---------- */
@@ -195,7 +217,8 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!s) return ui.notifications.warn("Не вдалося зібрати цю битву."), false;
     this.st.battle.difficulty = s.difficulty;
     this.st.battle.names = s.names || [];
-    this.st.battle.state = clone({ ...s, names: undefined });
+    this.st.battle.picks = {};
+    this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
     this.st.tab = "battle";
     ui.notifications.info("Битву з подорожі перенесено на вкладку «Битви».");
   }
@@ -213,10 +236,17 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onCreate(event, target) {
     target.disabled = true;
     try {
-      await createBattle(this.T, this.st, target.dataset.mode);
+      const made = await createBattle(this.T, this.st, target.dataset.mode);
+      // «Додати теку в Актори» (author, 2026-11-16): the Actors tab open, the battle's folder unfolded
+      if (target.dataset.mode === "folder" && made?.length) revealFolder(made[0].folder);
     } finally {
       target.disabled = false;
     }
+  }
+
+  /** A chip of «Битви» (author, 2026-11-16): the enemy's card */
+  static async #onEnemy(event, target) {
+    await openGeneratedEnemy(this.T, this.st, target.dataset.name);
   }
 
   static async #onChat(event, target) {
@@ -270,6 +300,14 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender(context, options);
     const root = this.element;
+    // «Битви»: each chip's token picture (author, 2026-11-16)
+    root.querySelectorAll("img.pust-enchip-tok[data-tok]").forEach(async (img) => { img.src = await generatedEnemyImg(img.dataset.tok, img.dataset.group); });
+    // …and each chip may be dragged onto the scene (author, 2026-11-16; the drop: the dropCanvasData hook above the class)
+    root.querySelectorAll(".pust-enchip[draggable]").forEach((b) => b.addEventListener("dragstart", (ev) => {
+      ev.dataTransfer.setData("text/plain", JSON.stringify({ type: DROP_TYPE, name: b.dataset.name }));
+      const img = b.querySelector("img");
+      if (img) ev.dataTransfer.setDragImage(img, 15, 15);
+    }));
     // dice from the generators' HTML: <button class="die" data-dice="2d6">
     root.querySelectorAll("button.die").forEach((b) => { b.type = "button"; b.dataset.action = "die"; b.title = `Кинути ${b.dataset.dice}`; });
     // travel battles: «Перекинути види» and «Створити битву» (the HTML terminal's tvEnhance)

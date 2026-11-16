@@ -831,7 +831,11 @@
         "default": 0,
         "Q7y8FlWTLEO5p3ye": 3
       },
-      "flags": {},
+      "flags": {
+        "pust": {
+          "quickstart": true
+        }
+      },
       "_stats": {
         "coreVersion": "14.370",
         "systemId": "wastelanders-dev",
@@ -1494,7 +1498,11 @@
         "default": 0,
         "Q7y8FlWTLEO5p3ye": 3
       },
-      "flags": {},
+      "flags": {
+        "pust": {
+          "quickstart": true
+        }
+      },
       "_stats": {
         "coreVersion": "14.370",
         "systemId": "wastelanders-dev",
@@ -2142,7 +2150,11 @@
         "default": 0,
         "Q7y8FlWTLEO5p3ye": 3
       },
-      "flags": {},
+      "flags": {
+        "pust": {
+          "quickstart": true
+        }
+      },
       "_stats": {
         "coreVersion": "14.370",
         "systemId": "wastelanders-dev",
@@ -2899,7 +2911,11 @@
         "default": 0,
         "Q7y8FlWTLEO5p3ye": 3
       },
-      "flags": {},
+      "flags": {
+        "pust": {
+          "quickstart": true
+        }
+      },
       "_stats": {
         "coreVersion": "14.370",
         "systemId": "wastelanders-dev",
@@ -3695,7 +3711,11 @@
         "default": 0,
         "Q7y8FlWTLEO5p3ye": 3
       },
-      "flags": {},
+      "flags": {
+        "pust": {
+          "quickstart": true
+        }
+      },
       "_stats": {
         "coreVersion": "14.370",
         "systemId": "wastelanders-dev",
@@ -3953,7 +3973,11 @@
         "default": 0,
         "Q7y8FlWTLEO5p3ye": 3
       },
-      "flags": {},
+      "flags": {
+        "pust": {
+          "quickstart": true
+        }
+      },
       "_stats": {
         "coreVersion": "14.370",
         "systemId": "wastelanders-dev",

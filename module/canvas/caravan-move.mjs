@@ -41,10 +41,7 @@ function askOver(token, text, sub) {
   return new Promise((resolve) => {
     const el = document.createElement("div");
     el.className = "pust-cmove";
-    el.innerHTML = `<p class="pust-cmove-q">${text}</p><p class="pust-cmove-sub">${sub}</p>
-      <div class="pust-cmove-btns"><button type="button" data-a="yes"><i class="fa-solid fa-check"></i> Так</button>
-      <button type="button" data-a="no">Ні, просто перемістити</button>
-      <button type="button" data-a="x" class="pust-cmove-x" title="Скасувати переміщення" aria-label="Скасувати переміщення">×</button></div>`;
+    el.innerHTML = questionHtml(text, sub);
     document.body.append(el);
     const obj = token.object;
     const w = obj?.w ?? token.width * (token.parent?.grid.size ?? 100);
@@ -64,6 +61,54 @@ function askOver(token, text, sub) {
   });
 }
 
+/** What a move of `cells` costs the caravan, and the question's second line */
+function movePlan(actor, cells) {
+  const tachka = actor.system.vehicle === "tachka";
+  // «Породисті браміни» / «Паливний регулятор» set to save range on this trip (the sheet's choice)
+  const sys = game.system.id;
+  const saving = brahminSaving((parseInt(actor.system.rules?.S?.imp?.brahmins, 10) || 0) > 0
+    && actor.getFlag(sys, "brahminBonus") !== "time", !!actor.getFlag(sys, "pathfinder"));
+  const cost = rangeCost(cells, tachka, saving);
+  const have = Number(actor.system.range?.value) || 0;
+  const notes = [tachka && "тачка: 3 клітини за одиницю", saving && `${tachka ? "регулятор" : "браміни"}: −${saving === 0.5 ? "½" : "¼"}`].filter(Boolean);
+  const sub = `${cells} кл. → ${cost} од.${notes.length ? ` (${notes.join("; ")})` : ""} · є ${have}`;
+  return { cost, have, sub };
+}
+
+function questionHtml(text, sub) {
+  return `<p class="pust-cmove-q">${text}</p><p class="pust-cmove-sub">${sub}</p>
+      <div class="pust-cmove-btns"><button type="button" data-a="yes"><i class="fa-solid fa-check"></i> Так</button>
+      <button type="button" data-a="no">Ні, просто перемістити</button>
+      <button type="button" data-a="x" class="pust-cmove-x" title="Скасувати переміщення" aria-label="Скасувати переміщення">×</button></div>`;
+}
+
+let demo = null; // the tour's example
+/**
+ * The tour's example (author, 2026-11-16): the question shown over a caravan token of the viewed scene, as for a move of
+ * 5 cells, in a frame that also takes in the token. Nothing moves and nothing is spent; its buttons do nothing.
+ * No caravan token on the scene — nothing is shown (the step falls back to its text).
+ */
+export async function setMoveDemo(on) {
+  demo?.remove(); demo = null;
+  if (!on || !canvas?.ready) return;
+  const tok = canvas.tokens.placeables.find((t) => t.actor?.type === "caravan" && t.visible !== false);
+  if (!tok) return;
+  await canvas.animatePan({ x: tok.center.x, y: tok.center.y, scale: Math.max(canvas.stage.scale.x, 1), duration: 250 }); // close enough to see the token
+  const bb = tok.getBounds(); // the token with its bars and name, in screen pixels
+  const a = { x: bb.x - 6, y: bb.y }, b = { x: bb.x + bb.width + 6, y: bb.y + bb.height + 6 };
+  const el = document.createElement("div");
+  el.className = "pust-cmove-demo";
+  el.innerHTML = `<div class="pust-cmove">${questionHtml("Витратити запас ходу автоматично?", movePlan(tok.actor, 5).sub)}</div>`;
+  el.querySelectorAll("button").forEach((x) => { x.tabIndex = -1; });
+  document.body.append(el);
+  const q = el.firstElementChild.getBoundingClientRect();
+  const w = Math.max(q.width, b.x - a.x);
+  const left = Math.max(8, Math.min(window.innerWidth - w - 8, (a.x + b.x) / 2 - w / 2));
+  const top = Math.max(8, a.y - q.height - 6);
+  Object.assign(el.style, { left: `${left}px`, top: `${top}px`, width: `${w}px`, height: `${b.y - top}px` });
+  demo = el;
+}
+
 const notEnough = (actor, cost, have) =>
   ui.notifications.warn(`«${actor.name}»: на цей шлях треба ${cost} од. запасу ходу, а є ${have}. Караван лишається на місці.`);
 
@@ -76,21 +121,14 @@ export function initCaravanMove() {
     const to = { x: changes.x ?? token.x, y: changes.y ?? token.y };
     const cells = cellsMoved(scene, token, to, options);
     if (!cells) return;
-    const tachka = actor.system.vehicle === "tachka";
-    // «Породисті браміни» / «Паливний регулятор» set to save range on this trip (the sheet's choice)
     const sys = game.system.id;
-    const saving = brahminSaving((parseInt(actor.system.rules?.S?.imp?.brahmins, 10) || 0) > 0
-      && actor.getFlag(sys, "brahminBonus") !== "time", !!actor.getFlag(sys, "pathfinder"));
-    const cost = rangeCost(cells, tachka, saving);
-    const have = Number(actor.system.range?.value) || 0;
+    const { cost, have, sub } = movePlan(actor, cells);
     if (actor.getFlag(sys, "autoRange")) {
       if (cost > have) { notEnough(actor, cost, have); return false; }
       runCaravanAction(actor, (C) => C.act("spendRange", { n: cost }));
       return;
     }
     const move = { x: to.x, y: to.y };
-    const notes = [tachka && "тачка: 3 клітини за одиницю", saving && `${tachka ? "регулятор" : "браміни"}: −${saving === 0.5 ? "½" : "¼"}`].filter(Boolean);
-    const sub = `${cells} кл. → ${cost} од.${notes.length ? ` (${notes.join("; ")})` : ""} · є ${have}`;
     askOver(token, "Витратити запас ходу автоматично?", sub).then(async (a) => {
       if (!a) return;
       if (a === "yes") {
@@ -101,5 +139,5 @@ export function initCaravanMove() {
     });
     return false;
   });
-  Hooks.on("canvasTearDown", closeAsk);
+  Hooks.on("canvasTearDown", () => { closeAsk(); setMoveDemo(false); });
 }

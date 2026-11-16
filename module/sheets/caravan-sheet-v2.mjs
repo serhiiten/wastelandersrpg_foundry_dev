@@ -2,6 +2,7 @@
  * Електронний аркуш каравану in Foundry: the HTML caravan sheet's features, rebuilt natively.
  * Every field and button goes to the HTML caravan sheet's handlers (caravan-controller.mjs).
  */
+import { QS_LOCKED_ACTS, isQuickstartActor, qsLockTip } from "../helpers/quickstart-lock.mjs";
 import { textToHtml } from "../rules/rich-text.mjs";
 import { keepNoteSizes, refitOnResize, rememberScroll, watchNotes } from "./refit.mjs";
 import { caravanLogicFor, readCaravan, runCaravanAction, saveCaravan } from "../applications/caravan-actions.mjs";
@@ -65,6 +66,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     context.quickFold = !!this.ui.quickFold;
     context.ui = { sheetBarOpen: !!this.ui.sheetBarOpen };
     context.editable = this.isEditable;
+    context.qsLock = isQuickstartActor(this.document) ? qsLockTip(this.document) : ""; // «Швидкий старт»: no random / clear (quickstart-lock.mjs)
     context.undo = !!this.undoState;
     context.autoRange = !!this.document.getFlag(game.system.id, "autoRange");
     // «Породисті браміни» / «Паливний регулятор» (author, 2026-11-15): which bonus the trip takes, and «Першопроходець»
@@ -151,10 +153,10 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
   /** A button of the HTML caravan sheet (data-act + its dataset); data-confirm asks twice */
   static async #onAct(event, target) {
     const { action, act, confirm, ...data } = target.dataset;
+    if (QS_LOCKED_ACTS.has(act) && isQuickstartActor(this.document)) return void ui.notifications.warn(qsLockTip(this.document));
     if (confirm && !target.classList.contains("armed")) {
       target.classList.add("armed");
-      target.title = "Натисни ще раз, щоб підтвердити";
-      ui.notifications.info("Натисни ще раз, щоб підтвердити.");
+      ui.notifications.info("Натисніть ще раз, щоб підтвердити.");
       setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
       return;
     }
@@ -209,6 +211,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
   }
 
   static async #onJsonOpen() {
+    if (isQuickstartActor(this.document)) return void ui.notifications.warn(qsLockTip(this.document)); // quickstart-lock.mjs
     if (await replaceCaravanFromFile(this.document)) this.dropUndo();
   }
 

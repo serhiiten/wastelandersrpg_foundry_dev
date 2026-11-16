@@ -11,6 +11,7 @@ import {
 import { CATS, resetToBook } from "../rules/enemy-model.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { postChat } from "../applications/chat.mjs";
+import { postEnemyCard } from "../applications/enemy-chat.mjs";
 import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
 import { sendDamage, chosenTokens, warnNoTargets } from "../applications/apply-damage.mjs";
 import { enemyView, diceTextHtml } from "./enemy-view.mjs";
@@ -65,6 +66,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       addMove: WastelandersEnemySheet.#onAddMove,
       rmMove: WastelandersEnemySheet.#onRmMove,
       resetBook: WastelandersEnemySheet.#onResetBook,
+      toChat: WastelandersEnemySheet.#onToChat,
     },
   };
 
@@ -77,6 +79,9 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
   #attackPresets = null;
   #movePresets = null;
   #focus = null;
+
+  /** Open a fold before the next render (the terminal's chips open «Деталі»; author, 2026-11-16) */
+  openFold(name) { this.#ui[name] = true; }
 
   get title() {
     return this.document.name || game.i18n.localize("TYPES.Actor.enemy");
@@ -99,7 +104,9 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const edit = this.#ui.edit && editable;
     const v = enemyView(s, { editable, gm });
     Object.assign(context, {
-      v, editable, gm, edit, ui: this.#ui, name: doc.name, img: doc.img, differs: v.differs,
+      v, editable, gm, edit, ui: this.#ui, limited: !doc.isOwner,
+      // a card outside the world (the compendium's, one built in memory): no «Видимий / Прихований», no «В чат» (author, 2026-11-16)
+      world: !!doc.id && !doc.pack, name: doc.name, img: doc.img, differs: v.differs,
       notes: s.notes, notesHtml: diceTextHtml(s.notes, "Примітки", editable),
       cats: CATS.map((k) => ({ k, l: CAT_LABEL[k], sel: k === v.cat })), catGuide: CAT_GUIDE[v.cat]?.txt ?? "",
     });
@@ -379,6 +386,11 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     }
   }
 
+  /** «В чат» (author, 2026-11-16): the whole card for everyone — the players may learn all about an enemy in play */
+  static async #onToChat() {
+    await postEnemyCard(this.document);
+  }
+
   /** The other living enemies in this token's battle zone (zones are Drawings flagged `battleZone`) */
   #zoneMates() {
     const scene = this.token?.parent ?? canvas.scene;
@@ -453,7 +465,6 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
   static async #onResetBook(event, target) {
     if (!target.classList.contains("armed")) {
       target.classList.add("armed");
-      target.title = "Натисни ще раз, щоб підтвердити";
       ui.notifications.info("Натисни ще раз, щоб підтвердити.");
       setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
       return;

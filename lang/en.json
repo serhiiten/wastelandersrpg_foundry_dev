@@ -91,6 +91,8 @@
       "OpenHint": "Create characters and caravans from electronic sheet files",
       "Unnamed": "Unnamed",
       "NotJson": "This is not a .json file.",
+      "Damaged": "The file is damaged or was not saved by a «Пустельники» electronic sheet. It was not opened; nothing changed.",
+      "WriteFailed": "The file's data could not be written. Details are in the console (F12).",
       "NotCharacter": "The file has no character from the electronic sheet.",
       "NotCaravan": "This file doesn't look like a caravan sheet. Pick a .json saved by the electronic caravan sheet.",
       "NotSheet": "The file has no character or caravan from the electronic sheets.",

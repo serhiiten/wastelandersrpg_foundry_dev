@@ -36,6 +36,7 @@ import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
+import { autoStartTour, ensureHelpJournal, registerSystemTours, registerTourEnricher } from "./tours/tours.mjs";
 
 Hooks.once("init", async function () {
   // the HP bar over a token keeps the HP colours
@@ -72,6 +73,9 @@ Hooks.once("init", async function () {
       return a;
     },
   });
+
+  // the tours' «Пройти тур» buttons in journals (module/tours/tours.mjs)
+  registerTourEnricher();
 
   // Settings
   registerSystemSettings();
@@ -219,7 +223,13 @@ Hooks.once("ready", () => {
   readyApplyDamage();
   readyChemTarget();
   readyTokenVariants();
+  // the tours (author, 2026-11-16): registered, «Довідка Foundry» kept current, the first one started on a first entry
+  registerSystemTours();
+  ensureHelpJournal().catch((err) => console.warn("Пустельники | «Довідка Foundry» not made", err));
+  autoStartTour();
 });
+// a player who gets their first character later: their tour starts then
+Hooks.on("updateActor", (actor, changes) => { if (!game.user.isGM && "ownership" in changes && actor.isOwner) autoStartTour(); });
 
 // a character, caravan or enemy dropped on a scene: its token carries the actor's current name
 Hooks.on("preCreateToken", (token) => {

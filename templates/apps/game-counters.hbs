@@ -14,7 +14,7 @@
     {{#if customDie}}<label>Поділок<input type="number" class="pust-screen" data-f="custom" min="2" max="30" value="{{form.custom}}"></label>{{/if}}
     <label>Початок<input type="number" class="pust-screen" data-f="start" min="1" max="30" value="{{form.start}}"></label>
   </div>
-  <p class="pust-gc-hint">Починай щонайменше з 4. Що нижче число, то ближче неприємності; на 0 загроза настає, на максимумі — проблему розв'язано.</p>
+  <p class="pust-gc-hint">Рекомендовано починати щонайменше з 4. Що нижче число, то ближче неприємності; на 0 загроза настає, на максимумі — проблему розв'язано.</p>
   {{else}}
   <label>Назва<input type="text" data-f="name" value="{{form.name}}" placeholder="Напр., Наступ Легіону" autocomplete="off"></label>
   <div class="pust-gc-frow">
@@ -34,7 +34,7 @@
 {{#each counters}}
 <div class="pust-gc-item{{#if open}} open{{/if}}" style="--h:{{hue}}">
   <div class="pust-gc-hd">
-    <input type="text" class="pust-gc-name" data-name="{{id}}" value="{{name}}" title="{{name}}" aria-label="Назва лічильника" autocomplete="off">
+    <textarea class="pust-gc-name" data-name="{{id}}" rows="1" aria-label="Назва лічильника" autocomplete="off" spellcheck="false">{{name}}</textarea>
     <b class="pust-gc-v">{{val}}<small>/{{size}}</small></b>
     {{#unless bar}}<button type="button" class="pust-gc-tg" data-gc="toggle" data-id="{{id}}" aria-expanded="{{open}}" title="{{#if open}}Згорнути поділки{{else}}Розгорнути поділки: що стається на кожній{{/if}}"><i class="fa-solid fa-chevron-{{#if open}}up{{else}}down{{/if}}"></i></button>{{/unless}}
     <button type="button" class="pust-gc-x" data-gc="remove" data-id="{{id}}" title="Прибрати лічильник (натисни двічі)" aria-label="Прибрати лічильник">×</button>
@@ -63,7 +63,7 @@
 {{#each locals}}
 <div class="pust-lc {{st}}" style="--h:{{hue}}">
   <div class="pust-lc-die" title="Лічильник на кістці d{{die}}: зараз {{val}} з {{die}}">{{{svg}}}</div>
-  <input type="text" class="pust-lc-name" data-lname="{{id}}" value="{{name}}" title="{{name}}" aria-label="Назва лічильника" autocomplete="off">
+  <textarea class="pust-lc-name" data-lname="{{id}}" rows="1" aria-label="Назва лічильника" autocomplete="off" spellcheck="false">{{name}}</textarea>
   <button type="button" class="pust-gc-x pust-lc-x" data-gc="lremove" data-id="{{id}}" title="Прибрати лічильник (натисни двічі)" aria-label="Прибрати лічильник">×</button>
   <div class="pust-lc-btns">
     {{#each ../steps}}<button type="button" class="{{cls}}" data-gc="lstep" data-id="{{../id}}" data-d="{{d}}" title="{{title}}">{{label}}</button>{{/each}}

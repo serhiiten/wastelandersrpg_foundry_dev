@@ -12,6 +12,20 @@ import { variantTextures } from "../helpers/token-variants.mjs";
 import { tokenLevel } from "../helpers/token-level.mjs";
 import { enemyFromRecord } from "../rules/battle.mjs";
 import { toSystem } from "../rules/enemy-model.mjs";
+import { kindTokens } from "../rules/enemy-kinds.mjs";
+
+/** Actor data of a group enemy made one concrete kind (author, 2026-11-16): its name, its token as picture and token */
+export function asKind(data, kind) {
+  const tok = kindTokens(kind)[0];
+  data.name = kind;
+  foundry.utils.setProperty(data, "prototypeToken.name", kind);
+  if (tok) {
+    const src = `systems/${game.system.id}/assets/tokens/${tok}`;
+    data.img = src;
+    foundry.utils.setProperty(data, "prototypeToken.texture.src", src);
+  }
+  return data;
+}
 
 const FOLDER = "Битви";
 const norm = (s) => String(s || "").toLowerCase().replace(/[‐-―]/g, "-").replace(/[’ʼ']/g, "'").replace(/[^\p{L}\p{N}]/gu, "");
@@ -65,7 +79,7 @@ let indexCache = null;
 async function opponentIndex() {
   if (indexCache) return indexCache;
   const pack = game.packs.get(`${game.system.id}.opponents`);
-  indexCache = pack ? [...(await pack.getIndex())].filter((e) => e.type === "enemy") : [];
+  indexCache = pack ? [...(await pack.getIndex({ fields: ["prototypeToken.texture.src"] }))].filter((e) => e.type === "enemy") : [];
   return indexCache;
 }
 
@@ -86,7 +100,7 @@ function enemyFromGenerator(T, e) {
 async function enemyActor(T, e, folder) {
   const have = game.actors.find((a) => a.type === "enemy" && a.folder?.id === folder.id && [norm(e.name), norm(opponentName(e.name))].includes(norm(a.name)));
   if (have) return have;
-  const hit = (await opponentIndex()).find((x) => norm(x.name) === norm(opponentName(e.name)));
+  const hit = (await opponentIndex()).find((x) => norm(x.name) === norm(opponentName(e.group || e.name)));
   let data;
   if (hit) {
     const doc = await fromUuid(hit.uuid);
@@ -94,8 +108,66 @@ async function enemyActor(T, e, folder) {
     delete data._id;
     foundry.utils.setProperty(data, "_stats.compendiumSource", hit.uuid);
   } else data = enemyFromGenerator(T, e);
+  if (e.group) asKind(data, e.name); // «Щур», not «Маленькі тварини…»
   data.folder = folder.id;
   return Actor.implementation.create(data);
+}
+
+/** The token picture of a generated enemy (the «Битви» chips; author, 2026-11-16): the world actor's in «Битви», else the
+ *  compendium's, else Foundry's blank one */
+export async function generatedEnemyImg(name, group = "") {
+  const keys = [norm(name), norm(opponentName(name))];
+  const parent = game.folders.find((f) => f.type === "Actor" && f.name === FOLDER && !f.folder);
+  const inBattles = (a) => { let f = a.folder; while (f) { if (f.id === parent?.id) return true; f = f.folder; } return false; };
+  const have = parent && game.actors.find((a) => a.type === "enemy" && inBattles(a) && keys.includes(norm(a.name)));
+  if (have) return have.prototypeToken?.texture?.src || have.img;
+  const tok = kindTokens(name)[0];
+  if (tok) return `systems/${game.system.id}/assets/tokens/${tok}`;
+  const hit = (await opponentIndex()).find((x) => norm(x.name) === norm(opponentName(group || name)));
+  return hit?.prototypeToken?.texture?.src || hit?.img || "icons/svg/mystery-man.svg";
+}
+
+/**
+ * A chip of the generated battle dropped on the scene (author, 2026-11-16): the enemy's actor in the battle's folder
+ * («Битви → …», made or reused, a group as its concrete kind) and one unlinked token at the drop point, a face of its
+ * kind, named after it («Ім'я N» when the scene already has some of them).
+ */
+export async function dropGeneratedEnemy(T, st, name, point) {
+  if (!game.user.isGM) return ui.notifications.warn("Битву веде Доглядач.");
+  const last = st.battle.state?.last;
+  const entry = last?.allocations.flatMap((a) => a.entries).find((x) => x.enemy?.name === name);
+  const scene = canvas?.scene;
+  if (!entry || !scene) return;
+  const folder = await battleFolder(T.battle.BT.kindName(last.factionKey), st.battle.state.difficulty);
+  const actor = await enemyActor(T, entry.enemy, folder);
+  const same = scene.tokens.filter((t) => t.name === actor.name || t.name.startsWith(`${actor.name} `)).length;
+  const [tex] = variantTextures(scene, actor, 1) ?? [];
+  const td = await actor.getTokenDocument({ name: same ? `${actor.name} ${same + 1}` : actor.name, actorLink: false, ...tokenLevel(scene), ...(tex ? { texture: { src: tex } } : {}) });
+  const g = scene.grid.size;
+  const at = canvas.grid.getSnappedPoint({ x: point.x - (td.width * g) / 2, y: point.y - (td.height * g) / 2 }, { mode: CONST.GRID_SNAPPING_MODES.TOP_LEFT_CORNER, resolution: 1 });
+  return scene.createEmbeddedDocuments("Token", [{ ...td.toObject(), x: at.x, y: at.y }], { pustTokens: true });
+}
+
+/**
+ * A chip of the generated battle clicked (author, 2026-11-16): its enemy's card — the world actor already made for this
+ * battle («Битви» folder) when there is one, else the «opponents» compendium's card, else a card built from the
+ * generator's own data and kept in memory (nothing is added to the world).
+ */
+export async function openGeneratedEnemy(T, st, name) {
+  const last = st.battle.state?.last;
+  const entry = last?.allocations.flatMap((a) => a.entries).find((x) => x.enemy?.name === name);
+  if (!entry) return;
+  const e = entry.enemy, keys = [norm(e.name), norm(opponentName(e.name))];
+  const parent = game.folders.find((f) => f.type === "Actor" && f.name === FOLDER && !f.folder);
+  const inBattles = (a) => { let f = a.folder; while (f) { if (f.id === parent?.id) return true; f = f.folder; } return false; };
+  const have = parent && game.actors.find((a) => a.type === "enemy" && inBattles(a) && keys.includes(norm(a.name)));
+  const hit = !have && (await opponentIndex()).find((x) => norm(x.name) === norm(opponentName(e.group || e.name)));
+  let actor = have || (hit ? await fromUuid(hit.uuid) : new Actor.implementation(asKind(enemyFromGenerator(T, e), e.name)));
+  // a group made one kind: the compendium's card under the kind's name and picture, in memory
+  if (hit && e.group) { const data = actor.toObject(); delete data._id; actor = new Actor.implementation(asKind(data, e.name)); }
+  if (!actor) return;
+  actor.sheet.openFold?.("details"); // «Деталі» open (author, 2026-11-16)
+  return actor.sheet.render(true);
 }
 
 /**
@@ -103,7 +175,7 @@ async function enemyActor(T, e, folder) {
  * («Ім'я N» when there are several). No personal names rolled (author, 2026-11-14): the GM rolls one from the card.
  */
 function personalNames(T, e, count, travelNames, used) {
-  const given = (travelNames || []).find((x) => x.base === e.name)?.names || [];
+  const given = (travelNames || []).find((x) => x.base === e.name || (e.group && x.base === e.group))?.names || [];
   return Array.from({ length: count }, (_, i) => {
     let n = given[i] || (count > 1 ? `${e.name} ${i + 1}` : e.name);
     used.add(n);
@@ -142,7 +214,7 @@ export async function createBattle(T, st, mode = "folder") {
   for (const e of entries) actors.push({ e, count: e.count, actor: await enemyActor(T, e.enemy, folder) });
   const where = `«${FOLDER} → ${folder.name}»`;
   if (mode !== "place") {
-    ui.notifications.info(`В Актори додано теку ${where}: ${actors.map((x) => `${x.actor.name} × ${x.count}`).join(", ")}. Перетягни їх на сцену або натисни «Розмістити».`);
+    ui.notifications.info(`В Актори додано теку ${where}: ${actors.map((x) => `${x.actor.name} × ${x.count}`).join(", ")}. Перетягни їх на сцену або натисни «Розмістити на сцені».`);
     return actors.map((x) => x.actor);
   }
   const used = new Set();

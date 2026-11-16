@@ -31,7 +31,7 @@ const SAME = {
   longHaul: 'data-k="cargo.{{i}}.far"' /* Foundry: a tick on each cargo row (author, 2026-11-14) */, addCustomImp: 'data-act="addCustomImp"', addCounter: 'data-act="addCounter"',
   addCargo: 'data-act="addCargo"', rollRep: 'data-act="rollRep"', luckPanel: 'data-act="rollFate"',
   rollName: 'data-act="rollName"', rollKarma: 'data-act="rollKarma"', rollBudget: 'data-act="rollBudget"',
-  rollImps: 'data-act="rollImps"', btnClear: 'data-act="clear"', btnRandom: 'data-act="random"', btnQuick: 'data-act="quick"',
+  rollImps: 'data-act="rollImps"', btnClear: 'data-act="clear"', btnRandom: 'data-act="random"',
   toastUndo: 'data-action="undo"', btnJsonSave: 'data-action="jsonSave"', jsonFile: 'data-action="jsonOpen"',
   helpBtn: 'data-key="guide"', guideClose: 'data-key="guide"', guide: 'data-key="guide"',
   // fields by id
@@ -52,6 +52,7 @@ const SKIP = {
   btnTxt: "текст аркуша — у Foundry експорту в текст немає (рішення автора)",
   btnPdf: "PDF — у Foundry експорту в PDF немає (рішення автора)",
   themeBtn: "тема — у Foundry своя світла й темна тема",
+  btnQuick: "«Швидкий старт» — караван «Останній Шанс» у пригоді «Швидкий старт» (рішення автора, 2026-11-16)",
   // author, 2026-11-14: max HP and armour are the rules' value + a bonus, edited in «Налаштування → Захист» (tests/caravan.test.mjs)
   hpMax: "максимум ОЗ не редагується: надбавка в «Налаштування → Захист»",
   armorVal: "броня не редагується: надбавка в «Налаштування → Захист»",
@@ -131,7 +132,6 @@ const STEPS = {
   // Foundry (author, 2026-11-14): «Випадковий караван» rolls everything anew, typed fields and custom improvements too —
   // so the HTML side rolls with no manual locks and no custom improvements
   random: [(h) => { const st = h.getState(); Object.keys(st.manual || {}).forEach((k) => { st.manual[k] = false; }); st.customImps = []; h.setState(st); h.click("btnRandom", 2); }, (C) => C.act("random")],
-  quick: [(h) => h.click("btnQuick", 2), (C) => C.act("quick")],
 };
 const field = (id, k, v) => [(h) => h.type(id, v), (C) => C.setField(k, v)];
 const data = (ds, act, d, times = 1) => [(h) => h.clickData(ds, times), (C) => C.act(act, d)];

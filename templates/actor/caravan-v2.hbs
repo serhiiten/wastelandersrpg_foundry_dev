@@ -5,12 +5,11 @@
   <details class="pust-sheetbar pust-fold" data-fold="sheetBarOpen" {{#if ui.sheetBarOpen}}open{{/if}}>
     <summary title="Розгорнути чи згорнути"><i class="fa-solid fa-chevron-right pust-fold-ico"></i> <i class="fa-solid fa-file-lines"></i> Аркуш</summary>
     <div class="pust-sheetbar-btns">
-      <button type="button" data-action="jsonOpen"><i class="fa-solid fa-folder-open"></i> Відкрити .json</button>
-      <button type="button" data-action="jsonSave"><i class="fa-solid fa-floppy-disk"></i> Зберегти .json</button>
-      <button type="button" class="pust-random" data-action="cact" data-act="random" data-confirm="1" title="Повністю випадковий караван: усе, навіть заповнене вручну, буде перекинуто (транспорт і Удача партії лишаються). Натисніть двічі"><i class="fa-solid fa-dice"></i> Випадковий караван</button>
-      <button type="button" data-action="cact" data-act="quick" data-confirm="1" title="Замінити караван готовим"><i class="fa-solid fa-person-running"></i> Швидкий старт</button>
-      <button type="button" data-action="cact" data-act="clear" data-confirm="1" class="pust-danger"><i class="fa-solid fa-eraser"></i> Очистити аркуш</button>
-      <button type="button" data-action="uiToggle" data-key="guide"><i class="fa-solid fa-circle-question"></i> Як створити караван</button>
+      <button type="button" data-action="jsonOpen" {{#if qsLock}}data-locked="1" aria-disabled="true"{{/if}} title="{{#if qsLock}}{{qsLock}}{{else}}Відкрити .json{{/if}}"><i class="fa-solid fa-folder-open"></i><span class="pust-sbl"> Відкрити .json</span></button>
+      <button type="button" data-action="jsonSave" title="Зберегти .json"><i class="fa-solid fa-floppy-disk"></i><span class="pust-sbl"> Зберегти .json</span></button>
+      <button type="button" class="pust-random" data-action="cact" data-act="random" data-confirm="1" {{#if qsLock}}data-locked="1" aria-disabled="true"{{/if}} title="{{#if qsLock}}{{qsLock}}{{else}}Випадковий караван: усе, навіть заповнене вручну, буде перекинуто (транспорт і Удача партії лишаються){{/if}}"><i class="fa-solid fa-dice"></i><span class="pust-sbl"> Випадковий караван</span></button>
+      <button type="button" data-action="cact" data-act="clear" data-confirm="1" class="pust-danger" {{#if qsLock}}data-locked="1" aria-disabled="true"{{/if}} title="{{#if qsLock}}{{qsLock}}{{else}}Очистити аркуш{{/if}}"><i class="fa-solid fa-eraser"></i><span class="pust-sbl"> Очистити аркуш</span></button>
+      <button type="button" data-action="uiToggle" data-key="guide" title="Як створити караван"><i class="fa-solid fa-circle-question"></i><span class="pust-sbl"> Як створити караван</span></button>
     </div>
   </details>
 

@@ -450,6 +450,37 @@ function layoutEditor() {
   if (left + real > innerWidth - 4) editor.root.style.left = `${Math.max(4, innerWidth - real - 4)}px`;
 }
 
+let demoZone = null; // the tour's example
+/**
+ * The tour's zone editor (author, 2026-11-16): the scene's own zone with the most aspects (the first of equals), the
+ * view panned to it, its editor open and nothing changed. A scene with no zones gets an example that is never written
+ * (an in-memory Drawing at the view's centre): a name and two aspects from the battle place's pools.
+ */
+export async function setZoneDemo(on) {
+  if (!on) { if (editor && (editor.doc === demoZone || editor.tour)) closeZoneEditor(); demoZone = null; return null; }
+  if (!isGM() || !canvas.ready || !canvas.scene) return null;
+  const own = sceneZones().sort((a, b) => zoneOf(b.doc).aspects.length - zoneOf(a.doc).aspects.length)[0];
+  if (own) {
+    await canvas.animatePan({ x: own.x + own.w / 2, y: own.y + own.h / 2, duration: 250 });
+    openZoneEditor(own.doc);
+    if (editor) editor.tour = true;
+    editor?.root.querySelector(".pust-bz-name")?.blur();
+    return own.doc;
+  }
+  const g = canvas.dimensions.size, c = canvas.stage.pivot, col = COLORS[ZONE.color];
+  const used = usedAspects();
+  const a1 = randomZoneAspect(battlePlace(), used) ?? "Іржаві бочки з пальним";
+  const a2 = randomZoneAspect(battlePlace(), [...used, a1]) ?? "Густий дим";
+  demoZone = new CONFIG.Drawing.documentClass({
+    x: Math.round(c.x - (ZONE.w * g) / 2), y: Math.round(c.y - (ZONE.h * g) / 2), shape: { type: "r", width: ZONE.w * g, height: ZONE.h * g },
+    fillType: CONST.DRAWING_FILL_TYPES.SOLID, fillColor: col.fill, fillAlpha: 0.13, strokeWidth: 4, strokeColor: col.line, strokeAlpha: 1, text: "",
+    flags: { [sys()]: { battleZone: { name: randomZoneName(battlePlace(), usedNames()) ?? "Зона 1", color: ZONE.color, aspects: [{ t: a1, inv: 1 }, { t: a2, inv: 0 }] } } },
+  }, { parent: canvas.scene });
+  openZoneEditor(demoZone);
+  editor?.root.querySelector(".pust-bz-name")?.blur();
+  return demoZone;
+}
+
 /* ===================== Double-click, creating, hooks ===================== */
 
 function onDblClick(ev) {
@@ -463,7 +494,9 @@ function onDblClick(ev) {
   if (hit.part === "target") return; // two quick clicks on «Обрати всіх» select and clear — no editor
   openZoneEditor(hit.doc);
 }
-const onDocPointerDown = (ev) => { if (editor && !editor.root.contains(ev.target)) closeZoneEditor(); };
+// a press outside closes the editor, but not during a tour: the tour opens and closes it (author, 2026-11-16: a click on
+// the lit editor closed it and left the step without its element)
+const onDocPointerDown = (ev) => { if (editor && !editor.root.contains(ev.target) && !document.body.classList.contains("pust-touring")) closeZoneEditor(); };
 
 /** «+ Зона»: a 6 × 5 zone on the free spot nearest the view's centre, named «Зона N», opened for editing */
 export async function addBattleZone() {

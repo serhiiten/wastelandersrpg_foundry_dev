@@ -17,7 +17,7 @@ const T = () => (terminal ??= createTerminal({ toast: () => {}, icon: () => "" }
 export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["wastelanders", "pust-sheet", "pust-place-sheet"],
-    position: { width: 420, height: "auto" },
+    position: { width: 430, height: "auto" },
     window: { resizable: true },
     // players who can only see the place (LIMITED) may open its card; it is read-only for them
     viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED,

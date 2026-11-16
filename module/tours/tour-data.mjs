@@ -1,0 +1,164 @@
+/**
+ * The system's tours as data (author, 2026-11-16): the tours themselves (module/tours/pust-tour.mjs) and the journal
+ * «Довідка Foundry» (tours.mjs) are both made from it. Bump HELP_VERSION when a text changes, so worlds rebuild the journal.
+ * Tour: { id, title, description, gm (GM-only), first (starts on the first entry), next: [tour ids], steps }.
+ * Step: { id, title, content (HTML), selector?, tooltipDirection?, prepare? ("name:arg" or a list, PREPARE in pust-tour.mjs),
+ *         fallback? (shown in the middle when the element isn't there), actions? [{label, act}] (ACTIONS) }.
+ * `brief`: what the step is about (for whoever writes the text; not shown).
+ */
+import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
+
+export const HELP_VERSION = 38;
+
+const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
+const CAR = ".pust-caravan-sheet";
+const EN = ".pust-en-sheet";
+const TERM = "#pust-terminal";
+const DOCK = "#pust-mapdock";
+
+const S = (id, brief, extra = {}) => ({ id, brief, title: "", content: "", ...extra });
+
+export const TOURS = [
+  /* ================================ Доглядач ================================ */
+  {
+    id: "gm-start", gm: true, first: true, next: ["gm-map"], title: "Початок", description: "",
+    steps: [
+      S("hello", "Вітання Доглядача: що таке ця система у Foundry, що тур короткий, ланцюжок турів, × виходить, повторити — журнал «Довідка Foundry».", { prepare: ["closeAll", "scene:map"] }),
+      S("quickstart", "«Швидкий старт»: пригода з персонажами, караваном, ворогами й готовими сценами битв; наступні тури показують саме її. Кнопка імпорту.", { actions: [{ label: "Імпортувати «Швидкий старт»", act: "importQuickstart" }] }),
+      S("packs", "Компендіуми: «Довідки по правилах» (уся вікі), «Супротивники» (перетягни на сцену), «Швидкий старт».", { selector: '#compendium [data-pack$=".rules"]', prepare: "sidebar:compendium", tooltipDirection: "LEFT",  }),
+      S("actors", "Вкладка акторів: «Відкрити .json Пустельників» — персонаж чи караван з HTML-аркуша. «Create Actor» — персонаж, караван, ворог (форма «Новий супротивник»).", { selector: ".wastelanders-json-open", prepare: "sidebar:actors", tooltipDirection: "LEFT",  }),
+      S("users", "Нові гравці: Settings → User Management → Create Additional User (ім'я, роль, пароль), Save and Return; адреса для гравців — Invitation Links.", { selector: '#settings [data-app="players"]', prepare: ["closeAll", "sidebar:settings"], tooltipDirection: "LEFT" }),
+      S("players", "Гравці внизу ліворуч: персонажа призначають гравцю через його налаштування (User Configuration → Character). Тоді «Кістки», «Зробити перевірку» й ЖД працюють за нього.", { selector: "#players-active", tooltipDirection: "UP",  }),
+      S("chat", "Режими чату: усі картки системи (перевірки, шкода, Доля) йдуть у вибраному режимі — публічно, лише Доглядачу, таємно.", { selector: '[data-action="messageMode"][data-mode="public"]', prepare: "sidebar:chat", tooltipDirection: "LEFT",  }),
+      S("terminal", "Кнопка «Термінал Доглядача»: генератори справ, подорожей, натхнення, битв. Окремий тур далі.", { selector: ".wastelanders-terminal-open", tooltipDirection: "DOWN",  }),
+      S("next", "Що далі: тури «Мапа Пустки», «Термінал», «Битва», «Персонажі й караван»; у журналі «Довідка Foundry» усе текстом, кнопка «Пройти тур».", {  }),
+    ],
+  },
+  {
+    id: "gm-map", scene: "map", gm: true, next: ["gm-terminal"], title: "Мапа Пустки", description: "",
+    steps: [
+      S("scene", "Сцена «Мапа Пустки»: спільна мапа, по якій їде караван; клітинки, лінійка Foundry. Панелі ліворуч тягнуться за заголовок, клік — згорнути, подвійний клік — на місце.", { prepare: ["closeAll", "scene:map"] }),
+      S("places", "Поселення / Небезпека / Точка інтересу: клік — і клік по мапі ставить місце з випадковою назвою й аспектами; картка місця, «Видиме / Приховане» (гравці бачать лише видимі), «Закріплене», «В чат», «В журнал».", { selector: `${DOCK} [data-mapdock="town"]`, prepare: ["closeAll", "unfold:map"], tooltipDirection: "RIGHT",  }),
+      S("placecard", "Картка місця: назва з кубиком, тип поселення, експеримент сховища, аспекти (поле + Enter або кубик) з безкоштовними Посиленнями, примітка; гравці читають, поки місце видиме.", { selector: ".pust-place-sheet", prepare: ["closeAll", "sheet:place"], tooltipDirection: "RIGHT" }),
+      S("note", "«Примітка»: стікер на мапі, подвійний клік — писати, кольори, приховати від гравців, згорнути.", { selector: `${DOCK} [data-mapdock="note"]`, tooltipDirection: "RIGHT",  }),
+      S("notedemo", "Стікер-приклад з відкритим редактором: заголовок і текст пишуть на стікері, зберігається під час набору; панель: 5 кольорів, «Сховати від гравців», «Згорнути до позначки», «Закріпити», «Видалити» (двічі); подвійний клік відкриває редактор, тягнуть за смужку заголовка.", { selector: ".pust-mn-edit", prepare: "noteDemo", tooltipDirection: "DOWN" }),
+      S("travel", "«Подорож»: генератор подорожі з удачею вибраного каравану; бої з події — «Створити битву».", { selector: `${DOCK} [data-mapdock="travel"]`, tooltipDirection: "RIGHT",  }),
+      S("travelwin", "Вікно «Подорож Пусткою»: тип події, Удача партії −2…+2 (з каравану, можна змінити; для поганої зустрічі не діє), «Згенерувати подію», «В чат», кістки в тексті, «Інші види», «Створити битву».", { selector: `${DOCK} .pust-md-tv`, prepare: "travel", tooltipDirection: "RIGHT" }),
+      S("counters", "«Лічильники»: «+» — новий лічильник сцени (кістка, −2…+2) або гри (поділки з описами); гравці бачать їх лише для читання.", { selector: `${DOCK} [data-unit="ctr"] .pust-md-add`, prepare: "unfold:ctr", tooltipDirection: "RIGHT",  }),
+      S("ctrform", "Форма нового лічильника: «Гра» / «Сцена»; гра: назва, поділки 4…20 або «Свій» до 100, «Зараз»; сцена: назва загрози, кістка, початок; «Додати» / «Скасувати».", { selector: `${DOCK} .pust-gc-form`, prepare: "counterForm", tooltipDirection: "RIGHT" }),
+      S("ctrmade", "Готові лічильники (приклади, лише на екрані): сцени з кнопками −2 невдача … +2 крит, загроза на 0, розв'язано на максимумі; гри з −/+, поділками з описами, назва в полі, × двічі; зміни пишуться в чат.", { selector: `${DOCK} .pust-md-ctr-gm .pust-md-body`, prepare: "counterDemo", tooltipDirection: "RIGHT" }),
+      S("dice", "«Кістки»: N×d6/d8/d10/dN у чат. «Доля»: кістка Долі за виділені токени, а без виділення — список персонажів гравців і караванів з галочками.", { selector: `${DOCK} [data-mapdice="fate"]`, prepare: "unfold:dice", tooltipDirection: "RIGHT",  }),
+      S("caravan", "Караван на мапі: при русі токена питає, чи списати запас ходу (1 клітинка — 1 одиниця, «Тачка» — 3 клітинки); перемикач «Витрачати автоматично» в аркуші каравану. Приклад: питання над токеном каравану (5 клітинок), нічого не рухається.", { selector: ".pust-cmove-demo", prepare: ["closeAll", "scene:map", "moveDemo"], tooltipDirection: "RIGHT" }),
+    ],
+  },
+  {
+    id: "gm-terminal", gm: true, next: ["gm-battle"], title: "Термінал Доглядача", description: "",
+    steps: [
+      S("open", "Термінал: вікно генераторів, результат лишається у вікні, «В чат» — показати гравцям, «В журнал» — зберегти для підготовки.", { selector: ".wastelanders-terminal-open", prepare: "closeAll", tooltipDirection: "DOWN",  }),
+      S("case", "«Справа»: складність → «Згенерувати справу»; кожен блок можна перекинути кубиком праворуч.", { selector: `${TERM} [data-action="caseGen"]`, prepare: "terminal:case", tooltipDirection: "LEFT",  }),
+      S("journal", "«В журнал»: справа (або битва) стає журналом у теці «Термінал Доглядача», кістки в ньому кидаються кліком.", { prepare: "terminal:case", selector: `${TERM} [data-action="toJournal"][data-what="case"]`, tooltipDirection: "LEFT",  }),
+      S("travel", "«Подорож»: тип (подорож чи погана зустріч), удача партії, «Згенерувати подію».", { selector: `${TERM} [data-action="travelGen"]`, prepare: "terminal:travel", tooltipDirection: "LEFT",  }),
+      S("tables", "«Натхнення»: імена, нагороди, вантажі, місця, небезпеки — кожна таблиця «Згенерувати» і «В чат».", { selector: `${TERM} [data-action="tableGen"]`, prepare: "terminal:tables", tooltipDirection: "LEFT",  }),
+      S("battle", "«Битви»: «Згенерувати битву» за фракцією й складністю; місце, небезпека, нагорода.", { selector: `${TERM} [data-action="battleGen"]`, prepare: "terminal:battle", tooltipDirection: "LEFT",  }),
+      S("place", "«Розмістити»: вороги стають акторами в теці «Битви» і токенами на сцені (на бойовій мапі — по зонах); «Додати теку в Актори» — лише актори.", { prepare: "terminal:battle", selector: `${TERM} [data-action="battleCreate"][data-mode="place"]`, tooltipDirection: "LEFT" }),
+    ],
+  },
+  {
+    id: "gm-battle", scene: "battle", gm: true, next: ["gm-enemy"], title: "Битва", description: "",
+    steps: [
+      S("scene", "Бойова мапа: битви йдуть зонами, не клітинками. «Create Scene» питає тип: «Битва» чи «Мапа». У «Швидкому старті» чотири готові сцени.", { prepare: ["closeAll", "scene:battle"] }),
+      S("zone", "«Зона»: прямокутник з назвою й аспектами; тягни за смужку, кут — розмір, подвійний клік — редактор (назва, колір, аспекти). Токен належить зоні, де стоїть його центр.", { selector: '.pust-md-battle [data-battle="zone"]', prepare: "unfold:map", tooltipDirection: "LEFT",  }),
+      S("zoneedit", "Редактор зони (зона сцени з найбільшою кількістю аспектів; без зон — приклад, ніде не записаний): назва з кісткою випадкової назви для місця, аспекти: поле + Enter або кістка (підставляє в поле), −/+ безкоштовні Посилення, ×; панель: 5 кольорів, «Обрати всіх», «Видалити» (двічі); Esc або клік поза ним закриває.", { selector: ".pust-bz-edit", prepare: "zoneDemo", tooltipDirection: "LEFT" }),
+      S("enemy", "«Супротивник»: фракція → ворог → кількість → зона; ставить токени (обличчя різні). Місце й небезпека битви — кидки вгорі панелі; випадкові назви й аспекти зон — під місце.", { selector: ".pust-md-battle .pust-md-bsetup", tooltipDirection: "LEFT",  }),
+      S("enemyform", "Форма «Супротивник»: Фракція, Супротивник (компендіум «Супротивники»), Скільки 1…30, Зона (без зон — біля центру огляду); «Додати»: актор у «Битви → фракція» (наявний береться), токени на вільні клітинки зони під смужкою, номери в іменах, різні обличчя; «Скасувати».", { selector: ".pust-md-battle .pust-md-bform", prepare: "enemyForm", tooltipDirection: "LEFT" }),
+      S("round", "«Коло дій»: ▶ — нове коло, картка в чаті нагадує порядок (спершу гравці). «Жетони Долі» Доглядача: −/+ і «За гравцями»; витрата пише в чат без числа.", { selector: ".pust-md-battle .pust-md-brf", tooltipDirection: "LEFT",  }),
+      S("targets", "Цілі: шкода й лікування йдуть лише на цілі (трикутні мітки навколо токена). «Вибрати цілі» — виділені токени стають цілями; на зоні «Обрати всіх».", { selector: '.pust-md-battle [data-battle="tgtsel"]', tooltipDirection: "LEFT",  }),
+      S("targetlook", "Як виглядає ціль: токен сцени (ворог) тимчасово обрано ціллю, трикутні мітки навколо; клавіша T над токеном теж обирає; попередні цілі повертаються.", { selector: ".pust-tgt-demo", prepare: "targetDemo", tooltipDirection: "RIGHT" }),
+      S("damage", "«Шкода й лікування»: число чи кістки, тип, «Ігнорує броню», «Частковий успіх» → «Завдати шкоди» / «Лікувати». Броня, захисти й половинки рахуються самі; картка в чаті.", { selector: ".pust-md-battle .pust-md-bhit", tooltipDirection: "LEFT",  }),
+    ],
+  },
+  {
+    id: "gm-enemy", gm: true, next: ["gm-characters"], title: "Картка ворога", description: "",
+    steps: [
+      S("en-head", "Картка ворога: шапка — портрет, ім'я (кубик кидає ім'я), категорія; ті самі позначки на токені.", { selector: `${EN} .pust-en-hd`, prepare: ["closeAll", "sheet:enemy"], tooltipDirection: "RIGHT",  }),
+      S("en-reveal", "Перемикач «Видимий / Прихований»: картка для гравців і токени разом; Hide токена перемикає картку.", { selector: `${EN} [data-action=\"revealToggle\"]`, tooltipDirection: "DOWN",  }),
+      S("en-chat", "«В чат»: уся картка ворога в чат — ОЗ і стан, броня, лише відмінні від звичайних захисти, атаки, аспекти, ходи, примітки; гравці дізнаються про ворога в грі.", { selector: `${EN} [data-action="toChat"]`, tooltipDirection: "DOWN" }),
+      S("en-edit", "«Редагувати»: ОЗ, броня, атаки, ходи, захисти; заготовки; «Як у книзі».", { selector: `${EN} [data-action=\"editToggle\"]`, tooltipDirection: "DOWN",  }),
+      S("en-hp", "ОЗ −/+ і броня; на 0 ОЗ токен перекреслено.", { selector: `${EN} .pust-en-hp`, tooltipDirection: "RIGHT",  }),
+      S("en-aspects", "Ситуативні аспекти: швидкі одним кліком, свої, безкоштовні Посилення −/+; видно під токеном.", { selector: `${EN} .pust-en-card:has(.pust-en-quick)`, tooltipDirection: "RIGHT",  }),
+      S("en-attacks", "Атаки: чіп кісток кидає в чат; «Завдати цілям» кидає й б'є цілі, витрачає заряд; Психо/Камікадзе самі.", { selector: `${EN} .pust-en-card:has(.pust-en-atkhd)`, tooltipDirection: "RIGHT",  }),
+      S("en-details", "Згортка «Деталі»: аспекти з книги з Посиленнями, ходи з «використано», хід лікування, кістки в тексті — чіпи.", { selector: `${EN} details.pust-en-det:first-of-type`, prepare: `open:${EN} details.pust-en-det:first-of-type`, tooltipDirection: "RIGHT",  }),
+      S("en-defence", "Згортка «Захист»: броня, пси-броня, захисти від типів (½ / імунітет), особливості; рахуються самі.", { selector: `${EN} details.pust-en-det:last-of-type`, prepare: `open:${EN} details.pust-en-det:last-of-type`, tooltipDirection: "RIGHT",  }),
+      S("en-new", "Новий ворог: Create Actor → Супротивник, форма «Новий супротивник».", { selector: "#actors .create-entry", prepare: ["closeAll", "sidebar:actors"], tooltipDirection: "LEFT",  }),
+    ],
+  },
+  {
+    id: "gm-characters", gm: true, next: [], title: "Персонажі й караван", description: "",
+    steps: [
+      S("pc", "Аркуш персонажа: «Випадковий персонаж» або крок за кроком; готові персонажі — у пригоді «Швидкий старт»; правила перевіряються самі.", { selector: `${CHAR} .pust-sheetbar-btns`, prepare: ["closeAll", "sheet:character", `open:${CHAR} details.pust-sheetbar`], tooltipDirection: "DOWN",  }),
+      S("free", "«Налаштування» аркуша: доповнення (Guns), «Вільний режим» — без перевірки правил, ручні надбавки.", { selector: `${CHAR} [data-tab="settings"]`, tooltipDirection: "DOWN",  }),
+      S("caravan", "Аркуш каравану: транспорт, удача партії, вантажі (продаж рахується сам), покращення, лічильники, «Запас ходу» з поповненням і ремонтом за (к).", { selector: `${CAR} .pust-head`, prepare: ["closeAll", "sheet:caravan"], tooltipDirection: "RIGHT",  }),
+      S("builders", "Вкладка предметів: «Create Item» — конструктор «Вид» (власний вид персонажа) і «Наркотик» (дизайнерська хімія за таблицею вікі).", { selector: '#items .create-entry', prepare: ["closeAll", "sidebar:items"], tooltipDirection: "LEFT",  }),
+      S("done", "Кінець ланцюжка Доглядача; гравці отримають свій тур при першому вході з персонажем; «Довідка Foundry» в журналах.", {  }),
+    ],
+  },
+
+  /* ================================ Гравець ================================ */
+  {
+    id: "pl-character", first: true, next: ["pl-check"], title: "Твій персонаж", description: "",
+    steps: [
+      S("hello", "Вітання гравця: короткий тур, × виходить, повторити — журнал «Довідка Foundry».", { prepare: ["closeAll", "sheet:pc"] }),
+      S("create", "Створення: «Випадковий персонаж» або крок за кроком — ім'я, вид, аспекти (кубики праворуч кидають варіант); готового персонажа дає Доглядач.", { selector: `${CHAR} .pust-sheetbar-btns`, prepare: ["sheet:pc", `open:${CHAR} details.pust-sheetbar`], tooltipDirection: "DOWN",  }),
+      S("tabs", "Вкладки: атрибути й навички, перки, Мотлох, здоров'я, записи, покращення. Аркуш підказує, чого бракує, і не пускає за правила.", { selector: `${CHAR} [data-tab="build"]`, tooltipDirection: "DOWN",  }),
+      S("hp", "«Швидкий доступ»: ОЗ (−/+ і «Вилікувати за (к)»), 0 ОЗ відкриває перевірку наслідку.", { selector: `${CHAR} .q-life`, tooltipDirection: "DOWN",  }),
+      S("fate", "Жетони Долі: на що витрачати (викликати аспект, нав'язати, створити факт); зміна пише в чат.", { selector: `${CHAR} .q-fate`, tooltipDirection: "DOWN",  }),
+      S("goods", "Припаси (лампочки, «Поповнити за (к)»), Кришки.", { selector: `${CHAR} .q-goods`, tooltipDirection: "DOWN",  }),
+      S("gear", "Мотлох: зброя й броня (у руках / вдягнена), хімія — «Вжити» або «На ціль»; вага, вартість.", { selector: `${CHAR} [data-tab="gear"]`, tooltipDirection: "DOWN",  }),
+      S("rest", "Відпочинок і час: «Відпочити», «Кінець сцени», «Новий день», «Кінець сесії» — хімія, наслідки й моди рахуються самі.", { selector: `${CHAR} .pust-rest-btn`, tooltipDirection: "UP",  }),
+    ],
+  },
+  {
+    id: "pl-check", next: ["pl-panels"], title: "Зробити перевірку", description: "",
+    steps: [
+      S("button", "«Зробити перевірку» на аркуші (і на панелі ліворуч): вікно перевірки.", { selector: `${CHAR} .pust-check-btn`, prepare: ["closeAll", "sheet:pc"], tooltipDirection: "LEFT",  }),
+      S("presets", "Готові перевірки: атаки, уникнення шкоди, інші — атрибут і навичка підставляються самі.", { selector: ".pust-check", prepare: "check", tooltipDirection: "LEFT",  }),
+      S("aspects", "Аспекти: виклик аспекту дає Посилення (+1d10, дві найвищі кістки), за жетон Долі або безкоштовне Посилення аспекту; після кидка ОД аспект уже не викликати.", { selector: ".pust-check", prepare: "check", tooltipDirection: "LEFT",  }),
+      S("result", "Результат: вердикт, смужка діапазонів, кістки; картка в чаті.", { selector: ".pust-check", prepare: "check", tooltipDirection: "LEFT",  }),
+      S("damage", "Шкода атаки: «Кинути шкоду», критичний ефект, «Завдати цілям» — на ціль (T), броня й захисти рахуються самі.", { selector: ".pust-check", prepare: "check", tooltipDirection: "LEFT",  }),
+    ],
+  },
+  {
+    id: "pl-panels", next: ["pl-battle"], title: "Твої панелі", description: "",
+    steps: [
+      S("check", "«Зробити перевірку» на панелі: те саме вікно під кнопкою, за твого персонажа.", { selector: `${DOCK} .pust-md-check`, prepare: ["closeAll", "scene:map"], tooltipDirection: "RIGHT",  }),
+      S("dice", "«Кістки»: N×d6/d8/d10/dN у чат.", { selector: `${DOCK} [data-unit="dice"]`, prepare: "unfold:dice", tooltipDirection: "LEFT",  }),
+      S("fate", "«Доля»: кістка Долі за свого персонажа; за іншого — познач його ціллю (T).", { selector: `${DOCK} [data-mapdice="fate"]`, tooltipDirection: "LEFT",  }),
+      S("fd", "«Витратити ЖД» / «Отримати ЖД»: лічильник персонажа й картка в чаті.", { selector: `${DOCK} .pust-md-fdspend:not(.pust-md-supspend)`, tooltipDirection: "LEFT",  }),
+      S("sup", "«Витратити Припас» / «Отримати Припас».", { selector: `${DOCK} .pust-md-supspend`, tooltipDirection: "LEFT",  }),
+      S("ctr", "«Лічильники»: що зараз рахує Доглядач (лише читати).", { selector: `${DOCK} [data-unit="ctr"]`, tooltipDirection: "RIGHT",  }),
+    ],
+  },
+  {
+    id: "pl-battle", scene: "battle", next: [], title: "Бій", description: "",
+    steps: [
+      S("zones", "Бойова мапа: зони з аспектами, токен належить зоні центру; коло дій — спершу діють гравці.", { prepare: ["closeAll", "scene:battle"] }),
+      S("target", "«Обрати цілі»: клік по токену робить його ціллю (T); поки увімкнено, токени не тягнуться. «Зняти цілі».", { selector: `${DOCK} .pust-md-target`, tooltipDirection: "RIGHT",  }),
+      S("all", "«Обрати всіх» у смужці зони: цілі — усі, хто стоїть у зоні; вдруге — зняти.", {  }),
+      S("hit", "Атака: «Зробити перевірку» → «Кинути шкоду» → «Завдати цілям»; шкода йде через Доглядача, картка в чаті.", {  }),
+      S("chem", "Хімія «На ціль»: стимпак союзнику — познач одну ціль і натисни «На ціль» біля «Вжити».", {  }),
+    ],
+  },
+];
+
+// the texts live in tour-texts.mjs (author, 2026-11-16)
+for (const t of TOURS) {
+  t.description = TOUR_DESCRIPTIONS[t.id] ?? t.description;
+  for (const step of t.steps) Object.assign(step, TOUR_TEXTS[`${t.id}__${step.id}`] ?? {});
+  // a tour that needs a kind of scene: every step makes sure of it first (after its own closeAll)
+  if (t.scene) for (const step of t.steps) {
+    const list = [step.prepare ?? []].flat();
+    const at = list[0] === "closeAll" ? 1 : 0;
+    list.splice(at, 0, `sceneKind:${t.scene}`);
+    step.prepare = list;
+  }
+}
