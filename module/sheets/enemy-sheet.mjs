@@ -75,7 +75,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
   };
 
   /** Fold states and the edit mode: kept for the life of the window only */
-  #ui = { edit: false, details: false, defence: false, desc: false };
+  #ui = { edit: false, details: false, defence: false };
   #attackPresets = null;
   #movePresets = null;
   #focus = null;
@@ -119,9 +119,6 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       context.atkPresets = this.#attackPresets.map(([g, list], gi) => ({ g, items: list.map((a, k) => ({ v: `${gi}:${k}`, n: a.n, d: a.d })) }));
       context.movePresets = this.#movePresets.map((m, i) => ({ i, n: m.n }));
     }
-    context.descHtml = s.description
-      ? await foundry.applications.ux.TextEditor.implementation.enrichHTML(s.description, { secrets: doc.isOwner })
-      : "";
     return context;
   }
 

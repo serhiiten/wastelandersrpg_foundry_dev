@@ -774,6 +774,8 @@ const SCENARIOS = {
       zoneDemo: !!document.querySelector(".pust-bz-edit"),
       enemyForm: !!document.querySelector(".pust-md-battle .pust-md-bform"),
       targetDemo: !!document.querySelector(".pust-tgt-demo"),
+      enemyCreate: !!document.getElementById("pust-enemy-create"),
+      cargoDemo: !!document.querySelector(".pust-demo-cargo"),
     });
     if (foundry.nue.Tour.tourInProgress) foundry.nue.Tour.activeTour.exit();
     for (const t of TOURS) {

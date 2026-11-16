@@ -85,7 +85,7 @@ export const HP_STATES = {
   ok: { label: "Легкі ушкодження", icon: "fa-heart", color: "#6f8a1c" },
   mid: { label: "Серйозні ушкодження", icon: "fa-heart-crack", color: "#c0651a" },
   low: { label: "На межі", icon: "fa-heart-pulse", color: "#a8121a" },
-  dead: { label: "Поза боєм", icon: "fa-skull", color: "#4a453d" },
+  dead: { label: "Вибув", icon: "fa-skull", color: "#4a453d" },
 };
 export function hpState(value, max) {
   const { level } = hpLevel(value, max);

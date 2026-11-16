@@ -96,7 +96,8 @@ ok(!V.enemyView({ ...sys, orig: null }).canReset, "no book copy, no reset");
 const st = (v, m) => V.hpState(v, m).key;
 ok(st(12, 12) === "full" && st(9, 12) === "ok" && st(7, 12) === "mid" && st(8, 12) === "ok" && st(4, 12) === "low" && st(1, 12) === "low" && st(0, 12) === "dead" && st(-3, 12) === "dead", "HP states by share");
 ok(Object.values(V.HP_STATES).every((x) => x.label && /^fa-/.test(x.icon) && /^#[0-9a-f]{6}$/i.test(x.color)), "every state has a label, an icon and a colour");
-ok(V.enemyView({ ...sys, hp: { value: 0, max: 12 } }).state.label === "Поза боєм", "the view carries the state");
+ok(V.enemyView({ ...sys, hp: { value: 0, max: 12 } }).state.label === "Вибув", "the view carries the state");
+
 
 if (failures) { console.log(`${failures} failure(s)`); process.exit(1); }
 console.log("enemy-view: OK");

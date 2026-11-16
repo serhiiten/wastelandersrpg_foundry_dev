@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 38;
+export const HELP_VERSION = 47;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -78,7 +78,7 @@ export const TOURS = [
     ],
   },
   {
-    id: "gm-enemy", gm: true, next: ["gm-characters"], title: "Картка ворога", description: "",
+    id: "gm-enemy", gm: true, next: ["gm-char"], title: "Картка ворога", description: "",
     steps: [
       S("en-head", "Картка ворога: шапка — портрет, ім'я (кубик кидає ім'я), категорія; ті самі позначки на токені.", { selector: `${EN} .pust-en-hd`, prepare: ["closeAll", "sheet:enemy"], tooltipDirection: "RIGHT",  }),
       S("en-reveal", "Перемикач «Видимий / Прихований»: картка для гравців і токени разом; Hide токена перемикає картку.", { selector: `${EN} [data-action=\"revealToggle\"]`, tooltipDirection: "DOWN",  }),
@@ -87,19 +87,43 @@ export const TOURS = [
       S("en-hp", "ОЗ −/+ і броня; на 0 ОЗ токен перекреслено.", { selector: `${EN} .pust-en-hp`, tooltipDirection: "RIGHT",  }),
       S("en-aspects", "Ситуативні аспекти: швидкі одним кліком, свої, безкоштовні Посилення −/+; видно під токеном.", { selector: `${EN} .pust-en-card:has(.pust-en-quick)`, tooltipDirection: "RIGHT",  }),
       S("en-attacks", "Атаки: чіп кісток кидає в чат; «Завдати цілям» кидає й б'є цілі, витрачає заряд; Психо/Камікадзе самі.", { selector: `${EN} .pust-en-card:has(.pust-en-atkhd)`, tooltipDirection: "RIGHT",  }),
-      S("en-details", "Згортка «Деталі»: аспекти з книги з Посиленнями, ходи з «використано», хід лікування, кістки в тексті — чіпи.", { selector: `${EN} details.pust-en-det:first-of-type`, prepare: `open:${EN} details.pust-en-det:first-of-type`, tooltipDirection: "RIGHT",  }),
-      S("en-defence", "Згортка «Захист»: броня, пси-броня, захисти від типів (½ / імунітет), особливості; рахуються самі.", { selector: `${EN} details.pust-en-det:last-of-type`, prepare: `open:${EN} details.pust-en-det:last-of-type`, tooltipDirection: "RIGHT",  }),
+      S("en-details", "Згортка «Деталі»: аспекти з книги з Посиленнями, ходи з «використано», хід лікування, кістки в тексті — чіпи.", { selector: `${EN} details[data-fold=\"details\"]`, prepare: `open:${EN} details[data-fold=\"details\"]`, tooltipDirection: "RIGHT",  }),
+      S("en-defence", "Згортка «Захист»: броня, пси-броня, захисти від типів (½ / імунітет), особливості; рахуються самі.", { selector: `${EN} details[data-fold=\"defence\"]`, prepare: `open:${EN} details[data-fold=\"defence\"]`, tooltipDirection: "RIGHT",  }),
       S("en-new", "Новий ворог: Create Actor → Супротивник, форма «Новий супротивник».", { selector: "#actors .create-entry", prepare: ["closeAll", "sidebar:actors"], tooltipDirection: "LEFT",  }),
+      S("en-newform", "Форма «Новий супротивник» (приклад, нічого не створює): «За основу» / «Почати з нуля», зображення = токен, назва, категорія з підказками, ОЗ / броня / пси-броня з готовими значеннями, захист, атаки й ходи із заготовок або порожні, аспекти з Посиленнями, примітка; «Створити супротивника» / «Скасувати».", { selector: "#pust-enemy-create", prepare: "enemyCreate", tooltipDirection: "RIGHT" }),
     ],
   },
   {
-    id: "gm-characters", gm: true, next: [], title: "Персонажі й караван", description: "",
+    // the character sheet, block by block (author, 2026-11-16: two tours instead of «Персонажі й караван»)
+    id: "gm-char", gm: true, next: ["gm-caravan"], title: "Аркуш персонажа", description: "",
     steps: [
-      S("pc", "Аркуш персонажа: «Випадковий персонаж» або крок за кроком; готові персонажі — у пригоді «Швидкий старт»; правила перевіряються самі.", { selector: `${CHAR} .pust-sheetbar-btns`, prepare: ["closeAll", "sheet:character", `open:${CHAR} details.pust-sheetbar`], tooltipDirection: "DOWN",  }),
-      S("free", "«Налаштування» аркуша: доповнення (Guns), «Вільний режим» — без перевірки правил, ручні надбавки.", { selector: `${CHAR} [data-tab="settings"]`, tooltipDirection: "DOWN",  }),
-      S("caravan", "Аркуш каравану: транспорт, удача партії, вантажі (продаж рахується сам), покращення, лічильники, «Запас ходу» з поповненням і ремонтом за (к).", { selector: `${CAR} .pust-head`, prepare: ["closeAll", "sheet:caravan"], tooltipDirection: "RIGHT",  }),
-      S("builders", "Вкладка предметів: «Create Item» — конструктор «Вид» (власний вид персонажа) і «Наркотик» (дизайнерська хімія за таблицею вікі).", { selector: '#items .create-entry', prepare: ["closeAll", "sidebar:items"], tooltipDirection: "LEFT",  }),
-      S("done", "Кінець ланцюжка Доглядача; гравці отримають свій тур при першому вході з персонажем; «Довідка Foundry» в журналах.", {  }),
+      S("bar", "Аркуш персонажа: Create Actor → «Персонаж», «Швидкий старт»; згортка «Аркуш»: .json, «Випадковий персонаж», «Очистити аркуш», «Як створити персонажа».", { selector: `${CHAR} .pust-sheetbar-btns`, prepare: ["closeAll", "sheet:character", `open:${CHAR} details.pust-sheetbar`], tooltipDirection: "DOWN" }),
+      S("head", "Шапка: портрет, ім'я, архетип, вид, стать; Концепція / Проблема / Ціль / Деталь з кістками; вписане вручну кістки не перекидають.", { selector: `${CHAR} .pust-head`, tooltipDirection: "RIGHT" }),
+      S("quick", "«Швидкий доступ»: ОЗ, броня, жетони Долі, Припаси, кришки, ОД, ситуативні аспекти; «Вилікувати / Поповнити за N(к)»; «Зробити перевірку».", { selector: `${CHAR} .pust-qgrid`, tooltipDirection: "DOWN" }),
+      S("status", "«Статуси й відпочинок»: статуси; «Відпочити», «Кінець сцени», «Новий день», «Кінець сесії».", { selector: `${CHAR} .pust-qstat`, tooltipDirection: "DOWN" }),
+      S("build", "«Атрибути й навички»: вільні пункти, стартові навички, «Заповнити за архетипом»; «Сповіщення й попередження».", { prepare: `click:${CHAR} [data-tab="build"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("perks", "«Перки й особливості»: вибір, «Кинути» за архетипом, видові властивості.", { prepare: `click:${CHAR} [data-tab="perks"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("gear", "«Мотлох»: «+ Річ з довідника», «Кинути стартове спорядження»; «У руках» / «Вдягнена»; хімія «Вжити» / «На ціль».", { prepare: `click:${CHAR} [data-tab="gear"]`, selector: `${CHAR} .pust-body > .pust-tools-top`, tooltipDirection: "RIGHT" }),
+      S("health", "«Здоров'я»: відпочинок, наслідки (лікування за кришки), хімія й залежності, Припаси, кришки.", { prepare: `click:${CHAR} [data-tab="health"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("notes", "«Записи»: «Біографія», «Інші», редактор, зберігається само.", { prepare: `click:${CHAR} [data-tab="notes"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("xp", "«Покращення»: ОД, квадрат бере покращення; «Як заробляти ОД».", { prepare: `click:${CHAR} [data-tab="xp"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("settings", "Налаштування: «Правила й доповнення» (Пазурі, псионіки, силова броня, Guns, «Вільний режим»), трофеї; «Ручні надбавки», «Захист вручну» лише у вільному режимі.", { prepare: `click:${CHAR} [data-tab="settings"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("builders", "Create Item: конструктори «Вид» і «Наркотик».", { selector: '#items .create-entry', prepare: ["closeAll", "sidebar:items"], tooltipDirection: "LEFT" }),
+    ],
+  },
+  {
+    // the caravan sheet, block by block (author, 2026-11-16)
+    id: "gm-caravan", gm: true, next: [], title: "Аркуш каравану", description: "",
+    steps: [
+      S("bar", "Аркуш каравану: Create Actor → «Караван», «Останній Шанс» у «Швидкому старті»; згортка «Аркуш».", { selector: `${CAR} .pust-sheetbar-btns`, prepare: ["closeAll", "sheet:caravan", `open:${CAR} details.pust-sheetbar`], tooltipDirection: "DOWN" }),
+      S("head", "Шапка: назва, «Удача партії» (кидок), транспорт «Браміни» / «Тачка», «Карма» −100…+100, «Репутація».", { selector: `${CAR} .pust-head`, tooltipDirection: "RIGHT" }),
+      S("quick", "«Швидкий доступ»: ОЗ, броня, «Бюджет кришок», стан, «Відремонтувати за N(к)» (5 ОЗ за кришку).", { selector: `${CAR} .q-all`, tooltipDirection: "DOWN" }),
+      S("range", "«Запас ходу»: поділки, «Поповнити за N(к)» (3 за кришку), «Витрачати автоматично».", { selector: `${CAR} .q-move`, tooltipDirection: "DOWN" }),
+      S("imps", "«Покращення»: вибір, два випадкові кістками, «+ Власне покращення», «Турель» з шкодою й «Завдати цілям».", { prepare: `click:${CAR} [data-tab="imps"]`, selector: `${CAR} .pust-imp-bar`, tooltipDirection: "RIGHT" }),
+      S("cargo", "«Вантаж і пасажири»: рядки, тип, ціна, к-сть, «Далека» / «Пошк.», «Сума продажу», вантаж угорі; приклад у копії в пам'яті.", { prepare: "cargoDemo", selector: `${CAR}.pust-demo-cargo .pust-body`, tooltipDirection: "RIGHT" }),
+      S("story", "«Історія»: знайомство, обличчя компанії, остання справа, що пішло не так, примітки.", { prepare: `click:${CAR} [data-tab="story"]`, selector: `${CAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("settings", "Налаштування: «Надбавки» (ОЗ, броня, пси-броня, турель), «Захист» від типів; порожнє — за правилами.", { prepare: `click:${CAR} [data-tab="settings"]`, selector: `${CAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("done", "Кінець ланцюжка Доглядача; гравці отримають свій тур; «Довідка Foundry».", {  }),
     ],
   },
 

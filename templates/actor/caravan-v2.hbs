@@ -107,7 +107,6 @@
   <nav class="pust-tabs">
     <a data-action="pustTab" data-tab="imps" class="{{#if (eq tab 'imps')}}active{{/if}}">Покращення</a>
     <a data-action="pustTab" data-tab="cargo" class="{{#if (eq tab 'cargo')}}active{{/if}}">Вантаж і пасажири</a>
-    <a data-action="pustTab" data-tab="counters" class="{{#if (eq tab 'counters')}}active{{/if}}">Лічильники</a>
     <a data-action="pustTab" data-tab="story" class="{{#if (eq tab 'story')}}active{{/if}}">Історія</a>
     <a data-action="pustTab" data-tab="settings" class="pust-tab-ico {{#if (eq tab 'settings')}}active{{/if}}" title="Налаштування" aria-label="Налаштування"><i class="fa-solid fa-gear"></i></a>
   </nav>
@@ -162,7 +161,7 @@
       <div class="pust-grow pust-ghead"><span>Назва</span><span>Примітка</span><span>Тип</span><span>Ціна</span><span>К-сть</span><span title="Далека доставка (понад 15 клітин): ×2 замість ×1,5">Далека</span><span title="Вантаж пошкоджено: ×1,25 (далека — ×1,5)">Пошк.</span><span title="За скільки продасться рядок">Сума</span><span><i class="fa-solid fa-xmark"></i></span></div>
       {{#each v.cargo}}
       <div class="pust-grow">
-        <input type="text" class="pust-gname" data-k="cargo.{{i}}.name" value="{{name}}" placeholder="Що везете" aria-label="Назва">
+        <textarea class="pust-gname pust-gnote-in pust-cname" rows="1" data-k="cargo.{{i}}.name" placeholder="Що везете" aria-label="Назва">{{name}}</textarea>
         <textarea class="pust-gnote-in pust-cnote" rows="1" data-k="cargo.{{i}}.note" placeholder="Куди, кому, умови" aria-label="Куди, кому, умови">{{note}}</textarea>
         <select data-k="cargo.{{i}}.kind" aria-label="Тип"><option value="cargo" {{#unless pass}}selected{{/unless}}>Вантаж</option><option value="pass" {{#if pass}}selected{{/if}}>Пасажир</option></select>
         <input type="text" class="pust-price" data-k="cargo.{{i}}.price" value="{{price}}" placeholder="Ціна" aria-label="Ціна">
@@ -183,20 +182,7 @@
 
   {{/if}}
 
-  {{!-- ===== Лічильники ===== --}}
-  {{#if (eq tab 'counters')}}
-    {{#each v.counters}}
-    <div class="pust-item pust-card pust-ctr">
-      <input type="text" class="pust-ctr-name" data-k="counters.{{i}}.name" value="{{name}}" placeholder="Назва лічильника" aria-label="Назва лічильника">
-      <span class="pust-segs">{{#each segs}}<button type="button" class="seg {{#if on}}on{{/if}}" data-action="cact" data-act="seg" data-seg="{{../i}}" data-k="{{k}}"></button>{{/each}}</span>
-      <select data-k="counters.{{i}}.size" aria-label="Кількість поділок">{{#each sizes}}<option value="{{n}}" {{#if sel}}selected{{/if}}>{{n}} поділок</option>{{/each}}</select>
-      <button type="button" class="pust-x" data-action="cact" data-act="cnt-del" data-i="{{i}}" data-confirm="1" title="Видалити лічильник"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    {{else}}
-    <p class="pust-sub">Лічильників поки немає. Додайте, наприклад, «Наступ Легіону» на 10 поділок.</p>
-    {{/each}}
-    <div class="pust-tools"><button type="button" data-action="cact" data-act="addCounter">+ Лічильник</button></div>
-  {{/if}}
+  {{!-- no «Лічильники» tab (author, 2026-11-16): the counters live in the panel «Лічильники»; a .json's counters are kept --}}
 
   {{!-- ===== Історія каравану ===== --}}
   {{#if (eq tab 'story')}}

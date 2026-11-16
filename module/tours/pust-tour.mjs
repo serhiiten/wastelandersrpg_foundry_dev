@@ -129,8 +129,10 @@ async function closeUnneeded(needs) {
 
 /** Panels the tour opened for a step (the travel window, the counter form, the example counters): closed when a step that
  * doesn't ask for them comes, and when the tour ends */
-const opened = { travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false };
+const opened = { travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null };
 async function closeTransient(keep = new Set()) {
+  if (opened.cargo && !keep.has("cargoDemo")) { try { await opened.cargo.close({ animate: false }); } catch (_) { /* gone */ } opened.cargo = null; }
+  if (opened.newen && !keep.has("enemyCreate")) { await foundry.applications.instances.get("pust-enemy-create")?.close(); opened.newen = false; }
   if (opened.tgt && !keep.has("targetDemo")) { await (await import("../canvas/target-demo.mjs")).setTargetDemo(false); opened.tgt = false; }
   if (opened.eform && !keep.has("enemyForm")) { await (await import("../applications/battle-panel.mjs")).setEnemyFormOpen(false); opened.eform = false; }
   if (opened.zone && !keep.has("zoneDemo")) { (await import("../canvas/battle-zones.mjs")).setZoneDemo(false); opened.zone = false; }
@@ -209,6 +211,44 @@ export const PREPARE = {
   },
   closeAll,
   /** an example sticker with its editor open, in memory only (never written, players never see it) */
+  /**
+   * «Вантаж і пасажири» with example rows (author, 2026-11-16): a copy of the caravan on show, kept in memory, with two cargo
+   * rows (one far, one damaged) and a passenger, opened over it on the cargo tab; nothing is written to the caravan
+   */
+  cargoDemo: async () => {
+    const shown = [...foundry.applications.instances.values()].find((a) => a.rendered && a.document?.type === "caravan" && !a.element?.classList.contains("pust-demo-cargo"));
+    const base = shown?.document ?? await demoActor("caravan");
+    if (!base) return;
+    const data = base.toObject();
+    delete data._id; delete data.folder;
+    data.ownership = { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
+    data.items = (data.items ?? []).filter((i) => !["cargo", "passenger"].includes(i.type)).concat([
+      { type: "cargo", name: "Ящики ядер-коли", system: { price: 3, quantity: 2, note: "До Нью-Рино, у бар Шини", engine: { far: true } } },
+      { type: "cargo", name: "Медикаменти", system: { price: 4, quantity: 1, note: "Лікарю в Джанктауні", engine: { hurt: true } } },
+      { type: "passenger", name: "Мандрівний торговець", system: { engine: { note: "До Сховища 13", price: "2", qty: "1" } } },
+    ]);
+    const actor = new CONFIG.Actor.documentClass(data);
+    Object.defineProperty(actor.sheet, "title", { configurable: true, get: () => `${actor.name} (приклад)` });
+    await actor.sheet.render({ force: true });
+    await waitFor(".pust-caravan-sheet .pust-body");
+    actor.sheet.element.classList.add("pust-demo-cargo");
+    const pos = shown?.position;
+    if (pos) actor.sheet.setPosition({ left: pos.left, top: pos.top, width: pos.width });
+    actor.sheet.element.querySelector('[data-tab="cargo"]')?.click();
+    opened.cargo = actor.sheet;
+    await sleep(400);
+    actor.sheet.element.classList.add("pust-demo-cargo"); // kept through the tab's re-render
+    actor.sheet.bringToFront(); // over the caravan it copies
+  },
+  /** the «Новий супротивник» form, open as an example: nothing is created (its «Скасувати» or the tour closes it) */
+  enemyCreate: async () => {
+    if (!foundry.applications.instances.get("pust-enemy-create")) (await import("../applications/enemy-create.mjs")).EnemyCreateApp.ask({});
+    opened.newen = true;
+    await waitFor("#pust-enemy-create");
+    const app = foundry.applications.instances.get("pust-enemy-create");
+    if (app?.rendered) app.setPosition({ left: 110, top: 40 });
+    await sleep(200);
+  },
   targetDemo: async () => { await (await import("../canvas/target-demo.mjs")).setTargetDemo(true); opened.tgt = true; await sleep(200); },
   enemyForm: async () => { await (await import("../applications/battle-panel.mjs")).setEnemyFormOpen(true); opened.eform = true; await sleep(300); },
   zoneDemo: async () => { await (await import("../canvas/battle-zones.mjs")).setZoneDemo(true); opened.zone = true; await sleep(300); },

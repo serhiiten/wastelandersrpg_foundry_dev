@@ -1275,8 +1275,6 @@
 .pust-en .pust-en-def > span { flex: 1 1 auto; min-width: 0; line-height: 1.15; }
 .pust-en .pust-en-def > select { flex: 0 1 112px; min-width: 0; height: 26px; font-size: 13px; }
 .pust-en .pust-en-def.chk { grid-column: 1 / -1; }
-.pust-en .pust-en-desc { font-size: 13px; line-height: 1.4; margin-top: 6px; }
-.pust-en .pust-en-desc :is(ul, ol) { margin: 2px 0 2px 16px; padding: 0; }
 
 /* read-only for players */
 .wastelanders .pust-en.readonly :is(input, select, textarea) { pointer-events: none; opacity: 1; background: rgba(255,252,240,.85); border: 1px solid var(--pu-paper-3); color: var(--pu-ink); -webkit-text-fill-color: var(--pu-ink); }

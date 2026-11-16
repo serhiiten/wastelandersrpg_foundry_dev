@@ -182,14 +182,7 @@
       {{#if v.armorText}}<div class="pust-en-hint">За книгою: {{v.armorText}}</div>{{/if}}
     </details>
     {{/if}}
-
-    {{!-- Опис з книги --}}
-    {{#if descHtml}}
-    <details class="pust-en-card pust-en-det" data-fold="desc" {{#if ui.desc}}open{{/if}}>
-      <summary><i class="fa-solid fa-book-open pust-qic" aria-hidden="true"></i>Опис з книги</summary>
-      <div class="pust-en-desc">{{{descHtml}}}</div>
-    </details>
-    {{/if}}
+    {{!-- no «Опис з книги» (author, 2026-11-16): it repeated what the card already shows; the description stays in the data --}}
   </div>
   {{/if}}
 </div>

@@ -48,6 +48,8 @@ const SAME = {
 };
 /** HTML controls Foundry leaves out on purpose */
 const SKIP = {
+  // author, 2026-11-16: no «Лічильники» tab on the caravan sheet (the panel «Лічильники» does it); a .json's counters stay in the data
+  addCounter: "вкладку «Лічильники» прибрано: лічильники — у панелі «Лічильники»", "data-seg": "вкладку «Лічильники» прибрано", "data-cnt-del": "вкладку «Лічильники» прибрано", cntName: "вкладку «Лічильники» прибрано", cntSize: "вкладку «Лічильники» прибрано",
   btnCopy: "текст аркуша — у Foundry експорту в текст немає (рішення автора)",
   btnTxt: "текст аркуша — у Foundry експорту в текст немає (рішення автора)",
   btnPdf: "PDF — у Foundry експорту в PDF немає (рішення автора)",
