@@ -2,6 +2,7 @@
  * Електронний аркуш каравану in Foundry: the HTML caravan sheet's features, rebuilt natively.
  * Every field and button goes to the HTML caravan sheet's handlers (caravan-controller.mjs).
  */
+import { addHelpButton } from "../tours/help-button.mjs";
 import { QS_LOCKED_ACTS, isQuickstartActor, qsLockTip } from "../helpers/quickstart-lock.mjs";
 import { textToHtml } from "../rules/rich-text.mjs";
 import { keepNoteSizes, refitOnResize, rememberScroll, watchNotes } from "./refit.mjs";
@@ -91,6 +92,8 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
 
   _onRender(context, options) {
     super._onRender(context, options);
+    // «?» (author, 2026-11-17): the tour page of the tab now open
+    addHelpButton(this, () => (game.user.isGM ? ["gm-caravan", this.ui.tab || "head"] : ["pl-caravan", this.ui.tab || "head"]));
     const root = this.element;
     const fits = []; // refit when the window's width changes (refitOnResize)
     // one-paragraph fields (reputation, story, cargo notes) grow with their text; Enter leaves the field

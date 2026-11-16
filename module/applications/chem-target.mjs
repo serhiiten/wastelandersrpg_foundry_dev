@@ -15,6 +15,7 @@ import { ROBOT_FOLDER, isMachineName, planHeal, spendDose, useCopyOn } from "../
 import { applyHeal, clearTargets } from "./apply-damage.mjs";
 import { readState, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
+import { askGM, answerGM } from "../helpers/gm-request.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -77,8 +78,8 @@ async function applyOnPc(targetUuid, row, giver, def) {
 export function readyChemTarget() {
   game.socket.on(SOCKET(), async (msg) => {
     if (!game.users.activeGM?.isSelf) return;
-    if (msg?.op === "chemOnPc") await applyOnPc(String(msg.target), msg.row || {}, String(msg.giver || ""), msg.def);
-    else if (msg?.op === "chemHeal") await applyHeal([String(msg.token)], Number(msg.amount) || 0, { head: String(msg.head || "") });
+    if (msg?.op === "chemOnPc") await answerGM(msg, () => applyOnPc(String(msg.target), msg.row || {}, String(msg.giver || ""), msg.def));
+    else if (msg?.op === "chemHeal") await answerGM(msg, () => applyHeal([String(msg.token)], Number(msg.amount) || 0, { head: String(msg.head || "") }));
   });
 }
 
@@ -133,11 +134,11 @@ export async function useOnTarget(giverActor, i) {
   // 3) the target's side
   if (target.type === "character") {
     if (canWrite) await applyOnPc(target.uuid, row, giver, def);
-    else game.socket.emit(SOCKET(), { op: "chemOnPc", target: target.uuid, row, giver, def, from: game.user.id });
+    else askGM({ op: "chemOnPc", target: target.uuid, row, giver, def }, "Доза на ціль", "Дозу витрачено, але на ціль вона не подіяла.");
   } else {
     const head = `${healPlan.label} (${giver})`;
     if (canWrite) await applyHeal([tok.uuid], healPlan.amount, { head });
-    else game.socket.emit(SOCKET(), { op: "chemHeal", token: tok.uuid, amount: healPlan.amount, head, from: game.user.id });
+    else askGM({ op: "chemHeal", token: tok.uuid, amount: healPlan.amount, head }, "Доза на ціль", "Дозу витрачено, але на ціль вона не подіяла.");
   }
   clearTargets();
   return true;

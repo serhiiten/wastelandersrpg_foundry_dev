@@ -4,6 +4,7 @@
  * view model: enemy-view.mjs (pure, tested). Every action saves with `document.update` (no form submit).
  * Players who may only see the card (LIMITED, once the GM switched it to «Видимий») get it read-only.
  */
+import { addHelpButton } from "../tours/help-button.mjs";
 import { generatorRecord } from "../applications/terminal-battle.mjs";
 import {
   CAT_GUIDE, CAT_LABEL, DICE_RE, normDice, QUICK_ASPECTS, psyMoveIdx, buildAttackPresets, buildMovePresets, atkType, atkIgnoreN, atkIgnores, atkAmmoEx, moveHeal, zoneOfPoint,
@@ -135,6 +136,8 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
 
   _onRender(context, options) {
     super._onRender(context, options);
+    // «?» (author, 2026-11-17): the enemy card's tour (the GM's); players get the battle tour's step about it
+    addHelpButton(this, () => (game.user.isGM ? ["gm-enemy", "en-head"] : ["pl-battle", "enemy"]));
     const root = this.element;
     const fit = (ta) => { ta.style.height = "auto"; ta.style.height = `${ta.scrollHeight + 2}px`; };
     root.querySelectorAll("textarea").forEach((ta) => { requestAnimationFrame(() => fit(ta)); ta.addEventListener("input", () => fit(ta)); });

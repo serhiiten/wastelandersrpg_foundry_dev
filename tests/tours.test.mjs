@@ -1,7 +1,7 @@
 // The tours' data (author, 2026-11-16; module/tours/tour-data.mjs): every step can be shown and every link leads somewhere.
 // Run: node tests/tours.test.mjs
 import { readFileSync } from "node:fs";
-import { TOURS, HELP_VERSION } from "../module/tours/tour-data.mjs";
+import { TOURS, HELP_VERSION, journalText } from "../module/tours/tour-data.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
@@ -40,6 +40,12 @@ for (const t of TOURS) {
 for (const t of TOURS) for (const n of t.next ?? []) {
   const nt = TOURS.find((x) => x.id === n);
   ok(nt && !!nt.gm === !!t.gm, `${t.id} → ${n}: exists, same audience`);
+}
+// the journal leaves out what speaks of the tour's own examples (author, 2026-11-17), and nothing else
+for (const t of TOURS) for (const st of t.steps) {
+  const j = journalText(st.content);
+  ok(!/pust-tour-only|Тут показано|тимчасово обрано|<p>\s*<\/p>/.test(j), `${t.id}.${st.id}: the journal keeps a tour-only note`);
+  ok(j.replace(/<[^>]+>/g, "").trim().length > 20, `${t.id}.${st.id}: the journal's text is empty`);
 }
 ok(TOURS.filter((t) => t.gm && t.first).length === 1 && TOURS.filter((t) => !t.gm && t.first).length === 1, "one first tour for each side");
 

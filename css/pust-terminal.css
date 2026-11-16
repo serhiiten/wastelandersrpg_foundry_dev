@@ -663,20 +663,34 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock .pust-md-bendbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
 #pust-mapdock .pust-md-bendbtns > button { width: 100%; min-width: 0; height: 30px; padding: 0 4px; gap: 5px; font-size: 12px; white-space: nowrap; }
 #pust-mapdock .pust-md-bendbtns > button > span { overflow: hidden; text-overflow: ellipsis; }
-/* the chat card: a steel banner, a line for each character something happened to */
-.chat-message .pust-chat.pust-endcard { padding: 0; overflow: hidden; border: 2px solid #23282a; border-radius: 5px; background: #f4eedc; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
-.chat-message .pust-chat.pust-endcard .pust-end-hd { display: flex; align-items: center; gap: 9px; padding: 8px 10px; background: linear-gradient(180deg, #4a5356, #2b3133); color: #f4d11a;
-  font-family: "Oswald", "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 15px; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.45); }
-.chat-message .pust-chat.pust-endcard.pust-end-day .pust-end-hd { background: linear-gradient(180deg, #b07a1c, #7a5210); color: #fff3c4; }
-.chat-message .pust-chat.pust-endcard.pust-end-session .pust-end-hd { background: linear-gradient(180deg, #34406b, #1d2444); color: #dfe6ff; }
-.chat-message .pust-chat.pust-endcard .pust-end-hd > i { font-size: 17px; }
-.chat-message .pust-chat.pust-endcard .pust-end-body { padding: 7px 10px 8px; color: #2a261c; font-size: 13.5px; line-height: 1.35; display: flex; flex-direction: column; gap: 5px; }
-.chat-message .pust-chat.pust-endcard p { margin: 0; }
-.chat-message .pust-chat.pust-endcard .pust-end-who { color: #5d5543; font-size: 12.5px; }
-.chat-message .pust-chat.pust-endcard ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
-.chat-message .pust-chat.pust-endcard li { padding: 4px 6px; border-left: 3px solid #9a4a20; background: rgba(154,74,32,.08); }
-.chat-message .pust-chat.pust-endcard li.bad { border-left-color: #a3261a; color: #7d1c13; }
-.chat-message .pust-chat.pust-endcard .pust-end-mv { font-size: 12.5px; color: #5d5543; }
+/* the chat card (author, 2026-11-17: as the damage cards): a header in the kind's colours with chips, the general line, a row a character */
+.chat-message .pust-chat.pust-endcard { --ec: #3d4548; --ec-2: #23282a; --ec-ink: #f4d11a; padding: 0; overflow: hidden; border: 2px solid var(--ec-2); border-radius: 5px; background: #f4eedc; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.chat-message .pust-chat.pust-endcard.pust-end-day { --ec: #a8731a; --ec-2: #6e4a0c; --ec-ink: #fff3c4; }
+.chat-message .pust-chat.pust-endcard.pust-end-session { --ec: #2e3a66; --ec-2: #1a2142; --ec-ink: #dfe6ff; }
+.pust-chat.pust-endcard .pust-end-hd { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; padding: 7px 9px; background: linear-gradient(180deg, color-mix(in srgb, var(--ec) 80%, #fff), var(--ec)); color: var(--ec-ink);
+  border-bottom: 2px solid var(--ec-2); font-family: "Oswald", "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pust-chat.pust-endcard .pust-end-hd > i { flex: none; font-size: 16px; }
+.pust-chat.pust-endcard .pust-end-title { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pust-chat.pust-endcard .pust-end-chip { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: 3px; background: rgba(0,0,0,.3); color: var(--ec-ink);
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; text-transform: none; text-shadow: none; }
+.pust-chat.pust-endcard .pust-end-gen { margin: 0; padding: 6px 9px; background: color-mix(in srgb, var(--ec) 10%, #f4eedc); border-bottom: 1px solid #d9cfb2; color: #4a4336; font-size: 12.5px; line-height: 1.35; }
+.pust-chat.pust-endcard .pust-end-list { display: flex; flex-direction: column; }
+.pust-chat.pust-endcard .pust-end-row { display: flex; flex-direction: column; gap: 4px; padding: 6px 9px; border-top: 1px solid #d9cfb2; }
+.pust-chat.pust-endcard .pust-end-row:first-child { border-top: 0; }
+.pust-chat.pust-endcard .pust-end-row.bad { background: repeating-linear-gradient(-45deg, rgba(168,18,26,.07) 0 8px, transparent 8px 16px); }
+.pust-chat.pust-endcard .pust-end-main { display: flex; align-items: center; gap: 7px; }
+.pust-chat.pust-endcard .pust-end-main > img { flex: none; width: 26px; height: 26px; border: 0; border-radius: 50%; object-fit: cover; background: #d9cfb2; }
+.pust-chat.pust-endcard .pust-end-name { flex: 1 1 auto; min-width: 0; color: #2a261c; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 800; font-size: 14px; overflow-wrap: anywhere; }
+.pust-chat.pust-endcard .pust-end-hp { flex: none; padding: 1px 6px; border-radius: 4px; font-family: "PT Mono", monospace; font-size: 16px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.pust-chat.pust-endcard .pust-end-hp.lost { background: #a8121a; color: #fff0ec; }
+.pust-chat.pust-endcard .pust-end-hp.gain { background: #2f6b35; color: #e7ffd9; }
+.pust-chat.pust-endcard .pust-end-fd { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: 4px; background: #13231a; color: #3dff47; font-family: "PT Mono", monospace; font-size: 16px; font-weight: 700; line-height: 1.2; }
+.pust-chat.pust-endcard .pust-end-fd > i { font-size: 12px; }
+.pust-chat.pust-endcard .pust-end-row ul { margin: 0; padding: 0 0 0 33px; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.pust-chat.pust-endcard .pust-end-row li { position: relative; color: #2a261c; font-size: 12.5px; line-height: 1.35; }
+.pust-chat.pust-endcard .pust-end-row li::before { content: ""; position: absolute; left: -10px; top: .55em; width: 5px; height: 5px; border-radius: 50%; background: var(--ec); }
+.pust-chat.pust-endcard .pust-end-row.bad li { color: #7d1c13; }
+.pust-chat.pust-endcard .pust-end-quiet { padding-left: 33px; color: #8a8170; font-size: 12px; font-style: italic; }
 /* the group's session number and «Скинути відлік» (GM; author, 2026-11-17): on the tick's row, at its right end */
 #pust-mapdock .pust-md-bendft { display: flex; align-items: center; gap: 6px; }
 #pust-mapdock .pust-md-bendft > .pust-md-bendmv { flex: 1 1 auto; min-width: 0; }
@@ -684,3 +698,6 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock .pust-md-bsess > b { color: #3dff47; font-family: "Ubuntu Mono", monospace; font-size: 14px; }
 #pust-mapdock button.pust-md-bsreset { flex: none; width: 26px; height: 24px; padding: 0; display: grid; place-items: center; font-size: 12px; }
 #pust-mapdock button.pust-md-bsreset.armed { color: #fff; background: linear-gradient(180deg, #c8301f, #8a2419); border-color: #ff7a6b; }
+/* «?» in a panel's header (author, 2026-11-17): opens its help page; gone while the panel is folded */
+#pust-mapdock header > button.pust-md-help { font-size: 11px; }
+#pust-mapdock .pust-md-unit.folded .pust-md-help { display: none; }

@@ -3,6 +3,7 @@
  * The sheet reads the character through the rules engine (evaluate), shows buildView(), and sends
  * every field change and button to the HTML sheet's handlers (controller) via runAction().
  */
+import { addHelpButton } from "../tours/help-button.mjs";
 import { QS_LOCKED_ACTS, isQuickstartActor, qsLockTip } from "../helpers/quickstart-lock.mjs";
 import { textToHtml } from "../rules/rich-text.mjs";
 import { keepNoteSizes, refitOnResize, rememberScroll, watchNotes } from "./refit.mjs";
@@ -101,6 +102,8 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   _onRender(context, options) {
     super._onRender(context, options);
+    // «?» (author, 2026-11-17): the tour page of the tab now open
+    addHelpButton(this, () => (game.user.isGM ? ["gm-char", this.ui.tab || "build"] : ["pl-sheet", this.ui.tab || "build"]));
     const root = this.element;
     const fits = []; // every wrapping field's fit, run again when the window's width changes (refitOnResize)
     // aspects wrap: the field grows with its text; Enter doesn't add a line break (the value stays one line)

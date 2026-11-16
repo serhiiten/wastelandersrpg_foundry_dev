@@ -9,6 +9,7 @@ import { initBattleZones, readyBattleZones } from "./canvas/battle-zones.mjs";
 import { initCaravanMove } from "./canvas/caravan-move.mjs";
 import { readyApplyDamage } from "./applications/apply-damage.mjs";
 import { readyChemTarget } from "./applications/chem-target.mjs";
+import { readyGmRequests } from "./helpers/gm-request.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
 import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
@@ -17,7 +18,7 @@ import { renderMapDock } from "./applications/map-dock.mjs";
 import { WastelandersItemSheet } from "./sheets/item-sheet.mjs";
 import { WastelandersSpeciesBuilder } from "./sheets/species-builder.mjs";
 import { WastelandersDrugBuilder } from "./sheets/drug-builder.mjs";
-import { registerSystemSettings } from "./helpers/settings.mjs";
+import { registerSystemSettings, syncCombatTab } from "./helpers/settings.mjs";
 
 // Import modules
 import {
@@ -238,6 +239,8 @@ Hooks.once("ready", () => {
   readyBattleZones();
   readyApplyDamage();
   readyChemTarget();
+  readyGmRequests();
+  syncCombatTab();
   readyTokenVariants();
   // the tours (author, 2026-11-16): registered, «Довідка Foundry» kept current, the first one started on a first entry
   registerSystemTours();

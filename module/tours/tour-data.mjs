@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 83;
+export const HELP_VERSION = 85;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -230,4 +230,14 @@ for (const t of TOURS) {
     list.splice(at, 0, `sceneKind:${t.scene}`);
     step.prepare = list;
   }
+}
+
+/**
+ * A step's text for the journal (author, 2026-11-17): what speaks of the tour's own examples («Тут показано приклад…»,
+ * `<span class="pust-tour-only">`) is left out; a paragraph left empty goes too
+ */
+export function journalText(html) {
+  return String(html)
+    .replace(/\s?<span class="pust-tour-only">[\s\S]*?<\/span>/g, "")
+    .replace(/<p>\s*<\/p>/g, "");
 }

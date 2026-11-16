@@ -749,3 +749,8 @@ body.pust-touring #pause { display: none !important; }
 
 /* the book's descriptions over attribute and skill names (author, 2026-11-16): read left-aligned */
 #tooltip.pust-tip-book, .locked-tooltip.pust-tip-book { text-align: left; }
+
+/* Foundry's combat tab and the token HUD's combat button, hidden unless the world setting «showCombatTab» shows them
+   (author, 2026-11-17; feedback r1: the system's battles live in «Битва» and «Коло дій») */
+body.pust-no-combat #sidebar-tabs li:has(> [data-tab="combat"]),
+body.pust-no-combat #token-hud [data-action="combat"] { display: none !important; }

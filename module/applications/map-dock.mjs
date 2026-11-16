@@ -97,7 +97,7 @@ function countersHtml() {
     const st = G.localState(c);
     return `<div class="pust-md-lc ${st}" style="--h:${G.ctHue(c.val, c.die)}"><span class="pust-md-lc-die">${G.dieSvg(c.die, c.val, `dock${c.id}`)}</span><span class="pust-md-lc-name">${esc(c.name)}</span>${st ? `<small class="pust-md-lc-st">${st === "lost" ? "Загроза настала!" : "Проблему розв'язано"}</small>` : ""}</div>`;
   }).join("");
-  return `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span></header><div class="pust-md-body">${g ? `<div class="pust-md-csec">Гра</div>${g}` : ""}${l ? `<div class="pust-md-csec">Сцена</div>${l}` : ""}</div>`;
+  return `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span>${helpBtn("pl-panels:ctr", "Лічильники")}</header><div class="pust-md-body">${g ? `<div class="pust-md-csec">Гра</div>${g}` : ""}${l ? `<div class="pust-md-csec">Сцена</div>${l}` : ""}</div>`;
 }
 
 /** Players: redraw the counters panel (shown only while there are counters) */
@@ -553,8 +553,10 @@ function bindDrag(unitEl) {
 }
 
 const FOLD_BTN = `<button type="button" class="pust-md-fold" title="Згорнути до кнопки / розгорнути"><i class="fa-solid fa-chevron-up"></i></button>`;
-const header = (icon, name) => `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid ${icon}"></i><span>${name}</span>
-  ${FOLD_BTN}</header>`;
+/** «?» in a panel's header (author, 2026-11-17; feedback p3): opens «Довідка Foundry» on the tour page that explains it */
+const helpBtn = (help, name) => (help ? `<button type="button" class="pust-md-help" data-help="${help}" title="Довідка: «${name}»" aria-label="Довідка про панель «${name}»"><i class="fa-solid fa-question"></i></button>` : "");
+const header = (icon, name, help = "") => `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid ${icon}"></i><span>${name}</span>
+  ${helpBtn(help, name)}${FOLD_BTN}</header>`;
 
 /** Build (once) and place the panels; called whenever the scene controls render */
 export function renderMapDock() {
@@ -569,21 +571,29 @@ export function renderMapDock() {
       <div class="pust-md-unit${fold.map ? " folded" : ""}" data-unit="map">
         ${gm ? `<button type="button" class="pust-md-travel" data-mapdock="travel" title="Генератор подорожей поруч із мапою; Удача партії — з обраного каравану"><i class="fa-solid fa-route"></i><span>Подорож</span></button>` : ""}
         ${gm ? `<section class="pust-md-tv" hidden></section>` : ""}
-        ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
-        ${gm ? battleSectionHtml(header) : ""}
+        ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки", "gm-map:scene")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
+        ${gm ? battleSectionHtml((icon, name) => header(icon, name, "gm-battle:scene")) : ""}
       </div>
       <div class="pust-md-unit${fold.ctr ? " folded" : ""}" data-unit="ctr">
         ${gm ? "" : `<div class="pust-md-prow"><button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити «Зробити перевірку» поруч; персонаж — твій Player Character"><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button></div>`}
-        ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" title="Новий лічильник" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button>${FOLD_BTN}</header><div class="pust-md-body pust-gc" hidden></div></section>` : ""}
+        ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" title="Новий лічильник" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button>${helpBtn("gm-map:counters", "Лічильники")}${FOLD_BTN}</header><div class="pust-md-body pust-gc" hidden></div></section>` : ""}
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
-        <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки")}<div class="pust-md-body">${diceHtml()}</div></section>
+        <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки", gm ? "gm-map:dice" : "pl-panels:dice")}<div class="pust-md-body">${diceHtml()}</div></section>
         ${gm ? "" : `<div class="pust-md-fdrow" hidden><button type="button" class="pust-md-fdspend" data-mapdock="fd-spend"><i class="fa-solid fa-clover"></i><span>Витратити ЖД</span><b class="pust-md-fdn">0</b></button><button type="button" class="pust-md-fdgain" data-mapdock="fd-gain"><i class="fa-solid fa-plus"></i><span>Отримати ЖД</span></button></div>
         <div class="pust-md-fdrow pust-md-suprow" hidden><button type="button" class="pust-md-fdspend pust-md-supspend" data-mapdock="sup-spend"><i class="fa-solid fa-backpack"></i><span>Витратити Припас</span><b class="pust-md-fdn pust-md-supn">0</b></button><button type="button" class="pust-md-fdgain pust-md-supgain" data-mapdock="sup-gain"><i class="fa-solid fa-plus"></i><span>Отримати Припас</span></button></div><section class="pust-md-panel pust-md-ctr pust-md-ctr-pl" hidden></section>`}
       </div>
-      ${gm ? `<div class="pust-md-unit${fold.dmg ? " folded" : ""}" data-unit="dmg"><section class="pust-md-panel pust-md-battle pust-md-blite" hidden>${header("fa-clapperboard", "Сцена")}<div class="pust-md-body"></div></section></div>` : ""}
+      ${gm ? `<div class="pust-md-unit${fold.dmg ? " folded" : ""}" data-unit="dmg"><section class="pust-md-panel pust-md-battle pust-md-blite" hidden>${header("fa-clapperboard", "Сцена", "gm-map:scenepanel")}<div class="pust-md-body"></div></section></div>` : ""}
       ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
+    dock.addEventListener("click", (ev) => {
+      const b = ev.target.closest(".pust-md-help");
+      if (!b) return;
+      ev.stopPropagation();
+      b.blur(); // a focused button keeps the panel opaque
+      const [tour, step] = b.dataset.help.split(":");
+      import("../tours/tours.mjs").then((m) => m.openHelp(tour, step));
+    });
     const mapUnit = dock.querySelector('[data-unit="map"]');
     const ctrUnit = dock.querySelector('[data-unit="ctr"]');
     const diceUnit = dock.querySelector('[data-unit="dice"]');

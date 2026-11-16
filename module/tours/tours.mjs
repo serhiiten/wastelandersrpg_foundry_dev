@@ -5,7 +5,8 @@
  * «Пропустити» (×) leaves a tour: the first-entry start happens once per user (user flag `toursSeen`).
  */
 import { PustTour, loadQuickstartIds } from "./pust-tour.mjs";
-import { TOURS, HELP_VERSION } from "./tour-data.mjs";
+import { TOURS, HELP_VERSION, journalText } from "./tour-data.mjs";
+import { HELP_PAGES } from "./help-pages.mjs";
 
 const sys = () => game.system.id;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -45,7 +46,7 @@ export async function autoStartTour() {
 
 /** A tour as a journal page: the button, then its steps as text */
 export function tourPageHtml(t) {
-  const steps = t.steps.map((s) => `<h3>${esc(s.title)}</h3>${s.content}`).join("");
+  const steps = t.steps.map((s) => `<h3>${esc(s.title)}</h3>${journalText(s.content)}`).join("");
   return `<p>@Tour[${t.id}]{Пройти тур}</p>${t.description ? `<p><em>${esc(t.description)}</em></p>` : ""}${steps}`;
 }
 
@@ -58,6 +59,12 @@ export async function ensureHelpJournal() {
     text: { content: tourPageHtml(t), format: CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML },
     ownership: { default: t.gm ? NONE : -1 },
   }));
+  // pages that are not tours (help-pages.mjs; author, 2026-11-17): after the tours, for everyone
+  HELP_PAGES.forEach((p, i) => pages.push({
+    name: p.name, type: "text", sort: (TOURS.length + i + 1) * 100000,
+    text: { content: p.html, format: CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML },
+    ownership: { default: -1 }, flags: { [sys()]: { helpPage: p.id } },
+  }));
   const old = game.journal.find((j) => j.getFlag(sys(), "helpJournal"));
   if (old && old.getFlag(sys(), "helpJournal") === HELP_VERSION) return;
   if (old) await old.delete();
@@ -65,6 +72,29 @@ export async function ensureHelpJournal() {
     name: "Довідка Foundry", ownership: { default: OBS }, pages,
     flags: { [sys()]: { helpJournal: HELP_VERSION }, pust: { journal: true } },
   });
+}
+
+/**
+ * Open «Довідка Foundry» on a tour's page, scrolled to one of its steps (the «?» of the panels; author, 2026-11-17; feedback p3)
+ * @param {string} tourId  the tour whose page opens (a tour of the user's side)
+ * @param {string} [stepId] the step whose heading it scrolls to
+ */
+export async function openHelp(tourId, stepId = "") {
+  const j = game.journal.find((x) => x.getFlag(sys(), "helpJournal"));
+  const t = TOURS.find((x) => x.id === tourId);
+  const page = t && j?.pages.find((p) => p.name === t.title);
+  if (!j || !page) return ui.notifications.warn("Журнал «Довідка Foundry» ще не створено: він з'являється, коли Доглядач заходить у гру.");
+  if (!page.testUserPermission(game.user, "OBSERVER")) return ui.notifications.warn("Ця сторінка довідки лише для Доглядача.");
+  const step = t.steps.find((s) => s.id === stepId);
+  const anchor = step ? JournalEntryPage.slugifyHeading(step.title) : undefined;
+  await j.sheet.render({ force: true, pageId: page.id, anchor });
+  if (!step) return;
+  // Foundry scrolls to the anchor before the page has its height: the heading is put at the top once it is drawn
+  for (let i = 0; i < 20; i++) {
+    await new Promise((r) => setTimeout(r, 50));
+    const h = [...(j.sheet.element?.querySelectorAll(`[data-page-id="${page.id}"] h3, article h3`) ?? [])].find((x) => x.textContent.trim() === step.title);
+    if (h) { h.scrollIntoView({ block: "start" }); return; }
+  }
 }
 
 /** «init»: @Tour[id]{підпис} → a button that starts that tour */

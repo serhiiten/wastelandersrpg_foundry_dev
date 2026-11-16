@@ -4,6 +4,7 @@
  * this window draws them, keeps the results (per user) and sends them to chat. «Битви» can also create the
  * enemies, place their tokens and start a combat (terminal-battle.mjs).
  */
+import { addHelpButton } from "../tours/help-button.mjs";
 import { CASE_DIFF, caseBattle, caseKind, casePower } from "../rules/case-battle.mjs";
 import { travelDamage } from "./battle-panel.mjs";
 import { sharedGet, sharedSet, travelToScene } from "../helpers/scene-shared.mjs";
@@ -370,6 +371,8 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    // «?» (author, 2026-11-17): the terminal's tour, at the tab now open
+    addHelpButton(this, () => ["gm-terminal", this.st.tab || "case"]);
     const root = this.element;
     // «Битви»: each chip's token picture (author, 2026-11-16)
     root.querySelectorAll("img.pust-enchip-tok[data-tok]").forEach(async (img) => { img.src = await generatedEnemyImg(img.dataset.tok, img.dataset.group); });

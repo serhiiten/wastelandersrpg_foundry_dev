@@ -13,6 +13,7 @@ import { chatType, resolveHit } from "../rules/battle.mjs";
 import { targetProfile as profileOf } from "../rules/target-profile.mjs";
 import { battleType } from "./enemy-attack.mjs";
 import { postChat, isPublicMode } from "./chat.mjs";
+import { askGM, answerGM } from "../helpers/gm-request.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -153,7 +154,7 @@ export async function sendDamage(data, { partial = false, head = "" } = {}) {
   }
   if (game.user.isGM) { await applyDamage(targets, data, { partial, head }); clearTargets(); return true; }
   if (!game.users.activeGM) { ui.notifications.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
-  game.socket.emit(SOCKET(), { op: "applyDamage", targets, data, partial, head, from: game.user.id });
+  askGM({ op: "applyDamage", targets, data, partial, head }, "Шкода");
   // no «Запит надіслано Доглядачеві» notice (author, 2026-11-15): the chat card shows the result
   clearTargets();
   return true;
@@ -163,6 +164,6 @@ export async function sendDamage(data, { partial = false, head = "" } = {}) {
 export function readyApplyDamage() {
   game.socket.on(SOCKET(), (msg) => {
     if (!game.users.activeGM?.isSelf) return;
-    if (msg?.op === "applyDamage") applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, head: String(msg.head || "") });
+    if (msg?.op === "applyDamage") answerGM(msg, () => applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, head: String(msg.head || "") }));
   });
 }
