@@ -239,6 +239,13 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#restoreScroll();
     requestAnimationFrame(() => { this.#restoreScroll(); this.#toResult = false; this.#scrolls = null; });
     const root = this.element.querySelector(".pust-roller");
+    // invoking an aspect right under the result's description, before the attack effects and the damage (author, 2026-11-16);
+    // the button «Викликати аспект: +1d10» with its own icon
+    const res = root.querySelector(":scope > .rres"), asp = res?.querySelector(":scope > .rasp");
+    const after = res?.querySelector(":scope > .rdesc") ?? res?.querySelector(":scope > .rverd");
+    if (asp && after) after.after(asp);
+    const inv = asp?.querySelector(':scope > button[data-r="aspect"]');
+    if (inv && !inv.querySelector("i")) inv.insertAdjacentHTML("afterbegin", '<i class="fa-solid fa-wand-magic-sparkles"></i>');
     root.addEventListener("click", async (ev) => {
       const ap = ev.target.closest("[data-apply]");
       if (ap) {
@@ -571,4 +578,55 @@ export async function postExprRoll(expr, speaker) {
   const sum = roll.dice.reduce((t, d) => t + d.total, 0);
   await postDiceCard(speaker, expr, roll.total, dice, roll.total - sum);
   return roll;
+}
+
+/* ---------- the tours' example (author, 2026-11-16) ---------- */
+
+/**
+ * «Зробити перевірку» as an example for the tour «Зробити перевірку»: a panel for a character kept in memory («Швидкий старт»'s
+ * Волті), with a ranged attack rolled to a success and, at stage "dmg", its damage — all in memory: nothing is written, nothing
+ * goes to chat, its controls are inert. The panel's own markup is left as it is (author, 2026-11-16: wrapping its blocks broke
+ * its layout); a step lighting several blocks gives the tour a `union` of selectors.
+ */
+class DemoCheckPanel extends CheckPanel {
+  static DEFAULT_OPTIONS = { id: "pust-check-demo", classes: ["wastelanders", "pust-check", "pust-demo-check"], window: { resizable: false } };
+  get title() { return `Зробити перевірку — ${this.actor.name} (приклад)`; }
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const root = this.element.querySelector(".pust-roller");
+    if (!root) return;
+    root.inert = true;
+  }
+}
+
+let DEMO = null;
+const DEMO_STATES = {};
+
+/** Open (or bring to "roll" / "dmg") the example panel for `actor`; null closes it */
+export async function setCheckDemo(actor, stage = "roll") {
+  if (!actor) { await DEMO?.close({ animate: false }); DEMO = null; return null; }
+  if (!DEMO_STATES.roll || DEMO_STATES.src !== actor) {
+    // a copy of its own with a situational aspect that has a free invoke, so the aspect block shows one (author, 2026-11-16);
+    // the wiki's own example aspect («Стандартні дії»: надійне укриття)
+    const data = actor.toObject();
+    data.system.situational = [...(data.system.situational ?? []), { name: "надійне укриття", invoked: 1 }];
+    DEMO_STATES.src = actor;
+    DEMO_STATES.actor = new CONFIG.Actor.documentClass(data);
+    const { L } = evaluate(DEMO_STATES.actor);
+    L.R.fateMode = "char";
+    L.R.pool = { 6: 0, 8: 0, 10: 0 };
+    for (let i = 0; i < 60; i++) { // a ranged attack, rolled until it succeeds (only in memory)
+      L.rollerClick({ tagName: "BUTTON", dataset: { r: "preset", v: "0" } });
+      L.rollerClick({ tagName: "BUTTON", dataset: { r: "roll" } });
+      if (/class="rres v2"/.test(L.renderRoller())) break;
+    }
+    DEMO_STATES.roll = clone(L.R);
+    L.rollerClick({ tagName: "BUTTON", dataset: { r: "dmg" } });
+    DEMO_STATES.dmg = clone(L.R);
+  }
+  const demo = DEMO_STATES.actor;
+  STATES.set(demo.uuid, clone(DEMO_STATES[stage] ?? DEMO_STATES.roll));
+  if (!DEMO || DEMO.actor !== demo) { await DEMO?.close({ animate: false }); DEMO = new DemoCheckPanel({ actor: demo }); }
+  await DEMO.render({ force: true });
+  return DEMO;
 }

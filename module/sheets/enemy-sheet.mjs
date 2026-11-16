@@ -106,7 +106,8 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     Object.assign(context, {
       v, editable, gm, edit, ui: this.#ui, limited: !doc.isOwner,
       // a card outside the world (the compendium's, one built in memory): no «Видимий / Прихований», no «В чат» (author, 2026-11-16)
-      world: !!doc.id && !doc.pack, name: doc.name, img: doc.img, differs: v.differs,
+      // the tours' example enemy (pust-tour.mjs, in memory) shows them as a world card would, inert
+      world: (!!doc.id && !doc.pack) || !!doc.pustTourDemo, name: doc.name, img: doc.img, differs: v.differs,
       notes: s.notes, notesHtml: diceTextHtml(s.notes, "Примітки", editable),
       cats: CATS.map((k) => ({ k, l: CAT_LABEL[k], sel: k === v.cat })), catGuide: CAT_GUIDE[v.cat]?.txt ?? "",
     });
@@ -385,6 +386,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
 
   /** «В чат» (author, 2026-11-16): the whole card for everyone — the players may learn all about an enemy in play */
   static async #onToChat() {
+    if (this.document.pustTourDemo) return; // the tour's example: nothing posted
     await postEnemyCard(this.document);
   }
 
@@ -442,7 +444,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
 
   /** «Видимий / Прихований»: players may open a read-only card only while it is open */
   static async #onReveal() {
-    if (!game.user.isGM) return;
+    if (!game.user.isGM || this.document.pustTourDemo) return; // the tour's example: nothing written
     const open = !this.document.system.reveal;
     await this.document.update({
       "system.reveal": open,

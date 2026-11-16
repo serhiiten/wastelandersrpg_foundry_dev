@@ -267,6 +267,7 @@
 #pust-mapdock { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
 #ui-left { position: relative; z-index: 1; }
 #pust-mapdock .pust-md-unit { position: absolute; width: 340px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+#pust-mapdock .pust-md-unit[hidden] { display: none; } /* the GM's «lite» «Битва» on the battle map (author, 2026-11-16) */
 #pust-mapdock .pust-md-unit > * { pointer-events: auto; }
 #pust-mapdock .pust-md-panel { border: 2px solid #111; border-radius: 6px; overflow: hidden; opacity: .45; transition: opacity .15s ease;
   background: repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 1px, transparent 1px 4px), linear-gradient(180deg, #2f3433, #232726 60%, #1b1e1d);
@@ -620,6 +621,8 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
    Fate button's gold; «Витратити» off and half-transparent at 0 */
 #pust-mapdock .pust-md-fdrow { display: flex; gap: 6px; }
 #pust-mapdock .pust-md-fdrow[hidden], #pust-mapdock .pust-md-unit.folded > .pust-md-fdrow { display: none; }
+/* players' «Лічильники» under the Fate / Припаси rows (author, 2026-11-16); folded with «Кістки» */
+#pust-mapdock .pust-md-unit.folded > .pust-md-ctr-pl { display: none; }
 #pust-mapdock .pust-md-fdrow > button { flex: 1 1 0; height: 32px; opacity: 1; gap: 6px; font-size: 13px; letter-spacing: .03em; text-transform: uppercase; font-weight: 800;
   background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border: 1px solid #6e5608; box-shadow: 0 2px 4px rgba(0,0,0,.45); }
 #pust-mapdock .pust-md-fdrow > button:hover:not(:disabled) { color: #000; border-color: #f4d11a; box-shadow: 0 0 6px rgba(244,209,26,.45); }
@@ -632,3 +635,12 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock .pust-md-suprow > .pust-md-supspend:hover:not(:disabled) { color: #fff; border-color: #f0a070; box-shadow: 0 0 6px rgba(240,160,112,.45); }
 #pust-mapdock .pust-md-fdrow > button { padding: 0 6px; font-size: 12px; letter-spacing: .01em; gap: 5px; }
 #pust-mapdock .pust-md-fdrow > .pust-md-fdspend { flex: 1.3 1 0; }
+
+/* «Перейти на бойову мапу» / «Перейти на Мапу Пустки» at the panel's foot (author, 2026-11-16) */
+#pust-mapdock .pust-md-bgoto { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 32px; margin-top: 2px;
+  font-weight: 800; text-transform: uppercase; letter-spacing: .03em; font-size: 12.5px; }
+/* «Почати бій» under a travel battle (author, 2026-11-16): the battle map at once — red, as the battle it starts */
+.pust-tvb-actions > button.pust-tvb-fight, #pust-mapdock .pust-md-tvout .pust-tvb-actions > button.pust-tvb-fight {
+  background: linear-gradient(180deg, #b0301d, #7d1c13); color: #fbeee4; border: 1px solid #d8371f; }
+.pust-tvb-actions > button.pust-tvb-fight:hover:not(:disabled), #pust-mapdock .pust-md-tvout .pust-tvb-actions > button.pust-tvb-fight:hover:not(:disabled) {
+  color: #fff; border-color: #ff6a4a; box-shadow: 0 0 6px rgba(216,55,31,.55); }

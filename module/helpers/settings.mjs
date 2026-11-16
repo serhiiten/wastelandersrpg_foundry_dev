@@ -1,3 +1,5 @@
+import { registerSceneShared } from "./scene-shared.mjs";
+
 export function registerSystemSettings() {
   game.settings.register(game.system.id, "archetypesList", {
     name: "Список Архетипів",
@@ -38,6 +40,8 @@ export function registerSystemSettings() {
     type: Number,
     default: 0,
   });
+  // the «Битва» / «Сцена» panels' values, shared by every scene (module/helpers/scene-shared.mjs)
+  registerSceneShared();
   // «Бойова мапа» (module/helpers/default-scene.mjs): which version of the battle scene the world has got
   game.settings.register(game.system.id, "battleSceneVersion", {
     scope: "world",

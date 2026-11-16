@@ -377,7 +377,7 @@ export function normalizeTarget(t = {}) {
  * @param {object} target  flat profile or nested form (see `normalizeTarget`)
  * @param {number} base    rolled damage
  * @param {string} typeKey key of `DMG_TYPES` (unknown → physical)
- * @param {{ignoreArmor?:boolean, ignoreN?:number, partial?:boolean, dice?:number, rollD6?:()=>number, rnd?:()=>number}} [opts]
+ * @param {{ignoreArmor?:boolean, ignoreN?:number, partial?:boolean, dodge?:boolean, dice?:number, rollD6?:()=>number, rnd?:()=>number}} [opts]
  *   `dice` = number of damage dice (radiation heals a ghoul 1 HP per die); `rollD6` returns 1..6 for the electricity bonus
  * @returns {{final:number, heal?:number, steps:string[]}}  `steps` is the explanation shown in the log
  */
@@ -407,7 +407,9 @@ function computeDamageCore(p, base, typeKey, opts) {
     dmg = share >= 1 ? 0 : Math.ceil(dmg * (1 - share));
     steps.push(`${halves.length > 1 ? "½ + ½ (половини додаються)" : "½"} ${halves.join(", ")} → ${dmg}`);
   };
-  const partial = () => { if (opts.partial && p.halfPartial) halves.push("частковий успіх"); };
+  // «½ шкоди» (author, 2026-11-16): half of the damage, rounded up, for any target — a partial avoidance (10–14), one's own
+  // blast, «Погонич»…; one more «½» of the hit, so it adds up with the others (the wiki's glossary: halves add up)
+  const partial = () => { if (opts.partial && p.halfPartial) halves.push("частковий успіх"); if (opts.dodge) halves.push("½ шкоди"); };
   if (type.special === "rad") {
     if (p.rad === "immune") return { final: 0, steps: ["невразливий до радіації"] };
     if (p.rad === "heal") { const h = Math.max(0, opts.dice || 0); return { final: 0, heal: h, steps: [`радіація лікує: +1 ОЗ за кожну кістку (${h})`] }; }
@@ -479,7 +481,7 @@ const SPECIAL = new Set(["rad", "poison", "psychic"]);
  * @param {number} hp0 @param {number} max
  * @param {{total:number, type:string, dice?:number, ignoreArmor?:boolean, ignoreN?:number, poison?:number,
  *   parts?:{total:number, type:string, dice?:number}[]}} hit  types are keys of DMG_TYPES
- * @param {{partial?:boolean, rollD6?:()=>number, rnd?:()=>number}} [opts]
+ * @param {{partial?:boolean, dodge?:boolean, rollD6?:()=>number, rnd?:()=>number}} [opts]
  * @returns {{hp:number, damage:number, heal:number, steps:string[], out:boolean}}
  */
 export function resolveHit(target, hp0, max, hit, opts = {}) {
@@ -505,7 +507,7 @@ export function resolveHit(target, hp0, max, hit, opts = {}) {
   let damage = 0, heal = 0;
   const steps = [];
   for (const g of groups) {
-    const r = computeDamage(noKami, g.total, g.type, { ignoreArmor: !!hit.ignoreArmor, ignoreN: n0(hit.ignoreN), partial: !!opts.partial, dice: g.dice, rollD6: opts.rollD6, rnd: opts.rnd });
+    const r = computeDamage(noKami, g.total, g.type, { ignoreArmor: !!hit.ignoreArmor, ignoreN: n0(hit.ignoreN), partial: !!opts.partial, dodge: !!opts.dodge, dice: g.dice, rollD6: opts.rollD6, rnd: opts.rnd });
     const h = n0(r.heal), f = n0(r.final);
     heal += h;
     if (!r.heal) damage += f;
@@ -525,7 +527,7 @@ export function resolveHit(target, hp0, max, hit, opts = {}) {
  */
 export function damageHead(roll, typeKey, opts = {}) {
   const n = (DMG_TYPES[typeKey] || DMG_TYPES.phys).n;
-  return `${roll.detail}${roll.isDice ? " = " + roll.total : ""} · ${n.replace(/ \(.*/, "").toLowerCase()}${opts.ignoreArmor ? " · ігнорує броню" : ""}${opts.ignoreN ? ` · ігнорує ${opts.ignoreN} броні` : ""}${opts.partial ? " · частковий успіх" : ""}`;
+  return `${roll.detail}${roll.isDice ? " = " + roll.total : ""} · ${n.replace(/ \(.*/, "").toLowerCase()}${opts.ignoreArmor ? " · ігнорує броню" : ""}${opts.ignoreN ? ` · ігнорує ${opts.ignoreN} броні` : ""}${opts.partial ? " · частковий успіх" : ""}${opts.dodge ? " · ½ шкоди" : ""}`;
 }
 
 /* ------------------------------------------------------------------ *

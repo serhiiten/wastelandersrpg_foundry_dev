@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 47;
+export const HELP_VERSION = 73;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -48,6 +48,7 @@ export const TOURS = [
       S("ctrform", "Форма нового лічильника: «Гра» / «Сцена»; гра: назва, поділки 4…20 або «Свій» до 100, «Зараз»; сцена: назва загрози, кістка, початок; «Додати» / «Скасувати».", { selector: `${DOCK} .pust-gc-form`, prepare: "counterForm", tooltipDirection: "RIGHT" }),
       S("ctrmade", "Готові лічильники (приклади, лише на екрані): сцени з кнопками −2 невдача … +2 крит, загроза на 0, розв'язано на максимумі; гри з −/+, поділками з описами, назва в полі, × двічі; зміни пишуться в чат.", { selector: `${DOCK} .pust-md-ctr-gm .pust-md-body`, prepare: "counterDemo", tooltipDirection: "RIGHT" }),
       S("dice", "«Кістки»: N×d6/d8/d10/dN у чат. «Доля»: кістка Долі за виділені токени, а без виділення — список персонажів гравців і караванів з галочками.", { selector: `${DOCK} [data-mapdice="fate"]`, prepare: "unfold:dice", tooltipDirection: "RIGHT",  }),
+      S("scenepanel", "Панель «Сцена» (угорі праворуч): місце й небезпека, жетони Долі, шкода й лікування персонажам і караванам зі списку, спільні значення, «Перейти на бойову мапу».", { prepare: "unfold:dmg", selector: `${DOCK} [data-unit="dmg"]`, tooltipDirection: "LEFT" }),
       S("caravan", "Караван на мапі: при русі токена питає, чи списати запас ходу (1 клітинка — 1 одиниця, «Тачка» — 3 клітинки); перемикач «Витрачати автоматично» в аркуші каравану. Приклад: питання над токеном каравану (5 клітинок), нічого не рухається.", { selector: ".pust-cmove-demo", prepare: ["closeAll", "scene:map", "moveDemo"], tooltipDirection: "RIGHT" }),
     ],
   },
@@ -74,7 +75,7 @@ export const TOURS = [
       S("round", "«Коло дій»: ▶ — нове коло, картка в чаті нагадує порядок (спершу гравці). «Жетони Долі» Доглядача: −/+ і «За гравцями»; витрата пише в чат без числа.", { selector: ".pust-md-battle .pust-md-brf", tooltipDirection: "LEFT",  }),
       S("targets", "Цілі: шкода й лікування йдуть лише на цілі (трикутні мітки навколо токена). «Вибрати цілі» — виділені токени стають цілями; на зоні «Обрати всіх».", { selector: '.pust-md-battle [data-battle="tgtsel"]', tooltipDirection: "LEFT",  }),
       S("targetlook", "Як виглядає ціль: токен сцени (ворог) тимчасово обрано ціллю, трикутні мітки навколо; клавіша T над токеном теж обирає; попередні цілі повертаються.", { selector: ".pust-tgt-demo", prepare: "targetDemo", tooltipDirection: "RIGHT" }),
-      S("damage", "«Шкода й лікування»: число чи кістки, тип, «Ігнорує броню», «Частковий успіх» → «Завдати шкоди» / «Лікувати». Броня, захисти й половинки рахуються самі; картка в чаті.", { selector: ".pust-md-battle .pust-md-bhit", tooltipDirection: "LEFT",  }),
+      S("damage", "«Шкода й лікування»: число чи кістки, тип, «Ігнорує броню», «½ шкоди» → «Завдати шкоди» / «Лікувати». Броня, захисти й половинки рахуються самі; картка в чаті.", { selector: ".pust-md-battle .pust-md-bhit", tooltipDirection: "LEFT",  }),
     ],
   },
   {
@@ -129,47 +130,90 @@ export const TOURS = [
 
   /* ================================ Гравець ================================ */
   {
-    id: "pl-character", first: true, next: ["pl-check"], title: "Твій персонаж", description: "",
+    id: "pl-character", first: true, next: ["pl-sheet"], title: "Твій персонаж", description: "",
     steps: [
       S("hello", "Вітання гравця: короткий тур, × виходить, повторити — журнал «Довідка Foundry».", { prepare: ["closeAll", "sheet:pc"] }),
-      S("create", "Створення: «Випадковий персонаж» або крок за кроком — ім'я, вид, аспекти (кубики праворуч кидають варіант); готового персонажа дає Доглядач.", { selector: `${CHAR} .pust-sheetbar-btns`, prepare: ["sheet:pc", `open:${CHAR} details.pust-sheetbar`], tooltipDirection: "DOWN",  }),
-      S("tabs", "Вкладки: атрибути й навички, перки, Мотлох, здоров'я, записи, покращення. Аркуш підказує, чого бракує, і не пускає за правила.", { selector: `${CHAR} [data-tab="build"]`, tooltipDirection: "DOWN",  }),
-      S("hp", "«Швидкий доступ»: ОЗ (−/+ і «Вилікувати за (к)»), 0 ОЗ відкриває перевірку наслідку.", { selector: `${CHAR} .q-life`, tooltipDirection: "DOWN",  }),
-      S("fate", "Жетони Долі: на що витрачати (викликати аспект, нав'язати, створити факт); зміна пише в чат.", { selector: `${CHAR} .q-fate`, tooltipDirection: "DOWN",  }),
-      S("goods", "Припаси (лампочки, «Поповнити за (к)»), Кришки.", { selector: `${CHAR} .q-goods`, tooltipDirection: "DOWN",  }),
-      S("gear", "Мотлох: зброя й броня (у руках / вдягнена), хімія — «Вжити» або «На ціль»; вага, вартість.", { selector: `${CHAR} [data-tab="gear"]`, tooltipDirection: "DOWN",  }),
-      S("rest", "Відпочинок і час: «Відпочити», «Кінець сцени», «Новий день», «Кінець сесії» — хімія, наслідки й моди рахуються самі.", { selector: `${CHAR} .pust-rest-btn`, tooltipDirection: "UP",  }),
+      // author, 2026-11-16: the old «Створення» split in three — the bar's buttons, name / archetype / species, the aspects
+      S("bar", "Згортка «Аркуш»: п'ять кнопок з іконками — .json, «Випадковий персонаж», «Очистити аркуш», «Як створити персонажа»; у «Швидкого старту» частина вимкнена.", { selector: `${CHAR} .pust-sheetbar-btns`, prepare: ["sheet:pc", `open:${CHAR} details.pust-sheetbar`], tooltipDirection: "DOWN",  }),
+      S("who", "Ім'я, архетип, вид, стать: що робить кожне поле і навіщо архетип і вид за правилами.", { selector: `${CHAR} .pust-who-id`, prepare: "sheet:pc", tooltipDirection: "RIGHT" }),
+      S("asp", "Концепція, Проблема, Ціль: питання кожного аспекту, ЖД за нав'язування й ОД наприкінці сесії.", { selector: `${CHAR} .pust-who-asp`, prepare: "sheet:pc", tooltipDirection: "RIGHT" }),
+      S("hp", "ОЗ і броня: −/+, «Вилікувати за N(к)»; правила максимуму ОЗ, 0 ОЗ і наслідки, броня.", { selector: `${CHAR} .q-life`, tooltipDirection: "DOWN" }),
+      S("fate", "Жетони Долі: −/+ і картка в чаті; скільки на сесію, на що витрачати, жетон за 0 ОЗ.", { selector: `${CHAR} .q-fate`, tooltipDirection: "DOWN" }),
+      S("goods", "Припаси (лампочки, «Поповнити за N(к)») і кришки; що покривають Припаси, ціни.", { selector: `${CHAR} .q-goods`, tooltipDirection: "DOWN" }),
+      S("xpq", "«Зароблено ОД»: −/+ і «лишилося»; за що дають ОД.", { selector: `${CHAR} .q-xp`, tooltipDirection: "DOWN" }),
+      S("situ", "Ситуативні аспекти: додати, швидкі аспекти, безкоштовні Посилення −/+, ×; звідки беруться.", { selector: `${CHAR} .pust-qsit`, tooltipDirection: "DOWN" }),
+      S("rest", "«Статуси й відпочинок»: статуси від виду, перків, особливостей і речей; «Відпочити», кінець сцени, дня, сесії.", { selector: `${CHAR} .pust-qstat`, tooltipDirection: "UP" }),
+    ],
+  },
+  {
+    // every tab of the character sheet, each with its rules (author, 2026-11-16: split from «Твій персонаж»)
+    id: "pl-sheet", next: ["pl-check"], title: "Вкладки аркуша", description: "",
+    steps: [
+      S("build", "«Атрибути й навички»: пункти, межі виду, стартові навички, «Заповнити за архетипом»; кістка навички.", { prepare: ["closeAll", "sheet:pc", `click:${CHAR} [data-tab="build"]`], selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("issues", "«Сповіщення й попередження»: приклад блоку над вкладками; жовте нагадує, червоне — порушення правил; зникає сам.", { prepare: [`click:${CHAR} [data-tab="build"]`, "issuesDemo"], selector: `${CHAR} .pust-issues`, tooltipDirection: "DOWN" }),
+      S("perks", "«Перки й особливості»: кількість на старті, вимоги, «Кинути», «+ Свій», видові властивості.", { prepare: `click:${CHAR} [data-tab="perks"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("gear", "«Мотлох»: довідник, стартове спорядження, у руках / вдягнена, важкі речі, хімія «Вжити» / «На ціль»; приклад зі стимпаком у копії в пам'яті.", { prepare: ["sheet:pc", "gearDemo"], selector: `.pust-demo-gear .pust-gear-cols`, tooltipDirection: "RIGHT" }),
+      S("health", "«Здоров'я»: відпочинок, наслідки й лікування, хімія, залежність і ломка.", { prepare: `click:${CHAR} [data-tab="health"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("notes", "«Записи»: «Біографія» і «Інші», редактор, зберігається само.", { prepare: `click:${CHAR} [data-tab="notes"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("xp", "«Покращення»: ОД, квадрати, лише наприкінці сесії; «Як заробляти ОД».", { prepare: `click:${CHAR} [data-tab="xp"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("settings", "Налаштування: правила, які дозволяє Доглядач, доповнення, вільний режим, трофеї.", { prepare: `click:${CHAR} [data-tab="settings"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
     ],
   },
   {
     id: "pl-check", next: ["pl-panels"], title: "Зробити перевірку", description: "",
     steps: [
-      S("button", "«Зробити перевірку» на аркуші (і на панелі ліворуч): вікно перевірки.", { selector: `${CHAR} .pust-check-btn`, prepare: ["closeAll", "sheet:pc"], tooltipDirection: "LEFT",  }),
-      S("presets", "Готові перевірки: атаки, уникнення шкоди, інші — атрибут і навичка підставляються самі.", { selector: ".pust-check", prepare: "check", tooltipDirection: "LEFT",  }),
-      S("aspects", "Аспекти: виклик аспекту дає Посилення (+1d10, дві найвищі кістки), за жетон Долі або безкоштовне Посилення аспекту; після кидка ОД аспект уже не викликати.", { selector: ".pust-check", prepare: "check", tooltipDirection: "LEFT",  }),
-      S("result", "Результат: вердикт, смужка діапазонів, кістки; картка в чаті.", { selector: ".pust-check", prepare: "check", tooltipDirection: "LEFT",  }),
-      S("damage", "Шкода атаки: «Кинути шкоду», критичний ефект, «Завдати цілям» — на ціль (T), броня й захисти рахуються самі.", { selector: ".pust-check", prepare: "check", tooltipDirection: "LEFT",  }),
+      S("button", "«Зробити перевірку» на аркуші й панелі; коли кидати за правилами.", { selector: `${CHAR} .pust-check-btn`, prepare: ["closeAll", "sheet:pc"], tooltipDirection: "LEFT" }),
+      S("type", "«Вид перевірки»: як читається результат; приклад атаки в пам'яті.", { selector: ".pust-demo-check .rgrp:has(#r-type)", prepare: ["closeAll", "checkDemo:roll"], tooltipDirection: "RIGHT" }),
+      S("presets", "Готові перевірки й «Перевірка подорожі».", { selector: ".pust-demo-check .rpre.rgr, .pust-demo-check .travelb", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("perks", "Перки з власною перевіркою.", { selector: ".pust-demo-check .rpre.psi", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("attr", "Атрибут і навичка; кістка навички замінює меншу.", { selector: ".pust-demo-check .rgrp:has(.rats), .pust-demo-check .rgrp:has(#r-skill)", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("mods", "Посилення, Послаблення, Модифікатор за правилами.", { selector: ".pust-demo-check .rmods", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("roll", "«Кинути перевірку»: картка в чаті.", { selector: ".pust-demo-check .rgo", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("result", "Результат: вердикт, сума з діапазонами, кістки, що означає для виду; діапазони за правилами, ОД за невдачу.", { selector: ".pust-demo-check .rres > :is(.rdice, .rvhead, .rverd, .rdesc)", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("aspects", "Виклик аспекту після кидка: +1d10, чим платиться, коли не можна.", { selector: ".pust-demo-check .rasp", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("effects", "Ефекти атаки: що дає кожен результат.", { selector: ".pust-demo-check .rfx", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("damage", "Шкода: «Кинути шкоду», тип, позначки, критичний ефект, нова картка за зміну.", { selector: ".pust-demo-check .rdmg", prepare: "checkDemo:dmg", tooltipDirection: "RIGHT" }),
+      S("apply", "«Завдати цілям»: цілі T, броня й захисти, цілі знімаються.", { selector: ".pust-demo-check .rdapply", prepare: "checkDemo:dmg", tooltipDirection: "RIGHT" }),
     ],
   },
   {
     id: "pl-panels", next: ["pl-battle"], title: "Твої панелі", description: "",
     steps: [
-      S("check", "«Зробити перевірку» на панелі: те саме вікно під кнопкою, за твого персонажа.", { selector: `${DOCK} .pust-md-check`, prepare: ["closeAll", "scene:map"], tooltipDirection: "RIGHT",  }),
+      S("check", "«Зробити перевірку» на панелі: те саме вікно під кнопкою, за твого персонажа.", { selector: `${DOCK} .pust-md-check, #pust-check-dock`, union: true, prepare: ["closeAll", "scene:map", "dockCheck"], tooltipDirection: "RIGHT" }),
       S("dice", "«Кістки»: N×d6/d8/d10/dN у чат.", { selector: `${DOCK} [data-unit="dice"]`, prepare: "unfold:dice", tooltipDirection: "LEFT",  }),
       S("fate", "«Доля»: кістка Долі за свого персонажа; за іншого — познач його ціллю (T).", { selector: `${DOCK} [data-mapdice="fate"]`, tooltipDirection: "LEFT",  }),
       S("fd", "«Витратити ЖД» / «Отримати ЖД»: лічильник персонажа й картка в чаті.", { selector: `${DOCK} .pust-md-fdspend:not(.pust-md-supspend)`, tooltipDirection: "LEFT",  }),
       S("sup", "«Витратити Припас» / «Отримати Припас».", { selector: `${DOCK} .pust-md-supspend`, tooltipDirection: "LEFT",  }),
-      S("ctr", "«Лічильники»: що зараз рахує Доглядач (лише читати).", { selector: `${DOCK} [data-unit="ctr"]`, tooltipDirection: "RIGHT",  }),
+      S("ctr", "«Лічильники»: що зараз рахує Доглядач (лише читати); приклади лічильника гри й сцени.", { selector: `${DOCK} .pust-md-ctr`, prepare: "counterDemo", tooltipDirection: "RIGHT" }),
     ],
   },
   {
-    id: "pl-battle", scene: "battle", next: [], title: "Бій", description: "",
+    id: "pl-battle", scene: "battle", next: ["pl-caravan"], title: "Бій", description: "",
     steps: [
-      S("zones", "Бойова мапа: зони з аспектами, токен належить зоні центру; коло дій — спершу діють гравці.", { prepare: ["closeAll", "scene:battle"] }),
-      S("target", "«Обрати цілі»: клік по токену робить його ціллю (T); поки увімкнено, токени не тягнуться. «Зняти цілі».", { selector: `${DOCK} .pust-md-target`, tooltipDirection: "RIGHT",  }),
-      S("all", "«Обрати всіх» у смужці зони: цілі — усі, хто стоїть у зоні; вдруге — зняти.", {  }),
-      S("hit", "Атака: «Зробити перевірку» → «Кинути шкоду» → «Завдати цілям»; шкода йде через Доглядача, картка в чаті.", {  }),
-      S("chem", "Хімія «На ціль»: стимпак союзнику — познач одну ціль і натисни «На ціль» біля «Вжити».", {  }),
+      S("zones", "Зона з аспектами (рамка над зоною сцени): що таке зони, взаємодія в зоні, переміщення, атаки на відстані, аспекти зон.", { prepare: ["closeAll", "scene:battle", "zoneFrame:zone"], selector: ".pust-zone-frame", tooltipDirection: "RIGHT" }),
+      S("token", "Токен персонажа (приклад на сцені, лише в пам'яті): смужка ОЗ, ім'я, чипи ситуативних аспектів, спалах і число при зміні ОЗ, Unconscious на 0.", { prepare: "tokenDemo", selector: ".pust-tok-demo", tooltipDirection: "RIGHT" }),
+      S("round", "Коло дій (приклад картки в чаті): переміщення й дія, хід Доглядача наприкінці кола.", { prepare: "roundDemo", selector: ".pust-demo-msg", tooltipDirection: "LEFT" }),
+      S("target", "«Обрати цілі» / «Зняти цілі»: навіщо цілі, токени не тягнуться.", { selector: `${DOCK} .pust-md-trow`, tooltipDirection: "DOWN" }),
+      S("targetlook", "Як виглядає ціль (токен сцени, позначений для кроку).", { prepare: "targetDemo", selector: ".pust-tgt-demo", tooltipDirection: "RIGHT" }),
+      S("all", "«Обрати всіх» на смужці зони (рамка): цілі — всі в зоні; вдруге — зняти; атаки по всій зоні.", { prepare: "zoneFrame:target", selector: ".pust-zone-frame", tooltipDirection: "DOWN" }),
+      S("hit", "Атака: правила атаки в бою, «Завдати цілям» (приклад вікна перевірки), шкода через Доглядача.", { prepare: "checkDemo:dmg", selector: ".pust-demo-check .rdapply", tooltipDirection: "RIGHT" }),
+      S("dodge", "Уникнення шкоди: коли, які атрибути, результати (приклад вікна перевірки).", { prepare: "checkDemo:roll", selector: ".pust-demo-check .rpre.rgr:has(.dodge)", tooltipDirection: "RIGHT" }),
+      S("enemy", "Картка ворога для гравця: стан словом і ситуативні аспекти, які можна викликати.", { prepare: "sheet:enemy", selector: `${EN}`, tooltipDirection: "RIGHT" }),
+      S("chem", "Хімія «На ціль» (приклад зі стимпаком): одна ціль, доза своя, дія за правилами цілі.", { prepare: ["sheet:pc", "gearDemo"], selector: ".pust-demo-gear .pust-use-tgt", tooltipDirection: "RIGHT" }),
+    ],
+  },
+  {
+    // the caravan for the players, with its rules, its token and the range spent on the map (author, 2026-11-16)
+    id: "pl-caravan", scene: "map", next: [], title: "Караван", description: "",
+    steps: [
+      S("head", "Шапка: Удача партії (кістка Долі групи), «Браміни» / «Тачка» з їхніми правилами, карма й репутація як аспекти групи.", { selector: `${CAR} .pust-head`, prepare: ["closeAll", "sheet:caravan"], tooltipDirection: "RIGHT" }),
+      S("quick", "Швидкий доступ: ОЗ і броня каравану, бюджет компанії, вантаж страждає після половини ОЗ, ремонт за кришки.", { selector: `${CAR} .q-all`, tooltipDirection: "DOWN" }),
+      S("range", "Запас ходу: клітинка за одиницю, тачка три, 10 на старті, поповнення за кришки, перевірка подорожі за 5 клітинок.", { selector: `${CAR} .q-move`, tooltipDirection: "DOWN" }),
+      S("imps", "Покращення: два на старті, що вони дають.", { prepare: `click:${CAR} [data-tab="imps"]`, selector: `${CAR} .pust-imp-bar`, tooltipDirection: "RIGHT" }),
+      S("cargo", "Вантаж і пасажири (приклад у копії в пам'яті): місткість 10 кришок, ціни продажу, далека доставка, пошкоджений вантаж.", { prepare: "cargoDemo", selector: `${CAR}.pust-demo-cargo .pust-body`, tooltipDirection: "RIGHT" }),
+      S("story", "Історія компанії: знайомство, обличчя компанії, остання справа, що пішло не так.", { prepare: `click:${CAR} [data-tab="story"]`, selector: `${CAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("token", "Токен каравану на мапі: смужки ОЗ і «Запас ходу», картинка за транспортом.", { prepare: ["closeAll", "caravanToken"], selector: ".pust-tok-demo", tooltipDirection: "RIGHT" }),
+      S("move", "Рух мапою: питання про списання запасу ходу (приклад на 5 клітинок, нічого не рухається).", { prepare: "moveDemo", selector: ".pust-cmove-demo", tooltipDirection: "RIGHT" }),
     ],
   },
 ];

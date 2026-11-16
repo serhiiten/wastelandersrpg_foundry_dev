@@ -31,6 +31,7 @@
       </div>
     </div>
     <div class="pust-who">
+      <div class="pust-who-id">
       <div class="pust-row">
         <input class="pust-name" type="text" data-k="name" value="{{v.name}}" placeholder="Ім'я пустельника" aria-label="Ім'я">
         {{#if v.free}}<span class="pust-freechip" title="Вільний режим: правила не перевіряються, ручні надбавки й захисти діють. Вимкнути — у «Налаштуваннях»"><i class="fa-solid fa-unlock"></i> Вільний режим</span>{{/if}}
@@ -49,6 +50,8 @@
           {{#each v.genders}}<button type="button" class="{{#if sel}}on{{/if}}" data-action="act" data-act="gender" data-v="{{v}}">{{n}}</button>{{/each}}
         </span>
       </div>
+      </div>
+      <div class="pust-who-asp">
       {{#each v.aspects}}
       <div class="pust-row pust-aspect asp-{{f}}">
         <label>{{label}}</label>
@@ -56,6 +59,7 @@
         <button type="button" class="pust-die {{#if locked}}locked{{/if}}" data-action="act" data-act="roll-asp" data-i="{{i}}" title="{{#if locked}}Заповнено вручну. Очисти поле, щоб знову кидати{{else}}Кинути аспект{{/if}}"><i class="fa-solid {{#if locked}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
       </div>
       {{/each}}
+      </div>
       <div class="pust-row pust-aspect asp-detail">
         <label>Деталь</label>
         <textarea class="pust-asp-ta" rows="1" data-k="detail" aria-label="Деталь">{{v.detail}}</textarea>
@@ -183,7 +187,7 @@
         {{#each v.attrs}}
         <div class="pust-attr">
           <span class="pust-attr-head">
-            <a class="pust-roll pust-attr-name" data-action="checkPanel" data-attr="{{k}}" title="Перевірка: {{n}}"><span class="pust-abbr">{{s}}</span> <span class="pust-attr-full">{{n}}</span></a>
+            <a class="pust-roll pust-attr-name" data-action="checkPanel" data-attr="{{k}}" data-pust-tip="{{tip}}"><span class="pust-abbr">{{s}}</span> <span class="pust-attr-full">{{n}}</span></a>
             {{#if changed}}<span class="pust-now" title="Зараз, з хімією: {{chemNote}}">зараз {{nowS}}</span>{{/if}}
           </span>
           <button type="button" data-action="act" data-act="attr" data-k="{{k}}" data-d="-1" {{#unless canDown}}disabled{{/unless}}>−</button>
@@ -198,7 +202,7 @@
         <h3>Навички <small class="pust-h3-line {{#unless v.skillBudget.ok}}bad{{/unless}}">{{v.skillBudget.text}}</small></h3>
         {{#each v.skills}}
         <div class="pust-skill lv{{lv}}">
-          <a class="pust-roll" data-action="checkPanel" data-skill="{{s}}" title="Перевірка з навичкою">{{s}}</a>
+          <a class="pust-roll" data-action="checkPanel" data-skill="{{s}}" data-pust-tip="{{tip}}">{{s}}</a>
           <span class="pust-dots">
             {{#each dots}}<button type="button" class="dot {{#if on}}on{{/if}} {{#if over}}over{{/if}} {{#if locked}}locked{{/if}}" data-action="act" data-act="skill" data-s="{{../s}}" data-l="{{j}}" title="{{why}}" {{#if locked}}aria-disabled="true"{{/if}}></button>{{/each}}
           </span>

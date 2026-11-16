@@ -15,6 +15,7 @@
 import { ZONE, normalizeZone, placeNear, moveRect, resizeRect, nextZoneName, addAspect, removeAspect, stepInv } from "../rules/battle-zones.mjs";
 import { randomZoneName, randomZoneAspect, ZONE_COLORS } from "../rules/battle.mjs";
 import { MAP_NOTE } from "../rules/map-notes.mjs";
+import { sharedGet } from "../helpers/scene-shared.mjs";
 
 const sys = () => game.system.id;
 const hex = (s) => parseInt(String(s).replace("#", ""), 16);
@@ -276,7 +277,8 @@ function onDragCancel() { const d = drag; drag = null; stopListeners(); resetPre
 
 let editor = null; // { doc, root, armTimer }
 const zpath = (k2) => `flags.${sys()}.battleZone.${k2}`;
-const battlePlace = () => canvas.scene?.getFlag(sys(), "battlePlace") ?? "";
+/** the battle's place, shared by every scene (helpers/scene-shared.mjs) */
+const battlePlace = () => sharedGet("place") ?? "";
 
 function editorHtml(z) {
   const sw = Object.entries(COLORS).map(([key, c]) => `<button type="button" class="pust-mn-sw${key === z.color ? " on" : ""}" data-act="color" data-color="${key}" style="--sw:${c.fill}; --swl:${c.line}" title="${esc(ZONE_COLORS[key] ?? c.label)}" aria-label="${esc(ZONE_COLORS[key] ?? c.label)}"></button>`).join("");
@@ -547,3 +549,34 @@ export function readyBattleZones() {
   document.addEventListener("pointerdown", onDocPointerDown, true);
   if (canvas.ready) attach();
 }
+
+/**
+ * The tour «Бій» (author, 2026-11-16): a see-through frame laid over a zone of the viewed scene (the one with most aspects),
+ * or over its «Обрати всіх» button, so the tour can light it (it lights DOM elements only); the view is panned to the zone.
+ * `part`: "zone" | "target"; null takes the frame away. Nothing is changed in the scene.
+ */
+let zoneFrame = null;
+export async function setZoneFrame(part) {
+  zoneFrame?.remove();
+  zoneFrame = null;
+  if (!part || !canvas?.ready) return null;
+  const own = sceneZones().sort((a, b) => zoneOf(b.doc).aspects.length - zoneOf(a.doc).aspects.length)[0];
+  if (!own) return null;
+  // the whole zone in view, not closer than it is now
+  const side = document.querySelector("#sidebar")?.getBoundingClientRect();
+  const roomW = (side?.left || window.innerWidth) - 120, roomH = window.innerHeight - 120;
+  const scale = Math.min(canvas.stage.scale.x, roomW / own.w, roomH / own.h);
+  await canvas.animatePan({ x: own.x + own.w / 2, y: own.y + own.h / 2, scale, duration: 250 });
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const tb = tgtBox(own.w);
+  const box = part === "target" ? { x: own.x + tb.x, y: own.y + tb.y, w: tb.w, h: tb.s } : { x: own.x, y: own.y, w: own.w, h: own.h };
+  const t = canvas.stage.worldTransform, a = t.apply({ x: box.x, y: box.y }), b = t.apply({ x: box.x + box.w, y: box.y + box.h });
+  const pad = part === "target" ? 3 : 0;
+  zoneFrame = document.createElement("div");
+  zoneFrame.className = `pust-zone-frame pust-zone-frame-${part}`;
+  Object.assign(zoneFrame.style, { position: "fixed", zIndex: 1000,
+    left: `${a.x - pad}px`, top: `${a.y - pad}px`, width: `${b.x - a.x + 2 * pad}px`, height: `${b.y - a.y + 2 * pad}px` });
+  document.body.append(zoneFrame);
+  return own.doc;
+}
+Hooks.on("canvasTearDown", () => { zoneFrame?.remove(); zoneFrame = null; });

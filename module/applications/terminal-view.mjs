@@ -4,6 +4,7 @@
  * T: createTerminal() from rules/terminal.mjs; st: the saved terminal state (see blankTerminal).
  * Mirrors the HTML terminal's tabs: Справа, Подорож, Натхнення, Битви.
  */
+import { sharedGet } from "../helpers/scene-shared.mjs";
 import { catIconHtml } from "../sheets/enemy-view.mjs";
 
 export const TABS = [
@@ -214,7 +215,8 @@ function battleView(T, st, ui) {
     caseInfo: last ? "Кейс: " + Object.entries(last.pickedCase).map(([k, v]) => `${T.battle.BT.labelCat(k)}: ${v}`).join(" • ") : "",
     buckets,
     total: buckets.reduce((n, x) => n + x.count, 0),
-    place: s?.place || "", hazard: s?.hazard || "",
+    // the battle's place and hazard: the ones of the «Битва» / «Сцена» panels, shared by every scene (author, 2026-11-16)
+    place: sharedGet("place") || s?.place || "", hazard: sharedGet("hazard") || s?.hazard || "",
     rewardHtml: rewardInner(s?.rewardHtml),
   };
 }

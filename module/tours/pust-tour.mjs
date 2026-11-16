@@ -71,6 +71,7 @@ async function demoActor(type) {
     delete data.folder;
     data.ownership = { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
     const actor = new CONFIG.Actor.documentClass(data);
+    actor.pustTourDemo = true; // the enemy card shows its world buttons for it, inert (enemy-sheet.mjs)
     const sheet = actor.sheet;
     Object.defineProperty(sheet, "title", { configurable: true, get: () => `${actor.name} (приклад)` });
     demos.set(type, actor);
@@ -129,8 +130,30 @@ async function closeUnneeded(needs) {
 
 /** Panels the tour opened for a step (the travel window, the counter form, the example counters): closed when a step that
  * doesn't ask for them comes, and when the tour ends */
-const opened = { travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null };
+/** «Сповіщення й попередження» as an example (author, 2026-11-16): a sheet with nothing to warn about has no block, so the step
+ *  puts one in its place over the tabs, in the page only — the sheet's next render takes it away */
+const ISSUES_DEMO = [["warn", "Не розподілено пунктів атрибутів: 1."], ["warn", "Можна обрати ще навичок на рівні учня: 1."], ["bad", "Перків більше, ніж слотів: 4 з 3."]];
+function setIssuesDemo(on) {
+  document.querySelectorAll(".pust-issues.pust-demo-issues").forEach((x) => x.remove());
+  if (!on) return;
+  const sheet = [...document.querySelectorAll(".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)")].find((x) => x.offsetParent);
+  const nav = sheet?.querySelector("nav.pust-tabs");
+  if (!nav || sheet.querySelector(".pust-issues")) return;
+  const box = document.createElement("section");
+  box.className = "pust-issues pust-demo-issues";
+  box.innerHTML = `<div class="pust-issues-hd"><i class="fa-solid fa-triangle-exclamation"></i> Сповіщення й попередження <small>${ISSUES_DEMO.length}</small></div>`
+    + ISSUES_DEMO.map(([lvl, msg]) => `<div class="pust-issue ${lvl}">${msg}</div>`).join("");
+  nav.before(box);
+}
+const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, zframe: false, round: false, tok: false };
 async function closeTransient(keep = new Set()) {
+  if (opened.issues && !keep.has("issuesDemo")) { setIssuesDemo(false); opened.issues = false; }
+  if (opened.tok && !keep.has("tokenDemo") && !keep.has("caravanToken")) { await (await import("../canvas/token-demo.mjs")).setTokenDemo(false); opened.tok = false; }
+  if (opened.zframe && !keep.has("zoneFrame")) { await (await import("../canvas/battle-zones.mjs")).setZoneFrame(null); opened.zframe = false; }
+  if (opened.round && !keep.has("roundDemo")) { document.querySelectorAll(".pust-demo-msg").forEach((x) => x.remove()); opened.round = false; }
+  if (opened.dock && !keep.has("dockCheck")) { await foundry.applications.instances.get("pust-check-dock")?.close({ animate: false }); opened.dock = false; }
+  if (opened.check && !keep.has("checkDemo")) { await (await import("../applications/check-panel.mjs")).setCheckDemo(null); opened.check = false; }
+  if (opened.gear && !keep.has("gearDemo")) { try { await opened.gear.close({ animate: false }); } catch (_) { /* gone */ } opened.gear = null; }
   if (opened.cargo && !keep.has("cargoDemo")) { try { await opened.cargo.close({ animate: false }); } catch (_) { /* gone */ } opened.cargo = null; }
   if (opened.newen && !keep.has("enemyCreate")) { await foundry.applications.instances.get("pust-enemy-create")?.close(); opened.newen = false; }
   if (opened.tgt && !keep.has("targetDemo")) { await (await import("../canvas/target-demo.mjs")).setTargetDemo(false); opened.tgt = false; }
@@ -240,6 +263,79 @@ export const PREPARE = {
     actor.sheet.element.classList.add("pust-demo-cargo"); // kept through the tab's re-render
     actor.sheet.bringToFront(); // over the caravan it copies
   },
+  /**
+   * «Мотлох» with a stimpak (author, 2026-11-16): a copy of «Швидкий старт»'s Волті, kept in memory, with a stimpak first in
+   * «Інший мотлох», so «Вжити» and «На ціль» are there; opened over the character on «Мотлох», its cards inert (nothing is written)
+   */
+  gearDemo: async () => {
+    const shown = [...foundry.applications.instances.values()].find((a) => a.rendered && a.document?.type === "character" && !a.element?.classList.contains("pust-demo-gear"));
+    // always «Швидкий старт»'s Волті as the pack has her (author, 2026-11-16: not the character with the user's own changes)
+    const base = await demoActor("character") ?? shown?.document;
+    if (!base) return;
+    const data = base.toObject();
+    delete data._id; delete data.folder;
+    data.ownership = { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
+    // one weapon, one armour, the stimpak and one more thing: the three columns fit on screen
+    const GEAR = ["weapon", "armor", "tool"], firstOf = (t) => (data.items ?? []).filter((i) => i.type === t).slice(0, 1);
+    const stim = (data.items ?? []).find((i) => /^стимпак/i.test(i.name))
+      ?? { type: "tool", name: "Стимпак", system: { quantity: 2, note: "", engine: { n: "Стимпак", q: "2", note: "", price: "2 к" } } };
+    const other = (data.items ?? []).filter((i) => i.type === "tool" && i !== stim).slice(0, 1);
+    data.items = [...(data.items ?? []).filter((i) => !GEAR.includes(i.type)), ...firstOf("weapon"), ...firstOf("armor"),
+      { ...stim, sort: -100 }, ...other];
+    // without «Guns. Lots of Guns» (author, 2026-11-16): the example shows the core book's cards
+    foundry.utils.setProperty(data, "system.options.guns", false);
+    foundry.utils.setProperty(data, "system.engine.set.guns", false);
+    const actor = new CONFIG.Actor.documentClass(data);
+    Object.defineProperty(actor.sheet, "title", { configurable: true, get: () => `${actor.name} (приклад)` });
+    await actor.sheet.render({ force: true });
+    await sleep(300);
+    const pos = shown?.position;
+    if (pos) actor.sheet.setPosition({ left: pos.left, top: pos.top, width: pos.width, height: pos.height });
+    actor.sheet.element.querySelector('[data-tab="gear"]')?.click();
+    opened.gear = actor.sheet;
+    await sleep(500);
+    actor.sheet.element.classList.add("pust-demo-gear");
+    actor.sheet.element.querySelector(".pust-gear-cols")?.setAttribute("inert", "");
+    actor.sheet.bringToFront(); // over the character it copies
+  },
+  /** the player's token as an example, a preview on the scene only (token-demo.mjs) */
+  /** the caravan's token framed (token-demo.mjs); a scene without one: a preview of it */
+  caravanToken: async () => { await (await import("../canvas/token-demo.mjs")).setCaravanFrame(true, await actorFor("caravan")); opened.tok = true; await sleep(150); },
+  tokenDemo: async () => { await (await import("../canvas/token-demo.mjs")).setTokenDemo(true, await actorFor("pc")); opened.tok = true; await sleep(150); },
+  /** a frame over the scene's zone with most aspects ("zone") or over its «Обрати всіх» ("target") — battle-zones.mjs */
+  zoneFrame: async (part) => { await (await import("../canvas/battle-zones.mjs")).setZoneFrame(part || "zone"); opened.zframe = true; await sleep(150); },
+  /** an example chat card «Почалося коло дій» at the end of the chat log, in the page only (nothing posted) */
+  roundDemo: async () => {
+    await PREPARE.sidebar("chat");
+    document.querySelectorAll(".pust-demo-msg").forEach((x) => x.remove());
+    const log = [...document.querySelectorAll("#chat .chat-log, #chat-log, .chat-log")].find((e) => e.offsetParent);
+    if (!log) return;
+    const li = document.createElement("li");
+    li.className = "chat-message message flexcol pust-bare pust-demo-msg";
+    li.innerHTML = `<div class="message-content"><div class="pust-chat pust-round"><div class="pust-round-hd"><i class="fa-solid fa-rotate"></i><span>Почалося коло дій</span><b>1</b></div><p>Спершу діють гравці, потім Доглядач робить хід і переміщує одного НІПа.</p></div></div>`;
+    log.append(li);
+    li.scrollIntoView({ block: "end" });
+    opened.round = true;
+    await sleep(200);
+  },
+  /** the player's «Зробити перевірку» opened under its button on the panel (author, 2026-11-16) */
+  dockCheck: async () => {
+    if (!document.getElementById("pust-check-dock")) document.querySelector("#pust-mapdock .pust-md-check:not([hidden])")?.click();
+    opened.dock = true;
+    await waitFor("#pust-check-dock .pust-roller");
+    await sleep(300);
+  },
+  /** «Зробити перевірку» as an example (author, 2026-11-16): «Швидкий старт»'s Волті, a ranged attack rolled in memory to a
+   *  success ("roll") and its damage ("dmg"); nothing written, nothing in chat (check-panel.mjs setCheckDemo) */
+  checkDemo: async (stage) => {
+    const actor = await demoActor("character");
+    if (!actor) return;
+    const app = await (await import("../applications/check-panel.mjs")).setCheckDemo(actor, stage || "roll");
+    opened.check = true;
+    await sleep(300);
+    app?.setPosition({ left: 110, top: 10 });
+    app?.bringToFront();
+  },
   /** the «Новий супротивник» form, open as an example: nothing is created (its «Скасувати» or the tour closes it) */
   enemyCreate: async () => {
     if (!foundry.applications.instances.get("pust-enemy-create")) (await import("../applications/enemy-create.mjs")).EnemyCreateApp.ask({});
@@ -249,6 +345,7 @@ export const PREPARE = {
     if (app?.rendered) app.setPosition({ left: 110, top: 40 });
     await sleep(200);
   },
+  issuesDemo: async () => { setIssuesDemo(true); opened.issues = true; await sleep(150); },
   targetDemo: async () => { await (await import("../canvas/target-demo.mjs")).setTargetDemo(true); opened.tgt = true; await sleep(200); },
   enemyForm: async () => { await (await import("../applications/battle-panel.mjs")).setEnemyFormOpen(true); opened.eform = true; await sleep(300); },
   zoneDemo: async () => { await (await import("../canvas/battle-zones.mjs")).setZoneDemo(true); opened.zone = true; await sleep(300); },
@@ -298,7 +395,11 @@ export const quickstartImported = () => (QS_IDS?.length ? QS_IDS.every((id) => g
 
 /** A card that found no room beside its element: into the largest free part of the screen (below, above, right, left of it) */
 function placeAside(card, el) {
-  const e = el.getBoundingClientRect(), c = card.getBoundingClientRect(), m = 12;
+  const e = el.getBoundingClientRect(), m = 12;
+  // a side column narrower than the card (a wide sheet): the card narrows to it, down to 340 px (author, 2026-11-16: it covered the sheet)
+  const side = Math.max(innerWidth - e.right, e.left) - 2 * m;
+  if (side < card.getBoundingClientRect().width && side >= 340 && card.getBoundingClientRect().height + 2 * m > Math.max(innerHeight - e.bottom, e.top)) card.style.width = `${side}px`;
+  const c = card.getBoundingClientRect();
   const spots = [
     { room: innerHeight - e.bottom, need: c.height, at: { top: e.bottom + m, left: (innerWidth - c.width) / 2 } },
     { room: e.top, need: c.height, at: { top: e.top - c.height - m, left: (innerWidth - c.width) / 2 } },
@@ -364,9 +465,18 @@ export class PustTour extends foundry.nue.Tour {
   }
 
   _getTargetElement(selector) {
-    const all = [...document.querySelectorAll(selector)];
-    return all.find((el) => el.getClientRects().length) ?? null;
+    const all = [...document.querySelectorAll(selector)].filter((el) => el.getClientRects().length);
+    if (!this.currentStep?.union || all.length < 2) return all[0] ?? null;
+    // a step with `union: true` lights all its elements as one (author, 2026-11-16: several blocks of the check panel, left as
+    // they are): an empty box over their joint area stands in for the element
+    all[0].scrollIntoView({ block: "nearest" });
+    const u = all.map((el) => el.getBoundingClientRect()).reduce((a, r) => ({ left: Math.min(a.left, r.left), top: Math.min(a.top, r.top),
+      right: Math.max(a.right, r.right), bottom: Math.max(a.bottom, r.bottom) }), { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity });
+    if (!this.#proxy?.isConnected) { this.#proxy = document.createElement("div"); this.#proxy.className = "pust-tour-proxy"; document.body.append(this.#proxy); }
+    Object.assign(this.#proxy.style, { position: "fixed", pointerEvents: "none", left: `${u.left}px`, top: `${u.top}px`, width: `${u.right - u.left}px`, height: `${u.bottom - u.top}px` });
+    return this.#proxy;
   }
+  #proxy = null;
 
   /** the middle card of a step whose element is lit but had no room beside it (removed here, Foundry doesn't know it) */
   #centerCard = null;
@@ -408,6 +518,8 @@ export class PustTour extends foundry.nue.Tour {
     this.#unwatch();
     this.#centerCard?.remove();
     this.#centerCard = null;
+    this.#proxy?.remove();
+    this.#proxy = null;
     await super._postStep();
     if (this.#hidden) { this.#hidden.step.selector = this.#hidden.selector; this.#hidden = null; }
   }

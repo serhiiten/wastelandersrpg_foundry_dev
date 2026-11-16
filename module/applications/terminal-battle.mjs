@@ -226,10 +226,11 @@ export async function createBattle(T, st, mode = "folder") {
   const { zoneCells } = zones.length ? await import("./battle-panel.mjs") : {};
   if (isBattleScene(scene)) {
     const S = T.battle.BT.BT_SCENE ?? {};
+    // shared by every scene (helpers/scene-shared.mjs; author, 2026-11-16)
     const upd = {};
-    if (S.place) upd[`flags.${game.system.id}.battlePlace`] = S.place;
-    if (S.hazard) upd[`flags.${game.system.id}.battleHazard`] = S.hazard;
-    if (Object.keys(upd).length) await scene.update(upd);
+    if (S.place) upd.place = S.place;
+    if (S.hazard) upd.hazard = S.hazard;
+    if (Object.keys(upd).length) await (await import("../helpers/scene-shared.mjs")).sharedSet(upd);
   }
   const free = zones.length ? null : spots(scene, total);
   const tokens = [];
@@ -239,7 +240,8 @@ export async function createBattle(T, st, mode = "folder") {
     // different faces of one kind (token-variants.mjs), counting the ones given earlier in this same battle
     const tex = variantTextures(seen, actor, count);
     let ti = 0;
-    const cells = zones.length ? zoneCells(scene, zones[zi++ % zones.length], count) : null;
+    // as many cells as this kind needs plus the ones earlier kinds took here (author, 2026-11-16: two kinds shared a cell)
+    const cells = zones.length ? zoneCells(scene, zones[zi++ % zones.length], count + tokens.length) : null;
     // cells already given to an earlier kind in this same battle are taken now
     if (cells) for (const t of tokens) { const k = cells.findIndex((c) => c.x === t.x && c.y === t.y); if (k >= 0) cells.splice(k, 1); }
     for (const name of personalNames(T, e.enemy, count, st.battle.names, used)) {

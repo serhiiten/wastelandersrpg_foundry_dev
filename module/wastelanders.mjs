@@ -38,6 +38,22 @@ import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs
 import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
 import { autoStartTour, ensureHelpJournal, registerSystemTours, registerTourEnricher } from "./tours/tours.mjs";
 
+/* The book's descriptions over attribute and skill names (`data-pust-tip`): left-aligned, after 1 s of hovering — Foundry's
+   own delay (0.5 s) is one for all tooltips (author, 2026-11-16). Never during a tour: its card is Foundry's tooltip too. */
+{
+  let tipEl = null, tipTimer = 0;
+  const hide = () => { clearTimeout(tipTimer); if (tipEl && game.tooltip?.element === tipEl) game.tooltip.deactivate(); tipEl = null; };
+  document.addEventListener("pointerover", (ev) => {
+    const el = ev.target.closest?.("[data-pust-tip]");
+    if (el === tipEl) return;
+    hide();
+    if (!el || document.body.classList.contains("pust-touring")) return;
+    tipEl = el;
+    tipTimer = setTimeout(() => { if (tipEl === el && el.isConnected) game.tooltip.activate(el, { text: el.dataset.pustTip, direction: "RIGHT", cssClass: "pust-tip-book" }); }, 1000);
+  });
+  document.addEventListener("pointerdown", hide, true);
+}
+
 Hooks.once("init", async function () {
   // the HP bar over a token keeps the HP colours
   CONFIG.Token.objectClass = WastelandersToken;

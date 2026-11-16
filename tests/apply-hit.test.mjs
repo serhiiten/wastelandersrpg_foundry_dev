@@ -25,6 +25,14 @@ for (const [type, want] of Object.entries({ phys: 5, laser: 6, plasma: 7, gauss:
 // unknown type → physical
 eq(dmg(plain, { total: 7, type: "nope" }), 5, "unknown type is physical");
 
+/* ---------- «½ шкоди» (author, 2026-11-16): any target, half rounded up, then the armour; adds up with the other halves ---------- */
+eq(dmg(plain, { total: 7, type: "phys" }, { dodge: true }), 2, "dodge: 7 → 4, armour 2 → 2");
+eq(dmg(P({ armor: 0 }), { total: 7, type: "phys" }, { dodge: true }), 4, "dodge rounds up: 7 → 4");
+eq(dmg(P({ armor: 0 }), { total: 7, type: "rad" }, { dodge: true }), 4, "dodge on radiation: 7 → 4");
+eq(dmg(P({ armor: 0, rad: "half" }), { total: 7, type: "rad" }, { dodge: true }), 0, "dodge + radiation ½: two halves → 0");
+eq(dmg(P({ armor: 0, halfPartial: true }), { total: 8, type: "phys" }, { dodge: true }), 4, "dodge without «partial» leaves halfPartial alone");
+eq(dmg(P({ armor: 0 }), { total: 7, type: "phys" }, { dodge: false }), 7, "no dodge: whole damage");
+
 /* ---------- armour piercing ---------- */
 eq(dmg(plain, { total: 7, type: "phys", ignoreN: 1 }), 6, "ignores 1");
 eq(dmg(plain, { total: 7, type: "phys", ignoreN: 5 }), 7, "ignores 5 of 2");

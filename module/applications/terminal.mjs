@@ -4,6 +4,7 @@
  * this window draws them, keeps the results (per user) and sends them to chat. «Битви» can also create the
  * enemies, place their tokens and start a combat (terminal-battle.mjs).
  */
+import { sharedGet, sharedSet, travelToScene } from "../helpers/scene-shared.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { createBattle, openGeneratedEnemy, generatedEnemyImg, dropGeneratedEnemy, OPPONENT_ALIASES } from "./terminal-battle.mjs";
 import { concreteKinds } from "../rules/enemy-kinds.mjs";
@@ -37,6 +38,27 @@ export function battleFromTravel(travel, i) {
   if (OPEN.fromTravel(travel, i) === false) return;
   OPEN.render({ force: true, ...(first ? { position: freeSpot() } : {}) });
   OPEN.bringToFront?.();
+}
+
+/**
+ * «Почати бій» under a travel battle (author, 2026-11-16): the battle goes to «Битви» as «Створити битву» does, then the battle
+ * map is activated (the players come along) and its enemies are put into its zones — the battle's own (a scripted one) or
+ * rolled by the battle generator (a random one).
+ */
+export async function startTravelBattle(travel, i) {
+  if (!game.user.isGM) return;
+  OPEN ??= new TerminalApp();
+  if (OPEN.fromTravel(travel, i) === false) return;
+  const { battleScene } = await import("./battle-panel.mjs");
+  const scene = battleScene();
+  if (!scene) return ui.notifications.warn("У світі немає бойової мапи. Створи сцену типу «Битва».");
+  if (canvas?.scene?.id !== scene.id) {
+    const ready = new Promise((r) => Hooks.once("canvasReady", r));
+    await scene.activate();
+    await ready;
+  } else if (!scene.active) await scene.activate();
+  await createBattle(OPEN.T, OPEN.st, "place");
+  if (OPEN.rendered) OPEN.render();
 }
 
 /**
@@ -100,9 +122,10 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       caseReroll: TerminalApp.#on((app, t) => { app.st.case.cs = clone(app.T.case.reroll(t.dataset.k)); }),
       travelType: TerminalApp.#on((app, t) => { app.st.travel.type = t.dataset.type; }),
       travelLuck: TerminalApp.#on((app, t) => { app.st.travel.luck = Number(t.dataset.luck); }),
-      travelGen: TerminalApp.#on((app) => { Object.assign(app.st.travel, app.T.travel.generate(app.st.travel.type, app.st.travel.luck)); }),
+      travelGen: TerminalApp.#on((app) => { Object.assign(app.st.travel, app.T.travel.generate(app.st.travel.type, app.st.travel.luck)); travelToScene(app.st.travel.main, app.st.travel.additional); }),
       travelKinds: TerminalApp.#on((app, t) => app.#travelKinds(+t.dataset.i)),
       travelBattle: TerminalApp.#on((app, t) => app.#travelBattle(+t.dataset.i)),
+      travelFight: TerminalApp.#on((app, t) => { startTravelBattle(clone(app.st.travel), +t.dataset.i); return false; }),
       tableGen: TerminalApp.#on((app, t) => {
         const card = TABLE_CARDS.find((c) => c.id === t.dataset.card);
         app.st.tables.out[card.id] = runTable(app.T, card, app.st.tables.sel);
@@ -180,7 +203,11 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     B.setDifficulty(this.st.battle.difficulty);
     B.setKinds(this.st.battle.kinds);
     if (fresh && !this.st.battle.kinds.length) return ui.notifications.warn("Обери щонайменше один вид супротивників.");
+    // the place and hazard are the panels' ones, shared by every scene (author, 2026-11-16): in, and back out when rerolled
+    B.BT.BT_SCENE.place = sharedGet("place") || "";
+    B.BT.BT_SCENE.hazard = sharedGet("hazard") || "";
     const s = fn(B);
+    if ((s.place || "") !== (sharedGet("place") || "") || (s.hazard || "") !== (sharedGet("hazard") || "")) sharedSet({ place: s.place || "", hazard: s.hazard || "" });
     if (fresh) { this.st.battle.names = []; this.st.battle.picks = {}; }
     // a group enemy («Маленькі тварини…») becomes one concrete kind, kept through rerolls (author, 2026-11-16)
     this.st.battle.picks ??= {};
@@ -215,6 +242,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       : { diff: span.dataset.diff, idx: +span.dataset.idx, place };
     const s = this.T.battle.fromTravel(spec);
     if (!s) return ui.notifications.warn("Не вдалося зібрати цю битву."), false;
+    sharedSet({ place: s.place || "", hazard: s.hazard || "" }); // the travel's place becomes the battle's, on every scene
     this.st.battle.difficulty = s.difficulty;
     this.st.battle.names = s.names || [];
     this.st.battle.picks = {};
@@ -320,6 +348,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ? `<button type="button" data-action="travelKinds" data-i="${i}" title="Перекинути випадкову битву: інші види супротивників"><i class="fa-solid fa-rotate"></i> Інші види</button>`
         : "")
         + `<button type="button" class="pust-term-go" data-action="travelBattle" data-i="${i}" title="Перенести битву й місце на вкладку «Битви»"><i class="fa-solid fa-skull"></i> Створити битву</button>`
+        + `<button type="button" class="pust-term-go pust-tvb-fight" data-action="travelFight" data-i="${i}" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-crosshairs"></i> Почати бій</button>`
         + `<span class="pust-sub">${span.classList.contains("tvb-rnd") ? "Склад супротивників кинеться за правилами генератора битв." : "Кількість супротивників кинеться за описом битви."} Місце піде у вкладку «Битви».</span>`;
       sec.append(btns);
     });

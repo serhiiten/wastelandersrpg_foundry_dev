@@ -15,13 +15,14 @@
  *    the check panel right next to that unit (check-panel.mjs
  *    openDockCheck: their Player Character, or a list of the characters they own).
  */
+import { travelToScene } from "../helpers/scene-shared.mjs";
 import { addPlace } from "./map-tools.mjs";
 import { fateActors, fateInfo, fatePickList, luckCaravan, rollDice, rollFate } from "./map-dice.mjs";
 import { mountCounters } from "./game-counters.mjs";
 import * as G from "../rules/game-counters.mjs";
 import { postChat } from "./chat.mjs";
 import { postTerminalRoll, toggleDockCheck, placeDockCheck, dockCheckOpen } from "./check-panel.mjs";
-import { battleFromTravel } from "./terminal.mjs";
+import { battleFromTravel, startTravelBattle } from "./terminal.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { LUCKS, prettyTravel, travelChat } from "./terminal-view.mjs";
 import { battleSectionHtml, mountBattlePanel, redrawBattlePanel } from "./battle-panel.mjs";
@@ -77,10 +78,13 @@ async function onMap(ev) {
 }
 
 /* ---------------- players: the counters, read-only, always in sight (author, 2026-11-14) ---------------- */
+/** the tours' example counters (game-counters.mjs setCountersDemo), shown in the players' panel only while the step is on */
+let CTR_DEMO = null;
+Hooks.on("pustCountersDemo", (demo) => { CTR_DEMO = demo; redrawCounters(); });
 function countersHtml() {
   const sys = game.system.id;
-  const glob = G.normalizeList(game.settings.get(sys, "gameCounters"));
-  const loc = G.normalizeLocalList(canvas?.scene?.getFlag(sys, "sceneCounters") || []);
+  const glob = [...G.normalizeList(game.settings.get(sys, "gameCounters")), ...(CTR_DEMO ? [CTR_DEMO.game] : [])];
+  const loc = [...G.normalizeLocalList(canvas?.scene?.getFlag(sys, "sceneCounters") || []), ...(CTR_DEMO ? [CTR_DEMO.scene] : [])];
   if (!glob.length && !loc.length) return "";
   // above 20 segments a solid bar (author, 2026-11-15), as in the GM's panel
   const lamps = (n, v) => (n > G.GC_LAMPS_MAX ? `<span class="pust-md-bar"><i style="width: ${Math.round((v / n) * 1000) / 10}%"></i></span>`
@@ -93,7 +97,7 @@ function countersHtml() {
     const st = G.localState(c);
     return `<div class="pust-md-lc ${st}" style="--h:${G.ctHue(c.val, c.die)}"><span class="pust-md-lc-die">${G.dieSvg(c.die, c.val, `dock${c.id}`)}</span><span class="pust-md-lc-name">${esc(c.name)}</span>${st ? `<small class="pust-md-lc-st">${st === "lost" ? "Загроза настала!" : "Проблему розв'язано"}</small>` : ""}</div>`;
   }).join("");
-  return `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span>${FOLD_BTN}</header><div class="pust-md-body">${g ? `<div class="pust-md-csec">Гра</div>${g}` : ""}${l ? `<div class="pust-md-csec">Сцена</div>${l}` : ""}</div>`;
+  return `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span></header><div class="pust-md-body">${g ? `<div class="pust-md-csec">Гра</div>${g}` : ""}${l ? `<div class="pust-md-csec">Сцена</div>${l}` : ""}</div>`;
 }
 
 /** Players: redraw the counters panel (shown only while there are counters) */
@@ -104,6 +108,7 @@ function redrawCounters() {
   const html = countersHtml();
   box.hidden = !html;
   box.innerHTML = html;
+  requestAnimationFrame(fitCounters);
 }
 
 /* ---------------- «Кістки» ---------------- */
@@ -298,6 +303,7 @@ function travelBattleButtons(box) {
     btns.className = "pust-tvb-actions";
     btns.innerHTML = (rnd ? `<button type="button" data-tv="kinds" data-i="${i}" title="Перекинути випадкову битву: інші види супротивників"><i class="fa-solid fa-rotate"></i><span>Інші види</span></button>` : "")
       + `<button type="button" class="pust-md-go" data-tv="battle" data-i="${i}" title="Відкрити Термінал Доглядача з цією битвою на вкладці «Битви»"><i class="fa-solid fa-skull"></i><span>Створити битву</span></button>`
+      + `<button type="button" class="pust-md-go pust-tvb-fight" data-tv="fight" data-i="${i}" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-crosshairs"></i><span>Почати бій</span></button>`
       + `<small>${rnd ? "Склад супротивників кинеться за правилами генератора битв." : "Кількість супротивників кинеться за описом битви."} Місце піде у вкладку «Битви».</small>`;
     sec.append(btns);
   });
@@ -333,9 +339,11 @@ async function onTravel(ev) {
   if (k === "gen") {
     T ??= createTerminal({ toast: (m) => ui.notifications.info(m) });
     Object.assign(tv, T.travel.generate(tv.type, tv.luck));
+    travelToScene(tv.main, tv.additional); // its place and hazard into «Сцена» / «Битва» (author, 2026-11-16)
   }
   if (k === "kinds") travelKinds(+b.dataset.i);
   if (k === "battle") return battleFromTravel({ type: tv.type, luck: tv.luck, main: tv.main, additional: tv.additional }, +b.dataset.i);
+  if (k === "fight") { tv.open = false; redrawTravel(); return startTravelBattle({ type: tv.type, luck: tv.luck, main: tv.main, additional: tv.additional }, +b.dataset.i); }
   if (k === "chat") {
     const content = travelChat({ travel: tv });
     if (content) await postChat({ content, speaker: ChatMessage.getSpeaker({ alias: "Термінал Доглядача" }) });
@@ -367,6 +375,12 @@ function defaultPlace(unit) {
   const mh = el ? el.getBoundingClientRect().height : 140;
   const ctr = battle || !mh ? left : { x: left.x, y: left.y + mh + 8 };
   if (unit === "ctr") return game.user.isGM ? ctr : { x: ctr.x, y: Math.max(ctr.y, targetsFloor()) };
+  // the GM's «Битва» off the battle map (author, 2026-11-16): where «Битва» stands on the battle map
+  if (unit === "dmg") {
+    const side = document.querySelector("#sidebar")?.getBoundingClientRect();
+    const d = document.querySelector(`#${DOCK} [data-unit="dmg"]`);
+    return { x: (side?.left || window.innerWidth) - 8 - (d?.offsetWidth || 340), y: b.top };
+  }
   // players' «Кістки» (author, 2026-11-15): top right, next to Foundry's sidebar (its tabs when folded), on every scene
   if (!game.user.isGM) {
     const side = document.querySelector("#sidebar")?.getBoundingClientRect();
@@ -397,12 +411,17 @@ function place(unit) {
 /** The counters' list scrolls inside its panel, so «Лічильники» and «Кістки» under them (in their own place) stay above
  *  Foundry's players list (author, 2026-11-14: long game counters must not push «Кістки» off the screen) */
 function fitCounters() {
-  const unit = document.querySelector(`#${DOCK} [data-unit="ctr"]`);
-  const ctr = unit?.querySelector(".pust-md-ctr");
+  const ctr = document.querySelector(`#${DOCK} .pust-md-ctr`);
+  const unit = ctr?.closest(".pust-md-unit"); // players': inside «Кістки», top right (author, 2026-11-16)
   const body = ctr?.querySelector(":scope > .pust-md-body");
   if (!body || ctr.hidden || body.hidden || unit.classList.contains("folded")) return;
-  const players = document.querySelector("#players");
-  const floor = Math.min(window.innerHeight - 8, players ? players.getBoundingClientRect().top - 8 : Infinity);
+  // Foundry's players list and hotbar, where they are under the panel
+  const u = unit.getBoundingClientRect();
+  let floor = window.innerHeight - 8;
+  for (const sel of ["#players", "#hotbar"]) {
+    const r = document.querySelector(sel)?.getBoundingClientRect();
+    if (r?.height && r.left < u.right && r.right > u.left) floor = Math.min(floor, r.top - 8);
+  }
   const dice = document.querySelector(`#${DOCK} [data-unit="dice"]`);
   // only while «Кістки» follow «Лічильники» (the GM's; players' are top right)
   const diceH = dice && game.user.isGM && !load(POS_KEY).dice ? dice.offsetHeight + 6 : 0;
@@ -456,6 +475,7 @@ function placeAll() {
   place("ctr");
   fitCounters();
   place("dice");
+  place("dmg");
   sideTravel();
   sideCheck();
 }
@@ -544,13 +564,14 @@ export function renderMapDock() {
       </div>
       <div class="pust-md-unit${fold.ctr ? " folded" : ""}" data-unit="ctr">
         ${gm ? "" : `<div class="pust-md-prow"><button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити «Зробити перевірку» поруч; персонаж — твій Player Character"><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button></div>`}
-        ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" title="Новий лічильник" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button>${FOLD_BTN}</header><div class="pust-md-body pust-gc" hidden></div></section>` : `<section class="pust-md-panel pust-md-ctr" hidden></section>`}
+        ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" title="Новий лічильник" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button>${FOLD_BTN}</header><div class="pust-md-body pust-gc" hidden></div></section>` : ""}
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
         <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки")}<div class="pust-md-body">${diceHtml()}</div></section>
         ${gm ? "" : `<div class="pust-md-fdrow" hidden><button type="button" class="pust-md-fdspend" data-mapdock="fd-spend"><i class="fa-solid fa-clover"></i><span>Витратити ЖД</span><b class="pust-md-fdn">0</b></button><button type="button" class="pust-md-fdgain" data-mapdock="fd-gain"><i class="fa-solid fa-plus"></i><span>Отримати ЖД</span></button></div>
-        <div class="pust-md-fdrow pust-md-suprow" hidden><button type="button" class="pust-md-fdspend pust-md-supspend" data-mapdock="sup-spend"><i class="fa-solid fa-backpack"></i><span>Витратити Припас</span><b class="pust-md-fdn pust-md-supn">0</b></button><button type="button" class="pust-md-fdgain pust-md-supgain" data-mapdock="sup-gain"><i class="fa-solid fa-plus"></i><span>Отримати Припас</span></button></div>`}
+        <div class="pust-md-fdrow pust-md-suprow" hidden><button type="button" class="pust-md-fdspend pust-md-supspend" data-mapdock="sup-spend"><i class="fa-solid fa-backpack"></i><span>Витратити Припас</span><b class="pust-md-fdn pust-md-supn">0</b></button><button type="button" class="pust-md-fdgain pust-md-supgain" data-mapdock="sup-gain"><i class="fa-solid fa-plus"></i><span>Отримати Припас</span></button></div><section class="pust-md-panel pust-md-ctr pust-md-ctr-pl" hidden></section>`}
       </div>
+      ${gm ? `<div class="pust-md-unit${fold.dmg ? " folded" : ""}" data-unit="dmg"><section class="pust-md-panel pust-md-battle pust-md-blite" hidden>${header("fa-clapperboard", "Сцена")}<div class="pust-md-body"></div></section></div>` : ""}
       ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
     const mapUnit = dock.querySelector('[data-unit="map"]');
@@ -558,6 +579,8 @@ export function renderMapDock() {
     const diceUnit = dock.querySelector('[data-unit="dice"]');
     mapUnit.querySelector(".pust-md-map .pust-md-body")?.addEventListener("click", onMap);
     if (gm) mountBattlePanel(mapUnit.querySelector(".pust-md-battle"));
+    // off the battle map the GM's «Битва» is «lite», top right (author, 2026-11-16: damage to the characters on «Мапа Пустки»)
+    if (gm) mountBattlePanel(dock.querySelector('[data-unit="dmg"] .pust-md-battle'), { lite: true });
     syncSceneKind();
     // the counters: the GM edits them right in the panel (game-counters.mjs), players read them (redrawCounters)
     if (gm) mountCounters(ctrUnit.querySelector(".pust-md-ctr")).then(() => requestAnimationFrame(placeAll));
@@ -767,6 +790,9 @@ function syncSceneKind() {
   for (const el of unit.querySelectorAll(".pust-md-map, .pust-md-travel")) el.hidden = battle;
   if (battle && tv.open) { tv.open = false; redrawTravel(); }
   const b = unit.querySelector(".pust-md-battle");
-  if (b) { b.hidden = !battle; if (battle) redrawBattlePanel(); }
+  if (b) b.hidden = !battle;
+  const lite = document.querySelector(`#${DOCK} [data-unit="dmg"]`);
+  if (lite) { lite.hidden = battle; lite.querySelector(".pust-md-battle").hidden = battle; }
+  redrawBattlePanel();
   requestAnimationFrame(placeAll);
 }

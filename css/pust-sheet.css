@@ -32,7 +32,7 @@
 .pust-hpbar.hp-down .pust-hpbar-t { color: var(--pu-red); }
 @keyframes pust-hp-blink { 50% { border-color: #8d2a1f; } }
 .pust-portrait { width: 116px; height: 146px; object-fit: cover; border: 3px solid var(--pu-rust-1); border-radius: 4px; box-shadow: 3px 3px 0 rgba(35,27,17,.25); background: var(--pu-steel-1); cursor: pointer; }
-.pust-who { display: flex; flex-direction: column; gap: 4px; }
+.pust-who, .pust-who-id, .pust-who-asp { display: flex; flex-direction: column; gap: 4px; } /* -id / -asp: the tour lights them (author, 2026-11-16) */
 .pust-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .pust-row > input[type="text"] { flex: 1 1 120px; }
 .pust-name { font-family: var(--pu-f-label) !important; font-weight: 800; font-size: 20px !important; height: 32px !important; text-transform: uppercase; letter-spacing: .03em; }
@@ -448,16 +448,16 @@
 .pust-cols-eq > .pust-attrs { display: flex; flex-direction: column; }
 .pust-cols-eq > .pust-attrs > .pust-attr:not(.pust-attr-hd) { flex: 1 1 auto; }
 /* attributes: bigger elements to fill the taller rows */
-.pust-attrs .pust-attr { grid-template-columns: 1fr 32px 50px 32px 44px 44px 44px; gap: 5px; }
+.pust-attrs .pust-attr { grid-template-columns: 1fr 32px 50px 32px 34px 34px 34px; gap: 5px; }
 .pust-attrs .pust-attr-name { font-size: 17px; gap: 9px; }
 .pust-attrs .pust-abbr { font-size: 18px; min-width: 50px; padding: 3px 5px; }
 .pust-attrs .pust-val { font-size: 21px; line-height: 34px; height: 34px; }
 .pust-attrs .pust-attr > button { width: 32px !important; height: 32px !important; min-height: 0; font-size: 17px !important; padding: 0 !important; }
 .pust-attrs .pust-lim { font-size: 14px; line-height: 32px; }
-.pust-attrs .pust-attr-hd > span { font-size: 11.5px; }
+.pust-attrs .pust-attr-hd > span { font-size: 10px; letter-spacing: 0; } /* «старт» fits the 34 px column (author, 2026-11-16: the full names keep their room) */
 
 /* attributes: one grid for all rows (columns always line up), names shrink before anything spills */
-.pust-cols-eq > .pust-attrs { display: grid; grid-template-columns: minmax(0, 1fr) 32px 50px 32px 44px 44px 44px; column-gap: 5px; align-content: stretch; container-type: inline-size; }
+.pust-cols-eq > .pust-attrs { display: grid; grid-template-columns: minmax(0, 1fr) 32px 50px 32px 34px 34px 34px; column-gap: 5px; align-content: stretch; container-type: inline-size; }
 .pust-cols-eq > .pust-attrs > :not(.pust-attr) { grid-column: 1 / -1; }
 .pust-cols-eq > .pust-attrs > .pust-attr { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
 .pust-attrs .pust-attr-name { min-width: 0; overflow: hidden; }
@@ -466,7 +466,7 @@
   .pust-attrs .pust-attr-name { font-size: 14px; gap: 6px; }
   .pust-attrs .pust-abbr { font-size: 16px; min-width: 44px; }
 }
-@container (max-width: 420px) { .pust-attrs .pust-attr-full { display: none; } }
+@container (max-width: 330px) { .pust-attrs .pust-attr-full { display: none; } }
 .pust-cols-eq > .pust-attrs { grid-template-rows: auto auto repeat(7, minmax(0, 1fr)); }
 
 /* aspect fields wrap their text and grow */
@@ -1433,9 +1433,9 @@
   .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) > b { white-space: nowrap; }
 }
 /* (author, 2026-11-15) the name's row never wraps: on a narrow sheet the name field gives way, so its die stays beside it */
-.pust-sheet .pust-who > .pust-row:first-child { flex-wrap: nowrap !important; }
-.pust-sheet .pust-who > .pust-row:first-child > .pust-name { flex: 1 1 0; min-width: 0; width: 0; } /* width 0: the field adds nothing to the column's minimum */
-.pust-sheet .pust-who > .pust-row:first-child > .pust-die { flex: 0 0 auto; }
+.pust-sheet .pust-who > .pust-row:first-child, .pust-sheet .pust-who-id > .pust-row:first-child { flex-wrap: nowrap !important; }
+.pust-sheet .pust-who > .pust-row:first-child > .pust-name, .pust-sheet .pust-who-id > .pust-row:first-child > .pust-name { flex: 1 1 0; min-width: 0; width: 0; } /* width 0: the field adds nothing to the column's minimum */
+.pust-sheet .pust-who > .pust-row:first-child > .pust-die, .pust-sheet .pust-who-id > .pust-row:first-child > .pust-die { flex: 0 0 auto; }
 /* (author, 2026-11-15) «Броня» with psychic armour on a narrow sheet: the ОЗ counter keeps its width (it used to shrink and
    run under «Броня»); «Броня» gives way and its values wrap, «3 псих.» under «1 фіз.» */
 .pust-quickbar .pust-qgrp.q-life > .pust-qi:first-child { flex-shrink: 0; }

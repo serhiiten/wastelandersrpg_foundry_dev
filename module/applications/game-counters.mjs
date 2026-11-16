@@ -27,6 +27,7 @@ const DEMO_GAME = { id: 99901, name: "Приклад: наступ Легіон�
 const DEMO_SCENE = { id: 99902, name: "Приклад: тунель обвалюється", die: 6, val: 4 };
 export function setCountersDemo(on) {
   DEMO = on ? { game: G.normalizeList([DEMO_GAME])[0], scene: G.normalizeLocalList([DEMO_SCENE])[0] } : null;
+  Hooks.callAll("pustCountersDemo", DEMO); // the players' read-only panel shows them too (map-dock.mjs)
   return PANEL?.render();
 }
 /** The tour: the new counter's form opened (or closed) as «+» does */
