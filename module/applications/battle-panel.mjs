@@ -557,7 +557,10 @@ export function battleScene() {
 async function gotoScene(toBattle) {
   const scene = toBattle ? battleScene() : findMapScene();
   if (!scene) return notify.warn(toBattle ? "У світі немає бойової мапи. Створи сцену типу «Битва»." : "У світі немає «Мапи Пустки».");
-  await scene.activate();
+  // an active scene isn't activated again by Foundry (author, 2026-11-17: after the battle tour, which only views a battle
+  // map, «Перейти на Мапу Пустки» did nothing — the map was still the active scene): then it is just viewed
+  if (scene.active) await scene.view();
+  else await scene.activate();
 }
 
 /* ---------------- a travel event's damage into the panel (author, 2026-11-16) ---------------- */

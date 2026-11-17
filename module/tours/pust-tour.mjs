@@ -478,6 +478,7 @@ document.addEventListener("keydown", (ev) => {
 export class PustTour extends foundry.nue.Tour {
   /** The pause banner is hidden while a tour runs (author, 2026-11-16: it covers the middle of the screen); the game stays paused */
   async start() {
+    this.#done = false;
     document.body.classList.add("pust-touring");
     return super.start();
   }
@@ -551,11 +552,16 @@ export class PustTour extends foundry.nue.Tour {
   /** the same step drawn again where its element is now */
   async #redraw() {
     this.#unwatch();
-    await this._postStep();
     const step = this.currentStep;
+    await this._postStep();
+    // the tour may have moved on, ended or been left while the old card was taken down (author, 2026-11-17: the last
+    // step's card came back over «Тур завершено» — a redraw raced with «Готово» while the view still panned)
+    if (this.#done || foundry.nue.Tour.activeTour !== this || this.currentStep !== step) return;
     this.targetElement = step?.selector ? this._getTargetElement(step.selector) : null;
     if (step) await this._renderStep();
   }
+  /** set while the tour ends (complete / exit): no redraw may bring a card back */
+  #done = false;
 
   async _postStep() {
     this.#unwatch();
@@ -643,6 +649,8 @@ export class PustTour extends foundry.nue.Tour {
   }
 
   exit() {
+    this.#done = true;
+    this.#unwatch();
     document.body.classList.remove("pust-touring");
     super.exit();
     closeAll(); // the windows the tour opened go with it
@@ -651,18 +659,23 @@ export class PustTour extends foundry.nue.Tour {
 
   /** The last step: the tour is done, the next one of the chain is offered (our words, not Foundry's) */
   async complete() {
+    this.#done = true;
+    this.#unwatch();
     document.body.classList.remove("pust-touring");
     const done = await this.progress(this.steps.length);
-    closeAll();
-    closeTransient();
-    const next = (this.config.next ?? []).map((id) => game.tours.get(`${game.system.id}.${id}`)).find((t) => t && t.status !== "completed");
+    await closeAll();
+    await closeTransient();
+    // the chain's next tour, even one done before (author, 2026-11-17: Foundry keeps tours' progress in the browser, not the
+    // world, so in a new world the tours passed in an earlier one counted as done and the chain stopped)
+    const next = (this.config.next ?? []).map((id) => game.tours.get(`${game.system.id}.${id}`)).find(Boolean);
     if (next) {
       const go = await foundry.applications.api.DialogV2.confirm({
         window: { title: "Тур завершено" },
         content: `<p>«${esc(this.title)}» пройдено. Далі тур «${esc(next.title)}»?</p><p class="hint">Будь-який тур можна пройти знову з журналу «Довідка Foundry».</p>`,
         yes: { label: "Почати" }, no: { label: "Пізніше" },
       });
-      if (go) next.start();
+      // the dialog first closes wholly (author, 2026-11-17: its empty frame stayed under the next tour's first card)
+      if (go) { await sleep(350); await next.reset(); next.start(); }
     }
     return done;
   }

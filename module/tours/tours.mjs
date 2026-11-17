@@ -116,6 +116,8 @@ export function registerTourEnricher() {
     if (!b) return;
     ev.preventDefault();
     ev.stopPropagation();
-    startTour(b.dataset.pustTour);
+    // the journal the button sits in closes first (author, 2026-11-17: «Довідка Foundry» stayed over the tour)
+    const app = foundry.applications.instances.get(b.closest(".application")?.id) ?? ui.windows?.[b.closest(".app")?.dataset?.appid];
+    Promise.resolve(app?.close?.()).finally(() => startTour(b.dataset.pustTour));
   }, true);
 }
