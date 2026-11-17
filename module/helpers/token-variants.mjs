@@ -5,6 +5,7 @@
  * (`variantTextures`, created with the option `pustTokens`); a token dragged from the Actors directory gets one in
  * preCreateToken. A picture the GM set for the enemy (not the system's) is kept.
  */
+import { mine } from "./main-window.mjs";
 import { variantsFor, pickVariants } from "../rules/token-variants.mjs";
 import { OPPONENT_ALIASES } from "../applications/terminal-battle.mjs";
 import { pickKind } from "../rules/enemy-kinds.mjs";
@@ -25,7 +26,7 @@ export function variantTextures(scene, actor, count) {
 export function readyTokenVariants() {
   Hooks.on("createToken", (token, options, userId) => {
     const kind = token.getFlag(game.system.id, "kind");
-    if (userId !== game.user.id || !kind || token.actorLink || token.actor?.name === kind) return;
+    if (!mine(userId) || !kind || token.actorLink || token.actor?.name === kind) return;
     token.actor?.update({ name: kind, img: token.texture.src });
   });
   Hooks.on("preCreateToken", (token, data, options, userId) => {

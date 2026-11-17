@@ -1,3 +1,4 @@
+import { activeGmHere } from "./main-window.mjs";
 /**
  * The «Битва» / «Сцена» panels' values, one set for every scene (author, 2026-11-16: «значення в полях панелі сцена/битва
  * мають бути синхронізовані між усіма мапами»): the place and hazard, the GM's Fate tokens and the round — a world setting
@@ -30,7 +31,7 @@ export function sharedGet(k) {
 
 /** Once, while nothing is shared yet: the active scene's old flags become the shared values (the first GM) */
 globalThis.Hooks?.once("ready", async () => { // (tests import this module outside Foundry)
-  if (!game.user.isGM || game.users.activeGM?.id !== game.user.id || Object.keys(all()).length) return;
+  if (!game.user.isGM || !activeGmHere() || Object.keys(all()).length) return;
   const sc = game.scenes.active ?? canvas?.scene;
   const upd = {};
   for (const [k, f] of Object.entries(FLAG)) { const v = sc?.getFlag(game.system.id, f); if (v !== undefined && v !== null && v !== "") upd[k] = v; }

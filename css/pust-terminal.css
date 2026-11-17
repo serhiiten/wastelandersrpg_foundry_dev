@@ -411,9 +411,9 @@
 .pust-check-docked > .pust-cd-hd > select.pust-cd-who { flex: 1 1 auto; min-width: 0; width: auto; height: 24px; margin: 0; padding: 0 6px;
   background: #0f1412; color: #3dff47; border: 1px solid #0d0f0e; border-radius: 4px; font-family: "PT Mono", monospace; font-size: 13px; text-transform: none; letter-spacing: 0; }
 .pust-check-docked > .pust-cd-hd > select.pust-cd-who option { background: #0f1412; color: #3dff47; }
-.pust-check-docked > .pust-cd-hd > button.pust-cd-x { flex: none; width: 24px; height: 24px; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+.pust-check-docked > .pust-cd-hd > :is(button.pust-cd-x, button.pust-cd-help) { flex: none; width: 24px; height: 24px; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center;
   background: rgba(0,0,0,.25); border: 1px solid rgba(0,0,0,.4); border-radius: 3px; color: inherit; box-shadow: none; }
-.pust-check-docked > .pust-cd-hd > button.pust-cd-x:hover { background: rgba(0,0,0,.45); color: #fff; }
+.pust-check-docked > .pust-cd-hd > :is(button.pust-cd-x, button.pust-cd-help):hover { background: rgba(0,0,0,.45); color: #fff; }
 .pust-check-docked > .pust-roller { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 /* the travel window: under its button, OVER «Мапа Пустки» and «Кістки» (author, 2026-11-14: it doesn't push them), opaque */
 /* «Подорож» stays when «Мапа Пустки» is folded (author, 2026-11-14), so its window keeps the full width */
@@ -701,3 +701,72 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 /* «?» in a panel's header (author, 2026-11-17): opens its help page; gone while the panel is folded */
 #pust-mapdock header > button.pust-md-help { font-size: 11px; }
 #pust-mapdock .pust-md-unit.folded .pust-md-help { display: none; }
+
+/* «Огляд битви» (author, 2026-11-17; battle-overview.mjs): the GM's list of the scene's enemies, characters and caravans by zone,
+   on the left under «Кістки»; the list scrolls inside (fitOverview in map-dock.mjs) */
+#pust-mapdock .pust-md-ovw header { background: linear-gradient(180deg, #5a3a1c, #3a2412); color: #f4d11a; }
+#pust-mapdock .pust-md-ovw .pust-ov { gap: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain; }
+#pust-mapdock .pust-ov-tgts { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 5px; padding: 6px; background: #1b1e1d; border-bottom: 1px solid #0d0f0e; }
+#pust-mapdock .pust-ov-tn { flex: none; min-width: 74px; font-family: "Roboto Condensed", sans-serif; font-size: 12px; color: #c9f5cc; }
+#pust-mapdock .pust-ov-tn b { color: #3dff47; font-family: "Ubuntu Mono", monospace; font-size: 14px; }
+#pust-mapdock .pust-ov-tgts > button { height: 26px; }
+#pust-mapdock .pust-ov-zone { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 6px; padding: 4px 6px 4px 8px; background: var(--zf, #f6df73); border-top: 1px solid #0d0f0e;
+  border-left: 4px solid var(--zl, #b8952a); color: #2a261c; font-family: "Roboto Condensed", sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+/* the zone's header (author, 2026-11-17): the icon, the name (wrapping when long), the bullseye; the aspects on rows of their own under them */
+#pust-mapdock .pust-ov-zone > i { grid-column: 1; }
+#pust-mapdock .pust-ov-zone > .pust-ov-zn { grid-column: 2; min-width: 0; overflow-wrap: anywhere; font-weight: 800; }
+#pust-mapdock .pust-ov-zone > button.pust-ov-ztgt { grid-column: 3; }
+#pust-mapdock .pust-ov-zasps { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 3px; }
+#pust-mapdock .pust-ov-zone > button.pust-ov-ztgt { flex: none; height: 22px; background: rgba(0,0,0,.18); color: #2a261c; border-color: var(--zl, #b8952a); box-shadow: none; }
+#pust-mapdock .pust-ov-zone > button.pust-ov-ztgt:hover:not(:disabled) { background: rgba(0,0,0,.3); color: #000; }
+#pust-mapdock .pust-ov-zone.none { background: rgba(255,255,255,.04); color: #b6c4b8; border-left-color: #4a453d; }
+#pust-mapdock .pust-ov-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; padding: 6px 6px 6px 8px; border-top: 1px solid rgba(0,0,0,.45); align-items: start; }
+#pust-mapdock .pust-ov-row.pust-ov-pc { background: rgba(61,140,255,.06); }
+#pust-mapdock .pust-ov-row.out { opacity: .55; }
+#pust-mapdock .pust-ov-row.out .pust-ov-nm { text-decoration: line-through; }
+#pust-mapdock .pust-ov-row.hid .pust-ov-pic img { opacity: .45; }
+#pust-mapdock .pust-ov-pic { position: relative; width: 34px; height: 34px; }
+#pust-mapdock .pust-ov-pic img { width: 34px; height: 34px; border: 0; border-radius: 50%; object-fit: cover; background: #4a453d; }
+#pust-mapdock .pust-ov-cat { position: absolute; right: -4px; top: -4px; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--cc, #6b6f6c); color: #fff; border: 1px solid #111; font-size: 8px; }
+#pust-mapdock .pust-ov-cat .pust-cat-ico { width: 11px; height: 11px; }
+#pust-mapdock .pust-ov-cat.pc { background: #2c4f86; }
+#pust-mapdock .pust-ov-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+#pust-mapdock .pust-ov-name { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; min-width: 0; }
+#pust-mapdock .pust-ov-name > small { color: #9fb7a4; font-size: 11px; }
+#pust-mapdock button.pust-ov-nm { flex: 0 1 auto; height: auto; padding: 0; background: none; border: 0; box-shadow: none; color: #fff; font-size: 13.5px; font-weight: 800;
+  white-space: normal; text-align: left; justify-content: flex-start; }
+#pust-mapdock button.pust-ov-nm:hover { color: #f4d11a; border: 0; box-shadow: none; text-decoration: underline; }
+#pust-mapdock .pust-ov-hp { display: flex; align-items: center; gap: 4px; }
+#pust-mapdock .pust-ov-hp > button { flex: none; width: 22px; height: 22px; padding: 0; font-size: 14px; }
+#pust-mapdock .pust-ov-hp > button[data-d="-1"] { background: #5a1a12; color: #ffd6cf; }
+#pust-mapdock .pust-ov-hp > button[data-d="1"] { background: #1f4a24; color: #d6ffd0; }
+#pust-mapdock .pust-ov-bar { flex: 1 1 auto; height: 8px; border-radius: 4px; background: #0f1412; overflow: hidden; box-shadow: inset 0 1px 1px rgba(0,0,0,.5); }
+#pust-mapdock .pust-ov-bar > i { display: block; height: 100%; background: #3dff47; }
+#pust-mapdock .pust-ov-bar.hp-mid > i { background: #e0a020; }
+#pust-mapdock .pust-ov-bar.hp-low > i { background: #e0402a; }
+#pust-mapdock .pust-ov-num { flex: none; min-width: 52px; padding: 1px 4px; border-radius: 3px; background: #0f1412; color: #3dff47; text-align: center; font-family: "Ubuntu Mono", monospace; font-size: 13px; }
+#pust-mapdock .pust-ov-arm { flex: none; display: inline-flex; align-items: center; gap: 3px; color: #c9d2cf; font-family: "Ubuntu Mono", monospace; font-size: 13px; }
+#pust-mapdock .pust-ov-asps { display: flex; flex-wrap: wrap; gap: 3px; }
+#pust-mapdock .pust-ov-asp { flex: 0 1 auto; display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 0 5px; border-radius: 3px; background: #e2ad3b; color: #241a0c;
+  font-family: "Roboto Condensed", sans-serif; font-size: 11.5px; font-weight: 700; font-style: italic; line-height: 18px; }
+#pust-mapdock .pust-ov-asp > span { min-width: 0; white-space: normal; overflow-wrap: anywhere; } /* a long aspect wraps inside its chip, never cut (author, 2026-11-17) */
+#pust-mapdock .pust-ov-asp > b { flex: none; padding: 0 3px; border-radius: 2px; background: #2f6b35; color: #e7ffd9; font-style: normal; }
+#pust-mapdock .pust-ov-zone .pust-ov-asp { text-transform: none; letter-spacing: 0; }
+#pust-mapdock .pust-ov-atk { display: flex; align-items: center; gap: 5px; min-width: 0; }
+#pust-mapdock .pust-ov-dice { flex: 1 1 auto; min-width: 0; padding: 2px 6px; border-radius: 3px; background: var(--dt-bg, #6e3b22); color: var(--dt-fg, #f4d11a); border: 1px solid var(--dt-bd, #f0a070);
+  font-family: "Ubuntu Mono", monospace; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#pust-mapdock .pust-ov-dice > b { font-family: "Roboto Condensed", sans-serif; }
+#pust-mapdock .pust-ov-pips { flex: none; display: inline-flex; gap: 2px; }
+#pust-mapdock .pust-ov-pips > i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid #6b655a; }
+#pust-mapdock .pust-ov-pips > i.on { background: #f4d11a; border-color: #f4d11a; }
+#pust-mapdock button.pust-ov-hit { flex: none; height: 22px; padding: 0 6px; background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border-color: #d8371f; font-size: 11px; }
+#pust-mapdock .pust-ov-moves { display: flex; flex-wrap: wrap; gap: 3px; }
+#pust-mapdock button.pust-ov-move { flex: none; height: 20px; padding: 0 6px; font-size: 11px; font-weight: 700; }
+#pust-mapdock button.pust-ov-move.used { text-decoration: line-through; color: #8a8170; background: #262a29; }
+#pust-mapdock .pust-ov-side { display: flex; flex-direction: column; gap: 4px; }
+#pust-mapdock button.pust-ov-ib { flex: none; width: 26px; height: 24px; padding: 0; font-size: 13px; }
+#pust-mapdock button.pust-ov-tgt.on, #pust-mapdock .pust-ov-zone > button.pust-ov-ztgt.on { background: linear-gradient(180deg, #c8301f, #8a2419); color: #fff; border-color: #ff7a6b; box-shadow: 0 0 6px rgba(255,90,60,.5); }
+#pust-mapdock button.pust-ov-ib.on:not(.pust-ov-tgt) { color: #3dff47; }
+#pust-mapdock .pust-ov-empty { margin: 0; padding: 10px; color: #b6c4b8; font-size: 12.5px; }
+#pust-mapdock .pust-md-unit.folded .pust-ov { display: none; }

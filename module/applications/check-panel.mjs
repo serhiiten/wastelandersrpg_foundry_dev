@@ -5,6 +5,8 @@
  * does. Foundry adds the window, saves the character and posts results to chat.
  * The panel's state (R: attribute, skill, type, Посилення…, history) is kept per character.
  */
+import { addHelpButton } from "../tours/help-button.mjs";
+import { hotbarDraggable } from "../helpers/macros.mjs";
 import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
@@ -101,6 +103,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       R.dmgKey = `w${p.weapon}`;
       R.dmgUser = true;
     }
+    // a ready check (a hotbar macro; author, 2026-11-17): as a press of its button
+    if (p.r) L.rollerClick({ tagName: "BUTTON", dataset: { r: p.r, v: String(p.v) } });
     if (Object.keys(p).length) {
       R.last = null;
       R.am = {};
@@ -239,6 +243,13 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#restoreScroll();
     requestAnimationFrame(() => { this.#restoreScroll(); this.#toResult = false; this.#scrolls = null; });
     const root = this.element.querySelector(".pust-roller");
+    // «?» (author, 2026-11-17): the tour «Зробити перевірку» in «Довідка Foundry», at the result once there is one
+    if (!this.actor.pustTourDemo) addHelpButton(this, () => ["pl-check", this.element.querySelector(".rres") ? "result" : "type"]);
+    // the ready checks may be dragged to the hotbar (helpers/macros.mjs; author, 2026-11-17)
+    if (!this.actor.pustTourDemo) root.querySelectorAll('button[data-r="preset"], button[data-r="xpreset"]').forEach((b) => {
+      hotbarDraggable(b, { kind: b.dataset.r, actor: this.actor.uuid, label: b.textContent.trim() });
+      if (!b.title) b.title = "Перетягни на панель макросів, щоб відкривати цю перевірку звідти";
+    });
     // invoking an aspect right under the result's description, before the attack effects and the damage (author, 2026-11-16);
     // the button «Викликати аспект: +1d10» with its own icon
     const res = root.querySelector(":scope > .rres"), asp = res?.querySelector(":scope > .rasp");
@@ -421,8 +432,12 @@ class DockedCheckPanel extends CheckPanel {
     const who = list.length > 1
       ? `<select class="pust-cd-who" aria-label="Персонаж для перевірки" title="Чия перевірка">${list.map((a) => `<option value="${a.id}" ${a.id === this.actor.id ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select>`
       : `<b class="pust-cd-name">${esc(this.actor.name)}</b>`;
-    hd.innerHTML = `<i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span>${who}<button type="button" class="pust-cd-x" title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>`;
+    hd.innerHTML = `<i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span>${who}<button type="button" class="pust-cd-help" title="Довідка" aria-label="Довідка про «Зробити перевірку»"><i class="fa-solid fa-question"></i></button><button type="button" class="pust-cd-x" title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>`;
     el.prepend(hd);
+    hd.querySelector(".pust-cd-help").addEventListener("click", (ev) => {
+      ev.currentTarget.blur();
+      import("../tours/tours.mjs").then((m) => m.openHelp("pl-check", el.querySelector(".rres") ? "result" : "type"));
+    });
     hd.querySelector(".pust-cd-x").addEventListener("click", () => this.close());
     hd.querySelector(".pust-cd-who")?.addEventListener("change", (ev) => {
       const a = game.actors.get(ev.target.value);

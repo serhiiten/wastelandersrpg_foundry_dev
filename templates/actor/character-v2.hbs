@@ -466,6 +466,7 @@
         <div class="pust-gcard pust-gc kind-{{kind}} {{#if hand}}on{{/if}}">
           <div class="pust-gc-head">
             <div class="pust-gf2"><label class="pust-fchip pust-fchip-tog pust-gc-on" title="Зброя в руках"><input type="checkbox" data-k="weapons.{{i}}.hand" {{#if hand}}checked{{/if}} aria-label="У руках"> У руках</label><input type="text" data-k="weapons.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" aria-label="Назва" {{#if auto}}readonly{{/if}}></div>
+            <a class="pust-roll pust-gc-atk" data-action="checkPanel" data-weapon="{{i}}" title="Атака цією зброєю: «Зробити перевірку». Перетягни на панель макросів, щоб атакувати звідти" aria-label="Атака цією зброєю"><i class="fa-solid fa-dice-d20"></i></a>
             <label class="pust-fchip pust-fchip-tog pust-heavy {{#if h}}on{{/if}}" title="Важка річ: рахується у важких речах"><input type="checkbox" data-k="weapons.{{i}}.h" {{#if h}}checked{{/if}} aria-label="Важка"> Важка</label>
             {{#unless locked}}<button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="weapons" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>{{/unless}}
           </div>

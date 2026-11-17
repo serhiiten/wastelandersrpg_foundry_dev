@@ -4,6 +4,7 @@
  * world journal «Довідка Foundry» (one page a tour, a «Пройти тур» button on top; players see only their tours' pages).
  * «Пропустити» (×) leaves a tour: the first-entry start happens once per user (user flag `toursSeen`).
  */
+import { activeGmHere } from "../helpers/main-window.mjs";
 import { PustTour, loadQuickstartIds } from "./pust-tour.mjs";
 import { TOURS, HELP_VERSION, journalText } from "./tour-data.mjs";
 import { HELP_PAGES } from "./help-pages.mjs";
@@ -52,7 +53,7 @@ export function tourPageHtml(t) {
 
 /** «ready», the active GM: the journal «Довідка Foundry», made or rebuilt when the tours' texts change */
 export async function ensureHelpJournal() {
-  if (!game.users.activeGM?.isSelf) return;
+  if (!activeGmHere()) return;
   const NONE = CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE, OBS = CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER;
   const pages = TOURS.map((t, i) => ({
     name: t.title, type: "text", sort: (i + 1) * 100000,

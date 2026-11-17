@@ -15,6 +15,7 @@
  *    the check panel right next to that unit (check-panel.mjs
  *    openDockCheck: their Player Character, or a list of the characters they own).
  */
+import { overviewSectionHtml, mountOverview, redrawOverview } from "./battle-overview.mjs";
 import { travelToScene } from "../helpers/scene-shared.mjs";
 import { addPlace } from "./map-tools.mjs";
 import { fateActors, fateInfo, fatePickList, luckCaravan, rollDice, rollFate } from "./map-dice.mjs";
@@ -126,7 +127,7 @@ function diceHtml() {
     </div>
     <div class="pust-md-row">
       <output class="pust-md-out" aria-live="polite">${last}</output>
-      <button type="button" class="pust-md-fate" data-mapdice="fate" title="${f ? (f.n > 1 ? `Кістка Долі за кожного ${game.user.isGM ? "вибраного" : "з цілей"}: ${esc(f.name)}` : `Кістка Долі: 1d10 + ${f.what} «${esc(f.name)}» (${f.luck})${f.own ? ". За іншого — познач його токен ціллю" : ""}`) : (game.user.isGM ? "Кістка Долі: обери у списку, за кого кинути (або виділи токени на мапі)" : "Кістка Долі: познач ціллю токен персонажа чи каравану")}"><i class="fa-solid fa-clover"></i><span>Доля${f ? ` ${f.luck}` : ""}</span></button>
+      <button type="button" class="pust-md-fate" draggable="true" data-mapdice="fate" title="${f ? (f.n > 1 ? `Кістка Долі за кожного ${game.user.isGM ? "вибраного" : "з цілей"}: ${esc(f.name)}` : `Кістка Долі: 1d10 + ${f.what} «${esc(f.name)}» (${f.luck})${f.own ? ". За іншого — познач його токен ціллю" : ""}`) : (game.user.isGM ? "Кістка Долі: обери у списку, за кого кинути (або виділи токени на мапі)" : "Кістка Долі: познач ціллю токен персонажа чи каравану")}"><i class="fa-solid fa-clover"></i><span>Доля${f ? ` ${f.luck}` : ""}</span></button>
     </div>`;
 }
 
@@ -397,7 +398,27 @@ function defaultPlace(unit) {
   // «Кістки»: under the default place of «Лічильники» (6 px, as when they were one unit); right there when it is empty
   const c = document.querySelector(`#${DOCK} [data-unit="ctr"]`);
   const ch = c ? c.getBoundingClientRect().height : 0;
-  return { x: ctr.x, y: ctr.y + (ch > 0 ? ch + 6 : 0) };
+  const dice = { x: ctr.x, y: ctr.y + (ch > 0 ? ch + 6 : 0) };
+  if (unit !== "ovw") return dice;
+  // «Огляд битви» (author, 2026-11-17): under «Кістки» where they stand by default, 6 px
+  const d = document.querySelector(`#${DOCK} [data-unit="dice"]`);
+  return { x: dice.x, y: dice.y + (d ? d.getBoundingClientRect().height + 6 : 0) };
+}
+
+/** «Огляд битви» scrolls inside, down to Foundry's players list / hotbar / the screen's edge */
+function fitOverview() {
+  const unit = document.querySelector(`#${DOCK} [data-unit="ovw"]`);
+  const body = unit?.querySelector(".pust-ov");
+  if (!body || unit.hidden || unit.classList.contains("folded")) return;
+  const u = unit.getBoundingClientRect();
+  let floor = window.innerHeight - 8;
+  for (const sel of ["#players", "#hotbar"]) {
+    const r = document.querySelector(sel)?.getBoundingClientRect();
+    if (r?.height && r.left < u.right && r.right > u.left) floor = Math.min(floor, r.top - 8);
+  }
+  const rest = unit.offsetHeight - body.offsetHeight;
+  const mh = `${Math.max(140, Math.floor(floor - u.top - rest))}px`;
+  if (body.style.maxHeight !== mh) body.style.maxHeight = mh;
 }
 
 /** The remembered place's key: «Битва» has its own (it shares its unit with «Мапа Пустки») */
@@ -482,9 +503,18 @@ function placeAll() {
   place("ctr");
   fitCounters();
   place("dice");
+  place("ovw");
+  fitOverview();
   place("dmg");
   sideTravel();
   sideCheck();
+}
+
+/** Alt+X (helpers/hotkeys.mjs; author, 2026-11-17): «Огляд битви» folded / opened; only on a battle map */
+export function toggleOverview() {
+  const u = document.querySelector(`#${DOCK} [data-unit="ovw"]`);
+  if (!u || u.hidden) return ui.notifications.warn("«Огляд битви» є лише на бойовій мапі.");
+  setFold("ovw", !u.classList.contains("folded"));
 }
 
 /** Open a folded unit (battle-panel.mjs: a travel event's damage put into «Сцена») */
@@ -499,7 +529,7 @@ function setFold(unit, folded) {
 }
 
 /** Drag a panel by its header; a click without moving folds / unfolds it (folded: a click opens it) */
-const HANDLE = ":is(.pust-md-map, .pust-md-battle, .pust-md-ctr, .pust-md-dice) > header";
+const HANDLE = ":is(.pust-md-map, .pust-md-battle, .pust-md-ctr, .pust-md-dice, .pust-md-ovw) > header";
 
 function bindDrag(unitEl) {
   const unit = unitEl.dataset.unit;
@@ -583,6 +613,7 @@ export function renderMapDock() {
         ${gm ? "" : `<div class="pust-md-fdrow" hidden><button type="button" class="pust-md-fdspend" data-mapdock="fd-spend"><i class="fa-solid fa-clover"></i><span>Витратити ЖД</span><b class="pust-md-fdn">0</b></button><button type="button" class="pust-md-fdgain" data-mapdock="fd-gain"><i class="fa-solid fa-plus"></i><span>Отримати ЖД</span></button></div>
         <div class="pust-md-fdrow pust-md-suprow" hidden><button type="button" class="pust-md-fdspend pust-md-supspend" data-mapdock="sup-spend"><i class="fa-solid fa-backpack"></i><span>Витратити Припас</span><b class="pust-md-fdn pust-md-supn">0</b></button><button type="button" class="pust-md-fdgain pust-md-supgain" data-mapdock="sup-gain"><i class="fa-solid fa-plus"></i><span>Отримати Припас</span></button></div><section class="pust-md-panel pust-md-ctr pust-md-ctr-pl" hidden></section>`}
       </div>
+      ${gm ? `<div class="pust-md-unit${fold.ovw ? " folded" : ""}" data-unit="ovw" hidden>${overviewSectionHtml(header)}</div>` : ""}
       ${gm ? `<div class="pust-md-unit${fold.dmg ? " folded" : ""}" data-unit="dmg"><section class="pust-md-panel pust-md-battle pust-md-blite" hidden>${header("fa-clapperboard", "Сцена", "gm-map:scenepanel")}<div class="pust-md-body"></div></section></div>` : ""}
       ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
@@ -601,6 +632,7 @@ export function renderMapDock() {
     if (gm) mountBattlePanel(mapUnit.querySelector(".pust-md-battle"));
     // off the battle map the GM's «Битва» is «lite», top right (author, 2026-11-16: damage to the characters on «Мапа Пустки»)
     if (gm) mountBattlePanel(dock.querySelector('[data-unit="dmg"] .pust-md-battle'), { lite: true });
+    if (gm) mountOverview(dock.querySelector('[data-unit="ovw"] .pust-md-ovw')); // «Огляд битви» (author, 2026-11-17)
     syncSceneKind();
     // the counters: the GM edits them right in the panel (game-counters.mjs), players read them (redrawCounters)
     if (gm) mountCounters(ctrUnit.querySelector(".pust-md-ctr")).then(() => requestAnimationFrame(placeAll));
@@ -633,6 +665,11 @@ export function renderMapDock() {
     mapUnit.querySelector(".pust-md-tv")?.addEventListener("click", onTravel);
     const d = dock.querySelector('[data-unit="dice"] .pust-md-body');
     d.addEventListener("click", onDice);
+    // «Доля» may be dragged to the hotbar (helpers/macros.mjs; author, 2026-11-17); the body is redrawn, so the drag is caught here
+    d.addEventListener("dragstart", (ev) => {
+      if (!ev.target.closest?.(".pust-md-fate")) return;
+      ev.dataTransfer.setData("text/plain", JSON.stringify({ type: "PustMacro", kind: "fate", label: "Кістка Долі" }));
+    });
     d.addEventListener("change", (ev) => {
       const t = ev.target;
       if (t.dataset.mapdice === "count") dice.count = +t.value || 1;
@@ -648,7 +685,8 @@ export function renderMapDock() {
     // «Лічильники» and «Кістки» in their own places follow every change of the height of the panels over them
     if (window.ResizeObserver) {
       new ResizeObserver(() => requestAnimationFrame(placeAll)).observe(mapUnit);
-      new ResizeObserver(() => requestAnimationFrame(() => { fitCounters(); place("dice"); sideCheck(); })).observe(ctrUnit);
+      new ResizeObserver(() => requestAnimationFrame(() => { fitCounters(); place("dice"); place("ovw"); fitOverview(); sideCheck(); })).observe(ctrUnit);
+      new ResizeObserver(() => requestAnimationFrame(() => { place("ovw"); fitOverview(); })).observe(dock.querySelector('[data-unit="dice"]'));
     }
     window.addEventListener("resize", foundry.utils.debounce(placeAll, 100));
     // «Битва» keeps to the sidebar while it folds and opens (author, 2026-11-14): the sidebar animates, so its size is
@@ -813,6 +851,8 @@ function syncSceneKind() {
   if (b) b.hidden = !battle;
   const lite = document.querySelector(`#${DOCK} [data-unit="dmg"]`);
   if (lite) { lite.hidden = battle; lite.querySelector(".pust-md-battle").hidden = battle; }
+  const ovw = document.querySelector(`#${DOCK} [data-unit="ovw"]`);
+  if (ovw) { ovw.hidden = !battle; ovw.querySelector(".pust-md-ovw").hidden = !battle; redrawOverview(); if (battle) { place("ovw"); fitOverview(); } }
   redrawBattlePanel();
   requestAnimationFrame(placeAll);
 }

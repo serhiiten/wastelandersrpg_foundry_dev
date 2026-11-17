@@ -9,6 +9,7 @@
  * and the HP «до → після» only of characters and caravans (players see those bars anyway) — and the GMs get the full one
  * whispered (enemies' HP, armour, defences, every step). In the other modes the full card follows the mode as before.
  */
+import { activeGmHere } from "../helpers/main-window.mjs";
 import { chatType, resolveHit } from "../rules/battle.mjs";
 import { targetProfile as profileOf } from "../rules/target-profile.mjs";
 import { battleType } from "./enemy-attack.mjs";
@@ -163,7 +164,7 @@ export async function sendDamage(data, { partial = false, head = "" } = {}) {
 /** Wiring (wastelanders.mjs, ready): the GM's socket for the players' requests */
 export function readyApplyDamage() {
   game.socket.on(SOCKET(), (msg) => {
-    if (!game.users.activeGM?.isSelf) return;
+    if (!activeGmHere()) return;
     if (msg?.op === "applyDamage") answerGM(msg, () => applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, head: String(msg.head || "") }));
   });
 }

@@ -4,6 +4,7 @@
  * the earlier per-item hooks (perk requirements, HP and armour bonuses, species feats) are gone.
  * @extends {Actor}
  */
+import { mine } from "../helpers/main-window.mjs";
 import { cargoHurtAt } from "../rules/caravan-adapter.mjs";
 
 export class WastelandersActor extends Actor {
@@ -190,10 +191,29 @@ export class WastelandersActor extends Actor {
    *  (an unlinked enemy token's actor carries it on that token only) */
   async syncUnconscious() {
     if (!WastelandersActor.TOKEN_TYPES.includes(this.type) || !this.isOwner) return;
+    // one at a time per actor (author, 2026-11-17: two updates in a row — the damage and the next change — each saw no
+    // status yet and both added one; Волті lay «Unconscious» twice)
+    const key = this.uuid;
+    const prev = WastelandersActor.#uncQueue.get(key) ?? Promise.resolve();
+    const job = prev.then(() => this.#syncUnconscious()).catch((err) => console.warn(err));
+    WastelandersActor.#uncQueue.set(key, job);
+    return job;
+  }
+  static #uncQueue = new Map();
+
+  /** The status as the HP say; copies of it (two windows of one user, or an older race) are removed, the oldest stays */
+  async #syncUnconscious() {
     const hp = Number(this.system.hp?.value);
     if (!Number.isFinite(hp)) return;
     const down = hp <= 0;
-    if (down !== this.statuses.has("unconscious")) await this.toggleStatusEffect("unconscious", { active: down });
+    const effs = this.effects.filter((e) => e.statuses?.has("unconscious"))
+      .sort((x, y) => (x._stats?.createdTime ?? 0) - (y._stats?.createdTime ?? 0) || x.id.localeCompare(y.id));
+    if (down && !effs.length) return this.toggleStatusEffect("unconscious", { active: true });
+    const extra = down ? effs.slice(1) : effs;
+    if (!extra.length) return;
+    // another window of the same user may be removing the same copies: what is gone already is skipped
+    const ids = extra.map((e) => e.id).filter((id) => this.effects.has(id));
+    if (ids.length) await this.deleteEmbeddedDocuments("ActiveEffect", ids).catch(() => {});
   }
 
   /** An enemy's card «Видимий / Прихований» and its tokens' Hide go together (author, 2026-11-15): every token of a
@@ -231,7 +251,7 @@ export class WastelandersActor extends Actor {
   _onUpdate(changed, options, userId) {
     super._onUpdate(changed, options, userId);
 
-    if (game.user.id != userId) return;
+    if (!mine(userId)) return; // the user's main window only (helpers/main-window.mjs)
     // 0 ОЗ: the token lies «Unconscious»; 1 or more: it gets up (author, 2026-11-14)
     this.syncUnconscious();
     // a renamed caravan renames its own folder (the sheet saves with recursive: false, so the name comes wrapped, not as a string)

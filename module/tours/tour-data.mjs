@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 85;
+export const HELP_VERSION = 93;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -73,7 +73,8 @@ export const TOURS = [
       S("enemy", "«Супротивник»: фракція → ворог → кількість → зона; ставить токени (обличчя різні). Місце й небезпека битви — кидки вгорі панелі; випадкові назви й аспекти зон — під місце.", { selector: ".pust-md-battle .pust-md-bsetup", tooltipDirection: "LEFT",  }),
       S("enemyform", "Форма «Супротивник»: Фракція, Супротивник (компендіум «Супротивники»), Скільки 1…30, Зона (без зон — біля центру огляду); «Додати»: актор у «Битви → фракція» (наявний береться), токени на вільні клітинки зони під смужкою, номери в іменах, різні обличчя; «Скасувати».", { selector: ".pust-md-battle .pust-md-bform", prepare: "enemyForm", tooltipDirection: "LEFT" }),
       S("round", "«Коло дій»: ▶ — нове коло, картка в чаті нагадує порядок (спершу гравці). «Жетони Долі» Доглядача: −/+ і «За гравцями»; витрата пише в чат без числа.", { selector: ".pust-md-battle .pust-md-brf", tooltipDirection: "LEFT",  }),
-      S("targets", "Цілі: шкода й лікування йдуть лише на цілі (трикутні мітки навколо токена). «Вибрати цілі» — виділені токени стають цілями; на зоні «Обрати всіх».", { selector: '.pust-md-battle [data-battle="tgtsel"]', tooltipDirection: "LEFT",  }),
+      S("overview", "«Огляд битви» (ліворуч під «Кістками»): вороги, персонажі гравців і каравани сцени за зонами; ОЗ −/+, аспекти, атаки з «Цілям», ходи, мішень цілі в рядку, видимість, картка; Alt+X.", { selector: '#pust-mapdock [data-unit="ovw"]', prepare: "unfold:ovw", tooltipDirection: "RIGHT" }),
+      S("targets", "Цілі: шкода й лікування йдуть лише на цілі (трикутні мітки навколо токена). Угорі «Огляду битви»: лічильник, «Вибрати цілі», «Зняти вибір»; у рядку мішень; на зоні «Обрати всіх».", { selector: "#pust-mapdock .pust-ov-tgts", prepare: "unfold:ovw", tooltipDirection: "RIGHT" }),
       S("targetlook", "Як виглядає ціль: токен сцени (ворог) тимчасово обрано ціллю, трикутні мітки навколо; клавіша T над токеном теж обирає; попередні цілі повертаються.", { selector: ".pust-tgt-demo", prepare: "targetDemo", tooltipDirection: "RIGHT" }),
       S("damage", "«Шкода й лікування»: число чи кістки, тип, «Ігнорує броню», «½ шкоди» → «Завдати шкоди» / «Лікувати». Броня, захисти й половинки рахуються самі; картка в чаті.", { selector: ".pust-md-battle .pust-md-bhit", tooltipDirection: "LEFT",  }),
       S("end", "«Кінець сцени» / «Новий день» / «Кінець сесії» для всіх персонажів, призначених гравцям, без відкриття аркушів; «Скинути ходи ворогів сцени»; коло дій знову 1, жетони Долі Доглядача «за гравцями»; одна картка в чаті; сесія питає підтвердження; номер сесії групи й кнопка скидання відліку (двічі). Те саме в панелі «Сцена».", { selector: ".pust-md-battle .pust-md-bend", tooltipDirection: "LEFT" }),

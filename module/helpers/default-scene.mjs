@@ -1,3 +1,4 @@
+import { activeGmHere } from "./main-window.mjs";
 /**
  * «Мапа Пустки» — the system's default scene (author, 2026-11-14).
  *
@@ -58,7 +59,7 @@ async function thumbnail(scene) {
 
 /** Give the world its «Мапа Пустки» (the first GM, once; a world that got it doesn't get it again) */
 export async function ensureMapScene() {
-  if (!game.user.isGM || game.users.activeGM?.id !== game.user.id) return;
+  if (!game.user.isGM || !activeGmHere()) return;
   const sys = game.system.id;
   if ((game.settings.get(sys, "mapSceneVersion") ?? 0) > 0) return;
   let scene = findMapScene();
@@ -118,7 +119,7 @@ export const isBattleScene = (scene) => !!scene?.getFlag(game.system.id, "battle
 
 /** Give the world its «Бойова мапа» (the first GM, once; a world that got it doesn't get it again) */
 export async function ensureBattleScene() {
-  if (!game.user.isGM || game.users.activeGM?.id !== game.user.id) return;
+  if (!game.user.isGM || !activeGmHere()) return;
   const sys = game.system.id;
   if ((game.settings.get(sys, "battleSceneVersion") ?? 0) > 0) return;
   if (!findBattleScene()) {

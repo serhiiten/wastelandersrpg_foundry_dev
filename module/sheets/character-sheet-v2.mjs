@@ -3,6 +3,7 @@
  * The sheet reads the character through the rules engine (evaluate), shows buildView(), and sends
  * every field change and button to the HTML sheet's handlers (controller) via runAction().
  */
+import { hotbarDraggable } from "../helpers/macros.mjs";
 import { addHelpButton } from "../tours/help-button.mjs";
 import { QS_LOCKED_ACTS, isQuickstartActor, qsLockTip } from "../helpers/quickstart-lock.mjs";
 import { textToHtml } from "../rules/rich-text.mjs";
@@ -104,6 +105,19 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     super._onRender(context, options);
     // «?» (author, 2026-11-17): the tour page of the tab now open
     addHelpButton(this, () => (game.user.isGM ? ["gm-char", this.ui.tab || "build"] : ["pl-sheet", this.ui.tab || "build"]));
+    // to the hotbar (helpers/macros.mjs; author, 2026-11-17): attributes, skills, a weapon's attack and its damage
+    if (!this.document.pustTourDemo) {
+      const uuid = this.document.uuid;
+      const name = (el) => el.closest(".pust-gcard")?.querySelector("input.pust-gname")?.value?.trim() || "";
+      this.element.querySelectorAll('[data-action="checkPanel"][data-attr]').forEach((el) =>
+        hotbarDraggable(el, { kind: "attr", actor: uuid, attr: el.dataset.attr, label: el.querySelector(".pust-attr-full")?.textContent.trim() || el.dataset.attr }));
+      this.element.querySelectorAll('[data-action="checkPanel"][data-skill]').forEach((el) =>
+        hotbarDraggable(el, { kind: "skill", actor: uuid, skill: el.dataset.skill, label: el.dataset.skill }));
+      this.element.querySelectorAll('[data-action="checkPanel"][data-weapon]').forEach((el) =>
+        hotbarDraggable(el, () => (name(el) ? { kind: "attack", actor: uuid, label: name(el) } : null)));
+      this.element.querySelectorAll('[data-action="weaponDamage"][data-weapon]').forEach((el) =>
+        hotbarDraggable(el, () => (name(el) ? { kind: "damage", actor: uuid, label: name(el) } : null)));
+    }
     const root = this.element;
     const fits = []; // every wrapping field's fit, run again when the window's width changes (refitOnResize)
     // aspects wrap: the field grows with its text; Enter doesn't add a line break (the value stays one line)

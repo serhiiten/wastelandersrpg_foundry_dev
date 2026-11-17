@@ -9,6 +9,7 @@
  *     active GM over the system socket (a player can't update someone else's actor).
  * Pure decisions: module/rules/chem-target.mjs.
  */
+import { activeGmHere } from "../helpers/main-window.mjs";
 import { DRUGS, OFFICIAL_DRUGS, boosterAttr, drugOf, registerCustomDrugs } from "../rules/core.mjs";
 import { createLogic } from "../rules/logic.mjs";
 import { ROBOT_FOLDER, isMachineName, planHeal, spendDose, useCopyOn } from "../rules/chem-target.mjs";
@@ -77,7 +78,7 @@ async function applyOnPc(targetUuid, row, giver, def) {
 /** Wiring (wastelanders.mjs, ready): the GM's socket for the players' requests */
 export function readyChemTarget() {
   game.socket.on(SOCKET(), async (msg) => {
-    if (!game.users.activeGM?.isSelf) return;
+    if (!activeGmHere()) return;
     if (msg?.op === "chemOnPc") await answerGM(msg, () => applyOnPc(String(msg.target), msg.row || {}, String(msg.giver || ""), msg.def));
     else if (msg?.op === "chemHeal") await answerGM(msg, () => applyHeal([String(msg.token)], Number(msg.amount) || 0, { head: String(msg.head || "") }));
   });

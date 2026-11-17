@@ -1646,3 +1646,7 @@
   .wastelanders .pust-en .pust-en-bar > button.pust-en-chat:not(.header-control) { padding: 0 !important; width: 30px !important; justify-content: center; }
   .pust-en .pust-en-bar > button.pust-en-chat > span { display: none; }
 }
+/* a weapon's attack in its card's head (author, 2026-11-17): opens «Зробити перевірку» with it; dragged to the hotbar it makes a macro */
+.pust-gc-head > .pust-gc-atk { flex: 0 0 auto; align-self: stretch; width: 26px; min-height: 26px; display: grid; place-items: center; border-radius: 3px;
+  background: linear-gradient(180deg, var(--pu-rust-3, #c06a35), var(--pu-rust, #9a4a20)); color: #fbe9d6; font-size: 13px; text-decoration: none; cursor: pointer; }
+.pust-gc-head > .pust-gc-atk:hover { filter: brightness(1.12); }

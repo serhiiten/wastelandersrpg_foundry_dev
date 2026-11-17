@@ -189,6 +189,35 @@ function showRoundFate(body, round, fate) {
   if (f) { f.querySelector("input").value = String(fate); f.querySelector('[data-d="-1"]').disabled = fate <= 0; }
 }
 
+/**
+ * The round one step on (or back): the number shown at once in every panel, written a moment later; the next one posts
+ * the tracker's reminder (the «Битва» panel's ◀ ▶ and the hotkey Alt+W; author, 2026-11-17)
+ */
+export function stepRound(step) {
+  if (!game.user.isGM) return;
+  const r0 = Math.max(1, flagNow(canvas.scene, "battleRound", 1));
+  const r = Math.max(1, r0 + step);
+  if (r === r0) return;
+  pend.battleRound = r;
+  for (const [sec] of sections) if (sec.isConnected) showRoundFate(sec.querySelector(".pust-md-body"), r, Math.max(0, flagNow(canvas.scene, "battleFate", 0)));
+  writePending();
+  if (step > 0) {
+    postChat({ speaker: { alias: "Коло дій" }, content: `<div class="pust-chat pust-round"><div class="pust-round-hd"><i class="fa-solid fa-rotate"></i><span>Почалося коло дій</span><b>${r}</b></div><p>Спершу діють гравці, потім Доглядач робить хід і переміщує одного НІПа.</p></div>` });
+  }
+}
+
+/** The hotkey Alt+A (author, 2026-11-17): the panel on view («Сцена» or «Битва») unfolded, its damage field focused */
+export async function focusDamage() {
+  if (!game.user.isGM) return;
+  for (const [sec] of sections) {
+    if (!sec.isConnected || sec.hidden) continue;
+    const unit = sec.closest(".pust-md-unit");
+    if (unit?.classList.contains("folded")) { (await import("./map-dock.mjs")).unfoldUnit(unit.dataset.unit); await new Promise((r) => setTimeout(r, 60)); }
+    const f = sec.querySelector('[data-battle-d="expr"]');
+    if (f) { f.focus(); f.select(); return; }
+  }
+}
+
 /** «Коло й Доля»: the round and the GM's Fate tokens of this scene */
 function roundHtml(scene, lite = false) {
   const round = Math.max(1, flagNow(scene, "battleRound", 1));
@@ -221,13 +250,10 @@ function damageHtml(lite = false) {
   const n = lite ? pickedUuids().length : chosenTokens().length;
   const types = Object.entries(DMG_TYPES).map(([k, v]) => `<option value="${k}" ${k === d.type ? "selected" : ""}>${esc(v.n)}</option>`).join("");
   return `<div class="pust-md-bdmg">
-      <div class="pust-md-bdmg-hd"><i class="fa-solid fa-burst"></i><span>Шкода й лікування</span><small title="${lite ? "Шкода й лікування йдуть персонажам і караванам, позначеним у списку «Вибрати цілі»" : "Шкода й лікування йдуть лише цілям (T)"}">${n ? `цілей: ${n}` : "цілей немає"}</small></div>
+      <div class="pust-md-bdmg-hd"><i class="fa-solid fa-burst"></i><span>Шкода й лікування</span>${lite ? `<small title="Шкода й лікування йдуть персонажам і караванам, позначеним у списку «Вибрати цілі»">${n ? `цілей: ${n}` : "цілей немає"}</small>` : ""}</div>
       ${lite ? `<div class="pust-md-row pust-md-btgt">
         <button type="button" data-battle="pick" title="Позначити персонажів гравців і каравани, яким іде шкода чи лікування"><i class="fa-solid fa-bullseye"></i><span>Вибрати цілі</span></button>
-      </div>` : `<div class="pust-md-row pust-md-btgt">
-        <button type="button" data-battle="tgtsel" title="Зробити виділені токени цілями (попередні цілі знімаються)"><i class="fa-solid fa-bullseye"></i><span>Вибрати цілі</span></button>
-        <button type="button" data-battle="tgtclear" ${n ? "" : "disabled"} title="Зняти всі цілі"><i class="fa-solid fa-xmark"></i><span>Зняти вибір</span></button>
-      </div>`}
+      </div>` : ""}
       <div class="pust-md-row"><input type="text" class="pust-md-bexpr" data-battle-d="expr" value="${esc(d.expr)}" placeholder="5 або 2d6+1" aria-label="Шкода або лікування: число чи кістки" spellcheck="false">
         <select data-battle-d="type" aria-label="Тип шкоди">${types}</select></div>
       <div class="pust-md-row pust-md-bquick">${QUICK_DICE.map((q) => `<button type="button" data-battle="quick" data-q="${q}" title="Підставити ${q}">${q}</button>`).join("")}<button type="button" class="pust-md-bmod" data-battle="mod" data-mod="-1" title="Модифікатор −1">−1</button><button type="button" class="pust-md-bmod" data-battle="mod" data-mod="1" title="Модифікатор +1">+1</button></div>
@@ -324,18 +350,7 @@ async function onClick(ev, lite = false, body = null) {
   if (act === "zone") return addBattleZone();
   if (act === "enemy") { ui_.open = !ui_.open; return redrawBattlePanel(); }
   if (act === "cancel") { ui_.open = false; return redrawBattlePanel(); }
-  if (act === "round" && scene) {
-    const r0 = Math.max(1, flagNow(scene, "battleRound", 1));
-    const r = Math.max(1, r0 + Number(b.dataset.step));
-    if (r === r0) return;
-    pend.battleRound = r;
-    showRoundFate(body, r, Math.max(0, flagNow(scene, "battleFate", 0)));
-    writePending();
-    if (Number(b.dataset.step) > 0) {
-      postChat({ speaker: { alias: "Коло дій" }, content: `<div class="pust-chat pust-round"><div class="pust-round-hd"><i class="fa-solid fa-rotate"></i><span>Почалося коло дій</span><b>${r}</b></div><p>Спершу діють гравці, потім Доглядач робить хід і переміщує одного НІПа.</p></div>` });
-    }
-    return;
-  }
+  if (act === "round" && scene) return stepRound(Number(b.dataset.step));
   if (act === "fate" && scene) {
     const cur = Math.max(0, flagNow(scene, "battleFate", 0));
     const next = Math.max(0, cur + Number(b.dataset.d));

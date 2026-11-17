@@ -1,4 +1,7 @@
+import { activeGmHere, mine, readyMainWindow } from "./helpers/main-window.mjs";
 import * as models from "./data/_module.mjs";
+import { registerHotkeys } from "./helpers/hotkeys.mjs";
+import { readyMacros, runMacro } from "./helpers/macros.mjs";
 import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
 import { WastelandersScene, addSceneKindField } from "./documents/scene.mjs";
@@ -69,7 +72,10 @@ Hooks.once("init", async function () {
     rules: { ...core, caravan: caravanRules, BOOK },
     /** «Термінал Доглядача»: the HTML terminal's generators (also for a macro) */
     openTerminal,
+    /** the hotbar's macros (helpers/macros.mjs; author, 2026-11-17) */
+    runMacro,
   };
+  registerHotkeys(); // Alt+Q / W / E / R (helpers/hotkeys.mjs; author, 2026-11-17)
 
   CONFIG.WASTELANDERS = WASTELANDERS;
 
@@ -240,6 +246,12 @@ Hooks.once("ready", () => {
   readyApplyDamage();
   readyChemTarget();
   readyGmRequests();
+  readyMainWindow(); // one window of a user does the shared work (helpers/main-window.mjs)
+  readyMacros();
+  // «Unconscious» put on twice (two windows of one user): the window that made it checks for a copy (author, 2026-11-17)
+  Hooks.on("createActiveEffect", (eff, _o, userId) => {
+    if (mine(userId) && eff.statuses?.has("unconscious") && eff.parent?.documentName === "Actor") eff.parent.syncUnconscious?.();
+  });
   syncCombatTab();
   readyTokenVariants();
   // the tours (author, 2026-11-16): registered, «Довідка Foundry» kept current, the first one started on a first entry
@@ -367,7 +379,7 @@ Hooks.on("canvasReady", () => import("./applications/game-counters.mjs").then((m
 // switch hides its tokens in enemy-sheet.mjs #onReveal).
 const revealEnemy = (actor, open) => actor.update({ "system.reveal": open, "ownership.default": open ? CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED : CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE });
 Hooks.on("updateToken", (token, changes, _opts, userId) => {
-  if (!("hidden" in changes) || userId !== game.user.id) return;
+  if (!("hidden" in changes) || !mine(userId)) return;
   const actor = token.actor, open = !changes.hidden;
   if (actor?.type !== "enemy" || actor.system.reveal === open) return;
   revealEnemy(actor, open).then(() => WastelandersActor.syncEnemyTokens(actor, open)); // the enemy's other tokens follow
@@ -375,7 +387,7 @@ Hooks.on("updateToken", (token, changes, _opts, userId) => {
 // an enemy placed on a scene in any way (the battle generator, «Битва», a drag) with a visible token gets a visible card
 // too (author, 2026-11-16: the card used to say «Прихований» over a visible token); a token placed hidden keeps it hidden
 Hooks.on("createToken", (token, _opts, userId) => {
-  if (userId !== game.user.id || token.hidden) return;
+  if (!mine(userId) || token.hidden) return;
   const actor = token.actor;
   if (actor?.type === "enemy" && !actor.system.reveal) revealEnemy(actor, true);
 });
@@ -399,7 +411,7 @@ Hooks.once("ready", () => renderMapDock());
 // A place is seen by players only while one of its tokens is visible (the HTML «Видимо гравцям»): visible → LIMITED, all hidden → NONE.
 // Done on the active GM's side, so hidden places don't leak through the Actors directory.
 async function syncPlaceVisibility(actorId) {
-  if (!game.users.activeGM?.isSelf) return;
+  if (!activeGmHere()) return;
   const actor = game.actors.get(actorId);
   if (actor?.type !== "place") return;
   const seen = game.scenes.some((sc) => sc.tokens.some((t) => t.actorId === actorId && !t.hidden));
@@ -418,7 +430,7 @@ const inBattles = (folder) => !!folder && [folder, ...(folder.ancestors ?? [])].
 const mapBound = (actor) => actor?.type === "place" || (actor?.type === "enemy" && !!actor.flags?.pust?.battleMade && inBattles(actor.folder));
 const mapGoing = new Set();
 async function dropWithoutTokens(actorId) {
-  if (!game.users.activeGM?.isSelf || mapGoing.has(actorId)) return;
+  if (!activeGmHere() || mapGoing.has(actorId)) return;
   const actor = game.actors.get(actorId);
   if (!mapBound(actor)) return;
   if (game.scenes.some((sc) => sc.tokens.some((t) => t.actorId === actorId))) return actor.type === "place" ? syncPlaceVisibility(actorId) : undefined;
@@ -430,7 +442,7 @@ async function dropWithoutTokens(actorId) {
 }
 Hooks.on("deleteToken", (token) => dropWithoutTokens(token.actorId));
 Hooks.on("deleteActor", async (actor) => {
-  if (!game.users.activeGM?.isSelf || !mapBound(actor)) return;
+  if (!activeGmHere() || !mapBound(actor)) return;
   for (const scene of game.scenes) {
     const ids = scene.tokens.filter((t) => t.actorId === actor.id).map((t) => t.id);
     if (ids.length) await scene.deleteEmbeddedDocuments("Token", ids);

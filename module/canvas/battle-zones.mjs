@@ -94,25 +94,32 @@ export function initBattleZones() {
       const pad = 12 * K;
       const tb = tgtBox(w);
       const right = tb.x - 8 * K; // where the strip's contents end: the «Обрати всіх» button is past it
-      const title = new T(z.name, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", fill: ink, letterSpacing: 0.3 * K }));
-      // the aspects (author, 2026-11-15): chips in the strip, right after the name; rows that don't fit wrap under it and
-      // the strip grows with them (never past the zone)
+      // the name (author, 2026-11-17, as «Огляд битви»): the first row with «Обрати всіх» at its right, wrapping when long
+      const title = new T(z.name, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", fill: ink, letterSpacing: 0.3 * K,
+        wordWrap: true, breakWords: true, wordWrapWidth: Math.max(40 * K, right - pad) }));
+      const probe = new T("Ag", new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", letterSpacing: 0.3 * K }));
+      const lineH = probe.height; // one line's height, to keep the first line where it was
+      probe.destroy();
+      const th = Math.max(sh0, title.height + (sh0 - lineH)); // the name's row: one line as before, more when it wraps
+      // the aspects: chips on rows of their own under the name, the whole width of the strip; the strip grows with them
+      // (never past the zone)
       const chipH = 30 * K, gap = 6 * K, rowH = chipH + gap;
+      const full = w - pad;
       const chips = [];
-      let x = pad + Math.min(title.width, right - pad) + 14 * K, row = 0;
+      let x = pad, row = 0;
       for (const a of z.aspects) {
         // italic leans past the width PIXI measures (author, 2026-11-14: «курсив зрізає закінчення»): the texture gets padding,
         // the chip room for the lean
         const lean = 6 * K;
         const text = new T(a.t, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 19 * K, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
         const inv = a.inv > 0 ? new T(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 18 * K, fontWeight: "800", fill: 0xf2ecd8 })) : null;
-        const cw = Math.min(right - pad, text.width + lean + 18 * K + (inv ? inv.width + 14 * K : 0));
-        if (x + cw > right && x > pad) { x = pad; row += 1; }
+        const cw = Math.min(full - pad, text.width + lean + 18 * K + (inv ? inv.width + 14 * K : 0));
+        if (x + cw > full && x > pad) { x = pad; row += 1; }
         chips.push({ text, inv, cw, x, row });
         x += cw + gap;
       }
-      const rows = chips.length ? chips.at(-1).row : 0;
-      const sh = Math.min(h, sh0 + rows * rowH);
+      const rows = chips.length ? chips.at(-1).row + 1 : 0;
+      const sh = Math.min(h, th + (rows ? rows * rowH + gap * 0.5 : 0));
       STRIP_H.set(this.document.id, sh);
       // the field: a see-through wash of the colour with a solid border
       const field = new PIXI.Graphics();
@@ -122,9 +129,9 @@ export function initBattleZones() {
       strip.beginFill(fill, 0.92).drawRoundedRect(0, 0, w, sh, 8 * K).drawRect(0, sh / 2, w, sh / 2).endFill();
       strip.lineStyle({ width: 2 * K, color: line, alpha: 0.9 }).moveTo(0, sh).lineTo(w, sh);
       box.addChild(field, strip);
-      title.position.set(pad, (sh0 - title.height) / 2);
+      title.position.set(pad, (sh0 - lineH) / 2); // the first line level with «Обрати всіх»
       const tmask = new PIXI.Graphics();
-      tmask.beginFill(0xffffff).drawRect(0, 0, right, sh0).endFill();
+      tmask.beginFill(0xffffff).drawRect(0, 0, right, th).endFill();
       box.addChild(tmask, title);
       title.mask = tmask;
       // the corner for resizing (GM)
@@ -134,7 +141,7 @@ export function initBattleZones() {
         box.addChild(c);
       }
       for (const { text, inv, cw, x: cx, row: cr } of chips) {
-        const y = cr === 0 ? (sh0 - chipH) / 2 : sh0 + (cr - 1) * rowH;
+        const y = th + cr * rowH;
         if (y + chipH > sh - 2 * K) break; // the zone is too short for more rows
         const bg = new PIXI.Graphics();
         bg.beginFill(0x000000, 0.25).drawRoundedRect(cx, y + 1.5 * K, cw, chipH, 4 * K).endFill(); // a soft shadow on the strip
