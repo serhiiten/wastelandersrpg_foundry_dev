@@ -788,3 +788,23 @@ body.pust-no-combat #token-hud [data-action="combat"] { display: none !important
 .chat-message .pust-chat.pust-ctrcard.game.st-lost { --cc: #a8121a; --cc-2: #5a0a0e; --cc-ink: #fff0ec; background: #f6d9d4; }
 .chat-message .pust-chat.pust-ctrcard.game.st-won { --cc: #2f6b35; --cc-2: #1f4a1a; --cc-ink: #e7ffd9; background: #dcecd3; }
 .pust-chat.pust-ctrcard.game.st-lost .pust-cc-label, .pust-chat.pust-ctrcard.game.st-won .pust-cc-label { background: rgba(255,255,255,.35); }
+
+/* «Діагностика продуктивності» (applications/perf-check.mjs; author, 2026-11-17): the head in the verdict's colour */
+.chat-message .pust-chat.pust-perfcard { --pc: #2f6b35; --pc-2: #1c4220; --pc-ink: #e7ffd9; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; padding: 0; overflow: hidden; border: 2px solid var(--pc-2); border-radius: 5px; background: #f4eedc; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.chat-message .pust-chat.pust-perfcard.warn { --pc: #a8731a; --pc-2: #6e4a0c; --pc-ink: #fff3c4; }
+.chat-message .pust-chat.pust-perfcard.bad { --pc: #a8121a; --pc-2: #6a0b10; --pc-ink: #fff0ec; }
+.pust-chat.pust-perfcard .pust-perf-hd { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; padding: 7px 9px; background: linear-gradient(180deg, color-mix(in srgb, var(--pc) 80%, #fff), var(--pc)); color: var(--pc-ink);
+  border-bottom: 2px solid var(--pc-2); font-family: "Oswald", "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pust-chat.pust-perfcard .pust-perf-hd > i { flex: none; font-size: 16px; }
+.pust-chat.pust-perfcard .pust-perf-title { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pust-chat.pust-perfcard .pust-perf-chip { flex: none; max-width: 100%; padding: 1px 6px; border-radius: 3px; background: rgba(0,0,0,.3); color: var(--pc-ink); font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .02em; text-transform: none; text-shadow: none; overflow-wrap: anywhere; }
+.pust-chat.pust-perfcard .pust-perf-verdict { margin: 0; padding: 7px 9px; background: color-mix(in srgb, var(--pc) 12%, #f4eedc); border-bottom: 1px solid #d9cfb2; color: #2a261c;
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 13.5px; line-height: 1.3; }
+.pust-chat.pust-perfcard .pust-perf-tips { margin: 0; padding: 6px 9px 6px 24px; display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #d9cfb2; }
+.pust-chat.pust-perfcard .pust-perf-tips li { font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; color: #2a261c; font-size: 12.5px; line-height: 1.35; }
+.pust-chat.pust-perfcard .pust-perf-tips li::marker { color: var(--pc); }
+.pust-chat.pust-perfcard .pust-perf-rows { font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0; padding: 7px 9px; font-size: 12px; line-height: 1.3; }
+.pust-chat.pust-perfcard .pust-perf-rows dt { margin: 0; color: #6b6253; font-weight: 700; text-shadow: none; } /* Foundry gives every `dl dt` a black shadow */
+.pust-chat.pust-perfcard .pust-perf-rows dd { margin: 0; min-width: 0; color: #2a261c; overflow-wrap: anywhere; }
+.pust-chat.pust-perfcard .pust-perf-rows small { color: #6b6253; }
