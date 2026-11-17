@@ -766,6 +766,32 @@ const SCENARIOS = {
   },
 
   /**
+   * The compact sheets (author, 2026-11-17 / 2026-11-18): the character's (with «Перки та особливості») and the caravan's
+   * (mockup Б1) at 460 px, their narrowest and usual width; the user's choice of full / compact is put back after
+   */
+  async compactSheets(a) {
+    for (const [type, label] of [["character", "компактний аркуш персонажа"], ["caravan", "компактний аркуш каравану"]]) {
+      const actor = game.actors.find((x) => x.type === type && x.isOwner) ?? game.actors.find((x) => x.type === type && x.visible);
+      if (!actor) { a.scenario = label; a.skip("компактний аркуш", "немає актора"); continue; }
+      const app = actor.sheet, was = app.rendered, wasCompact = app.ui.compact;
+      const pos = { ...app.position };
+      try {
+        app.ui.compact = true;
+        await app.render({ force: true }); await sleep(1100);
+        for (const w of [100, 460]) {
+          app.setPosition({ width: w }); await sleep(350);
+          a.scenario = `${label} «${actor.name}», ${Math.round(R(app.element).width)} px`;
+          a.ok("ширина компакту 460 px", Math.abs(R(app.element).width - 460) <= 1, `${Math.round(R(app.element).width)} px`);
+          a.layout(app.element);
+        }
+      } finally {
+        app.ui.compact = wasCompact;
+        if (was) { await app.render(); app.setPosition({ width: pos.width, height: pos.height, left: pos.left, top: pos.top }); } else await app.close();
+      }
+    }
+  },
+
+  /**
    * The tours (author, 2026-11-16): every tour this user may take is walked step by step: a step that names an element finds
    * it on screen after its preparation (else the step falls back to the middle — reported), and the step card stays wholly
    * on screen with no text cut. The tour is left and its windows closed at the end.

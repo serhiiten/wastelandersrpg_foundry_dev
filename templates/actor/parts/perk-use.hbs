@@ -1,0 +1,11 @@
+{{!-- One use of a perk (author, 2026-11-18; mockup А1): the name (`bare`: only which use, the perk's card names it), the limit
+     chip, what it gives and «Застосувати»; a used one greyed, «Використано · повернеться після …» and ONE click to take the
+     mark off (the bonus applied stays) --}}
+<div class="pust-pkuse pk-{{u.cls}}{{#if u.used}} used{{/if}}">
+  <div class="pust-pkuse-top">
+    {{#if bare}}{{#if u.sub}}<span class="pust-pkuse-n">{{u.sub}}</span>{{/if}}{{else}}<span class="pust-pkuse-n" title="{{u.book}}">{{u.name}}</span>{{/if}}
+    <span class="pust-pklim pk-{{u.cls}}">{{u.lim}}</span>
+    {{#unless u.show}}<button type="button" class="pust-pkuse-go" data-action="act" data-act="perk-use" data-id="{{u.id}}" {{#if u.off}}disabled{{/if}} title="{{#if u.used}}Уже використано: {{u.back}}{{else if u.offWhy}}{{u.offWhy}}{{else}}Застосувати: картка в чат{{#if u.per}}, позначка «використано»{{/if}}{{/if}}">{{#if u.fail}}Невдача{{else}}Застосувати{{/if}}</button>{{/unless}}
+  </div>
+  <p class="pust-pkuse-t">{{#if u.used}}<b class="pust-pkuse-usedtag">Використано</b> · {{u.back}}. <button type="button" class="pust-pkuse-free" data-action="act" data-act="perk-free" data-id="{{u.id}}" title="Зняти позначку «використано»: перк знову доступний, застосований бонус лишається"><i class="fa-solid fa-rotate-left"></i> Зняти позначку</button>{{else}}{{u.short}}{{/if}}</p>
+</div>

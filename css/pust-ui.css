@@ -812,3 +812,12 @@ body.pust-no-combat #token-hud [data-action="combat"] { display: none !important
 /* «Швидкий старт»'s Actors folders, hidden from players (helpers/quickstart-world.mjs; author, 2026-11-17: spoilers);
    !important beats the directory search's inline display */
 #actors li.folder.pust-qs-hidden { display: none !important; }
+/* the chat card of a perk's «Застосувати» (author, 2026-11-18; perk-card.mjs): the limit's colour on the header */
+.chat-message .pust-chat.pust-perkcard { --pk: #3f6d8c; border: 1px solid #6b604a; border-left: 4px solid var(--pk); border-radius: 4px; padding: 5px 8px; background: #efe8d6; color: #2a261c; }
+.chat-message .pust-chat.pust-perkcard.pk-session { --pk: #5b4a86; } .chat-message .pust-chat.pust-perkcard.pk-day { --pk: #a07a17; } .chat-message .pust-chat.pust-perkcard.pk-free { --pk: #7a7262; }
+.pust-perkcard .pust-pk-hd { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pust-perkcard .pust-pk-hd > i { color: var(--pk); }
+.pust-perkcard .pust-pk-title { flex: 1 1 auto; min-width: 0; font-weight: 700; color: #9a4a20; }
+.pust-perkcard .pust-pk-lim { flex: none; padding: 0 5px; border-radius: 2px; background: var(--pk); color: #fff; font-size: 11px; }
+.pust-perkcard .pust-pk-did { margin: 4px 0 0; font-weight: 600; }
+.pust-perkcard .pust-pk-book { margin-top: 4px; padding-top: 4px; border-top: 1px dotted #8e887f; font-size: 12px; line-height: 1.35; color: #4a4336; }

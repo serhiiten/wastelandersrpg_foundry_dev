@@ -25,7 +25,7 @@ const fail = (msg) => failures.push(msg);
 const HTML_SRC = new URL("../../pustelnyky-character-generator/src/", import.meta.url);
 const html = ["app.js", "chem.js", "roller.js", "gamedata.js", "template.html"].map((f) => readFileSync(new URL(f, HTML_SRC), "utf8")).join("\n");
 const foundry = [
-  "../templates/actor/character-v2.hbs", "../templates/actor/parts/pust-picker.hbs", "../templates/actor/parts/pust-ko.hbs", "../templates/apps/check-panel.hbs",
+  "../templates/actor/character-v2.hbs", "../templates/actor/parts/pust-picker.hbs", "../templates/actor/parts/pust-ko.hbs", "../templates/actor/parts/perk-use.hbs", "../templates/apps/check-panel.hbs",
   "../module/sheets/character-sheet-v2.mjs", "../module/sheets/character-view.mjs", "../module/applications/check-panel.mjs",
 ].map((f) => readFileSync(new URL(f, import.meta.url), "utf8")).join("\n");
 // the check panel's content is drawn by the HTML sheet's own renderer, ported into logic.mjs
@@ -102,6 +102,7 @@ const SAME = {
   "k:bio": "note:bio", // «Біографія» / «Інші» in Foundry's editor (prose-mirror data-note; author, 2026-11-15)
   "k:others": "note:others",
   "k:weapons.N.en": "change:dtype", // «Тип»: the energy version plus fire / psi / poison / radiation (Foundry only, author 2026-11-14)
+  "act:rage": "act:perk-use", // «Лють ботана» is used by «Застосувати» of its perk card (perk-uses.mjs; author, 2026-11-18)
   "act:dismiss": "SKIP",
   "ui:restN": "ui:restMedic",
   "ui:restQr": "ui:restQr",
@@ -319,7 +320,7 @@ for (let c = 0; c < 60; c++) {
     compared++;
     // Foundry writes «менша з 2d6» where the HTML sheet has «менший з 2d6» (author, 2026-11-14)
     // (and the chem effects' «half» marker, which the HTML sheet doesn't write: Рад-Ікс / Отрута-Ікс go through it here)
-    const lesser = (o) => { const r = JSON.parse(JSON.stringify(o).replace(/менший з 2d6/g, "менша з 2d6")); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; delete r.consAt; if (r.chem) delete r.chem.sceneAbs; return r; }; // consAt / sceneAbs: when a treated consequence goes (Foundry only, author 2026-11-15)
+    const lesser = (o) => { const r = JSON.parse(JSON.stringify(o).replace(/менший з 2d6/g, "менша з 2d6")); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; delete r.consAt; if (r.chem) { delete r.chem.sceneAbs; delete r.chem.perkUse; if (!r.chem.swSession) delete r.chem.swSession; } return r; }; // perkUse: the perks' marks; «Скинути лічильники» clears swSession too (Foundry only, author 2026-11-18) // consAt / sceneAbs: when a treated consequence goes (Foundry only, author 2026-11-15)
     const A = lesser(canon(h.st));
     const B = lesser(canon(f.st));
     if (step.fix) { step.fix(A); step.fix(B); }

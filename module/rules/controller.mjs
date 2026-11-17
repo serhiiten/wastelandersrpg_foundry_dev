@@ -13,6 +13,7 @@
 import { speciesToX } from "./designer.mjs";
 import { usePowerCell } from "./power-cell.mjs";
 import { CONS_PRICE, consPlan, healPlan, supPlan } from "./char-services.mjs";
+import { chemReset, freePerk, usePerk } from "./perk-uses.mjs";
 import { GRANTS, GRANT_FEATS, SKILL_IMPS, grantTarget, lastingCaps, startPicks, stepSkill } from "./skill-sources.mjs";
 import {
   AKEYS, BUILTIN_CAT, CLAW_WEAPON_MSG, FEAT, LVL, PERK, PRESETS, SKILLS, SPECIES,
@@ -46,7 +47,9 @@ function setPath(st, path, val) {
  * @param {object} L   createLogic() for the same state (drugs, rest, checks)
  * @param {object} [env]  { toast(msg, kind) }
  */
-export function createController(st, L, { toast = () => {} } = {}) {
+export function createController(st, L, { toast = () => {}, rng, cat } = {}) {
+  /** what the last «Застосувати» of a perk did (the card's lines), for the sheet's chat card */
+  let lastPerk = null;
   const refuse = (msg, kind) => {
     toast(msg, kind);
     return false;
@@ -644,6 +647,16 @@ export function createController(st, L, { toast = () => {} } = {}) {
         toast((kind === "perk" ? "Свій перк «" : "Свою особливість «") + name + "» додано.");
         return true;
       }
+      // Foundry only (author, 2026-11-18): perks with «Застосувати» (perk-uses.mjs); the mark comes off with one click
+      case "perk-use": {
+        const r = usePerk(st, L, data.id, { rng, cat });
+        if (!r.ok) return refuse(r.msg, "bad");
+        lastPerk = r;
+        return true;
+      }
+      case "perk-free": return freePerk(st, data.id);
+      // «Скинути лічильники»: the perks' marks and «Друге дихання» go too (author, 2026-11-18)
+      case "chem-reset": return chemReset(st, L) ? true : false;
       case "addiction-add": {
         // chem-add-new with the substance name passed in
         const v = String(data.name || "").trim();
@@ -666,5 +679,5 @@ export function createController(st, L, { toast = () => {} } = {}) {
     Object.assign(st, fresh);
   }
 
-  return { setField, setFavourite, setErudite, setGrantSkill, act, addPreset, addCatalog, clampAttrs, dropInvalidSpeciesFeats };
+  return { setField, setFavourite, setErudite, setGrantSkill, act, addPreset, addCatalog, clampAttrs, dropInvalidSpeciesFeats, lastPerk: () => lastPerk };
 }

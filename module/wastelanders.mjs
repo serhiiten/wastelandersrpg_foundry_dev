@@ -205,6 +205,7 @@ Hooks.once("init", async function () {
   await foundry.applications.handlebars.loadTemplates({
     pustPicker: `systems/${game.system.id}/templates/actor/parts/pust-picker.hbs`,
     pustKo: `systems/${game.system.id}/templates/actor/parts/pust-ko.hbs`,
+    pustPerkUse: `systems/${game.system.id}/templates/actor/parts/perk-use.hbs`,
   });
 
   // Preload Handlebars templates.

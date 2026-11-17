@@ -11,6 +11,8 @@ import { fateNow } from "./fate-card.mjs";
 import { postChat } from "./chat.mjs";
 import { sharedSet } from "../helpers/scene-shared.mjs";
 import { GROUP_END, ownPart, resetMoves } from "../rules/group-end.mjs";
+import { chemReset } from "../rules/perk-uses.mjs";
+import { clearDefibs } from "./caravan-defib.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -33,11 +35,11 @@ export function groupSession() {
   return { label: lo === hi ? String(lo) : `${lo}–${hi}`, list: groupCharacters().map((a, i) => `${a.name}: ${ns[i]}`) };
 }
 
-/** The group's counters back to session 1, day 1, scene 1 (the sheet's «Скинути»; addictions' clocks too) */
+/** The group's counters back to session 1, day 1, scene 1 (the sheet's «Скинути»; addictions' clocks, perks' marks too) */
 export async function resetGroupCounters() {
   const chars = groupCharacters();
   if (!chars.length) return notify.warn("Жодного персонажа не призначено гравцям.");
-  for (const a of chars) await runAction(a, (st, L) => L.chemAct("chem-reset", { dataset: {} }), { quiet: true });
+  for (const a of chars) await runAction(a, (st, L) => chemReset(st, L), { quiet: true });
   notify.info(`Відлік скинуто: сесія 1, день 1, сцена 1 (${chars.map((a) => a.name).join(", ")}).`);
 }
 
@@ -102,6 +104,7 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
       rows.push({ name: a.name, img: a.img, items: ["Не вдалося застосувати: аркуш пошкоджений."], bad: true, hp: 0, fd0, fd: fd0 });
     }
   }
+  await clearDefibs(); // the caravans' «Дефібрилятор» marks end with the scene (author, 2026-11-18)
   const sharedUpd = { round: 1 };
   if (fate != null) sharedUpd.fate = Math.max(0, fate);
   await sharedSet(sharedUpd);
