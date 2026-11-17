@@ -513,7 +513,11 @@ export class PustTour extends foundry.nue.Tour {
     if (!this.currentStep?.union || all.length < 2) return all[0] ?? null;
     // a step with `union: true` lights all its elements as one (author, 2026-11-16: several blocks of the check panel, left as
     // they are): an empty box over their joint area stands in for the element
-    all[0].scrollIntoView({ block: "nearest" });
+    // the lowest of them into view, then the highest: the whole area shows when it fits (the blocks' order on screen may
+    // differ from the page's, CSS `order` in the check panel)
+    const byTop = [...all].sort((x, y) => x.getBoundingClientRect().top - y.getBoundingClientRect().top);
+    byTop.at(-1).scrollIntoView({ block: "nearest" });
+    byTop[0].scrollIntoView({ block: "nearest" });
     const u = all.map((el) => el.getBoundingClientRect()).reduce((a, r) => ({ left: Math.min(a.left, r.left), top: Math.min(a.top, r.top),
       right: Math.max(a.right, r.right), bottom: Math.max(a.bottom, r.bottom) }), { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity });
     if (!this.#proxy?.isConnected) { this.#proxy = document.createElement("div"); this.#proxy.className = "pust-tour-proxy"; document.body.append(this.#proxy); }

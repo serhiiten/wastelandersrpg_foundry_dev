@@ -34,6 +34,9 @@ const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "dmg", "dmgre"]);
  */
 const NO_TARGETS = "Цілей не обрано. Познач ціль: T над токеном (Shift+T — ще одну).";
 function syncDealButton(root) {
+  // an attack with no targets says so already before its roll (author, 2026-11-18), until its damage is dealt
+  const hint = root?.querySelector(".pust-tgthint");
+  if (hint) hint.hidden = !!game.user.targets.size || root.querySelector("select#r-type")?.value !== "attack" || !!root.querySelector(".rdmg .rdres");
   const b = root?.querySelector('button[data-r="dmg"]');
   if (!b) return;
   const n = game.user.targets.size;
@@ -312,9 +315,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!b || b.tagName === "SELECT" || b.tagName === "INPUT" || b.disabled) return;
       ev.preventDefault();
       if (b.classList.contains("pust-wchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the weapon chips stand for the list
+      if (b.classList.contains("pust-skchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the skill chips too
+      if (b.dataset.r === "roll") this.#setupOpen = false; // a new result: the set-up folds again
       if (b.dataset.r === "dmg" && !game.user.targets.size) return notify.warn(NO_TARGETS);
       this.#run("click", b);
     });
+    this.#fastLayout(root);
     syncDealButton(root);
     // the damage is dealt with its roll: the options over it (Психо, the effect, the crit) are set before it, then locked
     // and so is the weapon (author, 2026-11-17)
@@ -323,6 +329,69 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const t = ev.target.closest("[data-r]");
       if (t) this.#run("change", t);
     });
+  }
+
+  /**
+   * The fast roll (author, 2026-11-18, mockup А): the attributes and the skill on top, then the ready checks, the check type
+   * and the counters (the order is CSS, `order` in css/pust-check.css); the skill as buttons of «без навички» and the skills
+   * the character has (the list stays, hidden: its change handler is the one used); «Кинути перевірку» in a strip stuck to
+   * the bottom with what is rolled; after a roll the set-up folds into one line «змінити».
+   */
+  #setupOpen = false;
+  #fastLayout(root) {
+    // the skill: buttons instead of the list
+    const sel = root.querySelector("select#r-skill");
+    if (sel) {
+      sel.hidden = true;
+      const chips = [...sel.options].filter((o) => !o.value || !/· немає$/.test(o.textContent) || o.selected).map((o) => {
+        const m = /^(.*?) · (\S+) (d\d+)$/.exec(o.textContent.trim());
+        const label = o.value ? (m ? `${esc(m[1])} <small>${m[3]}</small>` : esc(o.value)) : "без навички";
+        const tip = !o.value ? "Перевірка без навички" : m ? `${m[1]}: ${m[2]}, кістка ${m[3]}` : `${o.value}: у персонажа немає цієї навички`;
+        return `<button type="button" class="pust-skchip${o.selected ? " pust-pick" : ""}${o.value && !m ? " pust-none" : ""}" data-r="skill" value="${esc(o.value)}" aria-pressed="${o.selected}" title="${esc(tip)}">${label}</button>`;
+      });
+      sel.insertAdjacentHTML("afterend", `<div class="pust-skchips" role="group" aria-label="Навичка">${chips.join("")}</div>`);
+    }
+    // the roll button in its strip, with what is rolled
+    const go = root.querySelector(":scope > .rgo");
+    if (go) {
+      const bar = document.createElement("div");
+      bar.className = "pust-rgo-bar";
+      go.before(bar);
+      bar.innerHTML = `<div class="pust-intent"><b>${esc(this.#intent(root))}</b><small class="pust-tgthint" hidden>${esc(NO_TARGETS)}</small></div>`;
+      bar.append(go);
+    }
+    // after a roll: the set-up folds (not in the tour's example, whose steps show the set-up)
+    const res = root.querySelector(":scope > .rres");
+    if (res && !this.actor.pustTourDemo && !this.element.classList.contains("pust-demo-check")) {
+      root.classList.toggle("pust-folded", !this.#setupOpen);
+      const f = document.createElement("button");
+      f.type = "button";
+      f.className = "pust-fold";
+      f.setAttribute("aria-expanded", String(this.#setupOpen));
+      f.innerHTML = `<span>${esc(this.#intent(root))}</span><b>${this.#setupOpen ? "сховати" : "змінити"} <i class="fa-solid fa-chevron-${this.#setupOpen ? "up" : "down"}"></i></b>`;
+      f.title = this.#setupOpen ? "Сховати налаштування перевірки" : "Змінити атрибут, навичку, Посилення чи вид перевірки";
+      f.addEventListener("click", () => {
+        this.#setupOpen = !this.#setupOpen;
+        this.render();
+      });
+      root.querySelector(":scope > .rwho")?.after(f);
+    }
+  }
+
+  /** What is rolled, read from the panel: «Атака · СПР +1 + Стрільба d6 · Посилень: 1» */
+  #intent(root) {
+    const type = root.querySelector("select#r-type");
+    const at = root.querySelector(".rat.on");
+    const sk = root.querySelector("select#r-skill");
+    const m = sk?.value ? /^(.*?) · (?:\S+ (d\d+)|немає)$/.exec(sk.selectedOptions[0]?.textContent.trim() || "") : null;
+    const num = (r) => Number(root.querySelector(`.rstep:has(button[data-r="${r}"]) output`)?.textContent.replace("−", "-")) || 0;
+    const net = Math.min(2, num("boost")) - Math.min(2, num("pen"));
+    return [
+      type?.selectedOptions[0]?.textContent.trim(),
+      [at ? `${at.querySelector("b")?.textContent} ${at.querySelector("span")?.textContent}` : "", sk?.value ? `${sk.value}${m?.[2] ? ` ${m[2]}` : ""}` : ""].filter(Boolean).join(" + "),
+      net > 0 ? `Посилень: ${net}` : net < 0 ? `Послаблень: ${-net}` : "",
+      num("mod") ? `мод. ${sgn(num("mod"))}` : "",
+    ].filter(Boolean).join(" · ");
   }
 
   /** Run one of the HTML panel's handlers on the character, save, then post what was rolled */

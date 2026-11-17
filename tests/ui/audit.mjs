@@ -514,6 +514,20 @@ const SCENARIOS = {
     a.readable(hd, "span, b, select");
     // the ready-made checks' buttons tinted by their stripe (author, 2026-11-14): still readable
     a.readable(el, ".rpre button.chipb, .rpre button.chipb small");
+    // the fast roll (author, 2026-11-18): «Кинути перевірку» in a strip stuck to the panel's bottom while the set-up scrolls,
+    // nothing in it cut; the skills as buttons of one height
+    const ro = el.querySelector(".pust-roller"), bar = ro?.querySelector(".pust-rgo-bar");
+    a.ok("смуга «Кинути перевірку» є", !!bar);
+    if (bar && !ro.classList.contains("pust-folded") && ro.scrollHeight > ro.clientHeight + 4) {
+      ro.scrollTop = 0; await sleep(100);
+      a.ok("смуга «Кинути перевірку» біля низу панелі, коли вміст прокручується", Math.abs(R(bar).bottom - R(ro).bottom) <= 1.5, `${Math.round(R(ro).bottom - R(bar).bottom)} px від низу`);
+    }
+    if (bar) { a.noCut(bar, "b, small, button"); a.readable(bar, "b, small, button"); }
+    const sk = [...el.querySelectorAll(".pust-skchip")].filter(shown);
+    if (sk.length) {
+      a.ok("кнопки навичок однієї висоти", sk.every((b) => Math.abs(R(b).height - R(sk[0]).height) <= 1), sk.map((b) => Math.round(R(b).height)).join(", "));
+      a.noCut(el, ".pust-skchip");
+    }
     a.noRawKeys(el);
     if (!was) { await mod.toggleDockCheck(unit.getBoundingClientRect()); await sleep(400); }
   },
