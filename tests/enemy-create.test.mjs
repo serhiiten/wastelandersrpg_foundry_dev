@@ -56,7 +56,7 @@ ok(s.orig.baseAspects[0].inv === 0 && s.orig.attacks.length === 3, "book copy ha
 // «за основу»: every enemy of the battle generator round-trips through system → form → system
 const DB = createTerminal().battle.BT.DB;
 let n = 0;
-for (const fk of Object.keys(DB)) for (const c of B.CAT_ORDER) for (const rec of DB[fk][c] || []) {
+for (const fk of Object.keys(DB)) for (const c of ["boss", "elite", "regular", "statists"]) for (const rec of DB[fk][c] || []) {
   n++;
   const sys = M.toSystem(B.enemyFromRecord(rec));
   const form = C.formFromSystem(sys, { name: rec.name });

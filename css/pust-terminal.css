@@ -70,10 +70,9 @@
 .pust-enemy.cat-elite { border-left-color: var(--pu-orange); }
 .pust-enemy.cat-boss { border-left-color: var(--pt-bad); }
 .pust-enemy summary { cursor: pointer; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
-.pust-qty, .pust-mini { color: var(--pu-ink-3); font-size: 12.5px; }
+.pust-qty { color: var(--pu-ink-3); font-size: 12.5px; }
 .pust-enemy summary b { font-family: var(--pu-f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
-.pust-cat, .pust-kindtag { margin-left: auto; font-size: 11px; text-transform: uppercase; color: var(--pt-rust); }
-.pust-kindtag { margin-left: 0; color: var(--pu-ink-2); }
+.pust-cat { margin-left: auto; font-size: 11px; text-transform: uppercase; color: var(--pt-rust); }
 /* «Битви»: each kind a chip in its category's colour (the card's and the token badge's), a click opens its card (author, 2026-11-16) */
 .pust-enchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 2px; }
 .wastelanders.pust-terminal button.pust-enchip, .pust-terminal button.pust-enchip { --ec: #9a4a20; flex: none; display: inline-flex; align-items: center; gap: 7px; width: auto !important; min-width: 0 !important; max-width: 100%; height: auto !important; min-height: 36px; margin: 0 !important;
@@ -98,8 +97,6 @@
 .pust-enchip-st > i { font-size: 10px; color: #3dff47; }
 .pust-enchip-st > i + i, .pust-enchip-st > i:nth-of-type(2) { margin-left: 4px; color: #b5cfbd; }
 .pust-enchip-kind { font-size: 11px; text-transform: uppercase; opacity: .9; color: #fff; }
-.pust-sect { font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .05em; font-size: 11px; text-transform: uppercase; color: var(--pu-rust-2); margin-top: 5px; }
-.pust-move { font-size: 13px; }
 .pust-chips { display: flex; flex-wrap: wrap; gap: 3px; }
 .pust-pi { display: none; }
 

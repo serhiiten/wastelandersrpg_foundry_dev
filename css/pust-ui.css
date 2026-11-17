@@ -420,7 +420,6 @@
 .pust-bz-edit .pust-bz-x:hover { background: #a8121a; color: #fff; }
 
 /* «Завдати цілям» (module/applications/apply-damage.mjs sendDamage): in «Зробити перевірку» and on an enemy's attack */
-.pust-roller .rdapply { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
 /* the enemy's attack row (author, 2026-11-14): the dice chip rolls the attack to chat, «Завдати цілям» at the row's end */
 .wastelanders .pust-en .pust-en-card button.pust-en-dicechip:not(.header-control) { flex: none; width: auto !important; height: 24px !important; min-height: 0 !important; margin: 0 !important; padding: 0 8px !important; gap: 5px;
   background: var(--dt-bg, #6e3b22) !important; border: 1px solid var(--dt-bd, #f0a070) !important; color: var(--dt-fg, #f4d11a) !important; border-radius: 3px !important;

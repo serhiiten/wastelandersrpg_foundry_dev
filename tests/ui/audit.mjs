@@ -496,12 +496,14 @@ const SCENARIOS = {
     const mod = await import(`/systems/${game.system.id}/module/applications/check-panel.mjs`);
     if (!game.actors.some((x) => x.type === "character" && x.isOwner)) return a.skip("панель перевірки", "немає своїх персонажів");
     const was = mod.dockCheckOpen();
-    if (!was) await mod.toggleDockCheck(unit.getBoundingClientRect());
+    // the panel hangs under the button «Зробити перевірку» itself, as a press on it opens it (not under the whole unit)
+    const anchor = unit.querySelector(".pust-md-check") ?? unit;
+    if (!was) await mod.toggleDockCheck(anchor.getBoundingClientRect());
     await sleep(900);
     const el = document.getElementById("pust-check-dock");
     if (!el) return a.ok("панель перевірки відкривається", false);
     a.onScreen([el]);
-    const u = R(unit), p = R(el);
+    const u = R(anchor), p = R(el);
     // right under its anchor, left edges together (author, 2026-11-15), unless the sidebar pushes it left
     const side = document.querySelector("#sidebar")?.getBoundingClientRect();
     const pushed = side && u.left + p.width > side.left - 8;
@@ -557,6 +559,7 @@ const SCENARIOS = {
     const Z = await import(`/systems/${game.system.id}/module/canvas/battle-zones.mjs`);
     const zones = Z.sceneZones();
     if (!zones.length) return a.skip("редактор зони", "на сцені немає зон");
+    if (!game.user.isGM) return a.skip("редактор зони", "гравці бачать зони лише для читання");
     Z.openZoneEditor(zones.find((z) => Z.zoneOf(z.doc).aspects.length)?.doc ?? zones[0].doc);
     await sleep(400);
     const ed = document.querySelector(".pust-bz-edit");
@@ -608,6 +611,8 @@ const SCENARIOS = {
   async checkPanel(a) {
     const el = document.querySelector(".pust-roller .rdmg");
     if (!el) return a.skip("блок «Шкода» у перевірці", "відкрий «Зробити перевірку» й влуч атакою");
+    el.scrollIntoView({ block: "nearest" }); // the panel scrolls inside: bring the block into view first
+    await sleep(200);
     a.onScreen([el]);
     a.noCut(el, "button, span, b");
     a.readable(el, "button, span, b");
@@ -810,7 +815,9 @@ const SCENARIOS = {
         const prep = new Set([step.prepare ?? []].flat().map((p) => String(p).split(":")[0]));
         const missing = [...needs].filter((k) => !kinds.has(k));
         const extra = [...kinds].filter((k) => !needs.has(k));
-        const trBad = Object.entries(tr).filter(([k, on]) => on !== prep.has(k)).map(([k, on]) => `${k} ${on ? "зайве" : "немає"}`);
+        // a sheet with something of its own to warn about shows its real block: the example isn't put in then
+        const realIssues = [...document.querySelectorAll(".pust-sheet .pust-issues:not(.pust-demo-issues)")].some((x) => x.offsetParent);
+        const trBad = Object.entries(tr).filter(([k, on]) => on !== prep.has(k) && !(k === "issuesDemo" && realIssues)).map(([k, on]) => `${k} ${on ? "зайве" : "немає"}`);
         a.ok(`${t.id}.${step.id} (${dir}): потрібне відкрите, зайве закрите`, !missing.length && !extra.length && !trBad.length,
           [missing.length ? `немає: ${missing}` : "", extra.length ? `зайве: ${extra}` : "", trBad.join(", ")].filter(Boolean).join("; "));
       }
@@ -877,7 +884,9 @@ const SCENARIOS = {
             if (cr) a.ok(`${t.id}.${src.id}: картка не закриває елемент`, !(cr.left < union.right - 4 && cr.right > union.left + 4 && cr.top < union.bottom - 4 && cr.bottom > union.top + 4),
               `картка ${Math.round(cr.left)},${Math.round(cr.top)} – ${Math.round(cr.right)},${Math.round(cr.bottom)}`);
             const top = document.elementsFromPoint(cx, cy).find((n) => !tour_(n));
-            a.ok(`${t.id}.${src.id}: підсвічений елемент ніщо не закриває`, !!top && [target, ...parts].some((p) => top === p || p.contains(top) || top.contains(p)),
+            // the game board lies under all the interface: seen at the middle, it's a see-through gap of the element (a unit of
+            // panels with room between them), not something over it
+            a.ok(`${t.id}.${src.id}: підсвічений елемент ніщо не закриває`, !!top && (top.id === "board" || [target, ...parts].some((p) => top === p || p.contains(top) || top.contains(p))),
               top ? `зверху ${top.tagName.toLowerCase()}.${String(top.className).split(" ")[0]}` : "нічого");
             a.ok(`${t.id}.${src.id}: підсвітка у вікні`, e.width > 0 && e.height > 0 && e.left >= -1 && e.top >= -1 && e.right <= innerWidth + 1 && e.bottom <= innerHeight + 1,
               `${Math.round(e.left)},${Math.round(e.top)} – ${Math.round(e.right)},${Math.round(e.bottom)}`);

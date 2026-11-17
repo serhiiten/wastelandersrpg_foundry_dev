@@ -86,13 +86,6 @@ export const currentLabel = (c) => (c.val > 0 ? (c.labels[c.val - 1] || "").trim
 /** The colour: red at 0 → green at the maximum (HSL hue 0…120) */
 export const ctHue = (v, m) => Math.round(120 * clamp(m ? v / m : 0, 0, 1));
 
-/** Chat lines (plain text; the caller escapes) */
-export const logCreate = (c) => `Новий лічильник гри «${c.name}»: ${c.size} поділок, зараз ${c.val}`;
-export function logStep(c, from, to) {
-  const l = to > 0 ? (c.labels[to - 1] || "").trim() : "";
-  return `Лічильник гри «${c.name}»: ${from} → ${to} з ${c.size}${l ? ` — ${l}` : ""}`;
-}
-
 /* ---------- Scene (local) counters: mirrors the HTML terminal's tracker.js ctCreate / ctStep / ctRemove ----------
  * A scene counter: { id, name, die: 2..30, val: 0..die }. Lives in the current scene's flag; the limit of GC_MAX counts
  * the scene's and the game's counters together (HTML: CTR_MAX, «локальні й глобальні разом»). */
@@ -161,13 +154,6 @@ export function renameLocal(list, id, name) {
 export const localState = (c) => (c.val <= 0 ? "lost" : c.val >= c.die ? "won" : "");
 export const STATE_TEXT = { lost: "Проблема постала в усій красі: можеш зробити хід проти кожного персонажа гравця", won: "Проблему розв'язано" };
 export const STEP_WHY = { "-2": "невдача", "-1": "простій", "1": "успіх", "2": "критичний успіх" };
-
-/** Chat lines (plain text, the caller escapes) */
-export const logCreateLocal = (c) => `Новий лічильник «${c.name}»: d${c.die}, починається з ${c.val}`;
-export function logStepLocal(c, from, to, d) {
-  const why = STEP_WHY[String(d)];
-  return `«${c.name}»: ${from} → ${to}${why ? ` (${why})` : ""}${to <= 0 ? " — загроза настала!" : to >= c.die ? " — проблему розв'язано" : ""}`;
-}
 
 /** The die drawn as in the HTML terminal's ctDieSvg (value big, «dN» small); uid keeps the gradient id unique per card */
 export function dieSvg(die, val, uid = 0) {

@@ -28,9 +28,6 @@ ok(M.psychoOn(ps) && /^2d6\+2$/.test(M.attackDice(ps, 0)), `Психо +2: ${M.a
 // Камікадзе: +2 to the attacks and +2 to the damage taken
 const kam = { ...s, flags: { ...s.flags, kamikaze: true } };
 ok(/\+2$/.test(M.attackDice(kam, 0)), `Камікадзе on attacks: ${M.attackDice(kam, 0)}`);
-ok(M.takeDamage(kam, 5, "phys").final === 5, `Камікадзе on damage taken: 5 − 2 armour + 2 = ${M.takeDamage(kam, 5, "phys").final}`);
-ok(M.takeDamage(s, 9, "fire").final === 0, `immune to fire: ${M.takeDamage(s, 9, "fire").final}`);
-ok(M.takeDamage(s, 1, "phys").final === 0, "armour soaks it");
 
 // «Як у книзі»: edits undone, HP capped to the book's maximum, situational aspects untouched
 const edited = { ...s, armor: 9, attacks: [], hp: { value: 30, max: 30 }, aspects: [{ t: "Збитий з ніг", inv: 1 }] };

@@ -356,7 +356,6 @@
 /* the total in one row with the dice */
 .pust-roller .rdmg .rdrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
 .pust-roller .rdmg .rdrow > .rdice { margin: 0; }
-.pust-roller .rdmg .rdrow > .rdapply { margin-left: auto; } /* «Завдати цілям» on the row's right, wraps only when it must */
 .pust-roller .rdmg .rdsum { flex-wrap: wrap; align-items: center; }
 .pust-chat .pust-cdmg .rdrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .pust-chat .pust-cdmg .rdrow > .rdice { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; }
