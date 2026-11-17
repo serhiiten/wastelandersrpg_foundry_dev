@@ -31,6 +31,7 @@ import { isBattleScene } from "../helpers/default-scene.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { compute } from "../rules/core.mjs";
 import { fdOf, postFateChange, postSupChange } from "./fate-card.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const DOCK = "pust-mapdock";
 const POS_KEY = "pustelnyky-mapdock-pos";   // { map: {x, y}, dice: {x, y} } in window pixels; absent = the default place
@@ -74,7 +75,7 @@ async function onMap(ev) {
     // the stickers live in module/canvas/map-notes.mjs (loaded lazily, so the panel works before they are there)
     const m = await import("../canvas/map-notes.mjs").catch(() => null);
     if (m?.addMapNote) return m.addMapNote();
-    return ui.notifications.warn("Стікери ще не готові.");
+    return notify.warn("Стікери ще не готові.");
   }
 }
 
@@ -98,7 +99,7 @@ function countersHtml() {
     const st = G.localState(c);
     return `<div class="pust-md-lc ${st}" style="--h:${G.ctHue(c.val, c.die)}"><span class="pust-md-lc-die">${G.dieSvg(c.die, c.val, `dock${c.id}`)}</span><span class="pust-md-lc-name">${esc(c.name)}</span>${st ? `<small class="pust-md-lc-st">${st === "lost" ? "Загроза настала!" : "Проблему розв'язано"}</small>` : ""}</div>`;
   }).join("");
-  return `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span>${helpBtn("pl-panels:ctr", "Лічильники")}</header><div class="pust-md-body">${g ? `<div class="pust-md-csec">Гра</div>${g}` : ""}${l ? `<div class="pust-md-csec">Сцена</div>${l}` : ""}</div>`;
+  return `<header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span>${helpBtn("pl-panels:ctr", "Лічильники")}</header><div class="pust-md-body pust-md-plbody">${g ? `<div class="pust-md-csec">Гра</div>${g}` : ""}${l ? `<div class="pust-md-csec">Сцена</div>${l}` : ""}</div>`;
 }
 
 /** Players: redraw the counters panel (shown only while there are counters) */
@@ -290,7 +291,7 @@ function redrawTravel() {
 export function setTravelOpen(on) {
   tv.open = !!on;
   if (on && !tv.main) {
-    T ??= createTerminal({ toast: (m) => ui.notifications.info(m) });
+    T ??= createTerminal({ toast: (m) => notify.info(m) });
     Object.assign(tv, T.travel.generate(tv.type, tv.luck));
   }
   redrawTravel();
@@ -314,7 +315,7 @@ function travelBattleButtons(box) {
 
 /** «Інші види»: the random battle of the i-th battle section gets other kinds of enemies (the terminal's #travelKinds) */
 function travelKinds(i) {
-  T ??= createTerminal({ toast: (m) => ui.notifications.info(m) });
+  T ??= createTerminal({ toast: (m) => notify.info(m) });
   const div = document.createElement("div");
   div.innerHTML = tv.additional || "";
   const span = div.querySelectorAll(".battle-encounter")[i]?.querySelector(".tvb-rnd");
@@ -345,7 +346,7 @@ async function onTravel(ev) {
   if (k === "type") tv.type = b.dataset.v;
   if (k === "luck") tv.luck = Number(b.dataset.v);
   if (k === "gen") {
-    T ??= createTerminal({ toast: (m) => ui.notifications.info(m) });
+    T ??= createTerminal({ toast: (m) => notify.info(m) });
     Object.assign(tv, T.travel.generate(tv.type, tv.luck));
     travelToScene(tv.main, tv.additional); // its place and hazard into «Сцена» / «Битва» (author, 2026-11-16)
   }
@@ -452,9 +453,11 @@ function fitCounters() {
   // Foundry's players list and hotbar, where they are under the panel
   const u = unit.getBoundingClientRect();
   let floor = window.innerHeight - 8;
-  for (const sel of ["#players", "#hotbar"]) {
+  // the chat's message field and its pop-up messages too: the players' panel sits top right, over them while the sidebar
+  // is folded (stress test, 2026-11-17: many counters ran under the chat, cut, with no scroll)
+  for (const sel of ["#players", "#hotbar", "#chat-message", "#chat-notifications"]) {
     const r = document.querySelector(sel)?.getBoundingClientRect();
-    if (r?.height && r.left < u.right && r.right > u.left) floor = Math.min(floor, r.top - 8);
+    if (r?.height && r.top > u.top && r.left < u.right && r.right > u.left) floor = Math.min(floor, r.top - 8);
   }
   const dice = document.querySelector(`#${DOCK} [data-unit="dice"]`);
   // only while «Кістки» follow «Лічильники» (the GM's; players' are top right)
@@ -519,7 +522,7 @@ function placeAll() {
 /** Alt+X (helpers/hotkeys.mjs; author, 2026-11-17): «Огляд битви» folded / opened; only on a battle map */
 export function toggleOverview() {
   const u = document.querySelector(`#${DOCK} [data-unit="ovw"]`);
-  if (!u || u.hidden) return ui.notifications.warn("«Огляд битви» є лише на бойовій мапі.");
+  if (!u || u.hidden) return notify.warn("«Огляд битви» є лише на бойовій мапі.");
   setFold("ovw", !u.classList.contains("folded"));
 }
 
@@ -734,7 +737,7 @@ function syncFdRow() {
 }
 async function stepFd(dd) {
   const a = game.user.character;
-  if (!a || a.type !== "character") return ui.notifications.warn("У тебе немає свого персонажа.");
+  if (!a || a.type !== "character") return notify.warn("У тебе немає свого персонажа.");
   const res = await runAction(a, (st) => {
     const cur = fdOf(st, compute(st));
     if (dd < 0 && cur <= 0) return null;
@@ -768,7 +771,7 @@ function syncSupRow() {
 }
 async function stepSup(dd) {
   const a = game.user.character;
-  if (!a || a.type !== "character") return ui.notifications.warn("У тебе немає свого персонажа.");
+  if (!a || a.type !== "character") return notify.warn("У тебе немає свого персонажа.");
   const res = await runAction(a, (st) => {
     const cur = parseInt(st.supplies, 10) || 0, max = compute(st).supMax;
     const now = Math.max(0, Math.min(Math.max(cur, max), cur + dd));

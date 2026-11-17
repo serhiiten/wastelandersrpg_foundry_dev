@@ -14,6 +14,7 @@ import { createLogic } from "../rules/logic.mjs";
 import { splitPrices, syncAddictionNotes, syncFavNotes, syncSharpNotes } from "../rules/prices.mjs";
 import { adoptGrants } from "../rules/skill-sources.mjs";
 import { resolveItem } from "./character-json.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 /** Read an actor as HTML sheet state, with item ids so changes can be written back */
 export function readState(actor) {
@@ -34,7 +35,7 @@ export function logicFor(st, { ui = {}, quiet = false } = {}) {
 }
 
 function ui_notify(level, msg) {
-  globalThis.ui?.notifications?.[level]?.(msg);
+  notify[level]?.(msg);
 }
 
 /** Serialise saves per actor, so quick clicks don't interleave */
@@ -48,23 +49,26 @@ function enqueue(actor, job) {
 
 /** Write a changed state back to the actor: items updated in place, removed, or created from compendiums */
 export function saveState(actor, st) {
-  return enqueue(actor, async () => {
-    const plan = planSync(actor.toObject(), st);
-    if (plan.delete.length) await actor.deleteEmbeddedDocuments("Item", plan.delete, { render: false });
-    if (plan.update.length) await actor.updateEmbeddedDocuments("Item", plan.update, { recursive: false, render: false });
-    if (plan.create.length) {
-      const data = [];
-      const actorData = { system: plan.system };
-      for (const it of plan.create) data.push(await resolveItem(it, actorData));
-      // the species first: it brings its species properties
-      const species = data.filter((i) => i.type === "species");
-      const rest = data.filter((i) => i.type !== "species");
-      if (species.length) await actor.createEmbeddedDocuments("Item", species, { render: false });
-      if (rest.length) await actor.createEmbeddedDocuments("Item", rest, { render: false });
-    }
-    const system = mergeSystem(actor.system.toObject(), plan.system);
-    await actor.update({ ...(plan.name && plan.name !== actor.name ? { name: plan.name } : {}), system }, { recursive: false });
-  });
+  return enqueue(actor, () => writeState(actor, st));
+}
+
+/** The write itself (inside the actor's queue) */
+async function writeState(actor, st) {
+  const plan = planSync(actor.toObject(), st);
+  if (plan.delete.length) await actor.deleteEmbeddedDocuments("Item", plan.delete, { render: false });
+  if (plan.update.length) await actor.updateEmbeddedDocuments("Item", plan.update, { recursive: false, render: false });
+  if (plan.create.length) {
+    const data = [];
+    const actorData = { system: plan.system };
+    for (const it of plan.create) data.push(await resolveItem(it, actorData));
+    // the species first: it brings its species properties
+    const species = data.filter((i) => i.type === "species");
+    const rest = data.filter((i) => i.type !== "species");
+    if (species.length) await actor.createEmbeddedDocuments("Item", species, { render: false });
+    if (rest.length) await actor.createEmbeddedDocuments("Item", rest, { render: false });
+  }
+  const system = mergeSystem(actor.system.toObject(), plan.system);
+  await actor.update({ ...(plan.name && plan.name !== actor.name ? { name: plan.name } : {}), system }, { recursive: false });
 }
 
 /**
@@ -88,13 +92,17 @@ export function normalize(st, L) {
  * @param {object} [opts]  { ui: form choices for the logic (rest options…), quiet: no notifications }
  * @returns {Promise<any>} what fn returned
  */
-export async function runAction(actor, fn, opts = {}) {
-  const st = readState(actor);
-  const L = logicFor(st, opts);
-  const result = await fn(st, L);
-  normalize(st, L);
-  await saveState(actor, st);
-  return result;
+export function runAction(actor, fn, opts = {}) {
+  // read, change and write in one turn of the actor's queue (stress test, 2026-11-17): reading before the queue let two
+  // quick presses both start from the same old state, so the second wrote over the first (4 × «−» took 3 HP)
+  return enqueue(actor, async () => {
+    const st = readState(actor);
+    const L = logicFor(st, opts);
+    const result = await fn(st, L);
+    normalize(st, L);
+    await writeState(actor, st);
+    return result;
+  });
 }
 
 /**

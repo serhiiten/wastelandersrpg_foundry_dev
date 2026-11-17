@@ -17,10 +17,11 @@ import { applyHeal, clearTargets } from "./apply-damage.mjs";
 import { readState, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
 import { askGM, answerGM } from "../helpers/gm-request.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
-const warn = (m) => ui.notifications.warn(m);
+const warn = (m) => notify.warn(m);
 
 /** Is this enemy a machine: a machine word in the name, or its compendium source sits in the folder «Роботи» */
 export async function enemyIsMachine(actor, tokenName = "") {

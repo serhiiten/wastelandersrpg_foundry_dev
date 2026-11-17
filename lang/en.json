@@ -78,13 +78,13 @@
     },
     "Errors": {
       "Item": {
-        "NotExist": "Елемент <b>{type} {item}</b> не існує, тому він видалений зі списку"
+        "NotExist": "Елемент «{type} {item}» не існує, тому він видалений зі списку"
       }
     },
     "Description": "Опис",
     "Json": {
       "Open": "Відкрити .json Пустельників",
-      "OpenHint": "Create characters and caravans from electronic sheet files",
+      "OpenHint": "Створити персонажів і каравани з файлів електронних аркушів",
       "Unnamed": "Unnamed",
       "NotJson": "This is not a .json file.",
       "Damaged": "The file is damaged or was not saved by a «Пустельники» electronic sheet. It was not opened; nothing changed.",

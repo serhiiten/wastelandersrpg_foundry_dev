@@ -15,6 +15,7 @@ import { targetProfile as profileOf } from "../rules/target-profile.mjs";
 import { battleType } from "./enemy-attack.mjs";
 import { postChat, isPublicMode } from "./chat.mjs";
 import { askGM, answerGM } from "../helpers/gm-request.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -35,7 +36,7 @@ export function clearTargets() {
 
 /** Nobody targeted: the hint where targets come from */
 export function warnNoTargets() {
-  ui.notifications.warn(game.user.isGM
+  notify.warn(game.user.isGM
     ? "Спершу познач цілі: T над токеном, «Вибрати цілі» в панелі «Битва» або «Обрати всіх» у зоні."
     : "Спершу познач цілі (T над токеном).");
 }
@@ -154,7 +155,7 @@ export async function sendDamage(data, { partial = false, head = "" } = {}) {
     return false;
   }
   if (game.user.isGM) { await applyDamage(targets, data, { partial, head }); clearTargets(); return true; }
-  if (!game.users.activeGM) { ui.notifications.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
+  if (!game.users.activeGM) { notify.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
   askGM({ op: "applyDamage", targets, data, partial, head }, "Шкода");
   // no «Запит надіслано Доглядачеві» notice (author, 2026-11-15): the chat card shows the result
   clearTargets();

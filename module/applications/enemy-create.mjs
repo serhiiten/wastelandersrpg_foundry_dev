@@ -12,6 +12,7 @@ import {
 import { CATS, normCat } from "../rules/enemy-model.mjs";
 import * as C from "../rules/enemy-create.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2, DialogV2 } = foundry.applications.api;
 
@@ -210,7 +211,7 @@ export class EnemyCreateApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const [from, id] = [value.slice(0, 1), value.slice(2)];
     let doc = null;
     try { doc = from === "w" ? game.actors.get(id) : await game.packs.get(`${game.system.id}.opponents`)?.getDocument(id); } catch (e) { console.error(e); }
-    if (!doc) { ui.notifications.warn("Не вдалося відкрити цього супротивника."); return this.render(); }
+    if (!doc) { notify.warn("Не вдалося відкрити цього супротивника."); return this.render(); }
     this.#f = C.formFromSystem(doc.system, { name: this.#given || doc.name, img: doc.img });
     this.#baseVal = value; this.#baseName = doc.name;
     this.#snap = JSON.stringify(this.#f);
@@ -275,7 +276,7 @@ export class EnemyCreateApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onCreate() {
     if (this.#busy) return;
     const r = C.buildEnemy(this.#f);
-    if (r.err) return ui.notifications.warn(r.err);
+    if (r.err) return notify.warn(r.err);
     this.#busy = true;
     try {
       const data = { name: r.name, type: "enemy", system: r.system, ...(r.img ? { img: r.img } : {}), ...(this.#folder ? { folder: this.#folder } : {}) };
@@ -284,7 +285,7 @@ export class EnemyCreateApp extends HandlebarsApplicationMixin(ApplicationV2) {
       await this.close();
     } catch (e) {
       console.error(e);
-      ui.notifications.error("Не вдалося створити супротивника: " + (e.message ?? e));
+      notify.error("Не вдалося створити супротивника: " + (e.message ?? e));
     } finally { this.#busy = false; }
   }
 

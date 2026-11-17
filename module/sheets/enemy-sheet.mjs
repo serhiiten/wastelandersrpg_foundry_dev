@@ -18,6 +18,7 @@ import { sendDamage, chosenTokens, warnNoTargets } from "../applications/apply-d
 import { enemyView, diceTextHtml } from "./enemy-view.mjs";
 import { postDamageCard, postExprRoll } from "../applications/check-panel.mjs";
 import { chatType } from "../rules/battle.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -27,6 +28,8 @@ const T = () => (terminal ??= createTerminal({ toast: () => {}, icon: () => "" }
 const CONFIRM_MS = 3000;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const int = (v, d = 0) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : d; };
+/** An enemy's maximum HP at most (stress test, 2026-11-17; the book's largest is far below) */
+const HP_MAX = 999;
 const clone = (list) => (list ?? []).map((x) => ({ ...x }));
 
 /** A number or a dice expression («5», «2d6+1», «к6») rolled with Foundry's Roll; null when it is not one */
@@ -150,10 +153,15 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     }
     const on = (sel, ev, fn) => root.querySelectorAll(sel).forEach((el) => el.addEventListener(ev, (e) => fn(e.currentTarget, e)));
     on("input[name='name']", "change", (el) => { const v = el.value.trim(); return v ? this.document.update({ name: v }) : this.render(); });
-    on("input[name='hpCur']", "change", (el) => this.#setHp(int(el.value, this.document.system.hp.value)));
-    on("input[name='hpMax']", "change", (el) => {
-      const max = Math.max(0, int(el.value, this.document.system.hp.max));
-      return this.document.update({ "system.hp.max": max, "system.hp.value": Math.min(this.document.system.hp.value, max) });
+    // the fields show what is stored afterwards (stress test, 2026-11-17: «-7.5» at 0 ОЗ changed nothing and stayed shown)
+    on("input[name='hpCur']", "change", async (el) => {
+      await this.#queueHp(() => int(el.value, this.document.system.hp.value));
+      el.value = this.document.system.hp.value;
+    });
+    on("input[name='hpMax']", "change", async (el) => {
+      const max = Math.max(0, Math.min(HP_MAX, int(el.value, this.document.system.hp.max)));
+      await this.document.update({ "system.hp.max": max, "system.hp.value": Math.min(this.document.system.hp.value, max) });
+      el.value = this.document.system.hp.max;
     });
     on("input[name='aspin']", "keydown", async (el, e) => {
       if (e.key !== "Enter") return;
@@ -199,11 +207,21 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
 
   async #setHp(value) {
     const s = this.document.system;
-    return this.document.update({ "system.hp.value": Math.max(0, Math.min(s.hp.max, value)) });
+    const v = Math.max(0, Math.min(s.hp.max, value));
+    if (v === s.hp.value) return undefined;
+    return this.document.update({ "system.hp.value": v });
+  }
+
+  /** One HP change after another (stress test, 2026-11-17): quick −/+ presses each read the value the last one wrote */
+  #hpQ = Promise.resolve();
+  #queueHp(valueFn) {
+    this.#hpQ = this.#hpQ.catch(() => {}).then(() => this.#setHp(valueFn()));
+    return this.#hpQ;
   }
 
   static async #onHpStep(event, target) {
-    await this.#setHp(this.document.system.hp.value + int(target.dataset.d));
+    const d = int(target.dataset.d);
+    await this.#queueHp(() => this.document.system.hp.value + d);
   }
 
   /* ---------- aspects ---------- */
@@ -263,7 +281,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
   /** A die of a move / note: rolled to chat */
   static async #onTextDice(event, target) {
     const speaker = ChatMessage.getSpeaker({ actor: this.document, token: this.token });
-    try { await postExprRoll(target.dataset.expr, speaker); } catch (_) { ui.notifications.warn(`Не вдалося кинути ${target.dataset.expr}`); }
+    try { await postExprRoll(target.dataset.expr, speaker); } catch (_) { notify.warn(`Не вдалося кинути ${target.dataset.expr}`); }
   }
 
   /** A damage die of a move / note: rolled, the damage card to chat and the damage to the targets (as «Завдати цілям») */
@@ -273,7 +291,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     }
     const { expr, src } = target.dataset;
     let roll;
-    try { roll = await new Roll(expr).evaluate(); } catch (_) { return ui.notifications.warn(`Не вдалося кинути ${expr}`); }
+    try { roll = await new Roll(expr).evaluate(); } catch (_) { return notify.warn(`Не вдалося кинути ${expr}`); }
     const total = Math.max(0, roll.total), wt = chatType(target.dataset.type), dice = roll.dice.reduce((n, d) => n + d.number, 0);
     const name = this.token?.name || this.document.name;
     target.disabled = true;
@@ -302,7 +320,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const val = String(raw).trim();
     if (f === "dice") {
       const d = normDice(val);
-      if (!DICE_RE.test(d)) { ui.notifications.warn("Шкода атаки: кістки на кшталт 1d10, 2d6+1, 3d6-1 чи «менша з 2d6»."); return this.render(); }
+      if (!DICE_RE.test(d)) { notify.warn("Шкода атаки: кістки на кшталт 1d10, 2d6+1, 3d6-1 чи «менша з 2d6»."); return this.render(); }
       a.dice = d;
     } else if (f === "ammoMax") {
       a.ammoMax = Math.max(0, int(val));
@@ -447,7 +465,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const base = doc.getFlag(sys, "baseName") || (doc.isToken ? doc.token?.baseActor?.name : null) || doc.name;
     const used = new Set([...game.actors.filter((a) => a.type === "enemy").map((a) => a.name), ...(canvas.scene?.tokens.map((t) => t.name) ?? [])]);
     const n = T().battle.enemyName(generatorRecord(T(), base) ?? { name: base }, used);
-    if (!n) return ui.notifications.info("Для цього супротивника немає пулу особистих імен.");
+    if (!n) return notify.info("Для цього супротивника немає пулу особистих імен.");
     const upd = { name: n };
     if (!this.document.getFlag(sys, "baseName")) upd[`flags.${sys}.baseName`] = base;
     await this.document.update(upd);
@@ -477,7 +495,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
   static async #onResetBook(event, target) {
     if (!target.classList.contains("armed")) {
       target.classList.add("armed");
-      ui.notifications.info("Натисни ще раз, щоб підтвердити.");
+      notify.info("Натисни ще раз, щоб підтвердити.");
       setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
       return;
     }

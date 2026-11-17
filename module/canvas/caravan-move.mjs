@@ -8,6 +8,7 @@
 import { brahminSaving, rangeCost } from "../rules/caravan-range.mjs";
 import { isBattleScene } from "../helpers/default-scene.mjs";
 import { runCaravanAction } from "../applications/caravan-actions.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 let ask = null; // { el, done } of the question shown
 
@@ -110,7 +111,7 @@ export async function setMoveDemo(on) {
 }
 
 const notEnough = (actor, cost, have) =>
-  ui.notifications.warn(`«${actor.name}»: на цей шлях треба ${cost} од. запасу ходу, а є ${have}. Караван лишається на місці.`);
+  notify.warn(`«${actor.name}»: на цей шлях треба ${cost} од. запасу ходу, а є ${have}. Караван лишається на місці.`);
 
 export function initCaravanMove() {
   Hooks.on("preUpdateToken", (token, changes, options, userId) => {

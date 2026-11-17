@@ -36,7 +36,27 @@ export function checkCaravanState(st) {
   return true;
 }
 
+/* Numbers in the file (stress test, 2026-11-17): «СЛ: "abc"» or «Кришки: "багато"» went through the dry run and left NaN on
+   the sheet. The HTML sheets write numbers, or numbers as text («hpCur: "12"»), or "" / null for «not set». */
+const NUM_RE = /^\s*-?\d+(\.\d+)?\s*$/;
+const isNum = (v) => (typeof v === "number" && Number.isFinite(v)) || (typeof v === "string" && NUM_RE.test(v));
+const optNum = (v) => v === undefined || v === null || v === "" || isNum(v);
+const numMap = (o) => o === undefined || (o && typeof o === "object" && !Array.isArray(o) && Object.values(o).every(optNum));
+const optList = (v) => v === undefined || Array.isArray(v);
+
+const CHAR_NUMS = ["hpCur", "fdCur", "hpRed", "hpMaxOv", "fdOv", "armorOv", "psiArmorOv", "supMax", "xp", "supplies", "caps"];
+const CHAR_LISTS = ["perks", "feats", "customFeats", "sit", "weapons", "armor", "other"];
+const CAR_NUMS = ["luck", "karma", "budget", "hpCurrent", "moveCurrent", "supplies", "hpMaxOverride", "armorOverride"];
+const CAR_LISTS = ["cargo", "counters", "customImps"];
+
+/** The file's numbers are numbers and its lists are lists */
+export function shapeOk(st, kind) {
+  if (kind === "caravan") return CAR_NUMS.every((k) => optNum(st[k])) && numMap(st.imp) && CAR_LISTS.every((k) => optList(st[k]));
+  return numMap(st.base) && numMap(st.skills) && CHAR_NUMS.every((k) => optNum(st[k])) && CHAR_LISTS.every((k) => optList(st[k]));
+}
+
 /** true when the state opens; false when the file is damaged */
 export const fileStateOk = (st, kind) => {
+  if (!shapeOk(st, kind)) return false;
   try { return kind === "caravan" ? checkCaravanState(st) : checkCharacterState(st); } catch (_) { return false; }
 };

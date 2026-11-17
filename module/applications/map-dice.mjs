@@ -7,6 +7,7 @@
  */
 import { postExprRoll, postFateCard } from "./check-panel.mjs";
 import { evaluate } from "./character-actions.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
 
@@ -82,7 +83,7 @@ export async function rollDice(count, sides) {
 export async function rollFate(actors = null) {
   const list = actors ?? fateActors();
   if (!list.length) {
-    ui.notifications.warn(game.user.isGM
+    notify.warn(game.user.isGM
       ? "Познач у списку під «Доля», за кого кинути Кістку Долі (або виділи їхні токени)."
       : "У тебе немає свого персонажа. Познач ціллю токен персонажа чи каравану, щоб кинути Кістку Долі за нього.");
     return null;

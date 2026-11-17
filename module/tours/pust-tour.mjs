@@ -8,6 +8,7 @@
  *   – the next tour offered by our own dialog (Foundry's is in its own words).
  */
 import { findBattleScene, findMapScene, isBattleScene } from "../helpers/default-scene.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -365,13 +366,13 @@ export const ACTIONS = {
     const pack = game.packs.get(`${game.system.id}.quickstart`);
     const idx = await pack?.getIndex();
     const entry = idx?.contents?.[0];
-    if (!entry) return ui.notifications.warn("Компендіуму «Швидкий старт» немає.");
+    if (!entry) return notify.warn("Компендіуму «Швидкий старт» немає.");
     const adv = await pack.getDocument(entry._id);
     // imported at once: the tour's overlay would block Foundry's own import window. Only what the world lacks is added:
     // documents already there (characters being played, edited journals and scenes) are never overwritten (author, 2026-11-16)
     const res = await adv.import({ dialog: false, preImport: [async (data) => { for (const k of Object.keys(data.toUpdate)) delete data.toUpdate[k]; }] });
     const n = Object.values(res?.created ?? {}).reduce((sum, list) => sum + (list?.length ?? 0), 0);
-    ui.notifications.info(n ? `«Швидкий старт»: додано те, чого бракувало у світі (${n}); наявне не змінено.` : "«Швидкий старт» уже весь у світі.");
+    notify.info(n ? `«Швидкий старт»: додано те, чого бракувало у світі (${n}); наявне не змінено.` : "«Швидкий старт» уже весь у світі.");
   },
 };
 /**

@@ -15,6 +15,7 @@ import { postFateCard } from "../applications/check-panel.mjs";
 import { rollTurret, turretOf } from "../applications/caravan-turret.mjs";
 import { typeClass, typeLabel, typeOptions } from "./enemy-view.mjs";
 import { diceLabel } from "../rules/battle.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -125,7 +126,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     root.querySelectorAll("[data-tf]").forEach((el) => el.addEventListener("change", async () => {
       const t = { ...turretOf(this.document), [el.dataset.tf]: el.value.trim() };
       if (el.dataset.tf === "dice" && !Roll.validate(t.dice.replace(/^d/i, "1d"))) {
-        ui.notifications.warn(`Не вдалося розібрати кістки: ${t.dice}`);
+        notify.warn(`Не вдалося розібрати кістки: ${t.dice}`);
         return this.render();
       }
       await this.document.setFlag(game.system.id, "turret", t);
@@ -136,7 +137,10 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     root.querySelectorAll("[data-k]").forEach((el) => el.addEventListener("change", (ev) => {
       const t = ev.currentTarget;
       this.dropUndo();
-      return runCaravanAction(this.document, (C) => C.setField(t.dataset.k, t.type === "checkbox" ? t.checked : t.value));
+      // a field whose value the rules changed back to what was stored («1e9» ОЗ at the maximum) gets no update, so no
+      // redraw: the field would keep showing the typed text (stress test, 2026-11-17) — draw it again then
+      return runCaravanAction(this.document, (C) => C.setField(t.dataset.k, t.type === "checkbox" ? t.checked : t.value))
+        .then((r) => { if (t.isConnected && t.type !== "checkbox" && this.rendered) this.render(); return r; });
     }));
   }
 
@@ -158,10 +162,10 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
   /** A button of the HTML caravan sheet (data-act + its dataset); data-confirm asks twice */
   static async #onAct(event, target) {
     const { action, act, confirm, ...data } = target.dataset;
-    if (QS_LOCKED_ACTS.has(act) && isQuickstartActor(this.document)) return void ui.notifications.warn(qsLockTip(this.document));
+    if (QS_LOCKED_ACTS.has(act) && isQuickstartActor(this.document)) return void notify.warn(qsLockTip(this.document));
     if (confirm && !target.classList.contains("armed")) {
       target.classList.add("armed");
-      ui.notifications.info("Натисніть ще раз, щоб підтвердити.");
+      notify.info("Натисніть ще раз, щоб підтвердити.");
       setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
       return;
     }
@@ -202,7 +206,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     this.undoState = null;
     clearTimeout(this.#undoTimer);
     await saveCaravan(this.document, prev);
-    ui.notifications.info("Скасовано.");
+    notify.info("Скасовано.");
   }
 
   static #onTab(event, target) {
@@ -216,7 +220,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
   }
 
   static async #onJsonOpen() {
-    if (isQuickstartActor(this.document)) return void ui.notifications.warn(qsLockTip(this.document)); // quickstart-lock.mjs
+    if (isQuickstartActor(this.document)) return void notify.warn(qsLockTip(this.document)); // quickstart-lock.mjs
     if (await replaceCaravanFromFile(this.document)) this.dropUndo();
   }
 

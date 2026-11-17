@@ -628,6 +628,8 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock .pust-md-fdrow[hidden], #pust-mapdock .pust-md-unit.folded > .pust-md-fdrow { display: none; }
 /* players' «Лічильники» under the Fate / Припаси rows (author, 2026-11-16); folded with «Кістки» */
 #pust-mapdock .pust-md-unit.folded > .pust-md-ctr-pl { display: none; }
+/* the players' counters scroll inside, down to the chat / players list (fitCounters; stress test, 2026-11-17) */
+#pust-mapdock .pust-md-plbody { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #4a5a4c transparent; }
 #pust-mapdock .pust-md-fdrow > button { flex: 1 1 0; height: 32px; opacity: 1; gap: 6px; font-size: 13px; letter-spacing: .03em; text-transform: uppercase; font-weight: 800;
   background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border: 1px solid #6e5608; box-shadow: 0 2px 4px rgba(0,0,0,.45); }
 #pust-mapdock .pust-md-fdrow > button:hover:not(:disabled) { color: #000; border-color: #f4d11a; box-shadow: 0 0 6px rgba(244,209,26,.45); }

@@ -12,16 +12,17 @@ import { TYPE_EFFECTS } from "../rules/damage-types.mjs";
 
 export { chatType, battleType } from "../rules/battle.mjs";
 import { chatType } from "../rules/battle.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 export async function rollEnemyAttack(actor, i, { token = null } = {}) {
   const sys = actor.system;
   const a = sys.attacks?.[i];
   if (!a) return null;
-  if (a.ammoMax > 0 && a.ammo <= 0) return ui.notifications.warn(`«${a.name}»: заряди скінчилися.`);
+  if (a.ammoMax > 0 && a.ammo <= 0) return notify.warn(`«${a.name}»: заряди скінчилися.`);
   const dice = attackDice(sys, i) || a.dice;
   let roll;
   try { roll = await new Roll(String(dice).replace(/^d/i, "1d")).evaluate(); }
-  catch (_) { return ui.notifications.warn(`Не вдалося розібрати кістки атаки «${a.name}»: ${dice}`); }
+  catch (_) { return notify.warn(`Не вдалося розібрати кістки атаки «${a.name}»: ${dice}`); }
   const wt = chatType(a.type);
   const fx = [];
   if (a.ignoreArmor) fx.push("Шкода повністю ігнорує броню.");

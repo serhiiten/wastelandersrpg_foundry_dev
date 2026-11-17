@@ -11,6 +11,7 @@
  */
 import { readState } from "../applications/character-actions.mjs";
 import { createLogic } from "../rules/logic.mjs";
+import { notify } from "./notify.mjs";
 
 const TYPE = "PustMacro";
 
@@ -51,9 +52,18 @@ export function readyMacros() {
   });
 }
 
+/** The kinds a macro may be, and which of them act on an actor (a character; «luck» a caravan) */
+const KINDS = { attr: "character", skill: "character", attack: "character", damage: "character", preset: "character", xpreset: "character", fate: null, luck: "caravan" };
+
 async function makeMacro(data, slot) {
   const { type, ...d } = data;
-  const actor = d.actor ? await fromUuid(d.actor) : null;
+  // no macro for a drop that names no known kind or an actor that isn't there (stress test, 2026-11-17: a forged drop
+  // made a macro «undefined»)
+  if (!(d.kind in KINDS)) return notify.warn("Невідомий макрос Пустельників.");
+  const need = KINDS[d.kind];
+  const actor = need && d.actor ? await fromUuid(String(d.actor)).catch(() => null) : null;
+  if (need && (!actor || actor.documentName !== "Actor" || actor.type !== need)) return notify.warn(`Макрос не створено: такого ${need === "caravan" ? "каравану" : "персонажа"} немає у світі.`);
+  if (need === "character" && !(d.label || d.attr || d.skill)) return notify.warn("Макрос не створено: невідомо, що перевіряти.");
   const { name, img } = look(d, actor);
   const command = `game.wastelanders.runMacro(${JSON.stringify(d)});`;
   let macro = game.macros.find((m) => m.command === command && m.isOwner);
@@ -64,15 +74,15 @@ async function makeMacro(data, slot) {
 /** What a macro runs (game.wastelanders.runMacro) */
 export async function runMacro(d = {}) {
   const actor = d.actor ? await fromUuid(d.actor) : null;
-  if (d.actor && !actor) return ui.notifications.warn("Персонажа цього макросу більше немає у світі.");
-  if (actor && !actor.isOwner) return ui.notifications.warn(`«${actor.name}» не твій персонаж.`);
+  if (d.actor && !actor) return notify.warn("Персонажа цього макросу більше немає у світі.");
+  if (actor && !actor.isOwner) return notify.warn(`«${actor.name}» не твій персонаж.`);
   const panel = await import("../applications/check-panel.mjs");
   switch (d.kind) {
     case "attr": return panel.openCheckPanel(actor, { attr: d.attr });
     case "skill": return panel.openCheckPanel(actor, { skill: d.skill });
     case "attack": case "damage": {
       const i = readState(actor).weapons.findIndex((w) => String(w.n || "").trim() === d.label);
-      if (i < 0) return ui.notifications.warn(`У «${actor.name}» більше немає зброї «${d.label}».`);
+      if (i < 0) return notify.warn(`У «${actor.name}» більше немає зброї «${d.label}».`);
       return d.kind === "attack" ? panel.openCheckPanel(actor, { weapon: i }) : panel.rollWeaponDamage(actor, i);
     }
     case "preset": case "xpreset": {
@@ -80,11 +90,11 @@ export async function runMacro(d = {}) {
       const L = createLogic({ st, toast: () => {}, ui: {} });
       const list = d.kind === "preset" ? L.ROLL_PRESETS : L.extraPresets();
       const v = list.findIndex((p) => p.l === d.label);
-      if (v < 0) return ui.notifications.warn(`У «${actor.name}» немає перевірки «${d.label}».`);
+      if (v < 0) return notify.warn(`У «${actor.name}» немає перевірки «${d.label}».`);
       return panel.openCheckPanel(actor, { r: d.kind, v });
     }
     case "fate": return (await import("../applications/map-dice.mjs")).rollFate();
     case "luck": return (await import("../applications/map-dice.mjs")).rollFate([actor]);
-    default: return ui.notifications.warn("Невідомий макрос Пустельників.");
+    default: return notify.warn("Невідомий макрос Пустельників.");
   }
 }

@@ -13,6 +13,7 @@ import { tokenLevel } from "../helpers/token-level.mjs";
 import { enemyFromRecord } from "../rules/battle.mjs";
 import { toSystem } from "../rules/enemy-model.mjs";
 import { kindTokens } from "../rules/enemy-kinds.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 /** Actor data of a group enemy made one concrete kind (author, 2026-11-16): its name, its token as picture and token */
 export function asKind(data, kind) {
@@ -134,7 +135,7 @@ export async function generatedEnemyImg(name, group = "") {
  * kind, named after it («Ім'я N» when the scene already has some of them).
  */
 export async function dropGeneratedEnemy(T, st, name, point) {
-  if (!game.user.isGM) return ui.notifications.warn("Битву веде Доглядач.");
+  if (!game.user.isGM) return notify.warn("Битву веде Доглядач.");
   const last = st.battle.state?.last;
   const entry = last?.allocations.flatMap((a) => a.entries).find((x) => x.enemy?.name === name);
   const scene = canvas?.scene;
@@ -204,18 +205,18 @@ function spots(scene, n) {
  * @param mode   "folder" — actors into the battle's folder; "place" — the same, plus tokens on the current scene
  */
 export async function createBattle(T, st, mode = "folder") {
-  if (!game.user.isGM) return ui.notifications.warn("Битву веде Доглядач.");
+  if (!game.user.isGM) return notify.warn("Битву веде Доглядач.");
   const last = st.battle.state?.last;
   if (!last) return;
   const entries = last.allocations.flatMap((a) => a.entries).filter((e) => e.count > 0);
   const scene = mode === "place" ? game.scenes.viewed : null;
-  if (mode === "place" && !scene) return ui.notifications.warn("Немає відкритої сцени: відкрий сцену, щоб розмістити токени.");
+  if (mode === "place" && !scene) return notify.warn("Немає відкритої сцени: відкрий сцену, щоб розмістити токени.");
   const folder = await battleFolder(T.battle.BT.kindName(last.factionKey), st.battle.state.difficulty);
   const actors = [];
   for (const e of entries) actors.push({ e, count: e.count, actor: await enemyActor(T, e.enemy, folder) });
   const where = `«${FOLDER} → ${folder.name}»`;
   if (mode !== "place") {
-    ui.notifications.info(`В Актори додано теку ${where}: ${actors.map((x) => `${x.actor.name} × ${x.count}`).join(", ")}. Перетягни їх на сцену або натисни «Розмістити на сцені».`);
+    notify.info(`В Актори додано теку ${where}: ${actors.map((x) => `${x.actor.name} × ${x.count}`).join(", ")}. Перетягни їх на сцену або натисни «Розмістити на сцені».`);
     return actors.map((x) => x.actor);
   }
   const used = new Set();
@@ -253,6 +254,6 @@ export async function createBattle(T, st, mode = "folder") {
     }
   }
   const made = await scene.createEmbeddedDocuments("Token", tokens, { pustTokens: true });
-  ui.notifications.info(`Токени на сцені «${scene.name}»: ${made.length}. Супротивники — в Акторах, у теці ${where}. Бій почни, коли будеш готовий.`);
+  notify.info(`Токени на сцені «${scene.name}»: ${made.length}. Супротивники — в Акторах, у теці ${where}. Бій почни, коли будеш готовий.`);
   return made;
 }

@@ -4,6 +4,7 @@
  * warning when no answer comes within ACK_MS (the GM is listed as in the game, but their client sleeps or lost the
  * connection) or when the GM's side failed. With no GM in the game at all the callers warn before sending.
  */
+import { notify } from "./notify.mjs";
 const SOCKET = () => `system.${game.system.id}`;
 const ACK_MS = 6000;
 const waiting = new Map(); // req → { timer, what }
@@ -18,7 +19,7 @@ export function askGM(msg, what, lost = "Нічого не застосован�
   const req = foundry.utils.randomID();
   const timer = setTimeout(() => {
     waiting.delete(req);
-    ui.notifications.warn(`${what}: Доглядач не відповів. Можливо, його вкладка з грою заснула або зникло з'єднання. ${lost} Попроси Доглядача перевірити гру.`, { permanent: true });
+    notify.warn(`${what}: Доглядач не відповів. Можливо, його вкладка з грою заснула або зникло з'єднання. ${lost} Попроси Доглядача перевірити гру.`, { permanent: true });
   }, ACK_MS);
   waiting.set(req, { timer, what, lost });
   game.socket.emit(SOCKET(), { ...msg, req, from: game.user.id });
@@ -43,6 +44,6 @@ export function readyGmRequests() {
     if (!w) return;
     clearTimeout(w.timer);
     waiting.delete(msg.req);
-    if (!msg.ok) ui.notifications.error(`${w.what}: у Доглядача сталася помилка. ${w.lost}${msg.err ? ` (${msg.err})` : ""}`);
+    if (!msg.ok) notify.error(`${w.what}: у Доглядача сталася помилка. ${w.lost}${msg.err ? ` (${msg.err})` : ""}`);
   });
 }

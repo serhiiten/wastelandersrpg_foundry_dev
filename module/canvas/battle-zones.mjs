@@ -16,6 +16,7 @@ import { ZONE, normalizeZone, placeNear, moveRect, resizeRect, nextZoneName, add
 import { randomZoneName, randomZoneAspect, ZONE_COLORS } from "../rules/battle.mjs";
 import { MAP_NOTE } from "../rules/map-notes.mjs";
 import { sharedGet } from "../helpers/scene-shared.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const sys = () => game.system.id;
 const hex = (s) => parseInt(String(s).replace("#", ""), 16);
@@ -320,7 +321,7 @@ function editorHtml(z) {
       <div class="pust-bz-row"><input type="text" class="pust-bz-name" maxlength="60" value="${esc(z.name)}" aria-label="Назва зони" spellcheck="false">
         <button type="button" class="pust-bz-die" data-act="rndname" title="Випадкова назва${battlePlace() ? ` для місця «${esc(battlePlace())}»` : ""}" aria-label="Випадкова назва"><i class="fa-solid fa-dice"></i></button></div>
       <div class="pust-bz-chips">${chips || `<span class="pust-bz-none">Аспектів поки немає: 1–2 на зону (барикада, іржавий трактор…).</span>`}</div>
-      <div class="pust-bz-row"><input type="text" class="pust-bz-asp" placeholder="+ аспект зони, Enter" aria-label="Новий аспект зони" spellcheck="false">
+      <div class="pust-bz-row"><input type="text" class="pust-bz-asp" maxlength="100" placeholder="+ аспект зони, Enter" aria-label="Новий аспект зони" spellcheck="false">
         <button type="button" class="pust-bz-die" data-act="rndasp" title="Випадковий аспект${battlePlace() ? ` для місця «${esc(battlePlace())}»` : ""}" aria-label="Випадковий аспект"><i class="fa-solid fa-dice"></i></button></div>
     </div>`;
 }
@@ -412,11 +413,11 @@ async function onBarClick(ev) {
     if (act === "color") await doc.update({ [zpath("color")]: b.dataset.color, fillColor: COLORS[b.dataset.color].fill, strokeColor: COLORS[b.dataset.color].line });
     else if (act === "rndname") {
       const n = randomZoneName(battlePlace(), usedNames());
-      if (!n) return ui.notifications.info("Назви для цього місця скінчилися.");
+      if (!n) return notify.info("Назви для цього місця скінчилися.");
       await doc.update({ [zpath("name")]: n });
     } else if (act === "rndasp") {
       const t = randomZoneAspect(battlePlace(), usedAspects());
-      if (!t) return ui.notifications.info("Аспекти для цього місця скінчилися.");
+      if (!t) return notify.info("Аспекти для цього місця скінчилися.");
       // like the tracker: the aspect lands in the field first, so it can be touched up; Enter adds it
       const inp = editor.root.querySelector(".pust-bz-asp");
       inp.value = t; inp.focus(); inp.select();
@@ -434,7 +435,7 @@ async function onBarClick(ev) {
       closeZoneEditor();
       await doc.delete();
     }
-  } catch (err) { console.warn("Пустельники | zone action failed", err); ui.notifications.warn("Не вдалося змінити зону."); }
+  } catch (err) { console.warn("Пустельники | zone action failed", err); notify.warn("Не вдалося змінити зону."); }
 }
 
 /** «Обрати всіх»: every token still standing in the zone becomes a target (the tracker's zsel; author, 2026-11-15: damage
@@ -450,11 +451,11 @@ export function selectZone(doc) {
   const now = new Set([...(game.user.targets ?? [])].map((t) => t.id));
   if (inZone.length && now.size === inZone.length && inZone.every((t) => now.has(t.id))) {
     canvas.tokens.setTargets([], { mode: "replace" });
-    ui.notifications.info(`Цілі в зоні «${zoneOf(doc).name}» знято.`);
+    notify.info(`Цілі в зоні «${zoneOf(doc).name}» знято.`);
     return;
   }
   canvas.tokens.setTargets(inZone.map((t) => t.id), { mode: "replace" });
-  ui.notifications.info(inZone.length ? `Цілі в зоні «${zoneOf(doc).name}»: ${inZone.length}` : `У зоні «${zoneOf(doc).name}» нікого, хто ще стоїть.`);
+  notify.info(inZone.length ? `Цілі в зоні «${zoneOf(doc).name}»: ${inZone.length}` : `У зоні «${zoneOf(doc).name}» нікого, хто ще стоїть.`);
 }
 
 /** The editor over the zone, following pan and zoom; the bar above, or under the strip when there is no room */
@@ -529,7 +530,7 @@ const onDocPointerDown = (ev) => { if (editor && !editor.root.contains(ev.target
 /** «+ Зона»: a 6 × 5 zone on the free spot nearest the view's centre, named «Зона N», opened for editing */
 export async function addBattleZone() {
   if (!isGM()) return;
-  if (!canvas.ready || !canvas.scene) return ui.notifications.warn("Спершу відкрий сцену.");
+  if (!canvas.ready || !canvas.scene) return notify.warn("Спершу відкрий сцену.");
   const g = canvas.dimensions.size;
   const zones = sceneZones();
   const c = canvas.stage.pivot;

@@ -7,6 +7,7 @@ import { PLACE_KINDS, placeTypeOptions, rndAspect, rndExperiment, rndName } from
 import { createTerminal } from "../rules/terminal.mjs";
 import { MAP_DATA } from "../rules/map-data.mjs";
 import { postChat } from "../applications/chat.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -132,7 +133,7 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
 
   static async #onRndAsp() {
     const t = rndAspect(this.#plain());
-    if (!t) return ui.notifications.info("Нових аспектів для цього місця вже немає");
+    if (!t) return notify.info("Нових аспектів для цього місця вже немає");
     await this.#addAspect(t);
   }
 
@@ -164,7 +165,7 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
       || await Folder.create({ name: "Мапа Пустки", type: "JournalEntry", color: "#4a453d", flags: { [sys]: { mapFolder: true } } });
     const name = this.document.name || (PLACE_KINDS[this.document.system.kind] ?? PLACE_KINDS.town).label;
     const entry = await JournalEntry.create({ name, folder: folder.id, pages: [{ name, type: "text", text: { content: placePage(this.document) } }] });
-    ui.notifications.info(`Записано в журнал: «${entry.name}»`);
+    notify.info(`Записано в журнал: «${entry.name}»`);
     entry.sheet.render(true);
   }
 
@@ -172,7 +173,7 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
   static async #onToggleLock() {
     if (!game.user.isGM) return;
     const toks = placeTokens(this.document);
-    if (!toks.length) return ui.notifications.info("Цього місця ще немає на мапі.");
+    if (!toks.length) return notify.info("Цього місця ще немає на мапі.");
     const lock = toks.some((t) => !t.locked);
     for (const scene of game.scenes) {
       const ups = scene.tokens.filter((t) => t.actorId === this.document.id && t.locked !== lock).map((t) => ({ _id: t.id, locked: lock }));
@@ -184,7 +185,7 @@ export class WastelandersPlaceSheet extends HandlebarsApplicationMixin(ActorShee
   static async #onToggleVis() {
     if (!game.user.isGM) return;
     const toks = placeTokens(this.document);
-    if (!toks.length) return ui.notifications.info("Цього місця ще немає на мапі.");
+    if (!toks.length) return notify.info("Цього місця ще немає на мапі.");
     const hide = toks.some((t) => !t.hidden);
     for (const scene of game.scenes) {
       const ups = scene.tokens.filter((t) => t.actorId === this.document.id && t.hidden !== hide).map((t) => ({ _id: t.id, hidden: hide }));

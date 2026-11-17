@@ -11,6 +11,7 @@ import { fateNow } from "./fate-card.mjs";
 import { postChat } from "./chat.mjs";
 import { sharedSet } from "../helpers/scene-shared.mjs";
 import { GROUP_END, ownPart, resetMoves } from "../rules/group-end.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 
@@ -35,9 +36,9 @@ export function groupSession() {
 /** The group's counters back to session 1, day 1, scene 1 (the sheet's «Скинути»; addictions' clocks too) */
 export async function resetGroupCounters() {
   const chars = groupCharacters();
-  if (!chars.length) return ui.notifications.warn("Жодного персонажа не призначено гравцям.");
+  if (!chars.length) return notify.warn("Жодного персонажа не призначено гравцям.");
   for (const a of chars) await runAction(a, (st, L) => L.chemAct("chem-reset", { dataset: {} }), { quiet: true });
-  ui.notifications.info(`Відлік скинуто: сесія 1, день 1, сцена 1 (${chars.map((a) => a.name).join(", ")}).`);
+  notify.info(`Відлік скинуто: сесія 1, день 1, сцена 1 (${chars.map((a) => a.name).join(", ")}).`);
 }
 
 /** The text split into sentences, one item each */
@@ -80,7 +81,7 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   const def = GROUP_END[kind];
   if (!def || !game.user.isGM) return;
   const chars = groupCharacters();
-  if (!chars.length && !moves) return ui.notifications.warn("Жодного персонажа не призначено гравцям. Признач їх у налаштуваннях гравців (Player Character).");
+  if (!chars.length && !moves) return notify.warn("Жодного персонажа не призначено гравцям. Признач їх у налаштуваннях гравців (Player Character).");
   if (kind === "session") {
     const yes = await foundry.applications.api.DialogV2.confirm({
       window: { title: "Кінець сесії" },
@@ -114,6 +115,6 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
     }
   }
   await postChat({ speaker: { alias: def.title }, content: endCard(kind, def, rows, moves ? movesN : null) });
-  ui.notifications.info(`${def.title}: ${chars.length} ${chars.length === 1 ? "персонаж" : chars.length < 5 && chars.length > 1 ? "персонажі" : "персонажів"}. Коло дій 1${fate != null ? `, жетонів Долі Доглядача: ${Math.max(0, fate)}` : ""}.`);
+  notify.info(`${def.title}: ${chars.length} ${chars.length === 1 ? "персонаж" : chars.length < 5 && chars.length > 1 ? "персонажі" : "персонажів"}. Коло дій 1${fate != null ? `, жетонів Долі Доглядача: ${Math.max(0, fate)}` : ""}.`);
   return true;
 }

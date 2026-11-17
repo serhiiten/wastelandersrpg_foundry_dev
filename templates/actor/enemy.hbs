@@ -93,7 +93,7 @@
           {{#if ../editable}}<button type="button" class="pust-en-x" data-action="aspRm" data-s="s" data-i="{{i}}" aria-label="Прибрати аспект">×</button>{{/if}}</span>
         {{else}}<span class="pust-en-muted">Ситуативних аспектів немає</span>{{/each}}
       </div>
-      {{#if editable}}<input class="pust-en-aspin" type="text" name="aspin" placeholder="+ ситуативний аспект, Enter" autocomplete="off" aria-label="Новий ситуативний аспект">{{/if}}
+      {{#if editable}}<input class="pust-en-aspin" type="text" maxlength="100" name="aspin" placeholder="+ ситуативний аспект, Enter" autocomplete="off" aria-label="Новий ситуативний аспект">{{/if}}
     </section>
 
     {{!-- Атаки --}}
@@ -150,7 +150,7 @@
           {{#if ../edit}}<button type="button" class="pust-en-x" data-action="aspRm" data-s="b" data-i="{{i}}" aria-label="Прибрати аспект">×</button>{{/if}}</span>
         {{else}}<span class="pust-en-muted">Аспектів немає</span>{{/each}}
       </div>
-      {{#if edit}}<input class="pust-en-aspin" type="text" name="baseIn" placeholder="+ аспект, Enter" autocomplete="off" aria-label="Новий аспект">{{/if}}
+      {{#if edit}}<input class="pust-en-aspin" type="text" maxlength="100" name="baseIn" placeholder="+ аспект, Enter" autocomplete="off" aria-label="Новий аспект">{{/if}}
 
       <h4>Ходи</h4>
       {{#each v.moves}}

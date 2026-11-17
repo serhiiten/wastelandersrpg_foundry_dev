@@ -1,4 +1,5 @@
 import { recipeDescription, speciesDefaults, speciesShort } from "../rules/designer.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 /** The item types «Create Item» offers: the ones that have a builder */
 const BUILDER_TYPES = ["species", "drug"];
@@ -66,7 +67,7 @@ export class WastelandersItem extends Item {
             const localizeType = game.i18n.localize(
               "TYPES.Item." + container[index].type,
             );
-            ui.notifications.error(
+            notify.error(
               game.i18n.format("WASTELANDERS.Errors.Item.NotExist", {
                 type: localizeType,
                 item: container[index].name,

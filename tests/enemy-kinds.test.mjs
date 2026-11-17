@@ -53,5 +53,26 @@ ok(s2.last.allocations[0].entries[0].enemy.name === "Щур", "the same kind aft
 const s3 = concreteKinds(structuredClone(s1), {}, {}, () => 0.99);
 ok(s3.last.allocations[0].entries[0].enemy.name === "Щур", "an already concrete battle is left alone");
 
+// people: the leader and the boss follow the rank and file's kind (stress test, 2026-11-17)
+const gP = "Бандити, мафіозі, рейдери та дикуни", gL = "Ватажки бандитів, мафіозі, рейдерів, дикунів", gB = "Великий бос рейдерів/Бос кримінальної родини/Вождь племені";
+const CROWD = { "Бандит": ["Ватажок бандитів", "Бос бандитів"], "Мафіозі": ["Ватажок мафіозі", "Бос кримінальної родини"], "Рейдер": ["Ватажок рейдерів", "Великий бос рейдерів"], "Дикун": ["Ватажок дикунів", "Вождь племені"] };
+// the boss listed first, so the order of the generator's entries doesn't decide
+const people = { last: { allocations: [{ entries: [{ cat: "boss", count: 1, enemy: { name: gB } }, { cat: "elite", count: 1, enemy: { name: gL } }, { cat: "regular", count: 4, enemy: { name: gP } }] }] } };
+for (const r of [0, 0.3, 0.6, 0.99]) {
+  const e = concreteKinds(structuredClone(people), {}, {}, () => r).last.allocations[0].entries;
+  const [boss, lead, rank] = e.map((x) => x.enemy.name);
+  ok(CROWD[rank]?.[0] === lead && CROWD[rank]?.[1] === boss, `one crowd at ${r}: ${rank} / ${lead} / ${boss}`);
+}
+// a leader without rank and file still brings its own boss
+for (const r of [0, 0.3, 0.6, 0.99]) {
+  const e = concreteKinds({ last: { allocations: [{ entries: [{ cat: "boss", count: 1, enemy: { name: gB } }, { cat: "elite", count: 2, enemy: { name: gL } }] }] } }, {}, {}, () => r).last.allocations[0].entries;
+  const lead = e[1].enemy.name, boss = e[0].enemy.name;
+  ok(Object.values(CROWD).some(([l, b]) => l === lead && b === boss), `leader and boss at ${r}: ${lead} / ${boss}`);
+}
+// a kind kept through rerolls brings the others along
+const pk = { [`${gP}|regular`]: "Дикун" };
+const kept = concreteKinds(structuredClone(people), pk, {}, () => 0).last.allocations[0].entries.map((x) => x.enemy.name);
+ok(kept[0] === "Вождь племені" && kept[1] === "Ватажок дикунів", "a kept «Дикун» brings «Ватажок дикунів» and «Вождь племені»");
+
 if (failures) { console.log(`${failures} failure(s) of ${checks}`); process.exit(1); }
 console.log(`enemy-kinds OK (${checks} checks)`);
