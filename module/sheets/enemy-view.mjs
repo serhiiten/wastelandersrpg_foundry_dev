@@ -76,6 +76,23 @@ export function hpLevel(value, max) {
   return { pct: Math.max(0, Math.min(100, pct)), level, dead: value <= 0 };
 }
 
+/**
+ * The enemy's state in words (author, 2026-11-16): what players see instead of its HP — a chip of its own colour and icon.
+ * Full HP, above 66 %, above 33 %, above 0, out of the fight.
+ */
+export const HP_STATES = {
+  full: { label: "Без ушкоджень", icon: "fa-heart", color: "#2f8a32" },
+  ok: { label: "Легкі ушкодження", icon: "fa-heart", color: "#6f8a1c" },
+  mid: { label: "Серйозні ушкодження", icon: "fa-heart-crack", color: "#c0651a" },
+  low: { label: "На межі", icon: "fa-heart-pulse", color: "#a8121a" },
+  dead: { label: "Вибув", icon: "fa-skull", color: "#4a453d" },
+};
+export function hpState(value, max) {
+  const { level } = hpLevel(value, max);
+  const key = level === "ok" && value >= max ? "full" : level;
+  return { key, ...HP_STATES[key] };
+}
+
 /** A move that can be used once («раз за сцену / за сесію») or is the Психо move */
 export function onceMove(text, isPsy = false) {
   return !!isPsy || /раз за (сцену|сесію)/i.test(String(text || ""));
@@ -127,6 +144,7 @@ export function enemyView(sys, o = {}) {
   const cat = normCat(sys.cat);
   const profile = profileOf(sys);
   const hp = { value: sys.hp?.value ?? 0, max: sys.hp?.max ?? 0, ...hpLevel(sys.hp?.value ?? 0, sys.hp?.max ?? 0) };
+  const state = hpState(hp.value, hp.max);
   const tags = profileTags(profile).map(([icon, text]) => ({ icon: TAG_ICON[icon] ?? "fa-circle", text, help: tagHelp(text) }));
   const aspects = sys.aspects ?? [];
   const quick = QUICK_ASPECTS.filter(([, label]) => !aspects.some((a) => a.t === label)).map(([key, label]) => {
@@ -155,7 +173,7 @@ export function enemyView(sys, o = {}) {
   });
   return {
     cat, catLabel: CAT_LABEL[cat] ?? "", catColor: CAT_COLOR[cat] ?? CAT_COLOR.regular, catIcon: catIconHtml(cat),
-    hp, armor: sys.armor ?? 0, psiArmor: sys.psiArmor ?? 0, armorText: sys.armorText ?? "",
+    hp, state, armor: sys.armor ?? 0, psiArmor: sys.psiArmor ?? 0, armorText: sys.armorText ?? "",
     tags, quick, aspects: aspects.map((a, i) => ({ i, t: a.t, inv: a.inv })),
     baseAspects: (sys.baseAspects ?? []).map((a, i) => ({ i, t: a.t, inv: a.inv, len: Math.max(6, String(a.t ?? "").length + 1) })),
     attacks, moves, psycho, psyIdx, psyMove: psyIdx >= 0 ? moves[psyIdx] : null,

@@ -4,6 +4,7 @@
  * view model: enemy-view.mjs (pure, tested). Every action saves with `document.update` (no form submit).
  * Players who may only see the card (LIMITED, once the GM switched it to «Видимий») get it read-only.
  */
+import { addHelpButton } from "../tours/help-button.mjs";
 import { generatorRecord } from "../applications/terminal-battle.mjs";
 import {
   CAT_GUIDE, CAT_LABEL, DICE_RE, normDice, QUICK_ASPECTS, psyMoveIdx, buildAttackPresets, buildMovePresets, atkType, atkIgnoreN, atkIgnores, atkAmmoEx, moveHeal, zoneOfPoint,
@@ -11,6 +12,7 @@ import {
 import { CATS, resetToBook } from "../rules/enemy-model.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { postChat } from "../applications/chat.mjs";
+import { postEnemyCard } from "../applications/enemy-chat.mjs";
 import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
 import { sendDamage, chosenTokens, warnNoTargets } from "../applications/apply-damage.mjs";
 import { enemyView, diceTextHtml } from "./enemy-view.mjs";
@@ -39,6 +41,13 @@ function rollExpr(raw) {
   return { total: Math.max(0, roll.total), dice, text: dice ? `${expr} = ${roll.total}` : String(roll.total), expr };
 }
 
+/** The user plays a character with the perk «Спостережливість» (their Player Character, or any character they own) */
+function observantUser() {
+  if (game.user.isGM) return false;
+  const chars = [game.user.character, ...game.actors.filter((a) => a.type === "character" && a.isOwner)].filter(Boolean);
+  return chars.some((a) => a.items.some((it) => it.type === "perk" && /^Спостережливість/.test(it.name)));
+}
+
 export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["wastelanders", "pust-sheet", "pust-en-sheet"],
@@ -65,6 +74,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       addMove: WastelandersEnemySheet.#onAddMove,
       rmMove: WastelandersEnemySheet.#onRmMove,
       resetBook: WastelandersEnemySheet.#onResetBook,
+      toChat: WastelandersEnemySheet.#onToChat,
     },
   };
 
@@ -73,10 +83,13 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
   };
 
   /** Fold states and the edit mode: kept for the life of the window only */
-  #ui = { edit: false, details: false, defence: false, desc: false };
+  #ui = { edit: false, details: false, defence: false };
   #attackPresets = null;
   #movePresets = null;
   #focus = null;
+
+  /** Open a fold before the next render (the terminal's chips open «Деталі»; author, 2026-11-16) */
+  openFold(name) { this.#ui[name] = true; }
 
   get title() {
     return this.document.name || game.i18n.localize("TYPES.Actor.enemy");
@@ -99,7 +112,13 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const edit = this.#ui.edit && editable;
     const v = enemyView(s, { editable, gm });
     Object.assign(context, {
-      v, editable, gm, edit, ui: this.#ui, name: doc.name, img: doc.img, differs: v.differs,
+      v, editable, gm, edit, ui: this.#ui, limited: !doc.isOwner,
+      // «Спостережливість» (author, 2026-11-17; wiki: «ти завжди знаєш точну кількість ОЗ супротивників і чим вони озброєні»):
+      // a player whose character has the perk sees the enemy's HP and attacks on its card too
+      observant: !doc.isOwner && observantUser(),
+      // a card outside the world (the compendium's, one built in memory): no «Видимий / Прихований», no «В чат» (author, 2026-11-16)
+      // the tours' example enemy (pust-tour.mjs, in memory) shows them as a world card would, inert
+      world: (!!doc.id && !doc.pack) || !!doc.pustTourDemo, name: doc.name, img: doc.img, differs: v.differs,
       notes: s.notes, notesHtml: diceTextHtml(s.notes, "Примітки", editable),
       cats: CATS.map((k) => ({ k, l: CAT_LABEL[k], sel: k === v.cat })), catGuide: CAT_GUIDE[v.cat]?.txt ?? "",
     });
@@ -112,14 +131,13 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       context.atkPresets = this.#attackPresets.map(([g, list], gi) => ({ g, items: list.map((a, k) => ({ v: `${gi}:${k}`, n: a.n, d: a.d })) }));
       context.movePresets = this.#movePresets.map((m, i) => ({ i, n: m.n }));
     }
-    context.descHtml = s.description
-      ? await foundry.applications.ux.TextEditor.implementation.enrichHTML(s.description, { secrets: doc.isOwner })
-      : "";
     return context;
   }
 
   _onRender(context, options) {
     super._onRender(context, options);
+    // «?» (author, 2026-11-17): the enemy card's tour (the GM's); players get the battle tour's step about it
+    addHelpButton(this, () => (game.user.isGM ? ["gm-enemy", "en-head"] : ["pl-battle", "enemy"]));
     const root = this.element;
     const fit = (ta) => { ta.style.height = "auto"; ta.style.height = `${ta.scrollHeight + 2}px`; };
     root.querySelectorAll("textarea").forEach((ta) => { requestAnimationFrame(() => fit(ta)); ta.addEventListener("input", () => fit(ta)); });
@@ -379,6 +397,12 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     }
   }
 
+  /** «В чат» (author, 2026-11-16): the whole card for everyone — the players may learn all about an enemy in play */
+  static async #onToChat() {
+    if (this.document.pustTourDemo) return; // the tour's example: nothing posted
+    await postEnemyCard(this.document);
+  }
+
   /** The other living enemies in this token's battle zone (zones are Drawings flagged `battleZone`) */
   #zoneMates() {
     const scene = this.token?.parent ?? canvas.scene;
@@ -433,7 +457,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
 
   /** «Видимий / Прихований»: players may open a read-only card only while it is open */
   static async #onReveal() {
-    if (!game.user.isGM) return;
+    if (!game.user.isGM || this.document.pustTourDemo) return; // the tour's example: nothing written
     const open = !this.document.system.reveal;
     await this.document.update({
       "system.reveal": open,
@@ -453,7 +477,6 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
   static async #onResetBook(event, target) {
     if (!target.classList.contains("armed")) {
       target.classList.add("armed");
-      target.title = "Натисни ще раз, щоб підтвердити";
       ui.notifications.info("Натисни ще раз, щоб підтвердити.");
       setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
       return;

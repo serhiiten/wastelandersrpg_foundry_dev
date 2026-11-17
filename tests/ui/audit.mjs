@@ -76,10 +76,12 @@ class Audit {
   /** Inside the window, and (for the left panels) above Foundry's players list */
   onScreen(els, { abovePlayers = false } = {}) {
     const bad = [];
-    const floor = abovePlayers ? Math.min(innerHeight, R(document.querySelector("#players") ?? document.body).top || innerHeight) : innerHeight;
+    const pl = R(document.querySelector("#players") ?? document.body);
     for (const el of els) {
       if (!shown(el)) continue;
       const r = R(el);
+      // the players list is a floor only for what stands over it (author, 2026-11-17: «Огляд битви» stands on the right)
+      const floor = abovePlayers && r.left < pl.right && r.right > pl.left ? Math.min(innerHeight, pl.top || innerHeight) : innerHeight;
       if (r.left < -PX || r.top < -PX || r.right > innerWidth + PX || r.bottom > floor + PX) bad.push(`${name(el)} ${Math.round(r.left)},${Math.round(r.top)}–${Math.round(r.right)},${Math.round(r.bottom)}`);
     }
     return this.ok(abovePlayers ? "на екрані й над списком гравців" : "на екрані", !bad.length, bad.join("; "));
@@ -235,7 +237,8 @@ class Audit {
   gluedEven(root, label = "склеєні елементи однакової висоти") {
     const cs = styleCache();
     const framed = (el) => { const s = cs(el); return isBlock(s); };
-    const items = [...root.querySelectorAll("*")].filter((el) => shown(el) && !el.closest(".pust-audit-skip, .window-header") && cs(el).display !== "contents" && framed(el));
+    // decorative bars (aria-hidden: the portrait's HP bar, its fill under its label) are layers, not glued pairs (2026-11-16)
+    const items = [...root.querySelectorAll("*")].filter((el) => shown(el) && !el.closest(".pust-audit-skip, .window-header, [aria-hidden=\"true\"]") && cs(el).display !== "contents" && framed(el));
     const bad = [];
     for (const A of items) {
       const B = A.nextElementSibling;
@@ -448,7 +451,12 @@ const SCENARIOS = {
     // folded panels: a 168 × 30 button each (author, 2026-11-14), «Лічильники» too now that they are a panel of their own
     for (const u of dock.querySelectorAll(".pust-md-unit.folded > .pust-md-panel:not([hidden])")) a.size(u, 168, 30, `згорнута «${u.querySelector("header span")?.innerText}»`);
     // three panels (author, 2026-11-14): «Лічильники» and «Кістки» apart; players' «Зробити перевірку» over «Лічильники», full width
-    a.ok("«Лічильники» й «Кістки» — окремі панелі", !dice?.querySelector(".pust-md-ctr") && !!ctrU?.querySelector(".pust-md-ctr"));
+    // players' «Лічильники» live under their Fate / Припаси rows, top right (author, 2026-11-16)
+    if (game.user.isGM) a.ok("«Лічильники» й «Кістки» — окремі панелі", !dice?.querySelector(".pust-md-ctr") && !!ctrU?.querySelector(".pust-md-ctr"));
+    else {
+      a.ok("«Лічильники» гравця під рядками ЖД і Припасів", !!dice?.querySelector(":scope > .pust-md-ctr-pl") && !ctrU?.querySelector(".pust-md-ctr"));
+      if (dice && !dice.classList.contains("folded")) a.column([...dice.querySelectorAll(":scope > .pust-md-fdrow, :scope > .pust-md-ctr-pl")].filter(shown), { gap: 6, label: "ЖД / Припаси / «Лічильники»" });
+    }
     if (ctrU && !ctrU.classList.contains("folded")) a.column([...ctrU.querySelectorAll(":scope > .pust-md-check, :scope > .pust-md-panel")].filter(shown), { gap: 6, label: "«Зробити перевірку» / «Лічильники»" });
     // «Битва» on the battle map: its rows line up, its two buttons are equal
     const battle = dock.querySelector(".pust-md-battle:not([hidden])");
@@ -473,7 +481,8 @@ const SCENARIOS = {
       a.readable(battle);
     }
     const ctr = dock.querySelector(".pust-md-ctr");
-    if (ctr && shown(ctr) && !ctr.matches(":hover")) {
+    // a folded panel is a small button at its own opacity (author, 2026-11-17: on a battle map «Лічильники» fold by themselves)
+    if (ctr && shown(ctr) && !ctr.matches(":hover") && !ctr.closest(".pust-md-unit")?.classList.contains("folded")) {
       const empty = ctr.classList.contains("pust-md-empty");
       a.ok(`«Лічильники» ${empty ? "порожні напівпрозорі" : "непрозорі"}`, empty ? parseFloat(getComputedStyle(ctr).opacity) < 0.6 : getComputedStyle(ctr).opacity === "1", getComputedStyle(ctr).opacity);
     }
@@ -493,7 +502,10 @@ const SCENARIOS = {
     if (!el) return a.ok("панель перевірки відкривається", false);
     a.onScreen([el]);
     const u = R(unit), p = R(el);
-    a.ok("поруч із блоком, не на ньому (6 px)", Math.abs(p.left - u.right - 6) <= 1.5 || Math.abs(u.left - p.right - 6) <= 1.5, `${Math.round(p.left - u.right)} / ${Math.round(u.left - p.right)} px`);
+    // right under its anchor, left edges together (author, 2026-11-15), unless the sidebar pushes it left
+    const side = document.querySelector("#sidebar")?.getBoundingClientRect();
+    const pushed = side && u.left + p.width > side.left - 8;
+    a.ok("під своєю кнопкою (6 px), ліві краї разом", Math.abs(p.top - u.bottom - 6) <= 1.5 && (pushed || Math.abs(p.left - u.left) <= 1.5), `згори ${Math.round(p.top - u.bottom)} px, зліва ${Math.round(p.left - u.left)} px`);
     const hd = el.querySelector(".pust-cd-hd");
     a.row([...hd.querySelectorAll(":scope > select, :scope > button")], { label: "заголовок панелі перевірки" });
     a.noCut(hd, "span, b, button");
@@ -521,7 +533,7 @@ const SCENARIOS = {
   /** Character and caravan sheets: the quick access block */
   async sheets(a) {
     for (const type of ["character", "caravan"]) {
-      const actor = game.actors.find((x) => x.type === type);
+      const actor = game.actors.find((x) => x.type === type && x.visible);
       if (!actor) { a.skip(type, "немає актора"); continue; }
       const was = actor.sheet.rendered;
       await actor.sheet.render({ force: true }); await sleep(1200);
@@ -564,7 +576,7 @@ const SCENARIOS = {
   /** The enemy sheet: as read, with every fold open, and in edit mode (the first enemy token on the viewed scene) */
   async enemySheet(a) {
     const tok = canvas.scene?.tokens.find((t) => t.actor?.type === "enemy");
-    const actor = tok?.actor ?? game.actors.find((x) => x.type === "enemy");
+    const actor = tok?.actor ?? game.actors.find((x) => x.type === "enemy" && x.visible);
     if (!actor) return a.skip("аркуш супротивника", "немає супротивників");
     const sheet = actor.sheet;
     const was = sheet.rendered;
@@ -592,14 +604,13 @@ const SCENARIOS = {
     if (!was) await sheet.close();
   },
 
-  /** «Зробити перевірку» already open with a damage rolled: «Завдати цілям» and «частковий успіх» (nothing is rolled here) */
+  /** «Зробити перевірку» open after a hit: the weapon chips and «Кинути й завдати» (author, 2026-11-17; nothing is rolled here) */
   async checkPanel(a) {
-    const el = document.querySelector(".pust-roller .rdapply");
-    if (!el) return a.skip("«Завдати цілям» у перевірці", "відкрий «Зробити перевірку» й кинь шкоду");
+    const el = document.querySelector(".pust-roller .rdmg");
+    if (!el) return a.skip("блок «Шкода» у перевірці", "відкрий «Зробити перевірку» й влуч атакою");
     a.onScreen([el]);
-    a.noCut(el, "button, span");
-    a.oneLine([...el.querySelectorAll("button > span, .rdhalf")], "«Завдати цілям» і «частковий успіх» в один рядок");
-    a.readable(el, "button, span");
+    a.noCut(el, "button, span, b");
+    a.readable(el, "button, span, b");
   },
 
   /** «Новий супротивник» (Create Actor → Супротивник, module/applications/enemy-create.mjs), when it is open */
@@ -675,7 +686,7 @@ const SCENARIOS = {
 
   /** A place card (if the world has a place) */
   async place(a) {
-    const actor = game.actors.find((x) => x.type === "place");
+    const actor = game.actors.find((x) => x.type === "place" && x.visible);
     if (!actor) return a.skip("картка місця", "у світі немає місць");
     const was = actor.sheet.rendered;
     await actor.sheet.render({ force: true }); await sleep(900);
@@ -722,7 +733,7 @@ const SCENARIOS = {
       }
     };
     for (const [type, label, opts] of [["character", "аркуш персонажа", {}], ["caravan", "аркуш каравану", {}], ["enemy", "картка ворога", { edit: '[data-action="editToggle"]' }], ["place", "картка місця", {}]]) {
-      const actor = game.actors.find((x) => x.type === type);
+      const actor = game.actors.find((x) => x.type === type && x.visible);
       if (!actor) { a.scenario = label; a.skip("найвужча ширина", "немає актора"); continue; }
       await run(actor.sheet, `${label} «${actor.name}»`, opts);
     }
@@ -732,6 +743,150 @@ const SCENARIOS = {
       if (!open) { T.openTerminal(); await sleep(1300); }
       const app = foundry.applications.instances.get("pust-terminal");
       if (app) { await run(app, "термінал", { tabs: '[data-action="termTab"]' }); if (!open) await app.close(); }
+    }
+  },
+
+  /**
+   * The tours (author, 2026-11-16): every tour this user may take is walked step by step: a step that names an element finds
+   * it on screen after its preparation (else the step falls back to the middle — reported), and the step card stays wholly
+   * on screen with no text cut. The tour is left and its windows closed at the end.
+   */
+  /** the same walk with the tours' examples (copies from «Швидкий старт» in memory) instead of the world's actors */
+  async toursDemo(a) {
+    const T = await import(`/systems/${game.system.id}/module/tours/pust-tour.mjs`);
+    const before = game.actors.size;
+    T.setForceDemo(true);
+    try { await SCENARIOS.tours(a); } finally { T.setForceDemo(false); }
+    a.ok("приклади не додають акторів у світ", game.actors.size === before, `${before} → ${game.actors.size}`);
+    const left = [...foundry.applications.instances.values()].filter((app) => app.rendered && app.document?.documentName === "Actor" && !app.document.id);
+    a.ok("вікна прикладів закриті після туру", !left.length, left.map((x) => x.title).join(", "));
+  },
+
+  /**
+   * The tours forward and back (author, 2026-11-16: «приклади зникали коли треба і повертались коли треба (по кнопці назад)»):
+   * on every step the windows it needs are open and no other window the tour opened is; the travel window, the counter
+   * form and the example counters only on their own steps. `globalThis.pustAuditTours` limits it to some tours.
+   */
+  async toursBack(a) {
+    const P = await import(`/systems/${game.system.id}/module/tours/pust-tour.mjs?${Date.now()}`);
+    const { TOURS } = await import(`/systems/${game.system.id}/module/tours/tour-data.mjs?${Date.now()}`);
+    const only = Array.isArray(globalThis.pustAuditTours) && globalThis.pustAuditTours.length ? globalThis.pustAuditTours : null;
+    const kindOf = (app) => (app.id === "pust-terminal" ? "terminal" : ["pust-check-demo", "pust-check-dock"].includes(app.id) ? null : app.element?.classList?.contains("pust-check") ? "check" : app.document?.documentName === "Actor" ? app.document.type : null);
+    const openKinds = () => new Set([...foundry.applications.instances.values()].filter((x) => x.rendered).map(kindOf).filter(Boolean));
+    const transient = () => ({
+      travel: !document.querySelector("#pust-mapdock .pust-md-tv")?.hidden && !!document.querySelector("#pust-mapdock .pust-md-tv"),
+      counterForm: !!document.querySelector("#pust-mapdock .pust-gc-form"),
+      noteDemo: !!document.querySelector(".pust-mn-edit:not(.pust-bz-edit)"), // the zone editor shares the class
+      counterDemo: [...document.querySelectorAll("#pust-mapdock :is(input, textarea)")].some((i) => /^Приклад:/.test(i.value)) // the GM's names live in fields
+        || /Приклад:/.test(document.querySelector("#pust-mapdock .pust-md-ctr:not(.pust-md-ctr-gm)")?.textContent ?? ""), // the players' panel shows text
+      moveDemo: !!document.querySelector(".pust-cmove-demo"),
+      zoneDemo: !!document.querySelector(".pust-bz-edit"),
+      enemyForm: !!document.querySelector(".pust-md-battle .pust-md-bform"),
+      targetDemo: !!document.querySelector(".pust-tgt-demo"),
+      enemyCreate: !!document.getElementById("pust-enemy-create"),
+      cargoDemo: !!document.querySelector(".pust-demo-cargo"),
+      gearDemo: !!document.querySelector(".pust-demo-gear"),
+      checkDemo: !!document.getElementById("pust-check-demo"),
+      dockCheck: !!document.getElementById("pust-check-dock"),
+      tokenDemo: !!document.querySelector(".pust-tok-demo:not(.pust-car-frame)"),
+      caravanToken: !!document.querySelector(".pust-car-frame"),
+      issuesDemo: !!document.querySelector(".pust-demo-issues"),
+    });
+    if (foundry.nue.Tour.tourInProgress) foundry.nue.Tour.activeTour.exit();
+    for (const t of TOURS) {
+      if (game.user.isGM && !t.gm) continue; // players' tours: walked in a player's run (their panels exist only there)
+      if (only && !only.some((o) => o === t.id || o.startsWith(`${t.id}.`))) continue;
+      const tour = game.tours.get(`${game.system.id}.${t.id}`);
+      if (!tour) continue;
+      const n = tour.steps.length;
+      const order = [...Array(n).keys(), ...Array.from({ length: n - 1 }, (_, i) => n - 2 - i)]; // forward, then back to the first
+      await tour.reset(); await tour.start();
+      for (let pos = 0; pos < order.length; pos++) {
+        const i = order[pos], step = tour.steps[i], dir = pos < n ? "вперед" : "назад";
+        if (pos > 0) { if (dir === "назад") await tour.previous(); else await tour.next(); }
+        await sleep(250);
+        if (document.hidden) { a.skip(`${t.id}.${step.id} ${dir}`, "сторінка прихована"); continue; }
+        const needs = P.needsOf(step), kinds = openKinds(), tr = transient();
+        const prep = new Set([step.prepare ?? []].flat().map((p) => String(p).split(":")[0]));
+        const missing = [...needs].filter((k) => !kinds.has(k));
+        const extra = [...kinds].filter((k) => !needs.has(k));
+        const trBad = Object.entries(tr).filter(([k, on]) => on !== prep.has(k)).map(([k, on]) => `${k} ${on ? "зайве" : "немає"}`);
+        a.ok(`${t.id}.${step.id} (${dir}): потрібне відкрите, зайве закрите`, !missing.length && !extra.length && !trBad.length,
+          [missing.length ? `немає: ${missing}` : "", extra.length ? `зайве: ${extra}` : "", trBad.join(", ")].filter(Boolean).join("; "));
+      }
+      tour.exit(); await tour.reset(); await sleep(300);
+    }
+  },
+
+  async tours(a) {
+    const { TOURS } = await import(`/systems/${game.system.id}/module/tours/tour-data.mjs?${Date.now()}`);
+    if (foundry.nue.Tour.tourInProgress) foundry.nue.Tour.activeTour.exit();
+    // only what changed (author, 2026-11-16): globalThis.pustAuditTours = ["gm-start.users", "gm-enemy"] limits the walk to those
+    // tours / steps; without it every tour is walked (the full run, on the author's command)
+    const only = Array.isArray(globalThis.pustAuditTours) && globalThis.pustAuditTours.length ? globalThis.pustAuditTours : null;
+    const wantTour = (id) => !only || only.some((o) => o === id || o.startsWith(`${id}.`));
+    const wantStep = (id, sid) => !only || only.includes(id) || only.includes(`${id}.${sid}`);
+    for (const t of TOURS) {
+      if (game.user.isGM && !t.gm) continue; // players' tours: walked in a player's run (their panels exist only there)
+      if (!wantTour(t.id)) continue;
+      document.body.classList.add("pust-touring"); // as start() does: no pause banner during a tour
+      const tour = game.tours.get(`${game.system.id}.${t.id}`);
+      if (!tour) { if (!t.gm || game.user.isGM) a.ok(`тур «${t.id}» зареєстровано`, false); continue; }
+      const steps = tour.steps;
+      for (let i = 0; i < steps.length; i++) {
+        const src = steps[i], sel = src.selector;
+        if (!wantStep(t.id, src.id)) continue;
+        try { await tour.progress(i); } catch (err) { a.ok(`${t.id}.${src.id}: крок показано`, false, String(err).slice(0, 160)); continue; }
+        await sleep(200);
+        // a hidden page draws no tooltip and runs no animation frames: nothing it shows can be judged
+        if (document.hidden) { a.skip(`${t.id}.${src.id}`, "сторінка прихована (вкладка не на виду) — прогнати ще раз"); continue; }
+        // in the middle = the element wasn't found; «aside» = found, but the card had no room beside it
+        const center = document.querySelector(".tour-center-step.pust-tour:not(.pust-tour-aside)");
+        const card = center ?? document.querySelector(".pust-tour-aside") ?? document.querySelector("#tooltip.pust-tour.active, #tooltip.pust-tour");
+        if (sel) a.ok(`${t.id}.${src.id}: елемент є на екрані`, !center, center ? `не знайдено ${sel}` : "");
+        for (const app of foundry.applications.instances.values()) {
+          if (app.rendered && app.document?.documentName === "Actor" && !app.document.id) a.ok(`${t.id}.${src.id}: приклад підписано «(приклад)»`, /\(приклад\)/.test(app.element?.querySelector(".window-title")?.textContent ?? ""), app.element?.querySelector(".window-title")?.textContent ?? "");
+        }
+        // during a tour every panel is opaque (author, 2026-11-16)
+        const seeThrough = [...document.querySelectorAll("#pust-mapdock .pust-md-panel")].filter((p) => p.offsetParent && parseFloat(getComputedStyle(p).opacity) < 1);
+        a.ok(`${t.id}.${src.id}: панелі непрозорі`, !seeThrough.length, seeThrough.map((p) => p.className).join("; "));
+        if (card) {
+          const r = card.getBoundingClientRect();
+          a.ok(`${t.id}.${src.id}: картка видима й уся у вікні`, getComputedStyle(card).visibility !== "hidden" && r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight,
+            `${Math.round(r.left)},${Math.round(r.top)} – ${Math.round(r.right)},${Math.round(r.bottom)} у ${innerWidth}×${innerHeight}`);
+          a.noCut(card, "h3, button, span, b");
+        } else a.ok(`${t.id}.${src.id}: картка кроку`, false);
+        // the highlight (author, 2026-11-16): on the step's own element, at its size (Foundry adds HIGHLIGHT_PADDING, half on
+        // each side), and that element is the one seen there — no window or panel over its middle
+        if (sel && !center) {
+          const parts = [...document.querySelectorAll(sel)].filter((el) => el.getClientRects().length);
+          const target = tour.targetElement?.classList?.contains("pust-tour-proxy") ? tour.targetElement : parts[0]; // a `union` step lights a box over all its parts
+          const fade = tour.fadeElement, pad = foundry.nue.Tour.HIGHLIGHT_PADDING / 2;
+          if (target && fade) {
+            const e = target.getBoundingClientRect(), f = fade.getBoundingClientRect();
+            const off = Math.max(Math.abs(f.left + pad - e.left), Math.abs(f.top + pad - e.top), Math.abs(f.right - pad - e.right), Math.abs(f.bottom - pad - e.bottom));
+            a.ok(`${t.id}.${src.id}: підсвітка на елементі й свого розміру`, off <= 2,
+              `підсвітка ${Math.round(f.left + pad)},${Math.round(f.top + pad)} ${Math.round(f.width - 2 * pad)}×${Math.round(f.height - 2 * pad)}, елемент ${Math.round(e.left)},${Math.round(e.top)} ${Math.round(e.width)}×${Math.round(e.height)}`);
+            const cx = Math.min(innerWidth - 1, Math.max(0, e.left + e.width / 2)), cy = Math.min(innerHeight - 1, Math.max(0, e.top + e.height / 2));
+            const tour_ = (n) => n.closest?.(".tour-overlay, .tour-fadeout, #tooltip, .tour-center-step");
+            // the card itself never covers its element
+            // the element with whatever of it sticks out of its box (a sticker's toolbar sits above the sticker)
+            const union = [...target.querySelectorAll("*")].map((x) => x.getBoundingClientRect()).filter((x) => x.width && x.height)
+              .reduce((u, x) => ({ left: Math.min(u.left, x.left), top: Math.min(u.top, x.top), right: Math.max(u.right, x.right), bottom: Math.max(u.bottom, x.bottom) }), { left: e.left, top: e.top, right: e.right, bottom: e.bottom });
+            const cr = card?.getBoundingClientRect();
+            if (cr) a.ok(`${t.id}.${src.id}: картка не закриває елемент`, !(cr.left < union.right - 4 && cr.right > union.left + 4 && cr.top < union.bottom - 4 && cr.bottom > union.top + 4),
+              `картка ${Math.round(cr.left)},${Math.round(cr.top)} – ${Math.round(cr.right)},${Math.round(cr.bottom)}`);
+            const top = document.elementsFromPoint(cx, cy).find((n) => !tour_(n));
+            a.ok(`${t.id}.${src.id}: підсвічений елемент ніщо не закриває`, !!top && [target, ...parts].some((p) => top === p || p.contains(top) || top.contains(p)),
+              top ? `зверху ${top.tagName.toLowerCase()}.${String(top.className).split(" ")[0]}` : "нічого");
+            a.ok(`${t.id}.${src.id}: підсвітка у вікні`, e.width > 0 && e.height > 0 && e.left >= -1 && e.top >= -1 && e.right <= innerWidth + 1 && e.bottom <= innerHeight + 1,
+              `${Math.round(e.left)},${Math.round(e.top)} – ${Math.round(e.right)},${Math.round(e.bottom)}`);
+          } else a.ok(`${t.id}.${src.id}: підсвітка є`, !!fade, target ? "" : "елемент зник після показу");
+        }
+      }
+      tour.exit();
+      await tour.reset();
+      await sleep(300);
     }
   },
 };

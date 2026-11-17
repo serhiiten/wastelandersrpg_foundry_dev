@@ -74,6 +74,30 @@
 .pust-enemy summary b { font-family: var(--pu-f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
 .pust-cat, .pust-kindtag { margin-left: auto; font-size: 11px; text-transform: uppercase; color: var(--pt-rust); }
 .pust-kindtag { margin-left: 0; color: var(--pu-ink-2); }
+/* «Битви»: each kind a chip in its category's colour (the card's and the token badge's), a click opens its card (author, 2026-11-16) */
+.pust-enchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 2px; }
+.wastelanders.pust-terminal button.pust-enchip, .pust-terminal button.pust-enchip { --ec: #9a4a20; flex: none; display: inline-flex; align-items: center; gap: 7px; width: auto !important; min-width: 0 !important; max-width: 100%; height: auto !important; min-height: 36px; margin: 0 !important;
+  padding: 0 11px 0 3px !important; border-radius: 18px !important; line-height: 1 !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ec) 78%, #fff), var(--ec) 55%, color-mix(in srgb, var(--ec) 80%, #000)) !important; color: #fff !important;
+  border: 1px solid color-mix(in srgb, var(--ec) 60%, #000) !important; box-shadow: 0 2px 0 rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.3) !important;
+  font-family: var(--pu-f-label) !important; font-size: 13px !important; letter-spacing: .03em; text-shadow: 0 1px 0 rgba(0,0,0,.4); cursor: pointer; }
+.pust-terminal button.pust-enchip:hover { filter: brightness(1.12); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ec) 45%, #fff), 0 2px 0 rgba(0,0,0,.25) !important; }
+.pust-terminal button.pust-enchip.cat-statists { --ec: #6b6f6c; }
+.pust-terminal button.pust-enchip.cat-elite { --ec: #a8700a; }
+.pust-terminal button.pust-enchip.cat-boss { --ec: #a3261a; }
+/* the enemy's token, round, framed like the tokens on the scene */
+.pust-enchip > img.pust-enchip-tok { width: 30px; height: 30px; flex: none; margin: 0; object-fit: cover; border-radius: 50%; border: 2px solid rgba(255,255,255,.85); background: #2b2f2e; box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.pust-enchip > .pust-cat-ico { width: 16px; height: 16px; flex: none; color: #fff; }
+.pust-enchip > i { font-size: 13px; }
+.pust-enchip > b { font-weight: 800; text-transform: uppercase; color: #fff; text-align: left; line-height: 1.15; padding: 3px 0; overflow-wrap: anywhere; }
+.pust-enchip > :not(b) { flex: none; }
+.pust-enchip-n { padding: 2px 7px; border-radius: 9px; background: rgba(0,0,0,.32); font-weight: 700; color: #fff; }
+/* a small screen with HP and armour, as the cards' HP block (green digits on dark) */
+.pust-enchip-st { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 9px; background: #1f2322; color: #c9ffc4; border: 1px solid rgba(0,0,0,.4);
+  font-family: "Ubuntu Mono", "PT Mono", monospace; font-size: 13px; font-weight: 700; text-shadow: none; }
+.pust-enchip-st > i { font-size: 10px; color: #3dff47; }
+.pust-enchip-st > i + i, .pust-enchip-st > i:nth-of-type(2) { margin-left: 4px; color: #b5cfbd; }
+.pust-enchip-kind { font-size: 11px; text-transform: uppercase; opacity: .9; color: #fff; }
 .pust-sect { font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .05em; font-size: 11px; text-transform: uppercase; color: var(--pu-rust-2); margin-top: 5px; }
 .pust-move { font-size: 13px; }
 .pust-chips { display: flex; flex-wrap: wrap; gap: 3px; }
@@ -176,23 +200,19 @@
 /* the scene boxes: a row of their own, 10 px from the blocks around them */
 .pust-terminal .pust-scene { margin: 0 0 10px; gap: 8px; }
 .pust-terminal .pust-scene-box { margin: 0; min-height: 64px; }
-/* the battle's result: title and chat / journal in the header; under it the case line and the note on the left,
-   the actor buttons and the list tools on the right */
-.pust-terminal .pust-battle-make { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "info make" "info tools";
-  align-items: center; gap: 6px 10px; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--pu-ink-3); }
-.pust-terminal .pust-battle-info { grid-area: info; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
-.pust-terminal .pust-battle-info > .pust-term-note { font-size: 17px; line-height: 1.15; }
-.pust-terminal .pust-battle-info > .pust-sub { font-size: 12px; line-height: 1.3; }
-.pust-terminal .pust-battle-btns { grid-area: make; display: flex; justify-content: flex-end; gap: 6px; }
-.pust-terminal .pust-battle-btns.pust-battle-tools { grid-area: tools; }
-.pust-terminal .pust-battle-btns > button { margin: 0; white-space: nowrap; }
+/* the battle's result (author, 2026-11-16): the case in the header between the title and «В чат» / «В журнал»; under it
+   one row — the hint that chips go onto the scene, and the buttons Додати теку в Актори, Розмістити на сцені, a narrow
+   reddish Очистити (as the sheets' «Очистити аркуш») */
+/* two rows always (author, 2026-11-16): the title alone on the first (it wraps when long), the case and «В чат» / «В журнал» on the second */
+.pust-terminal .pust-term-hd:has(> .pust-battle-case) > b { flex: 1 1 100%; }
+.pust-terminal .pust-term-hd > .pust-battle-case { flex: 1 1 auto; min-width: 0; margin: 0 6px 0 0; font-size: 15px; line-height: 1.15; padding-top: 2px; overflow-wrap: anywhere; }
+.pust-terminal .pust-battle-make { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--pu-ink-3); }
+.pust-terminal .pust-battle-hint { flex: 1 1 200px; min-width: 0; font-size: 12px; line-height: 1.3; }
+.pust-terminal .pust-battle-btns { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin-left: auto; }
+.pust-terminal .pust-battle-btns > button { margin: 0; white-space: nowrap; justify-content: center; }
+.wastelanders.pust-terminal .pust-battle-btns > button.pust-battle-clear, .pust-terminal .pust-battle-btns > button.pust-battle-clear { padding: 0 9px !important; width: auto !important; }
 /* a label beside a control that wraps onto several lines sits on its first line (kinds: 22 px plates, 14 px label) */
 .pust-terminal .pust-term-grid > .pust-term-l:has(+ .pust-kinds) { align-self: start; margin-top: 4px; }
-/* the four battle buttons on one 2×2 grid: equal columns (Додати теку / Згорнути, Розмістити / Очистити) */
-.pust-terminal .pust-battle-make { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: none; }
-.pust-terminal .pust-battle-info { grid-area: auto; grid-column: 1; grid-row: 1 / span 2; }
-.pust-terminal .pust-battle-btns, .pust-terminal .pust-battle-btns.pust-battle-tools { display: contents; }
-.pust-terminal .pust-battle-btns > button { justify-content: center; }
 
 /* «Термінал Доглядача» at the top, right of the current scene's name (GM): a full red plate, placed by wastelanders.mjs;
    lit (.on) while the terminal is open */
@@ -219,9 +239,9 @@
 .pust-gc .pust-gc-frow input[type="number"] { width: 100%; text-align: center; }
 .pust-gc .pust-gc-btns { display: flex; justify-content: flex-end; gap: 6px; }
 .pust-gc .pust-gc-btns > button { margin: 0; }
-.pust-gc .pust-gc-item { --c: hsl(var(--h), 85%, 55%); display: flex; flex-direction: column; gap: 5px; padding: 6px 8px; border-radius: 3px; background: rgba(0,0,0,.25); border-left: 3px solid var(--c); }
+.pust-gc .pust-gc-item { --c: hsl(var(--h), 85%, 55%); display: flex; flex-direction: column; gap: 5px; padding: 6px 8px; border-radius: 3px; background: linear-gradient(90deg, hsla(var(--h), 70%, 30%, .35), rgba(0,0,0,.25)); border-left: 3px solid var(--c); } /* tinted by its value as a scene counter (author, 2026-11-17) */
 .pust-gc .pust-gc-hd { display: flex; align-items: center; gap: 6px; }
-.pust-gc .pust-gc-name { flex: 1 1 auto; min-width: 0; height: 26px; font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; }
+.pust-gc .pust-gc-name { flex: 1 1 auto; min-width: 0; font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; }
 .pust-gc .pust-gc-v { flex: none; font-family: var(--pu-f-num); font-size: 22px; line-height: 1; color: var(--c) !important; text-shadow: 0 0 8px var(--c); }
 .pust-gc .pust-gc-v > small { font-size: 12px; margin-left: 1px; }
 .pust-gc .pust-gc-tg, .pust-gc .pust-gc-x { flex: none; width: 26px; height: 26px; margin: 0; padding: 0; line-height: 1; }
@@ -233,7 +253,13 @@
 /* a counter of more than 20 segments: one solid bar (author, 2026-11-15) */
 .pust-gc .pust-gc-bar { flex: 1 1 auto; height: 12px; border-radius: 2px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); overflow: hidden; }
 .pust-gc .pust-gc-bar > i { display: block; height: 100%; background: var(--c); box-shadow: 0 0 6px var(--c); }
-.pust-gc .pust-gc-cur { font-size: 13px; line-height: 1.25; color: #b6ffb9; overflow-wrap: anywhere; }
+/* the current segment's description (author, 2026-11-17: as in the chat card): a plate with the counter's colour at its left,
+   the segment's number in a small badge, the text in italics */
+.pust-gc .pust-gc-cur { display: flex; align-items: flex-start; gap: 7px; padding: 4px 8px 4px 6px; border-radius: 3px; border-left: 3px solid var(--c);
+  background: hsla(var(--h), 60%, 20%, .45); color: #e8f5e9; font-size: 13px; font-style: italic; line-height: 1.3; overflow-wrap: anywhere; }
+.pust-gc .pust-gc-cur > b { flex: none; min-width: 20px; padding: 0 4px; border-radius: 3px; background: #0f1412; color: var(--c); font-family: "Ubuntu Mono", monospace; font-size: 13px;
+  font-style: normal; text-align: center; line-height: 18px; }
+.pust-gc .pust-gc-cur > span { min-width: 0; }
 .pust-gc .pust-gc-rows { display: flex; flex-direction: column; gap: 3px; }
 .pust-gc .pust-gc-row { display: flex; align-items: flex-start; gap: 6px; padding: 2px 4px; border-radius: 2px; opacity: .6; }
 .pust-gc .pust-gc-row.on { opacity: 1; }
@@ -245,8 +271,11 @@
    each panel is a unit placed in window pixels, dragged by its header, folded to a small button; the terminal's dark
    screen look; half-transparent until the pointer is over it; Foundry's left buttons are drawn over the panels */
 #pust-mapdock { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-#ui-left { position: relative; z-index: 1; }
+/* Foundry's left buttons over the panels: only the stacking — #ui-left stays absolute as Foundry has it (author, 2026-11-17:
+   «position: relative» here made it take room in the interface row and pushed the hotbar to the right, under the chat) */
+#ui-left { z-index: 1; }
 #pust-mapdock .pust-md-unit { position: absolute; width: 340px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+#pust-mapdock .pust-md-unit[hidden] { display: none; } /* the GM's «lite» «Битва» on the battle map (author, 2026-11-16) */
 #pust-mapdock .pust-md-unit > * { pointer-events: auto; }
 #pust-mapdock .pust-md-panel { border: 2px solid #111; border-radius: 6px; overflow: hidden; opacity: .45; transition: opacity .15s ease;
   background: repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 1px, transparent 1px 4px), linear-gradient(180deg, #2f3433, #232726 60%, #1b1e1d);
@@ -390,9 +419,9 @@
 .pust-check-docked > .pust-cd-hd > select.pust-cd-who { flex: 1 1 auto; min-width: 0; width: auto; height: 24px; margin: 0; padding: 0 6px;
   background: #0f1412; color: #3dff47; border: 1px solid #0d0f0e; border-radius: 4px; font-family: "PT Mono", monospace; font-size: 13px; text-transform: none; letter-spacing: 0; }
 .pust-check-docked > .pust-cd-hd > select.pust-cd-who option { background: #0f1412; color: #3dff47; }
-.pust-check-docked > .pust-cd-hd > button.pust-cd-x { flex: none; width: 24px; height: 24px; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+.pust-check-docked > .pust-cd-hd > :is(button.pust-cd-x, button.pust-cd-help) { flex: none; width: 24px; height: 24px; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center;
   background: rgba(0,0,0,.25); border: 1px solid rgba(0,0,0,.4); border-radius: 3px; color: inherit; box-shadow: none; }
-.pust-check-docked > .pust-cd-hd > button.pust-cd-x:hover { background: rgba(0,0,0,.45); color: #fff; }
+.pust-check-docked > .pust-cd-hd > :is(button.pust-cd-x, button.pust-cd-help):hover { background: rgba(0,0,0,.45); color: #fff; }
 .pust-check-docked > .pust-roller { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 /* the travel window: under its button, OVER «Мапа Пустки» and «Кістки» (author, 2026-11-14: it doesn't push them), opaque */
 /* «Подорож» stays when «Мапа Пустки» is folded (author, 2026-11-14), so its window keeps the full width */
@@ -411,6 +440,7 @@
 #pust-mapdock .pust-md-seg > button { border-radius: 0; margin-right: -1px; }
 #pust-mapdock .pust-md-seg > button:first-child { border-radius: 4px 0 0 4px; }
 #pust-mapdock .pust-md-seg > button:last-child { border-radius: 0 4px 4px 0; margin-right: 0; }
+#pust-mapdock .pust-md-seg > button.on { position: relative; z-index: 1; } /* its green frame drawn over the neighbour's edge (author, 2026-11-16) */
 #pust-mapdock .pust-md-luckcar { font-size: 11.5px; color: #8fcf95; }
 #pust-mapdock button.pust-md-go { flex: 2 1 0; background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border-color: #6e5608; }
 /* the event as in the terminal: paper cards (result-section), the roll as a green screen chip, rust titles */
@@ -443,6 +473,7 @@
    from red to green, the current segment's description; a scene counter: its die, name, and the state at 0 / at max */
 #pust-mapdock .pust-md-panel.pust-md-ctr { opacity: 1; }
 #pust-mapdock .pust-md-panel.pust-md-ctr.pust-md-empty:not(:hover, :focus-within) { opacity: .45; }
+body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transition: none; } /* during a tour every panel is opaque, folded ones too (author, 2026-11-16) */
 #pust-mapdock .pust-md-ctr[hidden] { display: none; }
 #pust-mapdock .pust-md-body[hidden] { display: none; }
 #pust-mapdock .pust-md-ctr > header { cursor: grab; }
@@ -462,10 +493,10 @@
 #pust-mapdock .pust-gc :is(.pust-lc-btns, .pust-gc-gauge) > button.dn:hover { color: #fff; border-color: #ff7a6b; box-shadow: 0 0 6px rgba(255,122,107,.4); }
 #pust-mapdock .pust-gc :is(.pust-lc-btns, .pust-gc-gauge) > button.up { background: linear-gradient(180deg, #2c5a31, #1d3f21); color: #c9ffc4; border-color: #0b1a0d; }
 #pust-mapdock .pust-gc :is(.pust-lc-btns, .pust-gc-gauge) > button.up:hover { color: #fff; border-color: #3dff47; box-shadow: 0 0 6px rgba(61,255,71,.4); }
-#pust-mapdock .pust-gc :is(input.pust-gc-name, input.pust-lc-name) { width: 100%; height: 26px; padding: 0 4px; background: transparent; border: 1px solid transparent;
+#pust-mapdock .pust-gc :is(textarea.pust-gc-name, textarea.pust-lc-name) { display: block; width: 100%; min-height: 26px; height: auto; padding: 3px 4px; resize: none; overflow: hidden; line-height: 1.25; border-radius: 3px; white-space: pre-wrap; overflow-wrap: anywhere; background: transparent; border: 1px solid transparent;
   font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 14px; color: #e8f5e9; }
-#pust-mapdock .pust-gc :is(input.pust-gc-name, input.pust-lc-name):is(:hover, :focus) { background: #0f1412; border-color: #2c3a2e; }
-#pust-mapdock .pust-gc input.pust-gc-name:focus, #pust-mapdock .pust-gc input.pust-lc-name:focus { border-color: #3dff47; outline: none; }
+#pust-mapdock .pust-gc :is(textarea.pust-gc-name, textarea.pust-lc-name):is(:hover, :focus) { background: #0f1412; border-color: #2c3a2e; }
+#pust-mapdock .pust-gc textarea.pust-gc-name:focus, #pust-mapdock .pust-gc textarea.pust-lc-name:focus { border-color: #3dff47; outline: none; }
 #pust-mapdock .pust-gc textarea { min-height: 24px; padding: 3px 5px; background: #0f1412; color: #c9f5cc; border: 1px solid #0d0f0e; border-radius: 3px;
   font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 13px; line-height: 1.25; }
 #pust-mapdock .pust-gc .pust-gc-form { flex: none; }
@@ -499,6 +530,7 @@
 /* «Битва» (module/applications/battle-panel.mjs) — instead of «Мапа Пустки» while «Бойова мапа» is viewed (GM) */
 #pust-mapdock [hidden] { display: none !important; }
 #pust-mapdock .pust-md-battle .pust-md-body { gap: 6px; }
+#pust-mapdock .pust-md-battle :is(.pust-md-bsetup, .pust-md-brf) { display: flex; flex-direction: column; gap: 6px; }
 #pust-mapdock .pust-md-bscene { display: flex; align-items: center; gap: 6px; min-height: 30px; }
 #pust-mapdock .pust-md-blabel { flex: none; width: 112px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;
   font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 800; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #8fcf95; }
@@ -549,19 +581,19 @@
 #pust-mapdock .pust-md-bchk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5px; }
 #pust-mapdock .pust-md-bdmg .pust-md-row:has(> .pust-md-bexpr) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5px; }
 #pust-mapdock .pust-md-bdmg .pust-md-row:has(> .pust-md-bexpr) > * { width: 100%; min-width: 0; }
-#pust-mapdock .pust-md-bchk > label { display: inline-flex; align-items: center; gap: 4px; margin: 0;
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) > label { display: inline-flex; align-items: center; gap: 4px; margin: 0;
   font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12.5px; color: #c9f5cc; }
 /* the ticks (author, 2026-11-14: hard to see, not in line with their words): a screen box with a green tick, centred on the text */
-#pust-mapdock .pust-md-bchk > label { gap: 6px; line-height: 18px; cursor: pointer; }
-#pust-mapdock .pust-md-bchk input[type="checkbox"] { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 18px; height: 18px; margin: 0; padding: 0;
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) > label { gap: 6px; line-height: 18px; cursor: pointer; }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"] { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 18px; height: 18px; margin: 0; padding: 0;
   background: #0f1412; border: 1px solid #6fae76; border-radius: 3px; box-shadow: inset 0 1px 2px rgba(0,0,0,.6); cursor: pointer; vertical-align: middle; }
-#pust-mapdock .pust-md-bchk input[type="checkbox"]:checked { border-color: #3dff47; box-shadow: 0 0 5px rgba(61,255,71,.45); }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]:checked { border-color: #3dff47; box-shadow: 0 0 5px rgba(61,255,71,.45); }
 /* Foundry draws its own box as an icon in ::before / ::after (author, 2026-11-14: «тло не співпадає з рамкою»): off */
-#pust-mapdock .pust-md-bchk input[type="checkbox"]::before { content: none !important; display: none !important; }
-#pust-mapdock .pust-md-bchk input[type="checkbox"]::after { content: none; }
-#pust-mapdock .pust-md-bchk input[type="checkbox"]:checked::after { content: "" !important; display: block; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; box-sizing: content-box;
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]::before { content: none !important; display: none !important; }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]::after { content: none; }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]:checked::after { content: "" !important; display: block; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; box-sizing: content-box;
   font: 0/0 a; background: none; border: solid #3dff47; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
-#pust-mapdock .pust-md-bchk input[type="checkbox"]:focus-visible { outline: 2px solid #f4d11a; outline-offset: 1px; }
+#pust-mapdock :is(.pust-md-bchk, .pust-md-bendft) input[type="checkbox"]:focus-visible { outline: 2px solid #f4d11a; outline-offset: 1px; }
 #pust-mapdock .pust-md-bact > button { height: 32px; }
 #pust-mapdock button.pust-md-bhit { background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border-color: #d8371f; }
 #pust-mapdock button.pust-md-bhit:hover:not(:disabled) { border-color: #ff6a4f; box-shadow: 0 0 6px rgba(255,106,79,.4); }
@@ -597,6 +629,8 @@
    Fate button's gold; «Витратити» off and half-transparent at 0 */
 #pust-mapdock .pust-md-fdrow { display: flex; gap: 6px; }
 #pust-mapdock .pust-md-fdrow[hidden], #pust-mapdock .pust-md-unit.folded > .pust-md-fdrow { display: none; }
+/* players' «Лічильники» under the Fate / Припаси rows (author, 2026-11-16); folded with «Кістки» */
+#pust-mapdock .pust-md-unit.folded > .pust-md-ctr-pl { display: none; }
 #pust-mapdock .pust-md-fdrow > button { flex: 1 1 0; height: 32px; opacity: 1; gap: 6px; font-size: 13px; letter-spacing: .03em; text-transform: uppercase; font-weight: 800;
   background: linear-gradient(180deg, #e2ad3b, #b98a22); color: #241a0c; border: 1px solid #6e5608; box-shadow: 0 2px 4px rgba(0,0,0,.45); }
 #pust-mapdock .pust-md-fdrow > button:hover:not(:disabled) { color: #000; border-color: #f4d11a; box-shadow: 0 0 6px rgba(244,209,26,.45); }
@@ -609,3 +643,138 @@
 #pust-mapdock .pust-md-suprow > .pust-md-supspend:hover:not(:disabled) { color: #fff; border-color: #f0a070; box-shadow: 0 0 6px rgba(240,160,112,.45); }
 #pust-mapdock .pust-md-fdrow > button { padding: 0 6px; font-size: 12px; letter-spacing: .01em; gap: 5px; }
 #pust-mapdock .pust-md-fdrow > .pust-md-fdspend { flex: 1.3 1 0; }
+
+/* «Перейти на бойову мапу» / «Перейти на Мапу Пустки» at the panel's foot (author, 2026-11-16) */
+#pust-mapdock .pust-md-bgoto { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 32px; margin-top: 2px;
+  font-weight: 800; text-transform: uppercase; letter-spacing: .03em; font-size: 12.5px; }
+/* «Почати бій» (author, 2026-11-16): hazard tape — dark stripes, a yellow frame and yellow capitals, a flag; unlike the red
+   «Завдати цілям» with its crosshair */
+#pust-terminal :is(.pust-tvb-actions, .pust-battle-btns) > button.pust-tvb-fight, #pust-mapdock .pust-md-tvout .pust-tvb-actions > button.pust-tvb-fight {
+  background: #1a1714; color: #f4d11a; border: 4px solid #f4d11a; border-radius: 3px;
+  border-image: repeating-linear-gradient(-45deg, #f4d11a 0 5px, #14110e 5px 10px) 4;
+  font-weight: 800; text-transform: uppercase; letter-spacing: .04em; text-shadow: 0 1px 0 #000; }
+#pust-terminal :is(.pust-tvb-actions, .pust-battle-btns) > button.pust-tvb-fight:hover:not(:disabled), #pust-mapdock .pust-md-tvout .pust-tvb-actions > button.pust-tvb-fight:hover:not(:disabled) {
+  color: #fff3b0; background: #2a241c; box-shadow: 0 0 8px rgba(244,209,26,.6); }
+
+/* a travel event's damage just put into «Шкода й лікування» (author, 2026-11-16): the fields glow amber for a moment */
+@keyframes pust-flash { 0%, 60% { box-shadow: 0 0 0 2px #f4d11a, 0 0 12px 2px rgba(244,209,26,.75); } 100% { box-shadow: none; } }
+#pust-mapdock .pust-flash { animation: pust-flash 2.4s ease-out 1; }
+#pust-mapdock .pust-md-panel.pust-md-lit { opacity: 1 !important; }
+
+/* «Створити битву» under the case's «Супротивники» (author, 2026-11-17) */
+#pust-terminal .pust-case-ft > button.pust-case-battle { display: inline-flex; align-items: center; gap: 6px; width: auto; height: 26px; margin: 4px 0 0;
+  padding: 0 10px; font-size: 12px; font-weight: 700; vertical-align: middle; }
+
+/* «Кінець сцени» / «Новий день» / «Кінець сесії» for the group (author, 2026-11-17): three equal buttons and the enemies' tick,
+   framed as the damage block */
+#pust-mapdock .pust-md-bend { display: flex; flex-direction: column; gap: 5px; padding: 6px; border-radius: 4px; background: rgba(0,0,0,.28); border: 1px solid #3d4241; }
+#pust-mapdock .pust-md-bendbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+#pust-mapdock .pust-md-bendbtns > button { width: 100%; min-width: 0; height: 30px; padding: 0 4px; gap: 5px; font-size: 12px; white-space: nowrap; }
+#pust-mapdock .pust-md-bendbtns > button > span { overflow: hidden; text-overflow: ellipsis; }
+/* the chat card (author, 2026-11-17: as the damage cards): a header in the kind's colours with chips, the general line, a row a character */
+.chat-message .pust-chat.pust-endcard { --ec: #3d4548; --ec-2: #23282a; --ec-ink: #f4d11a; padding: 0; overflow: hidden; border: 2px solid var(--ec-2); border-radius: 5px; background: #f4eedc; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.chat-message .pust-chat.pust-endcard.pust-end-day { --ec: #a8731a; --ec-2: #6e4a0c; --ec-ink: #fff3c4; }
+.chat-message .pust-chat.pust-endcard.pust-end-session { --ec: #2e3a66; --ec-2: #1a2142; --ec-ink: #dfe6ff; }
+.pust-chat.pust-endcard .pust-end-hd { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; padding: 7px 9px; background: linear-gradient(180deg, color-mix(in srgb, var(--ec) 80%, #fff), var(--ec)); color: var(--ec-ink);
+  border-bottom: 2px solid var(--ec-2); font-family: "Oswald", "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pust-chat.pust-endcard .pust-end-hd > i { flex: none; font-size: 16px; }
+.pust-chat.pust-endcard .pust-end-title { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pust-chat.pust-endcard .pust-end-chip { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: 3px; background: rgba(0,0,0,.3); color: var(--ec-ink);
+  font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; text-transform: none; text-shadow: none; }
+.pust-chat.pust-endcard .pust-end-gen { margin: 0; padding: 6px 9px; background: color-mix(in srgb, var(--ec) 10%, #f4eedc); border-bottom: 1px solid #d9cfb2; color: #4a4336; font-size: 12.5px; line-height: 1.35; }
+.pust-chat.pust-endcard .pust-end-list { display: flex; flex-direction: column; }
+.pust-chat.pust-endcard .pust-end-row { display: flex; flex-direction: column; gap: 4px; padding: 6px 9px; border-top: 1px solid #d9cfb2; }
+.pust-chat.pust-endcard .pust-end-row:first-child { border-top: 0; }
+.pust-chat.pust-endcard .pust-end-row.bad { background: repeating-linear-gradient(-45deg, rgba(168,18,26,.07) 0 8px, transparent 8px 16px); }
+.pust-chat.pust-endcard .pust-end-main { display: flex; align-items: center; gap: 7px; }
+.pust-chat.pust-endcard .pust-end-main > img { flex: none; width: 26px; height: 26px; border: 0; border-radius: 50%; object-fit: cover; background: #d9cfb2; }
+.pust-chat.pust-endcard .pust-end-name { flex: 1 1 auto; min-width: 0; color: #2a261c; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 800; font-size: 14px; overflow-wrap: anywhere; }
+.pust-chat.pust-endcard .pust-end-hp { flex: none; padding: 1px 6px; border-radius: 4px; font-family: "PT Mono", monospace; font-size: 16px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.pust-chat.pust-endcard .pust-end-hp.lost { background: #a8121a; color: #fff0ec; }
+.pust-chat.pust-endcard .pust-end-hp.gain { background: #2f6b35; color: #e7ffd9; }
+.pust-chat.pust-endcard .pust-end-fd { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: 4px; background: #13231a; color: #3dff47; font-family: "PT Mono", monospace; font-size: 16px; font-weight: 700; line-height: 1.2; }
+.pust-chat.pust-endcard .pust-end-fd > i { font-size: 12px; }
+.pust-chat.pust-endcard .pust-end-row ul { margin: 0; padding: 0 0 0 33px; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.pust-chat.pust-endcard .pust-end-row li { position: relative; color: #2a261c; font-size: 12.5px; line-height: 1.35; }
+.pust-chat.pust-endcard .pust-end-row li::before { content: ""; position: absolute; left: -10px; top: .55em; width: 5px; height: 5px; border-radius: 50%; background: var(--ec); }
+.pust-chat.pust-endcard .pust-end-row.bad li { color: #7d1c13; }
+.pust-chat.pust-endcard .pust-end-quiet { padding-left: 33px; color: #8a8170; font-size: 12px; font-style: italic; }
+/* the group's session number and «Скинути відлік» (GM; author, 2026-11-17): on the tick's row, at its right end */
+#pust-mapdock .pust-md-bendft { display: flex; align-items: center; gap: 6px; }
+#pust-mapdock .pust-md-bendft > .pust-md-bendmv { flex: 1 1 auto; min-width: 0; }
+#pust-mapdock .pust-md-bsess { flex: none; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12.5px; color: #c9f5cc; white-space: nowrap; }
+#pust-mapdock .pust-md-bsess > b { color: #3dff47; font-family: "Ubuntu Mono", monospace; font-size: 14px; }
+#pust-mapdock button.pust-md-bsreset { flex: none; width: 26px; height: 24px; padding: 0; display: grid; place-items: center; font-size: 12px; }
+#pust-mapdock button.pust-md-bsreset.armed { color: #fff; background: linear-gradient(180deg, #c8301f, #8a2419); border-color: #ff7a6b; }
+/* «?» in a panel's header (author, 2026-11-17): opens its help page; gone while the panel is folded */
+#pust-mapdock header > button.pust-md-help { font-size: 11px; }
+#pust-mapdock .pust-md-unit.folded .pust-md-help { display: none; }
+
+/* «Огляд битви» (author, 2026-11-17; battle-overview.mjs): the GM's list of the scene's enemies, characters and caravans by zone,
+   on the left under «Кістки»; the list scrolls inside (fitOverview in map-dock.mjs) */
+#pust-mapdock .pust-md-ovw header { background: linear-gradient(180deg, #5a3a1c, #3a2412); color: #f4d11a; }
+#pust-mapdock .pust-md-ovw .pust-ov { gap: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain; }
+#pust-mapdock .pust-ov-tgts { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 5px; padding: 6px; background: #1b1e1d; border-bottom: 1px solid #0d0f0e; }
+#pust-mapdock .pust-ov-tn { flex: none; min-width: 74px; font-family: "Roboto Condensed", sans-serif; font-size: 12px; color: #c9f5cc; }
+#pust-mapdock .pust-ov-tn b { color: #3dff47; font-family: "Ubuntu Mono", monospace; font-size: 14px; }
+#pust-mapdock .pust-ov-tgts > button { height: 26px; }
+#pust-mapdock .pust-ov-zone { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 6px; padding: 4px 6px 4px 8px; background: var(--zf, #f6df73); border-top: 1px solid #0d0f0e;
+  border-left: 4px solid var(--zl, #b8952a); color: #2a261c; font-family: "Roboto Condensed", sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+/* the zone's header (author, 2026-11-17): the icon, the name (wrapping when long), the bullseye; the aspects on rows of their own under them */
+#pust-mapdock .pust-ov-zone > i { grid-column: 1; }
+#pust-mapdock .pust-ov-zone > .pust-ov-zn { grid-column: 2; min-width: 0; overflow-wrap: anywhere; font-weight: 800; }
+#pust-mapdock .pust-ov-zone > button.pust-ov-ztgt { grid-column: 3; }
+#pust-mapdock .pust-ov-zasps { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 3px; }
+#pust-mapdock .pust-ov-zone > button.pust-ov-ztgt { flex: none; height: 22px; background: rgba(0,0,0,.18); color: #2a261c; border-color: var(--zl, #b8952a); box-shadow: none; }
+#pust-mapdock .pust-ov-zone > button.pust-ov-ztgt:hover:not(:disabled) { background: rgba(0,0,0,.3); color: #000; }
+#pust-mapdock .pust-ov-zone.none { background: rgba(255,255,255,.04); color: #b6c4b8; border-left-color: #4a453d; }
+#pust-mapdock .pust-ov-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; padding: 6px 6px 6px 8px; border-top: 1px solid rgba(0,0,0,.45); align-items: start; }
+#pust-mapdock .pust-ov-row.pust-ov-pc { background: rgba(61,140,255,.06); }
+#pust-mapdock .pust-ov-row.out { opacity: .55; }
+#pust-mapdock .pust-ov-row.out .pust-ov-nm { text-decoration: line-through; }
+#pust-mapdock .pust-ov-row.hid .pust-ov-pic img { opacity: .45; }
+#pust-mapdock .pust-ov-pic { position: relative; width: 34px; height: 34px; }
+#pust-mapdock .pust-ov-pic img { width: 34px; height: 34px; border: 0; border-radius: 50%; object-fit: cover; background: #4a453d; }
+#pust-mapdock .pust-ov-cat { position: absolute; right: -4px; top: -4px; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--cc, #6b6f6c); color: #fff; border: 1px solid #111; font-size: 8px; }
+#pust-mapdock .pust-ov-cat .pust-cat-ico { width: 11px; height: 11px; }
+#pust-mapdock .pust-ov-cat.pc { background: #2c4f86; }
+#pust-mapdock .pust-ov-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+#pust-mapdock .pust-ov-name { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; min-width: 0; }
+#pust-mapdock .pust-ov-name > small { color: #9fb7a4; font-size: 11px; }
+#pust-mapdock button.pust-ov-nm { flex: 0 1 auto; height: auto; padding: 0; background: none; border: 0; box-shadow: none; color: #fff; font-size: 13.5px; font-weight: 800;
+  white-space: normal; text-align: left; justify-content: flex-start; }
+#pust-mapdock button.pust-ov-nm:hover { color: #f4d11a; border: 0; box-shadow: none; text-decoration: underline; }
+#pust-mapdock .pust-ov-hp { display: flex; align-items: center; gap: 4px; }
+#pust-mapdock .pust-ov-hp > button { flex: none; width: 22px; height: 22px; padding: 0; font-size: 14px; }
+#pust-mapdock .pust-ov-hp > button[data-d="-1"] { background: #5a1a12; color: #ffd6cf; }
+#pust-mapdock .pust-ov-hp > button[data-d="1"] { background: #1f4a24; color: #d6ffd0; }
+#pust-mapdock .pust-ov-bar { flex: 1 1 auto; height: 8px; border-radius: 4px; background: #0f1412; overflow: hidden; box-shadow: inset 0 1px 1px rgba(0,0,0,.5); }
+#pust-mapdock .pust-ov-bar > i { display: block; height: 100%; background: #3dff47; }
+#pust-mapdock .pust-ov-bar.hp-mid > i { background: #e0a020; }
+#pust-mapdock .pust-ov-bar.hp-low > i { background: #e0402a; }
+#pust-mapdock .pust-ov-num { flex: none; min-width: 52px; padding: 1px 4px; border-radius: 3px; background: #0f1412; color: #3dff47; text-align: center; font-family: "Ubuntu Mono", monospace; font-size: 13px; }
+#pust-mapdock .pust-ov-arm { flex: none; display: inline-flex; align-items: center; gap: 3px; color: #c9d2cf; font-family: "Ubuntu Mono", monospace; font-size: 13px; }
+#pust-mapdock .pust-ov-asps { display: flex; flex-wrap: wrap; gap: 3px; }
+#pust-mapdock .pust-ov-asp { flex: 0 1 auto; display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 0 5px; border-radius: 3px; background: #e2ad3b; color: #241a0c;
+  font-family: "Roboto Condensed", sans-serif; font-size: 11.5px; font-weight: 700; font-style: italic; line-height: 18px; }
+#pust-mapdock .pust-ov-asp > span { min-width: 0; white-space: normal; overflow-wrap: anywhere; } /* a long aspect wraps inside its chip, never cut (author, 2026-11-17) */
+#pust-mapdock .pust-ov-asp > b { flex: none; padding: 0 3px; border-radius: 2px; background: #2f6b35; color: #e7ffd9; font-style: normal; }
+#pust-mapdock .pust-ov-zone .pust-ov-asp { text-transform: none; letter-spacing: 0; }
+#pust-mapdock .pust-ov-atk { display: flex; align-items: center; gap: 5px; min-width: 0; }
+#pust-mapdock .pust-ov-dice { flex: 1 1 auto; min-width: 0; padding: 2px 6px; border-radius: 3px; background: var(--dt-bg, #6e3b22); color: var(--dt-fg, #f4d11a); border: 1px solid var(--dt-bd, #f0a070);
+  font-family: "Ubuntu Mono", monospace; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#pust-mapdock .pust-ov-dice > b { font-family: "Roboto Condensed", sans-serif; }
+#pust-mapdock .pust-ov-pips { flex: none; display: inline-flex; gap: 2px; }
+#pust-mapdock .pust-ov-pips > i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid #6b655a; }
+#pust-mapdock .pust-ov-pips > i.on { background: #f4d11a; border-color: #f4d11a; }
+#pust-mapdock button.pust-ov-hit { flex: none; height: 22px; padding: 0 6px; background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border-color: #d8371f; font-size: 11px; }
+#pust-mapdock .pust-ov-moves { display: flex; flex-wrap: wrap; gap: 3px; }
+#pust-mapdock button.pust-ov-move { flex: none; height: 20px; padding: 0 6px; font-size: 11px; font-weight: 700; }
+#pust-mapdock button.pust-ov-move.used { text-decoration: line-through; color: #8a8170; background: #262a29; }
+#pust-mapdock .pust-ov-side { display: flex; flex-direction: column; gap: 4px; }
+#pust-mapdock button.pust-ov-ib { flex: none; width: 26px; height: 24px; padding: 0; font-size: 13px; }
+#pust-mapdock button.pust-ov-tgt.on, #pust-mapdock .pust-ov-zone > button.pust-ov-ztgt.on { background: linear-gradient(180deg, #c8301f, #8a2419); color: #fff; border-color: #ff7a6b; box-shadow: 0 0 6px rgba(255,90,60,.5); }
+#pust-mapdock button.pust-ov-ib.on:not(.pust-ov-tgt) { color: #3dff47; }
+#pust-mapdock .pust-ov-empty { margin: 0; padding: 10px; color: #b6c4b8; font-size: 12.5px; }
+#pust-mapdock .pust-md-unit.folded .pust-ov { display: none; }

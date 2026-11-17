@@ -448,9 +448,9 @@ function onDblClick(ev) {
   openNoteEditor(hit.doc, pt.y < hit.rect.y + MAP_NOTE.stripH * canvas.dimensions.size ? "title" : "body");
 }
 
-/** A press outside the editor closes it */
+/** A press outside the editor closes it, but not during a tour: the tour opens and closes it (author, 2026-11-16) */
 function onDocPointerDown(ev) {
-  if (editor && !editor.root.contains(ev.target)) closeNoteEditor();
+  if (editor && !editor.root.contains(ev.target) && !document.body.classList.contains("pust-touring")) closeNoteEditor();
 }
 
 /*
@@ -495,6 +495,29 @@ export async function addMapNote() {
   }]);
   if (doc) openNoteEditor(doc, "title");
   return doc;
+}
+
+/**
+ * The tours' example (author, 2026-11-16): a sticker that lives only in memory (never written, players never see it), with
+ * its editor opened over the middle of the view; the editor saves nothing for it (flushEditor needs a stored document).
+ */
+let demoNote = null;
+export function setNoteDemo(on) {
+  if (!on) { if (demoNote && editor?.doc === demoNote) closeNoteEditor(); demoNote = null; return null; }
+  if (!canvas.ready || !canvas.scene) return null;
+  const size = canvas.dimensions.size;
+  const { w, h } = noteSize({ min: false }, size);
+  const c = canvas.stage.pivot;
+  const col = MAP_NOTE.colors[MAP_NOTE.color];
+  demoNote = new CONFIG.Drawing.documentClass({
+    x: Math.round(c.x - w / 2), y: Math.round(c.y - h / 2), shape: { type: "r", width: w, height: h },
+    fillType: CONST.DRAWING_FILL_TYPES.SOLID, fillColor: col.fill, fillAlpha: 0.9, strokeWidth: 4, strokeColor: col.line, strokeAlpha: 1,
+    text: "", hidden: true,
+    flags: { [sys()]: { mapNote: { title: "Приклад: схованка", text: "Під кам'яною брилою на узбіччі закопано ящик із припасами.", color: MAP_NOTE.color, min: false, locked: false } } },
+  }, { parent: canvas.scene });
+  openNoteEditor(demoNote, "body");
+  editor?.body?.blur();
+  return demoNote;
 }
 
 /** Once, in `ready`: the listeners and the hooks */

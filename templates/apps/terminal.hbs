@@ -24,7 +24,7 @@
       <div class="pust-case-f {{#if wide}}wide{{/if}}" data-field="{{k}}">
         <div class="pust-case-fh"><i class="fa-solid {{icon}}"></i> {{n}}
           <button type="button" class="pust-term-reroll" data-action="caseReroll" data-k="{{k}}" title="Перекинути це поле"><i class="fa-solid fa-rotate"></i></button></div>
-        <div class="pust-case-ft">{{t}}{{#if note}} <small>{{note}}</small>{{/if}}</div>
+        <div class="pust-case-ft">{{t}}{{#if note}} <small>{{note}}</small>{{/if}}{{#if (eq k "enemies")}} <button type="button" class="pust-case-battle" data-action="caseBattle" title="Створити в генераторі битв битву з цими супротивниками, міццю й складністю справи"><i class="fa-solid fa-skull"></i> Створити битву</button>{{/if}}</div>
       </div>
     {{/each}}
     </div>
@@ -90,35 +90,23 @@
 
   {{#if v.battle.has}}
   <div class="pust-term-result">
-    <div class="pust-term-hd"><b>Результат: {{v.battle.title}}</b>
+    <div class="pust-term-hd"><b>Результат: {{v.battle.title}}</b><span class="pust-term-note pust-battle-case">{{v.battle.caseInfo}}</span>
       <button type="button" class="pust-term-chat" data-action="toChat" data-what="battle" title="Надіслати битву в чат"><i class="fa-solid fa-comment"></i> В чат</button>
       <button type="button" class="pust-term-journal" data-action="toJournal" data-what="battle" title="Записати битву з картками ворогів у журнал (нова сторінка в теці «Термінал Доглядача»)"><i class="fa-solid fa-book-open"></i> В журнал</button>
     </div>
     <div class="pust-battle-make">
-      <div class="pust-battle-info"><span class="pust-term-note">{{v.battle.caseInfo}}</span>
-        <span class="pust-sub">Супротивники з'являться в Акторах, у теці «Битви → {{v.battle.folder}}».</span></div>
+      <span class="pust-sub pust-battle-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> Чіп ворога можна перетягнути на сцену: там з'явиться його токен.</span>
       <div class="pust-battle-btns">
         <button type="button" data-action="battleCreate" data-mode="folder" title="Додати в Актори теку «Битви → {{v.battle.folder}}» з усіма супротивниками цієї битви"><i class="fa-solid fa-folder-plus"></i> Додати теку в Актори</button>
-        <button type="button" class="pust-term-go" data-action="battleCreate" data-mode="place" title="Додати теку в Актори й поставити токени супротивників на поточну сцену. Бій не починається"><i class="fa-solid fa-chess-pawn"></i> Розмістити</button>
-      </div>
-      <div class="pust-battle-btns pust-battle-tools">
-        <button type="button" data-action="battleFold" title="{{#if v.battle.folded}}Розгорнути всі картки{{else}}Згорнути всі картки{{/if}}"><i class="fa-solid {{#if v.battle.folded}}fa-angles-down{{else}}fa-angles-up{{/if}}"></i> {{#if v.battle.folded}}Розгорнути{{else}}Згорнути{{/if}}</button>
-        <button type="button" data-action="battleClear" data-confirm="1" title="Очистити результат генерації"><i class="fa-solid fa-eraser"></i> Очистити</button>
+        <button type="button" class="pust-term-go" data-action="battleCreate" data-mode="place" title="Додати теку в Актори й поставити токени супротивників на поточну сцену. Бій не починається"><i class="fa-solid fa-chess-pawn"></i> Розмістити на сцені</button>
+        <button type="button" class="pust-tvb-fight" data-action="battleFight" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-flag"></i> Почати бій</button>
+        <button type="button" class="pust-danger pust-battle-clear" data-action="battleClear" data-confirm="1" title="Очистити результат генерації"><i class="fa-solid fa-eraser"></i> Очистити</button>
       </div>
     </div>
     {{#each v.battle.buckets}}{{#if count}}
     <div class="pust-bucket cat-{{cat}}"><div class="pust-bucket-l">{{label}} <span class="pust-pill">{{count}}</span></div>
-      {{#each cards}}
-      <details class="pust-enemy cat-{{cat}}" {{#unless ../../v.battle.folded}}open{{/unless}}>
-        <summary><b>{{name}}</b> <span class="pust-qty">× {{count}}</span> <span class="pust-mini">{{hp}} ОЗ · броня {{armor}}</span> <span class="pust-cat">{{catLabel}}</span>{{#if kind}} <span class="pust-kindtag">{{kind}}</span>{{/if}}</summary>
-        {{#if armorBook}}<div class="pust-sub">Броня за книгою: {{{armorBookHtml}}}</div>{{/if}}
-        <div class="pust-sect">Атаки</div>
-        {{#each attacks}}<div class="pust-move"><b>{{n}}</b> {{{html}}}</div>{{/each}}
-        {{#if aspects.length}}<div class="pust-sect">Аспекти</div><div class="pust-chips">{{#each aspects}}<span class="pust-chip">{{this}}</span>{{/each}}</div>{{/if}}
-        {{#if moves.length}}<div class="pust-sect">Ходи</div>{{#each moves}}<div class="pust-move"><b>{{n}}</b> {{{html}}}</div>{{/each}}{{/if}}
-        {{#if notesHtml}}<div class="pust-sect">Примітка</div><div class="pust-sub">{{{notesHtml}}}</div>{{/if}}
-      </details>
-      {{/each}}
+      {{!-- each kind a chip (author, 2026-11-16): its category's mark, name and count; a click opens its card --}}
+      <div class="pust-enchips">{{#each cards}}<button type="button" class="pust-enchip cat-{{cat}}" data-action="battleEnemy" data-name="{{name}}" draggable="true" title="{{name}}, {{catLabel}}: клік відкриває картку, перетягни на сцену, щоб поставити токен"><img class="pust-enchip-tok" data-tok="{{name}}" data-group="{{group}}" src="icons/svg/mystery-man.svg" alt="">{{{catIcon}}}<b>{{name}}</b><span class="pust-enchip-st" title="Очки здоров'я і броня"><i class="fa-solid fa-heart" aria-hidden="true"></i>{{hp}}<i class="fa-solid fa-shield-halved" aria-hidden="true"></i>{{armor}}</span><span class="pust-enchip-n">× {{count}}</span>{{#if kind}}<span class="pust-enchip-kind">{{kind}}</span>{{/if}}</button>{{/each}}</div>
     </div>
     {{/if}}{{/each}}
   </div>

@@ -12,15 +12,52 @@
       <div class="pust-en-bar">
         <span class="pust-en-cat">{{{v.catIcon}}}{{v.catLabel}}</span>
         <span class="pust-en-sp"></span>
-        {{#if gm}}<button type="button" class="pust-en-sw pust-en-reveal {{#if v.reveal}}on{{/if}}" data-action="revealToggle" role="switch" aria-checked="{{#if v.reveal}}true{{else}}false{{/if}}"
+        {{#if gm}}{{#if world}}<button type="button" class="pust-en-sw pust-en-reveal {{#if v.reveal}}on{{/if}}" data-action="revealToggle" role="switch" aria-checked="{{#if v.reveal}}true{{else}}false{{/if}}"
           title="{{#if v.reveal}}Гравці бачать токени й картку (лише для читання). Натисни, щоб сховати{{else}}Токени й картку від гравців сховано. Натисни, щоб показати{{/if}}">
-          <span class="pust-place-sw" aria-hidden="true"></span><i class="fa-solid {{#if v.reveal}}fa-eye{{else}}fa-eye-slash{{/if}}"></i><span>{{#if v.reveal}}Видимий{{else}}Прихований{{/if}}</span></button>{{/if}}
+          <span class="pust-place-sw" aria-hidden="true"></span><i class="fa-solid {{#if v.reveal}}fa-eye{{else}}fa-eye-slash{{/if}}"></i><span>{{#if v.reveal}}Видимий{{else}}Прихований{{/if}}</span></button>{{/if}}{{/if}}
+        {{#if gm}}{{#if world}}<button type="button" class="pust-en-sw pust-en-chat" data-action="toChat" title="Надіслати в чат повну картку ворога: ОЗ, броню, захист, атаки, аспекти, ходи й примітки" aria-label="В чат"><i class="fa-solid fa-comment"></i><span>В чат</span></button>{{/if}}{{/if}}
         {{#if editable}}<button type="button" class="pust-en-sw pust-en-edit {{#if edit}}on{{/if}}" data-action="editToggle" title="{{#if edit}}Закрити редактор{{else}}Редагувати атаки, аспекти, ходи й примітки{{/if}}">
           <i class="fa-solid {{#if edit}}fa-check{{else}}fa-pen{{/if}}"></i><span>{{#if edit}}Готово{{else}}Редагувати{{/if}}</span></button>{{/if}}
       </div>
     </div>
   </header>
 
+  {{#if limited}}
+  {{!-- what players see of a visible enemy (author, 2026-11-16): its state in words and its situational aspects, nothing more --}}
+  <div class="pust-en-body">
+    <div class="pust-en-state" style="--sc: {{v.state.color}}" title="Стан ворога"><i class="fa-solid {{v.state.icon}}" aria-hidden="true"></i><span>{{v.state.label}}</span></div>
+    {{#if observant}}
+    {{!-- «Спостережливість» (author, 2026-11-17): the exact HP and what it is armed with, read-only --}}
+    <section class="pust-en-hp pust-en-observant">
+      <div class="pust-en-hprow {{#if v.hp.dead}}bad{{/if}}">
+        <span class="pust-en-lbl" title="Перк «Спостережливість»: ти завжди знаєш точну кількість ОЗ супротивників"><i class="fa-solid fa-heart-pulse pust-qic" aria-hidden="true"></i>Очки здоров'я</span>
+        <div class="pust-en-hpctl"><b class="pust-en-hpnum">{{v.hp.value}} / {{v.hp.max}}</b></div>
+      </div>
+      <div class="pust-en-hpbar hp-{{v.hp.level}}" title="Очки здоров'я: {{v.hp.value}} з {{v.hp.max}}"><div class="pust-en-hpfill" style="width: {{v.hp.pct}}%"></div></div>
+    </section>
+    <section class="pust-en-card pust-en-observant">
+      <h3 title="Перк «Спостережливість»: ти завжди знаєш, чим озброєні супротивники"><i class="fa-solid fa-burst pust-qic" aria-hidden="true"></i>Атаки</h3>
+      {{#each v.attacks}}
+      <div class="pust-en-atk">
+        <div class="pust-en-atkhd">
+          <b class="pust-en-atkn">{{name}}</b>
+          <span class="pust-en-dicechip {{tcls}}"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{diceText}}</span>
+          <span class="pust-en-type {{tcls}}">{{typeLabel}}</span>
+        </div>
+        {{#if note}}<div class="pust-en-note">{{note}}</div>{{/if}}
+      </div>
+      {{else}}<div class="pust-en-muted">Атак немає</div>{{/each}}
+    </section>
+    {{/if}}
+    <section class="pust-en-card">
+      <h3><i class="fa-solid fa-tags pust-qic" aria-hidden="true"></i>Ситуативні аспекти</h3>
+      <div class="pust-en-chips">
+        {{#each v.aspects}}<span class="pust-en-chip"><span>{{t}}</span>{{#if inv}}<b class="pust-asp-n" title="Безкоштовні Посилення">+{{inv}}</b>{{/if}}</span>
+        {{else}}<span class="pust-en-muted">Ситуативних аспектів немає</span>{{/each}}
+      </div>
+    </section>
+  </div>
+  {{else}}
   <div class="pust-en-body">
     {{!-- Очки здоров'я --}}
     <section class="pust-en-hp">
@@ -168,13 +205,7 @@
       {{#if v.armorText}}<div class="pust-en-hint">За книгою: {{v.armorText}}</div>{{/if}}
     </details>
     {{/if}}
-
-    {{!-- Опис з книги --}}
-    {{#if descHtml}}
-    <details class="pust-en-card pust-en-det" data-fold="desc" {{#if ui.desc}}open{{/if}}>
-      <summary><i class="fa-solid fa-book-open pust-qic" aria-hidden="true"></i>Опис з книги</summary>
-      <div class="pust-en-desc">{{{descHtml}}}</div>
-    </details>
-    {{/if}}
+    {{!-- no «Опис з книги» (author, 2026-11-16): it repeated what the card already shows; the description stays in the data --}}
   </div>
+  {{/if}}
 </div>

@@ -15,6 +15,7 @@
 import { ZONE, normalizeZone, placeNear, moveRect, resizeRect, nextZoneName, addAspect, removeAspect, stepInv } from "../rules/battle-zones.mjs";
 import { randomZoneName, randomZoneAspect, ZONE_COLORS } from "../rules/battle.mjs";
 import { MAP_NOTE } from "../rules/map-notes.mjs";
+import { sharedGet } from "../helpers/scene-shared.mjs";
 
 const sys = () => game.system.id;
 const hex = (s) => parseInt(String(s).replace("#", ""), 16);
@@ -93,25 +94,32 @@ export function initBattleZones() {
       const pad = 12 * K;
       const tb = tgtBox(w);
       const right = tb.x - 8 * K; // where the strip's contents end: the «Обрати всіх» button is past it
-      const title = new T(z.name, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", fill: ink, letterSpacing: 0.3 * K }));
-      // the aspects (author, 2026-11-15): chips in the strip, right after the name; rows that don't fit wrap under it and
-      // the strip grows with them (never past the zone)
+      // the name (author, 2026-11-17, as «Огляд битви»): the first row with «Обрати всіх» at its right, wrapping when long
+      const title = new T(z.name, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", fill: ink, letterSpacing: 0.3 * K,
+        wordWrap: true, breakWords: true, wordWrapWidth: Math.max(40 * K, right - pad) }));
+      const probe = new T("Ag", new PIXI.TextStyle({ fontFamily: FONT, fontSize: 26 * K, fontWeight: "800", letterSpacing: 0.3 * K }));
+      const lineH = probe.height; // one line's height, to keep the first line where it was
+      probe.destroy();
+      const th = Math.max(sh0, title.height + (sh0 - lineH)); // the name's row: one line as before, more when it wraps
+      // the aspects: chips on rows of their own under the name, the whole width of the strip; the strip grows with them
+      // (never past the zone)
       const chipH = 30 * K, gap = 6 * K, rowH = chipH + gap;
+      const full = w - pad;
       const chips = [];
-      let x = pad + Math.min(title.width, right - pad) + 14 * K, row = 0;
+      let x = pad, row = 0;
       for (const a of z.aspects) {
         // italic leans past the width PIXI measures (author, 2026-11-14: «курсив зрізає закінчення»): the texture gets padding,
         // the chip room for the lean
         const lean = 6 * K;
         const text = new T(a.t, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 19 * K, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
         const inv = a.inv > 0 ? new T(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: FONT, fontSize: 18 * K, fontWeight: "800", fill: 0xf2ecd8 })) : null;
-        const cw = Math.min(right - pad, text.width + lean + 18 * K + (inv ? inv.width + 14 * K : 0));
-        if (x + cw > right && x > pad) { x = pad; row += 1; }
+        const cw = Math.min(full - pad, text.width + lean + 18 * K + (inv ? inv.width + 14 * K : 0));
+        if (x + cw > full && x > pad) { x = pad; row += 1; }
         chips.push({ text, inv, cw, x, row });
         x += cw + gap;
       }
-      const rows = chips.length ? chips.at(-1).row : 0;
-      const sh = Math.min(h, sh0 + rows * rowH);
+      const rows = chips.length ? chips.at(-1).row + 1 : 0;
+      const sh = Math.min(h, th + (rows ? rows * rowH + gap * 0.5 : 0));
       STRIP_H.set(this.document.id, sh);
       // the field: a see-through wash of the colour with a solid border
       const field = new PIXI.Graphics();
@@ -121,9 +129,9 @@ export function initBattleZones() {
       strip.beginFill(fill, 0.92).drawRoundedRect(0, 0, w, sh, 8 * K).drawRect(0, sh / 2, w, sh / 2).endFill();
       strip.lineStyle({ width: 2 * K, color: line, alpha: 0.9 }).moveTo(0, sh).lineTo(w, sh);
       box.addChild(field, strip);
-      title.position.set(pad, (sh0 - title.height) / 2);
+      title.position.set(pad, (sh0 - lineH) / 2); // the first line level with «Обрати всіх»
       const tmask = new PIXI.Graphics();
-      tmask.beginFill(0xffffff).drawRect(0, 0, right, sh0).endFill();
+      tmask.beginFill(0xffffff).drawRect(0, 0, right, th).endFill();
       box.addChild(tmask, title);
       title.mask = tmask;
       // the corner for resizing (GM)
@@ -133,7 +141,7 @@ export function initBattleZones() {
         box.addChild(c);
       }
       for (const { text, inv, cw, x: cx, row: cr } of chips) {
-        const y = cr === 0 ? (sh0 - chipH) / 2 : sh0 + (cr - 1) * rowH;
+        const y = th + cr * rowH;
         if (y + chipH > sh - 2 * K) break; // the zone is too short for more rows
         const bg = new PIXI.Graphics();
         bg.beginFill(0x000000, 0.25).drawRoundedRect(cx, y + 1.5 * K, cw, chipH, 4 * K).endFill(); // a soft shadow on the strip
@@ -221,6 +229,13 @@ function onPointerDown(ev) {
   ev.preventDefault();
   ev.stopImmediatePropagation();
   drag = { ...hit, px: ev.clientX, py: ev.clientY, moved: false, end: null };
+  // a zone moved by its strip takes its tokens along (author, 2026-11-17): those whose centre is in it (the top zone where
+  // zones overlap, as «Обрати всіх» counts them)
+  if (hit.part !== "corner") {
+    const zones = sceneZones();
+    drag.tokens = canvas.tokens.placeables.filter((t) => zoneOfToken(t, zones)?.doc === hit.doc)
+      .map((t) => ({ t, x: t.document.x, y: t.document.y, mx: t.mesh?.position.x, my: t.mesh?.position.y }));
+  }
   window.addEventListener("pointermove", onDragMove, true);
   window.addEventListener("pointerup", onDragEnd, true);
   window.addEventListener("pointercancel", onDragCancel, true);
@@ -242,7 +257,15 @@ function onDragMove(ev) {
     shp.pivot.set(drag.rect.w / 2, drag.rect.h / 2);
     shp.scale.set(drag.end.w / drag.rect.w, drag.end.h / drag.rect.h);
     shp.position.set(drag.end.x + drag.end.w / 2, drag.end.y + drag.end.h / 2);
-  } else shp.position.set(drag.end.x + drag.doc.shape.width / 2, drag.end.y + drag.doc.shape.height / 2);
+  } else {
+    shp.position.set(drag.end.x + drag.doc.shape.width / 2, drag.end.y + drag.doc.shape.height / 2);
+    const mx = drag.end.x - drag.rect.x, my = drag.end.y - drag.rect.y;
+    // the tokens follow in the preview: the placeable (bars, name, badges) and its picture, which lives on the primary layer
+    for (const k of drag.tokens ?? []) {
+      k.t.position.set(k.x + mx, k.y + my);
+      if (k.t.mesh && k.mx != null) k.t.mesh.position.set(k.mx + mx, k.my + my);
+    }
+  }
   if (editor?.doc === drag.doc) layoutEditor();
 }
 
@@ -252,6 +275,7 @@ function stopListeners() {
   window.removeEventListener("pointercancel", onDragCancel, true);
 }
 function resetPreview(d) {
+  for (const k of d?.tokens ?? []) if (!k.t.destroyed) k.t.renderFlags.set({ refreshPosition: true });
   if (!d?.placeable?.shape) return;
   d.placeable.shape.scale.set(1, 1);
   d.placeable.shape.tint = 0xffffff;
@@ -267,6 +291,9 @@ async function onDragEnd() {
   // the preview stays until the new size / place is saved, so the zone doesn't flick back for a moment
   try {
     await d.doc.update(d.part === "corner" ? { shape: { width: d.end.w, height: d.end.h } } : { x: d.end.x, y: d.end.y });
+    const mx = d.end.x - d.rect.x, my = d.end.y - d.rect.y;
+    const moves = (d.tokens ?? []).filter((k) => !k.t.destroyed).map((k) => ({ _id: k.t.document.id, x: k.x + mx, y: k.y + my }));
+    if (moves.length && (mx || my)) await canvas.scene.updateEmbeddedDocuments("Token", moves, { animate: false, pustZoneMove: true });
   } catch (err) { console.warn("Пустельники | zone not changed", err); }
   resetPreview(d);
 }
@@ -276,7 +303,8 @@ function onDragCancel() { const d = drag; drag = null; stopListeners(); resetPre
 
 let editor = null; // { doc, root, armTimer }
 const zpath = (k2) => `flags.${sys()}.battleZone.${k2}`;
-const battlePlace = () => canvas.scene?.getFlag(sys(), "battlePlace") ?? "";
+/** the battle's place, shared by every scene (helpers/scene-shared.mjs) */
+const battlePlace = () => sharedGet("place") ?? "";
 
 function editorHtml(z) {
   const sw = Object.entries(COLORS).map(([key, c]) => `<button type="button" class="pust-mn-sw${key === z.color ? " on" : ""}" data-act="color" data-color="${key}" style="--sw:${c.fill}; --swl:${c.line}" title="${esc(ZONE_COLORS[key] ?? c.label)}" aria-label="${esc(ZONE_COLORS[key] ?? c.label)}"></button>`).join("");
@@ -450,6 +478,37 @@ function layoutEditor() {
   if (left + real > innerWidth - 4) editor.root.style.left = `${Math.max(4, innerWidth - real - 4)}px`;
 }
 
+let demoZone = null; // the tour's example
+/**
+ * The tour's zone editor (author, 2026-11-16): the scene's own zone with the most aspects (the first of equals), the
+ * view panned to it, its editor open and nothing changed. A scene with no zones gets an example that is never written
+ * (an in-memory Drawing at the view's centre): a name and two aspects from the battle place's pools.
+ */
+export async function setZoneDemo(on) {
+  if (!on) { if (editor && (editor.doc === demoZone || editor.tour)) closeZoneEditor(); demoZone = null; return null; }
+  if (!isGM() || !canvas.ready || !canvas.scene) return null;
+  const own = sceneZones().sort((a, b) => zoneOf(b.doc).aspects.length - zoneOf(a.doc).aspects.length)[0];
+  if (own) {
+    await canvas.animatePan({ x: own.x + own.w / 2, y: own.y + own.h / 2, duration: 250 });
+    openZoneEditor(own.doc);
+    if (editor) editor.tour = true;
+    editor?.root.querySelector(".pust-bz-name")?.blur();
+    return own.doc;
+  }
+  const g = canvas.dimensions.size, c = canvas.stage.pivot, col = COLORS[ZONE.color];
+  const used = usedAspects();
+  const a1 = randomZoneAspect(battlePlace(), used) ?? "Іржаві бочки з пальним";
+  const a2 = randomZoneAspect(battlePlace(), [...used, a1]) ?? "Густий дим";
+  demoZone = new CONFIG.Drawing.documentClass({
+    x: Math.round(c.x - (ZONE.w * g) / 2), y: Math.round(c.y - (ZONE.h * g) / 2), shape: { type: "r", width: ZONE.w * g, height: ZONE.h * g },
+    fillType: CONST.DRAWING_FILL_TYPES.SOLID, fillColor: col.fill, fillAlpha: 0.13, strokeWidth: 4, strokeColor: col.line, strokeAlpha: 1, text: "",
+    flags: { [sys()]: { battleZone: { name: randomZoneName(battlePlace(), usedNames()) ?? "Зона 1", color: ZONE.color, aspects: [{ t: a1, inv: 1 }, { t: a2, inv: 0 }] } } },
+  }, { parent: canvas.scene });
+  openZoneEditor(demoZone);
+  editor?.root.querySelector(".pust-bz-name")?.blur();
+  return demoZone;
+}
+
 /* ===================== Double-click, creating, hooks ===================== */
 
 function onDblClick(ev) {
@@ -463,7 +522,9 @@ function onDblClick(ev) {
   if (hit.part === "target") return; // two quick clicks on «Обрати всіх» select and clear — no editor
   openZoneEditor(hit.doc);
 }
-const onDocPointerDown = (ev) => { if (editor && !editor.root.contains(ev.target)) closeZoneEditor(); };
+// a press outside closes the editor, but not during a tour: the tour opens and closes it (author, 2026-11-16: a click on
+// the lit editor closed it and left the step without its element)
+const onDocPointerDown = (ev) => { if (editor && !editor.root.contains(ev.target) && !document.body.classList.contains("pust-touring")) closeZoneEditor(); };
 
 /** «+ Зона»: a 6 × 5 zone on the free spot nearest the view's centre, named «Зона N», opened for editing */
 export async function addBattleZone() {
@@ -514,3 +575,34 @@ export function readyBattleZones() {
   document.addEventListener("pointerdown", onDocPointerDown, true);
   if (canvas.ready) attach();
 }
+
+/**
+ * The tour «Бій» (author, 2026-11-16): a see-through frame laid over a zone of the viewed scene (the one with most aspects),
+ * or over its «Обрати всіх» button, so the tour can light it (it lights DOM elements only); the view is panned to the zone.
+ * `part`: "zone" | "target"; null takes the frame away. Nothing is changed in the scene.
+ */
+let zoneFrame = null;
+export async function setZoneFrame(part) {
+  zoneFrame?.remove();
+  zoneFrame = null;
+  if (!part || !canvas?.ready) return null;
+  const own = sceneZones().sort((a, b) => zoneOf(b.doc).aspects.length - zoneOf(a.doc).aspects.length)[0];
+  if (!own) return null;
+  // the whole zone in view, not closer than it is now
+  const side = document.querySelector("#sidebar")?.getBoundingClientRect();
+  const roomW = (side?.left || window.innerWidth) - 120, roomH = window.innerHeight - 120;
+  const scale = Math.min(canvas.stage.scale.x, roomW / own.w, roomH / own.h);
+  await canvas.animatePan({ x: own.x + own.w / 2, y: own.y + own.h / 2, scale, duration: 250 });
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const tb = tgtBox(own.w);
+  const box = part === "target" ? { x: own.x + tb.x, y: own.y + tb.y, w: tb.w, h: tb.s } : { x: own.x, y: own.y, w: own.w, h: own.h };
+  const t = canvas.stage.worldTransform, a = t.apply({ x: box.x, y: box.y }), b = t.apply({ x: box.x + box.w, y: box.y + box.h });
+  const pad = part === "target" ? 3 : 0;
+  zoneFrame = document.createElement("div");
+  zoneFrame.className = `pust-zone-frame pust-zone-frame-${part}`;
+  Object.assign(zoneFrame.style, { position: "fixed", zIndex: 1000,
+    left: `${a.x - pad}px`, top: `${a.y - pad}px`, width: `${b.x - a.x + 2 * pad}px`, height: `${b.y - a.y + 2 * pad}px` });
+  document.body.append(zoneFrame);
+  return own.doc;
+}
+Hooks.on("canvasTearDown", () => { zoneFrame?.remove(); zoneFrame = null; });

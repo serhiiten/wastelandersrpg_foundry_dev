@@ -1,0 +1,27 @@
+// A .json file is played through «dry» before it touches an actor (author, 2026-11-16; module/rules/file-check.mjs):
+// real sheets open, damaged files are refused. Run: node tests/file-check.test.mjs
+import { fileStateOk } from "../module/rules/file-check.mjs";
+import { QUICK_CHARS } from "../module/rules/quickstart.mjs";
+import { QUICK_START } from "../module/rules/caravan.mjs";
+import { blankState } from "../module/rules/core.mjs";
+
+let failures = 0, checks = 0;
+const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
+const clone = (o) => JSON.parse(JSON.stringify(o));
+
+// real sheets open
+for (const c of QUICK_CHARS) ok(fileStateOk(clone(c), "character"), `quick-start ${c.name} opens`);
+ok(fileStateOk(blankState(), "character"), "an empty character opens");
+ok(fileStateOk(clone(QUICK_START), "caravan"), "«Останній Шанс» opens");
+ok(fileStateOk({ companyName: "Новий" }, "caravan"), "a caravan with only a name opens (the rules fill the rest)");
+// what the import repairs by itself still opens
+ok(fileStateOk({ ...blankState(), species: "dragon", name: "Д" }, "character"), "an unknown species falls back");
+ok(fileStateOk({ ...blankState(), base: { SL: "abc", VP: -50, VTR: 1e9 } }, "character"), "bad numbers are clamped");
+// damaged files are refused
+ok(!fileStateOk({ base: null, skills: null, species: null }, "character"), "null attributes refused");
+ok(!fileStateOk({ ...blankState(), perks: { a: 1 }, name: "x" }, "character"), "perks that are no list refused");
+ok(!fileStateOk({ ...blankState(), feats: "так", name: "x" }, "character"), "feats that are no list refused");
+ok(!fileStateOk({ ...clone(QUICK_START), counters: [null, 5] }, "caravan"), "broken caravan counters refused");
+
+console.log(failures ? `${failures} of ${checks} checks FAILED` : `file-check OK (${checks} checks)`);
+if (failures) process.exit(1);

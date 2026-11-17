@@ -9,10 +9,12 @@
  * and the HP «до → після» only of characters and caravans (players see those bars anyway) — and the GMs get the full one
  * whispered (enemies' HP, armour, defences, every step). In the other modes the full card follows the mode as before.
  */
+import { activeGmHere } from "../helpers/main-window.mjs";
 import { chatType, resolveHit } from "../rules/battle.mjs";
 import { targetProfile as profileOf } from "../rules/target-profile.mjs";
 import { battleType } from "./enemy-attack.mjs";
 import { postChat, isPublicMode } from "./chat.mjs";
+import { askGM, answerGM } from "../helpers/gm-request.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -39,16 +41,25 @@ export function warnNoTargets() {
 }
 
 /** Heal tokens by `amount` up to their maximum (the tracker's trHealCore); returns the summary lines */
+/**
+ * A target by its uuid: a token (its actor, its name) or an actor itself (author, 2026-11-16: the «Битва» panel off the battle
+ * map deals damage to the players' characters and caravans picked from a list — they may have no token on the scene)
+ */
+async function targetOf(uuid) {
+  const doc = await fromUuid(uuid);
+  if (doc?.documentName === "Actor") return { tok: null, actor: doc };
+  return { tok: doc, actor: doc?.actor ?? null };
+}
+
 export async function applyHeal(tokenUuids, amount, { head = "" } = {}) {
   const lines = [];
   for (const uuid of tokenUuids) {
-    const tok = await fromUuid(uuid);
-    const actor = tok?.actor;
+    const { tok, actor } = await targetOf(uuid);
     if (!actor || !actor.system?.hp) continue;
     const hp0 = int(actor.system.hp.value), max = int(actor.system.hp.max, hp0);
     const hp = Math.min(max, hp0 + Math.max(0, int(amount))); // never below 0 (the general rule)
     if (hp !== hp0) await actor.update({ "system.hp.value": hp });
-    const name = esc(tok.name || actor.name);
+    const name = esc(tok?.name || actor.name);
     const row = { name, delta: hp - hp0, gain: true, hp0, hp, max };
     lines.push({ full: targetRow({ ...row, showHp: true }), short: targetRow({ ...row, showHp: hpOpen(actor) }) });
   }
@@ -100,22 +111,21 @@ async function postSplit(alias, lines, card) {
   await CM.create({ speaker: { alias }, whisper: CM.getWhisperRecipients("GM").map((u) => u.id), content: card(full, `<span class="pust-da-chip gm" title="Бачить лише Доглядач"><i class="fa-solid fa-eye-slash"></i>Доглядачу</span>`, true) });
 }
 
-export async function applyDamage(tokenUuids, data, { partial = false, head = "" } = {}) {
+export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, head = "" } = {}) {
   const lines = [];
   const type = battleType(data.type);
   const rollD6 = () => new Roll("1d6").evaluateSync().total;
   for (const uuid of tokenUuids) {
-    const tok = await fromUuid(uuid);
-    const actor = tok?.actor;
+    const { tok, actor } = await targetOf(uuid);
     const prof = profileOf(actor);
     if (!prof) continue;
     const hp0 = int(actor.system.hp?.value), max = int(actor.system.hp?.max, hp0);
     // one rule for every hit (module/rules/battle.mjs resolveHit): parts by type, Камікадзе once, nothing below 0
     const hit = { ...data, type, parts: Array.isArray(data.parts) ? data.parts.map((x) => ({ ...x, type: battleType(x.type) })) : undefined };
-    const r = resolveHit(prof, hp0, max, hit, { partial, rollD6 });
+    const r = resolveHit(prof, hp0, max, hit, { partial, dodge, rollD6 });
     const hp = r.hp, steps = r.steps;
     if (hp !== hp0) await actor.update({ "system.hp.value": hp });
-    const name = esc(tok.name || actor.name);
+    const name = esc(tok?.name || actor.name);
     const gain = hp >= hp0 && !!r.heal;
     const row = { name, delta: gain ? hp - hp0 : hp0 - hp, gain, hp0, hp, max, out: !!r.out, note: r.heal ? `лікує ${esc(r.heal)}` : "" };
     // the short row (everyone): no steps (armour, defences); HP only where everyone sees them
@@ -125,7 +135,7 @@ export async function applyDamage(tokenUuids, data, { partial = false, head = ""
   const rolled = Number.isFinite(Number(data.total)) ? `<span class="pust-dmg-rolled" title="Скільки випало на кістках (з модифікаторами), до броні й стійкостей">випало <b>${Math.max(0, int(data.total))}</b></span>` : "";
   const card = (ls, gmNote = "", full = false) => applyCard({
     dt: chatType(type), icon: "fa-burst", title: `Шкода${head ? `: ${esc(head)}` : ""}`,
-    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
+    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (dodge ? `<span class="pust-da-chip">½ шкоди</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
   });
   await postSplit("Шкода", lines, card);
   return lines.length;
@@ -145,7 +155,7 @@ export async function sendDamage(data, { partial = false, head = "" } = {}) {
   }
   if (game.user.isGM) { await applyDamage(targets, data, { partial, head }); clearTargets(); return true; }
   if (!game.users.activeGM) { ui.notifications.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
-  game.socket.emit(SOCKET(), { op: "applyDamage", targets, data, partial, head, from: game.user.id });
+  askGM({ op: "applyDamage", targets, data, partial, head }, "Шкода");
   // no «Запит надіслано Доглядачеві» notice (author, 2026-11-15): the chat card shows the result
   clearTargets();
   return true;
@@ -154,7 +164,7 @@ export async function sendDamage(data, { partial = false, head = "" } = {}) {
 /** Wiring (wastelanders.mjs, ready): the GM's socket for the players' requests */
 export function readyApplyDamage() {
   game.socket.on(SOCKET(), (msg) => {
-    if (!game.users.activeGM?.isSelf) return;
-    if (msg?.op === "applyDamage") applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, head: String(msg.head || "") });
+    if (!activeGmHere()) return;
+    if (msg?.op === "applyDamage") answerGM(msg, () => applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, head: String(msg.head || "") }));
   });
 }

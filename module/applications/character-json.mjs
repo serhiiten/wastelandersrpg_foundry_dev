@@ -17,6 +17,7 @@ import { createCaravanLogic } from "../rules/caravan-logic.mjs";
 import { saveCaravan } from "./caravan-actions.mjs";
 import { joinPrices, splitPrices } from "../rules/prices.mjs";
 import { QUICK_CHARS } from "../rules/quickstart.mjs";
+import { fileStateOk } from "../rules/file-check.mjs";
 
 const T = (key, data) =>
   data ? game.i18n.format(`WASTELANDERS.Json.${key}`, data) : game.i18n.localize(`WASTELANDERS.Json.${key}`);
@@ -185,6 +186,8 @@ function parseFile(text, kind = "character") {
     if (kind === "caravan" && list.some(isCharacterState)) throw new Error(T("IsCharacter"));
     throw new Error(kind === "caravan" ? T("NotCaravan") : kind === "any" ? T("NotSheet") : T("NotCharacter"));
   }
+  // played through «dry» first (rules/file-check.mjs; author, 2026-11-16): a damaged file touches no actor
+  if (!list.every((st) => fileStateOk(st, isCaravanState(st) ? "caravan" : "character"))) throw new Error(T("Damaged"));
   return list;
 }
 
@@ -222,12 +225,13 @@ export async function replaceCharacter(actor, st) {
   const { data, items } = await buildActorData(st);
   const img = await uploadPortrait(data.img, data.name);
   const old = actor.items.filter((i) => CHARACTER_ITEM_TYPES.includes(i.type)).map((i) => i.id);
-  if (old.length) await actor.deleteEmbeddedDocuments("Item", old);
   // Whole new system data: the file's values over the current ones (keeps Foundry-only fields such as
   // notes and experience options), with the file's objects and lists replacing the old ones outright.
   const system = foundry.utils.mergeObject(actor.system.toObject(), data.system, { inplace: false });
   for (const k of REPLACE_WHOLE) system[k] = data.system[k] ?? (Array.isArray(system[k]) ? [] : {});
+  // the data first: if Foundry refuses it, the character keeps everything (its items used to go before the write)
   await actor.update({ name: data.name || actor.name, ...(img ? { img, "prototypeToken.texture.src": img } : {}), system }, { recursive: false });
+  if (old.length) await actor.deleteEmbeddedDocuments("Item", old);
   await createItems(actor, items);
 }
 
@@ -289,7 +293,10 @@ export async function replaceCaravanFromFile(actor) {
     modal: true,
   });
   if (!ok) return;
-  await replaceCaravan(actor, list[0]);
+  try { await replaceCaravan(actor, list[0]); } catch (err) {
+    console.error("Пустельники | caravan .json", err);
+    return ui.notifications.error(T("WriteFailed"));
+  }
   ui.notifications.info(T("Replaced", { name: actor.name }));
   return true;
 }
@@ -315,7 +322,12 @@ export async function importCharactersFromFile() {
     return ui.notifications.error(err.message);
   }
   const created = [];
-  for (const st of list) created.push(isCaravanState(st) ? (await createCaravans([st]))[0] : await createCharacter(st));
+  try {
+    for (const st of list) created.push(isCaravanState(st) ? (await createCaravans([st]))[0] : await createCharacter(st));
+  } catch (err) {
+    console.error("Пустельники | .json import", err);
+    if (!created.length) return ui.notifications.error(T("WriteFailed"));
+  }
   ui.notifications.info(T("Imported", { names: created.map((a) => a.name).join(", ") }));
   if (created.length === 1) created[0].sheet.render(true);
 }
@@ -338,7 +350,10 @@ export async function replaceCharacterFromFile(actor) {
     modal: true,
   });
   if (!ok) return;
-  await replaceCharacter(actor, list[0]);
+  try { await replaceCharacter(actor, list[0]); } catch (err) {
+    console.error("Пустельники | character .json", err);
+    return ui.notifications.error(T("WriteFailed"));
+  }
   ui.notifications.info(T("Replaced", { name: actor.name }));
 }
 

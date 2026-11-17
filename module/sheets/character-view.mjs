@@ -4,6 +4,7 @@
  * st: HTML sheet state, d: compute(st), L: createLogic(st), ui: sheet UI state (open pickers, search…)
  */
 import { textToHtml } from "../rules/rich-text.mjs";
+import { attrTip, skillTip } from "../rules/book-desc.mjs";
 import {
   ARCH_ORDER, ATTRS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
   DRUGS, IMP_ATTR, IMPS, LVL, LVLDIE, PERK, PERKS, PRESETS, SKILLS, SPECIES, SPECIES_ORDER, catalogAll, catalogView, catProps, countedFeats,
@@ -129,6 +130,7 @@ export function buildView(st, d, L, ui = {}) {
       canUp: free || (st.base[k] + 1 <= d.allowMax[k] && d.left > 0),
       canDown: free || st.base[k] - 1 >= d.allowMin[k],
       chemNote: L.chemAttrNote(k),
+      tip: attrTip(A.n, A.s, k), // the book's description (wiki «Атрибути»)
     };
   });
 
@@ -141,7 +143,7 @@ export function buildView(st, d, L, ui = {}) {
     const lv = st.skills[s] || 0;
     const fromSrc = sp.contrib[s] > 0;
     return {
-      s, lv, die: LVLDIE[lv] || "—", level: lv ? LVL[lv] : "—", cap: d.caps[s],
+      s, tip: skillTip(s), lv, die: LVLDIE[lv] || "—", level: lv ? LVL[lv] : "—", cap: d.caps[s],
       dots: [1, 2, 3].map((j) => {
         const locked = !free && (j >= 2 || fromSrc || (lv < 1 && (sp.left <= 0 || d.caps[s] < 1)));
         return { j, on: lv >= j, label: LVL[j], over: j > d.caps[s], locked,
@@ -330,6 +332,7 @@ export function buildView(st, d, L, ui = {}) {
         ? [{ v: "", n: "атрибут…", sel: !o.attr }].concat(ATTRS.filter((A) => A.k !== "UDCH").map((A) => ({ v: A.k, n: A.s, sel: o.attr === A.k })))
         : null,
       treat: !!(D && (D.heal || D.superHeal) && consL && !st.consT?.l),
+      desc: D?.d || "", // the drug's description (the compact sheet shows it; author, 2026-11-17)
     };
     row.hasActs = row.usable || row.power || !!row.booster || row.treat; // «Вжити» and the rest take the end of the note's column
     // the card's stripe by the kind of thing (author, 2026-11-15): chems, explosives, power cells, everything else

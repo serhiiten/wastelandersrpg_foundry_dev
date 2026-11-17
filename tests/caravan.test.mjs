@@ -98,7 +98,7 @@ const ACTIONS = [
   ["field", "defOv.phys", "half"], ["field", "defOv.rad", "immune"], ["act", "def-reset"], ["act", "roll", { roll: "meeting" }], ["act", "rollRep"],
   ["act", "rollName"], ["act", "rollKarma"], ["act", "rollBudget"], ["act", "rollImps"], ["act", "cg-del", { i: "0" }],
   ["act", "cnt-del", { i: "0" }], ["act", "cimp-del", { i: "0" }], ["field", "story.face", "Мо"], ["field", "notes", "Тест"],
-  ["act", "random"], ["act", "quick"], ["act", "clear"],
+  ["act", "random"], ["act", "clear"],
 ];
 let ops = 0;
 for (let i = 0; i < 60; i++) {

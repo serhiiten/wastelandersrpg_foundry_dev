@@ -5,6 +5,7 @@
  * module/helpers/token-variants.mjs.
  */
 import { TOKEN_VARIANTS } from "./token-archive.mjs";
+import { kindTokens } from "./enemy-kinds.mjs";
 
 /** The tracker's name normalisation (tokNorm in tracker.js) */
 export const tokNorm = (s) => String(s || "").toLowerCase().replace(/[‐‑‒–—]/g, "-").replace(/[ʼ’`]/g, "'")
@@ -17,6 +18,8 @@ export const tokNorm = (s) => String(s || "").toLowerCase().replace(/[‐‑‒�
 export function variantsFor(name, aliases = {}) {
   const n = tokNorm(name);
   if (TOKEN_VARIANTS[n]) return TOKEN_VARIANTS[n];
+  const kind = kindTokens(name); // a concrete kind of a group enemy («Рейдер», «Щур»; enemy-kinds.mjs)
+  if (kind.length) return kind;
   for (const [k, v] of Object.entries(aliases)) if (tokNorm(v) === n && TOKEN_VARIANTS[tokNorm(k)]) return TOKEN_VARIANTS[tokNorm(k)];
   return [];
 }

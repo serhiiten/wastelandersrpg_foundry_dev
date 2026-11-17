@@ -199,6 +199,9 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
       // the centre a little inside the corner: over the corner's empty space on a round token
       badge.position.set(width - r * 0.75, r * 0.75);
       badge.visible = true;
+      // over the HP bar, whatever was drawn first (author, 2026-11-16: a new token had its badge under the bar)
+      const bars = this.bars;
+      if (bars?.parent === this && this.getChildIndex(badge) < this.getChildIndex(bars)) this.setChildIndex(badge, this.getChildIndex(bars));
     }
     // the boss's glow on the picture (the mesh), only while it stands
     const mesh = this.mesh;

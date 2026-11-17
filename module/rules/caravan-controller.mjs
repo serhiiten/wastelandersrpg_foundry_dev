@@ -9,7 +9,7 @@
  * Confirmations («Ви впевнені?», delete in two clicks) are the sheet's job before calling act().
  * Ported from pustelnyky-caravan/src/caravan.src.html — keep in step with it.
  */
-import { ASPECTS, COMPANY, QUICK_START, REPUTATIONS } from "./caravan.mjs";
+import { ASPECTS, COMPANY, REPUTATIONS } from "./caravan.mjs";
 import { blankDefOv } from "./caravan-defence.mjs";
 import { refillPlan, repairPlan } from "./caravan-range.mjs";
 
@@ -247,11 +247,6 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         Object.keys(s.manual || {}).forEach((k) => { s.manual[k] = false; });
         s.customImps = [];
         L.generateRandom();
-        return true;
-      case "quick":
-        L.setS(L.normalize(clone(QUICK_START)));
-        L.clampAfter();
-        toast("Завантажено караван «Останній Шанс» для швидкого старту");
         return true;
     }
     toast(`Невідома дія: ${a}`);

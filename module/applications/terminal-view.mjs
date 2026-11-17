@@ -4,6 +4,8 @@
  * T: createTerminal() from rules/terminal.mjs; st: the saved terminal state (see blankTerminal).
  * Mirrors the HTML terminal's tabs: Справа, Подорож, Натхнення, Битви.
  */
+import { sharedGet } from "../helpers/scene-shared.mjs";
+import { catIconHtml } from "../sheets/enemy-view.mjs";
 
 export const TABS = [
   { id: "case", label: "Справа", icon: "fa-briefcase" },
@@ -19,7 +21,7 @@ export function blankTerminal() {
     case: { diff: "легка", cs: null },
     travel: { type: "travel", luck: 0, main: "", additional: "" },
     tables: { sel: { namesCat: "men", namesCount: 1, awardType: "small", jobLevel: "light", epitType: "tech" }, out: {} },
-    battle: { difficulty: "easy", kinds: ["beasts"], state: null, names: [] },
+    battle: { difficulty: "easy", kinds: ["beasts"], state: null, names: [], picks: {} },
   };
 }
 
@@ -177,7 +179,7 @@ function enemyCard(T, entry, mixed) {
   const e = entry.enemy;
   const wrap = (t) => T.dice.wrap(esc(t));
   return {
-    name: e.name, count: entry.count, cat: entry.cat, catLabel: CAT[entry.cat] || entry.cat,
+    name: e.name, group: e.group || "", count: entry.count, cat: entry.cat, catLabel: CAT[entry.cat] || entry.cat, catIcon: catIconHtml(entry.cat),
     kind: mixed && entry.kind ? (T.battle.BT.DB[entry.kind] || {}).name || "" : "",
     hp: +e.hp || 0, armor: armorOf(e), armorBook: armorBook(e), armorBookHtml: wrap(armorBook(e)),
     attacks: T.battle.BT.splitAttacks(e.dmg).map((a) => { const q = T.battle.BT.attackParts(a); return { n: q.name, html: q.rest ? wrap(q.rest) : "" }; }),
@@ -213,9 +215,9 @@ function battleView(T, st, ui) {
     caseInfo: last ? "Кейс: " + Object.entries(last.pickedCase).map(([k, v]) => `${T.battle.BT.labelCat(k)}: ${v}`).join(" • ") : "",
     buckets,
     total: buckets.reduce((n, x) => n + x.count, 0),
-    place: s?.place || "", hazard: s?.hazard || "",
+    // the battle's place and hazard: the ones of the «Битва» / «Сцена» panels, shared by every scene (author, 2026-11-16)
+    place: sharedGet("place") || s?.place || "", hazard: sharedGet("hazard") || s?.hazard || "",
     rewardHtml: rewardInner(s?.rewardHtml),
-    folded: !!ui.foldAll,
   };
 }
 

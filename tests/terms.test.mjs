@@ -60,6 +60,8 @@ const SHORT_OF = Object.fromEntries(Object.values(ATTRS).map(([n, s]) => [n, s])
 // words the project never uses for these meanings (CLAUDE.md «Terms», the wiki); [regex source, what to write instead]
 const FORBIDDEN = [
   ["[Пп]сі(?:оні[кч][а-яіїєґ]*|-[а-яіїєґ]+)?", "пси / псионіка / псионік"],
+  // «псиоників» (author, 2026-11-16): the word keeps its «і» — псионік, псионіка, псионіків, псионічний
+  ["[Пп]сион(?!і)[а-яіїєґ]*", "псионік / псионіка / псионіків"],
   ["ГМ", "Доглядач"],
   ["[Мм]айстер гри", "Доглядач"],
   ["НПС|НПЦ|НПК", "НІП"],

@@ -4,8 +4,13 @@
  * this window draws them, keeps the results (per user) and sends them to chat. «Битви» can also create the
  * enemies, place their tokens and start a combat (terminal-battle.mjs).
  */
+import { addHelpButton } from "../tours/help-button.mjs";
+import { CASE_DIFF, caseBattle, caseKind, casePower } from "../rules/case-battle.mjs";
+import { travelDamage } from "./battle-panel.mjs";
+import { sharedGet, sharedSet, travelToScene } from "../helpers/scene-shared.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
-import { createBattle } from "./terminal-battle.mjs";
+import { createBattle, openGeneratedEnemy, generatedEnemyImg, dropGeneratedEnemy, OPPONENT_ALIASES } from "./terminal-battle.mjs";
+import { concreteKinds } from "../rules/enemy-kinds.mjs";
 import { postChat } from "./chat.mjs";
 import { postTerminalRoll } from "./check-panel.mjs";
 import { luckCaravan } from "./map-dice.mjs";
@@ -39,6 +44,33 @@ export function battleFromTravel(travel, i) {
 }
 
 /**
+ * «Почати бій» under a travel battle (author, 2026-11-16): the battle goes to «Битви» as «Створити битву» does, then the battle
+ * map is activated (the players come along) and its enemies are put into its zones — the battle's own (a scripted one) or
+ * rolled by the battle generator (a random one).
+ */
+export async function startTravelBattle(travel, i) {
+  if (!game.user.isGM) return;
+  OPEN ??= new TerminalApp();
+  if (OPEN.fromTravel(travel, i) === false) return;
+  return startBattle();
+}
+
+/** «Почати бій» (the battle generator's too, author 2026-11-16): the battle map activated, the terminal's battle placed there */
+export async function startBattle() {
+  if (!game.user.isGM || !OPEN?.st?.battle?.state?.last) return;
+  const { battleScene } = await import("./battle-panel.mjs");
+  const scene = battleScene();
+  if (!scene) return ui.notifications.warn("У світі немає бойової мапи. Створи сцену типу «Битва».");
+  if (canvas?.scene?.id !== scene.id) {
+    const ready = new Promise((r) => Hooks.once("canvasReady", r));
+    await scene.activate();
+    await ready;
+  } else if (!scene.active) await scene.activate();
+  await createBattle(OPEN.T, OPEN.st, "place");
+  if (OPEN.rendered) OPEN.render();
+}
+
+/**
  * Where the terminal opens the first time (author, 2026-11-14): in the free space — right of the scene navigation,
  * under the «Термінал Доглядача» plate, left of the sidebar — so it covers neither the scene list nor the controls.
  */
@@ -67,6 +99,25 @@ export function toggleTerminal() {
 /** Light the plate while the terminal is open */
 const markPlate = (on) => document.querySelectorAll(".wastelanders-terminal-open").forEach((b) => b.classList.toggle("on", on));
 
+/** The right sidebar on the Actors tab with a folder and its parents unfolded, scrolled to it */
+async function revealFolder(folder) {
+  if (!folder) return;
+  for (let f = folder; f; f = f.folder) game.folders._expanded[f.uuid] = true;
+  ui.sidebar.expand();
+  ui.sidebar.changeTab("actors", "primary");
+  await ui.actors.render();
+  setTimeout(() => ui.actors.element?.querySelector(`[data-folder-id="${folder.id}"], [data-uuid="${folder.uuid}"]`)?.scrollIntoView({ block: "start" }), 300);
+}
+
+/** A «Битви» chip dropped on the canvas: its enemy's token there */
+const DROP_TYPE = "PustGeneratedEnemy";
+Hooks.on("dropCanvasData", (cv, data) => {
+  if (data?.type !== DROP_TYPE) return;
+  const app = foundry.applications.instances.get("pust-terminal");
+  if (app) dropGeneratedEnemy(app.T, app.st, data.name, { x: data.x, y: data.y });
+  return false;
+});
+
 class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "pust-terminal",
@@ -80,9 +131,12 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       caseReroll: TerminalApp.#on((app, t) => { app.st.case.cs = clone(app.T.case.reroll(t.dataset.k)); }),
       travelType: TerminalApp.#on((app, t) => { app.st.travel.type = t.dataset.type; }),
       travelLuck: TerminalApp.#on((app, t) => { app.st.travel.luck = Number(t.dataset.luck); }),
-      travelGen: TerminalApp.#on((app) => { Object.assign(app.st.travel, app.T.travel.generate(app.st.travel.type, app.st.travel.luck)); }),
+      travelGen: TerminalApp.#on((app) => { Object.assign(app.st.travel, app.T.travel.generate(app.st.travel.type, app.st.travel.luck)); travelToScene(app.st.travel.main, app.st.travel.additional); }),
       travelKinds: TerminalApp.#on((app, t) => app.#travelKinds(+t.dataset.i)),
       travelBattle: TerminalApp.#on((app, t) => app.#travelBattle(+t.dataset.i)),
+      travelFight: TerminalApp.#on((app, t) => { startTravelBattle(clone(app.st.travel), +t.dataset.i); return false; }),
+      battleFight: TerminalApp.#on(() => { startBattle(); return false; }),
+      caseBattle: TerminalApp.#on((app) => app.#caseBattle()),
       tableGen: TerminalApp.#on((app, t) => {
         const card = TABLE_CARDS.find((c) => c.id === t.dataset.card);
         app.st.tables.out[card.id] = runTable(app.T, card, app.st.tables.sel);
@@ -90,7 +144,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       battleGen: TerminalApp.#on((app) => app.#battle((B) => B.generate(app.st.battle.difficulty, app.st.battle.kinds), true)),
       battleScene: TerminalApp.#on((app, t) => app.#battle((B) => B.rollScene(t.dataset.kind))),
       battleReward: TerminalApp.#on((app) => app.#battle((B) => B.rollReward())),
-      battleFold: TerminalApp.#on((app) => { app.ui.foldAll = !app.ui.foldAll; }),
+      battleEnemy: TerminalApp.#onEnemy,
       battleClear: TerminalApp.#on((app, t) => {
         if (!TerminalApp.#armed(t)) return false;
         app.st.battle.state = null; app.st.battle.names = [];
@@ -105,8 +159,8 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static PARTS = { main: { template: "systems/wastelanders-dev/templates/apps/terminal.hbs", scrollable: [".pust-term-body"] } };
 
-  /** UI state not saved: folded enemy cards */
-  ui = { foldAll: false };
+  /** UI state not saved */
+  ui = {};
 
   /** The saved terminal (per user) */
   get st() {
@@ -160,9 +214,15 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     B.setDifficulty(this.st.battle.difficulty);
     B.setKinds(this.st.battle.kinds);
     if (fresh && !this.st.battle.kinds.length) return ui.notifications.warn("Обери щонайменше один вид супротивників.");
+    // the place and hazard are the panels' ones, shared by every scene (author, 2026-11-16): in, and back out when rerolled
+    B.BT.BT_SCENE.place = sharedGet("place") || "";
+    B.BT.BT_SCENE.hazard = sharedGet("hazard") || "";
     const s = fn(B);
-    if (fresh) this.st.battle.names = [];
-    this.st.battle.state = clone({ ...s, names: undefined });
+    if ((s.place || "") !== (sharedGet("place") || "") || (s.hazard || "") !== (sharedGet("hazard") || "")) sharedSet({ place: s.place || "", hazard: s.hazard || "" });
+    if (fresh) { this.st.battle.names = []; this.st.battle.picks = {}; }
+    // a group enemy («Маленькі тварини…») becomes one concrete kind, kept through rerolls (author, 2026-11-16)
+    this.st.battle.picks ??= {};
+    this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
   }
 
   /* ---------- travel battles: reroll the kinds, or move the battle to «Битви» ---------- */
@@ -171,6 +231,33 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const div = document.createElement("div");
     div.innerHTML = this.st.travel.additional;
     return { div, sec: div.querySelectorAll(".battle-encounter")[i] };
+  }
+
+  /**
+   * «Створити битву» under the case's «Супротивники» (author, 2026-11-17): the battle generator gets the case's battle — its
+   * group as a kind (rules/case-battle.mjs CASE_KINDS), its «Міць супротивників» as exact counts, its difficulty — and the
+   * terminal turns to «Битви» with it
+   */
+  #caseBattle() {
+    const cs = this.st.case.cs;
+    if (!cs) return false;
+    const B = this.T.battle;
+    const kind = caseKind(cs.f.enemies);
+    const diff = CASE_DIFF[cs.diff] || "easy";
+    B.setDifficulty(diff);
+    const b = caseBattle(B.BT.DB, B.BT.ORDER, kind, casePower(cs.f.enemyPower));
+    if (!b) return ui.notifications.warn("Не вдалося зібрати битву з цієї справи."), false;
+    B.BT.BT_SCENE.place = sharedGet("place") || "";
+    B.BT.BT_SCENE.hazard = sharedGet("hazard") || "";
+    B.BT.renderBattle(b.factionKey, b.pickedCase, b.allocations);
+    const s = B.state();
+    this.st.battle.difficulty = diff;
+    this.st.battle.kinds = [kind];
+    this.st.battle.names = [];
+    this.st.battle.picks = {};
+    this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
+    this.st.tab = "battle";
+    ui.notifications.info(`Битву зі справи перенесено на вкладку «Битви»: ${B.BT.kindName(kind)}, ${cs.f.enemyPower}.`);
   }
 
   #travelKinds(i) {
@@ -193,9 +280,11 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       : { diff: span.dataset.diff, idx: +span.dataset.idx, place };
     const s = this.T.battle.fromTravel(spec);
     if (!s) return ui.notifications.warn("Не вдалося зібрати цю битву."), false;
+    sharedSet({ place: s.place || "", hazard: s.hazard || "" }); // the travel's place becomes the battle's, on every scene
     this.st.battle.difficulty = s.difficulty;
     this.st.battle.names = s.names || [];
-    this.st.battle.state = clone({ ...s, names: undefined });
+    this.st.battle.picks = {};
+    this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
     this.st.tab = "battle";
     ui.notifications.info("Битву з подорожі перенесено на вкладку «Битви».");
   }
@@ -213,10 +302,17 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onCreate(event, target) {
     target.disabled = true;
     try {
-      await createBattle(this.T, this.st, target.dataset.mode);
+      const made = await createBattle(this.T, this.st, target.dataset.mode);
+      // «Додати теку в Актори» (author, 2026-11-16): the Actors tab open, the battle's folder unfolded
+      if (target.dataset.mode === "folder" && made?.length) revealFolder(made[0].folder);
     } finally {
       target.disabled = false;
     }
+  }
+
+  /** A chip of «Битви» (author, 2026-11-16): the enemy's card */
+  static async #onEnemy(event, target) {
+    await openGeneratedEnemy(this.T, this.st, target.dataset.name);
   }
 
   static async #onChat(event, target) {
@@ -243,6 +339,12 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onDie(event, target) {
     const expr = target.dataset.dice;
     if (!expr) return;
+    // on «Подорож» a hazard's damage («3d6 шкоди») goes into «Сцена» / «Битва», lit there (author, 2026-11-16)
+    if (target.closest(".pust-travel")) {
+      const { fillDamage } = await import("./battle-panel.mjs");
+      const dmg = travelDamage(target);
+      if (dmg) return fillDamage(dmg);
+    }
     await postTerminalRoll(expr); // the dice card, as «Кістки» (follows the chat's mode menu)
   }
 
@@ -269,9 +371,21 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    // «?» (author, 2026-11-17): the terminal's tour, at the tab now open
+    addHelpButton(this, () => ["gm-terminal", this.st.tab || "case"]);
     const root = this.element;
+    // «Битви»: each chip's token picture (author, 2026-11-16)
+    root.querySelectorAll("img.pust-enchip-tok[data-tok]").forEach(async (img) => { img.src = await generatedEnemyImg(img.dataset.tok, img.dataset.group); });
+    // …and each chip may be dragged onto the scene (author, 2026-11-16; the drop: the dropCanvasData hook above the class)
+    root.querySelectorAll(".pust-enchip[draggable]").forEach((b) => b.addEventListener("dragstart", (ev) => {
+      ev.dataTransfer.setData("text/plain", JSON.stringify({ type: DROP_TYPE, name: b.dataset.name }));
+      const img = b.querySelector("img");
+      if (img) ev.dataTransfer.setDragImage(img, 15, 15);
+    }));
     // dice from the generators' HTML: <button class="die" data-dice="2d6">
     root.querySelectorAll("button.die").forEach((b) => { b.type = "button"; b.dataset.action = "die"; b.title = `Кинути ${b.dataset.dice}`; });
+    // on «Подорож» a hazard's damage die goes into the panel (author, 2026-11-16)
+    root.querySelectorAll(".pust-travel button.die").forEach((b) => { if (travelDamage(b)) { b.title = "Перенести в «Шкода й лікування» панелі"; b.classList.add("pust-die-dmg"); } });
     // travel battles: «Перекинути види» and «Створити битву» (the HTML terminal's tvEnhance)
     root.querySelectorAll(".pust-travel .battle-encounter").forEach((sec, i) => {
       const span = sec.querySelector(".tvb");
@@ -282,6 +396,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ? `<button type="button" data-action="travelKinds" data-i="${i}" title="Перекинути випадкову битву: інші види супротивників"><i class="fa-solid fa-rotate"></i> Інші види</button>`
         : "")
         + `<button type="button" class="pust-term-go" data-action="travelBattle" data-i="${i}" title="Перенести битву й місце на вкладку «Битви»"><i class="fa-solid fa-skull"></i> Створити битву</button>`
+        + `<button type="button" class="pust-term-go pust-tvb-fight" data-action="travelFight" data-i="${i}" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-flag"></i> Почати бій</button>`
         + `<span class="pust-sub">${span.classList.contains("tvb-rnd") ? "Склад супротивників кинеться за правилами генератора битв." : "Кількість супротивників кинеться за описом битви."} Місце піде у вкладку «Битви».</span>`;
       sec.append(btns);
     });

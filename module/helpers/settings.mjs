@@ -1,3 +1,12 @@
+import { registerSceneShared } from "./scene-shared.mjs";
+
+/** Hide or show Foundry's combat tab and the token HUD's combat button (setting «showCombatTab»; css/pust-ui.css) */
+export function syncCombatTab() {
+  const show = !!game.settings.get(game.system.id, "showCombatTab");
+  document.body.classList.toggle("pust-no-combat", !show);
+  if (!show && ui.sidebar?.tabGroups?.primary === "combat") ui.sidebar.changeTab("chat", "primary");
+}
+
 export function registerSystemSettings() {
   game.settings.register(game.system.id, "archetypesList", {
     name: "Список Архетипів",
@@ -23,6 +32,18 @@ export function registerSystemSettings() {
     onChange: () => ui.compendium?.render(),
   });
 
+  // Foundry's combat tab (author, 2026-11-17; feedback r1): the system keeps its battles in «Битва» and «Коло дій», so the
+  // Combat Tracker tab and the token HUD's combat button are hidden for everyone unless the GM shows them here
+  game.settings.register(game.system.id, "showCombatTab", {
+    name: "Показувати вкладку бою Foundry",
+    hint: "Бій у системі ведеться панеллю «Битва» і «Колом дій», тому вкладка бою Foundry (Combat Tracker) і кнопка бою на панелі токена сховані для всіх. Познач, щоб повернути їх.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: () => syncCombatTab(),
+  });
+
   // «Лічильники гри» (module/applications/game-counters.mjs): the world's global counters; only the Gamemaster writes
   game.settings.register(game.system.id, "gameCounters", {
     scope: "world",
@@ -38,6 +59,8 @@ export function registerSystemSettings() {
     type: Number,
     default: 0,
   });
+  // the «Битва» / «Сцена» panels' values, shared by every scene (module/helpers/scene-shared.mjs)
+  registerSceneShared();
   // «Бойова мапа» (module/helpers/default-scene.mjs): which version of the battle scene the world has got
   game.settings.register(game.system.id, "battleSceneVersion", {
     scope: "world",

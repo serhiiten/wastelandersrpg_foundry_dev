@@ -32,7 +32,7 @@
 .pust-hpbar.hp-down .pust-hpbar-t { color: var(--pu-red); }
 @keyframes pust-hp-blink { 50% { border-color: #8d2a1f; } }
 .pust-portrait { width: 116px; height: 146px; object-fit: cover; border: 3px solid var(--pu-rust-1); border-radius: 4px; box-shadow: 3px 3px 0 rgba(35,27,17,.25); background: var(--pu-steel-1); cursor: pointer; }
-.pust-who { display: flex; flex-direction: column; gap: 4px; }
+.pust-who, .pust-who-id, .pust-who-asp { display: flex; flex-direction: column; gap: 4px; } /* -id / -asp: the tour lights them (author, 2026-11-16) */
 .pust-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .pust-row > input[type="text"] { flex: 1 1 120px; }
 .pust-name { font-family: var(--pu-f-label) !important; font-weight: 800; font-size: 20px !important; height: 32px !important; text-transform: uppercase; letter-spacing: .03em; }
@@ -230,7 +230,6 @@
 .pust-sitq button { font-size: 11.5px !important; }
 .pust-quickbar .pust-status-col { background: rgba(255,252,240,.92); }
 .pust-qbtns { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; border-top: 1px dashed var(--pu-steel-3); padding-top: 6px; }
-.pust-qcnt { margin-left: auto; font-size: 11.5px; color: var(--pu-green-dim); }
 
 /* quick panel: four framed groups in two rows — [ОЗ + Броня] [Доля] / [Припаси + Кришки] [ОД] — and the buttons on the right */
 .pust-qgrid { grid-template-columns: 1.5fr 1fr auto; grid-template-areas: "life fate roll" "goods xp roll"; gap: 8px 10px; align-items: stretch; }
@@ -374,7 +373,7 @@
 /* statuses + rest/scene/day buttons fold on their own: a header bar with the counts stays */
 .pust-qstat { display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed var(--pu-steel-3); padding-top: 5px; }
 .pust-qstat > .pust-qbtns { border-top: 0; padding-top: 0; }
-.wastelanders button.pust-qstat-hd:not(.header-control) { display: flex !important; align-items: center; gap: 8px; width: 100%; height: 24px !important; min-height: 0; padding: 0 6px !important; line-height: 22px !important;
+.wastelanders button.pust-qstat-hd:not(.header-control) { display: flex !important; align-items: center; justify-content: flex-start !important; gap: 8px; width: 100%; height: 24px !important; min-height: 0; padding: 0 6px !important; line-height: 22px !important;
   background: transparent !important; border: 0 !important; box-shadow: none !important; color: var(--pu-green-dim) !important; text-align: left; cursor: pointer;
   font-family: var(--pu-f-label); font-weight: 700; font-size: 11px !important; text-transform: uppercase; letter-spacing: .06em; }
 .wastelanders button.pust-qstat-hd:not(.header-control):hover { color: var(--pu-green) !important; background: rgba(0,0,0,.18) !important; }
@@ -382,7 +381,6 @@
 .pust-qstat-n { font-family: var(--pu-f-num); font-size: 12px; padding: 0 6px; border-radius: 3px; letter-spacing: 0; }
 .pust-qstat-n.good { background: #2f6b35; color: #e7ffd9; }
 .pust-qstat-n.bad { background: #8d2a1f; color: #ffe9e4; }
-.pust-qstat-hd .pust-qcnt { text-transform: none; letter-spacing: 0; font-weight: 400; }
 .pust-qstat.folded > :not(.pust-qstat-hd) { display: none !important; }
 .pust-quickbar.folded .pust-qgrid { display: flex; justify-content: center; padding-right: 0; }
 .pust-quickbar.folded .pust-qroll { margin: 0; }
@@ -448,16 +446,16 @@
 .pust-cols-eq > .pust-attrs { display: flex; flex-direction: column; }
 .pust-cols-eq > .pust-attrs > .pust-attr:not(.pust-attr-hd) { flex: 1 1 auto; }
 /* attributes: bigger elements to fill the taller rows */
-.pust-attrs .pust-attr { grid-template-columns: 1fr 32px 50px 32px 44px 44px 44px; gap: 5px; }
+.pust-attrs .pust-attr { grid-template-columns: 1fr 32px 50px 32px 34px 34px 34px; gap: 5px; }
 .pust-attrs .pust-attr-name { font-size: 17px; gap: 9px; }
 .pust-attrs .pust-abbr { font-size: 18px; min-width: 50px; padding: 3px 5px; }
 .pust-attrs .pust-val { font-size: 21px; line-height: 34px; height: 34px; }
 .pust-attrs .pust-attr > button { width: 32px !important; height: 32px !important; min-height: 0; font-size: 17px !important; padding: 0 !important; }
 .pust-attrs .pust-lim { font-size: 14px; line-height: 32px; }
-.pust-attrs .pust-attr-hd > span { font-size: 11.5px; }
+.pust-attrs .pust-attr-hd > span { font-size: 10px; letter-spacing: 0; } /* «старт» fits the 34 px column (author, 2026-11-16: the full names keep their room) */
 
 /* attributes: one grid for all rows (columns always line up), names shrink before anything spills */
-.pust-cols-eq > .pust-attrs { display: grid; grid-template-columns: minmax(0, 1fr) 32px 50px 32px 44px 44px 44px; column-gap: 5px; align-content: stretch; container-type: inline-size; }
+.pust-cols-eq > .pust-attrs { display: grid; grid-template-columns: minmax(0, 1fr) 32px 50px 32px 34px 34px 34px; column-gap: 5px; align-content: stretch; container-type: inline-size; }
 .pust-cols-eq > .pust-attrs > :not(.pust-attr) { grid-column: 1 / -1; }
 .pust-cols-eq > .pust-attrs > .pust-attr { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
 .pust-attrs .pust-attr-name { min-width: 0; overflow: hidden; }
@@ -466,7 +464,7 @@
   .pust-attrs .pust-attr-name { font-size: 14px; gap: 6px; }
   .pust-attrs .pust-abbr { font-size: 16px; min-width: 44px; }
 }
-@container (max-width: 420px) { .pust-attrs .pust-attr-full { display: none; } }
+@container (max-width: 330px) { .pust-attrs .pust-attr-full { display: none; } }
 .pust-cols-eq > .pust-attrs { grid-template-rows: auto auto repeat(7, minmax(0, 1fr)); }
 
 /* aspect fields wrap their text and grow */
@@ -713,23 +711,12 @@
 .pust-sheetbar[open] > summary { margin-bottom: 6px; }
 .pust-sheetbar-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
 .pust-sheetbar-btns > button { white-space: nowrap; }
-.pust-qsmenu { position: relative; }
-.pust-qsmenu > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 4px;
-  background: var(--pu-paper-2); border: 1px solid var(--pu-ink-2); box-shadow: 0 2px 0 var(--pu-rust-1); font-weight: 700; font-size: 13px; white-space: nowrap; }
-.pust-qsmenu > summary::-webkit-details-marker { display: none; }
-.pust-qsmenu[open] > summary { background: var(--pu-steel-1); color: var(--pu-green); border-color: var(--pu-steel-0); }
-.pust-qslist { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; min-width: 220px; display: flex; flex-direction: column; gap: 4px; padding: 6px;
-  background: var(--pu-sheet); border: 1px solid var(--pu-rust-3); border-radius: 4px; box-shadow: 0 6px 16px rgba(0,0,0,.35); }
-.wastelanders .pust-qslist > button:not(.header-control) { display: flex !important; flex-direction: column; align-items: flex-start; height: auto !important; min-height: 40px; line-height: 1.15 !important; padding: 5px 9px !important; text-align: left; white-space: normal; }
-.pust-qslist > button b { font-family: var(--pu-f-label); font-size: 14px; }
-.pust-qslist > button small { font-size: 11px; font-weight: 400; opacity: .75; }
-.wastelanders .pust-sheetbar-btns > button:not(.header-control) { height: 30px !important; min-height: 0; line-height: 28px !important; } /* the same height as «Швидкий старт» */
-/* five equal buttons, one row at any width (labels shorten with «…» on a narrow sheet) */
+.wastelanders .pust-sheetbar-btns > button:not(.header-control) { height: 30px !important; min-height: 0; line-height: 28px !important; }
+/* equal buttons, one row at any width (labels shorten with «…» on a narrow sheet) */
 .pust-sheetbar-btns { flex-wrap: nowrap; }
-.pust-sheetbar-btns > button, .pust-sheetbar-btns > .pust-qsmenu { min-width: 0 !important; margin: 0 !important; }
-.pust-sheetbar-btns > button, .pust-qsmenu > summary { overflow: hidden; text-overflow: ellipsis; }
-.pust-qsmenu > summary { width: 100%; box-sizing: border-box; }
-.pust-sheetbar-btns > * { box-sizing: border-box !important; } /* padding inside the width, so all five come out equal */
+.pust-sheetbar-btns > button { min-width: 0 !important; margin: 0 !important; }
+.pust-sheetbar-btns > button { overflow: hidden; text-overflow: ellipsis; }
+.pust-sheetbar-btns > * { box-sizing: border-box !important; } /* padding inside the width, so all come out equal */
 .pust-sheetbar-btns { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); } .pust-sheetbar-btns > * { width: auto !important; } /* a grid: five truly equal columns (flex added the buttons padding on top) */
 /* «Налаштування»: «Захист вручну» under «Ручні надбавки» in the right column */
 .pust-setstack { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -762,7 +749,7 @@
 
 /* ===== Аркуш каравану (stage 7: as the character sheet) ===== */
 /* «Аркуш» bar: six equal buttons, three columns × two rows */
-.pust-sheetbar-btns { grid-template-columns: repeat(3, minmax(0, 1fr)); } /* six buttons, three columns × two rows (character and caravan) */
+.pust-sheetbar-btns { grid-template-columns: repeat(5, minmax(0, 1fr)); } /* five buttons in one row (character and caravan; «Швидкий старт» gone, author 2026-11-16) */
 
 /* header: no portrait, the column takes the whole width */
 .pust-caravan .pust-head { grid-template-columns: minmax(0, 1fr); }
@@ -1286,8 +1273,6 @@
 .pust-en .pust-en-def > span { flex: 1 1 auto; min-width: 0; line-height: 1.15; }
 .pust-en .pust-en-def > select { flex: 0 1 112px; min-width: 0; height: 26px; font-size: 13px; }
 .pust-en .pust-en-def.chk { grid-column: 1 / -1; }
-.pust-en .pust-en-desc { font-size: 13px; line-height: 1.4; margin-top: 6px; }
-.pust-en .pust-en-desc :is(ul, ol) { margin: 2px 0 2px 16px; padding: 0; }
 
 /* read-only for players */
 .wastelanders .pust-en.readonly :is(input, select, textarea) { pointer-events: none; opacity: 1; background: rgba(255,252,240,.85); border: 1px solid var(--pu-paper-3); color: var(--pu-ink); -webkit-text-fill-color: var(--pu-ink); }
@@ -1398,9 +1383,9 @@
 /* narrowest widths (author, 2026-11-15): 580 px is the character / caravan sheets' and the builders' floor; an enemy's card
    goes down to its own width (460), a place's card to 420 — its kind label wraps there rather than push the switches out */
 .application.pust-sheet.pust-en-sheet { min-width: 460px; }
-.application.pust-sheet.pust-place-sheet { min-width: 420px; }
+.application.pust-sheet.pust-place-sheet { min-width: 430px; } /* the kind label at its longest word + both switches (author, 2026-11-16) */
 .pust-place .pust-place-hd { gap: 6px; }
-.pust-place .pust-place-hd > .pust-place-kind { min-width: 0; white-space: normal; line-height: 1.1; }
+.pust-place .pust-place-hd > .pust-place-kind { min-width: min-content; white-space: normal; line-height: 1.1; } /* never narrower than its longest word: «Поселення» ran into the switch at 420 px (author, 2026-11-16) */
 /* «Швидкий доступ» (author, 2026-11-15). Wide (body ≥ 836 px): «Жетони Долі» / «Зароблено ОД» only as wide as their
    content, «Зробити перевірку» (two lines, 172 px) and the «0 ОЗ» box in the column on the right, as before.
    «Вилікувати» / «Поповнити» on the title row, right after «Очки здоров'я» / «Припаси» (under the counter / lamps below
@@ -1446,9 +1431,9 @@
   .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) > b { white-space: nowrap; }
 }
 /* (author, 2026-11-15) the name's row never wraps: on a narrow sheet the name field gives way, so its die stays beside it */
-.pust-sheet .pust-who > .pust-row:first-child { flex-wrap: nowrap !important; }
-.pust-sheet .pust-who > .pust-row:first-child > .pust-name { flex: 1 1 0; min-width: 0; width: 0; } /* width 0: the field adds nothing to the column's minimum */
-.pust-sheet .pust-who > .pust-row:first-child > .pust-die { flex: 0 0 auto; }
+.pust-sheet .pust-who > .pust-row:first-child, .pust-sheet .pust-who-id > .pust-row:first-child { flex-wrap: nowrap !important; }
+.pust-sheet .pust-who > .pust-row:first-child > .pust-name, .pust-sheet .pust-who-id > .pust-row:first-child > .pust-name { flex: 1 1 0; min-width: 0; width: 0; } /* width 0: the field adds nothing to the column's minimum */
+.pust-sheet .pust-who > .pust-row:first-child > .pust-die, .pust-sheet .pust-who-id > .pust-row:first-child > .pust-die { flex: 0 0 auto; }
 /* (author, 2026-11-15) «Броня» with psychic armour on a narrow sheet: the ОЗ counter keeps its width (it used to shrink and
    run under «Броня»); «Броня» gives way and its values wrap, «3 псих.» under «1 фіз.» */
 .pust-quickbar .pust-qgrp.q-life > .pust-qi:first-child { flex-shrink: 0; }
@@ -1500,11 +1485,11 @@
 @container (min-width: 820px) { .pust-gear-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .pust-gear-col { min-width: 0; }
 .pust-gcards { display: flex; flex-direction: column; gap: 8px; }
-.pust-gc { --gc: #8a6a3e; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 10px; align-items: center;
+.pust-gcards > .pust-gc { --gc: #8a6a3e; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 10px; align-items: center;
   border: 1px solid var(--pu-paper-3); border-left: 4px solid var(--gc); border-radius: 4px; padding: 7px 8px; background: var(--pu-sheet); box-shadow: 0 1px 0 rgba(35,27,17,.14); }
 .pust-gcards-weapons > .pust-gc { --gc: var(--pu-rust-3); }
 .pust-gcards-armor > .pust-gc { --gc: #5d6d78; }
-.pust-gc.on { --gc: #2f8a32; border-color: #5fa152; background: linear-gradient(90deg, rgba(61,170,64,.24), rgba(61,170,64,.08) 55%, rgba(61,170,64,.03)), #f3faea;
+.pust-gcards > .pust-gc.on { border-color: #5fa152; background: linear-gradient(90deg, rgba(61,170,64,.24), rgba(61,170,64,.08) 55%, rgba(61,170,64,.03)), #f3faea;
   box-shadow: 0 0 0 1px rgba(47,138,50,.30), 0 0 10px rgba(61,170,64,.22), 0 1px 0 rgba(35,27,17,.14); }
 .pust-gc-head { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .pust-gc-head > .pust-gname { flex: 1 1 0; width: 0; min-width: 0; font-weight: 700; }
@@ -1640,3 +1625,284 @@
   border: 1px solid rgba(0,0,0,.35) !important; border-radius: 3px !important; box-shadow: none !important; background: rgba(0,0,0,.12) !important; color: #241a0c !important;
   font: 800 11px/18px "Roboto Condensed", "PT Sans Narrow", sans-serif !important; font-style: normal !important; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
 .wastelanders.pust-sheet .pust-gc .pust-modchip > .pust-modcrit.on { background: #a8121a !important; border-color: #6e0c11 !important; color: #fff4ef !important; }
+
+/* «Аркуш» bar (author, 2026-11-16): one row at any width — when the equal buttons can't hold their labels, only the icons
+   stay (the name is in each button's tooltip); thresholds = 5 × the longest label + the gaps */
+.pust-sheetbar-btns { container: sheetbar / inline-size; }
+.pust-sheetbar-btns > button { text-overflow: clip; }
+@container sheetbar (max-width: 880px) { .pust-sheet:not(.pust-caravan-sheet) .pust-sheetbar-btns .pust-sbl { display: none; } }
+@container sheetbar (max-width: 800px) { .pust-caravan-sheet .pust-sheetbar-btns .pust-sbl { display: none; } }
+/* «Швидкий старт» actors (quickstart-lock.mjs): the wiping buttons look off but keep their tooltip with the reason */
+.pust-sheetbar-btns > button[data-locked] { opacity: .45; cursor: not-allowed; filter: grayscale(.6); }
+
+/* ----- The enemy card for players (author, 2026-11-16): the state in words as a chip in its colour, the situational aspects ----- */
+.pust-en .pust-en-state { align-self: flex-start; display: inline-flex; align-items: center; gap: 9px; padding: 7px 16px 7px 12px; border-radius: 18px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--sc) 80%, #fff), var(--sc)); color: #fff; border: 2px solid color-mix(in srgb, var(--sc) 70%, #000);
+  box-shadow: 0 2px 0 rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.3); font-family: var(--pu-f-label); font-weight: 800; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pust-en .pust-en-state > i { font-size: 17px; }
+/* «В чат» (GM): as the other switches of the bar; on a narrow card only its icon */
+.wastelanders .pust-en .pust-en-bar > button.pust-en-chat:not(.header-control) { padding: 0 9px !important; }
+@container (max-width: 370px) {
+  .wastelanders .pust-en .pust-en-bar > button.pust-en-chat:not(.header-control) { padding: 0 !important; width: 30px !important; justify-content: center; }
+  .pust-en .pust-en-bar > button.pust-en-chat > span { display: none; }
+}
+/* a weapon's attack in its card's head (author, 2026-11-17): opens «Зробити перевірку» with it; dragged to the hotbar it makes a macro */
+.pust-gc-head > .pust-gc-atk { flex: 0 0 auto; align-self: stretch; width: 26px; min-height: 26px; display: grid; place-items: center; border-radius: 3px;
+  background: linear-gradient(180deg, var(--pu-rust-3, #c06a35), var(--pu-rust, #9a4a20)); color: #fbe9d6; font-size: 13px; text-decoration: none; cursor: pointer; }
+.pust-gc-head > .pust-gc-atk:hover { filter: brightness(1.12); }
+
+/* ===== «Компактний» character sheet (author, 2026-11-17; feedback p19; character-sheet-v2.mjs compactToggle) =====
+   a narrow window: the portrait, the name, archetype · species, the switch; the main aspects as chips in their stripes'
+   colours (read only); «Швидкий доступ»; the chems with «Вжити» / «На ціль» */
+.application.pust-sheet:has(.pust-compact) { min-width: 460px; /* the compact width is its narrowest (author, 2026-11-17) */ }
+.pust-cmp-seg { flex: none; }
+.pust-cmp-seg > button { white-space: nowrap; }
+.pust-cmp-head { display: flex; align-items: center; gap: 10px; padding: 4px 2px 8px; }
+.pust-cmp-portrait { flex: none; width: 52px; height: 52px; border: 2px solid var(--pu-rim, #1e1b17); border-radius: 50%; object-fit: cover; background: #8e887f; }
+.pust-cmp-who { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pust-cmp-name { font-family: var(--pu-f-label); font-size: 19px; font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; }
+.pust-cmp-who > small { color: #5d5543; font-size: 12.5px; }
+.pust-cmp-asps { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 8px; }
+.pust-cmp-asp { display: inline-flex; align-items: stretch; max-width: 100%; border-radius: 3px; overflow: hidden; border: 1px solid var(--ac); font-size: 12.5px; }
+.pust-cmp-asp > b { flex: none; display: flex; align-items: center; padding: 2px 6px; background: var(--ac); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.pust-cmp-asp > span { min-width: 0; padding: 2px 7px; background: var(--ab); color: #2a261c; font-style: italic; overflow-wrap: anywhere; }
+.pust-cmp-asp.asp-concept { --ac: #2f5f97; --ab: #cfe0f2; }
+.pust-cmp-asp.asp-problem { --ac: #a8121a; --ab: #f3cfc9; }
+.pust-cmp-asp.asp-goal { --ac: #b8900f; --ab: #f5e6a8; }
+.pust-cmp-chems { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+.pust-cmp-chem { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 5px 7px; border-left: 4px solid #1d7a6a; border-radius: 3px; background: rgba(255,255,255,.35); }
+.pust-cmp-chem.kind-power { border-left-color: #c9a414; }
+.pust-cmp-cn { flex: 1 1 60px; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.pust-cmp-cn > small { color: #5d5543; font-weight: 400; }
+.pust-cmp-chem > select { width: auto; flex: none; }
+/* the compact sheet's «Швидкий доступ» (author, 2026-11-17: redrawn smaller, every control kept; no fold): the groups give their
+   items to one grid of two equal columns, each item a box of its own — ОЗ | Броня, Жетони Долі | Зароблено ОД, Припаси |
+   Кришки —, every box's content from its left edge; «Зробити перевірку» and the «0 ОЗ» box the whole width */
+.pust-compact .pust-quickbar { padding: 6px !important; }
+.pust-compact .pust-quickbar .pust-qgrid { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; grid-template-rows: auto !important;
+  grid-template-areas: none !important; gap: 6px !important; padding-right: 0 !important; }
+.pust-compact .pust-qgrid > .pust-qgrp { display: contents !important; }
+.pust-compact .pust-qgrid .pust-qgrp > .pust-qi { grid-area: auto !important; flex: none !important; width: auto !important; max-width: none !important; min-width: 0 !important; justify-self: stretch; margin: 0 !important;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 4px; padding: 5px 8px 6px;
+  border: 1px solid var(--pu-steel-3); border-radius: 4px; background: rgba(0,0,0,.22); box-shadow: inset 0 0 10px rgba(0,0,0,.35); }
+.pust-compact .pust-qgrid .q-life > .pust-qi:nth-child(1) { order: 1; } .pust-compact .pust-qgrid .q-life > .pust-qi:nth-child(2) { order: 2; }
+.pust-compact .pust-qgrid .q-fate > .pust-qi { order: 3; } .pust-compact .pust-qgrid .q-xp > .pust-qi { order: 4; }
+.pust-compact .pust-qgrid .q-goods > .pust-qi:nth-child(1) { order: 5; } .pust-compact .pust-qgrid .q-goods > .pust-qi:nth-child(2) { order: 6; }
+.pust-compact .pust-qgrid > .pust-qroll { order: 7; grid-column: 1 / -1 !important; grid-area: auto / 1 / auto / -1 !important; margin-left: 0; }
+.pust-compact .pust-qgrid > .pust-qko { order: 8; grid-column: 1 / -1 !important; grid-area: auto / 1 / auto / -1 !important; margin-left: 0; }
+.pust-compact .pust-qi > span:first-child { font-size: 11px; justify-content: flex-start; text-align: left; }
+.pust-compact .pust-qi .pust-qarm { justify-content: flex-start; }
+.pust-compact .pust-qi input.pust-screen { width: 34px !important; height: 26px !important; font-size: 15px !important; }
+.pust-compact .pust-qi button[data-d] { width: 24px !important; height: 26px !important; min-width: 0 !important; }
+.pust-compact .pust-qlamps .pust-qlamp { width: 20px !important; height: 20px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid > .pust-qroll > .pust-check-btn:not(.header-control) { width: 100% !important; height: 38px !important; white-space: nowrap !important; }
+.pust-compact .pust-qsit, .pust-compact .pust-qstat { margin-top: 6px; }
+/* the quick aspects in one row: no label, smaller chips */
+.pust-compact .pust-sitq { flex-wrap: nowrap; gap: 4px; }
+.pust-compact .pust-sitq > .pust-qlbl { display: none; }
+.wastelanders .pust-compact .pust-sitq button:not(.header-control) { flex: 0 1 auto; min-width: 0; height: 24px !important; padding: 0 6px !important; font-size: 12px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the time buttons: icons only, their names in the tooltips */
+.pust-qtime > i { margin-right: 5px; }
+.pust-compact .pust-qtime > span { display: none; }
+.pust-compact .pust-qtime > i { margin: 0; }
+.wastelanders .pust-compact .pust-qbtns > button.pust-qtime:not(.header-control) { width: 34px !important; min-width: 0 !important; padding: 0 !important; }
+.pust-compact .pust-qbtns { display: flex; flex-wrap: nowrap; gap: 5px; align-items: center; }
+/* the chems (author, 2026-11-17: tight): name, «Вжити» / «На ціль», × in one row, the description and a booster's attribute under them */
+.pust-cmp-chem { flex-direction: column; align-items: stretch; gap: 2px; padding: 3px 6px !important; }
+.pust-cmp-chem-hd { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.wastelanders .pust-cmp-chem-hd > button.pust-use-btn:not(.header-control) { height: 22px !important; line-height: 20px !important; padding: 0 7px !important; font-size: 12px !important; }
+.wastelanders .pust-cmp-chem-hd > button.pust-x:not(.header-control) { flex: none; width: 22px !important; height: 22px !important; min-width: 0 !important; padding: 0 !important; }
+.pust-cmp-desc { margin: 0; color: #4a4336; font-size: 12px; line-height: 1.25; }
+.pust-cmp-chem-more { display: flex; flex-wrap: wrap; gap: 5px; }
+.pust-cmp-chem-more > select { width: auto !important; height: 22px !important; padding: 0 4px !important; font-size: 12px; }
+.wastelanders .pust-cmp-chem-more > button:not(.header-control) { height: 22px !important; line-height: 20px !important; padding: 0 7px !important; font-size: 12px !important; }
+.pust-cmp-chems { gap: 4px !important; }
+/* the gear: chips «name · damage / armour · ×N · price ×», stripe by kind as the cards; «+ Річ» in the heading */
+.pust-cmp-gear { margin-top: 8px; }
+.pust-cmp-gear > h3 { display: flex; align-items: center; gap: 8px; }
+.pust-cmp-gear > h3 > .pust-cmp-add { margin-left: auto; height: 26px !important; padding: 0 10px !important; font-size: 12px !important; text-transform: none; letter-spacing: 0; }
+.pust-cmp-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+.pust-cmp-gc { --gc: #6b4a2b; display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 2px 3px 2px 7px; border: 1px solid #b9ad8a; border-left: 4px solid var(--gc); border-radius: 3px;
+  background: rgba(255,255,255,.4); font-size: 12.5px; line-height: 1.25; }
+.pust-cmp-gc > b { min-width: 0; overflow-wrap: anywhere; }
+.pust-cmp-gc.kind-gun { --gc: var(--pu-rust-3, #c06a35); } .pust-cmp-gc.kind-energy { --gc: #c0392b; } .pust-cmp-gc.kind-melee { --gc: #6b4a2b; }
+.pust-cmp-gc.kind-boom { --gc: #e07b25; } .pust-cmp-gc.kind-psi { --gc: #7b4fb0; } .pust-cmp-gc.kind-natural { --gc: #6f7d2c; }
+.pust-cmp-gc.kind-armor { --gc: #5a6b78; } .pust-cmp-gc.kind-heavy-armor { --gc: #3c4a55; } .pust-cmp-gc.kind-power-armor { --gc: #2f5f97; }
+.pust-cmp-gc.kind-gear { --gc: #7a5a3a; } .pust-cmp-gc.kind-power { --gc: #c9a414; }
+.pust-cmp-gs { flex: none; padding: 0 5px; border-radius: 3px; background: var(--dt-bg, #6e3b22); color: var(--dt-fg, #f4d11a); font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); font-size: 12px; }
+.pust-cmp-gs.arm { background: #3c4a55; color: #e3efff; }
+.pust-cmp-gq, .pust-cmp-gp { flex: none; color: #5d5543; font-size: 12px; }
+.pust-cmp-gp { font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); }
+.wastelanders .pust-cmp-gc > button.pust-cmp-gx:not(.header-control) { flex: none; width: 20px !important; height: 20px !important; min-width: 0 !important; padding: 0 !important; margin: 0;
+  display: grid; place-items: center; font-size: 11px; background: transparent !important; border: 1px solid transparent !important; box-shadow: none !important; color: #8a2116 !important; }
+.wastelanders .pust-cmp-gc > button.pust-cmp-gx:not(.header-control):hover { border-color: #b0574a !important; background: #f2cdc6 !important; }
+.wastelanders .pust-cmp-gc > button.pust-cmp-gx.armed:not(.header-control) { background: var(--pu-red-ink, #a8121a) !important; color: #fff !important; border-color: #5a0a0e !important; }
+.pust-cmp-chem-hd > select { flex: none; width: auto !important; height: 22px !important; padding: 0 4px !important; font-size: 12px; }
+/* the compact sheet (author, 2026-11-17): tighter gaps between its blocks; «+ Річ» / «Сховати довідник» inside the heading's line;
+   the catalogue's search the whole width, its section and order as icons — the list lies over the icon, invisible, and opens as usual */
+.pust-compact .pust-quickbar { margin-bottom: 0 !important; }
+.pust-compact .pust-cmp-chems, .pust-compact .pust-cmp-gear { margin-top: 6px !important; }
+.pust-compact .pust-cmp-chems > h3, .pust-compact .pust-cmp-gear > h3 { margin-bottom: 5px; }
+.pust-compact .pust-block { padding-top: 6px; padding-bottom: 6px; }
+.pust-cmp-gear > h3 { min-height: 30px; padding-bottom: 4px; }
+.wastelanders .pust-cmp-gear > h3 > button.pust-cmp-add:not(.header-control) { height: 24px !important; line-height: 22px !important; margin: 0 0 2px auto !important; }
+.pust-compact .pust-addcat-bar > input[type="text"] { flex: 1 1 auto; min-width: 120px; }
+.pust-cmp-ico { position: relative; flex: none; width: 30px; height: 28px; margin: 0; display: grid; place-items: center; border: 1px solid var(--pu-paper-3, #b9ad8a); border-radius: 3px;
+  background: var(--pu-paper, #d9cfb2); color: var(--pu-rust-2, #6e3b22); cursor: pointer; }
+.pust-cmp-ico.on { background: var(--pu-rust, #9a4a20); color: #fbe9d6; border-color: #5a2410; }
+.pust-cmp-ico > select { position: absolute; inset: 0; width: 100% !important; height: 100% !important; opacity: 0; cursor: pointer; }
+.pust-cmp-ico:focus-within { outline: 2px solid var(--pu-rust-3, #c06a35); outline-offset: 1px; }
+/* the compact sheet's «Швидкий доступ» as chips (author, 2026-11-17): one height, a grid of three — ОЗ, Броня, ЖД /
+   Припаси, (к), ОД —, short names (the full one in the tooltip), ОЗ as the battle overview's bar between − and +, two-digit
+   fields (the caps' font smaller past two digits), the paid services as icons; «Зробити перевірку» a full row */
+.pust-compact .pust-quickbar .pust-qgrid { display: grid !important; grid-template-columns: auto auto auto !important; grid-template-areas: none !important;
+  justify-content: space-between; gap: 5px !important; align-items: stretch; }
+.pust-compact .pust-qgrid .pust-qgrp > .pust-qi { width: auto !important; height: 30px; flex-direction: row !important; align-items: center !important; gap: 4px !important;
+  padding: 0 6px !important; border-radius: 15px !important; box-sizing: border-box; }
+.pust-compact .pust-qgrid .pust-qi[data-q="heart-pulse"] { order: 1; } .pust-compact .pust-qgrid .pust-qi[data-q="shield-halved"] { order: 2; }
+.pust-compact .pust-qgrid .pust-qi[data-q="clover"] { order: 3; } .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] { order: 4; }
+.pust-compact .pust-qgrid .pust-qi[data-q="coins"] { order: 5; } .pust-compact .pust-qgrid .pust-qi[data-q="medal"] { order: 6; }
+.pust-compact .pust-qgrid .pust-qgrp > .pust-qi > div { display: flex; align-items: center; gap: 3px; flex-wrap: nowrap; }
+.pust-compact .pust-qgrid .pust-qi > span:first-child { font-size: 0 !important; line-height: 1; flex: none; }
+.pust-compact .pust-qgrid .pust-qi > span:first-child > i { display: none !important; }
+.pust-compact .pust-qgrid .pust-qi > span:first-child::after { content: attr(data-short); font-size: 12px; font-weight: 800; letter-spacing: .02em; color: var(--pu-green, #3dff47); }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi input.pust-screen { width: 24px !important; min-width: 0 !important; flex: none !important; height: 22px !important; font-size: 14px !important; padding: 0 !important; text-align: center; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi input.pust-screen.pust-long { width: 32px !important; font-size: 11px !important; }
+.pust-compact .pust-qgrid .pust-qi button[data-d] { width: 20px !important; height: 22px !important; font-size: 13px !important; padding: 0 !important; }
+.pust-compact .pust-qgrid .pust-qi b { font-size: 13px !important; }
+.pust-compact .pust-qgrid .pust-qi .pust-qarm .big { font-size: 17px !important; }
+.pust-compact .pust-qgrid .pust-qi .pust-qarm small { font-size: 10px; }
+.pust-compact .pust-qgrid .pust-qlamps { gap: 2px; }
+.pust-compact .pust-qgrid .pust-qlamps .pust-qlamp { width: 13px !important; height: 13px !important; min-width: 0 !important; }
+.pust-compact .pust-qgrid .pust-xpleft { font-size: 10px; line-height: 1.05; }
+.wastelanders .pust-compact .pust-qgrid .pust-qi > button.pust-buy-btn:not(.header-control) { width: 22px !important; height: 22px !important; min-width: 0 !important; padding: 0 !important; font-size: 0 !important; }
+.wastelanders .pust-compact .pust-qgrid .pust-qi > button.pust-buy-btn:not(.header-control) > i { font-size: 12px; margin: 0; }
+/* ОЗ: − / the bar with «9/9» / + (the field stays for the sheet, hidden) */
+.pust-compact .pust-qgrid .pust-qi[data-q="heart-pulse"] input[data-k="hpCur"], .pust-compact .pust-qgrid .pust-qi[data-q="heart-pulse"] > div > b { display: none; }
+.pust-cmp-hpbar { position: relative; width: 58px; height: 18px; border-radius: 4px; background: #0f1412; overflow: hidden; box-shadow: inset 0 1px 1px rgba(0,0,0,.5); }
+.pust-cmp-hpbar > i { position: absolute; inset: 0 auto 0 0; background: #2f8a32; }
+.pust-cmp-hpbar.hp-mid > i { background: #b07a14; } .pust-cmp-hpbar.hp-low > i, .pust-cmp-hpbar.hp-dead > i { background: #a8121a; }
+.pust-cmp-hpbar > b { position: relative; display: block; text-align: center; line-height: 18px; color: #fff !important; font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); font-size: 12px !important; text-shadow: 0 1px 1px #000; }
+.pust-compact .pust-qgrid > .pust-qroll, .pust-compact .pust-qgrid > .pust-qko { order: 7; grid-column: 1 / -1 !important; }
+.pust-compact .pust-qgrid > .pust-qko { order: 8; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid > .pust-qroll > .pust-check-btn:not(.header-control) { height: 34px !important; }
+/* the compact chips a little tighter, so ОЗ with «Вилікувати» and ОД with «лишилося» fit their column */
+.pust-compact .pust-qgrid .pust-qgrp > .pust-qi { gap: 3px !important; padding: 0 5px !important; }
+.pust-compact .pust-qgrid .pust-qgrp > .pust-qi > div { gap: 2px; }
+.pust-cmp-hpbar { width: 46px; }
+.pust-compact .pust-qgrid .pust-xpleft { font-size: 9px; letter-spacing: -.02em; }
+/* the compact chips show their icons again (author, 2026-11-17: the words took the room the lamps and services need); the name in the tooltip */
+.pust-compact .pust-qgrid .pust-qi > span:first-child > i { display: inline-block !important; font-size: 14px !important; margin: 0 !important; }
+.pust-compact .pust-qgrid .pust-qi > span:first-child::after { content: none !important; }
+/* the compact Припаси (author, 2026-11-17, checked with 1…6 lamps and the counter past 6): lamps of their own size, never stretched;
+   the counter's field and «/ N» as narrow as the others */
+.pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps { display: flex !important; flex: none !important; align-items: center; gap: 2px !important; height: auto !important; min-height: 0 !important; width: auto !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps > .pust-qlamp { flex: none !important; width: 13px !important; height: 13px !important; min-width: 0 !important; padding: 0 !important; margin: 0 !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi input.pust-screen[data-k] { width: 24px !important; min-width: 0 !important; flex: none !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi input.pust-screen[data-k].pust-long { width: 32px !important; }
+.pust-compact .pust-qgrid .pust-qi > div > b { min-width: 0 !important; width: auto !important; white-space: nowrap; }
+.wastelanders.pust-sheet .pust-compact .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) > input { flex: 0 0 24px !important; width: 24px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) > input.pust-long { flex-basis: 32px !important; width: 32px !important; }
+.pust-compact .pust-qgrid .pust-qi[data-q="backpack"] > div > b { font-size: 10px !important; }
+.wastelanders .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] > button.pust-buy-btn:not(.header-control) { width: 20px !important; }
+.pust-compact .pust-qgrid .pust-qi .pust-qarm { height: auto !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; align-items: center; }
+.pust-compact .pust-qgrid .pust-qi .pust-xpleft { margin-left: 1px !important; }
+/* the compact chips (author, 2026-11-17): twice as tall (60 px), rectangular, everything inside larger in step; the six Припаси
+   lamps in two even rows of three; «Вилікувати» / «Поповнити» one square button each, at the chip's right end, the icon centred */
+.pust-compact .pust-qgrid .pust-qgrp > .pust-qi { height: 60px !important; border-radius: 4px !important; padding: 0 8px !important; gap: 6px !important; }
+.pust-compact .pust-qgrid .pust-qi > span:first-child > i { font-size: 20px !important; }
+.pust-compact .pust-qgrid .pust-qgrp > .pust-qi > div { gap: 4px; }
+.pust-compact .pust-qgrid .pust-qi input.pust-screen { width: 32px !important; height: 30px !important; font-size: 17px !important; }
+.pust-compact .pust-qgrid .pust-qi input.pust-screen.pust-long { width: 42px !important; font-size: 13px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) > input { flex: 0 0 32px !important; width: 32px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-quickbar .q-goods > .pust-qi:first-child > div:not(.pust-qlamps) > input.pust-long { flex-basis: 42px !important; width: 42px !important; }
+.pust-compact .pust-qgrid .pust-qi button[data-d] { width: 24px !important; height: 30px !important; font-size: 16px !important; }
+.pust-compact .pust-qgrid .pust-qi b { font-size: 16px !important; }
+.pust-compact .pust-qgrid .pust-qi .pust-qarm .big { font-size: 24px !important; }
+.pust-compact .pust-qgrid .pust-qi .pust-qarm small { font-size: 12px; }
+.pust-compact .pust-qgrid .pust-xpleft { font-size: 11px; line-height: 1.15; }
+.pust-compact .pust-cmp-hpbar { width: 64px; height: 26px; }
+.pust-compact .pust-cmp-hpbar > b { line-height: 26px; font-size: 15px !important; }
+.pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps { display: grid !important; grid-template-columns: repeat(3, 18px); grid-auto-rows: 18px; gap: 5px !important; }
+.pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps:not(:has(> :nth-child(4))) { grid-template-columns: repeat(3, 18px); }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps > .pust-qlamp { width: 18px !important; height: 18px !important; }
+.wastelanders .pust-compact .pust-qgrid .pust-qi > button.pust-buy-btn:not(.header-control),
+.wastelanders .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] > button.pust-buy-btn:not(.header-control) {
+  display: grid !important; place-items: center; flex: none; width: 30px !important; height: 30px !important; margin: 0 0 0 auto !important; line-height: 0 !important; }
+.wastelanders .pust-compact .pust-qgrid .pust-qi > button.pust-buy-btn:not(.header-control) > i { font-size: 15px; line-height: 1; margin: 0 !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > button.pust-buy-btn:not(.header-control) {
+  display: grid !important; place-items: center; flex: none !important; width: 30px !important; height: 30px !important; min-width: 0 !important; padding: 0 !important;
+  margin: 0 0 0 auto !important; font-size: 0 !important; line-height: 0 !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > button.pust-buy-btn:not(.header-control) > i { width: auto !important; font-size: 15px !important; line-height: 1 !important; margin: 0 !important; }
+/* each 60 px chip in two rows: the icon (and the paid service's button on the right) over the controls, centred */
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi { display: grid !important; grid-template-columns: 1fr auto; grid-template-rows: 22px 1fr;
+  align-items: center; padding: 4px 6px !important; gap: 2px 4px !important; position: relative; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > span:first-child { grid-row: 1; grid-column: 1; justify-self: start; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > :not(span):not(.pust-buy-btn) { grid-row: 2 !important; grid-column: 1 / -1 !important; justify-self: center !important; width: auto !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > button.pust-buy-btn:not(.header-control) { grid-row: 1 !important; grid-column: 2 !important;
+  width: 26px !important; height: 22px !important; margin: 0 !important; display: flex !important; align-items: center; justify-content: center; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > button.pust-buy-btn:not(.header-control) > i,
+.pust-compact .pust-qgrid .pust-qi > span:first-child > i { display: block !important; line-height: 1 !important; font-size: 15px !important; }
+.pust-compact .pust-qgrid .pust-qi > span:first-child > i { font-size: 17px !important; }
+.pust-compact .pust-qgrid .pust-qi button[data-d] { width: 22px !important; height: 28px !important; }
+.pust-compact .pust-qgrid .pust-qi input.pust-screen { height: 28px !important; }
+.pust-compact .pust-cmp-hpbar { width: 60px; }
+.pust-compact .pust-qgrid .pust-qi[data-q="medal"] .pust-xpleft { position: absolute; top: 5px; right: 7px; margin: 0 !important; }
+.pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps { grid-template-columns: repeat(3, 14px) !important; grid-auto-rows: 14px !important; gap: 4px 6px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps > .pust-qlamp { width: 14px !important; height: 14px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > button.pust-buy-btn:not(.header-control) { gap: 0 !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi { grid-template-rows: 20px 1fr; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > button.pust-buy-btn:not(.header-control) { height: 20px !important; }
+.pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps { grid-template-columns: repeat(3, 13px) !important; grid-auto-rows: 13px !important; gap: 3px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps > .pust-qlamp { width: 13px !important; height: 13px !important; }
+/* the compact chips, tightened (author, 2026-11-17): three equal columns, small gaps; the icon centred on top (the paid service's
+   button stays at its right); smaller − / +; Припаси: the lamps in one row with their button; ОД: what is left only as a number
+   in amber (its meaning in the tooltip) */
+.wastelanders.pust-sheet .pust-compact .pust-quickbar .pust-qgrid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; justify-content: stretch; gap: 4px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi { padding: 4px 4px !important; gap: 2px 3px !important; grid-template-columns: 26px 1fr 26px; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > span:first-child { grid-column: 2 !important; justify-self: center !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > button.pust-buy-btn:not(.header-control) { grid-column: 3 !important; justify-self: end; width: 24px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > :not(span):not(.pust-buy-btn) { grid-column: 1 / -1 !important; }
+.pust-compact .pust-qgrid .pust-qi button[data-d] { width: 18px !important; height: 22px !important; font-size: 13px !important; }
+.pust-compact .pust-qgrid .pust-qgrp > .pust-qi > div { gap: 3px !important; }
+/* Припаси: lamps and button in the lower row */
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"]:has(> .pust-qlamps) > .pust-qlamps { grid-column: 1 / 3 !important; justify-self: center !important;
+  display: flex !important; gap: 3px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"]:has(> .pust-qlamps) > button.pust-buy-btn:not(.header-control) { grid-row: 2 !important; grid-column: 3 !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps > .pust-qlamp { width: 12px !important; height: 12px !important; }
+/* ОД */
+.pust-compact .pust-qgrid .pust-qi[data-q="medal"] .pust-xpleft { position: static !important; font-size: 0 !important; line-height: 1; margin: 0 0 0 2px !important; }
+.pust-compact .pust-qgrid .pust-qi[data-q="medal"] .pust-xpleft > b { font-size: 14px !important; color: #e2ad3b !important; }
+.pust-compact .pust-qgrid .pust-qi[data-q="medal"] .pust-xpleft.bad > b { color: #ff6a5a !important; }
+/* the compact sheet's statuses in one column: positive over negative */
+.pust-compact .pust-status { grid-template-columns: 1fr; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > button.pust-buy-btn:not(.header-control) { align-self: center !important; }
+/* the compact chips' − / + in the same places in every chip (author, 2026-11-17): − at the left edge, + at the right, the value centred
+   between them (ОД's amber number goes before the +) */
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > div:has(> button[data-d]) { justify-self: stretch !important; width: auto !important; display: flex !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > div > button[data-d^="-"] { order: 0; margin-right: auto !important; flex: none !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > div > button[data-d]:not([data-d^="-"]) { order: 9; margin-left: auto !important; flex: none !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi > div:has(> button[data-d]) { margin: 0 5px !important; } /* − / + 10 px from the chip's edges */
+/* Припаси: the lamps centred on the chip (author, 2026-11-17), the button at the right of the same row */
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"]:has(> .pust-qlamps) > .pust-qlamps { grid-column: 1 / -1 !important; grid-row: 2 !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"]:has(> .pust-qlamps) > button.pust-buy-btn:not(.header-control) { position: relative; z-index: 1; width: 22px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps:has(> :nth-child(5)) > .pust-qlamp { width: 10px !important; height: 10px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"] > .pust-qlamps:has(> :nth-child(6)) { gap: 2px !important; }
+/* Припаси: «Поповнити» at the top right, as «Вилікувати» on ОЗ (author, 2026-11-17); the lamps alone in the lower row, centred */
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"]:has(> .pust-qlamps) > button.pust-buy-btn:not(.header-control) { grid-row: 1 !important; grid-column: 3 !important; width: 24px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps:has(> :nth-child(5)) > .pust-qlamp { width: 12px !important; height: 12px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"] > .pust-qlamps:has(> :nth-child(6)) { gap: 3px !important; }
+/* Припаси' lamps larger now that their row is free (author, 2026-11-17) */
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"] > .pust-qlamps,
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qgrp > .pust-qi[data-q="backpack"] > .pust-qlamps:has(> :nth-child(6)) { gap: 4px !important; }
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps > .pust-qlamp,
+.wastelanders.pust-sheet .pust-compact .pust-qgrid .pust-qi[data-q="backpack"] .pust-qlamps:has(> :nth-child(5)) > .pust-qlamp { width: 15px !important; height: 15px !important; }
+/* the compact sheet: «Зробити перевірку» above the chips (author, 2026-11-17) */
+.wastelanders.pust-sheet .pust-compact .pust-qgrid > .pust-qroll { order: -1 !important; }
+/* the compact sheet's blocks one small even gap apart (author, 2026-11-17): only the column's 6 px gap, no margins */
+.wastelanders.pust-sheet .pust-compact > .pust-quickbar, .wastelanders.pust-sheet .pust-compact > .pust-cmp-chems, .wastelanders.pust-sheet .pust-compact > .pust-cmp-gear { margin-top: 0 !important; margin-bottom: 0 !important; }
+.wastelanders.pust-sheet .pust-compact > .pust-cmp-asps { margin-bottom: 0 !important; }
+/* the compact sheet's quantities as small dark chips (author, 2026-11-17: more visible) */
+.pust-cmp-gq, .pust-cmp-cn > small { flex: none; display: inline-block; padding: 0 4px; border-radius: 3px; background: #4a453d; color: #f3e6c4 !important;
+  font-size: 12px !important; font-weight: 700; line-height: 17px; vertical-align: 1px; }
+.pust-cmp-cn > small { margin-left: 3px; }

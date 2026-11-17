@@ -5,6 +5,8 @@
  * does. Foundry adds the window, saves the character and posts results to chat.
  * The panel's state (R: attribute, skill, type, Посилення…, history) is kept per character.
  */
+import { addHelpButton } from "../tours/help-button.mjs";
+import { hotbarDraggable } from "../helpers/macros.mjs";
 import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
@@ -24,6 +26,25 @@ const OPEN = new Map();
 
 /** Buttons whose result goes to chat */
 const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "dmg", "dmgre"]);
+
+/**
+ * The damage is rolled and dealt in one press (author, 2026-11-17): «Завдати шкоди» with the targets' count; with no
+ * targets it is locked (half-transparent), its tooltip and a press say why. Kept in step with the targets live.
+ */
+const NO_TARGETS = "Цілей не обрано. Познач ціль: T над токеном (Shift+T — ще одну).";
+function syncDealButton(root) {
+  const b = root?.querySelector('button[data-r="dmg"]');
+  if (!b) return;
+  const n = game.user.targets.size;
+  b.classList.toggle("pust-locked", !n);
+  b.setAttribute("aria-disabled", String(!n));
+  b.title = n ? `Кинути шкоду й одразу завдати її цілям: ${n}` : NO_TARGETS;
+  const c = b.querySelector(".pust-tgtn");
+  if (c) c.textContent = n ? ` · цілей: ${n}` : "";
+}
+Hooks.on("targetToken", (user) => {
+  if (user === game.user) document.querySelectorAll(".pust-roller").forEach(syncDealButton);
+});
 
 export function openCheckPanel(actor, preset = {}) {
   let app = OPEN.get(actor.uuid);
@@ -101,6 +122,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       R.dmgKey = `w${p.weapon}`;
       R.dmgUser = true;
     }
+    // a ready check (a hotbar macro; author, 2026-11-17): as a press of its button
+    if (p.r) L.rollerClick({ tagName: "BUTTON", dataset: { r: p.r, v: String(p.v) } });
     if (Object.keys(p).length) {
       R.last = null;
       R.am = {};
@@ -158,6 +181,22 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const choices = L.dmgChoices(compute(st));
     const wt = weaponDmgType(choices.find((x) => x.key === (D ? D.key : L.R.dmgKey)));
     html = html.replace('<div class="rdmg">', `<div class="rdmg dt-${wt}">`);
+    // the weapon for the damage as chips «name · damage» in their damage type's colours, not a list (author, 2026-11-17);
+    // the chosen one (by default the weapon in hand, the sheet's defaultDmgKey) lit; a click works as the list's change
+    html = html.replace(/<div class="rdmgsel"><select id="r-dmgw"[^>]*>([\s\S]*?)<\/select><\/div>/, (m, opts) => {
+      const chips = [...opts.matchAll(/<option value="([^"]*)"( selected)?>([\s\S]*?)<\/option>/g)].map(([, key, sel, label]) => {
+        const at = label.lastIndexOf(" · ");
+        const name = at >= 0 ? label.slice(0, at) : label, dmg = at >= 0 ? label.slice(at + 3) : "";
+        const dt = weaponDmgType(choices.find((x) => x.key === key));
+        return `<button type="button" class="pust-wchip dt-${dt}${sel ? " pust-pick" : ""}" data-r="dmgw" value="${key}" aria-pressed="${sel ? "true" : "false"}"><span>${name}</span>${dmg ? `<b>${dmg}</b>` : ""}</button>`;
+      });
+      return `<div class="rdmgsel pust-wchips" role="group" aria-label="Зброя для кидка шкоди">${chips.join("")}</div>`;
+    });
+    // one press rolls the damage and deals it to the targets (author, 2026-11-17); just a roll lives on the gear card's crosshair
+    html = html.replace(/(<button type="button" class="btn rust" data-r="dmg">[\s\S]*?)Кинути шкоду([^<]*)<\/button>/,
+      (m, head, dice) => `${head}Завдати шкоди${dice}<span class="pust-tgtn"></span></button>`);
+    // «Бойові рефлекси: перекинути» would reroll a damage already dealt: not offered here (the gear card's roll has it)
+    html = html.replace(/<button type="button" class="btn sm" data-r="dmgre">[\s\S]*?<\/button>/, "");
     if (!D) return html;
     // the weapon's damage effects (armour ignored, cryo, the whole zone…) move from under the weapon choice to over the breakdown
     let fx = [];
@@ -180,8 +219,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       data: damageData({ total: L.dmgTotal(last, compute(st)).total, wt, fx, poison: last.poison && last.poisonRoll ? last.poisonRoll : null }),
       partial, head: D.name,
     };
-    const applyBtn = `<div class="rdapply"><button type="button" class="pust-dmg-apply" data-apply="1" title="Шкода цілям: броня й стійкості кожного враховуються${partial ? "; частковий успіх — ½ тим, хто за нього отримує половину" : ""}"><i class="fa-solid fa-crosshairs"></i><span>Завдати цілям</span></button>`
-      + `</div>`; // no «частковий успіх» chip next to it (author, 2026-11-15: the verdict above says it; the tooltip keeps it)
+    const applyBtn = ""; // dealt by the roll itself (author, 2026-11-17): no «Завдати цілям» after it
     return html.replace(
       /<div class="rdres"><div class="rdice">([\s\S]*?)<\/div><div class="rsum"><span class="rform">[^<]*=<\/span><b class="rtot">([^<]*)<\/b><span class="rform">шкоди<\/span><\/div><ul class="rsteps">([\s\S]*?)<\/ul>/,
       (m, chips, total, lis) => {
@@ -239,6 +277,20 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#restoreScroll();
     requestAnimationFrame(() => { this.#restoreScroll(); this.#toResult = false; this.#scrolls = null; });
     const root = this.element.querySelector(".pust-roller");
+    // «?» (author, 2026-11-17): the tour «Зробити перевірку» in «Довідка Foundry», at the result once there is one
+    if (!this.actor.pustTourDemo) addHelpButton(this, () => ["pl-check", this.element.querySelector(".rres") ? "result" : "type"]);
+    // the ready checks may be dragged to the hotbar (helpers/macros.mjs; author, 2026-11-17)
+    if (!this.actor.pustTourDemo) root.querySelectorAll('button[data-r="preset"], button[data-r="xpreset"]').forEach((b) => {
+      hotbarDraggable(b, { kind: b.dataset.r, actor: this.actor.uuid, label: b.textContent.trim() });
+      if (!b.title) b.title = "Перетягни на панель макросів, щоб відкривати цю перевірку звідти";
+    });
+    // invoking an aspect right under the result's description, before the attack effects and the damage (author, 2026-11-16);
+    // the button «Викликати аспект: +1d10» with its own icon
+    const res = root.querySelector(":scope > .rres"), asp = res?.querySelector(":scope > .rasp");
+    const after = res?.querySelector(":scope > .rdesc") ?? res?.querySelector(":scope > .rverd");
+    if (asp && after) after.after(asp);
+    const inv = asp?.querySelector(':scope > button[data-r="aspect"]');
+    if (inv && !inv.querySelector("i")) inv.insertAdjacentHTML("afterbegin", '<i class="fa-solid fa-wand-magic-sparkles"></i>');
     root.addEventListener("click", async (ev) => {
       const ap = ev.target.closest("[data-apply]");
       if (ap) {
@@ -251,8 +303,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const b = ev.target.closest("[data-r]");
       if (!b || b.tagName === "SELECT" || b.tagName === "INPUT" || b.disabled) return;
       ev.preventDefault();
+      if (b.classList.contains("pust-wchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the weapon chips stand for the list
+      if (b.dataset.r === "dmg" && !game.user.targets.size) return ui.notifications.warn(NO_TARGETS);
       this.#run("click", b);
     });
+    syncDealButton(root);
+    // the damage is dealt with its roll: the options over it (Психо, the effect, the crit) are set before it, then locked
+    // and so is the weapon (author, 2026-11-17)
+    if (root.querySelector(".rdmg .rdres")) root.querySelectorAll(".rdmg .rdopts input, .rdmg .rdopts select, .rdmg .pust-wchip").forEach((i) => { i.disabled = true; i.title = "Шкоду вже кинуто й завдано"; });
     root.addEventListener("change", (ev) => {
       const t = ev.target.closest("[data-r]");
       if (t) this.#run("change", t);
@@ -285,8 +343,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await postFateIfChanged(this.actor, fdWas);
     await postSupIfChanged(this.actor, supWas);
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
-    this.render();
+    const deal = kind === "click" && key === "dmg";
+    if (deal) await this.render(); // the damage to deal (#apply) is made by the render
+    else this.render();
     if (kind === "click" && CHAT_ON.has(key)) await this.#post(key, out);
+    // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
+    if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#apply.data, { partial: this.#apply.partial, head: this.#apply.head });
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
     else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice);
   }
@@ -414,8 +476,12 @@ class DockedCheckPanel extends CheckPanel {
     const who = list.length > 1
       ? `<select class="pust-cd-who" aria-label="Персонаж для перевірки" title="Чия перевірка">${list.map((a) => `<option value="${a.id}" ${a.id === this.actor.id ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select>`
       : `<b class="pust-cd-name">${esc(this.actor.name)}</b>`;
-    hd.innerHTML = `<i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span>${who}<button type="button" class="pust-cd-x" title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>`;
+    hd.innerHTML = `<i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span>${who}<button type="button" class="pust-cd-help" title="Довідка" aria-label="Довідка про «Зробити перевірку»"><i class="fa-solid fa-question"></i></button><button type="button" class="pust-cd-x" title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>`;
     el.prepend(hd);
+    hd.querySelector(".pust-cd-help").addEventListener("click", (ev) => {
+      ev.currentTarget.blur();
+      import("../tours/tours.mjs").then((m) => m.openHelp("pl-check", el.querySelector(".rres") ? "result" : "type"));
+    });
     hd.querySelector(".pust-cd-x").addEventListener("click", () => this.close());
     hd.querySelector(".pust-cd-who")?.addEventListener("change", (ev) => {
       const a = game.actors.get(ev.target.value);
@@ -571,4 +637,55 @@ export async function postExprRoll(expr, speaker) {
   const sum = roll.dice.reduce((t, d) => t + d.total, 0);
   await postDiceCard(speaker, expr, roll.total, dice, roll.total - sum);
   return roll;
+}
+
+/* ---------- the tours' example (author, 2026-11-16) ---------- */
+
+/**
+ * «Зробити перевірку» as an example for the tour «Зробити перевірку»: a panel for a character kept in memory («Швидкий старт»'s
+ * Волті), with a ranged attack rolled to a success and, at stage "dmg", its damage — all in memory: nothing is written, nothing
+ * goes to chat, its controls are inert. The panel's own markup is left as it is (author, 2026-11-16: wrapping its blocks broke
+ * its layout); a step lighting several blocks gives the tour a `union` of selectors.
+ */
+class DemoCheckPanel extends CheckPanel {
+  static DEFAULT_OPTIONS = { id: "pust-check-demo", classes: ["wastelanders", "pust-check", "pust-demo-check"], window: { resizable: false } };
+  get title() { return `Зробити перевірку — ${this.actor.name} (приклад)`; }
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const root = this.element.querySelector(".pust-roller");
+    if (!root) return;
+    root.inert = true;
+  }
+}
+
+let DEMO = null;
+const DEMO_STATES = {};
+
+/** Open (or bring to "roll" / "dmg") the example panel for `actor`; null closes it */
+export async function setCheckDemo(actor, stage = "roll") {
+  if (!actor) { await DEMO?.close({ animate: false }); DEMO = null; return null; }
+  if (!DEMO_STATES.roll || DEMO_STATES.src !== actor) {
+    // a copy of its own with a situational aspect that has a free invoke, so the aspect block shows one (author, 2026-11-16);
+    // the wiki's own example aspect («Стандартні дії»: надійне укриття)
+    const data = actor.toObject();
+    data.system.situational = [...(data.system.situational ?? []), { name: "надійне укриття", invoked: 1 }];
+    DEMO_STATES.src = actor;
+    DEMO_STATES.actor = new CONFIG.Actor.documentClass(data);
+    const { L } = evaluate(DEMO_STATES.actor);
+    L.R.fateMode = "char";
+    L.R.pool = { 6: 0, 8: 0, 10: 0 };
+    for (let i = 0; i < 60; i++) { // a ranged attack, rolled until it succeeds (only in memory)
+      L.rollerClick({ tagName: "BUTTON", dataset: { r: "preset", v: "0" } });
+      L.rollerClick({ tagName: "BUTTON", dataset: { r: "roll" } });
+      if (/class="rres v2"/.test(L.renderRoller())) break;
+    }
+    DEMO_STATES.roll = clone(L.R);
+    L.rollerClick({ tagName: "BUTTON", dataset: { r: "dmg" } });
+    DEMO_STATES.dmg = clone(L.R);
+  }
+  const demo = DEMO_STATES.actor;
+  STATES.set(demo.uuid, clone(DEMO_STATES[stage] ?? DEMO_STATES.roll));
+  if (!DEMO || DEMO.actor !== demo) { await DEMO?.close({ animate: false }); DEMO = new DemoCheckPanel({ actor: demo }); }
+  await DEMO.render({ force: true });
+  return DEMO;
 }
