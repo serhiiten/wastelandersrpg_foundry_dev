@@ -808,3 +808,7 @@ body.pust-no-combat #token-hud [data-action="combat"] { display: none !important
 .pust-chat.pust-perfcard .pust-perf-rows dt { margin: 0; color: #6b6253; font-weight: 700; text-shadow: none; } /* Foundry gives every `dl dt` a black shadow */
 .pust-chat.pust-perfcard .pust-perf-rows dd { margin: 0; min-width: 0; color: #2a261c; overflow-wrap: anywhere; }
 .pust-chat.pust-perfcard .pust-perf-rows small { color: #6b6253; }
+
+/* «Швидкий старт»'s Actors folders, hidden from players (helpers/quickstart-world.mjs; author, 2026-11-17: spoilers);
+   !important beats the directory search's inline display */
+#actors li.folder.pust-qs-hidden { display: none !important; }

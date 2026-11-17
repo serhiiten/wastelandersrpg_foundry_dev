@@ -2,6 +2,7 @@ import { activeGmHere, mine, readyMainWindow } from "./helpers/main-window.mjs";
 import * as models from "./data/_module.mjs";
 import { registerHotkeys } from "./helpers/hotkeys.mjs";
 import { registerPerfCheck, runPerfCheck } from "./applications/perf-check.mjs";
+import { initQuickstartWorld } from "./helpers/quickstart-world.mjs";
 import { readyMacros, runMacro } from "./helpers/macros.mjs";
 import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
@@ -106,6 +107,7 @@ Hooks.once("init", async function () {
   // Settings
   registerSystemSettings();
   registerPerfCheck(); // the sidebar's Settings tab → «Діагностика продуктивності», for everyone
+  initQuickstartWorld(); // «Швидкий старт»: its Actors folders hidden from players, its scenes' thumbnails
 
   // Define custom Entity classes and Data Models
   CONFIG.Actor.documentClass = WastelandersActor;
