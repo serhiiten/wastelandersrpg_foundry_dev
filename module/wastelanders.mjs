@@ -1,6 +1,7 @@
 import { activeGmHere, mine, readyMainWindow } from "./helpers/main-window.mjs";
 import * as models from "./data/_module.mjs";
 import { registerHotkeys } from "./helpers/hotkeys.mjs";
+import { registerPerfCheck, runPerfCheck } from "./applications/perf-check.mjs";
 import { readyMacros, runMacro } from "./helpers/macros.mjs";
 import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
@@ -74,6 +75,8 @@ Hooks.once("init", async function () {
     openTerminal,
     /** the hotbar's macros (helpers/macros.mjs; author, 2026-11-17) */
     runMacro,
+    /** «Діагностика продуктивності» (applications/perf-check.mjs; author, 2026-11-17) */
+    perfCheck: runPerfCheck,
   };
   registerHotkeys(); // Alt+Q / W / E / R (helpers/hotkeys.mjs; author, 2026-11-17)
 
@@ -102,6 +105,7 @@ Hooks.once("init", async function () {
 
   // Settings
   registerSystemSettings();
+  registerPerfCheck(); // the sidebar's Settings tab → «Діагностика продуктивності», for everyone
 
   // Define custom Entity classes and Data Models
   CONFIG.Actor.documentClass = WastelandersActor;

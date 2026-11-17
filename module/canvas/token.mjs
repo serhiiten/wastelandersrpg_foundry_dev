@@ -229,7 +229,9 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
       if (!this._pustGlow) {
         const G = foundry.canvas.rendering.filters.GlowOverlayFilter;
         const f = G.create({ glowColor: [0.92, 0.14, 0.08, 1], distance: 14, knockout: false });
-        f.animated = true;   // Foundry's own pulse (0.5…2 over 2 s), steady in photosensitive mode
+        // Foundry's own pulse (0.5…2 over 2 s), steady in photosensitive mode — and in Performance Mode «Low» (author,
+        // 2026-11-17: players' FPS on weak laptops; Foundry redraws the scene when that setting changes, so this follows it)
+        f.animated = (canvas.performance?.mode ?? CONST.CANVAS_PERFORMANCE_MODES.HIGH) > CONST.CANVAS_PERFORMANCE_MODES.LOW;
         f.outerStrength = 2.6;
         f.innerStrength = 0;
         f.padding = 18;

@@ -4,8 +4,9 @@ import { activeGmHere } from "./main-window.mjs";
  *
  * The map of the rulebook (Західне узбережжя США, 2277; the source is the HTML terminal's mapsrc/map.jpg, upscaled ×4
  * with Real-ESRGAN for crisp labels and lines up close) on the map layer — the level's background — with Foundry's grid
- * laid exactly over the map's own grid: the picture is cropped to the map's outer grid lines and scaled to CELL px a cell
- * (assets/maps/pustka.webp, 51 × 70 cells; tools/make_map_scene.py), so the scene grid needs no offsets.
+ * laid exactly over the map's own grid: the picture is cropped to the map's outer grid lines (assets/maps/pustka.webp,
+ * 51 × 70 cells; tools/make_map_scene.py) and stretched over the scene's CELL px cells, so the scene grid needs no offsets.
+ * The picture is 72 px a cell (author, 2026-11-17: players' video memory), the scene 108.
  * Units: клітинки, a diagonal step counts as one cell (core world setting «gridDiagonals», EQUIDISTANT; its default is
  * set in wastelanders.mjs).
  *
