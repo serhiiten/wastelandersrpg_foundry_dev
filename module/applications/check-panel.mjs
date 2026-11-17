@@ -27,6 +27,25 @@ const OPEN = new Map();
 /** Buttons whose result goes to chat */
 const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "dmg", "dmgre"]);
 
+/**
+ * The damage is rolled and dealt in one press (author, 2026-11-17): «Завдати шкоди» with the targets' count; with no
+ * targets it is locked (half-transparent), its tooltip and a press say why. Kept in step with the targets live.
+ */
+const NO_TARGETS = "Цілей не обрано. Познач ціль: T над токеном (Shift+T — ще одну).";
+function syncDealButton(root) {
+  const b = root?.querySelector('button[data-r="dmg"]');
+  if (!b) return;
+  const n = game.user.targets.size;
+  b.classList.toggle("pust-locked", !n);
+  b.setAttribute("aria-disabled", String(!n));
+  b.title = n ? `Кинути шкоду й одразу завдати її цілям: ${n}` : NO_TARGETS;
+  const c = b.querySelector(".pust-tgtn");
+  if (c) c.textContent = n ? ` · цілей: ${n}` : "";
+}
+Hooks.on("targetToken", (user) => {
+  if (user === game.user) document.querySelectorAll(".pust-roller").forEach(syncDealButton);
+});
+
 export function openCheckPanel(actor, preset = {}) {
   let app = OPEN.get(actor.uuid);
   if (!app) {
@@ -162,6 +181,22 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const choices = L.dmgChoices(compute(st));
     const wt = weaponDmgType(choices.find((x) => x.key === (D ? D.key : L.R.dmgKey)));
     html = html.replace('<div class="rdmg">', `<div class="rdmg dt-${wt}">`);
+    // the weapon for the damage as chips «name · damage» in their damage type's colours, not a list (author, 2026-11-17);
+    // the chosen one (by default the weapon in hand, the sheet's defaultDmgKey) lit; a click works as the list's change
+    html = html.replace(/<div class="rdmgsel"><select id="r-dmgw"[^>]*>([\s\S]*?)<\/select><\/div>/, (m, opts) => {
+      const chips = [...opts.matchAll(/<option value="([^"]*)"( selected)?>([\s\S]*?)<\/option>/g)].map(([, key, sel, label]) => {
+        const at = label.lastIndexOf(" · ");
+        const name = at >= 0 ? label.slice(0, at) : label, dmg = at >= 0 ? label.slice(at + 3) : "";
+        const dt = weaponDmgType(choices.find((x) => x.key === key));
+        return `<button type="button" class="pust-wchip dt-${dt}${sel ? " pust-pick" : ""}" data-r="dmgw" value="${key}" aria-pressed="${sel ? "true" : "false"}"><span>${name}</span>${dmg ? `<b>${dmg}</b>` : ""}</button>`;
+      });
+      return `<div class="rdmgsel pust-wchips" role="group" aria-label="Зброя для кидка шкоди">${chips.join("")}</div>`;
+    });
+    // one press rolls the damage and deals it to the targets (author, 2026-11-17); just a roll lives on the gear card's crosshair
+    html = html.replace(/(<button type="button" class="btn rust" data-r="dmg">[\s\S]*?)Кинути шкоду([^<]*)<\/button>/,
+      (m, head, dice) => `${head}Завдати шкоди${dice}<span class="pust-tgtn"></span></button>`);
+    // «Бойові рефлекси: перекинути» would reroll a damage already dealt: not offered here (the gear card's roll has it)
+    html = html.replace(/<button type="button" class="btn sm" data-r="dmgre">[\s\S]*?<\/button>/, "");
     if (!D) return html;
     // the weapon's damage effects (armour ignored, cryo, the whole zone…) move from under the weapon choice to over the breakdown
     let fx = [];
@@ -184,8 +219,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       data: damageData({ total: L.dmgTotal(last, compute(st)).total, wt, fx, poison: last.poison && last.poisonRoll ? last.poisonRoll : null }),
       partial, head: D.name,
     };
-    const applyBtn = `<div class="rdapply"><button type="button" class="pust-dmg-apply" data-apply="1" title="Шкода цілям: броня й стійкості кожного враховуються${partial ? "; частковий успіх — ½ тим, хто за нього отримує половину" : ""}"><i class="fa-solid fa-crosshairs"></i><span>Завдати цілям</span></button>`
-      + `</div>`; // no «частковий успіх» chip next to it (author, 2026-11-15: the verdict above says it; the tooltip keeps it)
+    const applyBtn = ""; // dealt by the roll itself (author, 2026-11-17): no «Завдати цілям» after it
     return html.replace(
       /<div class="rdres"><div class="rdice">([\s\S]*?)<\/div><div class="rsum"><span class="rform">[^<]*=<\/span><b class="rtot">([^<]*)<\/b><span class="rform">шкоди<\/span><\/div><ul class="rsteps">([\s\S]*?)<\/ul>/,
       (m, chips, total, lis) => {
@@ -269,8 +303,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const b = ev.target.closest("[data-r]");
       if (!b || b.tagName === "SELECT" || b.tagName === "INPUT" || b.disabled) return;
       ev.preventDefault();
+      if (b.classList.contains("pust-wchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the weapon chips stand for the list
+      if (b.dataset.r === "dmg" && !game.user.targets.size) return ui.notifications.warn(NO_TARGETS);
       this.#run("click", b);
     });
+    syncDealButton(root);
+    // the damage is dealt with its roll: the options over it (Психо, the effect, the crit) are set before it, then locked
+    // and so is the weapon (author, 2026-11-17)
+    if (root.querySelector(".rdmg .rdres")) root.querySelectorAll(".rdmg .rdopts input, .rdmg .rdopts select, .rdmg .pust-wchip").forEach((i) => { i.disabled = true; i.title = "Шкоду вже кинуто й завдано"; });
     root.addEventListener("change", (ev) => {
       const t = ev.target.closest("[data-r]");
       if (t) this.#run("change", t);
@@ -303,8 +343,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await postFateIfChanged(this.actor, fdWas);
     await postSupIfChanged(this.actor, supWas);
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
-    this.render();
+    const deal = kind === "click" && key === "dmg";
+    if (deal) await this.render(); // the damage to deal (#apply) is made by the render
+    else this.render();
     if (kind === "click" && CHAT_ON.has(key)) await this.#post(key, out);
+    // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
+    if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#apply.data, { partial: this.#apply.partial, head: this.#apply.head });
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
     else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice);
   }

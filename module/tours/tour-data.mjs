@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 97;
+export const HELP_VERSION = 100;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -174,8 +174,8 @@ export const TOURS = [
       S("result", "Результат: вердикт, сума з діапазонами, кістки, що означає для виду; діапазони за правилами, ОД за невдачу.", { selector: ".pust-demo-check .rres > :is(.rdice, .rvhead, .rverd, .rdesc)", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("aspects", "Виклик аспекту після кидка: +1d10, чим платиться, коли не можна.", { selector: ".pust-demo-check .rasp", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("effects", "Ефекти атаки: що дає кожен результат.", { selector: ".pust-demo-check .rfx", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
-      S("damage", "Шкода: «Кинути шкоду», тип, позначки, критичний ефект, нова картка за зміну.", { selector: ".pust-demo-check .rdmg", prepare: "checkDemo:dmg", tooltipDirection: "RIGHT" }),
-      S("apply", "«Завдати цілям»: цілі T, броня й захисти, цілі знімаються.", { selector: ".pust-demo-check .rdapply", prepare: "checkDemo:dmg", tooltipDirection: "RIGHT" }),
+      S("apply", "«Завдати шкоди»: чипи зброї, цілі T, броня й захисти, цілі знімаються; без цілей кнопка неактивна.", { selector: ".pust-demo-check .rdmg", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("damage", "Шкода: колір типу, сума, кістки, картки в чаті, критичний ефект.", { selector: ".pust-demo-check .rdmg", prepare: "checkDemo:dmg", tooltipDirection: "RIGHT" }),
     ],
   },
   {
@@ -198,7 +198,7 @@ export const TOURS = [
       S("target", "«Обрати цілі» / «Зняти цілі»: навіщо цілі, токени не тягнуться.", { selector: `${DOCK} .pust-md-trow`, tooltipDirection: "DOWN" }),
       S("targetlook", "Як виглядає ціль (токен сцени, позначений для кроку).", { prepare: "targetDemo", selector: ".pust-tgt-demo", tooltipDirection: "RIGHT" }),
       S("all", "«Обрати всіх» на смужці зони (рамка): цілі — всі в зоні; вдруге — зняти; атаки по всій зоні.", { prepare: "zoneFrame:target", selector: ".pust-zone-frame", tooltipDirection: "DOWN" }),
-      S("hit", "Атака: правила атаки в бою, «Завдати цілям» (приклад вікна перевірки), шкода через Доглядача.", { prepare: "checkDemo:dmg", selector: ".pust-demo-check .rdapply", tooltipDirection: "RIGHT" }),
+      S("hit", "Атака: правила атаки в бою, «Завдати шкоди» (приклад вікна перевірки), шкода через Доглядача.", { prepare: "checkDemo:roll", selector: ".pust-demo-check .rdmg", tooltipDirection: "RIGHT" }),
       S("dodge", "Уникнення шкоди: коли, які атрибути, результати (приклад вікна перевірки).", { prepare: "checkDemo:roll", selector: ".pust-demo-check .rpre.rgr:has(.dodge)", tooltipDirection: "RIGHT" }),
       S("enemy", "Картка ворога для гравця: стан словом і ситуативні аспекти, які можна викликати.", { prepare: "sheet:enemy", selector: `${EN}`, tooltipDirection: "RIGHT" }),
       S("chem", "Хімія «На ціль» (приклад зі стимпаком): одна ціль, доза своя, дія за правилами цілі.", { prepare: ["sheet:pc", "gearDemo"], selector: ".pust-demo-gear .pust-use-tgt", tooltipDirection: "RIGHT" }),

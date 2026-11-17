@@ -604,14 +604,13 @@ const SCENARIOS = {
     if (!was) await sheet.close();
   },
 
-  /** «Зробити перевірку» already open with a damage rolled: «Завдати цілям» and «частковий успіх» (nothing is rolled here) */
+  /** «Зробити перевірку» open after a hit: the weapon chips and «Кинути й завдати» (author, 2026-11-17; nothing is rolled here) */
   async checkPanel(a) {
-    const el = document.querySelector(".pust-roller .rdapply");
-    if (!el) return a.skip("«Завдати цілям» у перевірці", "відкрий «Зробити перевірку» й кинь шкоду");
+    const el = document.querySelector(".pust-roller .rdmg");
+    if (!el) return a.skip("блок «Шкода» у перевірці", "відкрий «Зробити перевірку» й влуч атакою");
     a.onScreen([el]);
-    a.noCut(el, "button, span");
-    a.oneLine([...el.querySelectorAll("button > span, .rdhalf")], "«Завдати цілям» і «частковий успіх» в один рядок");
-    a.readable(el, "button, span");
+    a.noCut(el, "button, span, b");
+    a.readable(el, "button, span, b");
   },
 
   /** «Новий супротивник» (Create Actor → Супротивник, module/applications/enemy-create.mjs), when it is open */

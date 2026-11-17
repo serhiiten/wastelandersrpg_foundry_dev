@@ -114,7 +114,7 @@ const notEnough = (actor, cost, have) =>
 
 export function initCaravanMove() {
   Hooks.on("preUpdateToken", (token, changes, options, userId) => {
-    if (options?.pustRange || userId !== game.user.id) return;
+    if (options?.pustRange || options?.pustZoneMove || userId !== game.user.id) return; // a zone carrying its tokens spends no range
     if (!("x" in changes) && !("y" in changes)) return;
     const actor = token.actor, scene = token.parent;
     if (actor?.type !== "caravan" || !scene || isBattleScene(scene)) return;

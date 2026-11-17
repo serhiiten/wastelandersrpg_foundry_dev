@@ -729,8 +729,8 @@ function syncFdRow() {
   const spend = row.querySelector(".pust-md-fdspend");
   row.querySelector(".pust-md-fdn").textContent = String(n);
   spend.disabled = n <= 0;
-  spend.title = n > 0 ? `Витратити 1 жетон Долі «${a.name}» (зараз: ${n}): щоб створити факт, нав'язати аспект чи відмовитися від нав'язаного. Аспект до перевірки викликають у «Зробити перевірку», жетон там спишеться сам.` : `У «${a.name}» немає жетонів Долі`;
-  row.querySelector(".pust-md-fdgain").title = `Отримати 1 жетон Долі для «${a.name}». Жетон дає Доглядач, коли нав'язує аспект твого персонажа, і за свої жетони, витрачені проти тебе. За падіння до 0 ОЗ отримуєш один жетон.`;
+  spend.title = ""; // no tooltips on these four: self-evident (author, 2026-11-17)
+  row.querySelector(".pust-md-fdgain").title = "";
 }
 async function stepFd(dd) {
   const a = game.user.character;
@@ -763,8 +763,8 @@ function syncSupRow() {
   row.querySelector(".pust-md-supn").textContent = String(n);
   spend.disabled = n <= 0;
   gain.disabled = n >= max;
-  spend.title = n > 0 ? `Витратити 1 Припас «${a.name}» (зараз: ${n} з ${max}): використати перк, що його потребує, дістати звичайну річ (мотузку, їжу й воду на день, відмички, аптечку тощо) або перезарядитися, коли скінчилися набої.` : `У «${a.name}» немає Припасів`;
-  gain.title = n < max ? `Отримати 1 Припас для «${a.name}» (максимум ${max}). У поселенні 3 Припаси коштують 1 кришку: зручніше купити їх кнопкою «Поповнити» на аркуші.` : `Припасів уже максимум: ${max}`;
+  spend.title = "";
+  gain.title = "";
 }
 async function stepSup(dd) {
   const a = game.user.character;

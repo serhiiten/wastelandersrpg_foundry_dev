@@ -229,6 +229,13 @@ function onPointerDown(ev) {
   ev.preventDefault();
   ev.stopImmediatePropagation();
   drag = { ...hit, px: ev.clientX, py: ev.clientY, moved: false, end: null };
+  // a zone moved by its strip takes its tokens along (author, 2026-11-17): those whose centre is in it (the top zone where
+  // zones overlap, as «Обрати всіх» counts them)
+  if (hit.part !== "corner") {
+    const zones = sceneZones();
+    drag.tokens = canvas.tokens.placeables.filter((t) => zoneOfToken(t, zones)?.doc === hit.doc)
+      .map((t) => ({ t, x: t.document.x, y: t.document.y, mx: t.mesh?.position.x, my: t.mesh?.position.y }));
+  }
   window.addEventListener("pointermove", onDragMove, true);
   window.addEventListener("pointerup", onDragEnd, true);
   window.addEventListener("pointercancel", onDragCancel, true);
@@ -250,7 +257,15 @@ function onDragMove(ev) {
     shp.pivot.set(drag.rect.w / 2, drag.rect.h / 2);
     shp.scale.set(drag.end.w / drag.rect.w, drag.end.h / drag.rect.h);
     shp.position.set(drag.end.x + drag.end.w / 2, drag.end.y + drag.end.h / 2);
-  } else shp.position.set(drag.end.x + drag.doc.shape.width / 2, drag.end.y + drag.doc.shape.height / 2);
+  } else {
+    shp.position.set(drag.end.x + drag.doc.shape.width / 2, drag.end.y + drag.doc.shape.height / 2);
+    const mx = drag.end.x - drag.rect.x, my = drag.end.y - drag.rect.y;
+    // the tokens follow in the preview: the placeable (bars, name, badges) and its picture, which lives on the primary layer
+    for (const k of drag.tokens ?? []) {
+      k.t.position.set(k.x + mx, k.y + my);
+      if (k.t.mesh && k.mx != null) k.t.mesh.position.set(k.mx + mx, k.my + my);
+    }
+  }
   if (editor?.doc === drag.doc) layoutEditor();
 }
 
@@ -260,6 +275,7 @@ function stopListeners() {
   window.removeEventListener("pointercancel", onDragCancel, true);
 }
 function resetPreview(d) {
+  for (const k of d?.tokens ?? []) if (!k.t.destroyed) k.t.renderFlags.set({ refreshPosition: true });
   if (!d?.placeable?.shape) return;
   d.placeable.shape.scale.set(1, 1);
   d.placeable.shape.tint = 0xffffff;
@@ -275,6 +291,9 @@ async function onDragEnd() {
   // the preview stays until the new size / place is saved, so the zone doesn't flick back for a moment
   try {
     await d.doc.update(d.part === "corner" ? { shape: { width: d.end.w, height: d.end.h } } : { x: d.end.x, y: d.end.y });
+    const mx = d.end.x - d.rect.x, my = d.end.y - d.rect.y;
+    const moves = (d.tokens ?? []).filter((k) => !k.t.destroyed).map((k) => ({ _id: k.t.document.id, x: k.x + mx, y: k.y + my }));
+    if (moves.length && (mx || my)) await canvas.scene.updateEmbeddedDocuments("Token", moves, { animate: false, pustZoneMove: true });
   } catch (err) { console.warn("Пустельники | zone not changed", err); }
   resetPreview(d);
 }

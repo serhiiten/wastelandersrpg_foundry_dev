@@ -395,3 +395,26 @@
 .pust-roller .rasp > button[data-r="aspect"]:disabled { opacity: .45; box-shadow: none; }
 /* the aspect block right under the result's description, before the attack effects (author, 2026-11-16; moved in check-panel.mjs) */
 .pust-roller .rres > .rasp { border-top: 1px dashed var(--pu-steel-3); border-bottom: 1px dashed var(--pu-steel-3); padding: 7px 0; margin: 4px 0 8px; }
+
+/* the weapon for the damage as chips «name · damage» in their damage type's colours (author, 2026-11-17); the chosen one lit */
+.pust-roller .rdmgsel.pust-wchips { gap: 5px; }
+.wastelanders .pust-roller button.pust-wchip:not(.header-control) { display: inline-flex; align-items: center; gap: 6px; width: auto; height: 28px; margin: 0; padding: 0 9px;
+  border-radius: 4px; border: 1px solid var(--dt-bd); background: var(--dt-bg); color: var(--dt-fg); opacity: .7; cursor: pointer;
+  font-family: var(--pu-f-text, "Roboto Condensed"), sans-serif; font-size: 13px; font-weight: 700; line-height: 1; white-space: nowrap; text-transform: none; letter-spacing: 0; box-shadow: none; }
+.wastelanders .pust-roller button.pust-wchip:not(.header-control) > b { font-family: var(--pu-f-num, "Ubuntu Mono"), monospace; font-weight: 700; color: var(--dt-fg); }
+.wastelanders .pust-roller button.pust-wchip:not(.header-control):hover { opacity: .85; }
+.wastelanders .pust-roller button.pust-wchip.pust-pick:not(.header-control) { opacity: 1; border-width: 2px; padding: 0 8px; box-shadow: 0 0 6px var(--dt-glow); cursor: default; }
+.wastelanders .pust-roller .rdmgsel > button.pust-wchip:not(.header-control) { background: var(--dt-bg) !important; border: 1px solid var(--dt-bd) !important; color: var(--dt-fg) !important; }
+.wastelanders .pust-roller .rdmgsel > button.pust-wchip.pust-pick:not(.header-control) { border-width: 2px !important; }
+/* the weapon chips (author, 2026-11-17): the name white, the dice in the type's colour; the chosen one framed in hazard tape (yellow and black) */
+.wastelanders .pust-roller .rdmgsel > button.pust-wchip:not(.header-control) { color: #fff !important; }
+.wastelanders .pust-roller .rdmgsel > button.pust-wchip:not(.header-control) > b { color: var(--dt-fg) !important; } /* the dice in the type's colour */
+.wastelanders .pust-roller .rdmgsel > button.pust-wchip.pust-pick:not(.header-control) { border: 3px solid #f4d11a !important; border-image: repeating-linear-gradient(-45deg, #f4d11a 0 5px, #14110e 5px 10px) 3 !important;
+  padding: 0 7px; box-shadow: 0 0 6px rgba(244,209,26,.45); }
+/* «Кинути й завдати» with no targets: locked, the reason in its tooltip and on a press (author, 2026-11-17) */
+.pust-roller button[data-r="dmg"].pust-locked { opacity: .5; cursor: not-allowed; filter: saturate(.6); }
+.wastelanders .pust-roller .rdmgsel > button.pust-wchip:disabled:not(.header-control) { cursor: default; }
+/* the check's own notes and steps («Кістка навички (5) замінила менший кубик (4)»…) right under the sum bar (author, 2026-11-17) */
+.pust-roller .rres > .rsteps { order: 1; margin: 2px 0 4px; }
+/* … and with them «Проклятий», «Савант: отримай 1 ОД» and «Отримай 1 ОД» (author, 2026-11-17): what the result means, under the bar */
+.pust-roller .rres > :is(.rnote, .rxp) { order: 1; }
