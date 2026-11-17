@@ -25,6 +25,25 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 /** Buttons whose result is hard to undo ask twice (like the HTML sheet's «Натисни ще раз») */
 const CONFIRM_MS = 3000;
 
+/** The compact sheet (author, 2026-11-17): its width, and the choice remembered per user and character in this browser */
+const COMPACT_W = 460;
+const compactKey = (actor) => `pustelnyky-compact-${game.user.id}-${actor.id}`;
+function compactStored(actor) { try { return localStorage.getItem(compactKey(actor)) === "1"; } catch (_) { return false; } }
+function compactStore(actor, on) { try { if (on) localStorage.setItem(compactKey(actor), "1"); else localStorage.removeItem(compactKey(actor)); } catch (_) { /* not kept */ } }
+
+/** «2» → «2(к)», «безкоштовна» / empty → nothing */
+const priceTag = (p) => { const t = String(p ?? "").trim(); return !t || /^0$|безкоштов/i.test(t) ? "" : /^\d+$/.test(t) ? `${t}(к)` : t; };
+/**
+ * The compact sheet's gear chips (author, 2026-11-17): every weapon, armour and thing of «Інший мотлох» but the chems — the
+ * name, the damage (weapons) or the armour, the quantity (things), the price; a × for whatever the full sheet lets remove
+ */
+function compactGear(v) {
+  const w = (v.weapons ?? []).map((x) => ({ l: "weapons", i: x.i, n: x.n || "без назви", kind: x.kind, stat: x.dEff || x.d, statCls: `pust-dtin dt-${x.dt}`, price: priceTag(x.price), locked: x.locked }));
+  const a = (v.armorList ?? []).map((x) => ({ l: "armor", i: x.i, n: x.n || "без назви", kind: x.kind, stat: String(x.v ?? "").trim() ? `броня ${x.v}` : "", statCls: "arm", price: priceTag(x.price) }));
+  const o = (v.other ?? []).filter((x) => !x.hasActs).map((x) => ({ l: "other", i: x.i, n: x.n || "без назви", kind: x.kind, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "", price: priceTag(x.price) }));
+  return [...w, ...a, ...o];
+}
+
 /** Actions that make the character anew: their Fate count is no token spent or gained */
 const FATE_QUIET = new Set(["new", "random", "preset", "apply-arch", "species-x", "roll-species", "roll-perks", "roll-feats", "roll-gear"]);
 
@@ -49,6 +68,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       jsonSave: WastelandersCharacterSheetV2.#onJsonSave,
       addPick: WastelandersCharacterSheetV2.#onAddPick,
       drugAdd: WastelandersCharacterSheetV2.#onDrugAdd,
+      compactToggle: WastelandersCharacterSheetV2.#onCompactToggle,
     },
   };
 
@@ -78,7 +98,22 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     context.v = buildView(st, d, L, { ...this.ui, ...world });
     context.actor = this.document;
     context.tab = this.ui.tab;
-    context.quickFold = !!this.ui.quickFold;
+    // «Компактний» (author, 2026-11-17; feedback p19): opens full until the user switches, then remembered per character
+    if (this.ui.compact === undefined) this.ui.compact = compactStored(this.document);
+    context.compact = !!this.ui.compact;
+    if (context.compact) {
+      const v = context.v;
+      context.cmp = {
+        arch: v.arch || "",
+        species: [...(v.species ?? []), ...(v.speciesX ?? [])].find((o) => o.sel)?.n ?? "",
+        aspects: (v.aspects ?? []).filter((a) => String(a.v).trim()),
+        chems: (v.other ?? []).filter((o) => o.hasActs).map((o) => ({ ...o, more: !!o.treat })),
+        gear: compactGear(v),
+        catSecName: (v.catSecs ?? []).find((o) => o.sel)?.n ?? "", catSecAll: !!(v.catSecs ?? [])[0]?.sel,
+        catSortName: (v.catSorts ?? []).find((o) => o.sel)?.n ?? "",
+      };
+    }
+    context.quickFold = !context.compact && !!this.ui.quickFold; // the compact sheet has no fold for «Швидкий доступ»
     context.statusFold = !!this.ui.statusFold;
     context.ui = { ovOpen: !!this.ui.ovOpen, defOpen: !!this.ui.defOpen, xpHelpOpen: !!this.ui.xpHelpOpen, sheetBarOpen: !!this.ui.sheetBarOpen }; // folded blocks in «Налаштування» (closed by default)
     context.restUi = this.ui.rest;
@@ -103,6 +138,21 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   _onRender(context, options) {
     super._onRender(context, options);
+    // «Повний / Компактний» in the window's header too (author, 2026-11-17)
+    this.#compactControl();
+    // the compact chips show only their icons: the names go to the tooltips
+    // the compact chips (author, 2026-11-17): short names (ОЗ, Броня, ЖД, Припаси, (к), ОД), the full one in the tooltip;
+    // the caps' field takes a smaller font past two digits
+    if (this.ui.compact) {
+      const SHORT = { "fa-heart-pulse": "ОЗ", "fa-shield-halved": "Броня", "fa-clover": "ЖД", "fa-backpack": "Припаси", "fa-coins": "(к)", "fa-medal": "ОД" };
+      this.element.querySelectorAll(".pust-qgrid .pust-qi > span:first-child").forEach((s) => {
+        if (!s.title) s.title = s.textContent.trim();
+        const k = Object.keys(SHORT).find((c) => s.querySelector(`i.${c}`));
+        if (k) { s.dataset.short = SHORT[k]; s.closest(".pust-qi").dataset.q = k.replace("fa-", ""); }
+      });
+      const fitDigits = (inp) => inp.classList.toggle("pust-long", String(inp.value).trim().length > 2);
+      this.element.querySelectorAll('.pust-qgrid input[data-k]').forEach((inp) => { fitDigits(inp); inp.addEventListener("input", () => fitDigits(inp)); });
+    }
     // «?» (author, 2026-11-17): the tour page of the tab now open
     addHelpButton(this, () => (game.user.isGM ? ["gm-char", this.ui.tab || "build"] : ["pl-sheet", this.ui.tab || "build"]));
     // to the hotbar (helpers/macros.mjs; author, 2026-11-17): attributes, skills, a weapon's attack and its damage
@@ -395,6 +445,43 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     this.ui.pick = this.ui.pick === kind ? "" : kind;
     this.ui.q = "";
     this.render();
+  }
+
+  /** The header's switch: the icon says where a click goes */
+  #compactControl() {
+    const header = this.window?.header;
+    if (!header) return;
+    let b = header.querySelector(".pust-cmp-hd");
+    if (!b) {
+      b = document.createElement("button");
+      b.type = "button";
+      b.addEventListener("pointerdown", (ev) => ev.stopPropagation());
+      b.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); b.blur(); WastelandersCharacterSheetV2.#onCompactToggle.call(this, ev, { dataset: {} }); });
+      const close = header.querySelector('[data-action="close"]');
+      if (close) close.before(b); else header.append(b);
+    }
+    const c = !!this.ui.compact;
+    b.className = `header-control icon fa-solid ${c ? "fa-up-right-and-down-left-from-center" : "fa-down-left-and-up-right-to-center"} pust-cmp-hd`;
+    b.dataset.tooltip = c ? "Повний аркуш" : "Компактний аркуш";
+    b.setAttribute("aria-label", b.dataset.tooltip);
+  }
+
+  /** «Повний / Компактний»: the window narrows to the table's needs and back to the size it had */
+  static async #onCompactToggle(event, target) {
+    const on = target.dataset.v === "1" ? true : target.dataset.v === "0" ? false : !this.ui.compact;
+    if (on === !!this.ui.compact) return;
+    this.ui.compact = on;
+    compactStore(this.document, on);
+    if (on) this.#fullSize = { width: this.position.width, height: this.position.height };
+    await this.render();
+    this.setPosition(on ? { width: COMPACT_W, height: Math.min(this.position.height, 760) } : (this.#fullSize ?? { width: 900, height: 920 }));
+  }
+  #fullSize = null;
+
+  /** Opened compact (remembered for this character): at the compact width from the start */
+  _onFirstRender(context, options) {
+    super._onFirstRender?.(context, options);
+    if (this.ui.compact) { this.#fullSize = { width: 900, height: 920 }; this.setPosition({ width: COMPACT_W, height: Math.min(this.position.height, 760) }); }
   }
 
   static #onUiToggle(event, target) {

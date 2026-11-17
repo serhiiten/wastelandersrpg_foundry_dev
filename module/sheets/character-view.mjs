@@ -332,6 +332,7 @@ export function buildView(st, d, L, ui = {}) {
         ? [{ v: "", n: "атрибут…", sel: !o.attr }].concat(ATTRS.filter((A) => A.k !== "UDCH").map((A) => ({ v: A.k, n: A.s, sel: o.attr === A.k })))
         : null,
       treat: !!(D && (D.heal || D.superHeal) && consL && !st.consT?.l),
+      desc: D?.d || "", // the drug's description (the compact sheet shows it; author, 2026-11-17)
     };
     row.hasActs = row.usable || row.power || !!row.booster || row.treat; // «Вжити» and the rest take the end of the note's column
     // the card's stripe by the kind of thing (author, 2026-11-15): chems, explosives, power cells, everything else
