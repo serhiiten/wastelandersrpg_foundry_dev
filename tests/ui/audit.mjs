@@ -76,10 +76,12 @@ class Audit {
   /** Inside the window, and (for the left panels) above Foundry's players list */
   onScreen(els, { abovePlayers = false } = {}) {
     const bad = [];
-    const floor = abovePlayers ? Math.min(innerHeight, R(document.querySelector("#players") ?? document.body).top || innerHeight) : innerHeight;
+    const pl = R(document.querySelector("#players") ?? document.body);
     for (const el of els) {
       if (!shown(el)) continue;
       const r = R(el);
+      // the players list is a floor only for what stands over it (author, 2026-11-17: «Огляд битви» stands on the right)
+      const floor = abovePlayers && r.left < pl.right && r.right > pl.left ? Math.min(innerHeight, pl.top || innerHeight) : innerHeight;
       if (r.left < -PX || r.top < -PX || r.right > innerWidth + PX || r.bottom > floor + PX) bad.push(`${name(el)} ${Math.round(r.left)},${Math.round(r.top)}–${Math.round(r.right)},${Math.round(r.bottom)}`);
     }
     return this.ok(abovePlayers ? "на екрані й над списком гравців" : "на екрані", !bad.length, bad.join("; "));
@@ -479,7 +481,8 @@ const SCENARIOS = {
       a.readable(battle);
     }
     const ctr = dock.querySelector(".pust-md-ctr");
-    if (ctr && shown(ctr) && !ctr.matches(":hover")) {
+    // a folded panel is a small button at its own opacity (author, 2026-11-17: on a battle map «Лічильники» fold by themselves)
+    if (ctr && shown(ctr) && !ctr.matches(":hover") && !ctr.closest(".pust-md-unit")?.classList.contains("folded")) {
       const empty = ctr.classList.contains("pust-md-empty");
       a.ok(`«Лічильники» ${empty ? "порожні напівпрозорі" : "непрозорі"}`, empty ? parseFloat(getComputedStyle(ctr).opacity) < 0.6 : getComputedStyle(ctr).opacity === "1", getComputedStyle(ctr).opacity);
     }

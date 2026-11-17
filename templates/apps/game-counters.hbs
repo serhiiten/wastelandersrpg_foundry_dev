@@ -54,7 +54,7 @@
     {{else}}<span class="pust-gc-lamps" aria-hidden="true">{{#each lamps}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</span>{{/if}}
     <button type="button" class="up" data-gc="step" data-id="{{id}}" data-d="1" title="Лічильник +1" aria-label="Лічильник +1">+</button>
   </div>
-  {{#if curLabel}}{{#unless open}}<div class="pust-gc-cur" title="Опис поділки {{val}}">{{curLabel}}</div>{{/unless}}{{/if}}
+  {{#if curLabel}}{{#unless open}}<div class="pust-gc-cur" title="Опис поділки {{val}}"><b>{{val}}</b><span>{{curLabel}}</span></div>{{/unless}}{{/if}}
 </div>
 {{/each}}
 
@@ -68,7 +68,7 @@
   <div class="pust-lc-btns">
     {{#each ../steps}}<button type="button" class="{{cls}}" data-gc="lstep" data-id="{{../id}}" data-d="{{d}}" title="{{title}}">{{label}}</button>{{/each}}
   </div>
-  {{#if stateText}}<div class="pust-lc-state">{{stateText}}</div>{{/if}}
+  {{#if stateText}}<div class="pust-lc-state {{st}}"><i class="fa-solid {{#if (eq st "won")}}fa-check{{else}}fa-triangle-exclamation{{/if}}"></i><span>{{stateText}}</span></div>{{/if}}
 </div>
 {{/each}}
 {{/if}}

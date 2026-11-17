@@ -61,10 +61,38 @@ function setOpen(id, v) {
   try { localStorage.setItem(OPEN_KEY, JSON.stringify(a)); } catch (_) { /* no storage: the choice is not kept */ }
 }
 
-/** A line of the log as a small terminal card (same frame as the terminal's notifications, see termCard) */
-function logCard(text) {
-  const content = `<div class="pust-chat pust-tcard pust-chat-gcounter"><h3><i class="fa-solid fa-hourglass-half"></i><span>Лічильники гри</span></h3>`
-    + `<div class="tscreen"><p>${esc(text)}</p></div></div>`;
+/**
+ * A counter's change in chat (author, 2026-11-17: made handsome, as the damage cards): a header in the kind's colours — a game
+ * counter bronze, a scene counter steel — with the reason chip, the name, «from → to з N» in big type, the segments with the
+ * ones just gained lit (lost ones simply empty) (a solid bar past 20), the segment's description (game); at 0 / the maximum a scene
+ * counter's banner, a game counter's whole card red / green.
+ * @param {{kind:"game"|"scene", counter:object, from?:number, to?:number, d?:number, made?:boolean}} o
+ */
+function counterCard({ kind, counter: c, from = null, to = null, d = 0, made = false }) {
+  const game_ = kind === "game";
+  const max = game_ ? c.size : c.die;
+  const now = to ?? c.val;
+  const why = made ? "новий" : game_ ? (now > from ? "+" + (now - from) : "−" + (from - now)) : (G.STEP_WHY[String(d)] ?? "");
+  const up = !made && now > from, down = !made && now < from;
+  const lo = made ? 0 : Math.min(from, now), hi = made ? 0 : Math.max(from, now);
+  const hue = G.ctHue(now, max);
+  const segs = max <= G.GC_LAMPS_MAX
+    ? `<div class="pust-cc-segs" style="--n:${max}">${Array.from({ length: max }, (_, i) => {
+        const on = i < now, moved = i >= lo && i < hi;
+        return `<i class="${on ? "on" : ""}${moved && up ? " up" : ""}"></i>`; // segments just lost show as empty (author, 2026-11-17)
+      }).join("")}</div>`
+    : `<div class="pust-cc-bar"><i style="width:${Math.round((100 * now) / max)}%"></i></div>`;
+  const label = game_ ? G.currentLabel({ ...c, val: now }) : "";
+  // at 0 / the maximum (author, 2026-11-17): a scene counter gets the banner (in chat only «the problem is here», not the GM's
+  // hint); a game counter has no banner, its whole card turns red / green
+  const state = G.localState({ die: max, val: now });
+  const banner = game_ ? "" : state === "lost" ? `<div class="pust-cc-ban lost"><i class="fa-solid fa-triangle-exclamation"></i>Проблема постала в усій красі</div>`
+    : state === "won" ? `<div class="pust-cc-ban won"><i class="fa-solid fa-check"></i>${esc(G.STATE_TEXT.won)}</div>` : "";
+  const nums = made ? `<b>${now}</b><span>з ${max}</span>` : `<span>${from}</span><i class="fa-solid fa-arrow-right"></i><b>${now}</b><span>з ${max}</span>`;
+  const content = `<div class="pust-chat pust-ctrcard ${game_ ? "game" : "scene"}${up ? " up" : down ? " dn" : ""}${game_ && state ? ` st-${state}` : ""}" style="--hue:${hue}">
+    <div class="pust-cc-hd"><i class="fa-solid ${game_ ? "fa-hourglass-half" : "fa-dice-d6"}"></i><span>${game_ ? "Лічильник гри" : `Лічильник сцени · d${max}`}</span>${why ? `<em class="pust-cc-why">${esc(why)}</em>` : ""}</div>
+    <div class="pust-cc-body"><div class="pust-cc-top"><b class="pust-cc-name">${esc(c.name)}</b><span class="pust-cc-num">${nums}</span></div>
+      ${segs}${label ? `<p class="pust-cc-label">${esc(label)}</p>` : ""}${banner}</div></div>`;
   return postChat({ content, speaker: { alias: "Термінал Доглядача" } });
 }
 
@@ -282,7 +310,7 @@ class CountersPanel {
       this.form = null;
       await writeScene(lr.list, lr.next);
       this.render();
-      await logCard(G.logCreateLocal(lr.counter));
+      await counterCard({ kind: "scene", counter: lr.counter, made: true });
       return;
     }
     const r = G.isFullTotal(sceneListReal().length, list.length) ? null : G.addCounter(list, f);
@@ -291,7 +319,7 @@ class CountersPanel {
     await game.settings.set(game.system.id, "gameCounters", r.list);
     // the form is gone, so redraw now (with Enter the focus is still in its name field, and refresh() would wait for it)
     this.render();
-    await logCard(G.logCreate(r.counter));
+    await counterCard({ kind: "game", counter: r.counter, made: true });
   }
 
   async #step(target) {
@@ -299,7 +327,7 @@ class CountersPanel {
     const r = G.stepCounter(storedReal(), target.dataset.id, +target.dataset.d);
     if (!r?.changed) return;
     await game.settings.set(game.system.id, "gameCounters", r.list);
-    await logCard(G.logStep(r.counter, r.from, r.to));
+    await counterCard({ kind: "game", counter: r.counter, from: r.from, to: r.to });
   }
 
   async #lstep(target) {
@@ -308,7 +336,7 @@ class CountersPanel {
     const d = +target.dataset.d, r = G.stepLocal(sceneListReal(), target.dataset.id, d);
     if (!r?.changed) return;
     await writeScene(r.list, sceneNext());
-    await logCard(G.logStepLocal(r.counter, r.from, r.to, d));
+    await counterCard({ kind: "scene", counter: r.counter, from: r.from, to: r.to, d });
   }
 
   async #remove(target) {
@@ -331,6 +359,7 @@ let PANEL = null;
 
 /** The GM's counters panel: the dock's section (header with «+», body `.pust-gc`) */
 export function mountCounters(section) {
+  gameCount = storedReal().length;
   PANEL = new CountersPanel(section);
   return PANEL.render();
 }
@@ -344,7 +373,7 @@ export async function createSceneCounter({ name, die = 6, val = 4 } = {}) {
   if (!lr) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
   await writeScene(lr.list, lr.next);
   ui.notifications.info(`Лічильник «${lr.counter.name}» додано на сцену «${sceneOf().name}».`);
-  return logCard(G.logCreateLocal(lr.counter));
+  return counterCard({ kind: "scene", counter: lr.counter, made: true });
 }
 
 /** A game counter made from a journal button (`@GameCounter[…]`, author 2026-11-15: the quick start's days to delivery) */
@@ -355,10 +384,15 @@ export async function createGameCounter({ name, size = 6, val = 0 } = {}) {
   if (!r) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
   await game.settings.set(game.system.id, "gameCounters", r.list);
   ui.notifications.info(`Лічильник гри «${r.counter.name}» додано.`);
-  return logCard(G.logCreate(r.counter));
+  return counterCard({ kind: "game", counter: r.counter, made: true });
 }
 
 /** The world's or the viewed scene's counters changed (any client): redraw the GM's panel */
+let gameCount = null;
 export function refreshGameCounters() {
+  // the first game counter on a battle map unfolds «Лічильники» (author, 2026-11-17; map-dock.mjs folds them there)
+  const n = storedReal().length;
+  if (gameCount === 0 && n > 0) import("./map-dock.mjs").then((m) => m.unfoldUnit("ctr"));
+  gameCount = n;
   return PANEL?.refresh();
 }

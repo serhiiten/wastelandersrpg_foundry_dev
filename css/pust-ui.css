@@ -350,7 +350,11 @@
 .pust-gc .pust-lc-btns > button { margin: 0; min-width: 0; height: 26px; padding: 0 2px; font-size: 11px; line-height: 1; white-space: nowrap; }
 .pust-gc .pust-lc-btns > button.dn { color: #ff9a82; }
 .pust-gc .pust-lc-btns > button.up { color: #b6ffb9; }
-.pust-gc .pust-lc-state { grid-area: state; font-size: 13px; line-height: 1.25; color: var(--c); overflow-wrap: anywhere; }
+/* the state as the chat card's banner (author, 2026-11-17): red at 0, green at the maximum, an icon, white bold text */
+.pust-gc .pust-lc-state { grid-area: state; display: flex; align-items: flex-start; gap: 6px; padding: 5px 7px; border-radius: 3px; font-size: 12.5px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.pust-gc .pust-lc-state > i { flex: none; margin-top: 2px; }
+.pust-gc .pust-lc-state.lost { background: #a8121a; color: #fff0ec; }
+.pust-gc .pust-lc-state.won { background: #2f6b35; color: #e7ffd9; }
 
 /* ===== A place of «Мапа Пустки» in chat (module/sheets/place-sheet.mjs placeCard): the header in the kind's colour
    (Поселення green, Небезпечне місце red, Точка інтересу orange) with its icon, the name big, aspects as amber chips ===== */
@@ -754,3 +758,34 @@ body.pust-touring #pause { display: none !important; }
    (author, 2026-11-17; feedback r1: the system's battles live in «Битва» and «Коло дій») */
 body.pust-no-combat #sidebar-tabs li:has(> [data-tab="combat"]),
 body.pust-no-combat #token-hud [data-action="combat"] { display: none !important; }
+
+/* a counter's change in chat (author, 2026-11-17; game-counters.mjs counterCard): bronze for a game counter, steel for a scene
+   counter; the name and «from → to з N», the segments (the ones just gained lit green; lost ones simply empty), the description or the banner */
+.chat-message .pust-chat.pust-ctrcard { --cc: #7a5210; --cc-2: #4a3008; --cc-ink: #fff3c4; padding: 0; overflow: hidden; border: 2px solid var(--cc-2); border-radius: 5px; background: #f4eedc; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.chat-message .pust-chat.pust-ctrcard.scene { --cc: #3d4548; --cc-2: #23282a; --cc-ink: #c9f5cc; }
+.pust-chat.pust-ctrcard .pust-cc-hd { display: flex; align-items: center; gap: 7px; padding: 6px 9px; background: linear-gradient(180deg, color-mix(in srgb, var(--cc) 80%, #fff), var(--cc)); color: var(--cc-ink);
+  border-bottom: 2px solid var(--cc-2); font-family: "Oswald", "Roboto Condensed", "PT Sans Narrow", sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pust-chat.pust-ctrcard .pust-cc-hd > span { flex: 1 1 auto; min-width: 0; }
+.pust-chat.pust-ctrcard .pust-cc-why { flex: none; padding: 1px 7px; border-radius: 3px; background: rgba(0,0,0,.3); font-family: "Roboto Condensed", sans-serif; font-size: 12px; font-style: normal; text-transform: none; letter-spacing: 0; }
+.pust-chat.pust-ctrcard.up .pust-cc-why { background: #2f6b35; color: #e7ffd9; }
+.pust-chat.pust-ctrcard.dn .pust-cc-why { background: #a8121a; color: #fff0ec; }
+.pust-chat.pust-ctrcard .pust-cc-body { display: flex; flex-direction: column; gap: 6px; padding: 7px 9px 8px; }
+.pust-chat.pust-ctrcard .pust-cc-top { display: flex; align-items: baseline; gap: 8px; }
+.pust-chat.pust-ctrcard .pust-cc-name { flex: 1 1 auto; min-width: 0; color: #2a261c; font-family: "Roboto Condensed", sans-serif; font-size: 15px; font-weight: 800; overflow-wrap: anywhere; }
+.pust-chat.pust-ctrcard .pust-cc-num { flex: none; display: inline-flex; align-items: baseline; gap: 5px; color: #5a5244; font-family: "PT Mono", monospace; font-size: 13px; }
+.pust-chat.pust-ctrcard .pust-cc-num > b { color: hsl(var(--hue) 70% 30%); font-size: 22px; line-height: 1; }
+.pust-chat.pust-ctrcard .pust-cc-num > i { font-size: 11px; }
+.pust-chat.pust-ctrcard .pust-cc-segs { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3px; }
+.pust-chat.pust-ctrcard .pust-cc-segs > i { height: 12px; border-radius: 2px; background: #d9cfb2; box-shadow: inset 0 1px 1px rgba(0,0,0,.2); }
+.pust-chat.pust-ctrcard .pust-cc-segs > i.on { background: hsl(var(--hue) 60% 42%); }
+.pust-chat.pust-ctrcard .pust-cc-segs > i.up { outline: 2px solid #3dff47; outline-offset: -1px; }
+.pust-chat.pust-ctrcard .pust-cc-bar { height: 12px; border-radius: 6px; background: #d9cfb2; overflow: hidden; box-shadow: inset 0 1px 1px rgba(0,0,0,.2); }
+.pust-chat.pust-ctrcard .pust-cc-bar > i { display: block; height: 100%; background: hsl(var(--hue) 60% 42%); }
+.pust-chat.pust-ctrcard .pust-cc-label { margin: 0; padding: 4px 7px; border-left: 3px solid var(--cc); background: rgba(122,82,16,.08); color: #2a261c; font-size: 12.5px; font-style: italic; }
+.pust-chat.pust-ctrcard .pust-cc-ban { display: flex; align-items: center; gap: 6px; padding: 5px 7px; border-radius: 3px; font-size: 12.5px; font-weight: 700; line-height: 1.3; }
+.pust-chat.pust-ctrcard .pust-cc-ban.lost { background: #a8121a; color: #fff0ec; }
+.pust-chat.pust-ctrcard .pust-cc-ban.won { background: #2f6b35; color: #e7ffd9; }
+/* a game counter at 0 / its maximum: the whole card red / green (author, 2026-11-17; no banner) */
+.chat-message .pust-chat.pust-ctrcard.game.st-lost { --cc: #a8121a; --cc-2: #5a0a0e; --cc-ink: #fff0ec; background: #f6d9d4; }
+.chat-message .pust-chat.pust-ctrcard.game.st-won { --cc: #2f6b35; --cc-2: #1f4a1a; --cc-ink: #e7ffd9; background: #dcecd3; }
+.pust-chat.pust-ctrcard.game.st-lost .pust-cc-label, .pust-chat.pust-ctrcard.game.st-won .pust-cc-label { background: rgba(255,255,255,.35); }

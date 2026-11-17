@@ -239,7 +239,7 @@
 .pust-gc .pust-gc-frow input[type="number"] { width: 100%; text-align: center; }
 .pust-gc .pust-gc-btns { display: flex; justify-content: flex-end; gap: 6px; }
 .pust-gc .pust-gc-btns > button { margin: 0; }
-.pust-gc .pust-gc-item { --c: hsl(var(--h), 85%, 55%); display: flex; flex-direction: column; gap: 5px; padding: 6px 8px; border-radius: 3px; background: rgba(0,0,0,.25); border-left: 3px solid var(--c); }
+.pust-gc .pust-gc-item { --c: hsl(var(--h), 85%, 55%); display: flex; flex-direction: column; gap: 5px; padding: 6px 8px; border-radius: 3px; background: linear-gradient(90deg, hsla(var(--h), 70%, 30%, .35), rgba(0,0,0,.25)); border-left: 3px solid var(--c); } /* tinted by its value as a scene counter (author, 2026-11-17) */
 .pust-gc .pust-gc-hd { display: flex; align-items: center; gap: 6px; }
 .pust-gc .pust-gc-name { flex: 1 1 auto; min-width: 0; font-family: var(--pu-f-label); font-weight: 700; font-size: 14px; }
 .pust-gc .pust-gc-v { flex: none; font-family: var(--pu-f-num); font-size: 22px; line-height: 1; color: var(--c) !important; text-shadow: 0 0 8px var(--c); }
@@ -253,7 +253,13 @@
 /* a counter of more than 20 segments: one solid bar (author, 2026-11-15) */
 .pust-gc .pust-gc-bar { flex: 1 1 auto; height: 12px; border-radius: 2px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); overflow: hidden; }
 .pust-gc .pust-gc-bar > i { display: block; height: 100%; background: var(--c); box-shadow: 0 0 6px var(--c); }
-.pust-gc .pust-gc-cur { font-size: 13px; line-height: 1.25; color: #b6ffb9; overflow-wrap: anywhere; }
+/* the current segment's description (author, 2026-11-17: as in the chat card): a plate with the counter's colour at its left,
+   the segment's number in a small badge, the text in italics */
+.pust-gc .pust-gc-cur { display: flex; align-items: flex-start; gap: 7px; padding: 4px 8px 4px 6px; border-radius: 3px; border-left: 3px solid var(--c);
+  background: hsla(var(--h), 60%, 20%, .45); color: #e8f5e9; font-size: 13px; font-style: italic; line-height: 1.3; overflow-wrap: anywhere; }
+.pust-gc .pust-gc-cur > b { flex: none; min-width: 20px; padding: 0 4px; border-radius: 3px; background: #0f1412; color: var(--c); font-family: "Ubuntu Mono", monospace; font-size: 13px;
+  font-style: normal; text-align: center; line-height: 18px; }
+.pust-gc .pust-gc-cur > span { min-width: 0; }
 .pust-gc .pust-gc-rows { display: flex; flex-direction: column; gap: 3px; }
 .pust-gc .pust-gc-row { display: flex; align-items: flex-start; gap: 6px; padding: 2px 4px; border-radius: 2px; opacity: .6; }
 .pust-gc .pust-gc-row.on { opacity: 1; }
@@ -265,7 +271,9 @@
    each panel is a unit placed in window pixels, dragged by its header, folded to a small button; the terminal's dark
    screen look; half-transparent until the pointer is over it; Foundry's left buttons are drawn over the panels */
 #pust-mapdock { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-#ui-left { position: relative; z-index: 1; }
+/* Foundry's left buttons over the panels: only the stacking — #ui-left stays absolute as Foundry has it (author, 2026-11-17:
+   «position: relative» here made it take room in the interface row and pushed the hotbar to the right, under the chat) */
+#ui-left { z-index: 1; }
 #pust-mapdock .pust-md-unit { position: absolute; width: 340px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
 #pust-mapdock .pust-md-unit[hidden] { display: none; } /* the GM's «lite» «Битва» on the battle map (author, 2026-11-16) */
 #pust-mapdock .pust-md-unit > * { pointer-events: auto; }

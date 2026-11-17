@@ -400,7 +400,9 @@ function defaultPlace(unit) {
   const ch = c ? c.getBoundingClientRect().height : 0;
   const dice = { x: ctr.x, y: ctr.y + (ch > 0 ? ch + 6 : 0) };
   if (unit !== "ovw") return dice;
-  // «Огляд битви» (author, 2026-11-17): under «Кістки» where they stand by default, 6 px
+  // «Огляд битви» (author, 2026-11-17): under «Битва», wherever it stands, 6 px, its left edge with hers
+  const m = el?.getBoundingClientRect();
+  if (battle && m?.height) return { x: parseFloat(el.style.left) || m.left, y: (parseFloat(el.style.top) || m.top) + m.height + 6 };
   const d = document.querySelector(`#${DOCK} [data-unit="dice"]`);
   return { x: dice.x, y: dice.y + (d ? d.getBoundingClientRect().height + 6 : 0) };
 }
@@ -412,12 +414,16 @@ function fitOverview() {
   if (!body || unit.hidden || unit.classList.contains("folded")) return;
   const u = unit.getBoundingClientRect();
   let floor = window.innerHeight - 8;
-  for (const sel of ["#players", "#hotbar"]) {
+  // the chat's message field too: it floats bottom right while the sidebar is folded (author, 2026-11-17: the list ran under it)
+  for (const sel of ["#players", "#hotbar", "#chat-message"]) {
     const r = document.querySelector(sel)?.getBoundingClientRect();
     if (r?.height && r.left < u.right && r.right > u.left) floor = Math.min(floor, r.top - 8);
   }
   const rest = unit.offsetHeight - body.offsetHeight;
-  const mh = `${Math.max(140, Math.floor(floor - u.top - rest))}px`;
+  // never taller than the «Битва» panel (author, 2026-11-17)
+  const battle = document.querySelector(`#${DOCK} [data-unit="map"] .pust-md-battle:not([hidden])`);
+  const cap = battle?.offsetHeight ? battle.offsetHeight - rest : Infinity;
+  const mh = `${Math.max(140, Math.floor(Math.min(floor - u.top - rest, cap)))}px`;
   if (body.style.maxHeight !== mh) body.style.maxHeight = mh;
 }
 
@@ -520,10 +526,17 @@ export function toggleOverview() {
 /** Open a folded unit (battle-panel.mjs: a travel event's damage put into «Сцена») */
 export function unfoldUnit(unit) { setFold(unit, false); }
 
+/** On a battle map «Лічильники» and «Кістки» fold by themselves (author, 2026-11-17): the GM's choice there lasts while the
+ *  battle map is viewed and leaves the remembered one (for the other scenes) as it was */
+const battleFold = (unit) => game.user.isGM && (unit === "ctr" || unit === "dice")
+  && !!document.querySelector(`#${DOCK} [data-unit="map"]`)?.classList.contains("is-battle");
+
 function setFold(unit, folded) {
-  const f = load(FOLD_KEY);
-  f[unit] = folded;
-  save(FOLD_KEY, f);
+  if (!battleFold(unit)) {
+    const f = load(FOLD_KEY);
+    f[unit] = folded;
+    save(FOLD_KEY, f);
+  }
   document.querySelector(`#${DOCK} [data-unit="${unit}"]`)?.classList.toggle("folded", folded);
   requestAnimationFrame(placeAll); // «Кістки» in their own place follow the height of «Мапа Пустки»
 }
@@ -844,7 +857,15 @@ function syncSceneKind() {
   const unit = document.querySelector(`#${DOCK} [data-unit="map"]`);
   if (!unit || !game.user.isGM) return;
   const battle = isBattleScene(canvas?.scene);
+  const was = unit.classList.contains("is-battle");
   unit.classList.toggle("is-battle", battle);
+  // entering a battle map: «Кістки» folded, «Лічильники» too unless there are game counters; leaving it: as remembered
+  if (battle !== was) {
+    const f = load(FOLD_KEY);
+    const hasGame = (game.settings.get(game.system.id, "gameCounters") ?? []).length > 0;
+    document.querySelector(`#${DOCK} [data-unit="dice"]`)?.classList.toggle("folded", battle ? true : !!f.dice);
+    document.querySelector(`#${DOCK} [data-unit="ctr"]`)?.classList.toggle("folded", battle ? !hasGame : !!f.ctr);
+  }
   for (const el of unit.querySelectorAll(".pust-md-map, .pust-md-travel")) el.hidden = battle;
   if (battle && tv.open) { tv.open = false; redrawTravel(); }
   const b = unit.querySelector(".pust-md-battle");
