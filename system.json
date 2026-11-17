@@ -247,5 +247,6 @@
   "url": "https://github.com/serhiiten/wastelandersrpg_foundry_dev",
   "manifest": "https://raw.githubusercontent.com/serhiiten/wastelandersrpg_foundry_dev/main/system.json",
   "download": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/releases/download/v1.1.0-dev.33/foundry.zip",
-  "license": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/blob/main/LICENSE.md"
+  "license": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/blob/main/LICENSE.md",
+  "changelog": "https://github.com/serhiiten/wastelandersrpg_foundry_dev/blob/main/CHANGELOG.md"
 }

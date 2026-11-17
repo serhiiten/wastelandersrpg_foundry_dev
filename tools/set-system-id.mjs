@@ -66,6 +66,7 @@ system.url = `https://github.com/${repo}`;
 system.manifest = `https://raw.githubusercontent.com/${repo}/main/system.json`;
 system.download = `https://github.com/${repo}/releases/download/v${system.version}/foundry.zip`;
 system.license = `https://github.com/${repo}/blob/main/LICENSE.md`;
+system.changelog = `https://github.com/${repo}/blob/main/CHANGELOG.md`; // release notes (author, 2026-11-17)
 writeFileSync("system.json", JSON.stringify(system, null, 2) + "\n");
 
 console.log(`${prev} → ${next}: ${changed} files rewritten, rebuilding packs…`);
