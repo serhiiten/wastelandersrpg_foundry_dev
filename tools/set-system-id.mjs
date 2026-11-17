@@ -41,6 +41,8 @@ const idRe = new RegExp(`"systemId": "${prev}"`, "g");
 // compendium links between documents («Compendium.wastelanders.feats.Item.…»)
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
 const uuidRe = new RegExp(`Compendium\\.${escapeRe(prev)}\\.`, "g");
+// flags are scoped by the system's id («flags: {"wastelanders-dev": {battleZone: …}}» in the quick start's scenes)
+const flagRe = new RegExp(`"${escapeRe(prev)}": \\{`, "g");
 let changed = 0;
 for (const file of ["module", "templates", "css", "src/packs"].flatMap(walk)) {
   if (!/\.(mjs|js|hbs|css|json|map)$/.test(file)) continue;
@@ -48,7 +50,8 @@ for (const file of ["module", "templates", "css", "src/packs"].flatMap(walk)) {
   const after = before
     .replace(pathRe, `systems/${next}/`)
     .replace(idRe, `"systemId": "${next}"`)
-    .replace(uuidRe, `Compendium.${next}.`);
+    .replace(uuidRe, `Compendium.${next}.`)
+    .replace(flagRe, `"${next}": {`);
   if (after !== before) {
     writeFileSync(file, after);
     changed++;
@@ -63,6 +66,7 @@ system.url = `https://github.com/${repo}`;
 system.manifest = `https://raw.githubusercontent.com/${repo}/main/system.json`;
 system.download = `https://github.com/${repo}/releases/download/v${system.version}/foundry.zip`;
 system.license = `https://github.com/${repo}/blob/main/LICENSE.md`;
+system.changelog = `https://github.com/${repo}/blob/main/CHANGELOG.md`; // release notes (author, 2026-11-17)
 writeFileSync("system.json", JSON.stringify(system, null, 2) + "\n");
 
 console.log(`${prev} → ${next}: ${changed} files rewritten, rebuilding packs…`);

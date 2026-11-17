@@ -29,7 +29,8 @@ function freeCell() {
   return { x: Math.round(c.x / g) * g, y: Math.round(c.y / g) * g };
 }
 
-export async function setTokenDemo(on, actor = null) {
+/** `frame: false` — only the token (another example lays its own frame over it: the target's, the move question's) */
+export async function setTokenDemo(on, actor = null, { frame: withFrame = true } = {}) {
   drop();
   if (!on || !canvas?.ready || !actor) return null;
   const hp = actor.system?.hp ?? {};
@@ -44,6 +45,7 @@ export async function setTokenDemo(on, actor = null) {
   token.renderFlags.set({ refresh: true });
   await canvas.animatePan({ x: token.center.x, y: token.center.y, scale: Math.max(canvas.stage.scale.x, 1), duration: 250 });
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  if (!withFrame) return token;
   const b = token.getBounds(); // the token with its bar, name and chips, in screen pixels
   frame = document.createElement("div");
   frame.className = "pust-tok-demo";

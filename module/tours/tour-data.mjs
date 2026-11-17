@@ -57,11 +57,11 @@ export const TOURS = [
     steps: [
       S("open", "Термінал: вікно генераторів, результат лишається у вікні, «В чат» — показати гравцям, «В журнал» — зберегти для підготовки.", { selector: ".wastelanders-terminal-open", prepare: "closeAll", tooltipDirection: "DOWN",  }),
       S("case", "«Справа»: складність → «Згенерувати справу»; кожен блок можна перекинути кубиком праворуч.", { selector: `${TERM} [data-action="caseGen"]`, prepare: "terminal:case", tooltipDirection: "LEFT",  }),
-      S("journal", "«В журнал»: справа (або битва) стає журналом у теці «Термінал Доглядача», кістки в ньому кидаються кліком.", { prepare: "terminal:case", selector: `${TERM} [data-action="toJournal"][data-what="case"]`, tooltipDirection: "LEFT",  }),
+      S("journal", "«В журнал»: справа (або битва) стає журналом у теці «Термінал Доглядача», кістки в ньому кидаються кліком.", { prepare: ["terminal:case", "termGen:case"], selector: `${TERM} [data-action="toJournal"][data-what="case"]`, tooltipDirection: "LEFT",  }),
       S("travel", "«Подорож»: тип (подорож чи погана зустріч), удача партії, «Згенерувати подію».", { selector: `${TERM} [data-action="travelGen"]`, prepare: "terminal:travel", tooltipDirection: "LEFT",  }),
       S("tables", "«Натхнення»: імена, нагороди, вантажі, місця, небезпеки — кожна таблиця «Згенерувати» і «В чат».", { selector: `${TERM} [data-action="tableGen"]`, prepare: "terminal:tables", tooltipDirection: "LEFT",  }),
       S("battle", "«Битви»: «Згенерувати битву» за фракцією й складністю; місце, небезпека, нагорода.", { selector: `${TERM} [data-action="battleGen"]`, prepare: "terminal:battle", tooltipDirection: "LEFT",  }),
-      S("place", "«Розмістити»: вороги стають акторами в теці «Битви» і токенами на сцені (на бойовій мапі — по зонах); «Додати теку в Актори» — лише актори.", { prepare: "terminal:battle", selector: `${TERM} [data-action="battleCreate"][data-mode="place"]`, tooltipDirection: "LEFT" }),
+      S("place", "«Розмістити»: вороги стають акторами в теці «Битви» і токенами на сцені (на бойовій мапі — по зонах); «Додати теку в Актори» — лише актори.", { prepare: ["terminal:battle", "termGen:battle"], selector: `${TERM} [data-action="battleCreate"][data-mode="place"]`, tooltipDirection: "LEFT" }),
     ],
   },
   {
@@ -181,11 +181,11 @@ export const TOURS = [
   {
     id: "pl-panels", next: ["pl-battle"], title: "Твої панелі", description: "",
     steps: [
-      S("check", "«Зробити перевірку» на панелі: те саме вікно під кнопкою, за твого персонажа.", { selector: `${DOCK} .pust-md-check, #pust-check-dock`, union: true, prepare: ["closeAll", "scene:map", "dockCheck"], tooltipDirection: "RIGHT" }),
+      S("check", "«Зробити перевірку» на панелі: те саме вікно під кнопкою, за твого персонажа.", { selector: `${DOCK} .pust-md-check, #pust-check-dock`, union: true, prepare: ["closeAll", "scene:map", "dockDemo", "dockCheck"], tooltipDirection: "RIGHT" }),
       S("dice", "«Кістки»: N×d6/d8/d10/dN у чат.", { selector: `${DOCK} [data-unit="dice"]`, prepare: "unfold:dice", tooltipDirection: "LEFT",  }),
       S("fate", "«Доля»: кістка Долі за свого персонажа; за іншого — познач його ціллю (T).", { selector: `${DOCK} [data-mapdice="fate"]`, tooltipDirection: "LEFT",  }),
-      S("fd", "«Витратити ЖД» / «Отримати ЖД»: лічильник персонажа й картка в чаті.", { selector: `${DOCK} .pust-md-fdspend:not(.pust-md-supspend)`, tooltipDirection: "LEFT",  }),
-      S("sup", "«Витратити Припас» / «Отримати Припас».", { selector: `${DOCK} .pust-md-supspend`, tooltipDirection: "LEFT",  }),
+      S("fd", "«Витратити ЖД» / «Отримати ЖД»: лічильник персонажа й картка в чаті.", { selector: `${DOCK} .pust-md-fdspend:not(.pust-md-supspend)`, prepare: "dockDemo", tooltipDirection: "LEFT",  }),
+      S("sup", "«Витратити Припас» / «Отримати Припас».", { selector: `${DOCK} .pust-md-supspend`, prepare: "dockDemo", tooltipDirection: "LEFT",  }),
       S("ctr", "«Лічильники»: що зараз рахує Доглядач (лише читати); приклади лічильника гри й сцени.", { selector: `${DOCK} .pust-md-ctr`, prepare: "counterDemo", tooltipDirection: "RIGHT" }),
     ],
   },
