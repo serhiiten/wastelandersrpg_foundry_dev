@@ -216,7 +216,7 @@
               <input type="text" class="pust-screen" data-k="{{k}}" value="{{val}}" placeholder="—" aria-label="{{n}}" title="{{#if tip}}{{tip}}{{else}}Ціле число, може бути від'ємним; порожньо — без надбавки (за правилами {{base}}){{/if}}">
               <button type="button" data-action="cact" data-act="step" data-step="{{k}}" data-d="1" title="Плюс 1">+</button>
             </span>
-            {{#if val}}<button type="button" class="pust-ovreset" data-action="cact" data-act="ov-reset" data-k="{{k}}" data-confirm="1" title="Скинути до стандартного значення"><i class="fa-solid fa-rotate-left"></i></button>{{else}}<span></span>{{/if}}
+            {{#if val}}<button type="button" class="pust-ovreset" data-action="cact" data-act="ov-reset" data-k="{{k}}" title="Скинути до стандартного значення"><i class="fa-solid fa-rotate-left"></i></button>{{else}}<span></span>{{/if}}
           </div>
           {{/each}}
         </div>

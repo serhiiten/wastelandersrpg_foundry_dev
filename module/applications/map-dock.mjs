@@ -618,7 +618,7 @@ export function renderMapDock() {
         ${gm ? battleSectionHtml((icon, name) => header(icon, name, "gm-battle:scene")) : ""}
       </div>
       <div class="pust-md-unit${fold.ctr ? " folded" : ""}" data-unit="ctr">
-        ${gm ? "" : `<div class="pust-md-prow"><button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити «Зробити перевірку» поруч; персонаж — твій Player Character"><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button></div>`}
+        ${gm ? "" : `<div class="pust-md-prow"><button type="button" class="pust-md-check" data-mapdock="check" hidden title="Відкрити перевірку для твого персонажа."><i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span></button></div>`}
         ${gm ? `<section class="pust-md-panel pust-md-ctr pust-md-ctr-gm"><header title="Тягни, щоб пересунути; подвійний клік — на місце"><i class="fa-solid fa-hourglass-half"></i><span>Лічильники</span><button type="button" class="pust-md-add" data-gc="newForm" title="Новий лічильник" aria-label="Новий лічильник"><i class="fa-solid fa-plus"></i></button>${helpBtn("gm-map:counters", "Лічильники")}${FOLD_BTN}</header><div class="pust-md-body pust-gc" hidden></div></section>` : ""}
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
@@ -729,8 +729,8 @@ function syncFdRow() {
   const spend = row.querySelector(".pust-md-fdspend");
   row.querySelector(".pust-md-fdn").textContent = String(n);
   spend.disabled = n <= 0;
-  spend.title = n > 0 ? `Витратити 1 жетон Долі персонажа «${a.name}» (зараз: ${n})` : `У «${a.name}» немає жетонів Долі`;
-  row.querySelector(".pust-md-fdgain").title = `Отримати 1 жетон Долі для «${a.name}»`;
+  spend.title = n > 0 ? `Витратити 1 жетон Долі «${a.name}» (зараз: ${n}): щоб створити факт, нав'язати аспект чи відмовитися від нав'язаного. Аспект до перевірки викликають у «Зробити перевірку», жетон там спишеться сам.` : `У «${a.name}» немає жетонів Долі`;
+  row.querySelector(".pust-md-fdgain").title = `Отримати 1 жетон Долі для «${a.name}». Жетон дає Доглядач, коли нав'язує аспект твого персонажа, і за свої жетони, витрачені проти тебе. За падіння до 0 ОЗ отримуєш один жетон.`;
 }
 async function stepFd(dd) {
   const a = game.user.character;
@@ -763,8 +763,8 @@ function syncSupRow() {
   row.querySelector(".pust-md-supn").textContent = String(n);
   spend.disabled = n <= 0;
   gain.disabled = n >= max;
-  spend.title = n > 0 ? `Витратити 1 Припас персонажа «${a.name}» (зараз: ${n} з ${max})` : `У «${a.name}» немає Припасів`;
-  gain.title = n < max ? `Отримати 1 Припас для «${a.name}» (максимум ${max})` : `Припасів уже максимум: ${max}`;
+  spend.title = n > 0 ? `Витратити 1 Припас «${a.name}» (зараз: ${n} з ${max}): використати перк, що його потребує, дістати звичайну річ (мотузку, їжу й воду на день, відмички, аптечку тощо) або перезарядитися, коли скінчилися набої.` : `У «${a.name}» немає Припасів`;
+  gain.title = n < max ? `Отримати 1 Припас для «${a.name}» (максимум ${max}). У поселенні 3 Припаси коштують 1 кришку: зручніше купити їх кнопкою «Поповнити» на аркуші.` : `Припасів уже максимум: ${max}`;
 }
 async function stepSup(dd) {
   const a = game.user.character;
