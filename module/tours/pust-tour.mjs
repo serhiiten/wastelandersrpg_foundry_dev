@@ -36,9 +36,13 @@ async function actorFor(what) {
     const found = best((canvas?.scene?.tokens ?? []).map((t) => t.actor)) ?? best([...game.actors]);
     if (found) return found;
   }
+  // a world actor only when this user may open its sheet (author, 2026-11-17: a player was shown the GM's caravan, whose
+  // sheet he can't open, so the caravan tour fell back on every step); else the example
+  const level = kind === "enemy" || kind === "place" ? "LIMITED" : "OBSERVER";
+  const may = (a) => a.testUserPermission(game.user, level);
   const own = forceDemo ? null : kind === "pc"
     ? game.user.character ?? game.actors.find((a) => a.type === "character" && a.isOwner)
-    : game.actors.find((a) => a.type === kind && (!name || a.name === name)) ?? game.actors.find((a) => a.type === kind && a.testUserPermission(game.user, "LIMITED"));
+    : game.actors.find((a) => a.type === kind && (!name || a.name === name) && may(a)) ?? game.actors.find((a) => a.type === kind && may(a));
   return own ?? demoActor(kind === "pc" ? "character" : kind);
 }
 
@@ -81,6 +85,19 @@ async function demoActor(type) {
     console.warn("Пустельники | tour example not made", err);
     return null;
   }
+}
+
+/**
+ * The battle map the tour shows (author, 2026-11-17: a new world with «Швидкий старт» went to the empty «Бойова мапа»): the
+ * battle scene this user may view with the most tokens, then zones (the quick start's battles), else «Бойова мапа»
+ */
+function bestBattleScene() {
+  const sys = game.system.id;
+  const zones = (s) => s.drawings.filter((d) => d.getFlag(sys, "battleZone")).length;
+  const list = game.scenes.filter((s) => isBattleScene(s) && (game.user.isGM || s.testUserPermission(game.user, "LIMITED")));
+  list.sort((a, b) => (b.tokens.size - a.tokens.size) || (zones(b) - zones(a)));
+  const best = list[0];
+  return best && (best.tokens.size || zones(best)) ? best : (findBattleScene() ?? best ?? null);
 }
 
 /** Closes the system's windows the tour opened (sheets, terminal, check panel) */
@@ -145,13 +162,18 @@ function setIssuesDemo(on) {
     + ISSUES_DEMO.map(([lvl, msg]) => `<div class="pust-issue ${lvl}">${msg}</div>`).join("");
   nav.before(box);
 }
-const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, zframe: false, round: false, tok: false };
+const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false };
 async function closeTransient(keep = new Set()) {
   if (opened.issues && !keep.has("issuesDemo")) { setIssuesDemo(false); opened.issues = false; }
   if (opened.tok && !keep.has("tokenDemo") && !keep.has("caravanToken")) { await (await import("../canvas/token-demo.mjs")).setTokenDemo(false); opened.tok = false; }
   if (opened.zframe && !keep.has("zoneFrame")) { await (await import("../canvas/battle-zones.mjs")).setZoneFrame(null); opened.zframe = false; }
   if (opened.round && !keep.has("roundDemo")) { document.querySelectorAll(".pust-demo-msg").forEach((x) => x.remove()); opened.round = false; }
   if (opened.dock && !keep.has("dockCheck")) { await foundry.applications.instances.get("pust-check-dock")?.close({ animate: false }); opened.dock = false; }
+  if (opened.dockDemo && !keep.has("dockDemo")) {
+    (await import("../applications/map-dock.mjs")).setDockDemo(null);
+    (await import("../applications/check-panel.mjs")).setDockDemoActor(null);
+    opened.dockDemo = false;
+  }
   if (opened.check && !keep.has("checkDemo")) { await (await import("../applications/check-panel.mjs")).setCheckDemo(null); opened.check = false; }
   if (opened.gear && !keep.has("gearDemo")) { try { await opened.gear.close({ animate: false }); } catch (_) { /* gone */ } opened.gear = null; }
   if (opened.cargo && !keep.has("cargoDemo")) { try { await opened.cargo.close({ animate: false }); } catch (_) { /* gone */ } opened.cargo = null; }
@@ -176,7 +198,7 @@ export const PREPARE = {
     await sleep(500); // the sidebar slides open: the highlight is measured once it stands still
   },
   scene: async (which) => {
-    const s = which === "map" ? findMapScene() : which === "battle" ? (findBattleScene() ?? game.scenes.find((x) => x.getFlag(game.system.id, "battleScene")))
+    const s = which === "map" ? findMapScene() : which === "battle" ? bestBattleScene()
       : game.scenes.getName(which);
     if (s && canvas.scene?.id !== s.id) { await s.view(); await sleep(600); }
   },
@@ -319,6 +341,27 @@ export const PREPARE = {
     await sleep(200);
   },
   /** the player's «Зробити перевірку» opened under its button on the panel (author, 2026-11-16) */
+  /** a player without a character of his own (author, 2026-11-17): the panel's «Зробити перевірку», Fate and Припаси rows
+   *  shown for the tour's example character (in memory; their buttons do nothing) */
+  dockDemo: async () => {
+    if (game.user.isGM || game.actors.some((a) => a.type === "character" && a.isOwner)) return;
+    const actor = await demoActor("character");
+    if (!actor) return;
+    (await import("../applications/check-panel.mjs")).setDockDemoActor(actor);
+    (await import("../applications/map-dock.mjs")).setDockDemo(actor);
+    opened.dockDemo = true;
+    await sleep(200);
+  },
+  /** a result in the terminal's tab (author, 2026-11-17: «В журнал» / «Розмістити на сцені» are there only after a
+   *  generation): «case» or «battle» generated once when the tab has none (only in the window, nothing written) */
+  termGen: async (kind) => {
+    const T = "#pust-terminal";
+    const result = kind === "case" ? `${T} [data-action="toJournal"][data-what="case"]` : `${T} [data-action="battleCreate"][data-mode="place"]`;
+    if (document.querySelector(result)) return;
+    document.querySelector(`${T} [data-action="${kind === "case" ? "caseGen" : "battleGen"}"]`)?.click();
+    await waitFor(result);
+    await sleep(200);
+  },
   dockCheck: async () => {
     if (!document.getElementById("pust-check-dock")) document.querySelector("#pust-mapdock .pust-md-check:not([hidden])")?.click();
     opened.dock = true;
@@ -346,10 +389,10 @@ export const PREPARE = {
     await sleep(200);
   },
   issuesDemo: async () => { setIssuesDemo(true); opened.issues = true; await sleep(150); },
-  targetDemo: async () => { await (await import("../canvas/target-demo.mjs")).setTargetDemo(true); opened.tgt = true; await sleep(200); },
+  targetDemo: async () => { await (await import("../canvas/target-demo.mjs")).setTargetDemo(true, await actorFor("enemy")); opened.tgt = true; await sleep(200); },
   enemyForm: async () => { await (await import("../applications/battle-panel.mjs")).setEnemyFormOpen(true); opened.eform = true; await sleep(300); },
   zoneDemo: async () => { await (await import("../canvas/battle-zones.mjs")).setZoneDemo(true); opened.zone = true; await sleep(300); },
-  moveDemo: async () => { await (await import("../canvas/caravan-move.mjs")).setMoveDemo(true); opened.move = true; await sleep(200); },
+  moveDemo: async () => { await (await import("../canvas/caravan-move.mjs")).setMoveDemo(true, await actorFor("caravan")); opened.move = true; await sleep(200); },
   noteDemo: async () => { (await import("../canvas/map-notes.mjs")).setNoteDemo(true); opened.note = true; await sleep(300); },
   /** the travel window under «Подорож», with an event generated (nothing goes to the chat) */
   travel: async () => { (await import("../applications/map-dock.mjs")).setTravelOpen(true); opened.travel = true; await sleep(300); },

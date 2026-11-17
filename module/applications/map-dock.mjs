@@ -720,12 +720,24 @@ export function renderMapDock() {
  * half-transparent at 0) and «Отримати ЖД» (+1). The count is their Player Character's, as the sheet's counter (`fdCur`,
  * blank = the maximum).
  */
+/** The tour's example character (author, 2026-11-17): a player without a character of his own sees the panel's rows and
+ *  «Зробити перевірку» for it while the tour shows them; their buttons do nothing (pust-tour.mjs dockDemo) */
+let DOCK_DEMO = null;
+export function setDockDemo(actor) {
+  DOCK_DEMO = actor ?? null;
+  syncFdRow();
+  syncCheckButton();
+  requestAnimationFrame(placeAll);
+}
+const rowActor = () => game.user.character ?? DOCK_DEMO;
+const isRowActor = (a) => !!a && a.type === "character" && (a.isOwner || a === DOCK_DEMO);
+
 function syncFdRow() {
   syncSupRow();
   const row = document.querySelector(`#${DOCK} .pust-md-fdrow:not(.pust-md-suprow)`);
   if (!row) return;
-  const a = game.user.character;
-  row.hidden = !(a && a.type === "character" && a.isOwner);
+  const a = rowActor();
+  row.hidden = !isRowActor(a);
   if (row.hidden) return;
   let n = 0;
   try { const { st, d } = evaluate(a); n = fdOf(st, d); } catch (_) { /* a broken sheet: 0 */ }
@@ -736,6 +748,7 @@ function syncFdRow() {
   row.querySelector(".pust-md-fdgain").title = "";
 }
 async function stepFd(dd) {
+  if (!game.user.character && DOCK_DEMO) return; // the tour's example: nothing to change
   const a = game.user.character;
   if (!a || a.type !== "character") return notify.warn("У тебе немає свого персонажа.");
   const res = await runAction(a, (st) => {
@@ -757,8 +770,8 @@ for (const h of ["updateActor", "updateUser", "createActor", "deleteActor"]) Hoo
 function syncSupRow() {
   const row = document.querySelector(`#${DOCK} .pust-md-suprow`);
   if (!row) return;
-  const a = game.user.character;
-  row.hidden = !(a && a.type === "character" && a.isOwner);
+  const a = rowActor();
+  row.hidden = !isRowActor(a);
   if (row.hidden) return;
   let n = 0, max = 0;
   try { const { st, d } = evaluate(a); n = parseInt(st.supplies, 10) || 0; max = d.supMax; } catch (_) { /* a broken sheet */ }
@@ -770,6 +783,7 @@ function syncSupRow() {
   gain.title = "";
 }
 async function stepSup(dd) {
+  if (!game.user.character && DOCK_DEMO) return; // the tour's example
   const a = game.user.character;
   if (!a || a.type !== "character") return notify.warn("У тебе немає свого персонажа.");
   const res = await runAction(a, (st) => {
@@ -787,7 +801,7 @@ async function stepSup(dd) {
 function syncCheckButton() {
   const b = document.querySelector(`#${DOCK} .pust-md-check`);
   if (!b) return;
-  b.hidden = !game.actors.some((a) => a.type === "character" && a.isOwner);
+  b.hidden = !game.actors.some((a) => a.type === "character" && a.isOwner) && !DOCK_DEMO;
   b.classList.toggle("on", dockCheckOpen());
 }
 for (const h of ["createActor", "deleteActor", "updateActor", "updateUser"]) Hooks.on(h, foundry.utils.debounce(syncCheckButton, 150));

@@ -87,19 +87,26 @@ let demo = null; // the tour's example
 /**
  * The tour's example (author, 2026-11-16): the question shown over a caravan token of the viewed scene, as for a move of
  * 5 cells, in a frame that also takes in the token. Nothing moves and nothing is spent; its buttons do nothing.
- * No caravan token on the scene — nothing is shown (the step falls back to its text).
+ * No caravan token on the scene: `actor` (the world's caravan or the tour's example) is drawn as a token in memory
+ * (author, 2026-11-17: a new world's map showed the step's fallback).
  */
-export async function setMoveDemo(on) {
+let preview = false;
+export async function setMoveDemo(on, actor = null) {
   demo?.remove(); demo = null;
+  if (preview) { preview = false; await (await import("./token-demo.mjs")).setTokenDemo(false); }
   if (!on || !canvas?.ready) return;
-  const tok = canvas.tokens.placeables.find((t) => t.actor?.type === "caravan" && t.visible !== false);
+  let tok = canvas.tokens.placeables.find((t) => t.actor?.type === "caravan" && t.visible !== false);
+  if (!tok && actor) {
+    tok = await (await import("./token-demo.mjs")).setTokenDemo(true, actor, { frame: false });
+    preview = !!tok;
+  }
   if (!tok) return;
   await canvas.animatePan({ x: tok.center.x, y: tok.center.y, scale: Math.max(canvas.stage.scale.x, 1), duration: 250 }); // close enough to see the token
   const bb = tok.getBounds(); // the token with its bars and name, in screen pixels
   const a = { x: bb.x - 6, y: bb.y }, b = { x: bb.x + bb.width + 6, y: bb.y + bb.height + 6 };
   const el = document.createElement("div");
   el.className = "pust-cmove-demo";
-  el.innerHTML = `<div class="pust-cmove">${questionHtml("Витратити запас ходу автоматично?", movePlan(tok.actor, 5).sub)}</div>`;
+  el.innerHTML = `<div class="pust-cmove">${questionHtml("Витратити запас ходу автоматично?", movePlan(tok.actor ?? actor, 5).sub)}</div>`;
   el.querySelectorAll("button").forEach((x) => { x.tabIndex = -1; });
   document.body.append(el);
   const q = el.firstElementChild.getBoundingClientRect();

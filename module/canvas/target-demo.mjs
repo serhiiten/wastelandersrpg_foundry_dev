@@ -5,11 +5,15 @@
  */
 let frame = null;
 let before = null; // the user's targets before the step (token ids)
+let preview = false; // the target is the tour's example token (token-demo.mjs), not one of the scene
 
 function drop() { frame?.remove(); frame = null; }
 
-export async function setTargetDemo(on) {
+/** `actor`: the example drawn as a token when the scene has none (author, 2026-11-17: a new world's empty battle map
+ *  showed the step's fallback instead of a target) */
+export async function setTargetDemo(on, actor = null) {
   drop();
+  if (preview) { preview = false; await (await import("./token-demo.mjs")).setTokenDemo(false); }
   if (!on) {
     if (before && canvas?.ready) canvas.tokens.setTargets(before, { mode: "replace" });
     before = null;
@@ -17,10 +21,20 @@ export async function setTargetDemo(on) {
   }
   if (!canvas?.ready) return;
   const toks = canvas.tokens.placeables.filter((t) => t.visible && t.actor);
-  const tok = toks.find((t) => t.actor.type === "enemy" && Number(t.actor.system?.hp?.value) > 0) ?? toks[0];
+  let tok = toks.find((t) => t.actor.type === "enemy" && Number(t.actor.system?.hp?.value) > 0) ?? toks[0];
+  if (!tok && actor) {
+    // an example token drawn in memory, marked as this user's target only on screen (nothing written)
+    tok = await (await import("./token-demo.mjs")).setTokenDemo(true, actor, { frame: false });
+    if (!tok) return;
+    preview = true;
+    tok.targeted.add(game.user);
+    tok.renderFlags.set({ refreshTarget: true });
+  }
   if (!tok) return;
-  before ??= [...game.user.targets].map((t) => t.id);
-  canvas.tokens.setTargets([tok.id], { mode: "replace" });
+  if (!preview) {
+    before ??= [...game.user.targets].map((t) => t.id);
+    canvas.tokens.setTargets([tok.id], { mode: "replace" });
+  }
   await canvas.animatePan({ x: tok.center.x, y: tok.center.y, scale: Math.max(canvas.stage.scale.x, 1), duration: 250 });
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); // the marks drawn
   const b = tok.getBounds(); // the token with its bars, name and target marks, in screen pixels

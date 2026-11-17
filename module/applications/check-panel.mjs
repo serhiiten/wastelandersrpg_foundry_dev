@@ -433,11 +433,16 @@ const DOCK_GAP = 6;
 /** The characters this user owns, by name */
 const ownCharacters = () => game.actors.filter((a) => a.type === "character" && a.isOwner).sort((a, b) => a.name.localeCompare(b.name, "uk"));
 
+/** The tour's example character for a player without one (author, 2026-11-17; pust-tour.mjs dockDemo): the docked panel
+ *  shows it, read-only */
+let DOCK_DEMO = null;
+export function setDockDemoActor(actor) { DOCK_DEMO = actor ?? null; }
+
 /** The character the panel is for: the one picked, else the user's Player Character, else the first one owned */
 function dockActor() {
   const list = ownCharacters();
   const pc = game.user.character;
-  return list.find((a) => a.id === dockActorId) ?? (pc && list.includes(pc) ? pc : null) ?? list[0] ?? null;
+  return list.find((a) => a.id === dockActorId) ?? (pc && list.includes(pc) ? pc : null) ?? list[0] ?? DOCK_DEMO ?? null;
 }
 
 export const dockCheckOpen = () => !!DOCKED?.rendered;
@@ -477,6 +482,8 @@ class DockedCheckPanel extends CheckPanel {
   _onRender(context, options) {
     super._onRender(context, options);
     const el = this.element;
+    // the tour's example character: shown, nothing can be pressed in it (it is not in the world)
+    if (this.actor === DOCK_DEMO) { const r = el.querySelector(".pust-roller"); if (r) r.inert = true; }
     el.querySelector(":scope > .pust-cd-hd")?.remove();
     const list = ownCharacters();
     const hd = document.createElement("header");
