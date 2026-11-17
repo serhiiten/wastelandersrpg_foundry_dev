@@ -8,6 +8,7 @@ import { activeGmHere } from "../helpers/main-window.mjs";
 import { PustTour, loadQuickstartIds } from "./pust-tour.mjs";
 import { TOURS, HELP_VERSION, journalText } from "./tour-data.mjs";
 import { HELP_PAGES } from "./help-pages.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const sys = () => game.system.id;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -28,7 +29,7 @@ export function registerSystemTours() {
 
 export function startTour(id) {
   const tour = game.tours.get(tourKey(id));
-  if (!tour) return ui.notifications.warn("Цей тур не для тебе.");
+  if (!tour) return notify.warn("Цей тур не для тебе.");
   if (foundry.nue.Tour.tourInProgress) foundry.nue.Tour.activeTour.exit();
   return tour.reset().then(() => tour.start());
 }
@@ -84,8 +85,8 @@ export async function openHelp(tourId, stepId = "") {
   const j = game.journal.find((x) => x.getFlag(sys(), "helpJournal"));
   const t = TOURS.find((x) => x.id === tourId);
   const page = t && j?.pages.find((p) => p.name === t.title);
-  if (!j || !page) return ui.notifications.warn("Журнал «Довідка Foundry» ще не створено: він з'являється, коли Доглядач заходить у гру.");
-  if (!page.testUserPermission(game.user, "OBSERVER")) return ui.notifications.warn("Ця сторінка довідки лише для Доглядача.");
+  if (!j || !page) return notify.warn("Журнал «Довідка Foundry» ще не створено: він з'являється, коли Доглядач заходить у гру.");
+  if (!page.testUserPermission(game.user, "OBSERVER")) return notify.warn("Ця сторінка довідки лише для Доглядача.");
   const step = t.steps.find((s) => s.id === stepId);
   const anchor = step ? JournalEntryPage.slugifyHeading(step.title) : undefined;
   await j.sheet.render({ force: true, pageId: page.id, anchor });

@@ -32,7 +32,7 @@
     <div class="pust-place-l">Аспекти
       {{#if editable}}
       <span class="pust-place-row">
-        <input type="text" name="aspin" placeholder="+ аспект, Enter" autocomplete="off">
+        <input type="text" name="aspin" maxlength="100" placeholder="+ аспект, Enter" autocomplete="off">
         <button type="button" class="pust-die" data-action="rndAsp" title="Випадковий аспект{{#if isTown}} для цього типу поселення{{/if}}" aria-label="Випадковий аспект"><i class="fa-solid fa-dice"></i></button>
       </span>
       {{/if}}

@@ -14,6 +14,7 @@ import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-c
 import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { sendDamage } from "./apply-damage.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
@@ -44,6 +45,13 @@ function syncDealButton(root) {
 }
 Hooks.on("targetToken", (user) => {
   if (user === game.user) document.querySelectorAll(".pust-roller").forEach(syncDealButton);
+});
+
+/** A deleted character takes its open check panels with it (stress test, 2026-11-17: every button of a panel left open
+ *  over a deleted actor threw «Actor … does not exist») */
+Hooks.on("deleteActor", (actor) => {
+  OPEN.get(actor.uuid)?.close();
+  if (DOCKED?.actor?.id === actor.id) DOCKED.close();
 });
 
 export function openCheckPanel(actor, preset = {}) {
@@ -304,7 +312,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!b || b.tagName === "SELECT" || b.tagName === "INPUT" || b.disabled) return;
       ev.preventDefault();
       if (b.classList.contains("pust-wchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the weapon chips stand for the list
-      if (b.dataset.r === "dmg" && !game.user.targets.size) return ui.notifications.warn(NO_TARGETS);
+      if (b.dataset.r === "dmg" && !game.user.targets.size) return notify.warn(NO_TARGETS);
       this.#run("click", b);
     });
     syncDealButton(root);
@@ -438,7 +446,7 @@ export const dockCheckOpen = () => !!DOCKED?.rendered;
 export async function toggleDockCheck(rect) {
   if (DOCKED?.rendered) { await DOCKED.close(); return; }
   const actor = dockActor();
-  if (!actor) return ui.notifications.warn("У тебе ще немає персонажа.");
+  if (!actor) return notify.warn("У тебе ще немає персонажа.");
   DOCKED = new DockedCheckPanel({ actor });
   DOCKED.anchor = rect;
   await DOCKED.render({ force: true });
@@ -584,7 +592,7 @@ export async function rollWeaponDamage(actor, i) {
   const c = L.dmgChoices(d).find((x) => x.key === `w${i}`);
   if (!c) return;
   const p = L.parseDmg(c.d);
-  if (!p) return ui.notifications.warn(`Не вдалося розібрати шкоду зброї «${c.name}». Виправ поле «Шкода» у Мотлосі.`);
+  if (!p) return notify.warn(`Не вдалося розібрати шкоду зброї «${c.name}». Виправ поле «Шкода» у Мотлосі.`);
   const r = L.rollDice(p);
   const wt = weaponDmgType(c);
   const label = p.low ? "менша з 2d6" : p.terms.map((t) => `${t.n}d${t.s}`).join("+");

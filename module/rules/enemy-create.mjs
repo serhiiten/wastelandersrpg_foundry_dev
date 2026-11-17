@@ -101,7 +101,7 @@ export function buildEnemy(form) {
   const moves = (form.moves ?? []).filter((m) => str(m.n).trim() || str(m.t).trim()).map((m) => ({ n: str(m.n).trim() || "Хід", t: str(m.t).trim() }));
   const aspects = (form.aspects ?? []).filter((a) => str(a.t).trim()).map((a) => ({ t: str(a.t).trim(), inv: Math.max(0, Math.min(9, int(a.inv))) }));
   const cat = CATS.includes(form.cat) ? form.cat : "regular";
-  const hp = Math.max(1, int(form.hp, 1)), armor = Math.max(0, int(form.armor));
+  const hp = Math.min(999, Math.max(1, int(form.hp, 1))), armor = Math.max(0, int(form.armor)); // HP ≤ 999 as on the card
   const armorText = form.armorText && form.armor0 === armor ? str(form.armorText) : "";
   const parsed = { name, cat, hp, armor, armorText: armorText || String(armor), attacks, aspects: aspects.map((a) => a.t), moves, notes: str(form.notes).trim() };
   const system = toSystem(parsed);

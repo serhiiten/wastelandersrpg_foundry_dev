@@ -17,6 +17,16 @@ const int = (v, def = 0) => {
   const n = parseInt(v, 10);
   return Number.isFinite(n) ? n : def;
 };
+/** A typed number (stress test, 2026-11-17): «1e9» used to be read as 1 and «3.5» kept as text; now the whole number,
+ *  rounded, within [lo, hi]; text that is no number gives `def` */
+const num = (v, def = 0, lo = -Infinity, hi = Infinity) => {
+  const t = String(v ?? "").trim().replace(",", ".");
+  let n = t === "" ? NaN : Number(t);
+  if (!Number.isFinite(n)) n = parseInt(t, 10);
+  if (!Number.isFinite(n)) return def;
+  return Math.max(lo, Math.min(hi, Math.round(n)));
+};
+const BIG = 99999;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const d = (n) => Math.floor(Math.random() * n) + 1;
 const signed = (n) => (n > 0 ? "+" + n : n < 0 ? "−" + Math.abs(n) : "0");
@@ -36,7 +46,7 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
       case "story.lastJob": s.story.lastJob = text; s.manual.lastJob = text.trim() !== ""; return true;
       case "story.wentWrong": s.story.wentWrong = text; s.manual.wentWrong = text.trim() !== ""; return true;
       case "notes": s.notes = text; return true;
-      case "luck": s.luck = int(v); return true;
+      case "luck": s.luck = num(v, 0, -2, 2); return true;
       case "karmaAspect": {
         s.karmaAspect = text;
         const a = ASPECTS.find((x) => x.name === s.karmaAspect);
@@ -44,19 +54,19 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         s.manual.karma = true;
         return true;
       }
-      case "karma": s.karma = int(v); s.manual.karma = text.trim() !== ""; s.karmaAspect = L.aspectFor(s.karma); return true;
-      case "budget": s.budget = Math.max(0, int(v)); s.manual.budget = text.trim() !== ""; return true;
+      case "karma": s.karma = num(v, 0, -100, 100); s.manual.karma = text.trim() !== ""; s.karmaAspect = L.aspectFor(s.karma); return true;
+      case "budget": s.budget = num(v, 0, 0, BIG); s.manual.budget = text.trim() !== ""; return true;
       // Foundry (author, 2026-11-14): the max HP and armour are the rules' value + a bonus («Налаштування → Захист»;
       // empty = 0); the armour type stays «фізична» and is not edited
       case "hpBonus": {
         const p = L.derived();
-        s.hpBonus = int(v);
+        s.hpBonus = num(v, 0, -999, 999);
         L.clampAfter(p);
         return true;
       }
-      case "armorBonus": s.armorBonus = int(v); return true;
-      case "psiArmor": s.psiArmor = Math.max(0, int(v)); return true;
-      case "hpCurrent": s.hpCurrent = int(v); L.clampAfter(); return true;
+      case "armorBonus": s.armorBonus = num(v, 0, -99, 99); return true;
+      case "psiArmor": s.psiArmor = num(v, 0, 0, 99); return true;
+      case "hpCurrent": s.hpCurrent = num(v, s.hpCurrent, 0, BIG); L.clampAfter(); return true;
     }
     // rows: counters.N.name / counters.N.size, cargo.N.<field>, customImps.N.<name|desc>
     let m = k.match(/^counters\.(\d+)\.(name|size)$/);
@@ -78,7 +88,11 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
     }
     m = k.match(/^cargo\.(\d+)\.(name|kind|price|qty|note)$/);
     if (m) {
-      s.cargo[+m[1]][m[2]] = m[2] === "name" || m[2] === "note" ? text.replace(/\n/g, " ") : text;
+      const r = s.cargo[+m[1]];
+      if (m[2] === "name" || m[2] === "note") r[m[2]] = text.replace(/\n/g, " ");
+      // price and quantity: whole numbers ≥ 0, empty stays empty (a quantity left empty counts as 1)
+      else if (m[2] === "price" || m[2] === "qty") r[m[2]] = text.trim() === "" ? "" : String(num(v, 0, 0, BIG));
+      else r[m[2]] = text;
       return true;
     }
     m = k.match(/^customImps\.(\d+)\.(name|desc)$/);

@@ -9,6 +9,7 @@
  *   Alt+X  «Огляд битви» folded / opened (GM, battle maps)
  * Registered in «init».
  */
+import { notify } from "./notify.mjs";
 export function registerHotkeys() {
   const sys = game.system.id;
   const reg = (id, name, hint, key, onDown, restricted = false) => game.keybindings.register(sys, id, {
@@ -32,11 +33,11 @@ async function openCheck() {
   if (!game.user.isGM) {
     // as a press of the dock's own button (it lights while the panel is open)
     const b = document.querySelector("#pust-mapdock .pust-md-check");
-    if (!b || b.hidden) return ui.notifications.warn("У тебе ще немає персонажа.");
+    if (!b || b.hidden) return notify.warn("У тебе ще немає персонажа.");
     return b.click();
   }
   const m = await import("../applications/check-panel.mjs");
   const actor = canvas.tokens?.controlled.map((t) => t.actor).find((a) => a?.type === "character");
-  if (!actor) return ui.notifications.warn("Виділи токен персонажа, щоб зробити перевірку за нього.");
+  if (!actor) return notify.warn("Виділи токен персонажа, щоб зробити перевірку за нього.");
   m.openCheckPanel(actor);
 }

@@ -22,6 +22,9 @@ const LABELS = { hp: "ОЗ", range: "Запас ходу" };
 const CAT_MARK = { statists: 1, regular: 2, elite: 3, boss: "\uf54c" };
 const CAT_NAME = { statists: "статист", regular: "рядовий", elite: "елітний", boss: "бос" };
 
+/** Chips under a token at most, the last one «+N» when there are more (stress test, 2026-11-17) */
+const CHIPS_MAX = 6;
+
 /** The aspects shown under a token: [{t, inv}] */
 export function tokenAspects(actor) {
   if (!actor) return [];
@@ -103,7 +106,9 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
       box.removeChildren().forEach((c) => c.destroy({ children: true }));
       const fs = 11 * s, chipH = 17 * s, padX = 6 * s, gapX = 4 * s, gapY = 3 * s, lean = 3 * s;
       const maxW = Math.max(width * 1.6, 130 * s);
-      const chips = list.map((a) => {
+      // at most CHIPS_MAX chips, then «+N» (stress test, 2026-11-17: 43 aspects made a column the screen's height)
+      const shown = list.length > CHIPS_MAX ? list.slice(0, CHIPS_MAX - 1) : list;
+      const chips = shown.map((a) => {
         const c = new PIXI.Container();
         const text = new PIXI.Text(a.t, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
         const inv = a.inv > 0 ? new PIXI.Text(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: "PT Mono", fontSize: fs * 0.95, fontWeight: "700", fill: 0xe7ffd9 })) : null;
@@ -128,6 +133,18 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
         c._w = w;
         return c;
       });
+      if (shown.length < list.length) {
+        const c = new PIXI.Container();
+        const text = new PIXI.Text(`+${list.length - shown.length}`, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fill: 0xe2ad3b }));
+        const w = text.width + 2 * padX;
+        const bg = new PIXI.Graphics();
+        bg.beginFill(0x000000, 0.35).drawRoundedRect(0, s, w, chipH, 3 * s).endFill();
+        bg.lineStyle({ width: s, color: 0xe2ad3b, alpha: 0.9 }).beginFill(0x241a0c, 0.92).drawRoundedRect(0, 0, w, chipH, 3 * s).endFill();
+        text.position.set(padX, (chipH - text.height) / 2);
+        c.addChild(bg, text);
+        c._w = w;
+        chips.push(c);
+      }
       // rows, each centred under the token
       const rows = [[]];
       let rw = 0;

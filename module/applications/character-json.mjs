@@ -18,6 +18,7 @@ import { saveCaravan } from "./caravan-actions.mjs";
 import { joinPrices, splitPrices } from "../rules/prices.mjs";
 import { QUICK_CHARS } from "../rules/quickstart.mjs";
 import { fileStateOk } from "../rules/file-check.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const T = (key, data) =>
   data ? game.i18n.format(`WASTELANDERS.Json.${key}`, data) : game.i18n.localize(`WASTELANDERS.Json.${key}`);
@@ -216,6 +217,7 @@ async function createCharacter(st) {
     ...(img ? { img, "prototypeToken.texture.src": img } : {}),
     system: data.system,
   });
+  if (!actor) throw new Error("Actor.create refused the character"); // a hook or the data model said no
   await createItems(actor, items);
   return actor;
 }
@@ -263,6 +265,7 @@ export async function createCaravans(list) {
   for (const st of Array.isArray(list) ? list : [list]) {
     const S = caravanState(st);
     const actor = await Actor.implementation.create({ name: S.companyName || T("Unnamed"), type: "caravan" });
+    if (!actor) throw new Error("Actor.create refused the caravan");
     await saveCaravan(actor, S);
     created.push(actor);
   }
@@ -284,7 +287,7 @@ export async function replaceCaravanFromFile(actor) {
   try {
     list = parseFile(text, "caravan");
   } catch (err) {
-    return ui.notifications.error(err.message);
+    return notify.error(err.message);
   }
   const ok = await foundry.applications.api.DialogV2.confirm({
     window: { title: T("ReplaceTitle") },
@@ -295,9 +298,9 @@ export async function replaceCaravanFromFile(actor) {
   if (!ok) return;
   try { await replaceCaravan(actor, list[0]); } catch (err) {
     console.error("Пустельники | caravan .json", err);
-    return ui.notifications.error(T("WriteFailed"));
+    return notify.error(T("WriteFailed"));
   }
-  ui.notifications.info(T("Replaced", { name: actor.name }));
+  notify.info(T("Replaced", { name: actor.name }));
   return true;
 }
 
@@ -319,16 +322,16 @@ export async function importCharactersFromFile() {
   try {
     list = parseFile(text, "any");
   } catch (err) {
-    return ui.notifications.error(err.message);
+    return notify.error(err.message);
   }
   const created = [];
   try {
     for (const st of list) created.push(isCaravanState(st) ? (await createCaravans([st]))[0] : await createCharacter(st));
   } catch (err) {
     console.error("Пустельники | .json import", err);
-    if (!created.length) return ui.notifications.error(T("WriteFailed"));
+    if (!created.length) return notify.error(T("WriteFailed"));
   }
-  ui.notifications.info(T("Imported", { names: created.map((a) => a.name).join(", ") }));
+  notify.info(T("Imported", { names: created.map((a) => a.name).join(", ") }));
   if (created.length === 1) created[0].sheet.render(true);
 }
 
@@ -340,9 +343,9 @@ export async function replaceCharacterFromFile(actor) {
   try {
     list = parseFile(text);
   } catch (err) {
-    return ui.notifications.error(err.message);
+    return notify.error(err.message);
   }
-  if (list.length !== 1) return ui.notifications.error(T("OneCharacterOnly"));
+  if (list.length !== 1) return notify.error(T("OneCharacterOnly"));
   const ok = await foundry.applications.api.DialogV2.confirm({
     window: { title: T("ReplaceTitle") },
     content: `<p>${T("ReplaceText", { actor: foundry.utils.escapeHTML(actor.name), file: foundry.utils.escapeHTML(list[0].name || T("Unnamed")) })}</p>`,
@@ -352,9 +355,9 @@ export async function replaceCharacterFromFile(actor) {
   if (!ok) return;
   try { await replaceCharacter(actor, list[0]); } catch (err) {
     console.error("Пустельники | character .json", err);
-    return ui.notifications.error(T("WriteFailed"));
+    return notify.error(T("WriteFailed"));
   }
-  ui.notifications.info(T("Replaced", { name: actor.name }));
+  notify.info(T("Replaced", { name: actor.name }));
 }
 
 /* ------------------------------------------------------------------ */

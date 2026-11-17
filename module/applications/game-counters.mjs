@@ -10,6 +10,7 @@
  */
 import { postChat } from "./chat.mjs";
 import * as G from "../rules/game-counters.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 // the system path is rewritten by tools/set-system-id.mjs when promoting DEV → stable, as in terminal.mjs
 const TEMPLATE = "systems/wastelanders-dev/templates/apps/game-counters.hbs";
@@ -45,6 +46,24 @@ const stored = () => (DEMO ? [...storedReal(), DEMO.game] : storedReal());
 const sceneOf = () => canvas?.scene ?? null;
 const sceneListReal = () => G.normalizeLocalList(sceneOf()?.getFlag(game.system.id, "sceneCounters"));
 const sceneList = () => (DEMO ? [...sceneListReal(), DEMO.scene] : sceneListReal());
+/** The scene with the most counters (stress test, 2026-11-17): a game counter shows on every scene, so the limit of
+ *  GC_MAX counts it with the busiest scene's counters — adding game counters on an empty scene used to make 14 elsewhere */
+function busiestScene() {
+  let best = null, n = -1;
+  for (const sc of game.scenes ?? []) {
+    const k = G.normalizeLocalList(sc.getFlag(game.system.id, "sceneCounters")).length;
+    if (k > n) { n = k; best = sc; }
+  }
+  return { scene: best, count: Math.max(0, n) };
+}
+/** Why a new game counter doesn't fit (null when it does) */
+function gameFullText(gameCount) {
+  const { scene, count } = busiestScene();
+  if (!G.isFullTotal(count, gameCount)) return null;
+  return count && scene && scene !== sceneOf()
+    ? `На сцені «${scene.name}» лічильників уже ${count + gameCount} разом із лічильниками гри — це межа.`
+    : `${G.LC_FULL_TEXT}.`;
+}
 const sceneNext = () => Math.max(1, Math.round(Number(sceneOf()?.getFlag(game.system.id, "sceneCounterNext"))) || 1);
 function writeScene(list, next) {
   const sc = sceneOf();
@@ -100,7 +119,7 @@ function counterCard({ kind, counter: c, from = null, to = null, d = 0, made = f
 function armed(target) {
   if (target.classList.contains("armed")) return true;
   target.classList.add("armed");
-  ui.notifications.info("Натисни ще раз, щоб підтвердити.");
+  notify.info("Натисни ще раз, щоб підтвердити.");
   setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
   return false;
 }
@@ -285,7 +304,7 @@ class CountersPanel {
   /** «+»: the form opens on top of the list (a second press closes it) */
   #newCounter() {
     if (this.form) { this.form = null; return this.render(); }
-    if (G.isFullTotal(sceneListReal().length, storedReal().length)) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+    if (G.isFullTotal(sceneListReal().length, storedReal().length)) return notify.warn(`${G.LC_FULL_TEXT}.`);
     this.form = this.#newForm();
     this.render().then(() => this.body.querySelector("[data-f='name']")?.focus());
   }
@@ -306,15 +325,17 @@ class CountersPanel {
     if (f.kind === "scene") {
       if (!sceneOf()) return;
       const lr = G.addLocal(sceneListReal(), { name: f.name, die: G.formDie(f.die, f.custom), val: f.start }, { globalCount: list.length, next: sceneNext() });
-      if (!lr) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+      if (!lr) return notify.warn(`${G.LC_FULL_TEXT}.`);
       this.form = null;
       await writeScene(lr.list, lr.next);
       this.render();
       await counterCard({ kind: "scene", counter: lr.counter, made: true });
       return;
     }
-    const r = G.isFullTotal(sceneListReal().length, list.length) ? null : G.addCounter(list, f);
-    if (!r) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+    const why = gameFullText(list.length);
+    if (why) return notify.warn(why);
+    const r = G.addCounter(list, f);
+    if (!r) return notify.warn(`${G.LC_FULL_TEXT}.`);
     this.form = null;
     await game.settings.set(game.system.id, "gameCounters", r.list);
     // the form is gone, so redraw now (with Enter the focus is still in its name field, and refresh() would wait for it)
@@ -367,23 +388,25 @@ export function mountCounters(section) {
 /** A scene counter made from outside the panel — the «Створити лічильник» buttons of the adventures' journals
  *  (`@Counter[…]`, wastelanders.mjs; author, 2026-11-15): on the viewed scene, GM only, logged like the panel's */
 export async function createSceneCounter({ name, die = 6, val = 4 } = {}) {
-  if (!game.user.isGM) return ui.notifications.warn("Лічильники створює Доглядач.");
-  if (!sceneOf()) return ui.notifications.warn("Спершу відкрий сцену: лічильник з'явиться на ній.");
+  if (!game.user.isGM) return notify.warn("Лічильники створює Доглядач.");
+  if (!sceneOf()) return notify.warn("Спершу відкрий сцену: лічильник з'явиться на ній.");
   const lr = G.addLocal(sceneListReal(), { name, die, val }, { globalCount: storedReal().length, next: sceneNext() });
-  if (!lr) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+  if (!lr) return notify.warn(`${G.LC_FULL_TEXT}.`);
   await writeScene(lr.list, lr.next);
-  ui.notifications.info(`Лічильник «${lr.counter.name}» додано на сцену «${sceneOf().name}».`);
+  notify.info(`Лічильник «${lr.counter.name}» додано на сцену «${sceneOf().name}».`);
   return counterCard({ kind: "scene", counter: lr.counter, made: true });
 }
 
 /** A game counter made from a journal button (`@GameCounter[…]`, author 2026-11-15: the quick start's days to delivery) */
 export async function createGameCounter({ name, size = 6, val = 0 } = {}) {
-  if (!game.user.isGM) return ui.notifications.warn("Лічильники створює Доглядач.");
+  if (!game.user.isGM) return notify.warn("Лічильники створює Доглядач.");
   const list = storedReal();
-  const r = G.isFullTotal(sceneListReal().length, list.length) ? null : G.addCounter(list, { name, size, val });
-  if (!r) return ui.notifications.warn(`${G.LC_FULL_TEXT}.`);
+  const why = gameFullText(list.length);
+  if (why) return notify.warn(why);
+  const r = G.addCounter(list, { name, size, val });
+  if (!r) return notify.warn(`${G.LC_FULL_TEXT}.`);
   await game.settings.set(game.system.id, "gameCounters", r.list);
-  ui.notifications.info(`Лічильник гри «${r.counter.name}» додано.`);
+  notify.info(`Лічильник гри «${r.counter.name}» додано.`);
   return counterCard({ kind: "game", counter: r.counter, made: true });
 }
 

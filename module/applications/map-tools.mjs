@@ -4,12 +4,13 @@
  */
 import { tokenLevel } from "../helpers/token-level.mjs";
 import { PLACE_KINDS } from "../rules/map-place.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 // the stickers' sizes and colours live with the stickers (module/canvas/map-notes.mjs); re-exported for old imports
 export { MAP_NOTE } from "../rules/map-notes.mjs";
 
 const sys = () => game.system.id;
-const warn = (m) => ui.notifications.warn(m);
+const warn = (m) => notify.warn(m);
 
 /** The Actors folder «Мапа Пустки» (created when missing) */
 /** The Actors folder «Мапа Пустки»: red, like the «Термінал Доглядача» plate (author, 2026-11-14) */

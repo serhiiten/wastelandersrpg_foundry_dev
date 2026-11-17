@@ -32,6 +32,7 @@ import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
 import { chatType } from "./enemy-attack.mjs";
 import { postChat } from "./chat.mjs";
 import { endForAll, groupSession, resetGroupCounters } from "./group-end.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const sys = () => game.system.id;
@@ -375,7 +376,7 @@ async function onClick(ev, lite = false, body = null) {
   // targets (author, 2026-11-15): the selected tokens become the targets; or all targets cleared
   if (act === "tgtsel") {
     const ids = (canvas?.tokens?.controlled ?? []).map((t) => t.id);
-    if (!ids.length) return ui.notifications.warn("Спершу виділи токени (клік, Shift+клік, рамка), а тоді зроби їх цілями.");
+    if (!ids.length) return notify.warn("Спершу виділи токени (клік, Shift+клік, рамка), а тоді зроби їх цілями.");
     canvas.tokens.setTargets(ids, { mode: "replace" });
     return;
   }
@@ -386,7 +387,7 @@ async function onClick(ev, lite = false, body = null) {
     // asks twice, as every destructive button (author, 2026-11-17)
     if (!b.classList.contains("armed")) {
       b.classList.add("armed");
-      ui.notifications.info("Натисни ще раз, щоб скинути відлік сесій, днів і сцен.");
+      notify.info("Натисни ще раз, щоб скинути відлік сесій, днів і сцен.");
       setTimeout(() => b.classList.remove("armed"), 3000);
       return;
     }
@@ -407,9 +408,9 @@ async function onClick(ev, lite = false, body = null) {
   }
   if (act === "hit" || act === "heal") {
     const who = lite ? pickedUuids() : chosenTokens();
-    if (!who.length) return lite ? ui.notifications.warn("Спершу познач цілі в списку «Вибрати цілі».") : warnNoTargets();
+    if (!who.length) return lite ? notify.warn("Спершу познач цілі в списку «Вибрати цілі».") : warnNoTargets();
     const amt = await amountOf(ui_.dmg.expr);
-    if (!amt) return ui.notifications.warn("Впиши число або кістки, наприклад 5 чи 2d6+1.");
+    if (!amt) return notify.warn("Впиши число або кістки, наприклад 5 чи 2d6+1.");
     b.disabled = true;
     try {
       if (act === "heal") await applyHeal(who, amt.total, { head: amt.label });
@@ -449,7 +450,7 @@ async function onClick(ev, lite = false, body = null) {
       }
       const zone = sceneZones().find((z) => z.id === ui_.zone) ?? null;
       const made = await tokensIntoZone(scene, actor, ui_.count, zone);
-      ui.notifications.info(`${name} × ${made.length}${zone ? ` → «${zoneOf(zone.doc).name}»` : ""}`);
+      notify.info(`${name} × ${made.length}${zone ? ` → «${zoneOf(zone.doc).name}»` : ""}`);
     } finally { b.disabled = false; }
   }
 }
@@ -555,7 +556,7 @@ export function battleScene() {
 /** «Перейти на бойову мапу» / «Перейти на Мапу Пустки»: the scene is activated, so the players come along */
 async function gotoScene(toBattle) {
   const scene = toBattle ? battleScene() : findMapScene();
-  if (!scene) return ui.notifications.warn(toBattle ? "У світі немає бойової мапи. Створи сцену типу «Битва»." : "У світі немає «Мапи Пустки».");
+  if (!scene) return notify.warn(toBattle ? "У світі немає бойової мапи. Створи сцену типу «Битва»." : "У світі немає «Мапи Пустки».");
   await scene.activate();
 }
 
@@ -592,7 +593,7 @@ export async function fillDamage({ expr, type = "phys", ignore = false }) {
   const shown = [...sections].find(([sec]) => sec.isConnected && !sec.hidden);
   const panel = shown ? (shown[1] ? "«Сцена»" : "«Битва»") : "«Битва»";
   const tname = (DMG_TYPES[type]?.n ?? "").split(" (")[0].toLowerCase();
-  ui.notifications.info(`Шкоду ${expr} (${tname}${ignore ? ", ігнорує броню" : ""}) перенесено в «Шкода й лікування» панелі ${panel}. Вибери цілі й натисни «Завдати шкоди».`);
+  notify.info(`Шкоду ${expr} (${tname}${ignore ? ", ігнорує броню" : ""}) перенесено в «Шкода й лікування» панелі ${panel}. Вибери цілі й натисни «Завдати шкоди».`);
   for (const [sec] of sections) {
     if (!sec.isConnected || sec.hidden) continue;
     // the panel opaque while its fields glow (it is half-transparent until hovered)

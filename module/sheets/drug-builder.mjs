@@ -10,6 +10,7 @@ import {
   EFFECT, EFFECTS, SIDE, SIDES, addEffect, addSide, designerPerks, recipeDescription, recipeTotals, rollSide,
 } from "../rules/designer.mjs";
 import { BuilderSheet, clamp, esc, int, sgn } from "./builder-base.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const ATTRS = AKEYS.filter((k) => k !== "UDCH");
 const ATTR_NAMES = { SL: "Сила", SPR: "Сприйняття", VTR: "Витривалість", PV: "Привабливість", IN: "Інтелект", VP: "Вправність" };
@@ -175,7 +176,7 @@ export class WastelandersDrugBuilder extends BuilderSheet {
     const r0 = normalize(this.builderData, this.document.name);
     if (def.attr) {
       const free = ATTRS.filter((a) => !r0.sides.some((e) => e.k === side.k && e.attr === a));
-      if (!free.length) return ui.notifications.info(`${note} Усі атрибути вже зайняті.`);
+      if (!free.length) return notify.info(`${note} Усі атрибути вже зайняті.`);
       const attr = await foundry.applications.api.DialogV2.prompt({
         window: { title: `Побічка: ${n}` },
         content: `<p>${esc(note)}</p><label>Який атрибут?<select name="attr">${free.map((a) => `<option value="${a}">${esc(ATTR_NAMES[a])} (${ASHORT[a]})</option>`).join("")}</select></label>`,
@@ -185,9 +186,9 @@ export class WastelandersDrugBuilder extends BuilderSheet {
       if (!attr) return;
       side.attr = attr;
     } else if (!def.group && r0.sides.some((e) => e.k === side.k)) {
-      return ui.notifications.info(`${note} Така побічка в рецепті вже є.`);
+      return notify.info(`${note} Така побічка в рецепті вже є.`);
     }
-    ui.notifications.info(note);
+    notify.info(note);
     await this.#edit((r) => addSide(r, side));
   }
 }

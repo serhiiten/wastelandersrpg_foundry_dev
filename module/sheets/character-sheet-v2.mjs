@@ -18,6 +18,7 @@ import { useOnTarget } from "../applications/chem-target.mjs";
 import { openCheckPanel, rollWeaponDamage } from "../applications/check-panel.mjs";
 import { EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
 import { fateNow, fateSnap, postFateChange, postFateIfChanged, postSupIfChanged, supSnap } from "../applications/fate-card.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -125,7 +126,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   /** Run one of the HTML sheet's handlers on this character and save */
   #run(fn) {
-    const toast = (msg, kind) => (kind === "bad" ? ui.notifications.warn(msg) : ui.notifications.info(msg));
+    const toast = (msg, kind) => (kind === "bad" ? notify.warn(msg) : notify.info(msg));
     return runAction(this.document, (st, L) => fn(createController(st, L, { toast }), st, L), { ui: this.ui.rest });
   }
 
@@ -180,6 +181,13 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         fit();
       });
       ta.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); ta.blur(); } });
+    });
+    // Enter in «Новий аспект…» adds it, as «+» (stress test, 2026-11-17; the enemy's and the zone's fields did already)
+    root.querySelector('input[data-ui="sitNew"]')?.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Enter" || ev.isComposing) return;
+      ev.preventDefault();
+      this.ui.sitNew = ev.currentTarget.value;
+      WastelandersCharacterSheetV2.#onSitAdd.call(this);
     });
     // «Видові властивості» folds; the sheet remembers it while open (closed again for a new window)
     root.querySelector(".pust-props")?.addEventListener("toggle", (ev) => { this.ui.propsOpen = ev.currentTarget.open; });
@@ -328,7 +336,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   async #takeSpecies(item) {
     const x = item?.type === "species" && item.system.custom ? speciesToX({ ...item.system.custom, n: item.name }) : null;
     if (!x) {
-      ui.notifications.warn("Цей вид не вдалося прочитати: у нього немає назви чи основи.");
+      notify.warn("Цей вид не вдалося прочитати: у нього немає назви чи основи.");
       this.render();
       return false;
     }
@@ -341,7 +349,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     if (!recipe) return false;
     const err = recipeTotals(recipe).errors[0];
     if (err) {
-      ui.notifications.warn(`«${item.name}»: ${err}`);
+      notify.warn(`«${item.name}»: ${err}`);
       return false;
     }
     return this.#run((C) => C.act("drug-add-custom", { n: item.name, def: recipeToDef(recipe) }));
@@ -392,7 +400,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   /** A button of the HTML sheet (data-act + its dataset) */
   static async #onAct(event, target) {
     const { action, act, confirm, ...data } = target.dataset;
-    if (QS_LOCKED_ACTS.has(act) && isQuickstartActor(this.document)) return void ui.notifications.warn(qsLockTip(this.document));
+    if (QS_LOCKED_ACTS.has(act) && isQuickstartActor(this.document)) return void notify.warn(qsLockTip(this.document));
     if (confirm && !WastelandersCharacterSheetV2.#armed(target)) return;
     if (target.type === "checkbox") event.preventDefault?.();
     // «На ціль» (author, 2026-11-15): the medicine goes to the user's one target (applications/chem-target.mjs)
@@ -546,13 +554,13 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   static #armed(target) {
     if (target.classList.contains("armed")) return true;
     target.classList.add("armed");
-    ui.notifications.info("Натисни ще раз, щоб підтвердити.");
+    notify.info("Натисни ще раз, щоб підтвердити.");
     setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
     return false;
   }
 
   static #onJsonOpen() {
-    if (isQuickstartActor(this.document)) return void ui.notifications.warn(qsLockTip(this.document)); // quickstart-lock.mjs
+    if (isQuickstartActor(this.document)) return void notify.warn(qsLockTip(this.document)); // quickstart-lock.mjs
     return replaceCharacterFromFile(this.document);
   }
 

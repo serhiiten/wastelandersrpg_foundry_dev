@@ -17,6 +17,7 @@ import { luckCaravan } from "./map-dice.mjs";
 import {
   TABLE_CARDS, battleChat, battleJournal, blankTerminal, buildTerminalView, caseChat, caseJournal, runTable, tableChat, travelChat,
 } from "./terminal-view.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const FLAG = "terminal";
@@ -26,7 +27,7 @@ const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
 let OPEN = null;
 /** Open the terminal (Доглядач only) */
 export function openTerminal() {
-  if (!game.user.isGM) return ui.notifications.warn("Термінал — для Доглядача.");
+  if (!game.user.isGM) return notify.warn("Термінал — для Доглядача.");
   const first = !OPEN;
   OPEN ??= new TerminalApp();
   OPEN.render({ force: true, ...(first ? { position: freeSpot() } : {}) });
@@ -60,7 +61,7 @@ export async function startBattle() {
   if (!game.user.isGM || !OPEN?.st?.battle?.state?.last) return;
   const { battleScene } = await import("./battle-panel.mjs");
   const scene = battleScene();
-  if (!scene) return ui.notifications.warn("У світі немає бойової мапи. Створи сцену типу «Битва».");
+  if (!scene) return notify.warn("У світі немає бойової мапи. Створи сцену типу «Битва».");
   if (canvas?.scene?.id !== scene.id) {
     const ready = new Promise((r) => Hooks.once("canvasReady", r));
     await scene.activate();
@@ -171,7 +172,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /** The generators, with the saved results loaded into them */
   get T() {
     if (!this._T) {
-      const T = createTerminal({ toast: (m) => ui.notifications.info(m), icon: (n) => `<i class="pust-pi pi-${n}"></i>` });
+      const T = createTerminal({ toast: (m) => notify.info(m), icon: (n) => `<i class="pust-pi pi-${n}"></i>` });
       const st = this.st;
       T.case.setDifficulty(st.case.diff);
       if (st.case.cs) T.case.set(clone(st.case.cs));
@@ -204,7 +205,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static #armed(target) {
     if (target.classList.contains("armed")) return true;
     target.classList.add("armed");
-    ui.notifications.info("Натисни ще раз, щоб підтвердити.");
+    notify.info("Натисни ще раз, щоб підтвердити.");
     setTimeout(() => target.classList.remove("armed"), CONFIRM_MS);
     return false;
   }
@@ -213,7 +214,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const B = this.T.battle;
     B.setDifficulty(this.st.battle.difficulty);
     B.setKinds(this.st.battle.kinds);
-    if (fresh && !this.st.battle.kinds.length) return ui.notifications.warn("Обери щонайменше один вид супротивників.");
+    if (fresh && !this.st.battle.kinds.length) return notify.warn("Обери щонайменше один вид супротивників.");
     // the place and hazard are the panels' ones, shared by every scene (author, 2026-11-16): in, and back out when rerolled
     B.BT.BT_SCENE.place = sharedGet("place") || "";
     B.BT.BT_SCENE.hazard = sharedGet("hazard") || "";
@@ -246,7 +247,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const diff = CASE_DIFF[cs.diff] || "easy";
     B.setDifficulty(diff);
     const b = caseBattle(B.BT.DB, B.BT.ORDER, kind, casePower(cs.f.enemyPower));
-    if (!b) return ui.notifications.warn("Не вдалося зібрати битву з цієї справи."), false;
+    if (!b) return notify.warn("Не вдалося зібрати битву з цієї справи."), false;
     B.BT.BT_SCENE.place = sharedGet("place") || "";
     B.BT.BT_SCENE.hazard = sharedGet("hazard") || "";
     B.BT.renderBattle(b.factionKey, b.pickedCase, b.allocations);
@@ -257,7 +258,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.st.battle.picks = {};
     this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
     this.st.tab = "battle";
-    ui.notifications.info(`Битву зі справи перенесено на вкладку «Битви»: ${B.BT.kindName(kind)}, ${cs.f.enemyPower}.`);
+    notify.info(`Битву зі справи перенесено на вкладку «Битви»: ${B.BT.kindName(kind)}, ${cs.f.enemyPower}.`);
   }
 
   #travelKinds(i) {
@@ -279,14 +280,14 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       ? { diff: span.dataset.diff, kinds: span.dataset.kinds.split(",").filter(Boolean), place }
       : { diff: span.dataset.diff, idx: +span.dataset.idx, place };
     const s = this.T.battle.fromTravel(spec);
-    if (!s) return ui.notifications.warn("Не вдалося зібрати цю битву."), false;
+    if (!s) return notify.warn("Не вдалося зібрати цю битву."), false;
     sharedSet({ place: s.place || "", hazard: s.hazard || "" }); // the travel's place becomes the battle's, on every scene
     this.st.battle.difficulty = s.difficulty;
     this.st.battle.names = s.names || [];
     this.st.battle.picks = {};
     this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
     this.st.tab = "battle";
-    ui.notifications.info("Битву з подорожі перенесено на вкладку «Битви».");
+    notify.info("Битву з подорожі перенесено на вкладку «Битви».");
   }
 
   /** A battle of a travel event made elsewhere (the «Подорож» window of «Мапа Пустки»): that event becomes the terminal's, its battle goes to «Битви» */
@@ -331,7 +332,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const folder = game.folders.find((f) => f.type === "JournalEntry" && f.name === FOLDER && !f.folder)
       || await Folder.create({ name: FOLDER, type: "JournalEntry", color: "#9a4a20" });
     const entry = await JournalEntry.create({ name: j.name, folder: folder.id, pages: [{ name: j.name, type: "text", text: { content: j.html } }] });
-    ui.notifications.info(`Записано в журнал: «${entry.name}»`);
+    notify.info(`Записано в журнал: «${entry.name}»`);
     entry.sheet.render(true);
   }
 

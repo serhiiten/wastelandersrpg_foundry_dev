@@ -114,7 +114,14 @@ export class WastelandersActor extends Actor {
     // ...and so does its portrait
     const img = this.type === "caravan" && WastelandersActor.isAutoCaravanTex(data.img) ? WastelandersActor.caravanTokenSrc(this.system.vehicle) : undefined;
 
-    this.updateSource({ prototypeToken, ...(img ? { img } : {}) });
+    // a new enemy is hidden from players unless it comes open (stress test, 2026-11-17: one made by a macro or the API was
+    // visible at once): the players' access follows its «Видимий / Прихований», as the card's switch sets it
+    const levels = CONST.DOCUMENT_OWNERSHIP_LEVELS;
+    const ownership = this.type === "enemy"
+      ? { ownership: { ...(this._source.ownership ?? {}), default: this.system.reveal ? levels.LIMITED : levels.NONE } }
+      : {};
+
+    this.updateSource({ prototypeToken, ...ownership, ...(img ? { img } : {}) });
   }
 
   /** «Create Actor» offers no «Місце»: places are made by the «Мапа Пустки» panel, on the map (author, 2026-11-14) */
@@ -271,7 +278,7 @@ export class WastelandersActor extends Actor {
       const ups = this.items.filter((i) => i.type === "cargo" && !i.system.engine?.hurt).map((i) => ({ _id: i.id, "system.engine.hurt": true }));
       if (ups.length) {
         this.updateEmbeddedDocuments("Item", ups);
-        ui.notifications?.warn(`${this.name}: караван отримав понад половину ОЗ шкоди — вантаж пошкоджено`);
+        ui.notifications?.warn(`${foundry.utils.escapeHTML(this.name)}: караван отримав понад половину ОЗ шкоди — вантаж пошкоджено`);
       }
     }
   }

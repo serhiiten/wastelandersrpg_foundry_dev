@@ -8,6 +8,7 @@ import { postDamageCard } from "./check-panel.mjs";
 import { chosenTokens, sendDamage, warnNoTargets } from "./apply-damage.mjs";
 import { DMG_TYPES, chatType, diceLabel } from "../rules/battle.mjs";
 import { TYPE_EFFECTS } from "../rules/damage-types.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 export const TURRET_DEFAULT = { dice: "2d6", type: "phys" };
 
@@ -25,7 +26,7 @@ export async function rollTurret(actor, { apply = false } = {}) {
   const { dice, type } = turretOf(actor);
   let roll;
   try { roll = await new Roll(dice.replace(/^d/i, "1d")).evaluate(); }
-  catch (_) { return ui.notifications.warn(`Не вдалося розібрати кістки турелі: ${dice}`); }
+  catch (_) { return notify.warn(`Не вдалося розібрати кістки турелі: ${dice}`); }
   const wt = chatType(type);
   const ignoreN = DMG_TYPES[type]?.ignore || 0;
   const fx = [];

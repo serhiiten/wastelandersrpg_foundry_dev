@@ -29,7 +29,7 @@ export const ENEMY_KINDS = {
   ],
   "Мольфари, відуни, дивні": [["Мольфар", SHAMAN], ["Відун", SHAMAN], ["Дивний", SHAMAN]],
   "Великий бос рейдерів/Бос кримінальної родини/Вождь племені": [
-    ["Великий бос рейдерів", BOSSES], ["Бос кримінальної родини", BOSSES], ["Вождь племені", BOSSES],
+    ["Бос бандитів", BOSSES], ["Великий бос рейдерів", BOSSES], ["Бос кримінальної родини", BOSSES], ["Вождь племені", BOSSES],
   ],
 };
 
@@ -66,13 +66,43 @@ export function pickKind(name, aliases = {}, rnd = Math.random) {
  * Each such entry's enemy gets `name` = the kind and `group` = the group's own name. Returns the same state, changed.
  */
 export function concreteKinds(state, picks, aliases = {}, rnd = Math.random) {
+  const entries = [];
   for (const a of state?.last?.allocations ?? []) for (const e of a.entries ?? []) {
     const en = e.enemy;
-    if (!en || en.group) continue;
-    if (!kindsOf(en.name, aliases)) continue;
+    if (en && !en.group && kindsOf(en.name, aliases)) entries.push(e);
+  }
+  // people of one battle are one crowd (stress test, 2026-11-17: «Рейдер» came with «Бос кримінальної родини»): their
+  // leader and boss follow the rank and file's kind — the rank and file first, then the leaders, then the bosses
+  const rank = (e) => (PEOPLE_TIER[kindsOf(e.enemy.name, aliases)?.[0]?.[0]] ?? -1);
+  entries.sort((x, y) => (rank(x) < 0 ? 9 : rank(x)) - (rank(y) < 0 ? 9 : rank(y)));
+  let crowd = null;
+  for (const e of entries) {
+    const key = `${e.enemy.name}|${e.cat}`;
+    if (picks[key] && KIND_CROWD[picks[key]]) crowd ??= KIND_CROWD[picks[key]];
+  }
+  for (const e of entries) {
+    const en = e.enemy;
     const key = `${en.name}|${e.cat}`;
-    picks[key] ??= pickKind(en.name, aliases, rnd).name;
+    const tier = rank(e);
+    if (!picks[key]) {
+      if (tier >= 0 && crowd) picks[key] = CROWDS[crowd][tier];
+      else picks[key] = pickKind(en.name, aliases, rnd).name;
+    }
+    if (tier >= 0) crowd ??= KIND_CROWD[picks[key]];
     e.enemy = { ...en, group: en.name, name: picks[key] };
   }
   return state;
 }
+
+/** The people's crowds: rank and file, leader, boss (author, 2026-11-17: the bandits' boss is «Бос бандитів») */
+const CROWDS = {
+  bandit: ["Бандит", "Ватажок бандитів", "Бос бандитів"],
+  mafia: ["Мафіозі", "Ватажок мафіозі", "Бос кримінальної родини"],
+  raider: ["Рейдер", "Ватажок рейдерів", "Великий бос рейдерів"],
+  savage: ["Дикун", "Ватажок дикунів", "Вождь племені"],
+};
+/** A kind → its crowd */
+const KIND_CROWD = {};
+for (const [c, list] of Object.entries(CROWDS)) list.forEach((k) => { KIND_CROWD[k] = c; });
+/** A group's first kind → its tier among the people (0 rank and file, 1 leader, 2 boss) */
+const PEOPLE_TIER = { "Бандит": 0, "Ватажок бандитів": 1, "Бос бандитів": 2 };

@@ -10,11 +10,12 @@
 import {
   MAP_NOTE, NOTE_DEFAULT_TITLE, chipText, dragEnd, foldGeometry, normalizeNote, noteSize, onGrabStrip, placeNew, unfoldGeometry,
 } from "../rules/map-notes.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 export { MAP_NOTE };
 
 const sys = () => game.system.id;
-const warn = (m) => ui.notifications.warn(m);
+const warn = (m) => notify.warn(m);
 const hex = (s) => parseInt(String(s).replace("#", ""), 16);
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const flagPath = (k) => `flags.${sys()}.mapNote.${k}`;

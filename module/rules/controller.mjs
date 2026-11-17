@@ -586,7 +586,7 @@ export function createController(st, L, { toast = () => {} } = {}) {
         return true;
       }
       case "sit-add": {
-        const t = String(data.t || "").trim();
+        const t = String(data.t || "").trim().slice(0, 100); // an aspect is a short phrase (stress test, 2026-11-17)
         if (!t) return refuse("Впиши назву аспекту.", "bad");
         st.sit = st.sit || [];
         if (st.sit.some((x) => x.t.toLowerCase() === t.toLowerCase())) return refuse("Такий аспект уже є.", "bad");

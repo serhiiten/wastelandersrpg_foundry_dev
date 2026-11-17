@@ -16,8 +16,15 @@ ok(fileStateOk(clone(QUICK_START), "caravan"), "«Останній Шанс» op
 ok(fileStateOk({ companyName: "Новий" }, "caravan"), "a caravan with only a name opens (the rules fill the rest)");
 // what the import repairs by itself still opens
 ok(fileStateOk({ ...blankState(), species: "dragon", name: "Д" }, "character"), "an unknown species falls back");
-ok(fileStateOk({ ...blankState(), base: { SL: "abc", VP: -50, VTR: 1e9 } }, "character"), "bad numbers are clamped");
+ok(fileStateOk({ ...blankState(), base: { SL: 0, VP: -50, VTR: 1e9 } }, "character"), "numbers out of range are clamped");
+ok(fileStateOk({ ...blankState(), hpCur: "12", caps: "5", supMax: "" }, "character"), "numbers as text and empty fields open");
 // damaged files are refused
+ok(!fileStateOk({ ...blankState(), base: { SL: "abc" } }, "character"), "an attribute that is no number refused (stress test, 2026-11-17)");
+ok(!fileStateOk({ ...blankState(), skills: { "Стрільба": "майстер" } }, "character"), "a skill level that is no number refused");
+ok(!fileStateOk({ ...blankState(), caps: "багато" }, "character"), "caps that are no number refused");
+ok(!fileStateOk({ ...blankState(), hpCur: true }, "character"), "HP that are no number refused");
+ok(!fileStateOk({ ...clone(QUICK_START), budget: "багато" }, "caravan"), "a caravan budget that is no number refused");
+ok(!fileStateOk({ ...clone(QUICK_START), imp: { armor: "так" } }, "caravan"), "an upgrade level that is no number refused");
 ok(!fileStateOk({ base: null, skills: null, species: null }, "character"), "null attributes refused");
 ok(!fileStateOk({ ...blankState(), perks: { a: 1 }, name: "x" }, "character"), "perks that are no list refused");
 ok(!fileStateOk({ ...blankState(), feats: "так", name: "x" }, "character"), "feats that are no list refused");

@@ -281,7 +281,7 @@ const PERK_RULES = {
  'Бісова штуковина!':{r:'s:Крадіж:1|s:Знання:1'},
  'Липкі пальці':{r:'s:Крадіж:2 & a:VP:1'},
  'Безшумний біг':{r:'s:Крадіж:1 & a:VP:1'},
- 'Привид':{r:'s:Крадіж:2 & a:VP:1'},
+ 'Привид':{r:'s:Крадіж:2 & a:VP:1', exclF:['Сяючий']},
  'Слизький тип':{r:'s:Крадіж:1 & a:VP:1'},
  'Хто? Я?':{r:'s:Крадіж:1 & a:PV:1'},
  'Контрабандист':{r:'s:Крадіж:1'},
@@ -354,7 +354,7 @@ const FEAT_RULES = {
  'Дитя цивілізації':{sp:['human','ghoul'], sf:true, caps:{'Виживання':1}},
  'Виходець зі Сховища':{sp:['human'], sf:true, vault:true},
  'Псионік':{sp:['human'], sf:true, psi:true},
- 'Сяючий':{sp:['ghoul'], sf:true, freePerk:'Регенерація'},
+ 'Сяючий':{sp:['ghoul'], sf:true, freePerk:'Регенерація', exclP:['Привид']},
  'Бонсай':{sp:['ghoul'], sf:true, hp:-3, note:'ім\'я рослини'},
  'Здичавіння':{sp:['ghoul'], sf:true, freePerk:'Канібал', bonus:{VTR:1}, warn:'Сильно змінює стиль гри й може бути неприйнятною для деяких гравців.'},
  'Альфа-супермутант':{sp:['mutant'], sf:true, alpha:true},
@@ -1248,6 +1248,7 @@ function perkElig(p, st, d, selfIdx){
   if(p.noRobot && d.robotLike) why.push('недоступно роботам');
   if(p.only && !p.only.includes(st.species)) why.push('лише '+p.only.map(s=>SPECIES[s].n.toLowerCase()).join(' або '));
   if(p.exclF) p.exclF.forEach(f=>{ if(d.has(f)) why.push('несумісно з «'+f+'»'); });
+  if(p.n==='Стійкість до отрут' && d.has('Професійний торчок') && /бухл/i.test((st.featNotes||{})['Професійний торчок']||'')) why.push('несумісно з залежністю «Професійного торчка» від бухла');
   // кількість
   let rep = p.rep||1;
   if(p.n==='Залізні кулаки' && st.species==='claw') rep=1;
@@ -1265,6 +1266,7 @@ function featElig(f, st, d, selfIdx){
   if(f.sf && others.some(x=>FEAT[x]&&FEAT[x].sf)) why.push('лише одна видова особливість');
   if(f.exclF) f.exclF.forEach(x=>{ if(others.includes(x)) why.push('несумісно з «'+x+'»'); });
   if(f.exclP) f.exclP.forEach(x=>{ if(st.perks.some(p=>p.n===x)) why.push('несумісно з перком «'+x+'»'); });
+  if(f.n==='Професійний торчок' && /бухл/i.test((st.featNotes||{})[f.n]||'') && st.perks.some(p=>p.n==='Стійкість до отрут')) why.push('бухло несумісне з перком «Стійкість до отрут»');
   if(f.psi && !st.set.psi) why.push('псионіки вимкнені');
   if(others.includes(f.n)) why.push('уже обрано');
   return {ok: why.length===0, why};

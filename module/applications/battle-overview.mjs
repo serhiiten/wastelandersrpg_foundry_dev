@@ -16,6 +16,7 @@ import { MAP_NOTE } from "../rules/map-notes.mjs";
 import { tokenAspects } from "../canvas/token.mjs";
 import { CAT_COLOR, catIconHtml, hpLevel, typeClass } from "../sheets/enemy-view.mjs";
 import { diceLabel } from "../rules/battle.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const int = (v, d = 0) => (Number.isFinite(Number(v)) ? Math.trunc(Number(v)) : d);
@@ -139,7 +140,7 @@ async function onClick(ev) {
   const act = b.dataset.ov;
   if (act === "tgtsel") {
     const ids = (canvas?.tokens?.controlled ?? []).map((t) => t.id);
-    if (!ids.length) return ui.notifications.warn("Спершу виділи токени (клік, Shift+клік, рамка), а тоді зроби їх цілями.");
+    if (!ids.length) return notify.warn("Спершу виділи токени (клік, Shift+клік, рамка), а тоді зроби їх цілями.");
     return canvas.tokens.setTargets(ids, { mode: "replace" });
   }
   if (act === "tgtclear") return canvas.tokens.setTargets([], { mode: "replace" });
@@ -177,7 +178,7 @@ async function onClick(ev) {
     return actor.constructor.syncEnemyTokens?.(actor, open);
   }
   if (act === "hit") {
-    if (!game.user.targets.size) return ui.notifications.warn("Спершу познач цілі (T або кнопкою з мішенню в рядку).");
+    if (!game.user.targets.size) return notify.warn("Спершу познач цілі (T або кнопкою з мішенню в рядку).");
     b.disabled = true;
     try {
       const { rollEnemyAttack } = await import("./enemy-attack.mjs");
