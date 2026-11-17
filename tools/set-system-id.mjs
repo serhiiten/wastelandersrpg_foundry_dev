@@ -41,6 +41,8 @@ const idRe = new RegExp(`"systemId": "${prev}"`, "g");
 // compendium links between documents («Compendium.wastelanders.feats.Item.…»)
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
 const uuidRe = new RegExp(`Compendium\\.${escapeRe(prev)}\\.`, "g");
+// flags are scoped by the system's id («flags: {"wastelanders-dev": {battleZone: …}}» in the quick start's scenes)
+const flagRe = new RegExp(`"${escapeRe(prev)}": \\{`, "g");
 let changed = 0;
 for (const file of ["module", "templates", "css", "src/packs"].flatMap(walk)) {
   if (!/\.(mjs|js|hbs|css|json|map)$/.test(file)) continue;
@@ -48,7 +50,8 @@ for (const file of ["module", "templates", "css", "src/packs"].flatMap(walk)) {
   const after = before
     .replace(pathRe, `systems/${next}/`)
     .replace(idRe, `"systemId": "${next}"`)
-    .replace(uuidRe, `Compendium.${next}.`);
+    .replace(uuidRe, `Compendium.${next}.`)
+    .replace(flagRe, `"${next}": {`);
   if (after !== before) {
     writeFileSync(file, after);
     changed++;
