@@ -17,7 +17,6 @@ const int = (v, def = 0) => {
   const n = parseInt(v, 10);
   return Number.isFinite(n) ? n : def;
 };
-const clone = (o) => JSON.parse(JSON.stringify(o));
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const d = (n) => Math.floor(Math.random() * n) + 1;
 const signed = (n) => (n > 0 ? "+" + n : n < 0 ? "−" + Math.abs(n) : "0");

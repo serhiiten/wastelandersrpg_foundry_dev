@@ -25,19 +25,9 @@ export const DMG_TYPES = {
 };
 
 export const CAT_LABEL = { statists: "статист", regular: "рядовий", elite: "елітний", boss: "бос", pc: "персонаж гравця", caravan: "караван" };
-export const CAT_ORDER = ["boss", "elite", "regular", "statists"];
 /** Resistance choices for three-state (R3) and four-state (R4, radiation) defence fields. */
 export const R3 = { normal: "звичайна", half: "половина", immune: "невразливість" };
 export const R4 = { ...R3, heal: "лікує (гуль)" };
-
-/** Defence presets of a player character by species. */
-export const PC_PRESETS = {
-  "Людина":                { armor: 0, psyArmor: 0, phys: "normal", rad: "normal", poison: "normal", psy: "normal", electric: false },
-  "Гуль":                  { armor: 0, psyArmor: 0, phys: "normal", rad: "heal",   poison: "half",   psy: "normal", electric: false },
-  "Супермутант":           { armor: 0, psyArmor: 0, phys: "normal", rad: "immune", poison: "normal", psy: "normal", electric: false },
-  "Робот":                 { armor: 2, psyArmor: 0, phys: "normal", rad: "half",   poison: "immune", psy: "immune", electric: true },
-  "Розумний Пазур Смерті": { armor: 1, psyArmor: 0, phys: "normal", rad: "normal", poison: "normal", psy: "normal", electric: false },
-};
 
 /** Combat states: ordinary situational aspects, added with one click. [key, aspect text] */
 export const QUICK_ASPECTS = [["down", "Збитий з ніг"], ["stunned", "Приголомшений"], ["disarmed", "Без зброї"]];
@@ -53,17 +43,6 @@ export const DEF_FIELDS = [
 
 /** Fields of a profile that a custom enemy's `def` object keeps (everything but the armour number). */
 export const DEF_KEYS = ["psyArmor", "phys", "energy", "fire", "rad", "poison", "psy", "electricVuln", "halfPartial", "noKnockdown", "noStun", "noDisarm", "kamikaze"];
-
-/**
- * Read a defence field's value from a form control (any object with `value` / `checked`).
- * @param {string} f field name  @param {{value?:any, checked?:boolean}} b control
- */
-export function defValue(f, b) {
-  const t = (DEF_FIELDS.find((x) => x[0] === f) || [])[2];
-  if (t === "num") return Math.max(0, parseInt(b.value, 10) || 0);
-  if (t === "chk") return !!b.checked;
-  return b.value;
-}
 
 /** Short «label: value» text of a defence field (used in the log when a card's defence is changed by hand). */
 export function defLabel(f, v) {
@@ -242,31 +221,6 @@ export function normDice(input) {
 
 const randIntWith = (rnd) => (min, max) => Math.floor(rnd() * (max - min + 1)) + min;
 
-/**
- * Roll an expression like «2d6+1d6+2», «1d10-1» or just «9» (Ukrainian «к» is accepted for «d»).
- * @param {string} expr
- * @param {() => number} [rnd] Math.random-like source in [0, 1)
- * @returns {{total:number, dice:number, detail:string, isDice:boolean}|null} null when the text is not an expression
- */
-export function rollSum(expr, rnd = Math.random) {
-  const clean = String(expr || "").replace(/\s+/g, "").toLowerCase().replace(/к/g, "d");
-  if (!clean) return null;
-  if (!/^[+\-]?(\d*d\d+|\d+)([+\-](\d*d\d+|\d+))*$/.test(clean)) return null;
-  const randInt = randIntWith(rnd);
-  let total = 0, dice = 0; const parts = [];
-  clean.replace(/([+\-]?)(\d*d\d+|\d+)/g, (m, sign, term) => {
-    const s = sign === "-" ? -1 : 1;
-    if (term.includes("d")) {
-      const [c, f] = term.split("d"); const n = c ? +c : 1;
-      const rolls = Array.from({ length: n }, () => randInt(1, +f));
-      total += s * rolls.reduce((a, b) => a + b, 0); if (s > 0) dice += n;
-      parts.push((s < 0 ? "−" : parts.length ? "+" : "") + `${n}d${f}[${rolls.join(",")}]`);
-    } else { total += s * (+term); parts.push((s < 0 ? "−" : parts.length ? "+" : "") + term); }
-    return m;
-  });
-  return { total, dice, detail: parts.join(" "), isDice: dice > 0 };
-}
-
 /* ------------------------------------------------------------------ *
  *  Defence profiles
  * ------------------------------------------------------------------ */
@@ -332,15 +286,6 @@ export function enemyProfile(enemy, card = {}) {
   p.psycho = pi >= 0 && !!(card.used || {})[pi];
   if (p.psy !== "normal") p.psyVuln = false;
   return p;
-}
-
-/** Profile of a player character `pc` ({armor, psyArmor, phys, …, electric, kamikaze, psycho}). */
-export function pcProfile(p) {
-  return {
-    armor: +p.armor || 0, psyArmor: +p.psyArmor || 0, electricVuln: !!p.electric, phys: p.phys || "normal", energy: p.energy || "normal", fire: p.fire || "normal",
-    rad: p.rad || "normal", poison: p.poison || "normal", psy: p.psy || "normal", halfPartial: !!p.halfPartial, noKnockdown: !!p.noKnockdown,
-    noStun: !!p.noStun, noDisarm: !!p.noDisarm, kamikaze: !!p.kamikaze, psycho: !!p.psycho, psyVuln: false,
-  };
 }
 
 /**
@@ -521,15 +466,6 @@ export function resolveHit(target, hp0, max, hit, opts = {}) {
   return { hp, damage, heal, steps, out: hp === 0 && n0(hp0) > 0 };
 }
 
-/**
- * Header line of a damage log entry: «2d6[3,4] = 7 · фізична · ігнорує 1 броні · частковий успіх».
- * @param {{detail:string, isDice:boolean, total:number}} roll result of `rollSum`
- */
-export function damageHead(roll, typeKey, opts = {}) {
-  const n = (DMG_TYPES[typeKey] || DMG_TYPES.phys).n;
-  return `${roll.detail}${roll.isDice ? " = " + roll.total : ""} · ${n.replace(/ \(.*/, "").toLowerCase()}${opts.ignoreArmor ? " · ігнорує броню" : ""}${opts.ignoreN ? ` · ігнорує ${opts.ignoreN} броні` : ""}${opts.partial ? " · частковий успіх" : ""}${opts.dodge ? " · ½ шкоди" : ""}`;
-}
-
 /* ------------------------------------------------------------------ *
  *  Attacks (attacks.js) and attack / move text
  * ------------------------------------------------------------------ */
@@ -668,10 +604,6 @@ export function moveHeal(t) {
   return { expr, group, others };
 }
 
-/** Aspect as `{t, inv}` (text, invocations used) from a string or an object. */
-export function normAsp(a) {
-  return (a && typeof a === "object") ? { t: String(a.t || ""), inv: Math.max(0, +a.inv || 0) } : { t: String(a || ""), inv: 0 };
-}
 /** Aspect list → plain strings; an entry «a; b» becomes two. */
 export function splitAsp(list) {
   return (list || []).flatMap((a) => String(a).split(/\s*;\s*/)).filter(Boolean);
@@ -751,21 +683,6 @@ export function customBlank(folder = "") {
     name: "", cat: "regular", hp: 6, armor: 1, count: 1, save: true, notes: "", tok: null, folder,
     def: { psyArmor: 0, phys: "normal", energy: "normal", fire: "normal", rad: "normal", poison: "normal", psy: "normal", electricVuln: false, halfPartial: false, noKnockdown: false, noStun: false, noDisarm: false, kamikaze: false },
     attacks: [{ n: "Легка зброя ближнього бою", note: "", d: "1d6" }], moves: [], aspects: [],
-  };
-}
-
-/**
- * Custom-enemy form filled from an enemy record of the battle generator DB ({name, cat, hp, armor, dmg, aspects, moves, notes, def?}).
- * @param {object} e @param {{folder?:string, tok?:string|null}} [o]
- */
-export function customFromEnemy(e, o = {}) {
-  const d = enemyBase(e);
-  const def = {}; DEF_KEYS.forEach((k) => { def[k] = d[k]; });
-  const attacks = splitAttacks(e.dmg).map((a) => { const q = attackParts(a); return presetFromRest(q.name, q.rest) || { n: q.name, note: q.rest, d: "" }; });
-  return {
-    name: e.name, cat: e.cat || "regular", hp: +e.hp || 1, armor: parseInt(e.armor, 10) || 0, count: 1, save: true, notes: e.notes || "",
-    folder: o.folder !== undefined ? o.folder : String(e.folder || ""), tok: o.tok !== undefined ? o.tok : (e.tok || null),
-    def, attacks, moves: (e.moves || []).map((m) => ({ n: m.n, t: m.t })), aspects: splitAsp(e.aspects),
   };
 }
 
@@ -855,8 +772,6 @@ export function enemyFromRecord(rec) {
 
 /** Zone sticker colours (key → Ukrainian label). */
 export const ZONE_COLORS = { yellow: "Жовтий", blue: "Синій", green: "Зелений", red: "Червоний", purple: "Фіолетовий" };
-/** Colour key of a zone (unknown → yellow). */
-export const zoneColor = (z) => (ZONE_COLORS[z && z.color] ? z.color : "yellow");
 
 /** Do two rects `{x,y,w,h}` overlap (touching edges do not)? */
 export const rectOverlap = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
@@ -872,23 +787,6 @@ export const pointInRect = (r, x, y) => x >= r.x && x < r.x + r.w && y >= r.y &&
 export function zoneFree(rect, zones, skipId, bounds) {
   if (bounds && !(rect.x >= bounds.x && rect.y >= bounds.y && rect.x + rect.w <= bounds.x + bounds.w && rect.y + rect.h <= bounds.y + bounds.h)) return false;
   return (zones || []).every((z) => z.id === skipId || !rectOverlap(rect, z));
-}
-
-/**
- * First free spot for a new w × h zone, scanning row by row on the grid (like the tracker's `zFindSpot`).
- * @param {{x,y,w,h}[]} zones existing zones @param {number} w @param {number} h
- * @param {{x,y,w,h}} bounds area to place in @param {number} g grid size (scan step)
- * @returns {{x,y,w,h}} the spot, or the bounds' top-left corner when nothing is free
- */
-export function findZoneSpot(zones, w, h, bounds, g) {
-  const step = g > 0 ? g : 1;
-  for (let y = bounds.y; y + h <= bounds.y + bounds.h; y += step) {
-    for (let x = bounds.x; x + w <= bounds.x + bounds.w; x += step) {
-      const r = { x, y, w, h };
-      if (zoneFree(r, zones, undefined, bounds)) return r;
-    }
-  }
-  return { x: bounds.x, y: bounds.y, w, h };
 }
 
 /** The first zone containing the point (a token centre); undefined when none. */
@@ -916,11 +814,6 @@ export function vaultNo(rnd = Math.random) {
   let n;
   do { n = Math.floor(rnd() * 100) + 1; } while ([8, 12, 13, 15].includes(n));
   return n;
-}
-
-/** «Сховище (d100)» → «Сховище 47» (other places unchanged). */
-export function resolveVaultPlace(place, rnd = Math.random) {
-  return String(place || "").replace(/\s*\(d100\)/, () => " " + vaultNo(rnd));
 }
 
 const asSet = (used) => new Set([...(used || [])].map((u) => (u && typeof u === "object" ? (u.t ?? u.name) : u)));

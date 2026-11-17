@@ -81,7 +81,6 @@ async function demoActor(type) {
     return null;
   }
 }
-export const isDemoActor = (actor) => [...demos.values()].includes(actor);
 
 /** Closes the system's windows the tour opened (sheets, terminal, check panel) */
 async function closeAll() {
@@ -228,8 +227,8 @@ export const PREPARE = {
     await sleep(150);
   },
   unfold: async (unit) => {
-    const el = document.querySelector(`[data-unit="${unit}"]`);
-    if (el?.classList.contains("folded")) el.querySelector(".pust-md-fold, .pust-md-hd")?.click();
+    // the panels fold and unfold on pointerup (map-dock.mjs drag handler), so a click() doesn't reach them
+    if (document.querySelector(`[data-unit="${unit}"]`)?.classList.contains("folded")) (await import("../applications/map-dock.mjs")).unfoldUnit(unit);
     await sleep(200);
   },
   closeAll,

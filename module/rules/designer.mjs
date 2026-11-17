@@ -63,11 +63,6 @@ export const SIDES = [
 ];
 export const SIDE = Object.fromEntries(SIDES.map((s) => [s.k, s]));
 
-/** Perk effects: the ranges the book gives, by the kind of the perk */
-export const PERK_RANGES = {
-  combat: { price: [3, 5], ch: [2, 4] },
-  other: { price: [2, 4], ch: [1, 3] },
-};
 const COMBAT_CATS = ["Бій на відстані", "Ближній бій", "Вибухівка", "Загальні бойові перки"];
 
 /** «бойовий» or «небойовий»: by the perk's category (the psionic and all other categories count as non-combat) */

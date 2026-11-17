@@ -1,9 +1,4 @@
 export const WASTELANDERS = {
-  supportedLinks: {
-    species: {
-      feat: "feats"
-    }
-  },
   linkedForeign: {
     species: ["feats"],
   },

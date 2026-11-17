@@ -177,11 +177,6 @@
 .pust-tools-row { flex-wrap: nowrap; }
 .pust-tools-row > button { flex: 1 1 0; white-space: nowrap; }
 
-/* weapons: main row, note, and — with the «Зброя, багато зброї» supplement — a labelled row and the mods */
-.pust-gf { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.pust-gf > span, .pust-gl { font-family: var(--pu-f-label); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-3); }
-.pust-gf select { width: 100%; }
-
 /* Припаси (prominent) and Кришки, side by side */
 .pust-supcaps { grid-template-columns: 1fr 1fr; margin-bottom: 10px; }
 .pust-supplies { border-left: 6px solid var(--pu-rust-3); }
@@ -527,95 +522,29 @@
 .pust-ghead { border-top: 0 !important; padding: 0 0 2px !important; margin-bottom: 2px; border-bottom: 1px solid var(--pu-paper-3); }
 .pust-ghead > span { font-family: var(--pu-f-label); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-3); white-space: nowrap; overflow: hidden; }
 .pust-ghead > span:has(> i) { text-align: center; font-size: 12px; }
-.pust-gh { justify-content: center; }
-/* «Примітка» as a tag in front of the note field */
-.pust-gnote-l { display: flex; align-items: stretch; min-width: 0; }
-.pust-gnote-l > span { flex: 0 0 auto; display: flex; align-items: center; padding: 0 7px; background: var(--pu-paper-2); border: 1px solid var(--pu-paper-3); border-right: 0; border-radius: 3px 0 0 3px;
-  font-family: var(--pu-f-label); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-3); }
-.pust-gnote-l > input[type="text"] { flex: 1; min-width: 0; border-radius: 0 3px 3px 0; }
 /* Броня / Інший мотлох: one row per thing (the note beside the name), on a shared grid so the header lines up;
    a note too long for its column moves to a second row of its own (class .wide, set by the sheet) */
 .pust-glist { display: grid; column-gap: 4px; }
-.pust-glist-armor { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 64px 44px 28px; }
-.pust-glist-other { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 56px auto 28px; }
 .pust-grow { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; row-gap: 4px; align-items: center; padding: 4px 0; border-top: 1px dotted var(--pu-paper-3); }
 .pust-grow.pust-ghead { border-top: 0; padding: 0 0 2px; border-bottom: 1px solid var(--pu-paper-3); }
 .pust-grow > .pust-gname, .pust-grow > .pust-gnote-in, .pust-grow > .pust-dmg, .pust-grow > .pust-qty { width: 100%; min-width: 0; }
 .pust-grow > .pust-qty, .pust-grow > .pust-dmg { text-align: center; }
 .pust-grow > .pust-x { width: 28px !important; }
-.pust-gacts { display: inline-flex; gap: 4px; align-items: center; }
-.pust-gacts:empty { display: none; }
-.pust-grow-full { grid-column: 2 / -1; }
-.pust-glist-other .pust-grow-full { grid-column: 1 / -1; }
-/* long note: the name takes the note's column too, the note gets the whole second row */
-.pust-glist-armor .pust-grow.wide > .pust-gname { grid-column: 2 / 4; }
-.pust-glist-armor .pust-grow.wide > .pust-gnote-in { grid-row: 2; grid-column: 2 / -1; }
-.pust-glist-other .pust-grow.wide > .pust-gname { grid-column: 1 / 3; }
-.pust-glist-other .pust-grow.wide > .pust-gnote-in { grid-row: 2; grid-column: 1 / -1; }
 /* gear notes: one line by default, the text wraps and the field grows */
 .wastelanders textarea.pust-gnote-in, .wastelanders textarea.pust-gnote-ta { display: block; width: 100%; min-width: 0; height: 28px; min-height: 28px; resize: none; overflow: hidden;
   padding: 4px 6px; line-height: 1.35; font: inherit; font-size: inherit; }
-.pust-gnote-l > textarea.pust-gnote-ta { flex: 1; border-radius: 0 3px 3px 0; }
-.pust-gnote-l { align-items: stretch; }
 .pust-grow { align-items: start; }
-.pust-grow > .pust-gh, .pust-grow > .pust-x { align-self: center; }
+.pust-grow > .pust-x { align-self: center; }
 .wastelanders textarea.pust-gnote-in, .wastelanders textarea.pust-gnote-ta { height: 26px; min-height: 26px; padding: 2px 6px; box-sizing: border-box; } /* one line = the height of the name field */
 /* Зброя: the same one-row list as Броня / Інший мотлох */
-.pust-glist-weapons { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 64px 112px 44px 26px 28px; }
-.pust-glist-weapons .pust-grow.wide > .pust-gname { grid-column: 2 / 4; }
-.pust-glist-weapons .pust-grow.wide > .pust-gnote-in { grid-row: 2; grid-column: 2 / -1; }
 .pust-grow > .pust-en { width: 100%; min-width: 0; }
 .pust-grow > .pust-roll { justify-self: center; align-self: center; }
 .pust-grow.with-guns { background: rgba(223,207,156,.25); box-shadow: inset 3px 0 0 var(--pu-rust-4); }
-.pust-grow > .pust-gnote-l.pust-grow-full > select { flex: 1; min-width: 0; border-radius: 0 3px 3px 0; }
 .wastelanders .pust-grow > button.pust-x:not(.header-control) { height: 26px !important; min-height: 0; line-height: 24px !important; }
 /* «Вартість»: its own column after the note, in all three lists */
-.pust-glist-weapons { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 72px 64px 112px 44px 26px 28px; }
-.pust-glist-armor { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 72px 64px 44px 28px; }
-.pust-glist-other { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 72px 56px auto 28px; }
 .pust-grow > .pust-price { width: 100%; min-width: 0; text-align: center; }
-.pust-glist-weapons { grid-template-columns: 24px minmax(0, 1.4fr) minmax(0, 1fr) 72px 64px 112px 44px 26px 28px; } /* the weapon name gets more room than its note */
-/* «Вартість» at the end of the row, just before ✕: one line down all three lists */
-.pust-glist-weapons { grid-template-columns: 24px minmax(0, 1.4fr) minmax(0, 1fr) 64px 112px 44px 26px 72px 28px; }
-.pust-glist-armor { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 64px 44px 72px 28px; }
-.pust-glist-other { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 56px auto 72px 28px; }
 /* «безкоштовна» fits the price column */
-.pust-glist-weapons { grid-template-columns: 24px minmax(0, 1.4fr) minmax(0, 1fr) 64px 112px 44px 26px 96px 28px; }
-.pust-glist-armor { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 64px 44px 96px 28px; }
-.pust-glist-other { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 56px auto 96px 28px; }
 .pust-grow > .pust-price { padding-left: 4px !important; padding-right: 4px !important; }
-/* price column fits «9999 к»; «Інший мотлох» has «Важка» too */
-.pust-glist-weapons { grid-template-columns: 24px minmax(0, 1.4fr) minmax(0, 1fr) 64px 112px 44px 26px 64px 28px; }
-.pust-glist-armor { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 64px 44px 64px 28px; }
-.pust-glist-other { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 56px 44px auto 64px 28px; }
-/* the three lists end the same way: [Шкода | Броня | К-сть] · Важка · Вартість · ✕ — one column each down the tab */
-.pust-glist-weapons { grid-template-columns: 24px minmax(0, 1.4fr) minmax(0, 1fr) 112px 26px 64px 44px 64px 28px; }
-.pust-glist-armor { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.3fr) 64px 44px 64px 28px; }
-.pust-glist-other { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto 64px 44px 64px 28px; }
-/* one grid for all three lists: tick · Назва · Примітка · extra (Тип + ⌖ / дії / —) · Шкода|Броня|К-сть · Важка · Вартість · ✕ */
-.pust-glist-weapons, .pust-glist-armor, .pust-glist-other { grid-template-columns: 24px minmax(0, 1.3fr) minmax(0, 1.2fr) 142px 64px 44px 64px 28px; }
-.pust-gextra { display: flex; align-items: center; gap: 4px; min-width: 0; }
-.pust-gextra > .pust-en { flex: 0 0 112px; width: 112px; min-width: 0; }
-.pust-gextra > .pust-roll { flex: 0 0 26px; text-align: center; }
-.pust-ghead .pust-gextra > span:first-child { flex: 0 0 112px; }
-.pust-ghead .pust-gextra > span:last-child { flex: 0 0 26px; text-align: center; font-size: 12px; }
-.pust-glist-other .pust-grow.wide > .pust-gname { grid-column: 2 / 4; }
-.pust-glist-other .pust-grow.wide > .pust-gnote-in { grid-row: 2; grid-column: 2 / -1; }
-.pust-glist-other .pust-grow-full { grid-column: 2 / -1; }
-/* Броня / Інший мотлох: the note runs up to «Броня» / «К-сть»; Інший мотлох starts at the left edge.
-   (Columns 1–4 = tick · Назва · Примітка · extra; Зброя fills «extra» with Тип + ⌖.) */
-.pust-glist-armor .pust-ghead > .pust-gspan-note, .pust-glist-armor .pust-grow > .pust-gnote-in { grid-column: 3 / 5; }
-.pust-glist-other .pust-ghead > .pust-gspan-name, .pust-glist-other .pust-grow > .pust-gname { grid-column: 1 / 3; }
-.pust-glist-other .pust-ghead > .pust-gspan-note, .pust-glist-other .pust-grow > .pust-gnote-in { grid-column: 3 / 5; }
-.pust-glist-other .pust-grow.acts > .pust-gnote-in { grid-column: 3 / 4; }
-.pust-glist-other .pust-grow > .pust-gacts { grid-column: 4; }
-/* a long note on its own row: the name takes the note's place up to «Броня» / «К-сть» (or up to the actions) */
-.pust-glist-armor .pust-grow.wide > .pust-gname { grid-column: 2 / 5; }
-.pust-glist-armor .pust-grow.wide > .pust-gnote-in { grid-row: 2; grid-column: 2 / -1; }
-.pust-glist-other .pust-grow.wide > .pust-gname { grid-column: 1 / 5; }
-.pust-glist-other .pust-grow.wide.acts > .pust-gname { grid-column: 1 / 4; }
-.pust-glist-other .pust-grow.wide > .pust-gnote-in { grid-row: 2; grid-column: 1 / -1; }
-.pust-glist-other .pust-grow-full { grid-column: 1 / -1; }
 /* «+ Зброя / + Броня / + Річ»: the list's catalogue at the bottom of its block */
 .pust-addcat { margin-top: 6px; border: 1px solid var(--pu-rust-3); border-radius: 4px; background: #fff3dc; overflow: hidden; }
 .pust-addcat-bar { display: flex; align-items: center; gap: 6px; padding: 5px 8px; background: var(--pu-paper-2); border-bottom: 1px solid var(--pu-paper-3); }
@@ -856,14 +785,6 @@
 .pust-caravan .pust-glist-cargo .pust-grow > .pust-x { align-self: center; }
 .pust-caravan .pust-log { margin: 6px 0 0; font-size: 13px; padding: 5px 8px; }
 
-/* Лічильники: a framed row each */
-.pust-caravan .pust-item.pust-card.pust-ctr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; border-left-color: var(--pu-rust-3); }
-.pust-caravan .pust-ctr-name { flex: 1 1 160px; min-width: 0; }
-.pust-caravan .pust-ctr > select { flex: 0 0 120px; width: 120px; }
-.pust-caravan .pust-segs { display: inline-flex; gap: 3px; flex-wrap: wrap; flex: 0 1 auto; }
-.wastelanders .pust-caravan .pust-segs .seg { width: 20px !important; height: 22px !important; min-height: 0 !important; padding: 0; line-height: 0; border-radius: 3px; flex: 0 0 20px; }
-.wastelanders .pust-caravan .pust-segs .seg.on { background: var(--pu-rust-3); border-color: var(--pu-rust-0); }
-
 /* Історія: four coloured aspect rows, then the notes */
 .pust-caravan .pust-story { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
 .pust-caravan .pust-story .pust-aspect > label { flex: 0 0 124px; width: 124px; }
@@ -901,16 +822,9 @@
 
 /* the weapon's damage field (author, 2026-11-14): one line in its cell; a value that doesn't fit (even at a smaller font) wraps
    and moves to a row of its own under the weapon, with a «Шкода» chip so it's clear what the field is */
-.pust-dmgcell { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.pust-dmgcell > .pust-dmgchip { display: none; flex: none; padding: 0 7px; border-radius: 9px; font-family: var(--pu-f-label); font-weight: 700; font-size: 10.5px;
-  line-height: 18px; text-transform: uppercase; letter-spacing: .05em; background: var(--pu-rust-2); color: #f4e3c8; }
 .wastelanders textarea.pust-dmg-in { display: block; width: 100%; min-width: 0; height: 26px; min-height: 26px; resize: none; overflow: hidden; padding: 4px 2px;
   line-height: 16px; box-sizing: border-box; white-space: pre-wrap; word-break: break-word; }
-.pust-glist .pust-grow.dmg-wide > .pust-dmgcell { grid-row: 2; grid-column: 2 / -1; }
-.pust-glist .pust-grow.wide.dmg-wide > .pust-dmgcell { grid-row: 3; }
-.pust-grow.dmg-wide > .pust-dmgcell > .pust-dmgchip { display: inline-block; }
 .wastelanders .pust-grow.dmg-wide textarea.pust-dmg-in { text-align: left; padding-left: 6px !important; }
-.pust-grow > .pust-dmgcell { width: 100%; }
 
 /* ===== Caravan sheet, round 2 (author, 2026-11-14) ===== */
 /* header: «Удача партії» on the left (prominent; the label rolls «Кістка Долі»), the transport on the right */
@@ -1372,14 +1286,8 @@
 .pust-cons { grid-template-columns: 1fr auto auto; grid-template-areas: "lbl buy tog" "inp inp inp"; }
 .pust-cons > .pust-buy-btn { grid-area: buy; }
 
-/* «Інший мотлох»: the actions cell (142 px) wraps — «Лікувати легкий наслідок» takes a row of its own, its label on two lines */
-.pust-glist-other .pust-grow > .pust-gacts { flex-wrap: wrap; min-width: 0; }
-.pust-glist-other .pust-gacts > button[data-act="chem-treat"] { flex: 1 1 100%; min-width: 0; white-space: normal; line-height: 1.15; height: auto; min-height: 26px; padding: 2px 6px; }
 /* «Припаси» + «Кришки»: when the column is too narrow for both, «Кришки» go under «Припаси» */
 .pust-quickbar .pust-qgrp.q-goods { flex-wrap: wrap; row-gap: 8px; }
-/* a wrapped actions cell makes the row taller: the row's fields stay on its first line */
-.pust-glist-other .pust-grow.acts > :not(.pust-gnote-in) { align-self: start; }
-.pust-glist-other .pust-grow.acts > .pust-gh { margin-top: 5px; }
 /* narrowest widths (author, 2026-11-15): 580 px is the character / caravan sheets' and the builders' floor; an enemy's card
    goes down to its own width (460), a place's card to 420 — its kind label wraps there rather than push the switches out */
 .application.pust-sheet.pust-en-sheet { min-width: 460px; }
@@ -1448,32 +1356,19 @@
 .pust-glist:has(> .pust-gcard) { row-gap: 6px; }
 .pust-glist > .pust-grow.pust-gcard { --gc: #8a6a3e; position: relative; border: 1px solid var(--pu-paper-3); border-left: 4px solid var(--gc); border-radius: 4px;
   padding: 6px 7px; background: var(--pu-sheet); box-shadow: 0 1px 0 rgba(35,27,17,.14); }
-.pust-glist-weapons > .pust-grow.pust-gcard { --gc: var(--pu-rust-3); }
-.pust-glist-armor > .pust-grow.pust-gcard { --gc: #5d6d78; }
 .pust-glist:has(> .pust-gcard) > .pust-ghead { border: 1px solid transparent; border-left-width: 4px; border-bottom: 1px solid var(--pu-paper-3) !important; padding: 0 7px 3px !important; margin-bottom: 0; }
 /* in hand / worn */
 .pust-glist > .pust-grow.pust-gcard.on { --gc: #2f8a32; border-color: #7fb46e; background: linear-gradient(90deg, rgba(61,170,64,.16), rgba(61,170,64,.05) 55%, rgba(61,170,64,0)), #f6fbec;
   box-shadow: 0 0 0 1px rgba(47,138,50,.30), 0 0 10px rgba(61,170,64,.22), 0 1px 0 rgba(35,27,17,.14); }
-.pust-glist > .pust-grow.pust-gcard.on > .pust-gh input[type="checkbox"] { accent-color: #2f8a32; }
 /* the in-hand / worn mark is louder: a deeper green wash and a small tab «У руках» / «Вдягнена» on the card's top edge */
 .pust-glist:has(> .pust-gcard.on) { row-gap: 12px; }
 .pust-glist:has(> .pust-gcard.on) > .pust-ghead { margin-bottom: 4px; }
 .pust-glist > .pust-grow.pust-gcard.on { border-color: #5fa152; background: linear-gradient(90deg, rgba(61,170,64,.26), rgba(61,170,64,.10) 55%, rgba(61,170,64,.04)), #f3faea; }
 .pust-glist > .pust-grow.pust-gcard.on::before { position: absolute; top: -8px; left: 8px; padding: 0 6px; height: 15px; line-height: 15px; border-radius: 3px;
   background: #2f8a32; color: #f3faea; font: 700 10px/15px var(--pu-f-label); letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 1px 0 rgba(35,27,17,.25); pointer-events: none; }
-.pust-glist-weapons > .pust-grow.pust-gcard.on::before { content: "У руках"; }
-.pust-glist-armor > .pust-grow.pust-gcard.on::before { content: "Вдягнена"; }
-.pust-glist-weapons > .pust-ghead > span:first-child, .pust-glist-armor > .pust-ghead > span:first-child { overflow: visible; display: flex; justify-content: center; } /* the hand / shirt icon over the tick, not clipped by the narrower first cell */
-/* (author, 2026-11-15) the cards' padding: a subgrid's padding pushes its edge items in, but the list's fixed first / last
-   tracks didn't grow with it, so «✕» stuck out over the card's right padding. The edge tracks now include the cards'
-   frame — left 4 px stripe + 7 px padding, right 1 px border + 7 px padding */
-.pust-glist-weapons:has(> .pust-gcard), .pust-glist-armor:has(> .pust-gcard), .pust-glist-other:has(> .pust-gcard) { grid-template-columns: 35px minmax(0, 1.3fr) minmax(0, 1.2fr) 142px 64px 44px 64px 36px; }
 /* «Вилікувати» / «Поповнити» on the title row keep 4 px from the block's top border (they used to hang 2 px under it) */
 @container (min-width: 710px) {
   .wastelanders.pust-sheet .pust-qgrp > .pust-qi:first-child > button.pust-buy-btn:not(.header-control) { height: 19px !important; margin: -2px 0 -2px !important; }
-}
-@container (max-width: 620px) { /* the narrow sheet: «Шкода» / «К-сть», «Важка», «Вартість» a little narrower, so «Примітка» keeps room for its title */
-  .pust-glist-weapons:has(> .pust-gcard), .pust-glist-armor:has(> .pust-gcard), .pust-glist-other:has(> .pust-gcard) { grid-template-columns: 35px minmax(0, 1.3fr) minmax(0, 1.2fr) 142px 56px 40px 52px 36px; }
 }
 /* (author, 2026-11-15) a heading's small count («вільних пунктів: 0 з 3», «3 з 3», «Припасів: 3») keeps clear of its rule */
 .pust-sheet h3:has(> small) { padding-bottom: 3px; }

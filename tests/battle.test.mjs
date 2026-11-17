@@ -76,15 +76,7 @@ eq(dmg({ armor: 1, defense: { phys: "half" }, flags: { kamikaze: true } }, 8, "p
 { const n = B.normalizeTarget({ armor: 1, psiArmor: 2, defense: { phys: "half", rad: "heal" }, flags: { kamikaze: true, partialHalf: true, electric: true } });
   eq([n.psyArmor, n.phys, n.rad, n.kamikaze, n.halfPartial, n.electricVuln, n.energy], [2, "half", "heal", true, true, true, "normal"], "normalizeTarget nested"); }
 
-/* ---------- rollSum / DICE_RE ---------- */
-{ const r = B.rollSum("2d6+1d6+2", seeded(5)); ok(r && r.dice === 3 && r.isDice && r.total >= 7 && r.total <= 20 && /^2d6\[\d,\d\] \+1d6\[\d\] \+2$/.test(r.detail), "rollSum shape " + (r && r.detail)); }
-eq(B.rollSum("9"), { total: 9, dice: 0, detail: "9", isDice: false }, "rollSum plain");
-eq(B.rollSum("1д6"), null, "rollSum cyrillic д is not dice");
-ok(B.rollSum("2к6") !== null, "rollSum accepts «к»");
-eq(B.rollSum("abc"), null, "rollSum garbage");
-eq(B.rollSum(""), null, "rollSum empty");
-eq(B.rollSum("1d10-1", () => 0.999).total, 9, "rollSum minus (max roll)");
-eq(B.rollSum("1d6", () => 0).total, 1, "rollSum min roll");
+/* ---------- DICE_RE ---------- */
 ["1d6", "2d6+2", "d10", "3d6-1"].forEach((s) => ok(B.DICE_RE.test(s), "DICE_RE " + s));
 ["", "2d", "1d6+", "abc", "2d6 +1"].forEach((s) => ok(!B.DICE_RE.test(s), "DICE_RE rejects " + s));
 
@@ -121,9 +113,6 @@ eq(B.rollSum("1d6", () => 0).total, 1, "rollSum min roll");
   ok(B.enemyProfile(e, { ov: { phys: "half" } }).phys === "half", "card overrides");
   ok(B.enemyProfile({ armor: "2 (вразливий до психічної)", moves: [] }).psyVuln, "psyVuln kept");
   ok(!B.enemyProfile({ armor: "2 (вразливий до психічної)", moves: [] }, { ov: { psy: "half" } }).psyVuln, "psyVuln dropped when psy resisted");
-  const pc = B.pcProfile({ ...B.PC_PRESETS["Робот"], kamikaze: true });
-  ok(pc.armor === 2 && pc.electricVuln && pc.poison === "immune" && pc.kamikaze, "pcProfile robot");
-  eq(dmg(B.pcProfile(B.PC_PRESETS["Гуль"]), 6, "rad", { dice: 1 }).heal, 1, "ghoul pc heals from radiation");
   // Psycho +2 on attacks
   eq(B.kamiDice("1d10", "Важка зброя", { psycho: true }), "1d10+2", "psycho +2");
   eq(B.kamiDice("2d6+1", "Зброя", { kamikaze: true, psycho: true }), "2d6+5", "kamikaze + psycho");
@@ -177,26 +166,23 @@ eq(B.rollSum("1d6", () => 0).total, 1, "rollSum min roll");
 
 /* ---------- aspects, presets, splitAttacks ---------- */
 eq(B.splitAsp(["a; b", "c"]), ["a", "b", "c"], "splitAsp");
-eq(B.normAsp("x"), { t: "x", inv: 0 }, "normAsp string");
-eq(B.normAsp({ t: "y", inv: -3 }), { t: "y", inv: 0 }, "normAsp object");
 eq(B.splitAttacks("плазмовий пістолет (ігнорує 2 броні) 1d6+3 вогнемет (2 заряди, влучає по всіх у одній зоні) 2d6"),
   ["плазмовий пістолет (ігнорує 2 броні) 1d6+3", "вогнемет (2 заряди, влучає по всіх у одній зоні) 2d6"], "splitAttacks");
 eq(B.splitAttacks("лапи 1d6 +3 радіацією (ігнорує броню)"), ["лапи 1d6 +3 радіацією (ігнорує броню)"], "splitAttacks keeps the extra part");
 eq(B.presetFromRest("Лапи", "1d6 +3 радіацією (ігнорує броню)"), { n: "Лапи", note: "+3 радіацією, ігнорує броню", d: "1d6" }, "presetFromRest");
 eq(B.presetFromRest("Х", "(ігнорує 2 броні) 1d10+2"), { n: "Х", note: "ігнорує 2 броні", d: "1d10+2" }, "presetFromRest paren first");
 eq(B.presetFromRest("Х", "без кубиків"), null, "presetFromRest none");
-ok(B.CAT_ORDER[0] === "boss" && B.CAT_LABEL.pc === "персонаж гравця" && B.DEF_FIELDS.length === 14 && B.QUICK_ASPECTS.length === 3, "tables");
-ok(B.defValue("armor", { value: "-4" }) === 0 && B.defValue("kamikaze", { checked: true }) === true && B.defValue("rad", { value: "heal" }) === "heal", "defValue");
+ok(B.CAT_LABEL.pc === "персонаж гравця" && B.DEF_FIELDS.length === 14 && B.QUICK_ASPECTS.length === 3, "tables");
 eq(B.defLabel("rad", "heal"), "радіація: лікує (гуль)", "defLabel");
 eq(B.defLabel("kamikaze", true), "камікадзе: +2 шкоди: так", "defLabel chk");
 ok(B.profileTags(B.enemyBase({ armor: "1", notes: "⚡ Отримує +1d6 шкоди від електрики." })).some(([, t]) => t === "+1d6 від електрики") && B.tagHelp("½ від радіації").includes("Броня від радіації"), "tags");
 ok(B.tagHelp("психічна броня 3").includes("3") && B.tagHelp("щось") === "щось", "tagHelp");
-eq(B.damageHead(B.rollSum("2d6", () => 0), "laser", { ignoreN: 1, partial: true }), "2d6[1,1] = 2 · лазерна · ігнорує 1 броні · частковий успіх", "damageHead");
 
 /* ---------- the battle generator's DB: presets, custom enemies, enemyFromRecord ---------- */
 const DB = createTerminal().battle.BT.DB;
+const CATS = ["boss", "elite", "regular", "statists"]; // the generator DB's categories
 let dbCount = 0;
-for (const fk of Object.keys(DB)) for (const c of B.CAT_ORDER) for (const rec of DB[fk][c] || []) {
+for (const fk of Object.keys(DB)) for (const c of CATS) for (const rec of DB[fk][c] || []) {
   dbCount++;
   let e;
   try { e = B.enemyFromRecord(rec); } catch (err) { ok(false, `enemyFromRecord(${rec.name}) threw ${err.message}`); continue; }
@@ -204,14 +190,10 @@ for (const fk of Object.keys(DB)) for (const c of B.CAT_ORDER) for (const rec of
   ok(rec.dmg ? e.attacks.length >= 1 : e.attacks.length === 0, `db ${rec.name}: attacks`);
   e.attacks.forEach((a) => ok(B.DICE_RE.test(a.dice) && B.DMG_TYPES[a.type], `db ${rec.name}: attack «${a.name}» dice «${a.dice}»`));
   ok(e.moves.length === (rec.moves || []).length, `db ${rec.name}: moves`);
-  // custom form round trip
-  const f = B.customFromEnemy(rec), r = B.buildCustomEnemy(f);
-  ok(!r.err && r.enemy.hp === rec.hp && r.enemy.custom, `db ${rec.name}: custom round trip ${r.err || ""}`);
-  if (!r.err) ok(B.enemyFromRecord(r.enemy).attacks.length === e.attacks.length, `db ${rec.name}: custom keeps the attacks count`);
 }
 ok(dbCount >= 80, "DB size " + dbCount);
 {
-  const find = (n) => { for (const fk of Object.keys(DB)) for (const c of B.CAT_ORDER) for (const r of DB[fk][c] || []) if (r.name === n) return r; };
+  const find = (n) => { for (const fk of Object.keys(DB)) for (const c of CATS) for (const r of DB[fk][c] || []) if (r.name === n) return r; };
   const e = B.enemyFromRecord(find("Паладин Братства Сталі"));
   eq(e.attacks.map((a) => [a.name, a.dice, a.type, a.ammoMax, a.ignoreN]), [["Рідкісна плазмова зброя ближнього бою або бою на відстані", "3d6", "plasma", 0, 2], ["Плазмова граната", "3d6", "phys", 2, 0], ["Удар кулаком силової броні", "1d10", "phys", 0, 0]], "паладин attacks");
   ok(e.traits.halfRad && e.traits.halfPoison && e.armor === 5, "паладин traits");
@@ -251,17 +233,8 @@ ok(dbCount >= 80, "DB size " + dbCount);
   ok(!B.zoneFree({ x: 100, y: 100, w: 300, h: 200 }, [{ id: 1, x: 300, y: 150, w: 200, h: 200 }]), "zoneFree: overlap");
   ok(B.zoneFree({ x: 100, y: 100, w: 300, h: 200 }, [{ id: 1, x: 300, y: 150, w: 200, h: 200 }], 1), "zoneFree: skipId");
   ok(!B.zoneFree({ x: 0, y: 100, w: 100, h: 100 }, [], undefined, bounds) && B.zoneFree({ x: 100, y: 100, w: 100, h: 100 }, [], undefined, bounds) && !B.zoneFree({ x: 1000, y: 100, w: 200, h: 100 }, [], undefined, bounds), "zoneFree: bounds");
-  eq(B.findZoneSpot([], 300, 200, bounds, 100), { x: 100, y: 100, w: 300, h: 200 }, "findZoneSpot: empty → top-left");
-  const z1 = { id: 1, x: 100, y: 100, w: 300, h: 200 };
-  eq(B.findZoneSpot([z1], 300, 200, bounds, 100), { x: 400, y: 100, w: 300, h: 200 }, "findZoneSpot: right of the first");
-  const row = [z1, { id: 2, x: 400, y: 100, w: 300, h: 200 }, { id: 3, x: 700, y: 100, w: 400, h: 200 }];
-  eq(B.findZoneSpot(row, 300, 200, bounds, 100), { x: 100, y: 300, w: 300, h: 200 }, "findZoneSpot: next row");
-  const r = B.findZoneSpot([{ id: 9, ...bounds }], 300, 200, bounds, 100);
-  ok(r.x === 100 && r.y === 100, "findZoneSpot: full scene falls back to the corner");
-  const odd = B.findZoneSpot([{ id: 1, x: 100, y: 100, w: 250, h: 100 }], 100, 100, bounds, 50);
-  ok((odd.x - bounds.x) % 50 === 0 && B.zoneFree(odd, [{ id: 1, x: 100, y: 100, w: 250, h: 100 }], undefined, bounds), "findZoneSpot: stays on the grid and free");
   eq(Object.keys(B.ZONE_COLORS), ["yellow", "blue", "green", "red", "purple"], "ZONE_COLORS");
-  ok(B.ZONE_COLORS.purple === "Фіолетовий" && B.zoneColor({ color: "red" }) === "red" && B.zoneColor({ color: "pink" }) === "yellow" && B.zoneColor(null) === "yellow", "zoneColor");
+  ok(B.ZONE_COLORS.purple === "Фіолетовий", "ZONE_COLORS names");
 }
 
 /* ---------- random zone names / aspects ---------- */
@@ -279,7 +252,6 @@ ok(dbCount >= 80, "DB size " + dbCount);
   for (let i = 0; i < 4000; i++) seen.add(B.vaultNo(rnd));
   ok([...seen].every((n) => n >= 1 && n <= 100 && ![8, 12, 13, 15].includes(n)) && seen.size === 96, "vaultNo range " + seen.size);
   { const seq = [0.07, 0.11, 0.12, 0.14, 0.15]; let i = 0; eq(B.vaultNo(() => seq[i++]), 16, "vaultNo skips 8, 12, 13, 15"); }
-  ok(/^Сховище \d+$/.test(B.resolveVaultPlace("Сховище (d100)")) && B.resolveVaultPlace("Ферма") === "Ферма", "resolveVaultPlace");
   // no repeats: take every name of a place one by one
   for (const place of ["Ферма", "Сховище 47", "", "Залишки гайвею"]) {
     const rnd2 = seeded(11), used = new Set(), key = B.zonePlaceKey(place), pool = key ? PUST_ZONE_NAMES[key] : [...new Set(Object.values(PUST_ZONE_NAMES).flat())];

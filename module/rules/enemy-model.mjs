@@ -93,6 +93,3 @@ export function attackDice(sys, i) {
   if (!a) return "";
   return B.kamiDice(a.dice, `${a.name} ${a.note}`, profileOf(sys));
 }
-
-/** Damage this enemy takes: computeDamage on its profile */
-export const takeDamage = (sys, base, typeKey, opts = {}) => B.computeDamage(profileOf(sys), base, typeKey, opts);

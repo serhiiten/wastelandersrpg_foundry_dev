@@ -30,9 +30,6 @@ ok(!s.changed && s.to === 4, "no change at max");
 s = G.stepCounter(l2, id, -9);
 ok(s.to === 0 && G.currentLabel(s.counter) === "", "step clamps down");
 ok(G.stepCounter(l2, 999, 1) === null && G.removeCounter(l2, 999) === null, "unknown id");
-ok(G.logStep(l2[0], 2, 3) === "Лічильник гри «Лічильник»: 2 → 3 з 4 — Тривога", "log step with label: " + G.logStep(l2[0], 2, 3));
-ok(!G.logStep(l2[0], 3, 2).includes("—"), "no label, no dash");
-ok(G.logCreate(l2[0]).startsWith("Новий лічильник гри"), "log create");
 
 l2 = G.renameCounter(l2, id, " Нове ");
 ok(l2[0].name === "Нове", "rename");
@@ -65,10 +62,6 @@ ls = G.stepLocal(a.list, lid, 2);
 ok(ls.to === 8 && !ls.changed, "no change at max");
 ok(G.stepLocal(a.list, lid, -99).to === 0 && G.stepLocal(a.list, 99, 1) === null && G.removeLocal(a.list, 99) === null, "local clamps / unknown");
 ok(G.localState({ val: 0, die: 6 }) === "lost" && G.localState({ val: 6, die: 6 }) === "won" && G.localState({ val: 3, die: 6 }) === "", "local state");
-ok(G.logStepLocal({ name: "Т", die: 6 }, 2, 0, -2) === "«Т»: 2 → 0 (невдача) — загроза настала!", G.logStepLocal({ name: "Т", die: 6 }, 2, 0, -2));
-ok(G.logStepLocal({ name: "Т", die: 6 }, 5, 6, 1) === "«Т»: 5 → 6 (успіх) — проблему розв'язано", "log won");
-ok(G.logStepLocal({ name: "Т", die: 6 }, 3, 5, 2) === "«Т»: 3 → 5 (критичний успіх)", "log crit");
-ok(G.logCreateLocal({ name: "Т", die: 6, val: 4 }) === "Новий лічильник «Т»: d6, починається з 4", "log create");
 
 ok(G.removeLocal(a.list, lid).list.length === 0, "local remove");
 ok(G.renameLocal(a.list, lid, " Нове ")[0].name === "Нове" && G.renameLocal(a.list, lid, " ")[0].name === "Тунель", "local rename");
