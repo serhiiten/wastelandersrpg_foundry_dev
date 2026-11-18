@@ -573,7 +573,7 @@ function toggleBgPick(btn, scene) {
     <div class="pust-fp-list"><ul role="listbox">
       ${item(AUTO, "Авто за місцем", "", bgName(auto))}
       ${item(SAND, SAND_NAME, bgThumb(sys(), SAND))}
-      ${BATTLE_BACKGROUNDS.map((b) => item(b.key, `${b.key} ${b.name}`, bgThumb(sys(), b.key))).join("")}
+      ${BATTLE_BACKGROUNDS.map((b) => item(b.key, b.name, bgThumb(sys(), b.key))).join("")}
     </ul></div>`;
   document.body.append(el);
   placePop(el, btn);

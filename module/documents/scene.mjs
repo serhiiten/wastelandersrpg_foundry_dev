@@ -72,7 +72,7 @@ export function addSceneKindField(app, element) {
   root.querySelector("[data-pust-scene-kind]").insertAdjacentHTML("afterend", `<div class="form-group" data-pust-scene-bg>
     <label>Фон сцени</label>
     <div class="form-fields"><select name="${bgPath}">
-      ${opt(AUTO, "Авто за місцем")}${opt(SAND, SAND_NAME)}${BATTLE_BACKGROUNDS.map((b) => opt(b.key, `${b.key} ${b.name}`)).join("")}
+      ${opt(AUTO, "Авто за місцем")}${opt(SAND, SAND_NAME)}${BATTLE_BACKGROUNDS.map((b) => opt(b.key, b.name)).join("")}
     </select></div>
     <p class="hint">Авто: фон за «Місцем» панелі «Битва», власну картинку сцени не змінює. Інший пункт ставить вибраний фон.</p></div>`);
 }
