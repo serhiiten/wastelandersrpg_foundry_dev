@@ -5,7 +5,9 @@ import * as Rc from "../module/rules/core.mjs";
 import { createLogic } from "../module/rules/logic.mjs";
 import { createController } from "../module/rules/controller.mjs";
 import { PERK_USES, USE_BY_ID, backLine, bookText, isUsed, maxDamage, strangerOutcome, usedNames, usesFor, usePerk } from "../module/rules/perk-uses.mjs";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; console.log("FAIL " + m); } };
@@ -164,8 +166,15 @@ ok(strangerOutcome(11, "elite").dice === null && strangerOutcome(11, "boss").dic
   ok(backLine(usedNames(st), st) === "", "nothing marked came back: no line");
 }
 
-// Foundry 14 refuses Roll#evaluateSync for dice: «Застосувати» of every rolling perk died silently (playtest 2026-11-18, item 5)
-ok(!/\.evaluateSync\(/.test(readFileSync(new URL("../module/applications/perk-card.mjs", import.meta.url), "utf8")), "perk-card rolls without Roll#evaluateSync");
+// Foundry 14 refuses Roll#evaluateSync for dice: «Застосувати» of every rolling perk died silently, and so did the electricity
+// bonus, medicine on an enemy or caravan and an enemy's healing move (playtest 2026-11-18, item 5): none in module/ but the note
+// of helpers/dice.mjs
+{
+  const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : /\.mjs$/.test(e.name) ? [join(dir, e.name)] : []));
+  const root = fileURLToPath(new URL("../module", import.meta.url));
+  const bad = walk(root).filter((f) => !f.endsWith(join("helpers", "dice.mjs")) && /\.evaluateSync\(/.test(readFileSync(f, "utf8")));
+  ok(!bad.length, `Roll#evaluateSync in: ${bad.join(", ")}`);
+}
 
 console.log(`perk-uses: ${checks - failures}/${checks} passed`);
 if (failures) process.exit(1);

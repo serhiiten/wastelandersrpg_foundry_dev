@@ -16,6 +16,7 @@ import { battleType } from "./enemy-attack.mjs";
 import { postChat, isPublicMode } from "./chat.mjs";
 import { askGM, answerGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { rollDie } from "../helpers/dice.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -115,7 +116,7 @@ async function postSplit(alias, lines, card) {
 export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, head = "" } = {}) {
   const lines = [];
   const type = battleType(data.type);
-  const rollD6 = () => new Roll("1d6").evaluateSync().total;
+  const rollD6 = () => rollDie(6); // the electricity bonus; not Roll#evaluateSync, which Foundry 14 refuses for dice (helpers/dice.mjs)
   for (const uuid of tokenUuids) {
     const { tok, actor } = await targetOf(uuid);
     const prof = profileOf(actor);

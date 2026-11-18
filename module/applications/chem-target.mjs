@@ -18,6 +18,7 @@ import { readState, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
 import { askGM, answerGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { rollDie } from "../helpers/dice.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -125,7 +126,7 @@ export async function useOnTarget(giverActor, i) {
     healPlan = planHeal(key, D, {
       kind: target.type, machine, vehicle: target.system?.vehicle,
       hp: target.system?.hp?.value, max: target.system?.hp?.max,
-    }, (s) => new Roll(`1d${s}`).evaluateSync().total);
+    }, rollDie); // not Roll#evaluateSync: Foundry 14 refuses it for dice (helpers/dice.mjs)
     if (!healPlan.ok) { warn(healPlan.reason); return false; }
   } else { warn("На цю ціль нічого не подіє."); return false; }
 

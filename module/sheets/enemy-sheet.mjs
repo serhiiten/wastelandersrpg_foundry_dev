@@ -33,13 +33,13 @@ const HP_MAX = 999;
 const clone = (list) => (list ?? []).map((x) => ({ ...x }));
 
 /** A number or a dice expression («5», «2d6+1», «к6») rolled with Foundry's Roll; null when it is not one */
-function rollExpr(raw) {
+async function rollExpr(raw) {
   const t = String(raw ?? "").trim().replace(/\s+/g, "").replace(/к/gi, "d");
   if (!t) return null;
   const expr = t.replace(/(^|[+\-])d/gi, "$11d");
   if (!/^[+\-]?(\d*d\d+|\d+)([+\-](\d*d\d+|\d+))*$/i.test(expr) || !Roll.validate(expr)) return null;
   const roll = new Roll(expr);
-  roll.evaluateSync({ allowInteractive: false });
+  await roll.evaluate({ allowInteractive: false }); // async: Foundry 14 refuses evaluateSync for dice (playtest 2026-11-18)
   const dice = roll.dice.reduce((a, d) => a + d.number, 0);
   return { total: Math.max(0, roll.total), dice, text: dice ? `${expr} = ${roll.total}` : String(roll.total), expr };
 }
@@ -378,20 +378,20 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const lines = [];
     const h = checked ? moveHeal(mv.t) : null;
     if (h) {
-      const heal = (actor, name) => {
-        const r = rollExpr(h.expr);
+      const heal = async (actor, name) => {
+        const r = await rollExpr(h.expr);
         const hp = actor.system.hp;
         const now = Math.min(hp.max, hp.value + (r?.total ?? 0));
         return { now, line: now > hp.value ? `${esc(name)} +${now - hp.value}${r?.dice ? ` (${esc(r.text)})` : ""}` : "" };
       };
       if (!(h.group && h.others)) {
-        const own = heal(doc, doc.name);
+        const own = await heal(doc, doc.name);
         upd["system.hp.value"] = own.now;
         if (own.line) lines.push(own.line);
       }
       if (h.group) {
         for (const t of this.#zoneMates()) {
-          const res = heal(t.actor, t.name);
+          const res = await heal(t.actor, t.name);
           if (res.now > t.actor.system.hp.value) await t.actor.update({ "system.hp.value": res.now });
           if (res.line) lines.push(res.line);
         }
