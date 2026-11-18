@@ -74,6 +74,12 @@ export const bgThumb = (sysId, key) => (key === SAND || !BY_KEY.has(String(key))
 export const bgColor = (key) => BY_KEY.get(String(key))?.color ?? SAND_COLOR;
 export const bgName = (key) => (key === AUTO ? "Авто за місцем" : BY_KEY.get(String(key))?.name ?? SAND_NAME);
 
+/** Which of ours a picture is: a place's number, "sand", or null (the GM's own or none) */
+export function bgKeyOfSrc(src) {
+  const m = /(?:^|\/)systems\/[^/]+\/assets\/maps\/(?:battle-sand|battle\/p([1-6][1-6]))\.webp$/.exec(String(src ?? "").split("?")[0]);
+  return m ? (m[1] ?? SAND) : null;
+}
+
 /** Is the picture one of ours (sand or a place's, any system id) or none — the auto choice may replace only these */
 export function isOwnBackground(src) {
   if (!src) return true;

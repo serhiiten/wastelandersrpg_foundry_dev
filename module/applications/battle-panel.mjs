@@ -28,7 +28,7 @@ import { applyDamage, applyHeal, chosenTokens, warnNoTargets, clearTargets } fro
 import { fatePickList } from "./map-dice.mjs";
 import { sharedGet, sharedSet } from "../helpers/scene-shared.mjs";
 import { findBattleScene, findMapScene, isBattleScene } from "../helpers/default-scene.mjs";
-import { AUTO, SAND, SAND_NAME, BATTLE_BACKGROUNDS, wantedBg, bgThumb, bgName, isOwnBackground } from "../rules/battle-backgrounds.mjs";
+import { AUTO, SAND, SAND_NAME, BATTLE_BACKGROUNDS, wantedBg, bgThumb, bgName, bgKeyOfSrc } from "../rules/battle-backgrounds.mjs";
 import { bgChoice, bgNow, setBgChoice } from "../helpers/battle-background.mjs";
 import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
 import { chatType } from "./enemy-attack.mjs";
@@ -550,10 +550,10 @@ function togglePick(btn) {
 function bgButton(scene) {
   if (!scene || !isBattleScene(scene)) return "";
   const choice = bgChoice(scene), now = bgNow(scene);
-  const own = choice === AUTO && !isOwnBackground(now);
-  const key = wantedBg(choice, sharedGet("place"));
-  const img = own ? now : bgThumb(sys(), key);
-  const what = own ? "власна картинка сцени" : choice === AUTO ? `авто за місцем: ${bgName(key)}` : bgName(key);
+  // the picture the scene really shows (a place chosen before it had a background keeps the old one until it changes)
+  const key = bgKeyOfSrc(now) ?? (now ? null : SAND);
+  const img = key ? bgThumb(sys(), key) : now;
+  const what = !key ? "власна картинка сцени" : choice === AUTO ? `авто за місцем: ${bgName(key)}` : bgName(key);
   return `<button type="button" class="pust-md-bbg" data-battle="bgpick" title="Фон сцени (${esc(what)}). Вибрати інший" aria-label="Фон сцени" aria-haspopup="listbox"><img src="${esc(img)}" alt=""></button>`;
 }
 

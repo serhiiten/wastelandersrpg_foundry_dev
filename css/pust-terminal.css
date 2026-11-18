@@ -547,6 +547,7 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 /* the battle scene's background beside «Місце» (author, 2026-11-18): its picture in small, 4 : 3 */
 #pust-mapdock button.pust-md-bbg { flex: none; width: 40px; height: 30px; padding: 0; overflow: hidden; border-radius: 4px; }
 #pust-mapdock button.pust-md-bbg > img { display: block; width: 100%; height: 100%; object-fit: cover; border: 0; pointer-events: none; }
+#pust-mapdock .pust-md-bsetup:has(.pust-md-bbg) > .pust-md-bscene:not(:has(.pust-md-bbg))::after { content: ""; flex: none; width: 40px; }  /* the dice stay in one column */
 .pust-bgpick { width: 300px; }
 .pust-bgpick .pust-fp-list > ul { gap: 2px; }
 .pust-bgpick .pust-bg-row { width: 100%; height: 34px; margin: 0; padding: 2px 6px 2px 2px; display: flex; align-items: center; gap: 8px; text-align: left;

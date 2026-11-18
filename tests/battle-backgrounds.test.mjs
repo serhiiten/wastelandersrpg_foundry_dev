@@ -37,6 +37,8 @@ ok(B.bgThumb("x", "11") === "systems/x/assets/maps/battle/p11-thumb.webp", "thum
 ok(B.isOwnBackground("") && B.isOwnBackground(null), "none counts as ours");
 ok(B.isOwnBackground("systems/wastelanders/assets/maps/battle/p66.webp") && B.isOwnBackground("systems/wastelanders-dev/assets/maps/battle-sand.webp"), "ours, any system id");
 ok(!B.isOwnBackground("worlds/w/maps/cave.webp") && !B.isOwnBackground("systems/x/assets/maps/battle/p77.webp") && !B.isOwnBackground("systems/x/assets/maps/pustka.webp"), "the GM's own picture isn't ours");
+ok(B.bgKeyOfSrc("systems/wastelanders/assets/maps/battle/p54.webp") === "54" && B.bgKeyOfSrc("systems/x/assets/maps/battle-sand.webp?123") === "sand", "key of a picture");
+ok(B.bgKeyOfSrc("worlds/w/cave.webp") === null && B.bgKeyOfSrc("") === null, "not ours → null");
 ok(B.bgName("auto") === "Авто за місцем" && B.bgName("sand") === "Стандартний (пісок)" && B.bgName("23") === "Сховище", "names");
 ok(B.BATTLE_BACKGROUNDS.every((b) => /^#[0-9a-f]{6}$/i.test(b.color)), "every background has an edge colour");
 
