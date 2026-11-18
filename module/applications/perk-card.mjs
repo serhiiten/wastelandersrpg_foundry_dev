@@ -2,7 +2,7 @@
  * «Застосувати» of a perk (author, 2026-11-18; rules: module/rules/perk-uses.mjs): the check of the target (T) where the perk
  * needs one, the character's own change and mark (controller action `perk-use`), the chat card in the chat's mode (no forced
  * whisper: «потай» goes by the mode menu, author 2026-11-18), then the target's side.
- *   – «Цілющий дотик» (зцілення): 1d10 ОЗ to the one target (T), without a target to the character itself;
+ *   – «Цілющий дотик» (зцілення): 1d10 ОЗ to the one target (T); oneself too only as the target (author, 2026-11-18);
  *   – «Цілющий дотик» (повернення): the one target (T) with 0 ОЗ comes back with 1 ОЗ;
  *   – «Загадковий незнайомець»: the target enemy's category picks the outcome; the damage is the GM's to apply.
  * The target's side is written by the user when they own it, else by the active GM (the socket of chem-target.mjs).
@@ -42,15 +42,15 @@ export async function applyPerkUse(actor, id) {
   let target = null, cat = "";
   const tgs = targetTokens();
   if (u.auto === "heal" || u.auto === "back") {
-    if (tgs.length > 1 || (u.auto === "back" && tgs.length !== 1)) {
-      notify.warn(u.auto === "back" ? "Познач ціллю (T) рівно одного — того, кого повернути в сцену." : "Познач ціллю (T) одного — того, кого зцілити, або нікого, щоб зцілити себе.");
+    if (tgs.length !== 1) {
+      notify.warn(u.auto === "back" ? "Познач ціллю (T) рівно одного — того, кого повернути в сцену." : "Познач ціллю (T) рівно одного — того, кого зцілити (себе теж: познач свій токен).");
       return false;
     }
-    target = tgs[0] ?? null;
-    const ta = target?.actor ?? actor;
+    target = tgs[0];
+    const ta = target.actor;
     if (!ta.system?.hp) { notify.warn("У цілі немає ОЗ."); return false; }
     if (u.auto === "back" && Number(ta.system.hp.value) > 0) { notify.warn(`${target.name} не вибув: ОЗ більше за 0.`); return false; }
-    if (target && !(game.user.isGM || ta.isOwner) && !game.users.activeGM) { notify.warn("Чужу ціль лікує Доглядач, а його зараз немає в грі."); return false; }
+    if (!(game.user.isGM || ta.isOwner) && !game.users.activeGM) { notify.warn("Чужу ціль лікує Доглядач, а його зараз немає в грі."); return false; }
   }
   if (u.auto === "stranger" && tgs.length === 1 && tgs[0].actor.type === "enemy") cat = tgs[0].actor.system?.cat || "";
 
@@ -69,12 +69,12 @@ export async function applyPerkUse(actor, id) {
   // 4) the target's side
   const amount = res.heal ?? (res.back ? 1 : 0);
   if (amount) {
-    const uuid = target ? target.uuid : actor.uuid;
+    const uuid = target.uuid;
     const head = `${res.name} (${actor.name})`;
-    const ta = target?.actor ?? actor;
+    const ta = target.actor;
     if (game.user.isGM || ta.isOwner) await applyHeal([uuid], amount, { head });
     else askGM({ op: "chemHeal", token: uuid, amount, head }, "Цілющий дотик", "Перк використано, але ціль не зцілено.");
-    if (target) clearTargets();
+    clearTargets();
   }
   return true;
 }

@@ -474,6 +474,11 @@
 .wastelanders .pust-roller.pust-folded > button.pust-fold > b { padding: 3px 9px; border-radius: 3px; background: linear-gradient(180deg, var(--pu-rust-3), var(--pu-rust-2));
   color: var(--pu-sheet) !important; box-shadow: 0 2px 0 var(--pu-rust-1); }
 .wastelanders .pust-roller.pust-folded > button.pust-fold:hover > b { filter: brightness(1.1); }
+/* «Інша перевірка» inside the fold line, clear of its dashed frame (review 2026-11-18): Foundry's button padding 0 and line-height
+   22 px made the plate as tall as the line, so it touched and crossed the frame; the text on the left shrinks first */
+.wastelanders .pust-roller button.pust-fold { box-sizing: border-box; max-width: 100%; padding: 4px 5px 4px 8px !important; line-height: 1.25 !important; }
+.wastelanders .pust-roller button.pust-fold > span { flex: 1 1 auto; overflow-wrap: anywhere; }
+.wastelanders .pust-roller.pust-folded > button.pust-fold > b { flex: 0 0 auto; margin-left: auto; line-height: 18px !important; padding: 2px 9px; white-space: nowrap; }
 /* scrolled into view after a roll: clear of the sticky fold line on top and the roll strip at the bottom (item 4) */
 .pust-roller .rres { scroll-margin-top: 44px; }
 .pust-roller .rres button[data-r="dmg"] { scroll-margin-bottom: 72px; }
