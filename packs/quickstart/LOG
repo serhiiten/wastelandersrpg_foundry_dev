@@ -1,5 +1,3 @@
-2026/11/17-11:32:16.683 59c0 Delete type=3 #1
-2026/11/17-11:32:16.693 6ee8 Level-0 table #5: started
-2026/11/17-11:32:16.697 6ee8 Level-0 table #5: 112548 bytes OK
-2026/11/17-11:32:16.699 6ee8 Delete type=0 #3
-2026/11/17-11:32:16.700 6ee8 Manual compaction at level-0 from '!adventures!TOPRKVrwVy5BAdeQ' @ 72057594037927935 : 1 .. '!adventures!TOPRKVrwVy5BAdeQ' @ 0 : 0; will stop at (end)
+2026/11/19-00:36:06.388 75a8 Recovering log #4
+2026/11/19-00:36:06.393 75a8 Delete type=0 #4
+2026/11/19-00:36:06.394 75a8 Delete type=3 #2

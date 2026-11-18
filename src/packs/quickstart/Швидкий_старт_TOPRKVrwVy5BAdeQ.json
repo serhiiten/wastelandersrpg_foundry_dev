@@ -9200,8 +9200,8 @@
             "top": 4
           },
           "background": {
-            "color": "#c8ad7f",
-            "src": "systems/wastelanders-dev/assets/maps/battle-sand.webp",
+            "color": "#73412d",
+            "src": "systems/wastelanders-dev/assets/maps/battle/p22.webp",
             "tint": "#ffffff",
             "alphaThreshold": 0.75
           },
@@ -9245,13 +9245,14 @@
         "wastelanders-dev": {
           "battleScene": 2,
           "battlePlace": "Каньйон",
-          "battleHazard": ""
+          "battleHazard": "",
+          "battleBg": "22"
         }
       },
       "_id": "ZxrqfNkXOLM6qUUk",
       "active": false,
       "navOrder": 0,
-      "thumb": "systems/wastelanders-dev/assets/maps/battle-sand-thumb.webp",
+      "thumb": "systems/wastelanders-dev/assets/maps/battle/p22-thumb.webp",
       "shiftX": 0,
       "shiftY": 0,
       "initial": {
@@ -10076,8 +10077,8 @@
             "top": 4
           },
           "background": {
-            "color": "#c8ad7f",
-            "src": "systems/wastelanders-dev/assets/maps/battle-sand.webp",
+            "color": "#9b9179",
+            "src": "systems/wastelanders-dev/assets/maps/battle/p14.webp",
             "tint": "#ffffff",
             "alphaThreshold": 0.75
           },
@@ -10121,13 +10122,14 @@
         "wastelanders-dev": {
           "battleScene": 2,
           "battlePlace": "Покинута заправка",
-          "battleHazard": ""
+          "battleHazard": "",
+          "battleBg": "14"
         }
       },
       "_id": "cRu1SDvxoGthxtzU",
       "active": false,
       "navOrder": 0,
-      "thumb": "systems/wastelanders-dev/assets/maps/battle-sand-thumb.webp",
+      "thumb": "systems/wastelanders-dev/assets/maps/battle/p14-thumb.webp",
       "shiftX": 0,
       "shiftY": 0,
       "initial": {
@@ -10599,8 +10601,8 @@
             "top": 4
           },
           "background": {
-            "color": "#c8ad7f",
-            "src": "systems/wastelanders-dev/assets/maps/battle-sand.webp",
+            "color": "#a3957c",
+            "src": "systems/wastelanders-dev/assets/maps/battle/p21.webp",
             "tint": "#ffffff",
             "alphaThreshold": 0.75
           },
@@ -10644,13 +10646,14 @@
         "wastelanders-dev": {
           "battleScene": 2,
           "battlePlace": "Руїни міста",
-          "battleHazard": ""
+          "battleHazard": "",
+          "battleBg": "21"
         }
       },
       "_id": "OZg0SW4x9WXWt4wu",
       "active": false,
       "navOrder": 0,
-      "thumb": "systems/wastelanders-dev/assets/maps/battle-sand-thumb.webp",
+      "thumb": "systems/wastelanders-dev/assets/maps/battle/p21-thumb.webp",
       "shiftX": 0,
       "shiftY": 0,
       "initial": {
@@ -11471,8 +11474,8 @@
             "top": 4
           },
           "background": {
-            "color": "#c8ad7f",
-            "src": "systems/wastelanders-dev/assets/maps/battle-sand.webp",
+            "color": "#6f695b",
+            "src": "systems/wastelanders-dev/assets/maps/battle/p44.webp",
             "tint": "#ffffff",
             "alphaThreshold": 0.75
           },
@@ -11516,13 +11519,14 @@
         "wastelanders-dev": {
           "battleScene": 2,
           "battlePlace": "Котеджне містечко",
-          "battleHazard": ""
+          "battleHazard": "",
+          "battleBg": "44"
         }
       },
       "_id": "KE83gT2jvXPYdR1G",
       "active": false,
       "navOrder": 0,
-      "thumb": "systems/wastelanders-dev/assets/maps/battle-sand-thumb.webp",
+      "thumb": "systems/wastelanders-dev/assets/maps/battle/p44-thumb.webp",
       "shiftX": 0,
       "shiftY": 0,
       "initial": {
