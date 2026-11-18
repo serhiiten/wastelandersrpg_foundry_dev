@@ -1,6 +1,6 @@
 // The release script's pure parts (tools/release.mjs; author's choice, 2026-11-18). Run: node tests/release.test.mjs
 import { readFileSync } from "node:fs";
-import { nextVersion, bumpSystemJson, repoSlug, buildPlan } from "../tools/release.mjs";
+import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal } from "../tools/release.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
@@ -35,6 +35,13 @@ ok(!plan.some((s) => /CHANGELOG/.test(s)), "no CHANGELOG step");
 const onMain = buildPlan({ branch: "main", dirty: true, version: "1", next: "2", message: "", ahead: 0, slug: "a/b", timeout: 5 });
 ok(!onMain.some((s) => /merge --no-edit/.test(s)), "from main: no branch merge");
 ok(onMain[0].includes("NOT CLEAN"), "a dirty tree is shown in the plan");
+
+// The stable repository gets this script too: only the DEV id may be released (author, 2026-11-18)
+ok(refusal("wastelanders-dev") === "", "the DEV id is allowed");
+ok(refusal("wastelanders").includes("only the DEV system"), "the stable id is refused");
+ok(refusal(undefined) !== "", "a missing id is refused");
+ok(buildPlan({ refusal: refusal("wastelanders"), branch: "main", dirty: false, version: "2.1.0", next: "2.1.1", message: "m", ahead: 0, slug: "a/b", timeout: 5 })[0].startsWith("✗ REFUSED"), "the plan shows the refusal first");
+ok(!buildPlan({ refusal: "", branch: "main", dirty: false, version: "1", next: "2", message: "", ahead: 0, slug: "a/b", timeout: 5 }).some((s) => /REFUSED/.test(s)), "no refusal line for DEV");
 
 console.log(`release: ${checks - failures}/${checks} checks passed`);
 if (failures) process.exit(1);

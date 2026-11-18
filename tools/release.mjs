@@ -36,6 +36,15 @@ export function bumpSystemJson(text, version) {
   return out;
 }
 
+/** The only system id this script may release (author, 2026-11-18). The stable repository gets this
+ *  file too, through `git archive` of DEV; there `--go` must refuse, since a stable version reaches real
+ *  users and is promoted by hand (docs/decisions/tools-and-ports.md). Returns the reason, or "" when allowed. */
+export const DEV_ID = "wastelanders-dev";
+export function refusal(systemId) {
+  return systemId === DEV_ID ? ""
+    : `system.json has id «${systemId}», not «${DEV_ID}»: this script releases only the DEV system. A stable version is promoted by hand (docs/decisions/tools-and-ports.md)`;
+}
+
 /** "https://github.com/a/b.git" or "git@github.com:a/b.git" → "a/b" */
 export function repoSlug(url) {
   const m = /github\.com[/:]([^/]+\/[^/]+?)(\.git)?\/?$/.exec(url.trim());
@@ -46,6 +55,7 @@ export function repoSlug(url) {
 /** The steps, in order, for a given state. Text only; doing them is below. */
 export function buildPlan(s) {
   const steps = [];
+  if (s.refusal) steps.push(`✗ REFUSED — ${s.refusal}`);
   steps.push(`Check: the working tree is clean${s.dirty ? "  ✗ NOT CLEAN — commit or put the changes aside first" : "  ✓"}`);
   steps.push(`git fetch origin; main must not differ from origin/main except by being behind`);
   steps.push(`npm test (the whole fast suite)`);
@@ -127,16 +137,17 @@ async function main() {
   const slug = repoSlug(git("remote", "get-url", "origin"));
   const dirty = git("status", "--porcelain") !== "";
   const sysText = readFileSync("system.json", "utf8");
-  const version = JSON.parse(sysText).version;
+  const { version, id } = JSON.parse(sysText);
   const next = o.version || nextVersion(version);
   const ahead = branch === "main" ? 0 : Number(git("rev-list", "--count", `main..${branch}`));
-  const state = { branch, dirty, version, next, message: o.message, ahead, slug, timeout: o.timeout };
+  const state = { refusal: refusal(id), branch, dirty, version, next, message: o.message, ahead, slug, timeout: o.timeout };
 
   console.log(`${o.go ? "RELEASE" : "DRY RUN (nothing changes; add --go -m \"what\" to release)"} — ${slug}, branch ${branch}\n`);
   buildPlan(state).forEach((s, i) => console.log(`${String(i + 1).padStart(2)}. ${s}`));
   if (!o.go) return;
 
   console.log("");
+  if (state.refusal) throw new Error(state.refusal);
   if (dirty) throw new Error("The working tree is not clean");
   if (!o.message) throw new Error('Say what is in the release: -m "…"');
 
