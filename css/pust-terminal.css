@@ -642,6 +642,17 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock .pust-md-suprow > .pust-md-supspend:hover:not(:disabled) { color: #fff; border-color: #f0a070; box-shadow: 0 0 6px rgba(240,160,112,.45); }
 #pust-mapdock .pust-md-fdrow > button { padding: 0 6px; font-size: 12px; letter-spacing: .01em; gap: 5px; }
 #pust-mapdock .pust-md-fdrow > .pust-md-fdspend { flex: 1.3 1 0; }
+/* players' «Караван» under Fate / Припаси (author, 2026-11-18): the caravans' sheet colour, lit while a sheet is open; with
+   several caravans a list under it */
+#pust-mapdock .pust-md-carrow > .pust-md-car { background: linear-gradient(180deg, #6f6a52, #4e4a38); color: #f1ead2; border-color: #2e2b1f; }
+#pust-mapdock .pust-md-carrow > .pust-md-car:hover, #pust-mapdock .pust-md-carrow > .pust-md-car.on { color: #fff; border-color: #f4d11a; box-shadow: 0 0 6px rgba(244,209,26,.45); }
+#pust-mapdock .pust-md-panel.pust-md-carpick { opacity: 1; } /* a pop-up list: always opaque */
+#pust-mapdock .pust-md-carpick[hidden], #pust-mapdock .pust-md-unit.folded > .pust-md-carpick { display: none; }
+#pust-mapdock .pust-md-carpick > .pust-md-body { display: flex; flex-direction: column; gap: 4px; padding: 6px; }
+#pust-mapdock .pust-md-carone { display: flex; align-items: center; gap: 8px; width: 100%; height: 30px; padding: 0 8px; justify-content: flex-start; text-align: left; }
+#pust-mapdock .pust-md-carone > span { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#pust-mapdock .pust-md-carone > small { flex: none; opacity: .75; font-size: 11px; }
+#pust-mapdock .pust-md-carone.on { border-color: #f4d11a; }
 
 /* «Перейти на бойову мапу» / «Перейти на Мапу Пустки» at the panel's foot (author, 2026-11-16) */
 #pust-mapdock .pust-md-bgoto { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 32px; margin-top: 2px;

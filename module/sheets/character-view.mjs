@@ -171,6 +171,9 @@ export function buildView(st, d, L, ui = {}) {
       eruditeOptions: [{ v: "", n: "— навичка —", sel: !p.note }].concat(grantOptions(st, d, "Ерудит", p.note).map((s) => ({ v: s, n: s, sel: p.note === s }))),
     };
   });
+  // perks a feat gives for free (core.mjs FEAT…freePerk; author, 2026-11-18): rows of the perks block, marked, no «×», no slot
+  const freePerkRows = st.feats.filter((fn) => FEAT[fn]?.freePerk)
+    .map((fn) => ({ n: FEAT[fn].freePerk, from: fn, text: PERK[FEAT[fn].freePerk]?.d || "" }));
   const feats = st.feats.map((fn, i) => {
     const ev = d.featEval[i] || { ok: true, why: [] };
     const F = FEAT[fn];
@@ -394,7 +397,7 @@ export function buildView(st, d, L, ui = {}) {
     free,
     attrs, points: { left: d.left, total: d.points, spent: d.spent },
     skills, skillBudget,
-    perks, perkSlots: d.perkSlots, perksCounted: countedPerks(st), freePerks: d.freePerks,
+    perks, perkSlots: d.perkSlots, perksCounted: countedPerks(st), freePerks: d.freePerks, freePerkRows,
     feats, featsCounted: countedFeats(st),
     pick: ui.pick || "", q: ui.q || "", showAll: !!ui.showAll, perkPicker, featPicker,
     imps, xp: st.xp || 0, xpSpent: d.xpSpent, xpLeft: d.xpLeft, modelBonus: st.exp,

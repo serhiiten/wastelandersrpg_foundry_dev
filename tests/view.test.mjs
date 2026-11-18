@@ -65,6 +65,17 @@ for (let i = 0; i < 200; i++) {
   console.log("custom species / designer drugs in the view: OK");
 }
 
+// ---- perks a feat gives, as rows of the perks block (author, 2026-11-18) ----
+{
+  R.setRandom(R.mulberry32(7));
+  const st = R.rollCharacter(null);
+  st.species = "ghoul"; st.feats = ["Здичавіння", "Сяючий"];
+  const v = buildView(st, R.compute(st), createLogic({ st }), {});
+  const rows = v.freePerkRows.map((r) => `${r.n}<${r.from}`);
+  if (rows.join() !== "Канібал<Здичавіння,Регенерація<Сяючий" || !v.freePerkRows.every((r) => r.text)) { errors++; console.log("FAIL free perk rows: " + rows.join()); }
+  else console.log("free perk rows: OK");
+}
+
 R.setRandom(null);
 console.log(`views ${views}, errors ${errors}`);
 console.log(errors ? "FAIL" : "OK");

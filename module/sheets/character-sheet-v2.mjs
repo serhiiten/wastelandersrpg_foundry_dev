@@ -106,7 +106,8 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     const pk = perkSection(st, d);
     for (const p of context.v.perks ?? []) p.uses = pk.uses.filter((u) => !u.feat && u.perk === p.n);
     for (const f of context.v.feats ?? []) f.uses = pk.uses.filter((u) => u.feat && u.perk === f.n);
-    context.freeUses = pk.uses.filter((u) => !u.feat && !st.perks.some((p) => p.n === u.perk));
+    for (const p of context.v.freePerkRows ?? []) p.uses = pk.uses.filter((u) => !u.feat && u.perk === p.n);
+    context.freeUses = pk.uses.filter((u) => !u.feat && !st.perks.some((p) => p.n === u.perk) && !(context.v.freePerkRows ?? []).some((p) => p.n === u.perk));
     // «Компактний» (author, 2026-11-17; feedback p19): opens full until the user switches, then remembered per character
     if (this.ui.compact === undefined) this.ui.compact = compactStored(this.document);
     context.compact = !!this.ui.compact;

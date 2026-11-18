@@ -396,6 +396,12 @@ const boxOf = (el) => {
 };
 
 /** The layout rules on one window at its narrowest width and at its usual one; the window keeps its place */
+/** `globalThis.pustAuditActor = "<id>"` (2026-11-18): the sheets' scenarios take this actor when it is of their type */
+function auditActor(type) {
+  const x = game.actors.get(String(globalThis.pustAuditActor ?? ""));
+  return x?.type === type && x.visible ? x : null;
+}
+
 async function layoutAt(a, app, label) {
   const pos = { ...app.position };
   for (const w of [100, app.options?.position?.width ?? 600]) {
@@ -549,7 +555,7 @@ const SCENARIOS = {
   /** Character and caravan sheets: the quick access block */
   async sheets(a) {
     for (const type of ["character", "caravan"]) {
-      const actor = game.actors.find((x) => x.type === type && x.visible);
+      const actor = auditActor(type) ?? game.actors.find((x) => x.type === type && x.visible);
       if (!actor) { a.skip(type, "немає актора"); continue; }
       const was = actor.sheet.rendered;
       await actor.sheet.render({ force: true }); await sleep(1200);
@@ -752,7 +758,7 @@ const SCENARIOS = {
       }
     };
     for (const [type, label, opts] of [["character", "аркуш персонажа", {}], ["caravan", "аркуш каравану", {}], ["enemy", "картка ворога", { edit: '[data-action="editToggle"]' }], ["place", "картка місця", {}]]) {
-      const actor = game.actors.find((x) => x.type === type && x.visible);
+      const actor = auditActor(type) ?? game.actors.find((x) => x.type === type && x.visible);
       if (!actor) { a.scenario = label; a.skip("найвужча ширина", "немає актора"); continue; }
       await run(actor.sheet, `${label} «${actor.name}»`, opts);
     }
