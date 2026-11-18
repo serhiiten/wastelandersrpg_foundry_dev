@@ -6,7 +6,7 @@
  * Mirrors the HTML terminal's map notes (map.js: MAP_NOTE, mapNoteHtml, fold/min).
  *
  * Players make stickers too (author, 2026-11-18): visible to all, signed with the player's name (flag `author`), and any
- * player edits any player's sticker; what Foundry does not let a player write goes through the active GM (`noteWrite`, socket
+ * player edits any sticker players see (the GM's too); what Foundry does not let a player write goes through the active GM (`noteWrite`, socket
  * op `mapNote`). A sticker is resized by its bottom-right corner (whole cells, 2×2 at least).
  *
  * Wiring (module/wastelanders.mjs): `initMapNotes()` once in `init` (registers the placeable class), `readyMapNotes()` once in `ready`.
@@ -35,9 +35,10 @@ function noteOf(doc) {
 }
 /** Foundry lets this user write the drawing itself (the GM, the drawing's author) */
 const canWrite = (doc) => !!doc && doc.canUserModify(game.user, "update");
-/** a player's sticker (author, 2026-11-18): any player may edit it, through the GM when it is not their own */
-const isPlayersNote = (doc) => !!noteOf(doc)?.author;
-const canEdit = (doc) => canWrite(doc) || (!game.user.isGM && isPlayersNote(doc) && !!game.users.activeGM);
+/** any sticker players see (author, 2026-11-18: «усі правлять», the GM's too): any player may edit it, through the GM when it
+ *  is not their own; a hidden one stays the GM's */
+const isSharedNote = (doc) => !!noteOf(doc) && !doc.hidden;
+const canEdit = (doc) => canWrite(doc) || (!game.user.isGM && isSharedNote(doc) && !!game.users.activeGM);
 const NO_GM = "Чужі примітки змінює Доглядач, а його зараз немає в грі.";
 /** a sticker's size: the corner being dragged, else its shape */
 const sizeOf = (doc, flag, p = doc?.object) => noteSize(flag, canvas.dimensions.size, p?.pustResize ?? doc.shape);
@@ -619,7 +620,7 @@ async function applyNoteRequest(msg) {
     }], { keepId: true });
   }
   const doc = scene.drawings.get(String(msg.id));
-  if (!doc || !isPlayersNote(doc)) throw new Error("Це не примітка гравця.");
+  if (!doc || !isSharedNote(doc)) throw new Error("Цю примітку гравці не бачать.");
   if (msg.act === "delete") return doc.delete();
   if (msg.act !== "update") throw new Error("Невідома дія з приміткою.");
   const flat = foundry.utils.flattenObject(msg.data || {});
