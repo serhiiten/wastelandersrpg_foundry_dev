@@ -221,7 +221,7 @@ function useItem(i){
   const o=st.other[i]; if(!o) return; const key=drugOf(o.n); if(!key) return;
   const D=DRUGS[key]; const d=compute(st); const c=chem();
   const robotBody = st.species==='robot' && !d.has('Кіборг');
-  if(D.robot && st.species!=='robot'){ toast('«'+key+'» працює лише на механізми. Щоб полагодити союзника-робота, просто зменш кількість.','bad'); return; }
+  if(D.robot && st.species!=='robot'){ toast('«'+key+'» працює лише на механізми. Щоб полагодити робота чи караван, познач його ціллю (T) і натисни «На ціль».','bad'); return; }
   if(D.robot && st.species==='robot' && !robotBody){ toast('«'+key+'» не діє на кіборгів: у тебе живе тіло, тож тебе лікують як інші види.','bad'); return; }
   if(D.food && robotBody){ toast('Роботи не їдять.','bad'); return; }
   if(D.loot){ st.loot=Object.assign({yao:false,egg:false}, st.loot||{}); if(st.loot[D.loot]){ toast('Цей бонус персонаж уже отримав — лише раз на персонажа.','bad'); return; } }

@@ -17,6 +17,7 @@ import { postChat, isPublicMode } from "./chat.mjs";
 import { askGM, answerGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { rollDie } from "../helpers/dice.mjs";
+import { deferSuperDice } from "./caravan-superdice.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -53,7 +54,7 @@ async function targetOf(uuid) {
   return { tok: doc, actor: doc?.actor ?? null };
 }
 
-export async function applyHeal(tokenUuids, amount, { head = "" } = {}) {
+export async function applyHeal(tokenUuids, amount, { head = "", defer = 0 } = {}) {
   const lines = [];
   for (const uuid of tokenUuids) {
     const { tok, actor } = await targetOf(uuid);
@@ -62,7 +63,15 @@ export async function applyHeal(tokenUuids, amount, { head = "" } = {}) {
     const hp = Math.min(max, hp0 + Math.max(0, int(amount))); // never below 0 (the general rule)
     if (hp !== hp0) await actor.update({ "system.hp.value": hp });
     const name = esc(tok?.name || actor.name);
-    const row = { name, delta: hp - hp0, gain: true, hp0, hp, max };
+    // Суперстимпак / Критфікс on a target (author, 2026-11-18): a caravan keeps the deferred die and the GM's group
+    // «Кінець сцени» rolls it (caravan-defib.mjs); an enemy's the GM rolls himself
+    let note = "";
+    if (defer > 0) {
+      note = actor.type === "caravan"
+        ? esc(`Відкладено 1d6 шкоди на кінець сцени (усього кісток: ${await deferSuperDice(actor, defer)}). Система кине їх сама на «Кінець сцени» Доглядача.`)
+        : esc("Наприкінці сцени — 1d6 шкоди, ігноруючи броню: кидає Доглядач.");
+    }
+    const row = { name, delta: hp - hp0, gain: true, hp0, hp, max, note };
     lines.push({ full: targetRow({ ...row, showHp: true }), short: targetRow({ ...row, showHp: hpOpen(actor) }) });
   }
   const card = (ls, gmNote = "") => applyCard({ heal: true, icon: "fa-kit-medical", title: `Лікування${head ? `: ${esc(head)}` : ""}`, chips: gmNote, rows: ls });

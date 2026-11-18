@@ -82,7 +82,7 @@ export function readyChemTarget() {
   game.socket.on(SOCKET(), async (msg) => {
     if (!activeGmHere()) return;
     if (msg?.op === "chemOnPc") await answerGM(msg, () => applyOnPc(String(msg.target), msg.row || {}, String(msg.giver || ""), msg.def));
-    else if (msg?.op === "chemHeal") await answerGM(msg, () => applyHeal([String(msg.token)], Number(msg.amount) || 0, { head: String(msg.head || "") }));
+    else if (msg?.op === "chemHeal") await answerGM(msg, () => applyHeal([String(msg.token)], Number(msg.amount) || 0, { head: String(msg.head || ""), defer: Number(msg.defer) || 0 }));
   });
 }
 
@@ -140,8 +140,9 @@ export async function useOnTarget(giverActor, i) {
     else askGM({ op: "chemOnPc", target: target.uuid, row, giver, def }, "Доза на ціль", "Дозу витрачено, але на ціль вона не подіяла.");
   } else {
     const head = `${healPlan.label} (${giver})`;
-    if (canWrite) await applyHeal([tok.uuid], healPlan.amount, { head });
-    else askGM({ op: "chemHeal", token: tok.uuid, amount: healPlan.amount, head }, "Доза на ціль", "Дозу витрачено, але на ціль вона не подіяла.");
+    const defer = healPlan.defer || 0;
+    if (canWrite) await applyHeal([tok.uuid], healPlan.amount, { head, defer });
+    else askGM({ op: "chemHeal", token: tok.uuid, amount: healPlan.amount, head, defer }, "Доза на ціль", "Дозу витрачено, але на ціль вона не подіяла.");
   }
   clearTargets();
   return true;

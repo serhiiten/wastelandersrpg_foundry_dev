@@ -20,16 +20,25 @@ const caravan = (vehicle, hp = 5, max = 30) => ({ kind: "caravan", vehicle, hp, 
 let p = planHeal("Стимпак", DRUGS["Стимпак"], enemy(false), six);
 ok(p.ok && p.amount === DRUGS["Стимпак"].heal.base, "stimpak heals a living enemy");
 p = planHeal("Суперстимпак", DRUGS["Суперстимпак"], enemy(false), six);
-ok(p.ok && p.amount === 7, "super stimpak: 1d6 + 4 (no deferred dice)");
+ok(p.ok && p.amount === 7 && p.defer === 1, "super stimpak: 1d6 + 4, 1d6 deferred (the GM rolls an enemy's)");
 p = planHeal("Хотфікс", DRUGS["Хотфікс"], enemy(true), six);
 ok(p.ok && p.amount === DRUGS["Хотфікс"].heal.base, "Хотфікс heals a robot enemy");
 p = planHeal("Критфікс", DRUGS["Критфікс"], caravan("tachka"), six);
-ok(p.ok && p.amount === 7, "Критфікс repairs a «Тачка»");
+ok(p.ok && p.amount === 7 && p.defer === 1, "Критфікс repairs a «Тачка», 1d6 deferred");
+// any caravan takes the machines' meds and nothing else (author, 2026-11-18, after the playtest)
+p = planHeal("Критфікс", DRUGS["Критфікс"], caravan("brahmins"), six);
+ok(p.ok && p.amount === 7 && p.defer === 1, "Критфікс repairs a brahmins' caravan, 1d6 deferred");
+p = planHeal("Хотфікс", DRUGS["Хотфікс"], caravan("brahmins"));
+ok(p.ok && p.amount === DRUGS["Хотфікс"].heal.base, "Хотфікс repairs a brahmins' caravan");
+ok(planHeal("Ребут", DRUGS["Ребут"], caravan("brahmins", 0)).ok, "Ребут brings back a brahmins' caravan at 0 ОЗ");
+ok(!planHeal("Ребут", DRUGS["Ребут"], caravan("brahmins", 3)).ok, "Ребут: only at 0 ОЗ");
+p = planHeal("Стимпак", DRUGS["Стимпак"], caravan("brahmins"));
+ok(!p.ok && /ремонт або ліки для механізмів/.test(p.reason), `stimpak not on brahmins, says what does: «${p.reason}»`);
 ok(!planHeal("Хотфікс", DRUGS["Хотфікс"], enemy(false)).ok, "Хотфікс not on a living enemy");
 ok(!planHeal("Стимпак", DRUGS["Стимпак"], enemy(true)).ok, "stimpak not on a robot");
 ok(!planHeal("Стимпак", DRUGS["Стимпак"], caravan("tachka")).ok, "stimpak not on a «Тачка»");
 for (const k of Object.keys(DRUGS)) {
-  ok(!planHeal(k, DRUGS[k], caravan("brahmins")).ok, "brahmins take nothing: " + k);
+  if (!DRUGS[k].robot) ok(!planHeal(k, DRUGS[k], caravan("brahmins")).ok, "brahmins take no living meds: " + k);
   ok(!planHeal(k, DRUGS[k], { kind: "place", hp: 1, max: 1 }).ok, "a place takes nothing: " + k);
   const D = DRUGS[k];
   if (!D.heal && !D.superHeal && !REVIVE.has(k)) ok(!planHeal(k, D, enemy(!!D.robot)).ok, "non-healing, no effect: " + k);

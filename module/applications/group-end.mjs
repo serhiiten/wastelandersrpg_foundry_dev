@@ -13,6 +13,7 @@ import { sharedSet } from "../helpers/scene-shared.mjs";
 import { GROUP_END, ownPart, resetMoves } from "../rules/group-end.mjs";
 import { backLine, chemReset, usedNames } from "../rules/perk-uses.mjs";
 import { clearDefibs } from "./caravan-defib.mjs";
+import { rollCaravanSuperDice } from "./caravan-superdice.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -116,6 +117,8 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
     }
   }
   await clearDefibs(); // the caravans' «Дефібрилятор» marks end with the scene (author, 2026-11-18)
+  // the caravans' deferred dice of «Критфікс» are rolled and taken now, a row each in the card (author, 2026-11-18)
+  rows.push(...await rollCaravanSuperDice());
   const sharedUpd = { round: 1 };
   if (fate != null) sharedUpd.fate = Math.max(0, fate);
   await sharedSet(sharedUpd);
