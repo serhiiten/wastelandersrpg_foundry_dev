@@ -162,8 +162,23 @@ function setIssuesDemo(on) {
     + ISSUES_DEMO.map(([lvl, msg]) => `<div class="pust-issue ${lvl}">${msg}</div>`).join("");
   nav.before(box);
 }
-const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false };
+const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false, compact: null };
+/**
+ * «Компактний режим» (author, 2026-11-18): the step switches the sheet on show to compact by its own switch, and the view it
+ * had comes back when the step is left or the tour ends, so the demonstration never changes the user's remembered choice
+ */
+async function restoreCompact() {
+  const app = opened.compact;
+  opened.compact = null;
+  if (!app?.ui?.compact) return;
+  const full = app.element?.querySelector('[data-action="compactToggle"][data-v="0"]');
+  if (app.rendered && full) { full.click(); await sleep(250); return; }
+  // the sheet was closed meanwhile: its state and the stored choice as the sheets keep them (character-sheet-v2.mjs compactKey)
+  app.ui.compact = false;
+  try { localStorage.removeItem(`pustelnyky-compact-${game.user.id}-${app.document.id}`); } catch (_) { /* not kept */ }
+}
 async function closeTransient(keep = new Set()) {
+  if (opened.compact && !keep.has("compactDemo")) await restoreCompact();
   if (opened.issues && !keep.has("issuesDemo")) { setIssuesDemo(false); opened.issues = false; }
   if (opened.tok && !keep.has("tokenDemo") && !keep.has("caravanToken")) { await (await import("../canvas/token-demo.mjs")).setTokenDemo(false); opened.tok = false; }
   if (opened.zframe && !keep.has("zoneFrame")) { await (await import("../canvas/battle-zones.mjs")).setZoneFrame(null); opened.zframe = false; }
@@ -232,6 +247,20 @@ export const PREPARE = {
     if (d && !d.open) { (d.querySelector(":scope > summary") ?? d).click(); await sleep(250); }
   },
   click: async (sel) => { document.querySelector(sel)?.click(); await sleep(250); },
+  /** the shown character's or caravan's sheet switched to «Компактний» (restoreCompact brings back its view) */
+  compactDemo: async (kind) => {
+    const app = [...tracked].find(([a, k]) => k === kind && a.rendered)?.[0];
+    if (!app || app.ui?.compact) return;
+    const btn = app.element?.querySelector('[data-action="compactToggle"][data-v="1"]');
+    if (!btn) return;
+    opened.compact = app;
+    btn.click();
+    await waitFor(`#${app.id} .pust-compact`);
+    // from the top, so the switch shows (the full sheet's scroll came back with the render: the view opened in the middle)
+    const top = () => app.element?.querySelectorAll(".window-content").forEach((x) => { x.scrollTop = 0; });
+    await sleep(300); top();
+    await sleep(200); top();
+  },
   /** «Зробити перевірку» of the user's character, opened when it isn't open yet (the sheet's button) */
   check: async () => {
     // already open (perhaps redrawing just now): wait for it rather than press the button, which would close it
@@ -657,8 +686,8 @@ export class PustTour extends foundry.nue.Tour {
     this.#unwatch();
     document.body.classList.remove("pust-touring");
     super.exit();
-    closeAll(); // the windows the tour opened go with it
-    closeTransient();
+    // the sheet's own view first, then the windows the tour opened go with it
+    restoreCompact().finally(() => { closeAll(); closeTransient(); });
   }
 
   /** The last step: the tour is done, the next one of the chain is offered (our words, not Foundry's) */
@@ -667,6 +696,7 @@ export class PustTour extends foundry.nue.Tour {
     this.#unwatch();
     document.body.classList.remove("pust-touring");
     const done = await this.progress(this.steps.length);
+    await restoreCompact();
     await closeAll();
     await closeTransient();
     // the chain's next tour, even one done before (author, 2026-11-17: Foundry keeps tours' progress in the browser, not the
