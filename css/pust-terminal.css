@@ -215,13 +215,14 @@
    lit (.on) while the terminal is open */
 #ui-left-column-2 { position: relative; }
 #ui-left-column-2 > .wastelanders-terminal-dock { position: absolute; z-index: 5; pointer-events: none; }
+#ui-left-column-2 > .wastelanders-terminal-dock { display: flex; gap: 8px; }
 #ui-left-column-2 > .wastelanders-terminal-dock > button { pointer-events: auto; }
-.wastelanders-terminal-dock .wastelanders-terminal-open { display: inline-flex; align-items: center; gap: 7px; width: max-content; height: 32px; margin: 0; padding: 0 12px;
+.wastelanders-terminal-dock :is(.wastelanders-terminal-open, .wastelanders-moves-open) { display: inline-flex; align-items: center; gap: 7px; width: max-content; height: 32px; margin: 0; padding: 0 12px;
   background: linear-gradient(180deg, rgba(255,215,195,.18), rgba(0,0,0,.15)), #a3261a; color: #fbeee4;
   border: 1px solid #d8371f; border-radius: 5px; box-shadow: 0 2px 6px rgba(0,0,0,.5);
   font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
-.wastelanders-terminal-dock .wastelanders-terminal-open:hover { background: linear-gradient(180deg, rgba(255,215,195,.25), rgba(0,0,0,.1)), #c22e1e; color: #fff; }
-.wastelanders-terminal-dock .wastelanders-terminal-open > i { font-size: 13px; }
+.wastelanders-terminal-dock :is(.wastelanders-terminal-open, .wastelanders-moves-open):hover { background: linear-gradient(180deg, rgba(255,215,195,.25), rgba(0,0,0,.1)), #c22e1e; color: #fff; }
+.wastelanders-terminal-dock :is(.wastelanders-terminal-open, .wastelanders-moves-open) > i { font-size: 13px; }
 .wastelanders-terminal-dock .wastelanders-terminal-open.on { background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)); color: var(--pu-green);
   border-color: var(--pu-green-dim); text-shadow: 0 0 6px rgba(61,255,71,.5); box-shadow: 0 2px 6px rgba(0,0,0,.5), inset 0 0 10px rgba(61,255,71,.15); }
 
@@ -795,3 +796,22 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock button.pust-ov-ib.on:not(.pust-ov-tgt) { color: #3dff47; }
 #pust-mapdock .pust-ov-empty { margin: 0; padding: 10px; color: #b6c4b8; font-size: 12.5px; }
 #pust-mapdock .pust-md-unit.folded .pust-ov { display: none; }
+
+/* «Ходи Доглядача» (author, 2026-11-18): the plate right of the terminal's, darker so the terminal stays the main one;
+   lit while its card is open. The card: paper under the plate, red bars like the plates, scrolls inside on low screens. */
+.wastelanders-terminal-dock .wastelanders-moves-open { background: linear-gradient(180deg, rgba(255,215,195,.12), rgba(0,0,0,.2)), #3a2a20; }
+.wastelanders-terminal-dock .wastelanders-moves-open.on { background: linear-gradient(180deg, rgba(255,215,195,.25), rgba(0,0,0,.1)), #c22e1e; color: #fff; }
+.pust-gm-moves { position: fixed; z-index: 100; width: 460px; max-width: calc(100vw - 16px); overflow-y: auto; box-sizing: border-box;
+  padding: 0 16px 12px; background: var(--pu-grain, none), #efe4cc; color: #231b11; border: 1px solid #8a6a3c; border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.55); font-family: "Ubuntu Mono", "PT Mono", Consolas, monospace; font-size: 14px; line-height: 1.4; }
+.pust-gm-moves .pust-gm-hd { position: sticky; top: 0; z-index: 1; margin: 0 -16px 8px; padding: 6px 16px; background: #a3261a; color: #fbeee4;
+  font-family: "Roboto Condensed", "Arial Narrow", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; }
+.pust-gm-moves ul + .pust-gm-hd { margin-top: 12px; }
+.pust-gm-moves ul { margin: 0; padding-left: 18px; }
+.pust-gm-moves li { margin: 0 0 5px; }
+.pust-gm-moves li::marker { color: #a3261a; }
+.pust-gm-moves b { color: #231b11; }
+.pust-gm-moves .pust-gm-group { margin: 10px 0 5px; padding-bottom: 2px; border-bottom: 1px solid #b89a6a; color: #7a1f14;
+  font-family: "Roboto Condensed", "Arial Narrow", sans-serif; font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.pust-gm-moves .pust-gm-hd + .pust-gm-group { margin-top: 2px; }
+.pust-gm-moves .pust-gm-note { margin: 10px 0 0; padding-top: 6px; border-top: 1px dashed #b89a6a; color: #6b5a40; font-style: italic; font-size: 13px; }

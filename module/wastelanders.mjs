@@ -40,6 +40,7 @@ import * as caravanRules from "./rules/caravan.mjs";
 import { BOOK } from "./rules/book.mjs";
 import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
+import { toggleGmMoves } from "./applications/gm-moves.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
 import { autoStartTour, ensureHelpJournal, registerSystemTours, registerTourEnricher } from "./tours/tours.mjs";
@@ -341,7 +342,6 @@ Hooks.on("renderActorDirectory", (app, html) => {
   actions.append(button);
 });
 
-// «Термінал Доглядача» (generators) — for the GM: a button at the bottom of the left control bar (author, 2026-11-14)
 /**
  * «Термінал Доглядача» (generators) — for the GM: a full red plate at the top, right of the current scene's name, on its
  * row (author, 2026-11-14). That row has a fixed width, so the plate never moves (layers, tools, the scene list under it
@@ -366,6 +366,14 @@ function dockTerminal() {
       btn._tip = setTimeout(() => game.tooltip.activate(btn, { text: "Справи, подорожі, натхнення, битви", direction: "DOWN" }), 1500);
     });
     btn.addEventListener("pointerleave", () => { clearTimeout(btn._tip); if (game.tooltip.element === btn) game.tooltip.deactivate(); });
+    // «Ходи Доглядача» (author, 2026-11-18): the book's moves in a card under it (gm-moves.mjs)
+    const moves = document.createElement("button");
+    moves.type = "button";
+    moves.className = "wastelanders-moves-open";
+    moves.setAttribute("aria-expanded", "false");
+    moves.innerHTML = `<i class="fa-solid fa-fire"></i> Ходи Доглядача`;
+    moves.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); toggleGmMoves(moves); });
+    dock.append(moves);
     col.append(dock);
   }
   const c = col.getBoundingClientRect();
