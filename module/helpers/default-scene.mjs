@@ -12,17 +12,26 @@ import { activeGmHere } from "./main-window.mjs";
  *
  * A world gets the scene once (hidden world setting «mapSceneVersion»): it is created, made the active scene, and
  * Foundry's own starter scene is removed when nothing was put on it. Delete the scene and it stays deleted.
+ *
+ * Version 3 (author, 2026-11-18): the picture is the pixel map (assets/maps/pustka-pixel.webp, tools/make_pixel_map.py,
+ * made from pustka.webp, same size and grid). A world that has the scene with the old picture gets the new one once; a
+ * scene whose picture the GM changed keeps it. pustka.webp stays in the system: the pixel map is made from it.
  */
-export const MAP_SCENE_VERSION = 2;
+export const MAP_SCENE_VERSION = 3;
 export const CELL = 108;
 export const COLS = 51;
 export const ROWS = 70;
 const LEVEL_ID = "pustkaMapLevel01";
 const FOUNDRY_STARTER = "NUEDEFAULTSCENE0";
 
+/** The map's picture */
+export const mapPicture = (systemId) => `systems/${systemId}/assets/maps/pustka-pixel.webp`;
+/** Is this the system's earlier map picture (any system id)? Only that one is replaced by the pixel map */
+export const isOldMapPicture = (src) => /^systems\/[^/]+\/assets\/maps\/pustka\.webp$/.test(String(src ?? ""));
+
 /** The scene's data (pure: tests can check it) */
 export function mapSceneData(systemId) {
-  const src = `systems/${systemId}/assets/maps/pustka.webp`;
+  const src = mapPicture(systemId);
   return {
     name: "Мапа Пустки",
     navName: "Мапа Пустки",
@@ -62,7 +71,19 @@ async function thumbnail(scene) {
 export async function ensureMapScene() {
   if (!game.user.isGM || !activeGmHere()) return;
   const sys = game.system.id;
-  if ((game.settings.get(sys, "mapSceneVersion") ?? 0) > 0) return;
+  const had = game.settings.get(sys, "mapSceneVersion") ?? 0;
+  if (had >= MAP_SCENE_VERSION) return;
+  if (had > 0) {
+    // a world that got the scene earlier: only its picture changes, and only while it is still the system's old one
+    const scene = findMapScene();
+    const level = scene?.levels?.get?.(LEVEL_ID) ?? scene?.initialLevel;
+    if (level && isOldMapPicture(level.background?.src)) {
+      await level.update({ "background.src": mapPicture(sys) });
+      await thumbnail(scene);
+    }
+    await game.settings.set(sys, "mapSceneVersion", MAP_SCENE_VERSION);
+    return;
+  }
   let scene = findMapScene();
   if (!scene) {
     scene = await Scene.implementation.create(mapSceneData(sys));
