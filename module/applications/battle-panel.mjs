@@ -28,6 +28,8 @@ import { applyDamage, applyHeal, chosenTokens, warnNoTargets, clearTargets } fro
 import { fatePickList } from "./map-dice.mjs";
 import { sharedGet, sharedSet } from "../helpers/scene-shared.mjs";
 import { findBattleScene, findMapScene, isBattleScene } from "../helpers/default-scene.mjs";
+import { AUTO, SAND, SAND_NAME, BATTLE_BACKGROUNDS, wantedBg, bgThumb, bgName, isOwnBackground } from "../rules/battle-backgrounds.mjs";
+import { bgChoice, bgNow, setBgChoice } from "../helpers/battle-background.mjs";
 import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
 import { chatType } from "./enemy-attack.mjs";
 import { postChat } from "./chat.mjs";
@@ -122,10 +124,10 @@ function countLine(scene) {
 async function bodyHtml(lite = false) {
   const scene = canvas.scene;
   const place = sharedGet("place") ?? "", hazard = sharedGet("hazard") ?? "";
-  const row = (kind, label, icon, val) => `<div class="pust-md-bscene" data-kind="${kind}">
+  const row = (kind, label, icon, val, extra = "") => `<div class="pust-md-bscene" data-kind="${kind}">
       <span class="pust-md-blabel"><i class="fa-solid ${icon}"></i>${label}</span>
       <span class="pust-md-bval${val ? "" : " muted"}" title="${esc(val)}">${esc(val || "—")}</span>
-      <button type="button" class="pust-md-bdie" data-battle="roll" data-kind="${kind}" title="Перекинути: ${label.toLowerCase()} з таблиць генератора натхнення" aria-label="Перекинути"><i class="fa-solid fa-dice"></i></button>
+      <button type="button" class="pust-md-bdie" data-battle="roll" data-kind="${kind}" title="Перекинути: ${label.toLowerCase()} з таблиць генератора натхнення" aria-label="Перекинути"><i class="fa-solid fa-dice"></i></button>${extra}
     </div>`;
   let form = "";
   if (ui_.open && !lite) {
@@ -152,7 +154,7 @@ async function bodyHtml(lite = false) {
     ${damageHtml(true)}
     ${endHtml()}
     <button type="button" class="pust-md-bgoto" data-battle="goto" title="Відкрити й активувати бойову мапу: гравці перейдуть туди теж"><i class="fa-solid fa-crosshairs"></i><span>Перейти на бойову мапу</span></button>`;
-  return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place)}${row("hazard", "Небезпека", "fa-radiation", hazard)}
+  return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place, bgButton(scene))}${row("hazard", "Небезпека", "fa-radiation", hazard)}
     <div class="pust-md-row pust-md-bbtns">
       <button type="button" data-battle="zone" title="Нова зона 6 × 5 клітинок біля центру огляду"><i class="fa-solid fa-vector-square"></i><span>Зона</span></button>
       <button type="button" data-battle="enemy" class="${ui_.open ? "on" : ""}" title="Додати супротивників із компендіуму в зону"><i class="fa-solid fa-skull"></i><span>Супротивник</span></button>
@@ -382,6 +384,7 @@ async function onClick(ev, lite = false, body = null) {
   }
   if (act === "tgtclear") { canvas.tokens.setTargets([], { mode: "replace" }); return; }
   if (act === "pick") return togglePick(b);
+  if (act === "bgpick" && scene) return toggleBgPick(b, scene);
   if (act === "goto") return gotoScene(lite);
   if (act === "sessreset") {
     // asks twice, as every destructive button (author, 2026-11-17)
@@ -489,18 +492,8 @@ function pickHtml(list) {
     : `<p class="pust-fp-empty">Немає ні персонажів, призначених гравцям, ні караванів. Признач гравцям персонажів у їхніх налаштуваннях.</p>`}`;
 }
 
-function togglePick(btn) {
-  if (pickEl) return closePick();
-  const el = document.createElement("div");
-  el.className = "pust-fatepick pust-tgtpick";
-  el.setAttribute("role", "dialog");
-  el.setAttribute("aria-label", "Цілі шкоди й лікування");
-  const list = fatePickList();
-  const draw = () => { el.innerHTML = pickHtml(list); };
-  const changed = () => { draw(); redrawBattlePanel(); };
-  draw();
-  document.body.append(el);
-  // under the button, its right edge with the button's; above it when there is no room below; scrolls inside
+/** A pop-up under its button, its right edge with the button's; above it when there is no room below; scrolls inside */
+function placePop(el, btn) {
   const r = btn.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
   const left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w));
   let floor = window.innerHeight - 8;
@@ -514,6 +507,20 @@ function togglePick(btn) {
   el.style.maxHeight = `${Math.floor(room)}px`;
   el.style.left = `${Math.round(left)}px`;
   el.style.top = `${Math.round(down ? r.bottom + 6 : Math.max(8, r.top - 6 - Math.min(h, room)))}px`;
+}
+
+function togglePick(btn) {
+  if (pickEl) return closePick();
+  const el = document.createElement("div");
+  el.className = "pust-fatepick pust-tgtpick";
+  el.setAttribute("role", "dialog");
+  el.setAttribute("aria-label", "Цілі шкоди й лікування");
+  const list = fatePickList();
+  const draw = () => { el.innerHTML = pickHtml(list); };
+  const changed = () => { draw(); redrawBattlePanel(); };
+  draw();
+  document.body.append(el);
+  placePop(el, btn);
   el.addEventListener("change", (ev) => {
     const id = ev.target.dataset.pkTick;
     if (!id) return;
@@ -530,6 +537,56 @@ function togglePick(btn) {
     }
     const one = t.dataset.pkOne;
     if (one) { if (picks.has(one)) picks.delete(one); else picks.add(one); changed(); }
+  });
+  const onDown = (ev) => { if (!el.contains(ev.target) && !btn.contains(ev.target)) closePick(); };
+  const onKey = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); closePick(); } };
+  document.addEventListener("pointerdown", onDown, true);
+  document.addEventListener("keydown", onKey, true);
+  pickEl = { el, onDown, onKey };
+}
+
+/* ---------------- the battle scene's background (author, 2026-11-18) ---------------- */
+/** Beside «Місце»: the scene's picture in small, a click opens the list (full panel only: «Сцена» has no battle scene) */
+function bgButton(scene) {
+  if (!scene || !isBattleScene(scene)) return "";
+  const choice = bgChoice(scene), now = bgNow(scene);
+  const own = choice === AUTO && !isOwnBackground(now);
+  const key = wantedBg(choice, sharedGet("place"));
+  const img = own ? now : bgThumb(sys(), key);
+  const what = own ? "власна картинка сцени" : choice === AUTO ? `авто за місцем: ${bgName(key)}` : bgName(key);
+  return `<button type="button" class="pust-md-bbg" data-battle="bgpick" title="Фон сцени (${esc(what)}). Вибрати інший" aria-label="Фон сцени" aria-haspopup="listbox"><img src="${esc(img)}" alt=""></button>`;
+}
+
+/** The list: «Авто за місцем», «Стандартний (пісок)», the 36 places — a row of a thumbnail and a name; the current one lit */
+function toggleBgPick(btn, scene) {
+  if (pickEl) return closePick();
+  const el = document.createElement("div");
+  el.className = "pust-fatepick pust-bgpick";
+  el.setAttribute("role", "dialog");
+  el.setAttribute("aria-label", "Фон сцени");
+  const choice = bgChoice(scene);
+  const auto = wantedBg(AUTO, sharedGet("place"));
+  const item = (val, name, thumb, note = "") => `<li><button type="button" class="pust-bg-row${val === choice ? " on" : ""}" data-bg="${val}" role="option" aria-selected="${val === choice}">
+      ${thumb ? `<img src="${esc(thumb)}" alt="" loading="lazy">` : `<span class="pust-bg-auto"><i class="fa-solid fa-wand-magic-sparkles"></i></span>`}
+      <span>${esc(name)}</span>${note ? `<small>${esc(note)}</small>` : ""}</button></li>`;
+  el.innerHTML = `<header><span>Фон сцени</span><button type="button" class="pust-fp-x" data-pk-close title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button></header>
+    <div class="pust-fp-list"><ul role="listbox">
+      ${item(AUTO, "Авто за місцем", "", bgName(auto))}
+      ${item(SAND, SAND_NAME, bgThumb(sys(), SAND))}
+      ${BATTLE_BACKGROUNDS.map((b) => item(b.key, `${b.key} ${b.name}`, bgThumb(sys(), b.key))).join("")}
+    </ul></div>`;
+  document.body.append(el);
+  placePop(el, btn);
+  el.querySelector(".pust-bg-row.on")?.scrollIntoView({ block: "center" });
+  el.addEventListener("click", async (ev) => {
+    const t = ev.target.closest("button");
+    if (!t) return;
+    if (t.dataset.pkClose !== undefined) return closePick();
+    const v = t.dataset.bg;
+    if (!v) return;
+    closePick();
+    await setBgChoice(scene, v);
+    redrawBattlePanel();
   });
   const onDown = (ev) => { if (!el.contains(ev.target) && !btn.contains(ev.target)) closePick(); };
   const onKey = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); closePick(); } };

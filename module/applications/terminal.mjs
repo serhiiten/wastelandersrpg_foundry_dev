@@ -62,6 +62,9 @@ export async function startBattle() {
   const { battleScene } = await import("./battle-panel.mjs");
   const scene = battleScene();
   if (!scene) return notify.warn("У світі немає бойової мапи. Створи сцену типу «Битва».");
+  // its background by the battle's place first, while nobody views it: one redraw (author, 2026-11-18)
+  const { syncBattleBackground } = await import("../helpers/battle-background.mjs");
+  await syncBattleBackground(scene, OPEN.T.battle.BT?.BT_SCENE?.place || sharedGet("place"));
   if (canvas?.scene?.id !== scene.id) {
     const ready = new Promise((r) => Hooks.once("canvasReady", r));
     await scene.activate();

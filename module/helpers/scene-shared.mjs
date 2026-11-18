@@ -41,7 +41,16 @@ globalThis.Hooks?.once("ready", async () => { // (tests import this module outsi
 /** Write some shared values (the GM) */
 export async function sharedSet(upd) {
   if (!game.user.isGM) return;
+  const placeBefore = all().place ?? "";
   await game.settings.set(game.system.id, "sceneShared", { ...all(), ...upd });
+  // a new «Місце»: the battle scene on view (else the battle map «Почати бій» would open) takes its background
+  // (author, 2026-11-18; here, not in onChange: once, in the window that wrote it, and awaited — tokens come after the redraw)
+  if ("place" in upd && (upd.place ?? "") !== placeBefore) {
+    const { isBattleScene } = await import("./default-scene.mjs");
+    const { syncBattleBackground } = await import("./battle-background.mjs");
+    const scene = isBattleScene(canvas?.scene) ? canvas.scene : (await import("../applications/battle-panel.mjs")).battleScene();
+    if (scene) await syncBattleBackground(scene, upd.place);
+  }
 }
 
 /**

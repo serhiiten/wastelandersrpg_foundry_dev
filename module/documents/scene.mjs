@@ -5,6 +5,8 @@
  * The choice is a field added to Foundry's own dialog; `create` reads it (marker `pustSceneKind`) and drops it.
  */
 import { battleSceneData } from "../helpers/default-scene.mjs";
+import { AUTO, SAND, SAND_NAME, BATTLE_BACKGROUNDS } from "../rules/battle-backgrounds.mjs";
+import { bgChoice } from "../helpers/battle-background.mjs";
 
 const KIND_FIELD = "pustSceneKind";
 
@@ -62,4 +64,15 @@ export function addSceneKindField(app, element) {
       <option value="" ${on ? "" : "selected"}>Мапа</option>
     </select></div>
     <p class="hint">Битва: панель «Битва» із зонами. Мапа: панелі «Мапи Пустки». Тло й сітка сцени не змінюються.</p></div>`);
+  // the battle scene's background (author, 2026-11-18): the same choice as beside «Місце» in the «Битва» panel
+  if (!on) return;
+  const bgPath = `flags.${game.system.id}.battleBg`;
+  const cur = bgChoice(doc);
+  const opt = (v, l) => `<option value="${v}" ${v === cur ? "selected" : ""}>${foundry.utils.escapeHTML(l)}</option>`;
+  root.querySelector("[data-pust-scene-kind]").insertAdjacentHTML("afterend", `<div class="form-group" data-pust-scene-bg>
+    <label>Фон сцени</label>
+    <div class="form-fields"><select name="${bgPath}">
+      ${opt(AUTO, "Авто за місцем")}${opt(SAND, SAND_NAME)}${BATTLE_BACKGROUNDS.map((b) => opt(b.key, `${b.key} ${b.name}`)).join("")}
+    </select></div>
+    <p class="hint">Авто: фон за «Місцем» панелі «Битва», власну картинку сцени не змінює. Інший пункт ставить вибраний фон.</p></div>`);
 }

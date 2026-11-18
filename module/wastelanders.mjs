@@ -7,6 +7,7 @@ import { readyMacros, runMacro } from "./helpers/macros.mjs";
 import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
 import { WastelandersScene, addSceneKindField } from "./documents/scene.mjs";
+import "./helpers/battle-background.mjs"; // a battle scene's background follows its choice (the hook on updateScene)
 import { WastelandersToken } from "./canvas/token.mjs";
 import { WastelandersTokenRuler } from "./canvas/token-ruler.mjs";
 import { initMapNotes, readyMapNotes } from "./canvas/map-notes.mjs";
