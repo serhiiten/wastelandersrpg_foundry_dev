@@ -378,7 +378,9 @@ export function openNoteEditor(doc, focus = "body") {
   document.body.appendChild(root);
   const title = root.querySelector(".pust-mn-title"), body = root.querySelector(".pust-mn-body");
   title.value = flag.title; body.value = flag.text;
-  editor = { doc, root, title, body, timer: null, armTimer: null };
+  // `base`: what the fields held when last in step with the sticker; only what was typed since is written (playtest check,
+  // 2026-11-18: two players in one sticker — each closing editor wrote back the field it never touched, the other's text was lost)
+  editor = { doc, root, title, body, timer: null, armTimer: null, base: { title: flag.title, text: flag.text } };
 
   const queue = () => { clearTimeout(editor.timer); editor.timer = setTimeout(flushEditor, 400); };
   title.addEventListener("input", queue);
@@ -414,9 +416,10 @@ function flushEditor() {
   clearTimeout(editor.timer);
   const flag = noteOf(doc);
   if (!flag || !canEdit(doc) || !doc.collection) return;
-  const upd = {};
-  if (title.value !== flag.title) upd[flagPath("title")] = title.value;
-  if (body.value !== flag.text) upd[flagPath("text")] = body.value;
+  const upd = {}, base = editor.base;
+  if (title.value !== base.title && title.value !== flag.title) upd[flagPath("title")] = title.value;
+  if (body.value !== base.text && body.value !== flag.text) upd[flagPath("text")] = body.value;
+  base.title = title.value; base.text = body.value;
   if (Object.keys(upd).length) noteWrite(doc, upd).catch((err) => console.warn("Пустельники | note not saved", err));
 }
 
@@ -426,6 +429,10 @@ function syncEditor() {
   const { doc, root } = editor;
   const flag = noteOf(doc);
   if (!flag) return closeNoteEditor();
+  // someone else changed a field this editor has not touched: show theirs
+  const { title, body, base } = editor;
+  if (title.value === base.title && flag.title !== base.title) title.value = base.title = flag.title;
+  if (body.value === base.text && flag.text !== base.text) body.value = base.text = flag.text;
   const col = MAP_NOTE.colors[flag.color];
   root.style.setProperty("--fill", col.fill);
   root.style.setProperty("--line", col.line);
