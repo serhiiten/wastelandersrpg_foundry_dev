@@ -95,10 +95,19 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     // «Компактний» (author, 2026-11-18; mockup Б1): opens full until the user switches, then remembered per caravan
     if (this.ui.compact === undefined) this.ui.compact = compactStored(this.document);
     context.compact = !!this.ui.compact;
+    // «Дефібрилятор»'s «Застосувати» in both views (playtest 2026-11-18, item 13: the full sheet had none)
+    const used = defibUsed(this.document);
+    context.defib = { used };
     if (context.compact) {
       const v = context.v;
-      const used = defibUsed(this.document);
+      // karma's colour (playtest 2026-11-18, item 11): −5 and lower red, −4…+4 yellow, +5 and higher green
+      const karma = parseInt(S.karma, 10) || 0;
+      const karmaTone = karma <= -5 ? "bad" : karma >= 5 ? "good" : "mid";
       context.ccmp = {
+        // the portrait: the sheet's context has no `actor` (the compact head showed an empty picture; item 11)
+        img: this.document.img,
+        karmaTone,
+        karmaTip: karmaTone === "bad" ? "Карма −5 і нижче" : karmaTone === "good" ? "Карма +5 і вище" : "Карма від −4 до +4",
         luck: v.luck.find((o) => o.sel)?.n ?? "0",
         karmaAspect: S.karmaAspect || "",
         // the row just added or the one clicked opens as a small form; an old row with no name stays a chip «без назви»

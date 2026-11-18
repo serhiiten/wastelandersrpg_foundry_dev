@@ -11,7 +11,7 @@ import { fateNow } from "./fate-card.mjs";
 import { postChat } from "./chat.mjs";
 import { sharedSet } from "../helpers/scene-shared.mjs";
 import { GROUP_END, ownPart, resetMoves } from "../rules/group-end.mjs";
-import { chemReset } from "../rules/perk-uses.mjs";
+import { backLine, chemReset, usedNames } from "../rules/perk-uses.mjs";
 import { clearDefibs } from "./caravan-defib.mjs";
 import { notify } from "../helpers/notify.mjs";
 
@@ -99,9 +99,17 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   for (const a of chars) {
     const hp0 = Number(a.system.hp?.value) || 0, fd0 = fateNow(a);
     try {
-      const msg = await runAction(a, (st, L) => { L[def.fn](); return L.chem().last; }, { quiet: true });
+      // the perks' marks that this time clears are named too (playtest 2026-11-18, item 7: «Залізячник» came back, the card
+      // said «без змін»)
+      const { msg, back } = await runAction(a, (st, L) => {
+        const was = usedNames(st);
+        L[def.fn]();
+        return { msg: L.chem().last, back: backLine(was, st) };
+      }, { quiet: true });
       const hp = Number(a.system.hp?.value) || 0;
-      rows.push({ name: a.name, img: a.img, items: sentences(ownPart(msg)), hp: hp - hp0, hpNow: hp, fd0, fd: fateNow(a) });
+      const items = sentences(ownPart(msg));
+      if (back) items.push(back);
+      rows.push({ name: a.name, img: a.img, items, hp: hp - hp0, hpNow: hp, fd0, fd: fateNow(a) });
     } catch (err) {
       console.error(err);
       rows.push({ name: a.name, img: a.img, items: ["Не вдалося застосувати: аркуш пошкоджений."], bad: true, hp: 0, fd0, fd: fd0 });

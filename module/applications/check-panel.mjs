@@ -57,6 +57,23 @@ Hooks.on("deleteActor", (actor) => {
   if (DOCKED?.actor?.id === actor.id) DOCKED.close();
 });
 
+/** A change of the character (a state, a consequence, an addiction, a perk, an item) redraws its open check panels: the
+ *  roll counted it, but the strip and the conditions showed the old set until the panel was reopened (playtest 2026-11-18,
+ *  item 2). Debounced: one write of the sheet fires several hooks, and the panel's own roll writes the actor too. */
+const REDRAW = new Map();
+function redrawPanels(actor) {
+  if (!actor || actor.type !== "character") return;
+  clearTimeout(REDRAW.get(actor.uuid));
+  REDRAW.set(actor.uuid, setTimeout(() => {
+    REDRAW.delete(actor.uuid);
+    const open = OPEN.get(actor.uuid);
+    if (open?.rendered) open.render();
+    if (DOCKED?.rendered && DOCKED.actor?.uuid === actor.uuid) DOCKED.render();
+  }, 120));
+}
+Hooks.on("updateActor", (actor) => redrawPanels(actor));
+for (const h of ["createItem", "updateItem", "deleteItem"]) Hooks.on(h, (item) => redrawPanels(item?.parent));
+
 export function openCheckPanel(actor, preset = {}) {
   let app = OPEN.get(actor.uuid);
   if (!app) {
@@ -282,6 +299,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.#toResult) {
       const res = el.querySelector(".pust-roller .rres");
       if (res) res.scrollIntoView({ block: "nearest" });
+      // an attack: on down to «Завдати шкоди», clear of the roll strip stuck to the bottom (playtest 2026-11-18, item 4;
+      // css/pust-check.css scroll-margin)
+      el.querySelector('.pust-roller .rres button[data-r="dmg"]')?.scrollIntoView({ block: "nearest" });
     }
   }
 
@@ -371,18 +391,40 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const res = root.querySelector(":scope > .rres");
     if (res && !this.actor.pustTourDemo && !this.element.classList.contains("pust-demo-check")) {
       root.classList.toggle("pust-folded", !this.#setupOpen);
+      // folded, the button rolls the same check again, with the same Посилення / Послаблення / modifier (author, 2026-11-18)
+      if (!this.#setupOpen && go) {
+        const txt = [...go.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && /Кинути перевірку/.test(n.textContent));
+        if (txt) txt.textContent = "Повторити перевірку";
+        go.title = "Кинути ту саму перевірку ще раз, з тими самими Посиленнями, Послабленнями й модифікатором";
+      }
+      // the fold line: the check type as its own plate, then what is rolled, then «Інша перевірка» as a button
+      // (playtest 2026-11-18, item 3: the type more visible, «змінити» → «Інша перевірка», set apart)
+      const { type, rest } = this.#intentParts(root);
       const f = document.createElement("button");
       f.type = "button";
       f.className = "pust-fold";
       f.setAttribute("aria-expanded", String(this.#setupOpen));
-      f.innerHTML = `<span>${esc(this.#intent(root))}</span><b>${this.#setupOpen ? "сховати" : "змінити"} <i class="fa-solid fa-chevron-${this.#setupOpen ? "up" : "down"}"></i></b>`;
-      f.title = this.#setupOpen ? "Сховати налаштування перевірки" : "Змінити атрибут, навичку, Посилення чи вид перевірки";
+      f.innerHTML = `<span>${type ? `<em class="pust-fold-type">${esc(type)}</em>` : ""}${esc(rest)}</span>`
+        + `<b>${this.#setupOpen ? "сховати" : "Інша перевірка"} <i class="fa-solid fa-chevron-${this.#setupOpen ? "up" : "down"}"></i></b>`;
+      f.title = this.#setupOpen ? "Сховати налаштування перевірки" : "Інша перевірка: атрибут, навичка, вид перевірки; Посилення, Послаблення й модифікатор знову з нуля";
       f.addEventListener("click", () => {
         this.#setupOpen = !this.#setupOpen;
+        // «Інша перевірка» starts the counters from 0; «Повторити перевірку» keeps them (author, 2026-11-18)
+        if (this.#setupOpen) {
+          const R = STATES.get(this.actor.uuid);
+          if (R) Object.assign(R, { boost: 0, pen: 0, mod: 0 });
+        }
         this.render();
       });
       root.querySelector(":scope > .rwho")?.after(f);
     }
+  }
+
+  /** The fold line's two parts: the check type, and the rest of what is rolled */
+  #intentParts(root) {
+    const type = root.querySelector("select#r-type")?.selectedOptions[0]?.textContent.trim() || "";
+    const all = this.#intent(root);
+    return { type, rest: type && all.startsWith(type) ? all.slice(type.length).replace(/^ · /, "") : all };
   }
 
   /** What is rolled, read from the panel: «Атака · СПР +1 + Стрільба d6 · Посилень: 1» */

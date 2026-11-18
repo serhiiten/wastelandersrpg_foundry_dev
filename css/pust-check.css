@@ -467,5 +467,15 @@
   font-family: var(--pu-f-label); font-size: 13px; color: var(--pu-ink) !important; text-align: left; line-height: 1.25; }
 .wastelanders .pust-roller button.pust-fold > span { min-width: 0; font-family: var(--pu-f-num); font-weight: 700; }
 .wastelanders .pust-roller button.pust-fold > b { flex: none; color: var(--pu-rust-2, #9a4a20); text-transform: uppercase; letter-spacing: .04em; font-size: 12px; }
+/* the fold line (playtest 2026-11-18, item 3): the check type as a dark plate, «Інша перевірка» as a rust button */
+.wastelanders .pust-roller button.pust-fold .pust-fold-type { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: 3px;
+  background: var(--pu-ink); color: var(--pu-paper); font-style: normal; font-family: var(--pu-f-label); font-size: 12px;
+  text-transform: uppercase; letter-spacing: .05em; vertical-align: 1px; }
+.wastelanders .pust-roller.pust-folded > button.pust-fold > b { padding: 3px 9px; border-radius: 3px; background: linear-gradient(180deg, var(--pu-rust-3), var(--pu-rust-2));
+  color: var(--pu-sheet) !important; box-shadow: 0 2px 0 var(--pu-rust-1); }
+.wastelanders .pust-roller.pust-folded > button.pust-fold:hover > b { filter: brightness(1.1); }
+/* scrolled into view after a roll: clear of the sticky fold line on top and the roll strip at the bottom (item 4) */
+.pust-roller .rres { scroll-margin-top: 44px; }
+.pust-roller .rres button[data-r="dmg"] { scroll-margin-bottom: 72px; }
 /* folded, the fold line already says what is rolled: the strip keeps only its button (and the targets' hint) */
 .pust-roller.pust-folded .pust-intent > b { display: none; }

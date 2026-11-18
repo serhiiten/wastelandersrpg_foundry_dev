@@ -4,7 +4,8 @@
 import * as Rc from "../module/rules/core.mjs";
 import { createLogic } from "../module/rules/logic.mjs";
 import { createController } from "../module/rules/controller.mjs";
-import { PERK_USES, USE_BY_ID, bookText, isUsed, maxDamage, strangerOutcome, usesFor, usePerk } from "../module/rules/perk-uses.mjs";
+import { PERK_USES, USE_BY_ID, backLine, bookText, isUsed, maxDamage, strangerOutcome, usedNames, usesFor, usePerk } from "../module/rules/perk-uses.mjs";
+import { readFileSync } from "node:fs";
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; console.log("FAIL " + m); } };
@@ -148,6 +149,23 @@ ok(maxDamage("2d6+1") === 13 && maxDamage("1к10") === 10 && maxDamage("4") === 
 ok(strangerOutcome(3, "boss").dice === "1d10", "незнайомець 1–5: 1d10");
 ok(strangerOutcome(7, "regular").dice === null && strangerOutcome(7, "elite").dice === "2d6", "незнайомець 6–9");
 ok(strangerOutcome(11, "elite").dice === null && strangerOutcome(11, "boss").dice === "3d6", "незнайомець 10+");
+
+// the group's time cards name the uses that came back (playtest 2026-11-18, item 7)
+{
+  const st = fresh(["Нагляд", "Щасливець"]);
+  const L = logic(st);
+  usePerk(st, L, "overwatch", { rng: () => 1 });
+  usePerk(st, L, "lucky");
+  const was = usedNames(st);
+  ok(was.length === 2, `two uses marked: ${was}`);
+  L.endScene();
+  const line = backLine(was, st);
+  ok(/«Нагляд»/.test(line) && !/Щасливець/.test(line), `«Кінець сцени» names Нагляд only: «${line}»`);
+  ok(backLine(usedNames(st), st) === "", "nothing marked came back: no line");
+}
+
+// Foundry 14 refuses Roll#evaluateSync for dice: «Застосувати» of every rolling perk died silently (playtest 2026-11-18, item 5)
+ok(!/\.evaluateSync\(/.test(readFileSync(new URL("../module/applications/perk-card.mjs", import.meta.url), "utf8")), "perk-card rolls without Roll#evaluateSync");
 
 console.log(`perk-uses: ${checks - failures}/${checks} passed`);
 if (failures) process.exit(1);

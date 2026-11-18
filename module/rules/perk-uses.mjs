@@ -132,6 +132,18 @@ export function usesFor(st, d = compute(st)) {
   });
 }
 
+/** The names of the uses marked «використано» now (the group's time buttons say which ones came back; playtest 2026-11-18, item 7) */
+export function usedNames(st, d = compute(st)) {
+  return usesFor(st, d).filter((u) => u.used).map((u) => u.name);
+}
+
+/** The line of a time card for the uses that came back: «Знову можна застосувати: «Залізячник».» («» when none) */
+export function backLine(was, st) {
+  const now = new Set(usedNames(st));
+  const back = was.filter((n) => !now.has(n));
+  return back.length ? `Знову можна застосувати: ${back.map((n) => `«${n}»`).join(", ")}.` : "";
+}
+
 /**
  * The compact sheet's «Перки та особливості» (mockup А1): the uses as cards, «N з M доступні», and the passive perks and
  * feats as quiet chips with the book's text in the tooltip (Ерудит with its skill)

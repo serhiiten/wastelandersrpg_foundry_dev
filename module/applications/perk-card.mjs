@@ -14,9 +14,10 @@ import { runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
 import { askGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { rollDie } from "../helpers/dice.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
-const rng = (s) => new Roll(`1d${s}`).evaluateSync().total;
+const rng = rollDie; // not Roll#evaluateSync: Foundry 14 refuses it for dice (helpers/dice.mjs)
 
 /** The chat card: who uses what, the limit, what the system did, the book's text */
 export function perkCardHtml(who, res, cls) {

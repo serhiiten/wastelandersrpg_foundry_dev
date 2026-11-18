@@ -1564,6 +1564,10 @@
 .pust-cmp-asp.asp-concept { --ac: #2f5f97; --ab: #cfe0f2; }
 .pust-cmp-asp.asp-problem { --ac: #a8121a; --ab: #f3cfc9; }
 .pust-cmp-asp.asp-goal { --ac: #b8900f; --ab: #f5e6a8; }
+/* the caravan's karma by its value (playtest 2026-11-18, item 11) */
+.pust-cmp-asp.karma-bad { --ac: #a8121a; --ab: #f3cfc9; }
+.pust-cmp-asp.karma-mid { --ac: #b8900f; --ab: #f5e6a8; }
+.pust-cmp-asp.karma-good { --ac: #2f7a32; --ab: #d3ecc9; }
 .pust-cmp-chems { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
 .pust-cmp-chem { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 5px 7px; border-left: 4px solid #1d7a6a; border-radius: 3px; background: rgba(255,255,255,.35); }
 .pust-cmp-chem.kind-power { border-left-color: #c9a414; }
@@ -1836,7 +1840,10 @@
 .wastelanders .pust-ccmp-kv > button:not(.header-control), .wastelanders .pust-ccmp-ctl > button:not(.header-control) { flex: none; width: 20px !important; height: 20px !important; min-width: 0 !important; padding: 0 !important; line-height: 18px !important; font-weight: 700; }
 .pust-ccmp-quick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
 .pust-ccmp-chip { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; min-height: 58px; padding: 5px 4px;
-  border: 1px solid var(--pu-steel-3, #4a453d); border-radius: 4px; background: rgba(0,0,0,.22); box-shadow: inset 0 0 10px rgba(0,0,0,.35); color: #e9e2cc; }
+  border: 2px solid var(--pu-steel-0); border-radius: 4px; color: #e9e2cc;
+  /* the full sheet's «Швидкий доступ» steel: the boxes stand on paper here, not on the steel bar (playtest 2026-11-18, item 11) */
+  background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.07), inset 0 0 12px rgba(0,0,0,.45), 2px 2px 0 rgba(35,27,17,.22); }
 .pust-ccmp-chip.bad { border-color: #a8121a; }
 .pust-ccmp-chip > .pust-qic { margin: 0; }
 .pust-ccmp-ctl { display: flex; align-items: center; gap: 4px; }
@@ -1850,7 +1857,7 @@
 .pust-ccmp-hpline { display: block; align-self: stretch; position: relative; height: 4px; margin-top: 3px; border-radius: 2px; background: #0f1412; overflow: hidden; }
 .pust-ccmp-hpline > i { position: absolute; inset: 0 auto 0 0; background: #2f8a32; }
 .pust-ccmp-hpline.hp-mid > i { background: #b07a14; } .pust-ccmp-hpline.hp-low > i, .pust-ccmp-hpline.hp-dead > i { background: #a8121a; }
-.wastelanders button.pust-ccmp-svc:not(.header-control) { position: absolute; top: 2px; right: 5px; /* clear of the HP «+» (author, 2026-11-18) */ width: 20px !important; height: 20px !important; min-width: 0 !important; padding: 0 !important; font-size: 11px; line-height: 18px !important; }
+.wastelanders button.pust-ccmp-svc:not(.header-control) { position: absolute; top: 4px; right: 5px; /* clear of the HP «+» (author, 2026-11-18) and of the box's frame, visible since item 11 */ width: 20px !important; height: 20px !important; min-width: 0 !important; padding: 0 !important; font-size: 11px; line-height: 18px !important; }
 .pust-ccmp-move { grid-column: 1 / -1; min-height: 0; align-items: stretch; }
 .pust-ccmp-mvhd { display: flex; align-items: center; gap: 6px; padding-right: 26px; }
 .pust-ccmp-mvhd > b { white-space: nowrap; }
@@ -1876,6 +1883,8 @@
 .wastelanders button.pust-ccmp-ok:not(.header-control) { flex: none; width: 24px !important; height: 24px !important; min-width: 0 !important; padding: 0 !important; }
 .pust-ccmp-imp { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; max-width: 100%; padding: 2px 6px; border: 1px solid #b9ad8a; border-left: 4px solid #5a6b78; border-radius: 3px; background: rgba(255,255,255,.4); font-size: 12.5px; }
 .pust-ccmp-imp.used { background: rgba(120,110,90,.25); }
+/* «Дефібрилятор» in the full sheet's card head (playtest 2026-11-18, item 13) */
+.pust-imp-defib { display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; }
 .pust-ccmp-imp.used > b { text-decoration: line-through; text-decoration-color: rgba(0,0,0,.35); }
 .wastelanders .pust-ccmp-imp button.pust-turret-dice:not(.header-control), .wastelanders .pust-ccmp-imp button.pust-turret-hit:not(.header-control) { width: auto; height: 22px !important; min-height: 0; padding: 0 6px !important; font-size: 12px !important; line-height: 20px !important; }
 .wastelanders .pust-ccmp-imp .pust-seg2 > button:not(.header-control) { height: 22px !important; padding: 0 6px !important; font-size: 11px !important; line-height: 20px !important; }
