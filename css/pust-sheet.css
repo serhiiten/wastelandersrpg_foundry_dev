@@ -1564,6 +1564,10 @@
 .pust-cmp-asp.asp-concept { --ac: #2f5f97; --ab: #cfe0f2; }
 .pust-cmp-asp.asp-problem { --ac: #a8121a; --ab: #f3cfc9; }
 .pust-cmp-asp.asp-goal { --ac: #b8900f; --ab: #f5e6a8; }
+/* the caravan's karma by its value (playtest 2026-11-18, item 11) */
+.pust-cmp-asp.karma-bad { --ac: #a8121a; --ab: #f3cfc9; }
+.pust-cmp-asp.karma-mid { --ac: #b8900f; --ab: #f5e6a8; }
+.pust-cmp-asp.karma-good { --ac: #2f7a32; --ab: #d3ecc9; }
 .pust-cmp-chems { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
 .pust-cmp-chem { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 5px 7px; border-left: 4px solid #1d7a6a; border-radius: 3px; background: rgba(255,255,255,.35); }
 .pust-cmp-chem.kind-power { border-left-color: #c9a414; }
@@ -1801,3 +1805,107 @@
 .pust-cmp-gq, .pust-cmp-cn > small { flex: none; display: inline-block; padding: 0 4px; border-radius: 3px; background: #4a453d; color: #f3e6c4 !important;
   font-size: 12px !important; font-weight: 700; line-height: 17px; vertical-align: 1px; }
 .pust-cmp-cn > small { margin-left: 3px; }
+/* perks with «Застосувати» (author, 2026-11-18; mockup А1): cards like the chems' with the limit's colour on the left — steel a
+   scene, violet a session, ochre a day, grey no mark; a used one greyed and struck through; the passive perks as quiet chips */
+.pust-cmp-perks { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.pust-cmp-perks > h3 { margin-bottom: 1px; }
+.pust-cmp-pkn { margin-left: 6px; color: #5d5543; font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.pust-pkuse { --pk: #3f6d8c; padding: 3px 6px 4px; border: 1px solid #b9ad8a; border-left: 4px solid var(--pk); border-radius: 3px; background: rgba(255,255,255,.35); }
+.pust-pkuse.pk-session { --pk: #5b4a86; } .pust-pkuse.pk-day { --pk: #a07a17; } .pust-pkuse.pk-free { --pk: #7a7262; }
+.pust-item .pust-pkuse { margin: 4px 0 2px; }
+.pust-pkuse.used { background: rgba(120,110,90,.25); --pk: #8a826f; }
+.pust-pkuse.used .pust-pkuse-n { text-decoration: line-through; text-decoration-color: rgba(0,0,0,.35); color: #5d5543; }
+.pust-pkuse-top { display: flex; align-items: center; gap: 6px; min-height: 22px; }
+.pust-pkuse-n { min-width: 0; font-weight: 700; font-size: 13px; overflow-wrap: anywhere; }
+.pust-pklim { flex: none; padding: 0 5px; border-radius: 2px; background: #3f6d8c; color: #fff; font-size: 11px; line-height: 17px; white-space: nowrap; }
+.pust-pklim.pk-session { background: #5b4a86; } .pust-pklim.pk-day { background: #a07a17; } .pust-pklim.pk-free { background: #7a7262; }
+.pust-pkuse.used .pust-pklim { background: #8a826f; }
+.wastelanders button.pust-pkuse-go:not(.header-control) { flex: none; margin-left: auto; width: auto; height: 22px !important; min-height: 0; line-height: 20px !important; padding: 0 8px !important;
+  font-size: 12px !important; font-weight: 700; white-space: nowrap; background: linear-gradient(180deg, #b45a28, #8a3f18) !important; color: #fff3e6 !important; border: 1px solid #4d220c !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22) !important; }
+.wastelanders button.pust-pkuse-go:not(.header-control):hover:not(:disabled) { filter: brightness(1.12); }
+.wastelanders button.pust-pkuse-go:not(.header-control):disabled { background: #9c917a !important; color: #ece6d4 !important; border-color: #7d7462 !important; box-shadow: none !important; }
+.pust-pkuse-t { margin: 2px 0 0; color: #4a4336; font-size: 12px; line-height: 1.3; }
+.pust-pkuse-usedtag { color: #a8121a; }
+.wastelanders button.pust-pkuse-free:not(.header-control) { display: inline; width: auto; height: auto !important; min-height: 0; padding: 0 2px !important; margin: 0; border: none !important;
+  background: none !important; box-shadow: none !important; color: #8a3f18 !important; font-size: 12px !important; line-height: 1.3 !important; text-decoration: underline dotted; cursor: pointer; }
+.pust-pkuse-free > i { font-size: 10px; margin-right: 2px; }
+.pust-cmp-passive { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.pust-cmp-pchip { padding: 1px 6px; border: 1px dashed #6b604a; border-radius: 2px; color: #5d5543; font-size: 12px; cursor: help; }
+/* the compact sheet's passive perks and feats (author, 2026-11-18; playtest item 8, mockup В): rows «name + what it gives»,
+   the name column as wide as the longest name up to 40 %, the text wrapping beside it; the negative parts in red ink */
+.pust-cmp-prows { display: grid; grid-template-columns: minmax(0, max-content) 1fr; gap: 3px 8px; margin: 5px 0 0; font-size: 12px; line-height: 1.3; }
+/* Foundry's own dt has a 1px black text shadow and a bottom margin: the names looked doubled and slid off their rows (review 2026-11-18) */
+.pust-cmp-prows > dt { max-width: 150px; margin: 0; font-weight: 700; color: #2a261c; text-shadow: none; overflow-wrap: anywhere; cursor: help; }
+.pust-cmp-prows > dd { margin: 0; min-width: 0; color: #4a4336; overflow-wrap: anywhere; }
+.pust-cmp-prows > dd > .bad { color: #a8121a; }
+/* the compact caravan sheet (author, 2026-11-18; mockup Б1 «Дзеркало персонажа»): the compact character sheet's head and chips;
+   «Швидкий доступ» as three boxes (ОЗ with «Відремонтувати», Броня, Бюджет) and «Запас ходу» the whole width with its lamps */
+.pust-ccmp-karma .pust-ccmp-kv { display: inline-flex; align-items: center; gap: 4px; font-style: normal; }
+.pust-ccmp-kv > em { min-width: 18px; text-align: center; font-style: normal; font-weight: 800; }
+.pust-ccmp-ka { font-style: italic; margin-left: 2px; }
+.wastelanders .pust-ccmp-kv > button:not(.header-control), .wastelanders .pust-ccmp-ctl > button:not(.header-control) { flex: none; width: 20px !important; height: 20px !important; min-width: 0 !important; padding: 0 !important; line-height: 18px !important; font-weight: 700; }
+/* the whole block on one steel bar with the boxes inside it, as the compact character sheet's «Швидкий доступ» (review 2026-11-18) */
+.pust-ccmp-quick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 8px; padding: 6px;
+  background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29);
+  border: 3px solid var(--pu-steel-0); border-radius: 6px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.07), inset 0 0 18px rgba(0,0,0,.45), 3px 3px 0 rgba(35,27,17,.22); }
+.pust-ccmp-chip { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 60px; padding: 4px;
+  border: 1px solid #5a605e; border-radius: 4px; color: #e9e2cc; background: rgba(0,0,0,.22); box-shadow: inset 0 0 10px rgba(0,0,0,.35); }
+.pust-ccmp-chip.bad { border-color: #a8121a; }
+/* the icon's row is as tall as the service button beside it, so the −/+ row starts under the button, never under it (review 2026-11-18) */
+.pust-ccmp-chip > .pust-qic { display: flex; align-items: center; height: 20px; margin: 0; font-size: 17px; }
+.pust-ccmp-ctl { display: flex; align-items: center; gap: 4px; }
+.pust-ccmp-scr { min-width: 26px; padding: 1px 6px; border-radius: 2px; background: #13231a; color: #8fe0a6; font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); font-size: 15px; text-align: center; }
+/* the numbers with −/+ are screens one can type into (ui-rules §3; author, 2026-11-18, after the review) */
+.wastelanders.pust-sheet .pust-ccmp-ctl > input.pust-screen, .wastelanders.pust-sheet .pust-ccmp-kv > input.pust-screen {
+  flex: 0 0 34px !important; width: 34px !important; height: 24px !important; min-height: 0 !important; padding: 0 2px !important; font-size: 15px !important; text-align: center; }
+.wastelanders.pust-sheet .pust-ccmp-kv > input.pust-screen { flex-basis: 30px !important; width: 30px !important; height: 20px !important; font-size: 13px !important; }
+.pust-ccmp-of { flex: none; font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); font-size: 13px; white-space: nowrap; }
+/* the ОЗ fill as a thin line under the counter */
+.pust-ccmp-hpline { display: block; align-self: stretch; position: relative; height: 4px; margin-top: 3px; border-radius: 2px; background: #0f1412; overflow: hidden; }
+.pust-ccmp-hpline > i { position: absolute; inset: 0 auto 0 0; background: #2f8a32; }
+.pust-ccmp-hpline.hp-mid > i { background: #b07a14; } .pust-ccmp-hpline.hp-low > i, .pust-ccmp-hpline.hp-dead > i { background: #a8121a; }
+/* «Відремонтувати» / «Поповнити»: the compact character sheet's service button (green, 24 × 20, top right of its box) */
+.wastelanders.pust-sheet button.pust-ccmp-svc:not(.header-control) { position: absolute; top: 4px; right: 4px; display: flex !important; align-items: center; justify-content: center;
+  width: 24px !important; height: 20px !important; min-width: 0 !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important;
+  background: #1d7d25 !important; color: #eaffea !important; border: 1px solid #3dff47 !important; border-radius: 3px !important; box-shadow: 0 0 6px rgba(61,255,71,.35) !important;
+  font-size: 0 !important; line-height: 0 !important; cursor: pointer; }
+.wastelanders.pust-sheet button.pust-ccmp-svc:not(.header-control) > i { display: block; margin: 0 !important; font-size: 13px !important; line-height: 1 !important; }
+.wastelanders.pust-sheet button.pust-ccmp-svc:not(.header-control):hover:not(:disabled) { background: #21b52a !important; }
+.wastelanders.pust-sheet button.pust-ccmp-svc:not(.header-control):disabled { background: #2c302f !important; color: #7d8a80 !important; border-color: #3d4241 !important; box-shadow: none !important; cursor: default; }
+.pust-ccmp-move { grid-column: 1 / -1; min-height: 0; align-items: stretch; }
+.pust-ccmp-mvhd { display: flex; align-items: center; gap: 6px; padding-right: 26px; }
+.pust-ccmp-mvhd > b { white-space: nowrap; }
+.wastelanders .pust-caravan .pust-ccmp-mvhd button.pust-autorange:not(.header-control) { margin-left: auto !important; }
+.pust-ccmp-pips { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
+.wastelanders .pust-caravan .pust-ccmp-pips .pip { width: 16px !important; height: 16px !important; min-height: 0 !important; padding: 0 !important; line-height: 0 !important; border-radius: 3px; }
+.wastelanders .pust-caravan .pust-ccmp-pips .pip.on { background: radial-gradient(circle at 50% 40%, #b6ffb9, var(--pu-green, #3dff47) 45%, #1d7d25); border-color: #2fbf3a; }
+.pust-ccmp-cargo, .pust-ccmp-imps { margin-top: 6px; }
+.pust-ccmp-cargo > h3, .pust-ccmp-imps > h3 { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.pust-ccmp-cargo > h3 > .pust-cmp-add { margin-left: auto; height: 26px !important; padding: 0 10px !important; font-size: 12px !important; text-transform: none; letter-spacing: 0; }
+.pust-ccmp-sum { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-size: 12px; }
+.pust-ccmp-sum > .pust-meter { flex: 1 1 60px; }
+.wastelanders button.pust-ccmp-gn:not(.header-control) { display: inline; width: auto; height: auto !important; min-height: 0; padding: 0 !important; margin: 0; border: none !important; background: none !important; box-shadow: none !important;
+  color: inherit !important; font-size: inherit !important; line-height: inherit !important; text-align: left; cursor: pointer; }
+.pust-ccmp-gn > b { overflow-wrap: anywhere; }
+.pust-ccmp-far { flex: none; color: #2f5f97; font-weight: 700; font-size: 12px; }
+.pust-ccmp-hurt { flex: none; color: #a8121a; font-weight: 700; font-size: 12px; }
+.pust-ccmp-cgedit { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; width: 100%; padding: 4px; border: 1px dashed #6b604a; border-radius: 3px; background: rgba(255,255,255,.35); font-size: 12px; }
+.pust-ccmp-cgedit > input[type="text"] { flex: 1 1 120px; min-width: 0; height: 24px; }
+.pust-ccmp-cgedit > input.pust-price, .pust-ccmp-cgedit > input.pust-qty { flex: 0 0 52px; }
+.pust-ccmp-cgedit > select { flex: none; width: auto; height: 24px; }
+.pust-ccmp-cgedit > label { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.wastelanders button.pust-ccmp-ok:not(.header-control) { flex: none; width: 24px !important; height: 24px !important; min-width: 0 !important; padding: 0 !important; }
+/* «Покращення» of the compact caravan (author, 2026-11-18; playtest item 11, mockup А): the ones with an action are perk cards
+   (.pust-pkuse), their action at the right of the card's top line; the rest quiet chips (.pust-cmp-passive) */
+.pust-ccmp-icard + .pust-ccmp-icard { margin-top: 4px; }
+.pust-ccmp-icard .pust-pkuse-n > small { font-weight: 400; color: #5d5543; }
+.pust-ccmp-iact { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 5px; margin-left: auto; }
+.pust-ccmp-iact:not(:has(*)) { display: none; }
+.pust-ccmp-iact > .pust-pkuse-go { margin-left: 0 !important; }
+.pust-ccmp-imps > .pust-cmp-passive { margin-top: 5px; }
+/* «Дефібрилятор» in the full sheet's card head (playtest 2026-11-18, item 13) */
+.pust-imp-defib { display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; }
+.wastelanders .pust-ccmp-iact button.pust-turret-dice:not(.header-control), .wastelanders .pust-ccmp-iact button.pust-turret-hit:not(.header-control) { width: auto; height: 22px !important; min-height: 0; padding: 0 6px !important; font-size: 12px !important; line-height: 20px !important; }
+.wastelanders .pust-ccmp-iact .pust-seg2 > button:not(.header-control) { height: 22px !important; padding: 0 6px !important; font-size: 11px !important; line-height: 20px !important; }

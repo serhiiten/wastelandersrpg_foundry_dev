@@ -17,16 +17,20 @@ export const MAP_NOTE = {
   ink: "#2a261c",
   /** the title strip's height, in cells (the strip is where a sticker is grabbed) */
   stripH: 0.34,
+  /** the strip of a title that takes two lines (author, 2026-11-18: a long title wraps instead of being cut at the GM's chip) */
+  stripH2: 0.6,
+  /** the smallest sticker one can drag the corner to, in cells (1×1 is the folded marker); the grip's size, in cells */
+  minW: 2, minH: 2, grip: 0.3,
 };
 
 export const NOTE_DEFAULT_TITLE = "Примітка";
 
-/** A note's flag with every field filled in */
+/** A note's flag with every field filled in; `author` is the player who made it (author, 2026-11-18; empty for the GM's) */
 export function normalizeNote(flag) {
   const f = flag && typeof flag === "object" ? flag : {};
   const color = MAP_NOTE.colors[f.color] ? f.color : MAP_NOTE.color;
   const full = f.full && Number(f.full.w) > 0 && Number(f.full.h) > 0 ? { w: Number(f.full.w), h: Number(f.full.h) } : null;
-  return { title: String(f.title ?? ""), text: String(f.text ?? ""), color, min: !!f.min, locked: !!f.locked, full };
+  return { title: String(f.title ?? ""), text: String(f.text ?? ""), color, min: !!f.min, locked: !!f.locked, full, author: String(f.author ?? "") };
 }
 
 /** Round a coordinate to the grid (`origin` — where the grid starts) */
@@ -52,9 +56,27 @@ export function dragEnd(start, dx, dy, w, h, size, rect, origin = { x: rect.x, y
   return clampToRect(snapCoord(start.x + dx, size, origin.x), snapCoord(start.y + dy, size, origin.y), w, h, rect);
 }
 
-/** The note's size in pixels: 3×3 cells or, folded, 1×1 */
-export function noteSize(flag, size) {
-  return flag?.min ? { w: size, h: size } : { w: MAP_NOTE.w * size, h: MAP_NOTE.h * size };
+/** The note's size in pixels: folded 1×1; else the drawing's shape (author, 2026-11-18: stickers are resized), 3×3 cells without one */
+export function noteSize(flag, size, shape) {
+  if (flag?.min) return { w: size, h: size };
+  if (Number(shape?.width) > 0 && Number(shape?.height) > 0) return { w: Number(shape.width), h: Number(shape.height) };
+  return { w: MAP_NOTE.w * size, h: MAP_NOTE.h * size };
+}
+
+/** Is a point on the resize grip: the bottom-right corner of an unfolded note */
+export function onResizeGrip(px, py, note, flag, size) {
+  if (flag?.min || !hitNote(px, py, note)) return false;
+  const g = MAP_NOTE.grip * size;
+  return px >= note.x + note.w - g && py >= note.y + note.h - g;
+}
+
+/** A dragged corner's new size: whole cells, at least minW×minH, the note kept inside the scene rectangle */
+export function resizeEnd(note, dx, dy, size, rect) {
+  const cells = (v, min, room) => Math.max(min * size, Math.min(Math.round(v / size) * size, Math.floor(room / size) * size));
+  return {
+    w: cells(note.w + dx, MAP_NOTE.minW, rect.x + rect.width - note.x),
+    h: cells(note.h + dy, MAP_NOTE.minH, rect.y + rect.height - note.y),
+  };
 }
 
 /** Folding: the new flag part (min, full) and the new size; the full size is kept to unfold to */
@@ -74,10 +96,10 @@ export function hitNote(px, py, note) {
   return px >= note.x && px < note.x + note.w && py >= note.y && py < note.y + note.h;
 }
 
-/** Is a point on the grab strip: the whole of a folded marker, else the title strip at the top */
-export function onGrabStrip(px, py, note, flag, size) {
+/** Is a point on the grab strip: the whole of a folded marker, else the title strip at the top (`strip` its height in px) */
+export function onGrabStrip(px, py, note, flag, size, strip = MAP_NOTE.stripH * size) {
   if (!hitNote(px, py, note)) return false;
-  return !!flag?.min || py < note.y + MAP_NOTE.stripH * size;
+  return !!flag?.min || py < note.y + strip;
 }
 
 /** Cut a title to a chip's length */

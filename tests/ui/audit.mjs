@@ -396,6 +396,12 @@ const boxOf = (el) => {
 };
 
 /** The layout rules on one window at its narrowest width and at its usual one; the window keeps its place */
+/** `globalThis.pustAuditActor = "<id>"` (2026-11-18): the sheets' scenarios take this actor when it is of their type */
+function auditActor(type) {
+  const x = game.actors.get(String(globalThis.pustAuditActor ?? ""));
+  return x?.type === type && x.visible ? x : null;
+}
+
 async function layoutAt(a, app, label) {
   const pos = { ...app.position };
   for (const w of [100, app.options?.position?.width ?? 600]) {
@@ -514,6 +520,20 @@ const SCENARIOS = {
     a.readable(hd, "span, b, select");
     // the ready-made checks' buttons tinted by their stripe (author, 2026-11-14): still readable
     a.readable(el, ".rpre button.chipb, .rpre button.chipb small");
+    // the fast roll (author, 2026-11-18): «Кинути перевірку» in a strip stuck to the panel's bottom while the set-up scrolls,
+    // nothing in it cut; the skills as buttons of one height
+    const ro = el.querySelector(".pust-roller"), bar = ro?.querySelector(".pust-rgo-bar");
+    a.ok("смуга «Кинути перевірку» є", !!bar);
+    if (bar && !ro.classList.contains("pust-folded") && ro.scrollHeight > ro.clientHeight + 4) {
+      ro.scrollTop = 0; await sleep(100);
+      a.ok("смуга «Кинути перевірку» біля низу панелі, коли вміст прокручується", Math.abs(R(bar).bottom - R(ro).bottom) <= 1.5, `${Math.round(R(ro).bottom - R(bar).bottom)} px від низу`);
+    }
+    if (bar) { a.noCut(bar, "b, small, button"); a.readable(bar, "b, small, button"); }
+    const sk = [...el.querySelectorAll(".pust-skchip")].filter(shown);
+    if (sk.length) {
+      a.ok("кнопки навичок однієї висоти", sk.every((b) => Math.abs(R(b).height - R(sk[0]).height) <= 1), sk.map((b) => Math.round(R(b).height)).join(", "));
+      a.noCut(el, ".pust-skchip");
+    }
     a.noRawKeys(el);
     if (!was) { await mod.toggleDockCheck(unit.getBoundingClientRect()); await sleep(400); }
   },
@@ -535,7 +555,7 @@ const SCENARIOS = {
   /** Character and caravan sheets: the quick access block */
   async sheets(a) {
     for (const type of ["character", "caravan"]) {
-      const actor = game.actors.find((x) => x.type === type && x.visible);
+      const actor = auditActor(type) ?? game.actors.find((x) => x.type === type && x.visible);
       if (!actor) { a.skip(type, "немає актора"); continue; }
       const was = actor.sheet.rendered;
       await actor.sheet.render({ force: true }); await sleep(1200);
@@ -738,7 +758,7 @@ const SCENARIOS = {
       }
     };
     for (const [type, label, opts] of [["character", "аркуш персонажа", {}], ["caravan", "аркуш каравану", {}], ["enemy", "картка ворога", { edit: '[data-action="editToggle"]' }], ["place", "картка місця", {}]]) {
-      const actor = game.actors.find((x) => x.type === type && x.visible);
+      const actor = auditActor(type) ?? game.actors.find((x) => x.type === type && x.visible);
       if (!actor) { a.scenario = label; a.skip("найвужча ширина", "немає актора"); continue; }
       await run(actor.sheet, `${label} «${actor.name}»`, opts);
     }
@@ -748,6 +768,32 @@ const SCENARIOS = {
       if (!open) { T.openTerminal(); await sleep(1300); }
       const app = foundry.applications.instances.get("pust-terminal");
       if (app) { await run(app, "термінал", { tabs: '[data-action="termTab"]' }); if (!open) await app.close(); }
+    }
+  },
+
+  /**
+   * The compact sheets (author, 2026-11-17 / 2026-11-18): the character's (with «Перки та особливості») and the caravan's
+   * (mockup Б1) at 460 px, their narrowest and usual width; the user's choice of full / compact is put back after
+   */
+  async compactSheets(a) {
+    for (const [type, label] of [["character", "компактний аркуш персонажа"], ["caravan", "компактний аркуш каравану"]]) {
+      const actor = game.actors.find((x) => x.type === type && x.isOwner) ?? game.actors.find((x) => x.type === type && x.visible);
+      if (!actor) { a.scenario = label; a.skip("компактний аркуш", "немає актора"); continue; }
+      const app = actor.sheet, was = app.rendered, wasCompact = app.ui.compact;
+      const pos = { ...app.position };
+      try {
+        app.ui.compact = true;
+        await app.render({ force: true }); await sleep(1100);
+        for (const w of [100, 460]) {
+          app.setPosition({ width: w }); await sleep(350);
+          a.scenario = `${label} «${actor.name}», ${Math.round(R(app.element).width)} px`;
+          a.ok("ширина компакту 460 px", Math.abs(R(app.element).width - 460) <= 1, `${Math.round(R(app.element).width)} px`);
+          a.layout(app.element);
+        }
+      } finally {
+        app.ui.compact = wasCompact;
+        if (was) { await app.render(); app.setPosition({ width: pos.width, height: pos.height, left: pos.left, top: pos.top }); } else await app.close();
+      }
     }
   },
 

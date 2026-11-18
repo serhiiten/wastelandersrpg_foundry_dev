@@ -44,21 +44,24 @@ export function planHeal(key, D, t, rnd = (s) => 1 + Math.floor(Math.random() * 
   const kind = t?.kind;
   let machine;
   if (kind === "enemy") machine = !!t.machine;
-  else if (kind === "caravan") {
-    if (t.vehicle !== "tachka") return { ok: false, reason: "Караван із браміном цим не лікується." };
-    machine = true;
-  } else return { ok: false, reason: "На цю ціль нічого не подіє." };
+  // any caravan, «Тачка» or brahmins, takes the machines' meds Хотфікс / Критфікс / Ребут and nothing else (author, 2026-11-18)
+  else if (kind === "caravan") machine = true;
+  else return { ok: false, reason: "На цю ціль нічого не подіє." };
   const heals = !!(D.heal || D.superHeal || REVIVE.has(key));
   if (!heals) return { ok: false, reason: `«${key}» тут не лікує: на ціль, що не персонаж, діє лише лікування.` };
   if (D.robot && !machine) return { ok: false, reason: `«${key}» працює лише на механізми.` };
-  if (!D.robot && machine) return { ok: false, reason: `«${key}» на механізми не діє — потрібен ремонтний набір.` };
+  if (!D.robot && machine) return { ok: false, reason: kind === "caravan"
+    ? `«${key}» караван не лікує: йому допомагають ремонт або ліки для механізмів (Хотфікс, Критфікс, Ребут).`
+    : `«${key}» на механізми не діє — потрібен ремонтний набір.` };
   const hp = int(t.hp), max = int(t.max, hp);
   if (REVIVE.has(key)) {
     if (hp > 0) return { ok: false, reason: `«${key}» повертає лише того, хто на 0 ОЗ.` };
     return { ok: true, amount: 1, label: `${key}: повертається з 1 ОЗ` };
   }
   if (hp >= max) return { ok: false, reason: `ОЗ уже на максимумі — «${key}» нічого не вилікує.` };
-  if (D.superHeal) { const r = rnd(6); return { ok: true, amount: r + 4, label: `${key} (1d6 = ${r}, + 4)` }; }
+  // Суперстимпак / Критфікс: 1d6 of damage deferred to the scene's end (a caravan keeps it and the GM's «Кінець сцени»
+  // rolls it; an enemy's the GM rolls himself; author, 2026-11-18)
+  if (D.superHeal) { const r = rnd(6); return { ok: true, amount: r + 4, defer: 1, label: `${key} (1d6 = ${r}, + 4)` }; }
   return { ok: true, amount: Math.max(0, int(D.heal.base)), label: key };
 }
 

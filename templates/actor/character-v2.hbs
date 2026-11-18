@@ -169,6 +169,15 @@
   </section>
 
   {{#if compact}}
+  {{!-- «Перки та особливості» (author, 2026-11-18; mockup А1): the perks with an active use as cards, the passive ones as rows --}}
+  {{#if (or cmp.perks.uses.length cmp.perks.passive.length)}}
+  <section class="pust-block pust-cmp-perks">
+    <h3><i class="fa-solid fa-star pust-qic" aria-hidden="true"></i>Перки та особливості{{#if cmp.perks.total}} <small class="pust-cmp-pkn">{{cmp.perks.avail}} з {{cmp.perks.total}} доступні</small>{{/if}}</h3>
+    {{#each cmp.perks.uses}}{{> pustPerkUse u=this}}{{/each}}
+    {{!-- the passive perks and feats as rows «name + what it gives» (author, 2026-11-18; playtest item 8, mockup В) --}}
+    {{#if cmp.perks.passive.length}}<dl class="pust-cmp-prows">{{#each cmp.perks.passive}}<dt title="{{tip}}">{{n}}</dt><dd>{{#each parts}}{{#unless @first}}; {{/unless}}<span class="{{#if bad}}bad{{/if}}">{{t}}</span>{{/each}}</dd>{{/each}}</dl>{{/if}}
+  </section>
+  {{/if}}
   {{!-- the chems of «Інший мотлох» with their description: «Вжити», «На ціль» and the rest, as on its cards --}}
   {{#if cmp.chems.length}}
   <section class="pust-block pust-cmp-chems">
@@ -303,14 +312,27 @@
           <button type="button" class="pust-x" data-action="act" data-act="perk-del" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>
         </div>
         {{#unless ok}}<div class="pust-why">{{why}}</div>{{/unless}}
-        {{#if rage}}<div class="pust-tools"><button type="button" data-action="act" data-act="rage" {{#if rage.used}}disabled{{/if}}>{{#if rage.active}}Лють триває{{else if rage.used}}Вже було в цій сесії{{else}}Активувати лють{{/if}}</button></div>{{/if}}
+        {{!-- «Застосувати» (author, 2026-11-18): «Лють ботана» too, with its chat card; while it lasts, «Лють триває» (after the review) --}}
+        {{#each uses}}{{> pustPerkUse u=this bare=true}}{{/each}}
+        {{#if rage.active}}<p class="pust-pkuse-t"><b class="pust-pkuse-usedtag">Лють триває</b> · до кінця сцени.</p>{{/if}}
         {{#if custom}}
         <textarea data-k="{{path}}.d" rows="2" placeholder="Опис: що дає й коли діє">{{d}}</textarea>
         <label class="pust-tog"><input type="checkbox" data-k="{{path}}.extra" {{#if extra}}checked{{/if}}> поза лімітом (нагорода чи рішення Доглядача)</label>
         {{else}}<div class="pust-text pust-desc">{{text}}</div>{{/if}}
       </div>
       {{/each}}
-      {{#if v.freePerks.length}}<div class="pust-sub">Безкоштовно від особливостей: {{#each v.freePerks}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</div>{{/if}}
+      {{!-- perks a feat gives (author, 2026-11-18): ordinary rows, marked; they go with the feat, so no «×» --}}
+      {{#each v.freePerkRows}}
+      <div class="pust-item pust-card perk pust-free-perk">
+        <div class="pust-item-head">
+          <b>{{n}}</b>
+          <small class="pust-sub pust-from" title="Цей перк дає особливість; він не займає місця серед перків">від особливості «{{from}}»</small>
+        </div>
+        {{#each uses}}{{> pustPerkUse u=this bare=true}}{{/each}}
+        <div class="pust-text pust-desc">{{text}}</div>
+      </div>
+      {{/each}}
+      {{#each freeUses}}{{> pustPerkUse u=this}}{{/each}}
       {{#if (eq v.pick "perk")}}{{> pustPicker list=v.perkPicker kind="perk" q=v.q showAll=v.showAll}}{{/if}}
     </section>
 
@@ -336,6 +358,7 @@
           <button type="button" class="pust-x" data-action="act" data-act="feat-del" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>
         </div>
         {{#unless ok}}<div class="pust-why">{{why}}</div>{{/unless}}
+        {{#each uses}}{{> pustPerkUse u=this bare=true}}{{/each}}
         {{#if custom}}
         <textarea data-k="{{path}}.d" rows="2" placeholder="Опис: що дає й коли діє">{{d}}</textarea>
         <label class="pust-tog"><input type="checkbox" data-k="{{path}}.extra" {{#if extra}}checked{{/if}}> поза лімітом (нагорода чи рішення Доглядача)</label>

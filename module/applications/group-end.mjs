@@ -11,6 +11,9 @@ import { fateNow } from "./fate-card.mjs";
 import { postChat } from "./chat.mjs";
 import { sharedSet } from "../helpers/scene-shared.mjs";
 import { GROUP_END, ownPart, resetMoves } from "../rules/group-end.mjs";
+import { backLine, chemReset, usedNames } from "../rules/perk-uses.mjs";
+import { clearDefibs } from "./caravan-defib.mjs";
+import { rollCaravanSuperDice } from "./caravan-superdice.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -33,11 +36,11 @@ export function groupSession() {
   return { label: lo === hi ? String(lo) : `${lo}–${hi}`, list: groupCharacters().map((a, i) => `${a.name}: ${ns[i]}`) };
 }
 
-/** The group's counters back to session 1, day 1, scene 1 (the sheet's «Скинути»; addictions' clocks too) */
+/** The group's counters back to session 1, day 1, scene 1 (the sheet's «Скинути»; addictions' clocks, perks' marks too) */
 export async function resetGroupCounters() {
   const chars = groupCharacters();
   if (!chars.length) return notify.warn("Жодного персонажа не призначено гравцям.");
-  for (const a of chars) await runAction(a, (st, L) => L.chemAct("chem-reset", { dataset: {} }), { quiet: true });
+  for (const a of chars) await runAction(a, (st, L) => chemReset(st, L), { quiet: true });
   notify.info(`Відлік скинуто: сесія 1, день 1, сцена 1 (${chars.map((a) => a.name).join(", ")}).`);
 }
 
@@ -81,7 +84,10 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   const def = GROUP_END[kind];
   if (!def || !game.user.isGM) return;
   const chars = groupCharacters();
-  if (!chars.length && !moves) return notify.warn("Жодного персонажа не призначено гравцям. Признач їх у налаштуваннях гравців (Player Character).");
+  if (!chars.length && !moves) {
+    if (kind !== "session") await clearDefibs(); // the caravans' marks end with the scene even with no characters assigned (a session asks first)
+    return notify.warn("Жодного персонажа не призначено гравцям. Признач їх у налаштуваннях гравців (Player Character).");
+  }
   if (kind === "session") {
     const yes = await foundry.applications.api.DialogV2.confirm({
       window: { title: "Кінець сесії" },
@@ -94,14 +100,25 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   for (const a of chars) {
     const hp0 = Number(a.system.hp?.value) || 0, fd0 = fateNow(a);
     try {
-      const msg = await runAction(a, (st, L) => { L[def.fn](); return L.chem().last; }, { quiet: true });
+      // the perks' marks that this time clears are named too (playtest 2026-11-18, item 7: «Залізячник» came back, the card
+      // said «без змін»)
+      const { msg, back } = await runAction(a, (st, L) => {
+        const was = usedNames(st);
+        L[def.fn]();
+        return { msg: L.chem().last, back: backLine(was, st) };
+      }, { quiet: true });
       const hp = Number(a.system.hp?.value) || 0;
-      rows.push({ name: a.name, img: a.img, items: sentences(ownPart(msg)), hp: hp - hp0, hpNow: hp, fd0, fd: fateNow(a) });
+      const items = sentences(ownPart(msg));
+      if (back) items.push(back);
+      rows.push({ name: a.name, img: a.img, items, hp: hp - hp0, hpNow: hp, fd0, fd: fateNow(a) });
     } catch (err) {
       console.error(err);
       rows.push({ name: a.name, img: a.img, items: ["Не вдалося застосувати: аркуш пошкоджений."], bad: true, hp: 0, fd0, fd: fd0 });
     }
   }
+  await clearDefibs(); // the caravans' «Дефібрилятор» marks end with the scene (author, 2026-11-18)
+  // the caravans' deferred dice of «Критфікс» are rolled and taken now, a row each in the card (author, 2026-11-18)
+  rows.push(...await rollCaravanSuperDice());
   const sharedUpd = { round: 1 };
   if (fate != null) sharedUpd.fate = Math.max(0, fate);
   await sharedSet(sharedUpd);

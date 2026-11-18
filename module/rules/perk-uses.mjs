@@ -1,0 +1,340 @@
+/**
+ * Perks with «Застосувати» (author, 2026-11-18; decision table https://claude.ai/artifact/E97UWeju748j376gykFzvT, stage 1).
+ * Hand-written, not generated: the uses of the perks (and the feat «Проклятий») that have an active use, what each button
+ * does, and the marks «використано».
+ *
+ * A mark is a stamp `st.chem.perkUse[id] = { a: sceneAbs, d: dayNo, s: session }`: a use is «used» while the stamp equals the
+ * current counter of its limit, so «Кінець сцени» / «Новий день» / «Кінець сесії» (the sheet's and the GM's group buttons)
+ * clear the marks by themselves. «Лють ботана» and «Друге дихання» keep their own counters (`rageSession`, `swSession`).
+ * «Скинути лічильники» puts the counters back to 1, so it also clears the stamps (`chemReset`).
+ *
+ * Pure: no Foundry. Dice come from `rng(sides)`; targets (T) are the application's job (applications/perk-card.mjs).
+ */
+import { PERK, FEAT, compute } from "./core.mjs";
+
+/** limit → the chip's class and the text of «повернеться після …» */
+export const PER = {
+  scene: { cls: "scene", back: "«Кінця сцени»" },
+  day: { cls: "day", back: "«Нового дня»" },
+  session: { cls: "session", back: "«Кінця сесії»" },
+};
+
+/**
+ * The uses. `perk`: the key of PERK (or FEAT with `feat: true`); `per`: the limit the mark lasts (null: no mark);
+ * `lim`: the limit chip's text; `short`: what it gives (the table's «Що дає (вікі, коротко)», reviewed by the author);
+ * `phrase`: the limit's words in the book's text (tests/perk-uses.test.mjs checks them); `auto`: what the button does by
+ * itself; `engine`: the sheet's own counter; `count`: the attribute that gives the number of items; `sub`: which use of a
+ * perk with two.
+ */
+export const PERK_USES = [
+  { id: "overwatch", perk: "Нагляд", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Дією взяти супротивника під нагляд; збереженою дією скасувати його шкоду, перервати хід чи не дати пересунутися." },
+  { id: "duelist", perk: "Дуелянт", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Обрати супротивника: +1 до атак і уникнення шкоди проти нього, −1 проти інших, доки ОЗ одного з вас не впадуть до 0." },
+  { id: "reflexes", perk: "Бойові рефлекси", per: "scene", lim: "раз за бойову сцену", phrase: "Раз за бойову сцену", short: "Перекинути всі кістки шкоди, завданої тобою чи тобі, і обрати вигідніше." },
+  { id: "silent", perk: "Тиха смерть", per: null, lim: "раз за сцену на ціль", phrase: "раз за сцену", auto: "silent", short: "Атака зненацька: максимальна шкода зброї і ще 1d6." },
+  { id: "dodgy", perk: "Верткість", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Скасувати будь-яку фізичну шкоду від супротивника чи пастки." },
+  { id: "speed", perk: "Я — швидкість", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Одразу після атаки атакувати ще раз." },
+  { id: "observant", perk: "Спостережливість", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Помітити деталь і створити ситуативний аспект, якщо Доглядач погодиться." },
+  { id: "tracker", perk: "Слідопит", per: "scene", lim: "раз за сцену", phrase: "раз за сцену", short: "Два запитання Доглядачеві про сліди, яким не більше трьох днів." },
+  { id: "kick", perk: "Бісова штуковина!", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Повністю перекинути перевірку зламу замків чи взаємодії з комп'ютерами (гучно)." },
+  { id: "lightstep", perk: "Легка хода", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Скасувати пастку чи тривогу, що спрацювала через тебе." },
+  { id: "chemist", perk: "Хімік", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", auto: "sup", short: "−1 Припас: доза медикаменту, наркотику, отрути чи біологічного агента до 3(к); наприкінці сцени втрачає властивості." },
+  { id: "junker", perk: "Залізячник", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", auto: "sup", short: "−1 Припас: граната чи невеликий пристрій до 3(к); наприкінці сцени розвалюється." },
+  { id: "robotics", perk: "Експерт-робототехнік", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Перевірка ІН + Знання: деактивувати чи перепрограмувати робота (еліта — Послаблення, бос — два)." },
+  { id: "touch-heal", perk: "Цілющий дотик", sub: "зцілення", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", auto: "heal", short: "Дією торкнутися персонажа: він відновлює 1d10 ОЗ. Ціль — позначена T (себе теж: познач свій токен)." },
+  { id: "touch-back", perk: "Цілющий дотик", sub: "повернення", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", auto: "back", short: "Повернути в сцену персонажа, що вибув (не приреченого й не мертвого), з 1 ОЗ. Ціль — позначена T." },
+  { id: "suggestion", perk: "Навіювання", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Навіяти думку чи ілюзію; перевірка ІН + Примус; можна потай." },
+  { id: "psychometry", perk: "Психометрія", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Торкнутися речі й поставити два запитання; можна потай." },
+  { id: "chosen", perk: "Обраний", per: "scene", lim: "раз за сцену", phrase: "Раз за сцену", short: "Скасувати фізичну чи психічну шкоду, якої щойно завдали." },
+  { id: "rage", perk: "Лють ботана", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", engine: "rage", short: "+1d6 ОЗ; до кінця сцени +1 СЛ і ВП та +1 до атак; наприкінці сцени 1d10 шкоди." },
+  { id: "second-wind", perk: "Друге дихання", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", engine: "ko-wind", show: true, short: "На 0 ОЗ прийти до тями з 5 ОЗ: кнопка в блоці «0 ОЗ»." },
+  { id: "analytic", perk: "Аналітична чуйка", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", count: "IN", short: "Запитань Доглядачеві стільки, скільки ІН." },
+  { id: "trader", perk: "Майстер-торговець", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", short: "У перевірці ПВ + Маніпуляція чи Примус ще 1 / 2 / 3 пункти зі списку за ступенем успіху." },
+  { id: "port", perk: "В кожному порту", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", count: "PV", short: "Знайомий НІП у новому поселенні; пунктів стільки, скільки ПВ." },
+  { id: "art-earn", perk: "Талановитий митець", sub: "заробіток", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", short: "ПВ + Маніпуляція в поселенні: 1d6 / 1d6+3 кришок; невдача — легкий ментальний наслідок." },
+  { id: "art-heal", perk: "Талановитий митець", sub: "лікування", per: "session", lim: "раз за сесію", phrase: "раз за сесію", short: "Спроба вилікувати ментальний наслідок іншого: ПВ + Маніпуляція." },
+  { id: "who-me", perk: "Хто? Я?", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", short: "Невдала крадіжка: автоматично вдати, що нічого не робив." },
+  { id: "lucky", perk: "Щасливець", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", short: "Підняти результат будь-якої перевірки (своєї чи союзника) на ступінь." },
+  { id: "stranger", perk: "Загадковий незнайомець (або незнайомка)", label: "Загадковий незнайомець", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", auto: "stranger", short: "Кістка Долі 1d10 + УДЧ: 1d10 шкоди / 2d6 або вбивство / 3d6 або вбивство за категорією цілі." },
+  { id: "fortune", perk: "Щаслива випадковість", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", count: "UDCH", short: "З'явитися в сцені; пунктів зі списку стільки, скільки УДЧ." },
+  { id: "just-had", perk: "Якраз було!", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", short: "Знайшлася потрібна річ до 3(к)." },
+  { id: "foresight", perk: "Передбачення", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", short: "Запитання про наслідки однієї дії; можна потай." },
+  { id: "invisible", perk: "Невидимість", per: "session", lim: "раз за сесію", phrase: "Раз за сесію", short: "Кілька хвилин непомітний для розумних істот; можна потай." },
+  { id: "mind-shield", perk: "Ментальний щит", per: "session", lim: "раз за сесію", phrase: "раз за сесію", short: "Дією щит на зону: союзникам 2 броні від психічної шкоди й Посилення проти навіювання до твоєї наступної дії." },
+  { id: "cannibal", perk: "Канібал", per: "day", lim: "раз на день", phrase: "Раз на день", auto: "cannibal", short: "+1d10 ОЗ і до кінця наступної сцени +1 СЛ та ВП (не вище видового максимуму)." },
+  { id: "forager", perk: "Здобувач", per: null, lim: "раз за 5 клітин подорожі", phrase: "Раз між перевірками подорожі", auto: "forager", short: "Полювання: 1d6 → 0 / 1 / 2 Припаси." },
+  { id: "skinner", perk: "Кушнір", per: null, lim: "після кожного бою", phrase: "Після кожного бою", auto: "skinner", short: "1d6 → шкури на 1 / 2 / 3(к)." },
+  { id: "message", perk: "Послання", per: "day", lim: "після невдачі — до наступного дня", phrase: "до наступного дня", fail: true, short: "Невдала перевірка ІН + Маніпуляція закриває здібність до наступного дня: познач її." },
+  { id: "cursed", perk: "Проклятий", feat: true, per: null, lim: "жетон Долі", phrase: "витрачати жетони Долі", auto: "cursed", short: "Витратити жетон Долі, щоб обернути хід супротивника проти нього." },
+];
+
+export const USE_BY_ID = Object.fromEntries(PERK_USES.map((u) => [u.id, u]));
+
+/** The book's text of a use's perk or feat */
+export const bookText = (u) => (u.feat ? FEAT[u.perk]?.d : PERK[u.perk]?.d) || "";
+/** The name on the card and button: «Цілющий дотик (зцілення)» */
+export const useName = (u) => (u.label || u.perk) + (u.sub ? ` (${u.sub})` : "");
+
+const int = (v, d = 0) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : d; };
+const chemOf = (st) => {
+  if (!st.chem) st.chem = {};
+  if (!st.chem.perkUse || typeof st.chem.perkUse !== "object") st.chem.perkUse = {};
+  return st.chem;
+};
+
+/** The stamp of the current scene, day and session */
+export const stampNow = (c) => ({ a: c?.sceneAbs || 0, d: c?.dayNo || 1, s: c?.session || 1 });
+
+/** Is this use marked «використано» now */
+export function isUsed(u, c) {
+  if (!c) return false;
+  if (u.engine === "rage") return !!c.rageSession && c.rageSession === (c.session || 1);
+  if (u.engine === "ko-wind") return !!c.swSession && c.swSession === (c.session || 1);
+  const p = c.perkUse?.[u.id];
+  if (!p || !u.per) return false;
+  const now = stampNow(c);
+  if (u.per === "scene") return p.a === now.a && p.s === now.s;
+  if (u.per === "day") return p.d === now.d;
+  return p.s === now.s;
+}
+
+/** Does the character have this use's perk (a free one from a feat too) or feat */
+export function hasUse(u, st, d) {
+  if (u.feat) return (st.feats || []).includes(u.perk);
+  return (d.allPerks || []).includes(u.perk);
+}
+
+/** Why the button is off right now («» when it is on) */
+function offWhy(u, st, d) {
+  if (u.id === "speed" && (st.feats || []).some((f) => f === "Вибивайло" || f === "Точність")) return "Не діє з особливостями «Вибивайло» чи «Точність».";
+  if (u.auto === "sup" && int(st.supplies) <= 0) return "Немає Припасів.";
+  if (u.auto === "cursed" && fateNow(st, d) <= 0) return "Жетонів Долі не лишилося.";
+  return "";
+}
+
+const fateNow = (st, d) => (st.fdCur === "" || st.fdCur == null ? d.fd : int(st.fdCur));
+
+/**
+ * The character's uses for the sheet, in the table's order: { id, name, lim, cls, short, used, back, off, offWhy, show,
+ * fail, count }. `d` = compute(st).
+ */
+export function usesFor(st, d = compute(st)) {
+  const c = st.chem || {};
+  return PERK_USES.filter((u) => hasUse(u, st, d)).map((u) => {
+    const used = isUsed(u, c);
+    const why = used ? "" : offWhy(u, st, d);
+    const n = u.count ? Math.max(0, d.eff?.[u.count] ?? 0) : null;
+    return {
+      id: u.id, name: useName(u), sub: u.sub || "", perk: u.perk, feat: !!u.feat, per: u.per, lim: u.lim, cls: PER[u.per]?.cls || "free",
+      book: bookText(u),
+      short: u.short + (n != null ? ` Зараз: ${n}.` : ""), used, back: used ? `повернеться після ${PER[u.per]?.back || "«Кінця сесії»"}` : "",
+      off: used || !!why, offWhy: why, show: !!u.show, fail: !!u.fail,
+    };
+  });
+}
+
+/** The names of the uses marked «використано» now (the group's time buttons say which ones came back; playtest 2026-11-18, item 7) */
+export function usedNames(st, d = compute(st)) {
+  return usesFor(st, d).filter((u) => u.used).map((u) => u.name);
+}
+
+/** The line of a time card for the uses that came back: «Знову можна застосувати: «Залізячник».» («» when none) */
+export function backLine(was, st) {
+  const now = new Set(usedNames(st));
+  const back = was.filter((n) => !now.has(n));
+  return back.length ? `Знову можна застосувати: ${back.map((n) => `«${n}»`).join(", ")}.` : "";
+}
+
+/**
+ * The compact sheet's «Перки та особливості» (mockup А1): the uses as cards, «N з M доступні»; the passive perks and feats as
+ * rows «name + what it gives» (author, 2026-11-18; playtest item 8, mockup В): the texts of their status chips (`chips`:
+ * the sheet's view chips with `src` 'p:<perk>' / 'f:<feat>', from logic.mjs statusChips), else the book's text; the
+ * negative parts marked `bad`. Without `chips` the rows carry the book's text only.
+ */
+export function perkSection(st, d = compute(st), chips = []) {
+  const uses = usesFor(st, d);
+  const active = new Set(uses.map((u) => u.perk));
+  const bySrc = new Map();
+  for (const c of chips || []) if (c?.src) (bySrc.get(c.src) ?? bySrc.set(c.src, []).get(c.src)).push(c);
+  // «Здоровань: +5 макс. ОЗ (Здоровань)», «Ерудит: Знання на рівень вище»: the row names the perk already
+  const bare = (t, n) => {
+    let s = String(t || "").trim();
+    if (s.endsWith(` (${n})`)) s = s.slice(0, -n.length - 3);
+    if (s.startsWith(n)) s = s.slice(n.length).replace(/^[\s:]+/, "");
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+  };
+  // one row a perk or feat: a perk taken with several notes («Улюблений ворог», «Спеціалізація») has a chip per note, all in it
+  const seen = new Set(), passive = [];
+  const add = (n, key, book) => {
+    if (!n || active.has(n) || seen.has(key)) return;
+    seen.add(key);
+    const parts = (bySrc.get(key) || []).map((c) => ({ t: bare(c.t, n), bad: c.cls === "bad" })).filter((p) => p.t);
+    passive.push({ n, parts: parts.length ? parts : [{ t: String(book || "").trim(), bad: false }], tip: book || "" });
+  };
+  for (const p of st.perks || []) add(p.n, "p:" + p.n, PERK[p.n]?.d || p.d);
+  for (const n of d.freePerks || []) add(n, "p:" + n, PERK[n]?.d);
+  for (const n of st.feats || []) add(n, "f:" + n, FEAT[n]?.d || (st.customFeats || []).find((c) => c.n === n)?.d);
+  const live = uses.filter((u) => !u.show);
+  return { uses, avail: live.filter((u) => !u.off).length, total: live.length, passive };
+}
+
+/** The highest result of a damage formula «2d6+1» (null when it is not one) */
+export function maxDamage(f) {
+  const s = String(f || "").replace(/\s/g, "").toLowerCase().replace(/[кk]/g, "d");
+  const m = /^(\d*)d(\d+)([+-]\d+)?$/.exec(s);
+  if (m) return (int(m[1], 1) || 1) * int(m[2]) + int(m[3], 0);
+  return /^\d+$/.test(s) ? int(s) : null;
+}
+
+/**
+ * «Загадковий незнайомець»: what the Fate die total does to a target of category `cat` (statists / regular / elite / boss;
+ * unknown → every outcome is told). Returns { lines, dice } where `dice` = the damage dice to roll or null (a kill).
+ */
+export function strangerOutcome(total, cat) {
+  const kill = "незнайомець убиває ціль";
+  if (total <= 5) return { text: "незнайомець завдає цілі 1d10 фізичної шкоди, що ігнорує броню", dice: "1d10" };
+  if (total <= 9) {
+    if (cat === "statists" || cat === "regular") return { text: kill, dice: null };
+    if (cat) return { text: "незнайомець завдає цілі 2d6 фізичної шкоди, що ігнорує броню", dice: "2d6" };
+    return { text: "стандартного супротивника чи статиста незнайомець убиває, решті завдає 2d6 фізичної шкоди, що ігнорує броню", dice: "2d6" };
+  }
+  if (cat === "boss") return { text: "незнайомець завдає босу 3d6 фізичної шкоди, що ігнорує броню", dice: "3d6" };
+  if (cat) return { text: kill, dice: null };
+  return { text: "елітного чи стандартного супротивника або статиста незнайомець убиває, босу завдає 3d6 фізичної шкоди, що ігнорує броню", dice: "3d6" };
+}
+
+/** «XdY» rolled with `rng` */
+function rollDice(f, rng) {
+  const m = /^(\d+)d(\d+)$/.exec(f);
+  if (!m) return 0;
+  let s = 0;
+  for (let i = 0; i < +m[1]; i++) s += rng(+m[2]);
+  return s;
+}
+
+const defaultRng = (s) => 1 + Math.floor(Math.random() * s);
+
+/**
+ * «Застосувати»: the use's own effect on the character's state, then its mark. Changes `st` in place.
+ * @param {object} st   the HTML sheet's state
+ * @param {object} L    createLogic() for the same state
+ * @param {string} id   the use
+ * @param {object} [o]  { rng(sides), cat: the target enemy's category for «Загадковий незнайомець» }
+ * @returns {{ ok: boolean, msg?: string, name?: string, lines?: string[], text?: string, heal?: number, back?: boolean }}
+ */
+export function usePerk(st, L, id, { rng = defaultRng, cat = "" } = {}) {
+  const u = USE_BY_ID[id];
+  if (!u) return { ok: false, msg: "Такого перку немає." };
+  const d = compute(st);
+  if (!hasUse(u, st, d)) return { ok: false, msg: `У персонажа немає «${u.perk}».` };
+  const c = chemOf(st);
+  if (u.show) return { ok: false, msg: `«${useName(u)}» застосовують у блоці «0 ОЗ».` };
+  if (isUsed(u, c)) return { ok: false, msg: `«${useName(u)}» уже використано: повернеться після ${PER[u.per]?.back || "«Кінця сесії»"}.` };
+  const why = offWhy(u, st, d);
+  if (why) return { ok: false, msg: why };
+  const lines = [];
+  const res = { ok: true, name: useName(u), lim: u.lim, text: bookText(u), lines };
+  const hpNow = () => L.curHp(compute(st));
+  const hpMax = () => L.hpMaxNow(compute(st));
+
+  switch (u.auto) {
+    case "sup": {
+      st.supplies = int(st.supplies) - 1;
+      lines.push(`−1 Припас (лишилося ${st.supplies}). ${u.id === "chemist" ? "Назву й ефект дози" : "Назву й функції пристрою"} узгодь із Доглядачем.`);
+      break;
+    }
+    case "heal": {
+      res.heal = rng(10);
+      lines.push(`1d10 = ${res.heal}: стільки ОЗ відновлює ціль дотику.`);
+      break;
+    }
+    case "back": {
+      res.back = true;
+      lines.push("Ціль повертається в сцену з 1 ОЗ. Наслідки отримує як зазвичай.");
+      break;
+    }
+    case "cannibal": {
+      const r = rng(10), cur = hpNow(), max = hpMax();
+      st.hpCur = String(Math.max(cur, Math.min(max, cur + r)));
+      c.scene = (c.scene || []).filter((e) => e.key !== "cannibal");
+      c.scene.push({ id: `cannibal-${c.sceneAbs || 0}-${c.dayNo || 1}`, drug: "Канібал", key: "cannibal", cap: true, scenes: 2, attr: { SL: 1, VP: 1 }, t: "+1 СЛ і ВП (не вище видового максимуму) до кінця наступної сцени" });
+      lines.push(`1d10 = ${r}: ОЗ ${cur} → ${st.hpCur} з ${max}. До кінця наступної сцени +1 СЛ і ВП (не вище видового максимуму).`);
+      const a = (c.addictions || []).find((x) => x.drug === "Людська плоть");
+      if (a) {
+        L.chemToggleUsed("Людська плоть", true);
+        lines.push("Залежність від людської плоті: це доза, «вжито в цій сцені».");
+      }
+      break;
+    }
+    case "stranger": {
+      const r = rng(10), luck = d.eff?.UDCH ?? 0, total = r + luck;
+      const o = strangerOutcome(total, cat);
+      lines.push(`Кістка Долі: 1d10 (${r}) ${luck < 0 ? "−" : "+"} УДЧ (${Math.abs(luck)}) = ${total}: ${o.text}.`);
+      if (o.dice) {
+        res.dmg = rollDice(o.dice, rng);
+        lines.push(`Шкода ${o.dice} = ${res.dmg} (ігнорує броню). Доглядач застосовує її до цілі.`);
+      }
+      break;
+    }
+    case "forager": {
+      const r = rng(6), n = r <= 2 ? 0 : r <= 4 ? 1 : 2;
+      const cur = int(st.supplies), room = Math.max(0, d.supMax - cur), add = Math.min(n, room);
+      st.supplies = cur + add;
+      lines.push(`1d6 = ${r}: ${n ? `здобуто ${n} ${n === 1 ? "Припас" : "Припаси"}` : "нічого не знайдено"}.`
+        + (add ? ` Припаси ${cur} → ${st.supplies}.` : "")
+        + (n > add ? ` Не влізло: ${n - add} (максимум ${d.supMax}).` : ""));
+      break;
+    }
+    case "skinner": {
+      const r = rng(6), caps = r <= 2 ? 1 : r <= 4 ? 2 : 3;
+      lines.push(`1d6 = ${r}: шкур на ${caps}(к). Їх ще треба продати в поселенні.`);
+      break;
+    }
+    case "silent": {
+      const w = (st.weapons || []).find((x) => x.hand);
+      const max = w && maxDamage(w.d);
+      const r = rng(6);
+      lines.push(w && max != null
+        ? `Зброя в руках «${w.n || "без назви"}» (${w.d}): максимум ${max} + 1d6 (${r}) = ${max + r} шкоди.`
+        : `1d6 = ${r}: додай до максимальної шкоди своєї зброї.`);
+      break;
+    }
+    case "cursed": {
+      const f = fateNow(st, d);
+      st.fdCur = String(f - 1);
+      lines.push(`−1 жетон Долі (лишилося ${f - 1}). Хід супротивника обертається проти нього самого.`);
+      break;
+    }
+    default:
+      if (u.engine === "rage") {
+        const cur = hpNow();
+        L.chemAct("rage", { dataset: {} });
+        lines.push(`ОЗ ${cur} → ${hpNow()}. До кінця сцени +1 СЛ і ВП (не вище видового максимуму) та +1 до атак; наприкінці сцени 1d10 шкоди.`);
+      } else if (u.fail) {
+        lines.push("Перевірку ІН + Маніпуляція провалено: «Послання» недоступне до наступного дня.");
+      } else if (u.count) {
+        const n = Math.max(0, d.eff?.[u.count] ?? 0);
+        lines.push(`${u.count === "IN" ? "Запитань" : "Пунктів"}: ${n}.`);
+      }
+  }
+  if (u.per && !u.engine) c.perkUse[u.id] = stampNow(c);
+  return res;
+}
+
+/** The owner's or the GM's one click: the mark comes off (the bonus already applied stays) */
+export function freePerk(st, id) {
+  const u = USE_BY_ID[id];
+  if (!u) return false;
+  const c = chemOf(st);
+  if (u.engine === "rage") c.rageSession = 0;
+  else if (u.engine === "ko-wind") c.swSession = 0;
+  else delete c.perkUse[id];
+  return true;
+}
+
+/** «Скинути лічильники» (the sheet's and the group's): the counters go back to 1, so the stamps go, «Друге дихання» too */
+export function chemReset(st, L) {
+  const c = chemOf(st);
+  c.perkUse = {};
+  c.swSession = 0;
+  return L.chemAct("chem-reset", { dataset: {} });
+}

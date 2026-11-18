@@ -5,12 +5,19 @@
  * strip drags it — from any layer, unless a token is under the pointer. Foundry's own Drawing `text` stays empty.
  * Mirrors the HTML terminal's map notes (map.js: MAP_NOTE, mapNoteHtml, fold/min).
  *
+ * Players make stickers too (author, 2026-11-18): visible to all, signed with the player's name (flag `author`), and any
+ * player edits any sticker players see (the GM's too); what Foundry does not let a player write goes through the active GM (`noteWrite`, socket
+ * op `mapNote`). A sticker is resized by its bottom-right corner (whole cells, 2×2 at least).
+ *
  * Wiring (module/wastelanders.mjs): `initMapNotes()` once in `init` (registers the placeable class), `readyMapNotes()` once in `ready`.
  */
 import {
-  MAP_NOTE, NOTE_DEFAULT_TITLE, chipText, dragEnd, foldGeometry, normalizeNote, noteSize, onGrabStrip, placeNew, unfoldGeometry,
+  MAP_NOTE, NOTE_DEFAULT_TITLE, chipText, dragEnd, foldGeometry, normalizeNote, noteSize, onGrabStrip, onResizeGrip, placeNew,
+  resizeEnd, unfoldGeometry,
 } from "../rules/map-notes.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { askGM, answerGM } from "../helpers/gm-request.mjs";
+import { activeGmHere } from "../helpers/main-window.mjs";
 
 export { MAP_NOTE };
 
@@ -26,7 +33,30 @@ function noteOf(doc) {
   const f = doc?.getFlag?.(sys(), "mapNote");
   return f ? normalizeNote(f) : null;
 }
-const canEdit = (doc) => !!doc && doc.canUserModify(game.user, "update");
+/** Foundry lets this user write the drawing itself (the GM, the drawing's author) */
+const canWrite = (doc) => !!doc && doc.canUserModify(game.user, "update");
+/** any sticker players see (author, 2026-11-18: «усі правлять», the GM's too): any player may edit it, through the GM when it
+ *  is not their own; a hidden one stays the GM's */
+const isSharedNote = (doc) => !!noteOf(doc) && !doc.hidden;
+const canEdit = (doc) => canWrite(doc) || (!game.user.isGM && isSharedNote(doc) && !!game.users.activeGM);
+const NO_GM = "Чужі примітки змінює Доглядач, а його зараз немає в грі.";
+/** a sticker's size: the corner being dragged, else its shape */
+const sizeOf = (doc, flag, p = doc?.object) => noteSize(flag, canvas.dimensions.size, p?.pustResize ?? doc.shape);
+/** the title strip's height in px (two lines are taller; the placeable knows after drawing) */
+const stripOf = (doc) => doc?.object?.pustStrip ?? MAP_NOTE.stripH * canvas.dimensions.size;
+
+/** Write a sticker: directly when Foundry lets this user, else through the active GM */
+async function noteWrite(doc, data) {
+  if (canWrite(doc)) return doc.update(data);
+  if (!game.users.activeGM) { warn(NO_GM); return null; }
+  return askGM({ op: "mapNote", act: "update", scene: doc.parent.id, id: doc.id, data }, "Примітка", "Зміну не збережено.");
+}
+async function noteDelete(doc) {
+  if (canWrite(doc)) return doc.delete();
+  if (!game.users.activeGM) { warn(NO_GM); return null; }
+  askGM({ op: "mapNote", act: "delete", scene: doc.parent.id, id: doc.id }, "Примітка", "Примітку не видалено.");
+  return null;
+}
 const scaleK = () => canvas.dimensions.size / 108;
 
 /* ===================== Drawing on the canvas ===================== */
@@ -83,7 +113,8 @@ export function initMapNotes() {
       const flag = noteOf(this.document);
       if (!flag || !this.shape || this.shape.destroyed) return;
       const size = canvas.dimensions.size, k = scaleK();
-      const { w, h } = noteSize(flag, size);
+      const { w, h } = sizeOf(this.document, flag, this);
+      this.pustStrip = MAP_NOTE.stripH * size;
       const col = MAP_NOTE.colors[flag.color];
       const fill = hex(col.fill), line = hex(col.line), ink = hex(MAP_NOTE.ink);
       const T = TextClass();
@@ -112,41 +143,60 @@ export function initMapNotes() {
         chip.position.set(w / 2, h + 5 * k + 3 * k);
         box.addChild(bg, chip);
       } else {
-        const stripH = MAP_NOTE.stripH * size;
-        const strip = new PIXI.Graphics();
-        strip.beginFill(line, 0.3).drawRect(1.5 * k, 1.5 * k, w - 3 * k, stripH - 1.5 * k).endFill();
-        strip.lineStyle({ width: 1.5 * k, color: line, alpha: 0.8 }).moveTo(0, stripH).lineTo(w, stripH);
-        box.addChild(strip);
-
-        const empty = !flag.title.trim();
-        const title = new T(empty ? NOTE_DEFAULT_TITLE : flag.title, new PIXI.TextStyle({
-          fontFamily: MAP_NOTE.fontFamily, fontSize: 24 * k, fontWeight: "800", fill: ink, wordWrap: false, lineHeight: 24 * k * 1.2,
-        }));
-        title.alpha = empty ? 0.45 : 1;
-        title.position.set(pad, (stripH - title.height) / 2);
         // the GM's chip at the strip's right end (author, 2026-11-14): «Видима» while players see the sticker, «Прихована» while not
-        let hidW = 0;
+        let hidW = 0, chipParts = null;
         if (game.user.isGM) {
           const hidden = !!this.document.hidden;
           const hid = new T(hidden ? "Прихована" : "Видима", new PIXI.TextStyle({ fontFamily: MAP_NOTE.fontFamily, fontSize: 15 * k, fontWeight: "800", fill: hidden ? 0xf2ecd8 : 0x0e1a10, letterSpacing: 0.5 * k }));
           const cw = hid.width + 12 * k, ch = hid.height + 4 * k;
-          const cx = w - pad - (flag.locked ? 30 * k : 0) - cw, cy = (stripH - ch) / 2;
+          const cx = w - pad - (flag.locked ? 30 * k : 0) - cw, cy = (MAP_NOTE.stripH * size - ch) / 2;
           const bg = new PIXI.Graphics();
           bg.beginFill(hidden ? ink : 0x3dff47, hidden ? 0.85 : 0.9).drawRoundedRect(cx, cy, cw, ch, 3 * k).endFill();
           hid.position.set(cx + 6 * k, cy + 2 * k);
-          box.addChild(bg, hid);
+          chipParts = [bg, hid];
           hidW = cw + 8 * k;
         }
-        const tmask = new PIXI.Graphics();
-        tmask.beginFill(0xffffff).drawRect(0, 0, w - pad - (flag.locked ? 30 * k : pad) - hidW, stripH).endFill();
-        box.addChild(tmask, title);
-        title.mask = tmask;
+        // a long title wraps to a second line and the strip grows (author, 2026-11-18: it was cut at the chip); more is cut with «…»
+        const empty = !flag.title.trim();
+        const tStyle = new PIXI.TextStyle({
+          fontFamily: MAP_NOTE.fontFamily, fontSize: 24 * k, fontWeight: "800", fill: ink, lineHeight: 24 * k * 1.2,
+          wordWrap: true, wordWrapWidth: Math.max(10, w - 2 * pad - (flag.locked ? 30 * k - pad : 0) - hidW), breakWords: true,
+        });
+        let lines = PIXI.TextMetrics.measureText(empty ? NOTE_DEFAULT_TITLE : flag.title, tStyle).lines.map((l) => l.trimEnd());
+        if (lines.length > 2) {
+          let second = `${lines[1]}…`;
+          while (second.length > 1 && PIXI.TextMetrics.measureText(second, tStyle).width > tStyle.wordWrapWidth) second = `${second.slice(0, -2)}…`;
+          lines = [lines[0], second];
+        }
+        const stripH = (lines.length > 1 ? MAP_NOTE.stripH2 : MAP_NOTE.stripH) * size;
+        this.pustStrip = stripH;
+        const strip = new PIXI.Graphics();
+        strip.beginFill(line, 0.3).drawRect(1.5 * k, 1.5 * k, w - 3 * k, stripH - 1.5 * k).endFill();
+        strip.lineStyle({ width: 1.5 * k, color: line, alpha: 0.8 }).moveTo(0, stripH).lineTo(w, stripH);
+        box.addChild(strip);
+        if (chipParts) box.addChild(...chipParts);
+
+        const title = new T(lines.join("\n"), new PIXI.TextStyle({ ...tStyle, wordWrap: false }));
+        title.alpha = empty ? 0.45 : 1;
+        title.position.set(pad, (stripH - title.height) / 2);
+        box.addChild(title);
 
         if (flag.locked) {
           const lk = new PIXI.Graphics(), lx = w - 22 * k, ly = stripH / 2;
           lk.lineStyle({ width: 2 * k, color: ink, alpha: 0.7 }).arc(lx + 6 * k, ly - 3 * k, 4.5 * k, Math.PI, 0);
           lk.lineStyle(0).beginFill(ink, 0.7).drawRoundedRect(lx, ly - 3 * k, 12 * k, 10 * k, 2 * k).endFill();
           box.addChild(lk);
+        }
+
+        // the player who made it, small, bottom right (author, 2026-11-18)
+        let authH = 0;
+        if (flag.author) {
+          const au = new T(`— ${flag.author}`, new PIXI.TextStyle({ fontFamily: MAP_NOTE.fontFamily, fontSize: 16 * k, fontStyle: "italic", fill: ink }));
+          au.alpha = 0.7;
+          au.anchor.set(1, 1);
+          au.position.set(w - pad - MAP_NOTE.grip * size * 0.6, h - 5 * k);
+          box.addChild(au);
+          authH = au.height + 4 * k;
         }
 
         if (flag.text) {
@@ -156,9 +206,17 @@ export function initMapNotes() {
           }));
           body.position.set(pad, stripH + 8 * k);
           const bmask = new PIXI.Graphics();
-          bmask.beginFill(0xffffff).drawRect(0, stripH + 2 * k, w, h - stripH - 2 * k - 3 * k).endFill();
+          bmask.beginFill(0xffffff).drawRect(0, stripH + 2 * k, w, Math.max(0, h - stripH - 2 * k - 3 * k - authH)).endFill();
           box.addChild(bmask, body);
           body.mask = bmask;
+        }
+
+        // the resize grip, bottom right, for whoever may change the sticker (author, 2026-11-18)
+        if (!flag.locked && canEdit(this.document)) {
+          const g = new PIXI.Graphics(), gs = MAP_NOTE.grip * size;
+          g.lineStyle({ width: 2 * k, color: line, alpha: 0.9 });
+          for (const f of [0.35, 0.65, 0.95]) g.moveTo(w - 4 * k - gs * f, h - 4 * k).lineTo(w - 4 * k, h - 4 * k - gs * f);
+          box.addChild(g);
         }
       }
       this.#note = this.shape.addChild(box);
@@ -188,7 +246,7 @@ function noteAt(pt) {
   (canvas.drawings?.placeables ?? []).forEach((p, i) => {
     const doc = p.document, flag = noteOf(doc);
     if (!flag || !p.visible) return;
-    const { w, h } = noteSize(flag, size);
+    const { w, h } = sizeOf(doc, flag, p);
     const rect = { x: doc.x, y: doc.y, w, h };
     if (pt.x < rect.x || pt.x >= rect.x + w || pt.y < rect.y || pt.y >= rect.y + h) return;
     const key = (doc.sort ?? 0) * 1e5 + i;
@@ -214,10 +272,12 @@ function onPointerDown(ev) {
   if (tokenAt(pt)) return;
   const hit = noteAt(pt);
   if (!hit || !canEdit(hit.doc) || hit.flag.locked) return;
-  if (!onGrabStrip(pt.x, pt.y, { ...hit.rect }, hit.flag, canvas.dimensions.size)) return;
+  const size = canvas.dimensions.size;
+  const resize = onResizeGrip(pt.x, pt.y, hit.rect, hit.flag, size);
+  if (!resize && !onGrabStrip(pt.x, pt.y, { ...hit.rect }, hit.flag, size, stripOf(hit.doc))) return;
   ev.preventDefault();
   ev.stopImmediatePropagation();
-  drag = { ...hit, px: ev.clientX, py: ev.clientY, start: { x: hit.doc.x, y: hit.doc.y }, moved: false, end: null };
+  drag = { ...hit, resize, px: ev.clientX, py: ev.clientY, start: { x: hit.doc.x, y: hit.doc.y }, moved: false, end: null };
   window.addEventListener("pointermove", onDragMove, true);
   window.addEventListener("pointerup", onDragEnd, true);
   window.addEventListener("pointercancel", onDragCancel, true);
@@ -231,6 +291,16 @@ function onDragMove(ev) {
   const dx = (ev.clientX - drag.px) / s, dy = (ev.clientY - drag.py) / s;
   if (!drag.moved && Math.hypot(ev.clientX - drag.px, ev.clientY - drag.py) < 4) return;
   drag.moved = true;
+  if (drag.resize) {
+    drag.end = resizeEnd(drag.rect, dx, dy, canvas.dimensions.size, sceneRect());
+    const r = drag.placeable.pustResize;
+    if (!r || r.width !== drag.end.w || r.height !== drag.end.h) {
+      drag.placeable.pustResize = { width: drag.end.w, height: drag.end.h };
+      drag.placeable.renderFlags.set({ refreshShape: true });
+      if (editor?.doc === drag.doc) layoutEditor();
+    }
+    return;
+  }
   const { w, h } = drag.rect;
   drag.end = dragEnd(drag.start, dx, dy, w, h, canvas.dimensions.size, sceneRect(), gridOrigin());
   drag.placeable.shape?.position.set(drag.end.x + drag.doc.shape.width / 2, drag.end.y + drag.doc.shape.height / 2);
@@ -247,18 +317,29 @@ async function onDragEnd() {
   const d = drag; drag = null;
   stopDragListeners();
   if (!d) return;
+  if (d.resize) {
+    const done = () => { delete d.placeable.pustResize; d.placeable.renderFlags?.set({ refreshShape: true }); };
+    if (!d.moved || !d.end || (d.end.w === d.rect.w && d.end.h === d.rect.h)) return done();
+    const own = canWrite(d.doc);
+    try { await noteWrite(d.doc, { shape: { width: d.end.w, height: d.end.h } }); }
+    catch (err) { console.warn("Пустельники | note not resized", err); }
+    // through the GM the new size arrives a moment later: keep the dragged one in sight until then
+    if (own) done(); else setTimeout(done, 1500);
+    return;
+  }
   if (!d.moved || !d.end || (d.end.x === d.start.x && d.end.y === d.start.y)) {
     d.placeable.renderFlags?.set({ refreshPosition: true });
     return;
   }
-  try { await d.doc.update({ x: d.end.x, y: d.end.y }); }
+  try { await noteWrite(d.doc, { x: d.end.x, y: d.end.y }); }
   catch (err) { console.warn("Пустельники | note not moved", err); d.placeable.renderFlags?.set({ refreshPosition: true }); }
 }
 
 function onDragCancel() {
   const d = drag; drag = null;
   stopDragListeners();
-  d?.placeable.renderFlags?.set({ refreshPosition: true });
+  if (d?.placeable) delete d.placeable.pustResize;
+  d?.placeable.renderFlags?.set({ refreshPosition: true, refreshShape: true });
 }
 
 /* ===================== The inline editor ===================== */
@@ -296,7 +377,9 @@ export function openNoteEditor(doc, focus = "body") {
   document.body.appendChild(root);
   const title = root.querySelector(".pust-mn-title"), body = root.querySelector(".pust-mn-body");
   title.value = flag.title; body.value = flag.text;
-  editor = { doc, root, title, body, timer: null, armTimer: null };
+  // `base`: what the fields held when last in step with the sticker; only what was typed since is written (playtest check,
+  // 2026-11-18: two players in one sticker — each closing editor wrote back the field it never touched, the other's text was lost)
+  editor = { doc, root, title, body, timer: null, armTimer: null, base: { title: flag.title, text: flag.text } };
 
   const queue = () => { clearTimeout(editor.timer); editor.timer = setTimeout(flushEditor, 400); };
   title.addEventListener("input", queue);
@@ -332,10 +415,24 @@ function flushEditor() {
   clearTimeout(editor.timer);
   const flag = noteOf(doc);
   if (!flag || !canEdit(doc) || !doc.collection) return;
-  const upd = {};
-  if (title.value !== flag.title) upd[flagPath("title")] = title.value;
-  if (body.value !== flag.text) upd[flagPath("text")] = body.value;
-  if (Object.keys(upd).length) doc.update(upd).catch((err) => console.warn("Пустельники | note not saved", err));
+  const upd = {}, base = editor.base;
+  if (title.value !== base.title && title.value !== flag.title) upd[flagPath("title")] = title.value;
+  if (body.value !== base.text && body.value !== flag.text) upd[flagPath("text")] = body.value;
+  base.title = title.value; base.text = body.value;
+  if (!Object.keys(upd).length) return;
+  // what is sent and not yet back: syncEditor must not put the older text into these fields meanwhile (a write through
+  // the GM takes a while)
+  const ed = editor, pend = (ed.sent ??= {}), mine = {};
+  if (flagPath("title") in upd) pend.title = mine.title = title.value;
+  if (flagPath("text") in upd) pend.text = mine.text = body.value;
+  const settle = (ok) => {
+    for (const k of Object.keys(mine)) {
+      if (pend[k] === mine[k]) delete pend[k];
+      // not saved (no GM, the GM's side failed or did not answer): the typed text stays and is sent again on the next save
+      if (!ok && editor === ed && ed.base[k] === mine[k]) ed.base[k] = undefined;
+    }
+  };
+  noteWrite(doc, upd).then((r) => settle(r !== null && r !== false), (err) => { settle(false); console.warn("Пустельники | note not saved", err); });
 }
 
 /** The bar's labels and the colours follow the note's state */
@@ -344,6 +441,13 @@ function syncEditor() {
   const { doc, root } = editor;
   const flag = noteOf(doc);
   if (!flag) return closeNoteEditor();
+  // someone else changed a field this editor has not touched: show theirs
+  const { title, body, base } = editor;
+  const pend = (editor.sent ??= {});
+  if (pend.title !== undefined && flag.title === pend.title) delete pend.title;
+  if (pend.text !== undefined && flag.text === pend.text) delete pend.text;
+  if (pend.title === undefined && title.value === base.title && flag.title !== base.title) title.value = base.title = flag.title;
+  if (pend.text === undefined && body.value === base.text && flag.text !== base.text) body.value = base.text = flag.text;
   const col = MAP_NOTE.colors[flag.color];
   root.style.setProperty("--fill", col.fill);
   root.style.setProperty("--line", col.line);
@@ -375,7 +479,7 @@ function layoutEditor() {
   const st = canvas.stage;
   const s = st.scale.x || 1;
   const r = viewEl().getBoundingClientRect();
-  const { w, h } = noteSize(flag, size);
+  const { w, h } = sizeOf(doc, flag);
   const cx = drag?.doc === doc && drag.end ? drag.end.x : doc.x, cy = drag?.doc === doc && drag.end ? drag.end.y : doc.y;
   const p = { x: (cx - st.pivot.x) * s + st.position.x, y: (cy - st.pivot.y) * s + st.position.y };
   const k = s * scaleK();
@@ -385,7 +489,7 @@ function layoutEditor() {
   root.style.top = `${r.top + p.y}px`;
   root.style.width = `${pw}px`;
   root.style.height = flag.min ? "auto" : `${h * s}px`;
-  root.style.setProperty("--strip", `${MAP_NOTE.stripH * size * s}px`);
+  root.style.setProperty("--strip", `${(flag.min ? MAP_NOTE.stripH * size : stripOf(doc)) * s}px`);
   // the bar sits above the sticker, or under it when there is no room over it
   root.classList.toggle("bar-below", r.top + p.y < 56);
 }
@@ -403,11 +507,11 @@ async function onBarClick(ev) {
   try {
     if (act === "color") {
       const c = MAP_NOTE.colors[b.dataset.color];
-      await doc.update({ [flagPath("color")]: b.dataset.color, fillColor: c.fill, strokeColor: c.line });
+      await noteWrite(doc, { [flagPath("color")]: b.dataset.color, fillColor: c.fill, strokeColor: c.line });
     } else if (act === "hide" && game.user.isGM) {
       await doc.update({ hidden: !doc.hidden });
     } else if (act === "lock") {
-      await doc.update({ [flagPath("locked")]: !flag.locked, locked: !flag.locked });
+      await noteWrite(doc, { [flagPath("locked")]: !flag.locked, locked: !flag.locked });
     } else if (act === "fold") {
       await toggleFold(doc, flag);
     } else if (act === "delete") {
@@ -419,7 +523,7 @@ async function onBarClick(ev) {
         return;
       }
       closeNoteEditor();
-      await doc.delete();
+      await noteDelete(doc);
     }
   } catch (err) { console.warn("Пустельники | note action failed", err); warn("Не вдалося змінити примітку."); }
 }
@@ -429,10 +533,10 @@ async function toggleFold(doc, flag) {
   const size = canvas.dimensions.size;
   if (!flag.min) {
     const g = foldGeometry(flag, doc.shape, size);
-    await doc.update({ [flagPath("min")]: true, [flagPath("full")]: g.full, shape: { width: g.w, height: g.h } });
+    await noteWrite(doc, { [flagPath("min")]: true, [flagPath("full")]: g.full, shape: { width: g.w, height: g.h } });
   } else {
     const g = unfoldGeometry(flag, doc.x, doc.y, size, sceneRect());
-    await doc.update({ [flagPath("min")]: false, x: g.x, y: g.y, shape: { width: g.w, height: g.h } });
+    await noteWrite(doc, { [flagPath("min")]: false, x: g.x, y: g.y, shape: { width: g.w, height: g.h } });
   }
 }
 
@@ -446,7 +550,7 @@ function onDblClick(ev) {
   if (!hit || !canEdit(hit.doc)) return;
   ev.preventDefault();
   ev.stopImmediatePropagation();
-  openNoteEditor(hit.doc, pt.y < hit.rect.y + MAP_NOTE.stripH * canvas.dimensions.size ? "title" : "body");
+  openNoteEditor(hit.doc, pt.y < hit.rect.y + stripOf(hit.doc) ? "title" : "body");
 }
 
 /** A press outside the editor closes it, but not during a tour: the tour opens and closes it (author, 2026-11-16) */
@@ -478,24 +582,73 @@ function detach() {
 
 /* ===================== Creating ===================== */
 
-/** «Примітка»: a 3×3 sticker at the view's centre, snapped and inside the scene; hidden from players when the GM makes it; opens for typing */
+/**
+ * «Примітка»: a 3×3 sticker at the view's centre, snapped and inside the scene; opens for typing. The GM's starts hidden from
+ * players; a player's is seen by all and signed (author, 2026-11-18), made through the GM when Foundry does not let players draw.
+ */
 export async function addMapNote() {
   if (!canvas.ready || !canvas.scene) return warn("Спершу відкрий сцену.");
-  if (!game.user.isGM && !game.user.can("DRAWING_CREATE")) return warn("Тобі не дозволено створювати малюнки й примітки.");
+  const gm = game.user.isGM, direct = gm || game.user.can("DRAWING_CREATE");
+  if (!direct && !game.users.activeGM) return warn("Примітку гравця записує Доглядач, а його зараз немає в грі.");
   const size = canvas.dimensions.size;
   const { w, h } = noteSize({ min: false }, size);
   const c = canvas.stage.pivot;
   const pos = placeNew(c.x, c.y, w, h, size, sceneRect(), gridOrigin());
   const col = MAP_NOTE.colors[MAP_NOTE.color];
-  const [doc] = await canvas.scene.createEmbeddedDocuments("Drawing", [{
+  const data = {
     x: pos.x, y: pos.y, shape: { type: "r", width: w, height: h },
     fillType: CONST.DRAWING_FILL_TYPES.SOLID, fillColor: col.fill, fillAlpha: 0.9,
     strokeWidth: 4, strokeColor: col.line, strokeAlpha: 1,
-    text: "", hidden: game.user.isGM,
-    flags: { [sys()]: { mapNote: { title: NOTE_DEFAULT_TITLE, text: "", color: MAP_NOTE.color, min: false, locked: false } } },
-  }]);
-  if (doc) openNoteEditor(doc, "title");
+    text: "", hidden: gm,
+    flags: { [sys()]: { mapNote: { title: NOTE_DEFAULT_TITLE, text: "", color: MAP_NOTE.color, min: false, locked: false, author: gm ? "" : game.user.name } } },
+  };
+  if (direct) {
+    const [doc] = await canvas.scene.createEmbeddedDocuments("Drawing", [data]);
+    if (doc) openNoteEditor(doc, "title");
+    return doc;
+  }
+  // through the GM: the id is chosen here, so the editor opens on the sticker as soon as it arrives
+  const id = foundry.utils.randomID();
+  const sceneId = canvas.scene.id;
+  const arrived = new Promise((resolve) => {
+    const hook = Hooks.on("createDrawing", (doc) => { if (doc.id === id) { Hooks.off("createDrawing", hook); resolve(doc); } });
+    setTimeout(() => { Hooks.off("createDrawing", hook); resolve(null); }, 7000);
+  });
+  askGM({ op: "mapNote", act: "create", scene: sceneId, data: { ...data, _id: id } }, "Примітка", "Примітку не створено.");
+  const doc = await arrived;
+  if (doc && canvas.scene?.id === sceneId) openNoteEditor(doc, "title");
   return doc;
+}
+
+/* ===================== The GM's side of the players' requests ===================== */
+
+/** What a player may change on a sticker through the GM: its place, size, colours, lock and the sticker's own flag */
+const NOTE_KEYS = /^(x|y|locked|fillColor|strokeColor|shape\.(width|height)|flags\.[^.]+\.mapNote\.(title|text|color|min|locked|full(\.(w|h))?))$/;
+
+async function applyNoteRequest(msg) {
+  const scene = game.scenes.get(String(msg.scene));
+  const user = game.users.get(String(msg.from));
+  if (!scene || !user) throw new Error("Немає такої сцени чи гравця.");
+  if (msg.act === "create") {
+    const d = msg.data && typeof msg.data === "object" ? msg.data : {};
+    const flag = normalizeNote(d.flags?.[sys()]?.mapNote);
+    const col = MAP_NOTE.colors[flag.color];
+    return scene.createEmbeddedDocuments("Drawing", [{
+      _id: String(d._id || foundry.utils.randomID()), author: user.id,
+      x: Number(d.x) || 0, y: Number(d.y) || 0, shape: { type: "r", width: Number(d.shape?.width) || 300, height: Number(d.shape?.height) || 300 },
+      fillType: CONST.DRAWING_FILL_TYPES.SOLID, fillColor: col.fill, fillAlpha: 0.9, strokeWidth: 4, strokeColor: col.line, strokeAlpha: 1,
+      text: "", hidden: false,
+      flags: { [sys()]: { mapNote: { ...flag, author: user.name } } },
+    }], { keepId: true });
+  }
+  const doc = scene.drawings.get(String(msg.id));
+  if (!doc || !isSharedNote(doc)) throw new Error("Цю примітку гравці не бачать.");
+  if (msg.act === "delete") return doc.delete();
+  if (msg.act !== "update") throw new Error("Невідома дія з приміткою.");
+  const flat = foundry.utils.flattenObject(msg.data || {});
+  const upd = Object.fromEntries(Object.entries(flat).filter(([k]) => NOTE_KEYS.test(k) && (!k.startsWith("flags.") || k.startsWith(`flags.${sys()}.`))));
+  if (!Object.keys(upd).length) return null;
+  return doc.update(upd);
 }
 
 /**
@@ -523,6 +676,11 @@ export function setNoteDemo(on) {
 
 /** Once, in `ready`: the listeners and the hooks */
 export function readyMapNotes() {
+  // the GM writes what players may not (author, 2026-11-18: players' stickers, edited by any player)
+  game.socket.on(`system.${game.system.id}`, (msg) => {
+    if (msg?.op !== "mapNote" || !activeGmHere()) return;
+    answerGM(msg, () => applyNoteRequest(msg));
+  });
   Hooks.on("canvasReady", () => { closeNoteEditor(); attach(); canvas.drawings?.placeables.forEach((p) => p.renderFlags.set({ refreshShape: true })); });
   Hooks.on("canvasTearDown", () => { closeNoteEditor(); detach(); });
   Hooks.on("canvasPan", () => layoutEditor());

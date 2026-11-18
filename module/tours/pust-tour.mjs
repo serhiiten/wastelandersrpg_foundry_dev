@@ -162,8 +162,58 @@ function setIssuesDemo(on) {
     + ISSUES_DEMO.map(([lvl, msg]) => `<div class="pust-issue ${lvl}">${msg}</div>`).join("");
   nav.before(box);
 }
-const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false };
+const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false, compact: null };
+/**
+ * «Компактний режим» (author, 2026-11-18): the step switches the sheet on show to compact by its own switch, and the view it
+ * had comes back when the step is left or the tour ends, so the demonstration never changes the user's remembered choice
+ */
+async function restoreCompact() {
+  const app = opened.compact;
+  opened.compact = null;
+  if (!app?.ui?.compact) return;
+  const full = app.element?.querySelector('[data-action="compactToggle"][data-v="0"]');
+  const back = keepStored(app); // the stored choice was never changed by the step
+  if (app.rendered && full) { full.click(); await sleep(250); }
+  else app.ui.compact = false; // closed meanwhile
+  back();
+}
+/**
+ * The tours show the full sheet (author, 2026-11-18): a sheet the user keeps compact is switched to «Повний» when a step
+ * opens it (its blocks and tabs are what the steps light), and back to «Компактний» when the tour ends
+ */
+const forcedFull = new Set();
+/** the sheets' remembered choice (character-sheet-v2.mjs / caravan-sheet-v2.mjs compactKey) kept as it was while a switch
+ *  clicked for the tour changes the view: a reload in the middle of a tour doesn't change the user's choice */
+const compactKey = (app) => `pustelnyky-compact-${game.user.id}-${app.document.id}`;
+function keepStored(app) {
+  let was = null;
+  try { was = localStorage.getItem(compactKey(app)); } catch (_) { return () => {}; }
+  return () => { try { if (was === null) localStorage.removeItem(compactKey(app)); else localStorage.setItem(compactKey(app), was); } catch (_) { /* not kept */ } };
+}
+async function showFull(app) {
+  if (!app?.ui?.compact) return;
+  const full = app.element?.querySelector('[data-action="compactToggle"][data-v="0"]');
+  if (!full) return;
+  forcedFull.add(app);
+  const back = keepStored(app);
+  full.click();
+  await waitFor(`#${app.id} .pust-sheet-inner:not(.pust-compact)`);
+  back();
+  await sleep(200);
+}
+async function restoreFull() {
+  for (const app of [...forcedFull]) {
+    forcedFull.delete(app);
+    if (app.ui?.compact) continue;
+    const cmp = app.rendered ? app.element?.querySelector('[data-action="compactToggle"][data-v="1"]') : null;
+    const back = keepStored(app);
+    if (cmp) { cmp.click(); await sleep(250); }
+    else app.ui.compact = true; // closed meanwhile
+    back();
+  }
+}
 async function closeTransient(keep = new Set()) {
+  if (opened.compact && !keep.has("compactDemo")) await restoreCompact();
   if (opened.issues && !keep.has("issuesDemo")) { setIssuesDemo(false); opened.issues = false; }
   if (opened.tok && !keep.has("tokenDemo") && !keep.has("caravanToken")) { await (await import("../canvas/token-demo.mjs")).setTokenDemo(false); opened.tok = false; }
   if (opened.zframe && !keep.has("zoneFrame")) { await (await import("../canvas/battle-zones.mjs")).setZoneFrame(null); opened.zframe = false; }
@@ -222,6 +272,7 @@ export const PREPARE = {
     if (!a.sheet.rendered) await a.sheet.render({ force: true });
     trackApp(a.sheet, a.type);
     await sleep(300);
+    await showFull(a.sheet);
     // by the left edge, so the step card has room beside it
     try { a.sheet.setPosition({ left: 110, top: 70 }); } catch (_) { /* a sheet without a position */ }
     await sleep(150);
@@ -232,6 +283,24 @@ export const PREPARE = {
     if (d && !d.open) { (d.querySelector(":scope > summary") ?? d).click(); await sleep(250); }
   },
   click: async (sel) => { document.querySelector(sel)?.click(); await sleep(250); },
+  /** the shown character's or caravan's sheet switched to «Компактний» (restoreCompact brings back its view) */
+  compactDemo: async (kind) => {
+    const app = [...tracked].find(([a, k]) => k === kind && a.rendered)?.[0];
+    if (!app || app.ui?.compact) return;
+    const btn = app.element?.querySelector('[data-action="compactToggle"][data-v="1"]');
+    if (!btn) return;
+    opened.compact = app;
+    // from the top, so the switch shows: the render keeps the full sheet's scroll (the view opened in the middle)
+    app.element.querySelectorAll(".window-content, .pust-body").forEach((x) => { x.scrollTop = 0; });
+    const back = keepStored(app);
+    btn.click();
+    await waitFor(`#${app.id} .pust-compact`);
+    back();
+    // from the top, so the switch shows (the full sheet's scroll came back with the render: the view opened in the middle)
+    const top = () => app.element?.querySelectorAll(".window-content").forEach((x) => { x.scrollTop = 0; });
+    await sleep(300); top();
+    await sleep(200); top();
+  },
   /** «Зробити перевірку» of the user's character, opened when it isn't open yet (the sheet's button) */
   check: async () => {
     // already open (perhaps redrawing just now): wait for it rather than press the button, which would close it
@@ -513,7 +582,11 @@ export class PustTour extends foundry.nue.Tour {
     if (!this.currentStep?.union || all.length < 2) return all[0] ?? null;
     // a step with `union: true` lights all its elements as one (author, 2026-11-16: several blocks of the check panel, left as
     // they are): an empty box over their joint area stands in for the element
-    all[0].scrollIntoView({ block: "nearest" });
+    // the lowest of them into view, then the highest: the whole area shows when it fits (the blocks' order on screen may
+    // differ from the page's, CSS `order` in the check panel)
+    const byTop = [...all].sort((x, y) => x.getBoundingClientRect().top - y.getBoundingClientRect().top);
+    byTop.at(-1).scrollIntoView({ block: "nearest" });
+    byTop[0].scrollIntoView({ block: "nearest" });
     const u = all.map((el) => el.getBoundingClientRect()).reduce((a, r) => ({ left: Math.min(a.left, r.left), top: Math.min(a.top, r.top),
       right: Math.max(a.right, r.right), bottom: Math.max(a.bottom, r.bottom) }), { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity });
     if (!this.#proxy?.isConnected) { this.#proxy = document.createElement("div"); this.#proxy.className = "pust-tour-proxy"; document.body.append(this.#proxy); }
@@ -653,8 +726,8 @@ export class PustTour extends foundry.nue.Tour {
     this.#unwatch();
     document.body.classList.remove("pust-touring");
     super.exit();
-    closeAll(); // the windows the tour opened go with it
-    closeTransient();
+    // the sheet's own view first, then the windows the tour opened go with it
+    restoreCompact().then(restoreFull).finally(() => { closeAll(); closeTransient(); });
   }
 
   /** The last step: the tour is done, the next one of the chain is offered (our words, not Foundry's) */
@@ -663,6 +736,8 @@ export class PustTour extends foundry.nue.Tour {
     this.#unwatch();
     document.body.classList.remove("pust-touring");
     const done = await this.progress(this.steps.length);
+    await restoreCompact();
+    await restoreFull();
     await closeAll();
     await closeTransient();
     // the chain's next tour, even one done before (author, 2026-11-17: Foundry keeps tours' progress in the browser, not the

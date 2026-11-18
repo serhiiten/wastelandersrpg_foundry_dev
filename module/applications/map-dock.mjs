@@ -52,19 +52,20 @@ const save = (k, v) => { try { localStorage.setItem(userKey(k), JSON.stringify(v
 const btn = (act, icon, label, title) =>
   `<button type="button" data-mapdock="${act}" title="${title}"><i class="fa-solid ${icon}"></i><span>${label}</span></button>`;
 
+/** The GM's «Мапа Пустки». Players have no such panel (author, 2026-11-18; playtest item 18, mockup А): their «Примітка» is a
+ *  steel button in the row of «Обрати цілі» (`.pust-md-trow`, NOTE_TIP) */
 function mapButtons() {
-  const gm = game.user.isGM;
-  const canNote = gm || game.user.can("DRAWING_CREATE");
-  const row1 = gm ? [
+  if (!game.user.isGM) return "";
+  const row1 = [
     btn("town", "fa-house-flag", "Поселення", "Додати поселення: зелений токен на вільній клітинці посередині огляду"),
     btn("danger", "fa-skull-crossbones", "Небезпека", "Додати небезпечне місце: червоний токен"),
     btn("poi", "fa-star", "Точка інтересу", "Додати точку інтересу: оранжевий токен"),
-  ] : [];
-  const row2 = [
-    ...(canNote ? [btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")] : []),
   ];
-  return [row1, row2].filter((r) => r.length).map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("");
+  const row2 = [btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")];
+  return [row1, row2].map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("");
 }
+/** Players' «Примітка» (through the GM when Foundry does not let them draw; author, 2026-11-18) */
+const NOTE_TIP = "Додати стікер на мапу й одразу писати на ньому: його бачать усі, під ним стоїть твоє ім'я. Подвійний клік по стікеру знову відкриває його, розмір змінюється за правий нижній кут";
 
 async function onMap(ev) {
   const b = ev.target.closest("[data-mapdock]");
@@ -476,7 +477,8 @@ function sideCheck() {
 
 /**
  * Players' «Обрати цілі» / «Зняти цілі» (author, 2026-11-15): right of Foundry's left buttons, level with their last row,
- * up to the right edge of «Зробити перевірку» (its default place); battle maps only
+ * up to the right edge of «Зробити перевірку» (its default place); battle maps only. Off them the row holds «Примітка»
+ * (author, 2026-11-18)
  */
 function placeTargets() {
   const row = document.querySelector(`#${DOCK} .pust-md-trow`);
@@ -617,7 +619,7 @@ export function renderMapDock() {
       <div class="pust-md-unit${fold.map ? " folded" : ""}" data-unit="map">
         ${gm ? `<button type="button" class="pust-md-travel" data-mapdock="travel" title="Генератор подорожей поруч із мапою; Удача партії — з обраного каравану"><i class="fa-solid fa-route"></i><span>Подорож</span></button>` : ""}
         ${gm ? `<section class="pust-md-tv" hidden></section>` : ""}
-        ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки", "gm-map:scene")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
+        ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки", gm ? "gm-map:scene" : "pl-panels:note")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
         ${gm ? battleSectionHtml((icon, name) => header(icon, name, "gm-battle:scene")) : ""}
       </div>
       <div class="pust-md-unit${fold.ctr ? " folded" : ""}" data-unit="ctr">
@@ -627,11 +629,12 @@ export function renderMapDock() {
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
         <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки", gm ? "gm-map:dice" : "pl-panels:dice")}<div class="pust-md-body">${diceHtml()}</div></section>
         ${gm ? "" : `<div class="pust-md-fdrow" hidden><button type="button" class="pust-md-fdspend" data-mapdock="fd-spend"><i class="fa-solid fa-clover"></i><span>Витратити ЖД</span><b class="pust-md-fdn">0</b></button><button type="button" class="pust-md-fdgain" data-mapdock="fd-gain"><i class="fa-solid fa-plus"></i><span>Отримати ЖД</span></button></div>
-        <div class="pust-md-fdrow pust-md-suprow" hidden><button type="button" class="pust-md-fdspend pust-md-supspend" data-mapdock="sup-spend"><i class="fa-solid fa-backpack"></i><span>Витратити Припас</span><b class="pust-md-fdn pust-md-supn">0</b></button><button type="button" class="pust-md-fdgain pust-md-supgain" data-mapdock="sup-gain"><i class="fa-solid fa-plus"></i><span>Отримати Припас</span></button></div><section class="pust-md-panel pust-md-ctr pust-md-ctr-pl" hidden></section>`}
+        <div class="pust-md-fdrow pust-md-suprow" hidden><button type="button" class="pust-md-fdspend pust-md-supspend" data-mapdock="sup-spend"><i class="fa-solid fa-backpack"></i><span>Витратити Припас</span><b class="pust-md-fdn pust-md-supn">0</b></button><button type="button" class="pust-md-fdgain pust-md-supgain" data-mapdock="sup-gain"><i class="fa-solid fa-plus"></i><span>Отримати Припас</span></button></div>
+        <div class="pust-md-fdrow pust-md-carrow" hidden><button type="button" class="pust-md-car" aria-haspopup="true"><i class="fa-solid fa-truck"></i><span>Караван</span></button></div><section class="pust-md-panel pust-md-carpick" hidden></section><section class="pust-md-panel pust-md-ctr pust-md-ctr-pl" hidden></section>`}
       </div>
       ${gm ? `<div class="pust-md-unit${fold.ovw ? " folded" : ""}" data-unit="ovw" hidden>${overviewSectionHtml(header)}</div>` : ""}
       ${gm ? `<div class="pust-md-unit${fold.dmg ? " folded" : ""}" data-unit="dmg"><section class="pust-md-panel pust-md-battle pust-md-blite" hidden>${header("fa-clapperboard", "Сцена", "gm-map:scenepanel")}<div class="pust-md-body"></div></section></div>` : ""}
-      ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
+      ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-note" data-mapdock="note" title="${NOTE_TIP}"><i class="fa-solid fa-note-sticky"></i><span>Примітка</span></button><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
     dock.addEventListener("click", (ev) => {
       const b = ev.target.closest(".pust-md-help");
@@ -645,6 +648,7 @@ export function renderMapDock() {
     const ctrUnit = dock.querySelector('[data-unit="ctr"]');
     const diceUnit = dock.querySelector('[data-unit="dice"]');
     mapUnit.querySelector(".pust-md-map .pust-md-body")?.addEventListener("click", onMap);
+    dock.querySelector(".pust-md-note")?.addEventListener("click", onMap); // players' «Примітка» in the targets' row
     if (gm) mountBattlePanel(mapUnit.querySelector(".pust-md-battle"));
     // off the battle map the GM's «Битва» is «lite», top right (author, 2026-11-16: damage to the characters on «Мапа Пустки»)
     if (gm) mountBattlePanel(dock.querySelector('[data-unit="dmg"] .pust-md-battle'), { lite: true });
@@ -669,6 +673,8 @@ export function renderMapDock() {
     dock.querySelector(".pust-md-fdgain:not(.pust-md-supgain)")?.addEventListener("click", () => stepFd(1));
     dock.querySelector(".pust-md-supspend")?.addEventListener("click", () => stepSup(-1));
     dock.querySelector(".pust-md-supgain")?.addEventListener("click", () => stepSup(1));
+    dock.querySelector(".pust-md-car")?.addEventListener("click", onCaravanButton);
+    dock.querySelector(".pust-md-carpick")?.addEventListener("click", onCaravanPick);
     syncFdRow();
     const chk = ctrUnit.querySelector(".pust-md-check");
     if (chk) {
@@ -734,6 +740,7 @@ const isRowActor = (a) => !!a && a.type === "character" && (a.isOwner || a === D
 
 function syncFdRow() {
   syncSupRow();
+  syncCarRow();
   const row = document.querySelector(`#${DOCK} .pust-md-fdrow:not(.pust-md-suprow)`);
   if (!row) return;
   const a = rowActor();
@@ -762,6 +769,65 @@ async function stepFd(dd) {
   if (res) await postFateChange(a, res.was, res.now);
 }
 for (const h of ["updateActor", "updateUser", "createActor", "deleteActor"]) Hooks.on(h, foundry.utils.debounce(syncFdRow, 120));
+
+/* ---------------- players' «Караван» (author, 2026-11-18): their caravans' sheets, at least Observer ---------------- */
+/** the caravans this player may look at, by name */
+const myCaravans = () => game.actors.filter((a) => a.type === "caravan" && a.testUserPermission(game.user, "OBSERVER"))
+  .sort((a, b) => a.name.localeCompare(b.name, "uk"));
+const sheetOpen = (a) => !!a?.sheet?.rendered;
+function toggleSheet(a) {
+  if (sheetOpen(a)) return a.sheet.close();
+  return a.sheet.render({ force: true });
+}
+function syncCarRow() {
+  const row = document.querySelector(`#${DOCK} .pust-md-carrow`);
+  if (!row) return;
+  const cars = myCaravans();
+  row.hidden = !cars.length;
+  const b = row.querySelector(".pust-md-car");
+  b.classList.toggle("on", cars.some(sheetOpen));
+  b.title = cars.length > 1 ? "Відкрити чи закрити аркуш одного з твоїх караванів" : "Відкрити чи закрити аркуш каравану";
+  const pick = document.querySelector(`#${DOCK} .pust-md-carpick`);
+  if (pick && !pick.hidden) {
+    if (cars.length > 1) pick.innerHTML = carPickHtml(cars);
+    else closeCarPick();
+  }
+}
+const carPickHtml = (cars) => `<div class="pust-md-body">${cars.map((a) => `<button type="button" class="pust-md-carone${sheetOpen(a) ? " on" : ""}" data-car="${a.id}" title="${sheetOpen(a) ? "Закрити" : "Відкрити"} аркуш «${esc(a.name)}»"><i class="fa-solid fa-truck"></i><span>${esc(a.name)}</span>${sheetOpen(a) ? "<small>відкрито</small>" : ""}</button>`).join("")}</div>`;
+function closeCarPick() {
+  const pick = document.querySelector(`#${DOCK} .pust-md-carpick`);
+  if (pick) pick.hidden = true;
+  document.querySelector(`#${DOCK} .pust-md-car`)?.setAttribute("aria-expanded", "false");
+  document.removeEventListener("pointerdown", carPickOutside, true);
+  document.removeEventListener("keydown", carPickEsc, true);
+}
+function carPickOutside(ev) { if (!ev.target.closest?.(".pust-md-carpick, .pust-md-car")) closeCarPick(); }
+function carPickEsc(ev) { if (ev.key === "Escape") { ev.stopPropagation(); closeCarPick(); } }
+/** one caravan: its sheet opens or closes; several: a list under the button to pick from */
+function onCaravanButton() {
+  const cars = myCaravans();
+  if (!cars.length) return notify.warn("У тебе немає доступу до жодного каравану.");
+  if (cars.length === 1) { closeCarPick(); return toggleSheet(cars[0]); }
+  const pick = document.querySelector(`#${DOCK} .pust-md-carpick`);
+  if (!pick.hidden) return closeCarPick();
+  pick.innerHTML = carPickHtml(cars);
+  pick.hidden = false;
+  document.querySelector(`#${DOCK} .pust-md-car`)?.setAttribute("aria-expanded", "true");
+  document.addEventListener("pointerdown", carPickOutside, true);
+  document.addEventListener("keydown", carPickEsc, true);
+  requestAnimationFrame(placeAll);
+}
+async function onCaravanPick(ev) {
+  const b = ev.target.closest("[data-car]");
+  if (!b) return;
+  closeCarPick();
+  const a = game.actors.get(b.dataset.car);
+  if (a) await toggleSheet(a);
+}
+// the button's «on» follows the caravans' sheets opening and closing
+for (const h of ["renderActorSheetV2", "renderApplicationV2", "closeApplicationV2"]) {
+  Hooks.on(h, (app) => { if (app?.document?.type === "caravan") requestAnimationFrame(syncCarRow); });
+}
 
 /**
  * The same for Припаси (author, 2026-11-15): «Витратити Припас» with the count (off and half-transparent at 0),
@@ -817,11 +883,17 @@ function syncUntarget() {
 Hooks.on("targetToken", (user) => { if (user?.isSelf) syncUntarget(); });
 Hooks.on("canvasReady", () => { syncUntarget(); syncPlayerTargets(); });
 
-/** Players: «Обрати цілі» / «Зняти цілі» under «Зробити перевірку», on battle maps only (author, 2026-11-15) */
+/** Players: «Обрати цілі» / «Зняти цілі» over «Зробити перевірку», on battle maps only (author, 2026-11-15); on the other
+ *  scenes the same row holds «Примітка» alone, the size of «Обрати цілі» (author, 2026-11-18; playtest item 18) */
 function syncPlayerTargets() {
   const row = document.querySelector(`#${DOCK} .pust-md-trow`);
   if (!row) return;
-  row.hidden = !isBattleScene(canvas?.scene);
+  const battle = isBattleScene(canvas?.scene);
+  row.hidden = !canvas?.scene;
+  row.classList.toggle("is-battle", battle);
+  for (const b of row.querySelectorAll(".pust-md-target, .pust-md-untarget")) b.hidden = !battle;
+  const note = row.querySelector(".pust-md-note");
+  if (note) note.hidden = battle;
   syncTargetTool();
   requestAnimationFrame(placeTargets);
 }
@@ -856,7 +928,11 @@ Hooks.on("targetToken", foundry.utils.debounce((user) => { if (user?.isSelf && !
 Hooks.on("updateUser", (user, ch) => { if (user.isSelf && "character" in ch) redrawDice(); });
 
 // players' counters follow the GM's changes: the game's (a world setting) and the viewed scene's (a scene flag)
-Hooks.on("updateSetting", (setting) => { if (setting.key === `${game.system.id}.gameCounters`) redrawCounters(); });
+// createSetting too: the world's very first game counter creates the setting's document, and only that fires (playtest
+// 2026-11-18: a player saw the new counter only after F5)
+const onCountersSetting = (setting) => { if (setting.key === `${game.system.id}.gameCounters`) redrawCounters(); };
+Hooks.on("updateSetting", onCountersSetting);
+Hooks.on("createSetting", onCountersSetting);
 Hooks.on("updateScene", (scene, changed) => {
   if (scene.id !== canvas?.scene?.id) return;
   redrawCounters();
@@ -872,6 +948,7 @@ Hooks.on("canvasReady", () => { redrawCounters(); syncSceneKind(); });
 function syncSceneKind() {
   syncPlayerTargets();
   const unit = document.querySelector(`#${DOCK} [data-unit="map"]`);
+  if (!game.user.isGM) requestAnimationFrame(placeAll); // players' row: «Примітка» or the targets
   if (!unit || !game.user.isGM) return;
   const battle = isBattleScene(canvas?.scene);
   const was = unit.classList.contains("is-battle");

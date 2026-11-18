@@ -9,7 +9,7 @@ import { addHelpButton } from "../tours/help-button.mjs";
 import { hotbarDraggable } from "../helpers/macros.mjs";
 import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
-import { postChat } from "./chat.mjs";
+import { isPublicMode, postChat } from "./chat.mjs";
 import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
@@ -34,6 +34,9 @@ const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "dmg", "dmgre"]);
  */
 const NO_TARGETS = "Цілей не обрано. Познач ціль: T над токеном (Shift+T — ще одну).";
 function syncDealButton(root) {
+  // an attack with no targets says so already before its roll (author, 2026-11-18), until its damage is dealt
+  const hint = root?.querySelector(".pust-tgthint");
+  if (hint) hint.hidden = !!game.user.targets.size || root.querySelector("select#r-type")?.value !== "attack" || !!root.querySelector(".rdmg .rdres");
   const b = root?.querySelector('button[data-r="dmg"]');
   if (!b) return;
   const n = game.user.targets.size;
@@ -47,12 +50,64 @@ Hooks.on("targetToken", (user) => {
   if (user === game.user) document.querySelectorAll(".pust-roller").forEach(syncDealButton);
 });
 
+/**
+ * The chat's mode (author, 2026-11-18; playtest item 1, mockup А): a player whose mode is Self Only, Private to Gamemasters or
+ * Blind to Gamemasters (Public as Character is public too) gets a yellow strip under the panel's head with «Public as User»,
+ * which switches the mode. Not for the GM, whose hidden rolls are normal. Names from Foundry's lang (CHAT.MODES).
+ */
+const MODE_WHO = { self: "кидки бачиш лише ти", gm: "кидки бачить лише Доглядач", blind: "кидки бачить лише Доглядач, а ти ні" };
+function syncChatMode(el) {
+  if (!el) return;
+  const mode = game.settings.settings.has("core.messageMode") ? game.settings.get("core", "messageMode") : "";
+  const warn = !game.user.isGM && !isPublicMode() && !el.classList.contains("pust-demo-check");
+  let bar = el.querySelector(".pust-chatmode");
+  if (!warn) { bar?.remove(); return; }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.className = "pust-chatmode";
+    bar.setAttribute("role", "status");
+    bar.addEventListener("click", (ev) => {
+      if (!ev.target.closest("button")) return;
+      if (game.settings.settings.has("core.messageMode")) game.settings.set("core", "messageMode", "public");
+      else game.settings.set("core", "rollMode", "publicroll");
+    });
+  }
+  // right under the head: the docked panel's own header (it is made after the panel's render, which calls this again), else
+  // the top of the window's content
+  const hd = el.querySelector(":scope > .pust-cd-hd");
+  if (hd) { if (hd.nextElementSibling !== bar) hd.after(bar); }
+  else if (!bar.isConnected) el.querySelector(".window-content")?.prepend(bar);
+  const L = (k) => game.i18n.localize(`CHAT.MODES.${k}`);
+  bar.innerHTML = `<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span><b>${esc(mode && MODE_WHO[mode] ? L(mode) : "Режим чату")}</b>: ${esc(MODE_WHO[mode] || "кидки бачать не всі")}</span>`
+    + `<button type="button" title="Перемкнути режим чату: кидки бачитимуть усі">${esc(L("public"))}</button>`;
+}
+Hooks.on("clientSettingChanged", (key) => {
+  if (key === "core.messageMode" || key === "core.rollMode") document.querySelectorAll(".pust-check").forEach(syncChatMode);
+});
+
 /** A deleted character takes its open check panels with it (stress test, 2026-11-17: every button of a panel left open
  *  over a deleted actor threw «Actor … does not exist») */
 Hooks.on("deleteActor", (actor) => {
   OPEN.get(actor.uuid)?.close();
   if (DOCKED?.actor?.id === actor.id) DOCKED.close();
 });
+
+/** A change of the character (a state, a consequence, an addiction, a perk, an item) redraws its open check panels: the
+ *  roll counted it, but the strip and the conditions showed the old set until the panel was reopened (playtest 2026-11-18,
+ *  item 2). Debounced: one write of the sheet fires several hooks, and the panel's own roll writes the actor too. */
+const REDRAW = new Map();
+function redrawPanels(actor) {
+  if (!actor || actor.type !== "character") return;
+  clearTimeout(REDRAW.get(actor.uuid));
+  REDRAW.set(actor.uuid, setTimeout(() => {
+    REDRAW.delete(actor.uuid);
+    const open = OPEN.get(actor.uuid);
+    if (open?.rendered) open.render();
+    if (DOCKED?.rendered && DOCKED.actor?.uuid === actor.uuid) DOCKED.render();
+  }, 120));
+}
+Hooks.on("updateActor", (actor) => redrawPanels(actor));
+for (const h of ["createItem", "updateItem", "deleteItem"]) Hooks.on(h, (item) => redrawPanels(item?.parent));
 
 export function openCheckPanel(actor, preset = {}) {
   let app = OPEN.get(actor.uuid);
@@ -141,7 +196,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _prepareContext() {
     const { st, L } = evaluate(this.actor);
-    this.#load(L);
+    const R = this.#load(L);
+    // what an unsatisfied addiction adds to the roll (logic.mjs doRoll), for the strip's text
+    this.#addict = R.addOn !== false ? L.addictionPenalty(L.unsatAddictions().length) : { pen: 0, flat: 0 };
+    this.#types = L.CHECK_TYPES;
     // «Останні кидки» is left out: in Foundry every roll is already in the chat log (author, 2026-11-13)
     // «Кістка Долі» and «Кістки» (the HTML sheet's «Просто кубики») are left out too: they live in the panel «Кістки» on
     // the left of the map now (author, 2026-11-14); they are the roller's last two blocks
@@ -277,6 +335,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.#toResult) {
       const res = el.querySelector(".pust-roller .rres");
       if (res) res.scrollIntoView({ block: "nearest" });
+      // an attack: on down to «Завдати шкоди», clear of the roll strip stuck to the bottom (playtest 2026-11-18, item 4;
+      // css/pust-check.css scroll-margin)
+      el.querySelector('.pust-roller .rres button[data-r="dmg"]')?.scrollIntoView({ block: "nearest" });
     }
   }
 
@@ -286,7 +347,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     requestAnimationFrame(() => { this.#restoreScroll(); this.#toResult = false; this.#scrolls = null; });
     const root = this.element.querySelector(".pust-roller");
     // «?» (author, 2026-11-17): the tour «Зробити перевірку» in «Довідка Foundry», at the result once there is one
-    if (!this.actor.pustTourDemo) addHelpButton(this, () => ["pl-check", this.element.querySelector(".rres") ? "result" : "type"]);
+    if (!this.actor.pustTourDemo) addHelpButton(this, () => ["pl-check", this.element.querySelector(".rres") ? "result" : "attr"]);
     // the ready checks may be dragged to the hotbar (helpers/macros.mjs; author, 2026-11-17)
     if (!this.actor.pustTourDemo) root.querySelectorAll('button[data-r="preset"], button[data-r="xpreset"]').forEach((b) => {
       hotbarDraggable(b, { kind: b.dataset.r, actor: this.actor.uuid, label: b.textContent.trim() });
@@ -312,9 +373,15 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!b || b.tagName === "SELECT" || b.tagName === "INPUT" || b.disabled) return;
       ev.preventDefault();
       if (b.classList.contains("pust-wchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the weapon chips stand for the list
+      if (b.classList.contains("pust-skchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the skill chips too
+      // «Стандартні дії» stand for the list «Вид перевірки»: the same change; the pressed one again → «Звичайна перевірка»
+      if (b.classList.contains("pust-stdb")) { this.#run("change", { tagName: "SELECT", dataset: { r: "type" }, value: b.classList.contains("on") ? "gen" : b.value }); return; }
+      if (b.dataset.r === "roll") this.#setupOpen = false; // a new result: the set-up folds again
       if (b.dataset.r === "dmg" && !game.user.targets.size) return notify.warn(NO_TARGETS);
       this.#run("click", b);
     });
+    this.#fastLayout(root);
+    syncChatMode(this.element);
     syncDealButton(root);
     // the damage is dealt with its roll: the options over it (Психо, the effect, the crit) are set before it, then locked
     // and so is the weapon (author, 2026-11-17)
@@ -323,6 +390,122 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const t = ev.target.closest("[data-r]");
       if (t) this.#run("change", t);
     });
+  }
+
+  /**
+   * The fast roll (author, 2026-11-18, mockup А): the attributes and the skill on top, then the ready checks, the check type
+   * and the counters (the order is CSS, `order` in css/pust-check.css); the skill as buttons of «без навички» and the skills
+   * the character has (the list stays, hidden: its change handler is the one used); «Кинути перевірку» in a strip stuck to
+   * the bottom with what is rolled; after a roll the set-up folds into one line «змінити».
+   */
+  #setupOpen = false;
+  #addict = { pen: 0, flat: 0 };
+  #types = {};
+  #fastLayout(root) {
+    // «Стандартні дії» instead of the list «Вид перевірки» (author, 2026-11-18; playtest item 1, mockup А): a row like the ready
+    // checks', over «Атаки»; a button sets only how the result reads (the list's change: attribute and skill stay), the pressed
+    // one pressed again goes back to «Звичайна перевірка». The list stays, hidden: the strip, the fold line and the targets'
+    // hint read the type from it. The ready checks still set their own type (none of the three is pressed then)
+    const typeSel = root.querySelector("select#r-type");
+    const typeGrp = typeSel?.closest(".rgrp");
+    if (typeGrp) {
+      typeGrp.style.display = "none";
+      const btns = ["overcome", "advantage", "learn"].filter((k) => this.#types[k]).map((k) => {
+        const on = typeSel.value === k, T = this.#types[k];
+        return `<button type="button" class="chipb pust-stdb${on ? " on" : ""}" data-r="type" value="${k}" aria-pressed="${on}" title="${esc(T.i || "")}${on ? " Натисни ще раз, щоб повернути звичайну перевірку." : ""}">${esc(T.n)}</button>`;
+      });
+      const row = `<div class="rpre rgr pust-std" role="group" aria-label="Стандартні дії"><span class="rl">Стандартні дії</span>${btns.join("")}</div>`;
+      const first = root.querySelector(":scope > .rpre.rgr");
+      if (first) first.insertAdjacentHTML("beforebegin", row);
+      else typeGrp.insertAdjacentHTML("beforebegin", row);
+    }
+    // the ready check's hint (R.hint, right before the attributes) goes with «Вид перевірки»; the other notes (.rhint of
+    // poison, chems, «Воно саме виходить») stay with the automatic conditions
+    const th = root.querySelector(":scope > .rgrp:has(.rats)")?.previousElementSibling;
+    if (th?.matches("p.rhint")) th.classList.add("pust-typehint");
+    // the skill: buttons instead of the list
+    const sel = root.querySelector("select#r-skill");
+    if (sel) {
+      sel.hidden = true;
+      const chips = [...sel.options].filter((o) => !o.value || !/· немає$/.test(o.textContent) || o.selected).map((o) => {
+        const m = /^(.*?) · (\S+) (d\d+)$/.exec(o.textContent.trim());
+        const label = o.value ? (m ? `${esc(m[1])} <small>${m[3]}</small>` : esc(o.value)) : "без навички";
+        const tip = !o.value ? "Перевірка без навички" : m ? `${m[1]}: ${m[2]}, кістка ${m[3]}` : `${o.value}: у персонажа немає цієї навички`;
+        return `<button type="button" class="pust-skchip${o.selected ? " pust-pick" : ""}${o.value && !m ? " pust-none" : ""}" data-r="skill" value="${esc(o.value)}" aria-pressed="${o.selected}" title="${esc(tip)}">${label}</button>`;
+      });
+      sel.insertAdjacentHTML("afterend", `<div class="pust-skchips" role="group" aria-label="Навичка">${chips.join("")}</div>`);
+    }
+    // the roll button in its strip, with what is rolled
+    const go = root.querySelector(":scope > .rgo");
+    if (go) {
+      const bar = document.createElement("div");
+      bar.className = "pust-rgo-bar";
+      go.before(bar);
+      bar.innerHTML = `<div class="pust-intent"><b>${esc(this.#intent(root))}</b><small class="pust-tgthint" hidden>${esc(NO_TARGETS)}</small></div>`;
+      bar.append(go);
+    }
+    // after a roll: the set-up folds (not in the tour's example, whose steps show the set-up)
+    const res = root.querySelector(":scope > .rres");
+    if (res && !this.actor.pustTourDemo && !this.element.classList.contains("pust-demo-check")) {
+      root.classList.toggle("pust-folded", !this.#setupOpen);
+      // folded, the button rolls the same check again, with the same Посилення / Послаблення / modifier (author, 2026-11-18)
+      if (!this.#setupOpen && go) {
+        const txt = [...go.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && /Кинути перевірку/.test(n.textContent));
+        if (txt) txt.textContent = "Повторити перевірку";
+        go.title = "Кинути ту саму перевірку ще раз, з тими самими Посиленнями, Послабленнями й модифікатором";
+      }
+      // the fold line: the check type as its own plate, then what is rolled, then «Інша перевірка» as a button
+      // (playtest 2026-11-18, item 3: the type more visible, «змінити» → «Інша перевірка», set apart)
+      const { type, rest } = this.#intentParts(root);
+      const f = document.createElement("button");
+      f.type = "button";
+      f.className = "pust-fold";
+      f.setAttribute("aria-expanded", String(this.#setupOpen));
+      f.innerHTML = `<span>${type ? `<em class="pust-fold-type">${esc(type)}</em>` : ""}${esc(rest)}</span>`
+        + `<b>${this.#setupOpen ? "сховати" : "Інша перевірка"} <i class="fa-solid fa-chevron-${this.#setupOpen ? "up" : "down"}"></i></b>`;
+      f.title = this.#setupOpen ? "Сховати налаштування перевірки" : "Інша перевірка: атрибут, навичка, вид перевірки; Посилення, Послаблення й модифікатор знову з нуля";
+      f.addEventListener("click", () => {
+        this.#setupOpen = !this.#setupOpen;
+        // «Інша перевірка» starts the counters from 0; «Повторити перевірку» keeps them (author, 2026-11-18)
+        if (this.#setupOpen) {
+          const R = STATES.get(this.actor.uuid);
+          if (R) Object.assign(R, { boost: 0, pen: 0, mod: 0 });
+        }
+        this.render();
+      });
+      root.querySelector(":scope > .rwho")?.after(f);
+    }
+  }
+
+  /** The fold line's two parts: the check type, and the rest of what is rolled */
+  #intentParts(root) {
+    const type = root.querySelector("select#r-type")?.selectedOptions[0]?.textContent.trim() || "";
+    const all = this.#intent(root);
+    return { type, rest: type && all.startsWith(type) ? all.slice(type.length).replace(/^ · /, "") : all };
+  }
+
+  /** What is rolled, read from the panel: «Атака · СПР +1 + Стрільба d6 · Посилень: 1» */
+  #intent(root) {
+    const type = root.querySelector("select#r-type");
+    const at = root.querySelector(".rat.on");
+    const sk = root.querySelector("select#r-skill");
+    const m = sk?.value ? /^(.*?) · (?:\S+ (d\d+)|немає)$/.exec(sk.selectedOptions[0]?.textContent.trim() || "") : null;
+    const num = (r) => Number(root.querySelector(`.rstep:has(button[data-r="${r}"]) output`)?.textContent.replace("−", "-")) || 0;
+    // the automatic conditions ticked under the counters and an unsatisfied addiction count as doRoll counts them
+    let autoPen = this.#addict.pen || 0, autoFlat = this.#addict.flat || 0;
+    for (const i of root.querySelectorAll('.ramods input[data-r="am"]:checked')) {
+      const b = i.closest("label")?.querySelector("b")?.textContent || "";
+      autoFlat += Number(/[+−-]\d+/.exec(b)?.[0].replace("−", "-")) || 0;
+      if (/Послаблення/.test(b)) autoPen += 1;
+    }
+    const net = Math.min(2, num("boost")) - Math.min(2, num("pen") + autoPen);
+    const mod = num("mod") + autoFlat;
+    return [
+      type?.selectedOptions[0]?.textContent.trim(),
+      [at ? `${at.querySelector("b")?.textContent} ${at.querySelector("span")?.textContent}` : "", sk?.value ? `${sk.value}${m?.[2] ? ` ${m[2]}` : ""}` : ""].filter(Boolean).join(" + "),
+      net > 0 ? `Посилень: ${net}` : net < 0 ? `Послаблень: ${-net}` : "",
+      mod ? `мод. ${sgn(mod)}` : "",
+    ].filter(Boolean).join(" · ");
   }
 
   /** Run one of the HTML panel's handlers on the character, save, then post what was rolled */
@@ -493,9 +676,10 @@ class DockedCheckPanel extends CheckPanel {
       : `<b class="pust-cd-name">${esc(this.actor.name)}</b>`;
     hd.innerHTML = `<i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span>${who}<button type="button" class="pust-cd-help" title="Довідка" aria-label="Довідка про «Зробити перевірку»"><i class="fa-solid fa-question"></i></button><button type="button" class="pust-cd-x" title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>`;
     el.prepend(hd);
+    syncChatMode(el); // the strip goes under this header
     hd.querySelector(".pust-cd-help").addEventListener("click", (ev) => {
       ev.currentTarget.blur();
-      import("../tours/tours.mjs").then((m) => m.openHelp("pl-check", el.querySelector(".rres") ? "result" : "type"));
+      import("../tours/tours.mjs").then((m) => m.openHelp("pl-check", el.querySelector(".rres") ? "result" : "attr"));
     });
     hd.querySelector(".pust-cd-x").addEventListener("click", () => this.close());
     hd.querySelector(".pust-cd-who")?.addEventListener("change", (ev) => {

@@ -221,7 +221,7 @@ function useItem(i){
   const o=st.other[i]; if(!o) return; const key=drugOf(o.n); if(!key) return;
   const D=DRUGS[key]; const d=compute(st); const c=chem();
   const robotBody = st.species==='robot' && !d.has('Кіборг');
-  if(D.robot && st.species!=='robot'){ toast('«'+key+'» працює лише на механізми. Щоб полагодити союзника-робота, просто зменш кількість.','bad'); return; }
+  if(D.robot && st.species!=='robot'){ toast('«'+key+'» працює лише на механізми. Щоб полагодити робота чи караван, познач його ціллю (T) і натисни «На ціль».','bad'); return; }
   if(D.robot && st.species==='robot' && !robotBody){ toast('«'+key+'» не діє на кіборгів: у тебе живе тіло, тож тебе лікують як інші види.','bad'); return; }
   if(D.food && robotBody){ toast('Роботи не їдять.','bad'); return; }
   if(D.loot){ st.loot=Object.assign({yao:false,egg:false}, st.loot||{}); if(st.loot[D.loot]){ toast('Цей бонус персонаж уже отримав — лише раз на персонажа.','bad'); return; } }
@@ -560,7 +560,7 @@ const CHECK_TYPES = {
     'Ти створюєш бажаний аспект з 1 безкоштовним Посиленням (або додаєш його до наявного аспекту), однак Доглядач робить хід.',
     'Ти створюєш бажаний аспект з 1 безкоштовним Посиленням або додаєш одне безкоштовне Посилення до наявного аспекту.',
     'Ти створюєш бажаний аспект із 2 безкоштовними Посиленнями або додаєш два безкоштовні Посилення до наявного аспекту.']},
-  learn:{n:'Дізнатися нове', i:'Коли хочеш дізнатися щось нове про ситуацію чи призначення об\'єкта. Зазвичай СПР або ІН + Знання, Техніка, Виживання чи Медицина.', d:[
+  learn:{n:'Дізнатись нове', i:'Коли хочеш дізнатися щось нове про ситуацію чи призначення об\'єкта. Зазвичай СПР або ІН + Знання, Техніка, Виживання чи Медицина.', d:[
     'Твоє припущення виявилося хибним, і, перевіряючи його, ти облажався. Доглядач робить хід.',
     'Ти дізнаєшся бажану інформацію і можеш додати аспект із безкоштовним Посиленням, однак Доглядач робить хід.',
     'Ти дізнаєшся бажану інформацію і можеш додати позитивний аспект із безкоштовним Посиленням.',
@@ -1471,7 +1471,7 @@ const PASSIVE_F = {
 };
 const QUICK_ASPECTS = [['noKnock','Збитий з ніг','Персонажа не можна збити з ніг'], ['noStun','Приголомшений','Персонажа не можна приголомшити'], ['noDisarm','Без зброї','Персонажа не можна обеззброїти']];
 function statusChips(d){
-  const out=[]; const add=(c,t,tip)=>out.push(tip?[c,t,tip]:[c,t]); const c=chem();
+  const out=[]; let src=null; const add=(c,t,tip)=>{ const x=tip?[c,t,tip]:[c,t]; if(src) x.src=src; out.push(x); }; const c=chem();
   if(curHp(d)<=0) add('bad','0 ОЗ — вибув зі сцени');
   ['l','m','m2','h'].forEach(k=>{ if((k!=='m2'||d.medSlots>1) && String(st.cons[k]||'').trim()) add('bad',({l:'Легкий',m:'Середній',m2:'Середній',h:'Тяжкий'})[k]+' наслідок: '+String(st.cons[k]).trim()+((st.consT||{})[k]?' (проліковано)':'')); });
   if(d.hpRed) add('bad','Макс. ОЗ −'+d.hpRed+' (невдале лікування)');
@@ -1499,7 +1499,7 @@ function statusChips(d){
   if(st.species==='mutant'){ add('bad','−2 до соціальних перевірок із тими, хто зневажає нелюдей'); add('good','Посилення на залякування ксенофобів'); }
   if(st.species==='claw'){ add('bad','Послаблення на дії, що потребують дрібної моторики'); add('good','Посилення на залякування, якщо не приховуєш зовнішність'); }
   const seen=new Set();
-  d.allPerks.forEach(n=>{ if(seen.has(n)) return; seen.add(n); const cnt=d.allPerks.filter(x=>x===n).length;
+  d.allPerks.forEach(n=>{ if(seen.has(n)) return; seen.add(n); src='p:'+n; const cnt=d.allPerks.filter(x=>x===n).length;
     if(n==='Здоровань') add('good','+'+(5*cnt)+' макс. ОЗ (Здоровань)');
     else if(n==='Улюблена зброя'){ const w=st.weapons.find(x=>x.fav); add('good','+1 до атак і створення переваг: '+(w?(w.n||'улюблена зброя без назви'):'обери улюблену зброю')); }
     else if(n==='Улюблений ворог' || n==='Спеціалізація'){ st.perks.filter(p=>p.n===n).forEach(p=>add('good',(n==='Улюблений ворог'?'+1 до бойових перевірок проти: ':'+1 до перевірок у сфері: ')+(p.note||'—'))); }
@@ -1513,7 +1513,8 @@ function statusChips(d){
     else if(n==='Лють ботана'){ if(!chemEffects().some(e=>e.rage)) add('good',PASSIVE_P[n]); }
     else if(PASSIVE_P[n]) add('good',PASSIVE_P[n]);
   });
-  st.feats.forEach(f=>(PASSIVE_F[f]||[]).forEach(x=>add(x[0], f==='Точність' && d.allPerks.includes('Снайпер') && x[0]==='good' ? 'Бій на відстані: критичний успіх на 17+' : x[1])));
+  st.feats.forEach(f=>{ src='f:'+f; (PASSIVE_F[f]||[]).forEach(x=>add(x[0], f==='Точність' && d.allPerks.includes('Снайпер') && x[0]==='good' ? 'Бій на відстані: критичний успіх на 17+' : x[1])); });
+  src=null;
   const uniq=[]; const keys=new Set(); out.forEach(x=>{ if(!keys.has(x[1])){ keys.add(x[1]); uniq.push(x); } });
   return uniq;
 }

@@ -1,5 +1,106 @@
 {{!-- Електронний аркуш каравану (Foundry), laid out like the character sheet. Fields: data-k = field of the HTML caravan sheet; buttons: data-act. --}}
-<div class="pust-sheet-inner pust-caravan {{#unless editable}}readonly{{/unless}}">
+<div class="pust-sheet-inner pust-caravan {{#unless editable}}readonly{{/unless}} {{#if compact}}pust-compact{{/if}}">
+
+  {{#if compact}}
+  {{!-- ===== Компактний аркуш каравану (author, 2026-11-18; mockup Б1 «Дзеркало персонажа»): what the table needs on the road —
+       the head, karma and reputation as chips, «Швидкий доступ», «Вантаж» as chips, the taken «Покращення» with their actions.
+       Making and setting up the caravan (choosing improvements, story, «Налаштування») stays in the full sheet ===== --}}
+  <header class="pust-cmp-head">
+    <img class="pust-cmp-portrait" src="{{ccmp.img}}" alt="">
+    <div class="pust-cmp-who"><b class="pust-cmp-name">{{#if v.name}}{{v.name}}{{else}}Караван без назви{{/if}}</b><small>{{#if v.tachka}}Тачка{{else}}Браміни{{/if}} · Удача партії {{ccmp.luck}}</small></div>
+    <span class="pust-seg pust-cmp-seg" role="group" aria-label="Вигляд аркуша"><button type="button" data-action="compactToggle" data-v="0" title="Повний аркуш: створення й налаштування каравану">Повний</button><button type="button" class="on" data-action="compactToggle" data-v="1" title="Компактний аркуш: лише потрібне в дорозі">Компактний</button></span>
+  </header>
+  <div class="pust-cmp-asps">
+    <span class="pust-cmp-asp pust-ccmp-karma karma-{{ccmp.karmaTone}}" title="{{ccmp.karmaTip}}"><b>Карма</b><span class="pust-ccmp-kv">{{#if editable}}<button type="button" data-action="cact" data-act="step" data-step="karma" data-d="-1" title="Мінус 1 карми" aria-label="Мінус 1 карми">−</button>{{/if}}<input type="text" class="pust-screen" data-k="karma" value="{{v.karma}}" aria-label="Карма" title="Карма">{{#if editable}}<button type="button" data-action="cact" data-act="step" data-step="karma" data-d="1" title="Плюс 1 карми" aria-label="Плюс 1 карми">+</button>{{/if}}{{#if ccmp.karmaAspect}}<span class="pust-ccmp-ka">{{ccmp.karmaAspect}}</span>{{/if}}</span></span>
+    {{#if v.reputation}}<span class="pust-cmp-asp asp-concept"><b>Репутація</b><span>{{v.reputation}}</span></span>{{/if}}
+  </div>
+
+  {{!-- «Швидкий доступ»: ОЗ with «Відремонтувати», Броня, Бюджет; «Запас ходу» the whole width with its lamps --}}
+  <section class="pust-ccmp-quick">
+    <div class="pust-ccmp-chip {{#if (lt v.hpCurrent 1)}}bad{{/if}}" title="Очки здоров'я каравану: {{v.hpCurrent}} з {{v.maxHP}}">
+      <i class="fa-solid fa-heart-pulse pust-qic" aria-hidden="true"></i>
+      <div class="pust-ccmp-ctl">
+        <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="-1" title="Мінус 1 ОЗ" aria-label="Мінус 1 ОЗ">−</button>
+        <input type="text" class="pust-screen" data-k="hpCurrent" value="{{v.hpCurrent}}" aria-label="Поточні ОЗ"><b class="pust-ccmp-of">/ {{v.maxHP}}</b>
+        <button type="button" data-action="cact" data-act="step" data-step="hpCurrent" data-d="1" title="Плюс 1 ОЗ" aria-label="Плюс 1 ОЗ">+</button>
+      </div>
+      <span class="pust-ccmp-hpline hp-{{v.hpBar.level}}" aria-hidden="true"><i style="width: {{v.hpBar.pct}}%"></i></span>
+      {{#if editable}}<button type="button" class="pust-ccmp-svc" data-action="cact" data-act="repair" title="{{v.repairBtn.title}}" aria-label="{{v.repairBtn.label}}" {{#if v.repairBtn.off}}disabled{{/if}}><i class="fa-solid fa-screwdriver-wrench"></i></button>{{/if}}
+    </div>
+    <div class="pust-ccmp-chip" title="Броня каравану: {{v.armor}}">
+      <i class="fa-solid fa-shield-halved pust-qic" aria-hidden="true"></i>
+      <span class="pust-ccmp-scr">{{v.armor}}</span>
+    </div>
+    <div class="pust-ccmp-chip" title="Бюджет кришок: {{v.budget}}(к)">
+      <i class="fa-solid fa-coins pust-qic" aria-hidden="true"></i>
+      <div class="pust-ccmp-ctl">
+        <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="-1" title="Мінус 1 кришка" aria-label="Мінус 1 кришка">−</button>
+        <input type="text" class="pust-screen" data-k="budget" value="{{v.budget}}" aria-label="Бюджет кришок">
+        <button type="button" data-action="cact" data-act="step" data-step="budget" data-d="1" title="Плюс 1 кришка" aria-label="Плюс 1 кришка">+</button>
+      </div>
+    </div>
+    <div class="pust-ccmp-chip pust-ccmp-move">
+      <div class="pust-ccmp-mvhd">
+        <i class="fa-solid fa-route pust-qic" aria-hidden="true"></i><b title="{{v.refill}} · {{v.cellRule}}">Запас ходу {{v.moveNow}}</b>
+        {{#if editable}}<button type="button" class="pust-autorange {{#if autoRange}}on{{/if}}" data-action="autoRange" role="switch" aria-checked="{{#if autoRange}}true{{else}}false{{/if}}" title="Витрачати автоматично: коли караван переміщують на мапі, запас ходу списується сам, без питання (1 клітина — 1 одиниця, тачка — 3 клітини за одиницю). Якщо запасу бракує, караван лишається на місці."><span class="pust-place-sw" aria-hidden="true"></span><span>Витрачати автоматично</span></button>
+        <button type="button" class="pust-ccmp-svc" data-action="cact" data-act="refill" title="{{v.refillBtn.title}}" aria-label="{{v.refillBtn.label}}" {{#if v.refillBtn.off}}disabled{{/if}}><i class="fa-solid fa-gas-pump"></i></button>{{/if}}
+      </div>
+      <div class="pust-qpips pust-ccmp-pips">
+        {{#each v.movePips1}}{{#if avail}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" aria-label="Запас ходу"></button>{{/if}}{{/each}}
+        {{#each v.movePips2}}{{#if avail}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="move" data-i="{{k}}" aria-label="Запас ходу"></button>{{/if}}{{/each}}
+      </div>
+    </div>
+  </section>
+
+  {{!-- «Покращення» over «Вантаж» (author, 2026-11-18; playtest item 11, mockup А): the ones with an action as cards like the
+       perks — name, limit, one sentence, the action (the turret rolls, «Дефібрилятор» «Застосувати» and a scene mark, no
+       Припас spent by itself; the brahmins' choice for the trip; the chest's Припаси) —, the rest as quiet chips at the foot --}}
+  <section class="pust-block pust-ccmp-imps">
+    <h3><i class="fa-solid fa-gears pust-qic" aria-hidden="true"></i>Покращення <small class="pust-cmp-pkn">{{v.impCount}}</small></h3>
+    {{#each ccmp.impCards}}
+    <div class="pust-pkuse pk-{{cls}} pust-ccmp-icard{{#if defib.used}} used{{/if}}">
+      <div class="pust-pkuse-top">
+        <span class="pust-pkuse-n" title="{{desc}}">{{name}}{{#if level}} <small>×{{level}}</small>{{/if}}</span>
+        {{#if lim}}<span class="pust-pklim pk-{{cls}}">{{lim}}</span>{{/if}}
+        <span class="pust-ccmp-iact">
+        {{#if (eq id "turret")}}{{#if @root.turret}}{{#if @root.editable}}<button type="button" class="pust-turret-dice {{@root.turret.tcls}}" data-action="turretRoll" title="Кинути шкоду турелі в чат"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{@root.turret.diceText}}</button><button type="button" class="pust-turret-hit" data-action="turretHit" title="Вистрілити з турелі по цілях: броня й стійкості кожного враховуються" aria-label="Завдати цілям"><i class="fa-solid fa-crosshairs"></i></button>{{else}}<span class="pust-turret-dice {{@root.turret.tcls}}">{{@root.turret.diceText}}</span>{{/if}}{{/if}}{{/if}}
+        {{#if defib}}{{#unless defib.used}}{{#if @root.editable}}<button type="button" class="pust-pkuse-go" data-action="defib" data-v="1" title="Застосувати: позначений ціллю (T) персонаж з 0 ОЗ повертається в сцену з 1 ОЗ; картка в чат і позначка до кінця сцени. Одиницю Припасів зніміть самі.">Застосувати</button>{{/if}}{{/unless}}{{/if}}
+        {{#if supPips}}<span class="pust-pips">{{#each supPips}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="sup" data-i="{{k}}"></button>{{/each}}</span>{{/if}}
+        {{#if (eq id "brahmins")}}{{#if @root.editable}}<span class="pust-seg2"><button type="button" class="{{#if @root.brahmins.range}}on{{/if}}" data-action="brahminBonus" data-v="range" title="Караван витрачає менше запасу ходу">−{{@root.brahmins.share}} запасу</button><button type="button" class="{{#unless @root.brahmins.range}}on{{/unless}}" data-action="brahminBonus" data-v="time" title="Шлях займає менше часу">−{{@root.brahmins.share}} часу</button></span>{{/if}}{{/if}}
+        </span>
+      </div>
+      <p class="pust-pkuse-t">{{#if defib.used}}<b class="pust-pkuse-usedtag">Використано</b> · повернеться після «Кінця сцени» Доглядача.{{#if @root.editable}} <button type="button" class="pust-pkuse-free" data-action="defib" data-v="0" title="Зняти позначку «використано»"><i class="fa-solid fa-rotate-left"></i> Зняти позначку</button>{{/if}}{{else}}{{short}}{{/if}}</p>
+    </div>
+    {{/each}}
+    {{#if (or ccmp.impQuiet.length v.customImps.length)}}<div class="pust-cmp-passive">{{#each ccmp.impQuiet}}<span class="pust-cmp-pchip" title="{{desc}}">{{name}}{{#if level}} ×{{level}}{{/if}}</span>{{/each}}{{#each v.customImps}}<span class="pust-cmp-pchip" title="{{desc}}">{{#if name}}{{name}}{{else}}Власне покращення{{/if}}</span>{{/each}}</div>{{/if}}
+    {{#unless ccmp.impCards.length}}{{#unless ccmp.impQuiet.length}}{{#unless v.customImps.length}}<span class="pust-sub">Покращень ще не взято: оберіть їх у повному аркуші.</span>{{/unless}}{{/unless}}{{/unless}}
+  </section>
+
+  {{!-- «Вантаж»: chips «назва · к-сть×ціна · далека · сума ×»; a click on a chip edits its row in place; a new row opens edited --}}
+  <section class="pust-block pust-ccmp-cargo">
+    <h3><i class="fa-solid fa-boxes-stacked pust-qic" aria-hidden="true"></i>Вантаж <small class="pust-cmp-pkn {{#if v.cargoOver}}bad{{/if}}">{{v.cargoNow}}(к){{#if v.cargoOver}} · перевантаження{{/if}}</small>
+      {{#if editable}}<button type="button" class="pust-go pust-cmp-add" data-action="cact" data-act="addCargo" title="Додати рядок вантажу чи пасажира"><i class="fa-solid fa-plus"></i> Рядок</button>{{/if}}</h3>
+    <div class="pust-ccmp-sum"><span title="За скільки можна продати весь вантаж">Сума продажу <b>{{#if v.repair.destroyed}}0{{else}}{{#if v.cargoSummary}}{{v.cargoSummary.sale}}{{else}}0{{/if}}{{/if}}(к)</b>{{#if v.cargoSummary.passengers}} · пасажирів: {{v.cargoSummary.passengers}}{{/if}}</span><span class="pust-meter {{#if v.cargoOver}}warn{{/if}}"><span style="width: {{v.cargoPct}}%"></span></span></div>
+    <div class="pust-cmp-chips">
+      {{#each ccmp.cargo}}
+      {{#if edit}}
+      <div class="pust-ccmp-cgedit">
+        <input type="text" data-k="cargo.{{i}}.name" value="{{name}}" placeholder="Що везете" aria-label="Назва">
+        <select data-k="cargo.{{i}}.kind" aria-label="Тип"><option value="cargo" {{#unless pass}}selected{{/unless}}>Вантаж</option><option value="pass" {{#if pass}}selected{{/if}}>Пасажир</option></select>
+        <input type="text" class="pust-price" data-k="cargo.{{i}}.price" value="{{price}}" placeholder="Ціна" aria-label="Ціна">
+        {{#unless pass}}<input type="text" class="pust-qty" data-k="cargo.{{i}}.qty" value="{{qty}}" placeholder="К-сть" aria-label="Кількість">
+        <label title="Далека доставка (понад 15 клітин): продаж ×2 замість ×1,5"><input type="checkbox" data-k="cargo.{{i}}.far" {{#if far}}checked{{/if}}> далека</label>
+        <label title="Вантаж пошкоджено: продаж ×1,25 (далека — ×1,5)"><input type="checkbox" data-k="cargo.{{i}}.hurt" {{#if hurt}}checked{{/if}}> пошк.</label>{{/unless}}
+        <button type="button" class="pust-ccmp-ok" data-action="cargoEdit" data-i="-1" title="Готово" aria-label="Готово"><i class="fa-solid fa-check"></i></button>
+      </div>
+      {{else}}
+      <span class="pust-cmp-gc kind-{{#if pass}}gear{{else}}boom{{/if}} pust-ccmp-gc"><button type="button" class="pust-ccmp-gn" data-action="cargoEdit" data-i="{{i}}" title="{{#if note}}{{note}} · {{/if}}Змінити рядок"><b>{{#if pass}}Пасажир: {{/if}}{{#if name}}{{name}}{{else}}без назви{{/if}}</b></button>{{#unless pass}}{{#if price}}<span class="pust-cmp-gq">{{#if qty}}{{qty}}×{{/if}}{{price}}(к)</span>{{/if}}{{#if far}}<span class="pust-ccmp-far">далека</span>{{/if}}{{#if hurt}}<span class="pust-ccmp-hurt">пошк.</span>{{/if}}{{/unless}}{{#if sum}}<span class="pust-cmp-gp">{{sum}}</span>{{/if}}{{#if @root.editable}}<button type="button" class="pust-cmp-gx" data-action="cact" data-act="cg-del" data-i="{{i}}" data-confirm="1" title="Прибрати «{{#if name}}{{name}}{{else}}без назви{{/if}}» (натисніть двічі)" aria-label="Прибрати «{{#if name}}{{name}}{{else}}без назви{{/if}}»"><i class="fa-solid fa-xmark"></i></button>{{/if}}</span>
+      {{/if}}
+      {{else}}<span class="pust-sub">Порожньо. За замовчуванням у караван влазить добра на суму до 10 кришок.</span>{{/each}}
+    </div>
+  </section>
+
+  {{else}}
 
   {{!-- ===== Аркуш: file, random, quick start, clear (folds; above the name) ===== --}}
   <details class="pust-sheetbar pust-fold" data-fold="sheetBarOpen" {{#if ui.sheetBarOpen}}open{{/if}}>
@@ -25,6 +126,7 @@
     <div class="pust-who">
       <div class="pust-row">
         <input type="text" class="pust-name" data-k="companyName" value="{{v.name}}" placeholder="Вигадайте назву" aria-label="Назва компанії">
+        <span class="pust-seg pust-cmp-seg" role="group" aria-label="Вигляд аркуша"><button type="button" class="on" data-action="compactToggle" data-v="0" title="Повний аркуш: створення й налаштування каравану">Повний</button><button type="button" data-action="compactToggle" data-v="1" title="Компактний аркуш: лише потрібне в дорозі">Компактний</button></span>
         {{#if undo}}<button type="button" class="pust-undo" data-action="undo" title="Повернути аркуш, яким він був до останньої дії"><i class="fa-solid fa-rotate-left"></i> Скасувати</button>{{/if}}
         <button type="button" class="pust-die {{#if v.locks.name}}locked{{/if}}" data-action="cact" data-act="rollName" title="{{#if v.locks.name}}Заповнено вручну. Очистіть поле, щоб знову кидати кістки{{else}}Кинути на назву компанії{{/if}}"><i class="fa-solid {{#if v.locks.name}}fa-lock{{else}}fa-dice{{/if}}"></i></button>
       </div>
@@ -103,7 +205,6 @@
 
   </section>
 
-
   <nav class="pust-tabs">
     <a data-action="pustTab" data-tab="imps" class="{{#if (eq tab 'imps')}}active{{/if}}">Покращення</a>
     <a data-action="pustTab" data-tab="cargo" class="{{#if (eq tab 'cargo')}}active{{/if}}">Вантаж і пасажири</a>
@@ -128,6 +229,7 @@
         <b>{{name}}</b>
         {{#if sub}}<small class="pust-sub">{{sub}}</small>{{/if}}
         {{#if (eq id "turret")}}{{#if @root.turret}}<span class="pust-turret">{{#if @root.editable}}<button type="button" class="pust-turret-dice {{@root.turret.tcls}}" data-action="turretRoll" title="Кинути шкоду турелі в чат"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{@root.turret.diceText}}</button>{{else}}<span class="pust-turret-dice {{@root.turret.tcls}}">{{@root.turret.diceText}}</span>{{/if}}<span class="pust-turret-type {{@root.turret.tcls}}">{{@root.turret.typeLabel}}</span>{{#if @root.editable}}<button type="button" class="pust-turret-hit" data-action="turretHit" title="Вистрілити з турелі по цілях: броня й стійкості кожного враховуються"><i class="fa-solid fa-crosshairs"></i><span>Завдати цілям</span></button>{{/if}}</span>{{/if}}{{/if}}
+        {{#if (eq id "defib")}}{{#if taken}}<span class="pust-imp-defib{{#if @root.defib.used}} used{{/if}}">{{#if @root.defib.used}}<span class="pust-pkuse-usedtag" title="Повернеться після «Кінця сцени» Доглядача">використано</span>{{#if @root.editable}}<button type="button" class="pust-pkuse-free" data-action="defib" data-v="0" title="Зняти позначку «використано»"><i class="fa-solid fa-rotate-left"></i></button>{{/if}}{{else if @root.editable}}<button type="button" class="pust-pkuse-go" data-action="defib" data-v="1" title="Застосувати: позначений ціллю (T) персонаж з 0 ОЗ повертається в сцену з 1 ОЗ; картка в чат і позначка до кінця сцени. Одиницю Припасів зніміть самі.">Застосувати</button>{{/if}}</span>{{/if}}{{/if}}
         <span class="pust-imp-ctrl">
           {{#if supPips}}<span class="pust-pips">{{#each supPips}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="sup" data-i="{{k}}"></button>{{/each}}</span>{{/if}}
           {{#each btns}}<button type="button" class="rbtn {{#if on}}on{{/if}}" data-action="cact" data-act="imp" data-id="{{../id}}" data-k="{{k}}" {{#if ../locked}}disabled{{/if}}></button>{{/each}}
@@ -239,4 +341,5 @@
   {{/if}}
 
   </div>
+{{/if}}
 </div>

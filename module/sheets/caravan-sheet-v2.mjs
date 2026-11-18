@@ -16,6 +16,7 @@ import { rollTurret, turretOf } from "../applications/caravan-turret.mjs";
 import { typeClass, typeLabel, typeOptions } from "./enemy-view.mjs";
 import { diceLabel } from "../rules/battle.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { defibUsed, freeDefib, useDefib } from "../applications/caravan-defib.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -24,6 +25,11 @@ const CONFIRM_MS = 3000;
 const UNDO_MS = 7000;
 /** «Скасувати» shows only after the whole caravan is replaced at random or cleared (author, 2026-11-14; the HTML sheet offers it after more) */
 const UNDOABLE = new Set(["clear", "random"]);
+/** The compact caravan sheet (author, 2026-11-18; mockup Б1): the compact character sheet's width, remembered per user and caravan */
+const COMPACT_W = 460;
+const compactKey = (actor) => `pustelnyky-compact-${game.user.id}-${actor.id}`;
+function compactStored(actor) { try { return localStorage.getItem(compactKey(actor)) === "1"; } catch (_) { return false; } }
+function compactStore(actor, on) { try { if (on) localStorage.setItem(compactKey(actor), "1"); else localStorage.removeItem(compactKey(actor)); } catch (_) { /* not kept */ } }
 
 export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -43,6 +49,9 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       pathfinder: WastelandersCaravanSheetV2.#onPathfinder,
       turretRoll: WastelandersCaravanSheetV2.#onTurretRoll,
       turretHit: WastelandersCaravanSheetV2.#onTurretHit,
+      compactToggle: WastelandersCaravanSheetV2.#onCompactToggle,
+      cargoEdit: WastelandersCaravanSheetV2.#onCargoEdit,
+      defib: WastelandersCaravanSheetV2.#onDefib,
     },
   };
 
@@ -83,6 +92,47 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       taken: (parseInt(S.imp?.brahmins, 10) || 0) > 0, tachka: !!S.tachka, pathfinder, share: pathfinder ? "½" : "¼",
       range: this.document.getFlag(game.system.id, "brahminBonus") !== "time",
     };
+    // «Компактний» (author, 2026-11-18; mockup Б1): opens full until the user switches, then remembered per caravan
+    if (this.ui.compact === undefined) this.ui.compact = compactStored(this.document);
+    context.compact = !!this.ui.compact;
+    // «Дефібрилятор»'s «Застосувати» in both views (playtest 2026-11-18, item 13: the full sheet had none)
+    const used = defibUsed(this.document);
+    context.defib = { used };
+    if (context.compact) {
+      const v = context.v;
+      // karma's colour (playtest 2026-11-18, item 11): −5 and lower red, −4…+4 yellow, +5 and higher green
+      const karma = parseInt(S.karma, 10) || 0;
+      const karmaTone = karma <= -5 ? "bad" : karma >= 5 ? "good" : "mid";
+      context.ccmp = {
+        // the portrait: the sheet's context has no `actor` (the compact head showed an empty picture; item 11)
+        img: this.document.img,
+        karmaTone,
+        karmaTip: karmaTone === "bad" ? "Карма −5 і нижче" : karmaTone === "good" ? "Карма +5 і вище" : "Карма від −4 до +4",
+        luck: v.luck.find((o) => o.sel)?.n ?? "0",
+        karmaAspect: S.karmaAspect || "",
+        // the row just added or the one clicked opens as a small form; an old row with no name stays a chip «без назви»
+        cargo: v.cargo.map((r) => ({ ...r, edit: this.isEditable && this.ui.cgEdit === r.i })),
+      };
+      // «Покращення» over «Вантаж» (author, 2026-11-18; playtest item 11, mockup А): the ones with an action as cards like the
+      // perks (name, limit, one sentence after the wiki's «Покращення каравану»), the rest as quiet chips at the block's foot
+      const share = context.brahmins.pathfinder ? "наполовину" : "на чверть";
+      const ACT = {
+        turret: { short: "Важка зброя (2d6 шкоди в бою на відстані), з якої може стріляти будь-який персонаж." },
+        defib: { lim: "раз за сцену", cls: "scene", short: "Ціною одиниці Припасів повертає позначеного ціллю (T) персонажа з 0 ОЗ у сцену з 1 ОЗ." },
+        brahmins: { lim: "перед подорожжю", cls: "free", short: `Шлях займає ${share} менше часу або караван витрачає ${share} менше запасу ходу.` },
+        chest: { short: "" },
+      };
+      const taken = v.imps.filter((i) => i.taken).map((i) => {
+        const n = i.btns.filter((b) => b.on).length;
+        return { ...i, level: i.btns.length > 1 ? String(n) : "", defib: i.id === "defib" ? { used } : null };
+      });
+      context.ccmp.impCards = taken.filter((i) => ACT[i.id]).map((i) => {
+        const a = ACT[i.id];
+        const short = i.id === "chest" ? `Місце для зберігання ${i.supPips?.length || 3 * (Number(i.level) || 1)} одиниць Припасів.` : a.short;
+        return { ...i, lim: a.lim || "", cls: a.cls || "free", short };
+      });
+      context.ccmp.impQuiet = taken.filter((i) => !ACT[i.id]);
+    }
     return context;
   }
 
@@ -94,6 +144,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
 
   _onRender(context, options) {
     super._onRender(context, options);
+    this.#compactControl(); // «Повний / Компактний» in the window's header too
     // «?» (author, 2026-11-17): the tour page of the tab now open
     addHelpButton(this, () => (game.user.isGM ? ["gm-caravan", this.ui.tab || "head"] : ["pl-caravan", this.ui.tab || "head"]));
     if (!this.document.pustTourDemo) hotbarDraggable(this.element.querySelector(".pust-luck-roll"), { kind: "luck", actor: this.document.uuid, label: "Удача партії" });
@@ -175,6 +226,13 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       const roll = await new Roll("1d10").evaluate();
       return postFateCard(this.document, { v: roll.total, mod: luck, party: true });
     }
+    // the compact sheet: a new cargo row stays open as a small form till «Готово» (author, 2026-11-18)
+    // a row removed: the open form follows its own row (or closes with it)
+    if (act === "cg-del" && this.ui.cgEdit != null) {
+      const di = Number(data.i);
+      this.ui.cgEdit = di === this.ui.cgEdit ? null : di < this.ui.cgEdit ? this.ui.cgEdit - 1 : this.ui.cgEdit;
+    }
+    if (act === "addCargo") this.ui.cgEdit = (this.document.system.engine?.raw?.cargo ?? caravanToState(this.document.toObject()).cargo ?? []).length;
     const prev = UNDOABLE.has(act) ? caravanToState(this.document.toObject()) : null;
     // any other action ends the offer: undoing would also throw away what was done after
     if (!prev) this.dropUndo();
@@ -207,6 +265,56 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     clearTimeout(this.#undoTimer);
     await saveCaravan(this.document, prev);
     notify.info("Скасовано.");
+  }
+
+  /** The header's switch, as the character sheet's: the icon says where a click goes */
+  #compactControl() {
+    const header = this.window?.header;
+    if (!header) return;
+    let b = header.querySelector(".pust-cmp-hd");
+    if (!b) {
+      b = document.createElement("button");
+      b.type = "button";
+      b.addEventListener("pointerdown", (ev) => ev.stopPropagation());
+      b.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); b.blur(); WastelandersCaravanSheetV2.#onCompactToggle.call(this, ev, { dataset: {} }); });
+      const close = header.querySelector('[data-action="close"]');
+      if (close) close.before(b); else header.append(b);
+    }
+    const c = !!this.ui.compact;
+    b.className = `header-control icon fa-solid ${c ? "fa-up-right-and-down-left-from-center" : "fa-down-left-and-up-right-to-center"} pust-cmp-hd`;
+    b.dataset.tooltip = c ? "Повний аркуш" : "Компактний аркуш";
+    b.setAttribute("aria-label", b.dataset.tooltip);
+  }
+
+  /** «Повний / Компактний»: the window narrows and back to the size it had */
+  static async #onCompactToggle(event, target) {
+    const on = target.dataset.v === "1" ? true : target.dataset.v === "0" ? false : !this.ui.compact;
+    if (on === !!this.ui.compact) return;
+    this.ui.compact = on;
+    compactStore(this.document, on);
+    if (on) this.#fullSize = { width: this.position.width, height: this.position.height };
+    await this.render();
+    this.setPosition(on ? { width: COMPACT_W, height: Math.min(this.position.height, 760) } : (this.#fullSize ?? { width: 820, height: 900 }));
+  }
+  #fullSize = null;
+
+  /** Opened compact (remembered for this caravan): at the compact width from the start */
+  _onFirstRender(context, options) {
+    super._onFirstRender?.(context, options);
+    if (this.ui.compact) { this.#fullSize = { width: 820, height: 900 }; this.setPosition({ width: COMPACT_W, height: Math.min(this.position.height, 760) }); }
+  }
+
+  /** A cargo chip clicked: its row as a small form (data-i -1: done) */
+  static #onCargoEdit(event, target) {
+    const i = Number(target.dataset.i);
+    this.ui.cgEdit = i >= 0 ? i : null;
+    this.render();
+  }
+
+  /** «Дефібрилятор»: «Застосувати» (card and scene mark) or the mark off with one click (caravan-defib.mjs) */
+  static async #onDefib(event, target) {
+    if (target.dataset.v === "1") await useDefib(this.document);
+    else await freeDefib(this.document);
   }
 
   static #onTab(event, target) {

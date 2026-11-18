@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 100;
+export const HELP_VERSION = 104;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -111,6 +111,7 @@ export const TOURS = [
       S("notes", "«Записи»: «Біографія», «Інші», редактор, зберігається само.", { prepare: `click:${CHAR} [data-tab="notes"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("xp", "«Покращення»: ОД, квадрат бере покращення; «Як заробляти ОД».", { prepare: `click:${CHAR} [data-tab="xp"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("settings", "Налаштування: «Правила й доповнення» (Пазурі, псионіки, силова броня, Guns, «Вільний режим»), трофеї; «Ручні надбавки», «Захист вручну» лише у вільному режимі.", { prepare: `click:${CHAR} [data-tab="settings"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("compact", "Компактний режим (крок сам перемикає аркуш і повертає його вигляд): перемикач «Повний / Компактний»; для гри за столом — швидкий доступ, «Перки та особливості» з «Застосувати», хімія, мотлох; створення й налаштування в повному аркуші.", { prepare: ["sheet:character", "compactDemo:character"], selector: `${CHAR}:has(.pust-compact)`, tooltipDirection: "RIGHT" }),
       S("builders", "Create Item: конструктори «Вид» і «Наркотик».", { selector: '#items .create-entry', prepare: ["closeAll", "sidebar:items"], tooltipDirection: "LEFT" }),
     ],
   },
@@ -126,6 +127,7 @@ export const TOURS = [
       S("cargo", "«Вантаж і пасажири»: рядки, тип, ціна, к-сть, «Далека» / «Пошк.», «Сума продажу», вантаж угорі; приклад у копії в пам'яті.", { prepare: "cargoDemo", selector: `${CAR}.pust-demo-cargo .pust-body`, tooltipDirection: "RIGHT" }),
       S("story", "«Історія»: знайомство, обличчя компанії, остання справа, що пішло не так, примітки.", { prepare: `click:${CAR} [data-tab="story"]`, selector: `${CAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("settings", "Налаштування: «Надбавки» (ОЗ, броня, пси-броня, турель), «Захист» від типів; порожнє — за правилами.", { prepare: `click:${CAR} [data-tab="settings"]`, selector: `${CAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("compact", "Компактний режим (крок сам перемикає аркуш і повертає його вигляд): перемикач «Повний / Компактний»; у дорозі — швидкий доступ на сталевій панелі, «Покращення» над «Вантажем», вантаж чипами; створення й налаштування в повному аркуші.", { prepare: ["sheet:caravan", "compactDemo:caravan"], selector: `${CAR}:has(.pust-compact)`, tooltipDirection: "RIGHT" }),
       S("done", "Кінець ланцюжка Доглядача; гравці отримають свій тур; «Довідка Foundry».", {  }),
     ],
   },
@@ -159,16 +161,17 @@ export const TOURS = [
       S("notes", "«Записи»: «Біографія» і «Інші», редактор, зберігається само.", { prepare: `click:${CHAR} [data-tab="notes"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("xp", "«Покращення»: ОД, квадрати, лише наприкінці сесії; «Як заробляти ОД».", { prepare: `click:${CHAR} [data-tab="xp"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("settings", "Налаштування: правила, які дозволяє Доглядач, доповнення, вільний режим, трофеї.", { prepare: `click:${CHAR} [data-tab="settings"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("compact", "Компактний режим (крок сам перемикає аркуш і повертає його вигляд): перемикач «Повний / Компактний»; для гри за столом — швидкий доступ, «Перки та особливості» з «Застосувати», хімія, мотлох; створення й налаштування в повному аркуші.", { prepare: ["sheet:pc", "compactDemo:character"], selector: `${CHAR}:has(.pust-compact)`, tooltipDirection: "RIGHT" }),
     ],
   },
   {
     id: "pl-check", next: ["pl-panels"], title: "Зробити перевірку", description: "",
     steps: [
       S("button", "«Зробити перевірку» на аркуші й панелі; коли кидати за правилами.", { selector: `${CHAR} .pust-check-btn`, prepare: ["closeAll", "sheet:pc"], tooltipDirection: "LEFT" }),
-      S("type", "«Вид перевірки»: як читається результат; приклад атаки в пам'яті.", { selector: ".pust-demo-check .rgrp:has(#r-type)", prepare: ["closeAll", "checkDemo:roll"], tooltipDirection: "RIGHT" }),
-      S("presets", "Готові перевірки й «Перевірка подорожі».", { selector: ".pust-demo-check .rpre.rgr, .pust-demo-check .travelb", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("attr", "Атрибут і навичка; кістка навички замінює меншу.", { selector: ".pust-demo-check .rgrp:has(.rats), .pust-demo-check .rgrp:has(#r-skill)", union: true, prepare: ["closeAll", "checkDemo:roll"], tooltipDirection: "RIGHT" }),
+      S("type", "«Стандартні дії»: як читається результат (атрибут і навичка не змінюються); повторний клік — звичайна перевірка.", { selector: ".pust-demo-check .rpre.pust-std", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("presets", "Готові перевірки й «Перевірка подорожі».", { selector: ".pust-demo-check .rpre.rgr:not(.pust-std), .pust-demo-check .travelb", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("perks", "Перки з власною перевіркою.", { selector: ".pust-demo-check .rpre.psi", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
-      S("attr", "Атрибут і навичка; кістка навички замінює меншу.", { selector: ".pust-demo-check .rgrp:has(.rats), .pust-demo-check .rgrp:has(#r-skill)", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("mods", "Посилення, Послаблення, Модифікатор за правилами.", { selector: ".pust-demo-check .rmods", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("roll", "«Кинути перевірку»: картка в чаті.", { selector: ".pust-demo-check .rgo", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("result", "Результат: вердикт, сума з діапазонами, кістки, що означає для виду; діапазони за правилами, ОД за невдачу.", { selector: ".pust-demo-check .rres > :is(.rdice, .rvhead, .rverd, .rdesc)", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
@@ -187,6 +190,7 @@ export const TOURS = [
       S("fd", "«Витратити ЖД» / «Отримати ЖД»: лічильник персонажа й картка в чаті.", { selector: `${DOCK} .pust-md-fdspend:not(.pust-md-supspend)`, prepare: "dockDemo", tooltipDirection: "LEFT",  }),
       S("sup", "«Витратити Припас» / «Отримати Припас».", { selector: `${DOCK} .pust-md-supspend`, prepare: "dockDemo", tooltipDirection: "LEFT",  }),
       S("ctr", "«Лічильники»: що зараз рахує Доглядач (лише читати); приклади лічильника гри й сцени.", { selector: `${DOCK} .pust-md-ctr`, prepare: "counterDemo", tooltipDirection: "RIGHT" }),
+      S("note", "«Примітка» праворуч від кнопок Foundry (не на бойовій мапі): стікер гравця; підпис, правка будь-якого видимого стікера, розмір за кут.", { selector: `${DOCK} .pust-md-note`, prepare: "sceneKind:map", tooltipDirection: "RIGHT" }),
     ],
   },
   {
@@ -214,6 +218,7 @@ export const TOURS = [
       S("imps", "Покращення: два на старті, що вони дають.", { prepare: `click:${CAR} [data-tab="imps"]`, selector: `${CAR} .pust-imp-bar`, tooltipDirection: "RIGHT" }),
       S("cargo", "Вантаж і пасажири (приклад у копії в пам'яті): місткість 10 кришок, ціни продажу, далека доставка, пошкоджений вантаж.", { prepare: "cargoDemo", selector: `${CAR}.pust-demo-cargo .pust-body`, tooltipDirection: "RIGHT" }),
       S("story", "Історія компанії: знайомство, обличчя компанії, остання справа, що пішло не так.", { prepare: `click:${CAR} [data-tab="story"]`, selector: `${CAR} .pust-body`, tooltipDirection: "RIGHT" }),
+      S("compact", "Компактний режим (крок сам перемикає аркуш і повертає його вигляд): перемикач «Повний / Компактний»; у дорозі — швидкий доступ на сталевій панелі, «Покращення» над «Вантажем», вантаж чипами; створення й налаштування в повному аркуші.", { prepare: ["sheet:caravan", "compactDemo:caravan"], selector: `${CAR}:has(.pust-compact)`, tooltipDirection: "RIGHT" }),
       S("token", "Токен каравану на мапі: смужки ОЗ і «Запас ходу», картинка за транспортом.", { prepare: ["closeAll", "caravanToken"], selector: ".pust-tok-demo", tooltipDirection: "RIGHT" }),
       S("move", "Рух мапою: питання про списання запасу ходу (приклад на 5 клітинок, нічого не рухається).", { prepare: "moveDemo", selector: ".pust-cmove-demo", tooltipDirection: "RIGHT" }),
     ],
