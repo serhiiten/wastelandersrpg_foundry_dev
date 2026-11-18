@@ -27,7 +27,7 @@ export const SAND_COLOR = "#c8ad7f";
 /** The colour around the scene (its padding) per background: the picture's edge, so a dark place has no light frame */
 const EDGE = {
   // printed by tools/battle_bg/bg_places.py --full (the pictures' edge colours); a missing one falls back to sand
-  "11": "#68583e", "12": "#7c705f", "13": "#515545", "14": "#9c9277", "15": "#aa9978", "16": "#aa9b76",
+  "11": "#68583e", "12": "#7c705f", "13": "#515545", "14": "#9b9179", "15": "#aa9978", "16": "#aa9b76",
   "21": "#a3957c", "22": "#73412d", "23": "#6f787c", "24": "#38332d", "25": "#817b6b", "26": "#969b96",
   "31": "#35342c", "32": "#887560", "33": "#8a887c", "34": "#72664c", "35": "#7d7769", "36": "#aa9775",
   "41": "#56544b", "42": "#897e63", "43": "#5b4534", "44": "#6f695b", "45": "#847968", "46": "#3b3b26",
