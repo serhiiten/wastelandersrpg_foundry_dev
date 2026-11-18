@@ -54,16 +54,14 @@ const btn = (act, icon, label, title) =>
 
 function mapButtons() {
   const gm = game.user.isGM;
-  const canNote = true; // players too, through the GM when Foundry does not let them draw (author, 2026-11-18)
   const row1 = gm ? [
     btn("town", "fa-house-flag", "Поселення", "Додати поселення: зелений токен на вільній клітинці посередині огляду"),
     btn("danger", "fa-skull-crossbones", "Небезпека", "Додати небезпечне місце: червоний токен"),
     btn("poi", "fa-star", "Точка інтересу", "Додати точку інтересу: оранжевий токен"),
   ] : [];
-  const row2 = [
-    ...(canNote ? [gm ? btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")
-      : btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому: його бачать усі, під ним стоїть твоє ім'я")] : []),
-  ];
+  // «Примітка» for players too, through the GM when Foundry does not let them draw (author, 2026-11-18)
+  const row2 = [gm ? btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")
+    : btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому: його бачать усі, під ним стоїть твоє ім'я")];
   return [row1, row2].filter((r) => r.length).map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("");
 }
 
@@ -618,7 +616,7 @@ export function renderMapDock() {
       <div class="pust-md-unit${fold.map ? " folded" : ""}" data-unit="map">
         ${gm ? `<button type="button" class="pust-md-travel" data-mapdock="travel" title="Генератор подорожей поруч із мапою; Удача партії — з обраного каравану"><i class="fa-solid fa-route"></i><span>Подорож</span></button>` : ""}
         ${gm ? `<section class="pust-md-tv" hidden></section>` : ""}
-        ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки", "gm-map:scene")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
+        ${mapButtons() ? `<section class="pust-md-panel pust-md-map">${header("fa-map-location-dot", "Мапа Пустки", gm ? "gm-map:scene" : "pl-panels:note")}<div class="pust-md-body">${mapButtons()}</div></section>` : ""}
         ${gm ? battleSectionHtml((icon, name) => header(icon, name, "gm-battle:scene")) : ""}
       </div>
       <div class="pust-md-unit${fold.ctr ? " folded" : ""}" data-unit="ctr">

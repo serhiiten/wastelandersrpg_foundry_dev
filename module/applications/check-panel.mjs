@@ -144,7 +144,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _prepareContext() {
     const { st, L } = evaluate(this.actor);
-    this.#load(L);
+    const R = this.#load(L);
+    // what an unsatisfied addiction adds to the roll (logic.mjs doRoll), for the strip's text
+    this.#addict = R.addOn !== false ? L.addictionPenalty(L.unsatAddictions().length) : { pen: 0, flat: 0 };
     // «Останні кидки» is left out: in Foundry every roll is already in the chat log (author, 2026-11-13)
     // «Кістка Долі» and «Кістки» (the HTML sheet's «Просто кубики») are left out too: they live in the panel «Кістки» on
     // the left of the map now (author, 2026-11-14); they are the roller's last two blocks
@@ -289,7 +291,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     requestAnimationFrame(() => { this.#restoreScroll(); this.#toResult = false; this.#scrolls = null; });
     const root = this.element.querySelector(".pust-roller");
     // «?» (author, 2026-11-17): the tour «Зробити перевірку» in «Довідка Foundry», at the result once there is one
-    if (!this.actor.pustTourDemo) addHelpButton(this, () => ["pl-check", this.element.querySelector(".rres") ? "result" : "type"]);
+    if (!this.actor.pustTourDemo) addHelpButton(this, () => ["pl-check", this.element.querySelector(".rres") ? "result" : "attr"]);
     // the ready checks may be dragged to the hotbar (helpers/macros.mjs; author, 2026-11-17)
     if (!this.actor.pustTourDemo) root.querySelectorAll('button[data-r="preset"], button[data-r="xpreset"]').forEach((b) => {
       hotbarDraggable(b, { kind: b.dataset.r, actor: this.actor.uuid, label: b.textContent.trim() });
@@ -338,7 +340,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    * the bottom with what is rolled; after a roll the set-up folds into one line «змінити».
    */
   #setupOpen = false;
+  #addict = { pen: 0, flat: 0 };
   #fastLayout(root) {
+    // the ready check's hint (R.hint, right before the attributes) goes with «Вид перевірки»; the other notes (.rhint of
+    // poison, chems, «Воно саме виходить») stay with the automatic conditions
+    const th = root.querySelector(":scope > .rgrp:has(.rats)")?.previousElementSibling;
+    if (th?.matches("p.rhint")) th.classList.add("pust-typehint");
     // the skill: buttons instead of the list
     const sel = root.querySelector("select#r-skill");
     if (sel) {
@@ -385,12 +392,20 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const sk = root.querySelector("select#r-skill");
     const m = sk?.value ? /^(.*?) · (?:\S+ (d\d+)|немає)$/.exec(sk.selectedOptions[0]?.textContent.trim() || "") : null;
     const num = (r) => Number(root.querySelector(`.rstep:has(button[data-r="${r}"]) output`)?.textContent.replace("−", "-")) || 0;
-    const net = Math.min(2, num("boost")) - Math.min(2, num("pen"));
+    // the automatic conditions ticked under the counters and an unsatisfied addiction count as doRoll counts them
+    let autoPen = this.#addict.pen || 0, autoFlat = this.#addict.flat || 0;
+    for (const i of root.querySelectorAll('.ramods input[data-r="am"]:checked')) {
+      const b = i.closest("label")?.querySelector("b")?.textContent || "";
+      autoFlat += Number(/[+−-]\d+/.exec(b)?.[0].replace("−", "-")) || 0;
+      if (/Послаблення/.test(b)) autoPen += 1;
+    }
+    const net = Math.min(2, num("boost")) - Math.min(2, num("pen") + autoPen);
+    const mod = num("mod") + autoFlat;
     return [
       type?.selectedOptions[0]?.textContent.trim(),
       [at ? `${at.querySelector("b")?.textContent} ${at.querySelector("span")?.textContent}` : "", sk?.value ? `${sk.value}${m?.[2] ? ` ${m[2]}` : ""}` : ""].filter(Boolean).join(" + "),
       net > 0 ? `Посилень: ${net}` : net < 0 ? `Послаблень: ${-net}` : "",
-      num("mod") ? `мод. ${sgn(num("mod"))}` : "",
+      mod ? `мод. ${sgn(mod)}` : "",
     ].filter(Boolean).join(" · ");
   }
 
@@ -564,7 +579,7 @@ class DockedCheckPanel extends CheckPanel {
     el.prepend(hd);
     hd.querySelector(".pust-cd-help").addEventListener("click", (ev) => {
       ev.currentTarget.blur();
-      import("../tours/tours.mjs").then((m) => m.openHelp("pl-check", el.querySelector(".rres") ? "result" : "type"));
+      import("../tours/tours.mjs").then((m) => m.openHelp("pl-check", el.querySelector(".rres") ? "result" : "attr"));
     });
     hd.querySelector(".pust-cd-x").addEventListener("click", () => this.close());
     hd.querySelector(".pust-cd-who")?.addEventListener("change", (ev) => {

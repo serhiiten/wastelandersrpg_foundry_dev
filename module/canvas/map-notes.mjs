@@ -49,8 +49,7 @@ const stripOf = (doc) => doc?.object?.pustStrip ?? MAP_NOTE.stripH * canvas.dime
 async function noteWrite(doc, data) {
   if (canWrite(doc)) return doc.update(data);
   if (!game.users.activeGM) { warn(NO_GM); return null; }
-  askGM({ op: "mapNote", act: "update", scene: doc.parent.id, id: doc.id, data }, "Примітка", "Зміну не збережено.");
-  return null;
+  return askGM({ op: "mapNote", act: "update", scene: doc.parent.id, id: doc.id, data }, "Примітка", "Зміну не збережено.");
 }
 async function noteDelete(doc) {
   if (canWrite(doc)) return doc.delete();
@@ -420,7 +419,20 @@ function flushEditor() {
   if (title.value !== base.title && title.value !== flag.title) upd[flagPath("title")] = title.value;
   if (body.value !== base.text && body.value !== flag.text) upd[flagPath("text")] = body.value;
   base.title = title.value; base.text = body.value;
-  if (Object.keys(upd).length) noteWrite(doc, upd).catch((err) => console.warn("Пустельники | note not saved", err));
+  if (!Object.keys(upd).length) return;
+  // what is sent and not yet back: syncEditor must not put the older text into these fields meanwhile (a write through
+  // the GM takes a while)
+  const ed = editor, pend = (ed.sent ??= {}), mine = {};
+  if (flagPath("title") in upd) pend.title = mine.title = title.value;
+  if (flagPath("text") in upd) pend.text = mine.text = body.value;
+  const settle = (ok) => {
+    for (const k of Object.keys(mine)) {
+      if (pend[k] === mine[k]) delete pend[k];
+      // not saved (no GM, the GM's side failed or did not answer): the typed text stays and is sent again on the next save
+      if (!ok && editor === ed && ed.base[k] === mine[k]) ed.base[k] = undefined;
+    }
+  };
+  noteWrite(doc, upd).then((r) => settle(r !== null && r !== false), (err) => { settle(false); console.warn("Пустельники | note not saved", err); });
 }
 
 /** The bar's labels and the colours follow the note's state */
@@ -431,8 +443,11 @@ function syncEditor() {
   if (!flag) return closeNoteEditor();
   // someone else changed a field this editor has not touched: show theirs
   const { title, body, base } = editor;
-  if (title.value === base.title && flag.title !== base.title) title.value = base.title = flag.title;
-  if (body.value === base.text && flag.text !== base.text) body.value = base.text = flag.text;
+  const pend = (editor.sent ??= {});
+  if (pend.title !== undefined && flag.title === pend.title) delete pend.title;
+  if (pend.text !== undefined && flag.text === pend.text) delete pend.text;
+  if (pend.title === undefined && title.value === base.title && flag.title !== base.title) title.value = base.title = flag.title;
+  if (pend.text === undefined && body.value === base.text && flag.text !== base.text) body.value = base.text = flag.text;
   const col = MAP_NOTE.colors[flag.color];
   root.style.setProperty("--fill", col.fill);
   root.style.setProperty("--line", col.line);

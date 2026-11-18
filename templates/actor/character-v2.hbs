@@ -311,8 +311,9 @@
           <button type="button" class="pust-x" data-action="act" data-act="perk-del" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>
         </div>
         {{#unless ok}}<div class="pust-why">{{why}}</div>{{/unless}}
-        {{!-- «Застосувати» (author, 2026-11-18): «Лють ботана» too, with its chat card --}}
+        {{!-- «Застосувати» (author, 2026-11-18): «Лють ботана» too, with its chat card; while it lasts, «Лють триває» (after the review) --}}
         {{#each uses}}{{> pustPerkUse u=this bare=true}}{{/each}}
+        {{#if rage.active}}<p class="pust-pkuse-t"><b class="pust-pkuse-usedtag">Лють триває</b> · до кінця сцени.</p>{{/if}}
         {{#if custom}}
         <textarea data-k="{{path}}.d" rows="2" placeholder="Опис: що дає й коли діє">{{d}}</textarea>
         <label class="pust-tog"><input type="checkbox" data-k="{{path}}.extra" {{#if extra}}checked{{/if}}> поза лімітом (нагорода чи рішення Доглядача)</label>

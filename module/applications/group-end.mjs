@@ -83,7 +83,10 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   const def = GROUP_END[kind];
   if (!def || !game.user.isGM) return;
   const chars = groupCharacters();
-  if (!chars.length && !moves) return notify.warn("Жодного персонажа не призначено гравцям. Признач їх у налаштуваннях гравців (Player Character).");
+  if (!chars.length && !moves) {
+    if (kind !== "session") await clearDefibs(); // the caravans' marks end with the scene even with no characters assigned (a session asks first)
+    return notify.warn("Жодного персонажа не призначено гравцям. Признач їх у налаштуваннях гравців (Player Character).");
+  }
   if (kind === "session") {
     const yes = await foundry.applications.api.DialogV2.confirm({
       window: { title: "Кінець сесії" },

@@ -101,8 +101,8 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       context.ccmp = {
         luck: v.luck.find((o) => o.sel)?.n ?? "0",
         karmaAspect: S.karmaAspect || "",
-        // a row with no name yet (just added) or the one clicked opens as a small form
-        cargo: v.cargo.map((r) => ({ ...r, edit: this.isEditable && (this.ui.cgEdit === r.i || !String(r.name).trim()) })),
+        // the row just added or the one clicked opens as a small form; an old row with no name stays a chip «без назви»
+        cargo: v.cargo.map((r) => ({ ...r, edit: this.isEditable && this.ui.cgEdit === r.i })),
         imps: v.imps.filter((i) => i.taken).map((i) => {
           const n = i.btns.filter((b) => b.on).length;
           return { ...i, level: i.btns.length > 1 ? String(n) : "", defib: i.id === "defib" ? { used } : null };
@@ -203,6 +203,11 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       return postFateCard(this.document, { v: roll.total, mod: luck, party: true });
     }
     // the compact sheet: a new cargo row stays open as a small form till «Готово» (author, 2026-11-18)
+    // a row removed: the open form follows its own row (or closes with it)
+    if (act === "cg-del" && this.ui.cgEdit != null) {
+      const di = Number(data.i);
+      this.ui.cgEdit = di === this.ui.cgEdit ? null : di < this.ui.cgEdit ? this.ui.cgEdit - 1 : this.ui.cgEdit;
+    }
     if (act === "addCargo") this.ui.cgEdit = (this.document.system.engine?.raw?.cargo ?? caravanToState(this.document.toObject()).cargo ?? []).length;
     const prev = UNDOABLE.has(act) ? caravanToState(this.document.toObject()) : null;
     // any other action ends the offer: undoing would also throw away what was done after

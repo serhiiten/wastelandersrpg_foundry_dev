@@ -14,15 +14,19 @@ const waiting = new Map(); // req → { timer, what }
  * @param {object} msg   the request ({op, …}); `req` and `from` are added
  * @param {string} what  what is waited for, for the warning: «Шкода», «Доза на ціль»…
  * @param {string} [lost] what the failure means for the player (default: nothing was applied)
+ * @returns {Promise<boolean>} settles when the answer comes (true: applied) or the wait ends (false); never rejects
  */
 export function askGM(msg, what, lost = "Нічого не застосовано.") {
   const req = foundry.utils.randomID();
-  const timer = setTimeout(() => {
-    waiting.delete(req);
-    notify.warn(`${what}: Доглядач не відповів. Можливо, його вкладка з грою заснула або зникло з'єднання. ${lost} Попроси Доглядача перевірити гру.`, { permanent: true });
-  }, ACK_MS);
-  waiting.set(req, { timer, what, lost });
-  game.socket.emit(SOCKET(), { ...msg, req, from: game.user.id });
+  return new Promise((done) => {
+    const timer = setTimeout(() => {
+      waiting.delete(req);
+      notify.warn(`${what}: Доглядач не відповів. Можливо, його вкладка з грою заснула або зникло з'єднання. ${lost} Попроси Доглядача перевірити гру.`, { permanent: true });
+      done(false);
+    }, ACK_MS);
+    waiting.set(req, { timer, what, lost, done });
+    game.socket.emit(SOCKET(), { ...msg, req, from: game.user.id });
+  });
 }
 
 /**
@@ -45,5 +49,6 @@ export function readyGmRequests() {
     clearTimeout(w.timer);
     waiting.delete(msg.req);
     if (!msg.ok) notify.error(`${w.what}: у Доглядача сталася помилка. ${w.lost}${msg.err ? ` (${msg.err})` : ""}`);
+    w.done?.(!!msg.ok);
   });
 }

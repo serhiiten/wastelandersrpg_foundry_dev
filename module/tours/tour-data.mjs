@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 100;
+export const HELP_VERSION = 102;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -165,10 +165,10 @@ export const TOURS = [
     id: "pl-check", next: ["pl-panels"], title: "Зробити перевірку", description: "",
     steps: [
       S("button", "«Зробити перевірку» на аркуші й панелі; коли кидати за правилами.", { selector: `${CHAR} .pust-check-btn`, prepare: ["closeAll", "sheet:pc"], tooltipDirection: "LEFT" }),
-      S("type", "«Вид перевірки»: як читається результат; приклад атаки в пам'яті.", { selector: ".pust-demo-check .rgrp:has(#r-type)", prepare: ["closeAll", "checkDemo:roll"], tooltipDirection: "RIGHT" }),
+      S("attr", "Атрибут і навичка; кістка навички замінює меншу.", { selector: ".pust-demo-check .rgrp:has(.rats), .pust-demo-check .rgrp:has(#r-skill)", union: true, prepare: ["closeAll", "checkDemo:roll"], tooltipDirection: "RIGHT" }),
       S("presets", "Готові перевірки й «Перевірка подорожі».", { selector: ".pust-demo-check .rpre.rgr, .pust-demo-check .travelb", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("perks", "Перки з власною перевіркою.", { selector: ".pust-demo-check .rpre.psi", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
-      S("attr", "Атрибут і навичка; кістка навички замінює меншу.", { selector: ".pust-demo-check .rgrp:has(.rats), .pust-demo-check .rgrp:has(#r-skill)", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("type", "«Вид перевірки»: як читається результат; приклад атаки в пам'яті.", { selector: ".pust-demo-check .rgrp:has(#r-type)", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("mods", "Посилення, Послаблення, Модифікатор за правилами.", { selector: ".pust-demo-check .rmods", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("roll", "«Кинути перевірку»: картка в чаті.", { selector: ".pust-demo-check .rgo", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("result", "Результат: вердикт, сума з діапазонами, кістки, що означає для виду; діапазони за правилами, ОД за невдачу.", { selector: ".pust-demo-check .rres > :is(.rdice, .rvhead, .rverd, .rdesc)", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
@@ -187,6 +187,7 @@ export const TOURS = [
       S("fd", "«Витратити ЖД» / «Отримати ЖД»: лічильник персонажа й картка в чаті.", { selector: `${DOCK} .pust-md-fdspend:not(.pust-md-supspend)`, prepare: "dockDemo", tooltipDirection: "LEFT",  }),
       S("sup", "«Витратити Припас» / «Отримати Припас».", { selector: `${DOCK} .pust-md-supspend`, prepare: "dockDemo", tooltipDirection: "LEFT",  }),
       S("ctr", "«Лічильники»: що зараз рахує Доглядач (лише читати); приклади лічильника гри й сцени.", { selector: `${DOCK} .pust-md-ctr`, prepare: "counterDemo", tooltipDirection: "RIGHT" }),
+      S("note", "«Мапа Пустки»: «Примітка» ставить стікер гравця; підпис, правка будь-якого видимого стікера, розмір за кут.", { selector: `${DOCK} .pust-md-map`, prepare: "unfold:map", tooltipDirection: "RIGHT",  }),
     ],
   },
   {

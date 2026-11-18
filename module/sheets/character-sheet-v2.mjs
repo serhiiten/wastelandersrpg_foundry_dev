@@ -102,11 +102,12 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     context.actor = this.document;
     context.tab = this.ui.tab;
     // perks with «Застосувати» (author, 2026-11-18; perk-uses.mjs): the compact sheet's section, and each perk's / feat's card
-    // of the full sheet with its uses; the uses of a free perk (from a feat, no slot) under «Безкоштовно від особливостей»
+    // of the full sheet with its uses; a free perk (from a feat, no slot) has its own card with its uses, unless the same perk
+    // is also chosen (its card has the button already: one mark, one button)
     const pk = perkSection(st, d);
     for (const p of context.v.perks ?? []) p.uses = pk.uses.filter((u) => !u.feat && u.perk === p.n);
     for (const f of context.v.feats ?? []) f.uses = pk.uses.filter((u) => u.feat && u.perk === f.n);
-    for (const p of context.v.freePerkRows ?? []) p.uses = pk.uses.filter((u) => !u.feat && u.perk === p.n);
+    for (const p of context.v.freePerkRows ?? []) p.uses = st.perks.some((x) => x.n === p.n) ? [] : pk.uses.filter((u) => !u.feat && u.perk === p.n);
     context.freeUses = pk.uses.filter((u) => !u.feat && !st.perks.some((p) => p.n === u.perk) && !(context.v.freePerkRows ?? []).some((p) => p.n === u.perk));
     // «Компактний» (author, 2026-11-17; feedback p19): opens full until the user switches, then remembered per character
     if (this.ui.compact === undefined) this.ui.compact = compactStored(this.document);
@@ -415,8 +416,15 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     if (target.type === "checkbox") event.preventDefault?.();
     // «На ціль» (author, 2026-11-15): the medicine goes to the user's one target (applications/chem-target.mjs)
     if (act === "chem-target") return void (await useOnTarget(this.document, +data.i));
-    // «Застосувати» of a perk (author, 2026-11-18): the target check, the mark and the chat card (perk-card.mjs)
-    if (act === "perk-use") return void (await applyPerkUse(this.document, data.id));
+    // «Застосувати» of a perk (author, 2026-11-18): the target check, the mark and the chat card (perk-card.mjs); a change of
+    // Fate or Припаси it makes («Проклятий», «Хімік», «Здобувач»…) posts the usual card too (author, 2026-11-18, after the review)
+    if (act === "perk-use") {
+      const fd0 = fateSnap(this.document), sup0 = supSnap(this.document);
+      await applyPerkUse(this.document, data.id);
+      await postFateIfChanged(this.document, fd0);
+      await postSupIfChanged(this.document, sup0);
+      return;
+    }
     // a change of the Fate tokens posts a chat card (author, 2026-11-15; fate-card.mjs): the counter's −/+, +1 for
     // dropping to 0 ОЗ, «Кінець сесії»… — not a character made anew
     const fdWas = FATE_QUIET.has(act) ? null : fateSnap(this.document);

@@ -426,10 +426,16 @@
 .pust-roller > .rgrp:has(.rats) { order: 1; }
 .pust-roller > .rgrp:has(#r-skill) { order: 2; }
 .pust-roller > :is(.rpre, .travelb) { order: 3; }
-.pust-roller > :is(.rgrp:has(#r-type), .rhint) { order: 4; }
+.pust-roller > :is(.rgrp:has(#r-type), .pust-typehint) { order: 4; }
 .pust-roller > .rmods { order: 5; }
 .pust-roller > .pust-rgo-bar { order: 7; }
 .pust-roller > .rres { order: 8; }
+/* after a roll (folded): the line «… змінити» sticks to the top and the strip goes under the result, sticking to the bottom,
+   so both stay on screen while the result scrolls (author, 2026-11-18, after the review) */
+.pust-roller.pust-folded > .pust-fold { position: sticky; top: 0; z-index: 3; }
+.pust-check-docked > .pust-roller.pust-folded > .pust-fold { top: -8px; } /* the docked panel scrolls itself: over its top padding, no gap */
+.pust-roller.pust-folded > .pust-rgo-bar { order: 9; }
+.wastelanders .pust-roller.pust-folded > button.pust-fold { background: linear-gradient(rgba(255,252,240,.6), rgba(255,252,240,.6)), var(--pu-paper-2) !important; }
 /* the panel's bottom padding moves to the result, so the strip can sit flush with the bottom while it sticks there */
 .pust-check .pust-roller { padding-bottom: 0; }
 .pust-check .pust-roller > .rres { margin-bottom: 14px; }

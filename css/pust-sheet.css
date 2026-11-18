@@ -1841,8 +1841,15 @@
 .pust-ccmp-chip > .pust-qic { margin: 0; }
 .pust-ccmp-ctl { display: flex; align-items: center; gap: 4px; }
 .pust-ccmp-scr { min-width: 26px; padding: 1px 6px; border-radius: 2px; background: #13231a; color: #8fe0a6; font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); font-size: 15px; text-align: center; }
-.pust-ccmp-chip .pust-cmp-hpbar { width: 62px; }
-.pust-ccmp-chip .pust-cmp-hpbar > b { position: relative; display: block; text-align: center; font-size: 11px; line-height: 18px; color: #fff; font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); }
+/* the numbers with −/+ are screens one can type into (ui-rules §3; author, 2026-11-18, after the review) */
+.wastelanders.pust-sheet .pust-ccmp-ctl > input.pust-screen, .wastelanders.pust-sheet .pust-ccmp-kv > input.pust-screen {
+  flex: 0 0 34px !important; width: 34px !important; height: 24px !important; min-height: 0 !important; padding: 0 2px !important; font-size: 15px !important; text-align: center; }
+.wastelanders.pust-sheet .pust-ccmp-kv > input.pust-screen { flex-basis: 30px !important; width: 30px !important; height: 20px !important; font-size: 13px !important; }
+.pust-ccmp-of { flex: none; font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); font-size: 13px; white-space: nowrap; }
+/* the ОЗ fill as a thin line under the counter */
+.pust-ccmp-hpline { display: block; align-self: stretch; position: relative; height: 4px; margin-top: 3px; border-radius: 2px; background: #0f1412; overflow: hidden; }
+.pust-ccmp-hpline > i { position: absolute; inset: 0 auto 0 0; background: #2f8a32; }
+.pust-ccmp-hpline.hp-mid > i { background: #b07a14; } .pust-ccmp-hpline.hp-low > i, .pust-ccmp-hpline.hp-dead > i { background: #a8121a; }
 .wastelanders button.pust-ccmp-svc:not(.header-control) { position: absolute; top: 5px; right: 5px; width: 20px !important; height: 20px !important; min-width: 0 !important; padding: 0 !important; font-size: 11px; line-height: 18px !important; }
 .pust-ccmp-move { grid-column: 1 / -1; min-height: 0; align-items: stretch; }
 .pust-ccmp-mvhd { display: flex; align-items: center; gap: 6px; padding-right: 26px; }
