@@ -381,6 +381,7 @@ export function buildView(st, d, L, ui = {}) {
   const catSecs = [{ v: "all", n: "усі розділи", sel: catSec === "all" }].concat(secs.map((k) => ({ v: k, n: CAT_SECS[k] || k, sel: catSec === k })));
   const catSorts = Object.entries(CAT_SORT).map(([v, n]) => ({ v, n, sel: catSort === v }));
 
+  const chips = L.statusChips(d).map((x) => ({ cls: x[0], t: x[1], tip: x[2] || "", src: x.src || "" }));
   return {
     name: st.name || "", gender: st.gender, genders: [["m", "чол."], ["f", "жін."], ["n", "без статі"]].map(([v, n]) => ({ v, n, sel: st.gender === v })),
     species, speciesX, // «Назва: опис» → a name and a description, like the feats above (props without a name stay text only)
@@ -391,9 +392,8 @@ export function buildView(st, d, L, ui = {}) {
     aspects: ASPECTS.map(([f, label], i) => ({ f, label, v: st[f] || "", i, locked: !!st.manual?.[f] })), detail: st.detail || "",
     locks: { name: !!st.manual?.name, detail: !!st.manual?.detail }, // typed by hand: the die is locked
     issues: d.issues.map(([lvl, msg]) => ({ lvl, msg })).concat(freeModeIssues(st, d)),
-    chips: L.statusChips(d).map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
-    chipsGood: L.statusChips(d).filter(([cls]) => cls !== "bad").map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
-    chipsBad: L.statusChips(d).filter(([cls]) => cls === "bad").map(([cls, t, tip]) => ({ cls, t, tip: tip || "" })),
+    // `src`: the perk / feat a chip comes from ('p:…' / 'f:…'; the compact sheet leaves those out, author 2026-11-18, item 8)
+    chips, chipsGood: chips.filter((c) => c.cls !== "bad"), chipsBad: chips.filter((c) => c.cls === "bad"),
     free,
     attrs, points: { left: d.left, total: d.points, spent: d.spent },
     skills, skillBudget,

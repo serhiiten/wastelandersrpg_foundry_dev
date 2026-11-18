@@ -52,18 +52,20 @@ const save = (k, v) => { try { localStorage.setItem(userKey(k), JSON.stringify(v
 const btn = (act, icon, label, title) =>
   `<button type="button" data-mapdock="${act}" title="${title}"><i class="fa-solid ${icon}"></i><span>${label}</span></button>`;
 
+/** The GM's «Мапа Пустки». Players have no such panel (author, 2026-11-18; playtest item 18, mockup А): their «Примітка» is a
+ *  steel button in the row of «Обрати цілі» (`.pust-md-trow`, NOTE_TIP) */
 function mapButtons() {
-  const gm = game.user.isGM;
-  const row1 = gm ? [
+  if (!game.user.isGM) return "";
+  const row1 = [
     btn("town", "fa-house-flag", "Поселення", "Додати поселення: зелений токен на вільній клітинці посередині огляду"),
     btn("danger", "fa-skull-crossbones", "Небезпека", "Додати небезпечне місце: червоний токен"),
     btn("poi", "fa-star", "Точка інтересу", "Додати точку інтересу: оранжевий токен"),
-  ] : [];
-  // «Примітка» for players too, through the GM when Foundry does not let them draw (author, 2026-11-18)
-  const row2 = [gm ? btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")
-    : btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому: його бачать усі, під ним стоїть твоє ім'я")];
-  return [row1, row2].filter((r) => r.length).map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("");
+  ];
+  const row2 = [btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")];
+  return [row1, row2].map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("");
 }
+/** Players' «Примітка» (through the GM when Foundry does not let them draw; author, 2026-11-18) */
+const NOTE_TIP = "Додати стікер на мапу й одразу писати на ньому: його бачать усі, під ним стоїть твоє ім'я. Подвійний клік по стікеру знову відкриває його, розмір змінюється за правий нижній кут";
 
 async function onMap(ev) {
   const b = ev.target.closest("[data-mapdock]");
@@ -475,7 +477,8 @@ function sideCheck() {
 
 /**
  * Players' «Обрати цілі» / «Зняти цілі» (author, 2026-11-15): right of Foundry's left buttons, level with their last row,
- * up to the right edge of «Зробити перевірку» (its default place); battle maps only
+ * up to the right edge of «Зробити перевірку» (its default place); battle maps only. Off them the row holds «Примітка»
+ * (author, 2026-11-18)
  */
 function placeTargets() {
   const row = document.querySelector(`#${DOCK} .pust-md-trow`);
@@ -631,7 +634,7 @@ export function renderMapDock() {
       </div>
       ${gm ? `<div class="pust-md-unit${fold.ovw ? " folded" : ""}" data-unit="ovw" hidden>${overviewSectionHtml(header)}</div>` : ""}
       ${gm ? `<div class="pust-md-unit${fold.dmg ? " folded" : ""}" data-unit="dmg"><section class="pust-md-panel pust-md-battle pust-md-blite" hidden>${header("fa-clapperboard", "Сцена", "gm-map:scenepanel")}<div class="pust-md-body"></div></section></div>` : ""}
-      ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
+      ${gm ? "" : `<div class="pust-md-trow" hidden><button type="button" class="pust-md-note" data-mapdock="note" title="${NOTE_TIP}"><i class="fa-solid fa-note-sticky"></i><span>Примітка</span></button><button type="button" class="pust-md-target" data-mapdock="target" aria-pressed="false"><i class="fa-solid fa-crosshairs"></i><span>Обрати цілі</span></button><button type="button" class="pust-md-untarget" data-mapdock="untarget" disabled title="Зняти всі твої цілі (позначаються T над токеном, Shift+T — додати ще)"><span class="pust-untgt-ico" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i><i class="fa-solid fa-xmark"></i></span><span>Зняти цілі</span></button></div>`}`;
     document.querySelector("#interface")?.append(dock) ?? document.body.append(dock);
     dock.addEventListener("click", (ev) => {
       const b = ev.target.closest(".pust-md-help");
@@ -645,6 +648,7 @@ export function renderMapDock() {
     const ctrUnit = dock.querySelector('[data-unit="ctr"]');
     const diceUnit = dock.querySelector('[data-unit="dice"]');
     mapUnit.querySelector(".pust-md-map .pust-md-body")?.addEventListener("click", onMap);
+    dock.querySelector(".pust-md-note")?.addEventListener("click", onMap); // players' «Примітка» in the targets' row
     if (gm) mountBattlePanel(mapUnit.querySelector(".pust-md-battle"));
     // off the battle map the GM's «Битва» is «lite», top right (author, 2026-11-16: damage to the characters on «Мапа Пустки»)
     if (gm) mountBattlePanel(dock.querySelector('[data-unit="dmg"] .pust-md-battle'), { lite: true });
@@ -879,11 +883,17 @@ function syncUntarget() {
 Hooks.on("targetToken", (user) => { if (user?.isSelf) syncUntarget(); });
 Hooks.on("canvasReady", () => { syncUntarget(); syncPlayerTargets(); });
 
-/** Players: «Обрати цілі» / «Зняти цілі» under «Зробити перевірку», on battle maps only (author, 2026-11-15) */
+/** Players: «Обрати цілі» / «Зняти цілі» over «Зробити перевірку», on battle maps only (author, 2026-11-15); on the other
+ *  scenes the same row holds «Примітка» alone, the size of «Обрати цілі» (author, 2026-11-18; playtest item 18) */
 function syncPlayerTargets() {
   const row = document.querySelector(`#${DOCK} .pust-md-trow`);
   if (!row) return;
-  row.hidden = !isBattleScene(canvas?.scene);
+  const battle = isBattleScene(canvas?.scene);
+  row.hidden = !canvas?.scene;
+  row.classList.toggle("is-battle", battle);
+  for (const b of row.querySelectorAll(".pust-md-target, .pust-md-untarget")) b.hidden = !battle;
+  const note = row.querySelector(".pust-md-note");
+  if (note) note.hidden = battle;
   syncTargetTool();
   requestAnimationFrame(placeTargets);
 }
@@ -938,12 +948,7 @@ Hooks.on("canvasReady", () => { redrawCounters(); syncSceneKind(); });
 function syncSceneKind() {
   syncPlayerTargets();
   const unit = document.querySelector(`#${DOCK} [data-unit="map"]`);
-  // players' «Мапа Пустки» (only «Примітка», author 2026-11-18) is off on a battle map
-  if (unit && !game.user.isGM) {
-    const pm = unit.querySelector(".pust-md-map");
-    if (pm) pm.hidden = isBattleScene(canvas?.scene);
-    requestAnimationFrame(placeAll);
-  }
+  if (!game.user.isGM) requestAnimationFrame(placeAll); // players' row: «Примітка» or the targets
   if (!unit || !game.user.isGM) return;
   const battle = isBattleScene(canvas?.scene);
   const was = unit.classList.contains("is-battle");

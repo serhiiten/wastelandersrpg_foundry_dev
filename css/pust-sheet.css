@@ -1832,6 +1832,12 @@
 .pust-pkuse-free > i { font-size: 10px; margin-right: 2px; }
 .pust-cmp-passive { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
 .pust-cmp-pchip { padding: 1px 6px; border: 1px dashed #6b604a; border-radius: 2px; color: #5d5543; font-size: 12px; cursor: help; }
+/* the compact sheet's passive perks and feats (author, 2026-11-18; playtest item 8, mockup В): rows «name + what it gives»,
+   the name column as wide as the longest name up to 40 %, the text wrapping beside it; the negative parts in red ink */
+.pust-cmp-prows { display: grid; grid-template-columns: minmax(0, max-content) 1fr; gap: 3px 8px; margin: 5px 0 0; font-size: 12px; line-height: 1.3; }
+.pust-cmp-prows > dt { max-width: 150px; font-weight: 700; color: #2a261c; overflow-wrap: anywhere; cursor: help; }
+.pust-cmp-prows > dd { margin: 0; min-width: 0; color: #4a4336; overflow-wrap: anywhere; }
+.pust-cmp-prows > dd > .bad { color: #a8121a; }
 /* the compact caravan sheet (author, 2026-11-18; mockup Б1 «Дзеркало персонажа»): the compact character sheet's head and chips;
    «Швидкий доступ» as three boxes (ОЗ with «Відремонтувати», Броня, Бюджет) and «Запас ходу» the whole width with its lamps */
 .pust-ccmp-karma .pust-ccmp-kv { display: inline-flex; align-items: center; gap: 4px; font-style: normal; }
@@ -1881,10 +1887,15 @@
 .pust-ccmp-cgedit > select { flex: none; width: auto; height: 24px; }
 .pust-ccmp-cgedit > label { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
 .wastelanders button.pust-ccmp-ok:not(.header-control) { flex: none; width: 24px !important; height: 24px !important; min-width: 0 !important; padding: 0 !important; }
-.pust-ccmp-imp { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; max-width: 100%; padding: 2px 6px; border: 1px solid #b9ad8a; border-left: 4px solid #5a6b78; border-radius: 3px; background: rgba(255,255,255,.4); font-size: 12.5px; }
-.pust-ccmp-imp.used { background: rgba(120,110,90,.25); }
+/* «Покращення» of the compact caravan (author, 2026-11-18; playtest item 11, mockup А): the ones with an action are perk cards
+   (.pust-pkuse), their action at the right of the card's top line; the rest quiet chips (.pust-cmp-passive) */
+.pust-ccmp-icard + .pust-ccmp-icard { margin-top: 4px; }
+.pust-ccmp-icard .pust-pkuse-n > small { font-weight: 400; color: #5d5543; }
+.pust-ccmp-iact { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 5px; margin-left: auto; }
+.pust-ccmp-iact:not(:has(*)) { display: none; }
+.pust-ccmp-iact > .pust-pkuse-go { margin-left: 0 !important; }
+.pust-ccmp-imps > .pust-cmp-passive { margin-top: 5px; }
 /* «Дефібрилятор» in the full sheet's card head (playtest 2026-11-18, item 13) */
 .pust-imp-defib { display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; }
-.pust-ccmp-imp.used > b { text-decoration: line-through; text-decoration-color: rgba(0,0,0,.35); }
-.wastelanders .pust-ccmp-imp button.pust-turret-dice:not(.header-control), .wastelanders .pust-ccmp-imp button.pust-turret-hit:not(.header-control) { width: auto; height: 22px !important; min-height: 0; padding: 0 6px !important; font-size: 12px !important; line-height: 20px !important; }
-.wastelanders .pust-ccmp-imp .pust-seg2 > button:not(.header-control) { height: 22px !important; padding: 0 6px !important; font-size: 11px !important; line-height: 20px !important; }
+.wastelanders .pust-ccmp-iact button.pust-turret-dice:not(.header-control), .wastelanders .pust-ccmp-iact button.pust-turret-hit:not(.header-control) { width: auto; height: 22px !important; min-height: 0; padding: 0 6px !important; font-size: 12px !important; line-height: 20px !important; }
+.wastelanders .pust-ccmp-iact .pust-seg2 > button:not(.header-control) { height: 22px !important; padding: 0 6px !important; font-size: 11px !important; line-height: 20px !important; }

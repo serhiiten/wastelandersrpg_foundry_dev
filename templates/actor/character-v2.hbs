@@ -169,12 +169,13 @@
   </section>
 
   {{#if compact}}
-  {{!-- «Перки та особливості» (author, 2026-11-18; mockup А1): the perks with an active use as cards, the passive ones as quiet chips --}}
+  {{!-- «Перки та особливості» (author, 2026-11-18; mockup А1): the perks with an active use as cards, the passive ones as rows --}}
   {{#if (or cmp.perks.uses.length cmp.perks.passive.length)}}
   <section class="pust-block pust-cmp-perks">
     <h3><i class="fa-solid fa-star pust-qic" aria-hidden="true"></i>Перки та особливості{{#if cmp.perks.total}} <small class="pust-cmp-pkn">{{cmp.perks.avail}} з {{cmp.perks.total}} доступні</small>{{/if}}</h3>
     {{#each cmp.perks.uses}}{{> pustPerkUse u=this}}{{/each}}
-    {{#if cmp.perks.passive.length}}<div class="pust-cmp-passive">{{#each cmp.perks.passive}}<span class="pust-cmp-pchip" title="{{tip}}">{{n}}</span>{{/each}}</div>{{/if}}
+    {{!-- the passive perks and feats as rows «name + what it gives» (author, 2026-11-18; playtest item 8, mockup В) --}}
+    {{#if cmp.perks.passive.length}}<dl class="pust-cmp-prows">{{#each cmp.perks.passive}}<dt title="{{tip}}">{{n}}</dt><dd>{{#each parts}}{{#unless @first}}; {{/unless}}<span class="{{#if bad}}bad{{/if}}">{{t}}</span>{{/each}}</dd>{{/each}}</dl>{{/if}}
   </section>
   {{/if}}
   {{!-- the chems of «Інший мотлох» with their description: «Вжити», «На ціль» and the rest, as on its cards --}}

@@ -372,7 +372,7 @@
 /* «Зробити перевірку» (players, author 2026-11-14): over «Лічильники + Кістки», opaque, the full width of the unit;
    looks as on the character sheet (pust-ui.css .pust-check-btn): rust plate, yellow capitals, a dark step under it */
 #pust-mapdock .pust-md-prow { display: flex; gap: 6px; margin: 0 0 3px; }
-/* «Обрати цілі» / «Зняти цілі» (players, author 2026-11-15): one row under «Зробити перевірку», battle maps only */
+/* «Обрати цілі» / «Зняти цілі» (players, author 2026-11-15): one row over «Зробити перевірку», battle maps only; «Примітка» there off them */
 #pust-mapdock .pust-md-trow { position: absolute; display: flex; gap: 6px; margin: 0; pointer-events: auto; } /* placed by map-dock.mjs placeTargets */
 #pust-mapdock .pust-md-trow[hidden] { display: none; }
 #pust-mapdock button.pust-md-check { flex: 1 1 auto; min-width: 0; height: 44px; margin: 0; padding: 0 16px; opacity: 1; gap: 8px;
@@ -387,7 +387,7 @@
 #pust-mapdock button.pust-md-check.on { filter: brightness(1.15); box-shadow: 0 3px 0 var(--pu-rust-0), inset 0 0 0 1px var(--pu-yellow); }
 /* «Зняти цілі» (players, author 2026-11-15): next to it, the same height, steel; dim while there are no targets */
 #pust-mapdock .pust-md-trow > button { flex: 1 1 0; min-width: 0; }
-#pust-mapdock button.pust-md-untarget, #pust-mapdock button.pust-md-target { height: 34px; margin: 0; padding: 0 6px; white-space: nowrap; opacity: 1; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 7px;
+#pust-mapdock button.pust-md-untarget, #pust-mapdock button.pust-md-target, #pust-mapdock button.pust-md-note { height: 34px; margin: 0; padding: 0 6px; white-space: nowrap; opacity: 1; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 7px;
   background: linear-gradient(180deg, #5a554c, #3a362f); color: #f1e6c8; border: 1.5px solid #1e1b17; border-radius: 3px; box-shadow: 0 3px 0 #1e1b17;
   font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif; font-weight: 700; font-size: 12px; line-height: 1.05; letter-spacing: .03em; text-transform: uppercase; }
 /* the icon: a target crossed out by an X */
@@ -400,6 +400,13 @@
 #pust-mapdock button.pust-md-target > i { font-size: 15px; color: #f1e6c8; }
 #pust-mapdock button.pust-md-target:hover { filter: brightness(1.15); border-color: #8fd18a; }
 #pust-mapdock button.pust-md-target:active { transform: translateY(2px); box-shadow: 0 1px 0 #1e1b17; }
+/* players' «Примітка» off the battle map (author, 2026-11-18; playtest item 18, mockup А): in the targets' row, steel, the size
+   of «Обрати цілі» (half the row) */
+#pust-mapdock .pust-md-trow > button[hidden] { display: none; }
+#pust-mapdock .pust-md-trow > button.pust-md-note { flex: 0 0 calc((100% - 6px) / 2); }
+#pust-mapdock button.pust-md-note > i { font-size: 15px; color: #f1e6c8; }
+#pust-mapdock button.pust-md-note:hover { filter: brightness(1.15); border-color: #f4d11a; }
+#pust-mapdock button.pust-md-note:active { transform: translateY(2px); box-shadow: 0 1px 0 #1e1b17; }
 /* pressed: Foundry's targeting tool is on */
 #pust-mapdock button.pust-md-target.on { background: linear-gradient(180deg, #3f6b3a, #2b4a27); border-color: #8fd18a; box-shadow: 0 3px 0 #1e1b17, inset 0 0 0 1px #8fd18a; }
 #pust-mapdock button.pust-md-target.on > i { color: #c9f5c2; }

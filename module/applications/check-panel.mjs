@@ -9,7 +9,7 @@ import { addHelpButton } from "../tours/help-button.mjs";
 import { hotbarDraggable } from "../helpers/macros.mjs";
 import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
-import { postChat } from "./chat.mjs";
+import { isPublicMode, postChat } from "./chat.mjs";
 import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
@@ -48,6 +48,41 @@ function syncDealButton(root) {
 }
 Hooks.on("targetToken", (user) => {
   if (user === game.user) document.querySelectorAll(".pust-roller").forEach(syncDealButton);
+});
+
+/**
+ * The chat's mode (author, 2026-11-18; playtest item 1, mockup А): a player whose mode is Self Only, Private to Gamemasters or
+ * Blind to Gamemasters (Public as Character is public too) gets a yellow strip under the panel's head with «Public as User»,
+ * which switches the mode. Not for the GM, whose hidden rolls are normal. Names from Foundry's lang (CHAT.MODES).
+ */
+const MODE_WHO = { self: "кидки бачиш лише ти", gm: "кидки бачить лише Доглядач", blind: "кидки бачить лише Доглядач, а ти ні" };
+function syncChatMode(el) {
+  if (!el) return;
+  const mode = game.settings.settings.has("core.messageMode") ? game.settings.get("core", "messageMode") : "";
+  const warn = !game.user.isGM && !isPublicMode() && !el.classList.contains("pust-demo-check");
+  let bar = el.querySelector(".pust-chatmode");
+  if (!warn) { bar?.remove(); return; }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.className = "pust-chatmode";
+    bar.setAttribute("role", "status");
+    bar.addEventListener("click", (ev) => {
+      if (!ev.target.closest("button")) return;
+      if (game.settings.settings.has("core.messageMode")) game.settings.set("core", "messageMode", "public");
+      else game.settings.set("core", "rollMode", "publicroll");
+    });
+  }
+  // right under the head: the docked panel's own header (it is made after the panel's render, which calls this again), else
+  // the top of the window's content
+  const hd = el.querySelector(":scope > .pust-cd-hd");
+  if (hd) { if (hd.nextElementSibling !== bar) hd.after(bar); }
+  else if (!bar.isConnected) el.querySelector(".window-content")?.prepend(bar);
+  const L = (k) => game.i18n.localize(`CHAT.MODES.${k}`);
+  bar.innerHTML = `<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span><b>${esc(mode && MODE_WHO[mode] ? L(mode) : "Режим чату")}</b>: ${esc(MODE_WHO[mode] || "кидки бачать не всі")}</span>`
+    + `<button type="button" title="Перемкнути режим чату: кидки бачитимуть усі">${esc(L("public"))}</button>`;
+}
+Hooks.on("clientSettingChanged", (key) => {
+  if (key === "core.messageMode" || key === "core.rollMode") document.querySelectorAll(".pust-check").forEach(syncChatMode);
 });
 
 /** A deleted character takes its open check panels with it (stress test, 2026-11-17: every button of a panel left open
@@ -164,6 +199,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const R = this.#load(L);
     // what an unsatisfied addiction adds to the roll (logic.mjs doRoll), for the strip's text
     this.#addict = R.addOn !== false ? L.addictionPenalty(L.unsatAddictions().length) : { pen: 0, flat: 0 };
+    this.#types = L.CHECK_TYPES;
     // «Останні кидки» is left out: in Foundry every roll is already in the chat log (author, 2026-11-13)
     // «Кістка Долі» and «Кістки» (the HTML sheet's «Просто кубики») are left out too: they live in the panel «Кістки» on
     // the left of the map now (author, 2026-11-14); they are the roller's last two blocks
@@ -338,11 +374,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       ev.preventDefault();
       if (b.classList.contains("pust-wchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the weapon chips stand for the list
       if (b.classList.contains("pust-skchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the skill chips too
+      // «Стандартні дії» stand for the list «Вид перевірки»: the same change; the pressed one again → «Звичайна перевірка»
+      if (b.classList.contains("pust-stdb")) { this.#run("change", { tagName: "SELECT", dataset: { r: "type" }, value: b.classList.contains("on") ? "gen" : b.value }); return; }
       if (b.dataset.r === "roll") this.#setupOpen = false; // a new result: the set-up folds again
       if (b.dataset.r === "dmg" && !game.user.targets.size) return notify.warn(NO_TARGETS);
       this.#run("click", b);
     });
     this.#fastLayout(root);
+    syncChatMode(this.element);
     syncDealButton(root);
     // the damage is dealt with its roll: the options over it (Психо, the effect, the crit) are set before it, then locked
     // and so is the weapon (author, 2026-11-17)
@@ -361,7 +400,25 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   #setupOpen = false;
   #addict = { pen: 0, flat: 0 };
+  #types = {};
   #fastLayout(root) {
+    // «Стандартні дії» instead of the list «Вид перевірки» (author, 2026-11-18; playtest item 1, mockup А): a row like the ready
+    // checks', over «Атаки»; a button sets only how the result reads (the list's change: attribute and skill stay), the pressed
+    // one pressed again goes back to «Звичайна перевірка». The list stays, hidden: the strip, the fold line and the targets'
+    // hint read the type from it. The ready checks still set their own type (none of the three is pressed then)
+    const typeSel = root.querySelector("select#r-type");
+    const typeGrp = typeSel?.closest(".rgrp");
+    if (typeGrp) {
+      typeGrp.style.display = "none";
+      const btns = ["overcome", "advantage", "learn"].filter((k) => this.#types[k]).map((k) => {
+        const on = typeSel.value === k, T = this.#types[k];
+        return `<button type="button" class="chipb pust-stdb${on ? " on" : ""}" data-r="type" value="${k}" aria-pressed="${on}" title="${esc(T.i || "")}${on ? " Натисни ще раз, щоб повернути звичайну перевірку." : ""}">${esc(T.n)}</button>`;
+      });
+      const row = `<div class="rpre rgr pust-std" role="group" aria-label="Стандартні дії"><span class="rl">Стандартні дії</span>${btns.join("")}</div>`;
+      const first = root.querySelector(":scope > .rpre.rgr");
+      if (first) first.insertAdjacentHTML("beforebegin", row);
+      else typeGrp.insertAdjacentHTML("beforebegin", row);
+    }
     // the ready check's hint (R.hint, right before the attributes) goes with «Вид перевірки»; the other notes (.rhint of
     // poison, chems, «Воно саме виходить») stay with the automatic conditions
     const th = root.querySelector(":scope > .rgrp:has(.rats)")?.previousElementSibling;
@@ -619,6 +676,7 @@ class DockedCheckPanel extends CheckPanel {
       : `<b class="pust-cd-name">${esc(this.actor.name)}</b>`;
     hd.innerHTML = `<i class="fa-solid fa-dice-d20"></i><span>Зробити перевірку</span>${who}<button type="button" class="pust-cd-help" title="Довідка" aria-label="Довідка про «Зробити перевірку»"><i class="fa-solid fa-question"></i></button><button type="button" class="pust-cd-x" title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>`;
     el.prepend(hd);
+    syncChatMode(el); // the strip goes under this header
     hd.querySelector(".pust-cd-help").addEventListener("click", (ev) => {
       ev.currentTarget.blur();
       import("../tours/tours.mjs").then((m) => m.openHelp("pl-check", el.querySelector(".rres") ? "result" : "attr"));

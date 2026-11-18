@@ -52,6 +52,30 @@
     </div>
   </section>
 
+  {{!-- «Покращення» over «Вантаж» (author, 2026-11-18; playtest item 11, mockup А): the ones with an action as cards like the
+       perks — name, limit, one sentence, the action (the turret rolls, «Дефібрилятор» «Застосувати» and a scene mark, no
+       Припас spent by itself; the brahmins' choice for the trip; the chest's Припаси) —, the rest as quiet chips at the foot --}}
+  <section class="pust-block pust-ccmp-imps">
+    <h3><i class="fa-solid fa-gears pust-qic" aria-hidden="true"></i>Покращення <small class="pust-cmp-pkn">{{v.impCount}}</small></h3>
+    {{#each ccmp.impCards}}
+    <div class="pust-pkuse pk-{{cls}} pust-ccmp-icard{{#if defib.used}} used{{/if}}">
+      <div class="pust-pkuse-top">
+        <span class="pust-pkuse-n" title="{{desc}}">{{name}}{{#if level}} <small>×{{level}}</small>{{/if}}</span>
+        {{#if lim}}<span class="pust-pklim pk-{{cls}}">{{lim}}</span>{{/if}}
+        <span class="pust-ccmp-iact">
+        {{#if (eq id "turret")}}{{#if @root.turret}}{{#if @root.editable}}<button type="button" class="pust-turret-dice {{@root.turret.tcls}}" data-action="turretRoll" title="Кинути шкоду турелі в чат"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{@root.turret.diceText}}</button><button type="button" class="pust-turret-hit" data-action="turretHit" title="Вистрілити з турелі по цілях: броня й стійкості кожного враховуються" aria-label="Завдати цілям"><i class="fa-solid fa-crosshairs"></i></button>{{else}}<span class="pust-turret-dice {{@root.turret.tcls}}">{{@root.turret.diceText}}</span>{{/if}}{{/if}}{{/if}}
+        {{#if defib}}{{#unless defib.used}}{{#if @root.editable}}<button type="button" class="pust-pkuse-go" data-action="defib" data-v="1" title="Застосувати: позначений ціллю (T) персонаж з 0 ОЗ повертається в сцену з 1 ОЗ; картка в чат і позначка до кінця сцени. Одиницю Припасів зніміть самі.">Застосувати</button>{{/if}}{{/unless}}{{/if}}
+        {{#if supPips}}<span class="pust-pips">{{#each supPips}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="sup" data-i="{{k}}"></button>{{/each}}</span>{{/if}}
+        {{#if (eq id "brahmins")}}{{#if @root.editable}}<span class="pust-seg2"><button type="button" class="{{#if @root.brahmins.range}}on{{/if}}" data-action="brahminBonus" data-v="range" title="Караван витрачає менше запасу ходу">−{{@root.brahmins.share}} запасу</button><button type="button" class="{{#unless @root.brahmins.range}}on{{/unless}}" data-action="brahminBonus" data-v="time" title="Шлях займає менше часу">−{{@root.brahmins.share}} часу</button></span>{{/if}}{{/if}}
+        </span>
+      </div>
+      <p class="pust-pkuse-t">{{#if defib.used}}<b class="pust-pkuse-usedtag">Використано</b> · повернеться після «Кінця сцени» Доглядача.{{#if @root.editable}} <button type="button" class="pust-pkuse-free" data-action="defib" data-v="0" title="Зняти позначку «використано»"><i class="fa-solid fa-rotate-left"></i> Зняти позначку</button>{{/if}}{{else}}{{short}}{{/if}}</p>
+    </div>
+    {{/each}}
+    {{#if (or ccmp.impQuiet.length v.customImps.length)}}<div class="pust-cmp-passive">{{#each ccmp.impQuiet}}<span class="pust-cmp-pchip" title="{{desc}}">{{name}}{{#if level}} ×{{level}}{{/if}}</span>{{/each}}{{#each v.customImps}}<span class="pust-cmp-pchip" title="{{desc}}">{{#if name}}{{name}}{{else}}Власне покращення{{/if}}</span>{{/each}}</div>{{/if}}
+    {{#unless ccmp.impCards.length}}{{#unless ccmp.impQuiet.length}}{{#unless v.customImps.length}}<span class="pust-sub">Покращень ще не взято: оберіть їх у повному аркуші.</span>{{/unless}}{{/unless}}{{/unless}}
+  </section>
+
   {{!-- «Вантаж»: chips «назва · к-сть×ціна · далека · сума ×»; a click on a chip edits its row in place; a new row opens edited --}}
   <section class="pust-block pust-ccmp-cargo">
     <h3><i class="fa-solid fa-boxes-stacked pust-qic" aria-hidden="true"></i>Вантаж <small class="pust-cmp-pkn {{#if v.cargoOver}}bad{{/if}}">{{v.cargoNow}}(к){{#if v.cargoOver}} · перевантаження{{/if}}</small>
@@ -76,23 +100,6 @@
     </div>
   </section>
 
-  {{!-- the taken «Покращення» with their actions: the turret rolls, «Дефібрилятор» gets «Застосувати» and a scene mark like the
-       perks (no Припас spent by itself; author, 2026-11-18), the brahmins' choice for the trip, the chest's Припаси --}}
-  <section class="pust-block pust-ccmp-imps">
-    <h3><i class="fa-solid fa-gears pust-qic" aria-hidden="true"></i>Покращення <small class="pust-cmp-pkn">{{v.impCount}}</small></h3>
-    <div class="pust-cmp-chips">
-      {{#each ccmp.imps}}
-      <span class="pust-ccmp-imp{{#if defib.used}} used{{/if}}" title="{{desc}}"><b>{{name}}</b>{{#if level}}<span class="pust-cmp-gq">{{level}}</span>{{/if}}
-        {{#if (eq id "turret")}}{{#if @root.turret}}{{#if @root.editable}}<button type="button" class="pust-turret-dice {{@root.turret.tcls}}" data-action="turretRoll" title="Кинути шкоду турелі в чат"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{@root.turret.diceText}}</button><button type="button" class="pust-turret-hit" data-action="turretHit" title="Вистрілити з турелі по цілях: броня й стійкості кожного враховуються" aria-label="Завдати цілям"><i class="fa-solid fa-crosshairs"></i></button>{{else}}<span class="pust-turret-dice {{@root.turret.tcls}}">{{@root.turret.diceText}}</span>{{/if}}{{/if}}{{/if}}
-        {{#if defib}}{{#if defib.used}}<span class="pust-pkuse-usedtag" title="Повернеться після «Кінця сцени» Доглядача">використано</span>{{#if @root.editable}}<button type="button" class="pust-pkuse-free" data-action="defib" data-v="0" title="Зняти позначку «використано»"><i class="fa-solid fa-rotate-left"></i></button>{{/if}}{{else if @root.editable}}<button type="button" class="pust-pkuse-go" data-action="defib" data-v="1" title="Застосувати: позначений ціллю (T) персонаж з 0 ОЗ повертається в сцену з 1 ОЗ; картка в чат і позначка до кінця сцени. Одиницю Припасів зніміть самі.">Застосувати</button>{{/if}}{{/if}}
-        {{#if supPips}}<span class="pust-pips">{{#each supPips}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="sup" data-i="{{k}}"></button>{{/each}}</span>{{/if}}
-        {{#if (eq id "brahmins")}}{{#if @root.editable}}<span class="pust-seg2"><button type="button" class="{{#if @root.brahmins.range}}on{{/if}}" data-action="brahminBonus" data-v="range" title="Караван витрачає менше запасу ходу">−{{@root.brahmins.share}} запасу</button><button type="button" class="{{#unless @root.brahmins.range}}on{{/unless}}" data-action="brahminBonus" data-v="time" title="Шлях займає менше часу">−{{@root.brahmins.share}} часу</button></span>{{/if}}{{/if}}
-      </span>
-      {{/each}}
-      {{#each v.customImps}}<span class="pust-ccmp-imp" title="{{desc}}"><b>{{#if name}}{{name}}{{else}}Власне покращення{{/if}}</b></span>{{/each}}
-      {{#unless ccmp.imps.length}}{{#unless v.customImps.length}}<span class="pust-sub">Покращень ще не взято: оберіть їх у повному аркуші.</span>{{/unless}}{{/unless}}
-    </div>
-  </section>
   {{else}}
 
   {{!-- ===== Аркуш: file, random, quick start, clear (folds; above the name) ===== --}}
@@ -197,7 +204,6 @@
     </div>
 
   </section>
-
 
   <nav class="pust-tabs">
     <a data-action="pustTab" data-tab="imps" class="{{#if (eq tab 'imps')}}active{{/if}}">Покращення</a>

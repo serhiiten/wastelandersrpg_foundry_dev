@@ -4,7 +4,8 @@
 import * as Rc from "../module/rules/core.mjs";
 import { createLogic } from "../module/rules/logic.mjs";
 import { createController } from "../module/rules/controller.mjs";
-import { PERK_USES, USE_BY_ID, backLine, bookText, isUsed, maxDamage, strangerOutcome, usedNames, usesFor, usePerk } from "../module/rules/perk-uses.mjs";
+import { PERK_USES, USE_BY_ID, backLine, bookText, isUsed, maxDamage, perkSection, strangerOutcome, usedNames, usesFor, usePerk } from "../module/rules/perk-uses.mjs";
+import { buildView } from "../module/sheets/character-view.mjs";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -174,6 +175,31 @@ ok(strangerOutcome(11, "elite").dice === null && strangerOutcome(11, "boss").dic
   const root = fileURLToPath(new URL("../module", import.meta.url));
   const bad = walk(root).filter((f) => !f.endsWith(join("helpers", "dice.mjs")) && /\.evaluateSync\(/.test(readFileSync(f, "utf8")));
   ok(!bad.length, `Roll#evaluateSync in: ${bad.join(", ")}`);
+}
+
+// 9) the compact sheet (author, 2026-11-18; playtest item 8, mockup В): every status chip a perk or feat gives is tagged, and
+// each passive perk / feat has ONE row with those texts (its name not repeated); the ones with cards have no row; nothing
+// tagged is lost — it is in a row or the perk has its card
+{
+  const st = fresh(["Фух", "Емпатія", "Здоровань", "Залізячник", "Улюблений ворог", "Улюблений ворог"], { feats: ["Добра душа", "Виходець зі Сховища"] });
+  st.perks[4].note = "рейдери"; st.perks[5].note = "мутанти"; st.cons = { ...(st.cons || {}), l: "Синець" };
+  Rc.syncAuto(st);
+  const d = Rc.compute(st);
+  const v = buildView(st, d, logic(st), {});
+  const tagged = v.chips.filter((c) => c.src);
+  ok(tagged.some((c) => c.src === "p:Фух") && tagged.some((c) => c.src === "f:Добра душа"), "perk and feat chips are tagged");
+  ok(v.chips.some((c) => !c.src && /Легкий наслідок/.test(c.t)), "a state (a consequence) stays untagged");
+  const pk = perkSection(st, d, v.chips);
+  const rows = Object.fromEntries(pk.passive.map((r) => [r.n, r]));
+  ok(!rows["Залізячник"], "a perk with a card has no row");
+  ok(rows["Улюблений ворог"] && rows["Улюблений ворог"].parts.length === 2 && pk.passive.filter((r) => r.n === "Улюблений ворог").length === 1, "one row for a perk taken twice, both notes in it");
+  ok(rows["Здоровань"] && !/Здоровань/.test(rows["Здоровань"].parts[0].t), "the row's text does not repeat the name");
+  ok(rows["Добра душа"]?.parts.some((p) => p.bad), "a feat's negative part keeps its colour");
+  const withCard = new Set(pk.uses.map((u) => u.perk));
+  for (const c of tagged) {
+    const n = c.src.slice(2);
+    ok(withCard.has(n) || (rows[n] && rows[n].parts.length), `chip of «${n}» is neither in a row nor on a card`);
+  }
 }
 
 console.log(`perk-uses: ${checks - failures}/${checks} passed`);

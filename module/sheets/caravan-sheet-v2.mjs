@@ -112,11 +112,26 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
         karmaAspect: S.karmaAspect || "",
         // the row just added or the one clicked opens as a small form; an old row with no name stays a chip «без назви»
         cargo: v.cargo.map((r) => ({ ...r, edit: this.isEditable && this.ui.cgEdit === r.i })),
-        imps: v.imps.filter((i) => i.taken).map((i) => {
-          const n = i.btns.filter((b) => b.on).length;
-          return { ...i, level: i.btns.length > 1 ? String(n) : "", defib: i.id === "defib" ? { used } : null };
-        }),
       };
+      // «Покращення» over «Вантаж» (author, 2026-11-18; playtest item 11, mockup А): the ones with an action as cards like the
+      // perks (name, limit, one sentence after the wiki's «Покращення каравану»), the rest as quiet chips at the block's foot
+      const share = context.brahmins.pathfinder ? "наполовину" : "на чверть";
+      const ACT = {
+        turret: { short: "Важка зброя (2d6 шкоди в бою на відстані), з якої може стріляти будь-який персонаж." },
+        defib: { lim: "раз за сцену", cls: "scene", short: "Ціною одиниці Припасів повертає позначеного ціллю (T) персонажа з 0 ОЗ у сцену з 1 ОЗ." },
+        brahmins: { lim: "перед подорожжю", cls: "free", short: `Шлях займає ${share} менше часу або караван витрачає ${share} менше запасу ходу.` },
+        chest: { short: "" },
+      };
+      const taken = v.imps.filter((i) => i.taken).map((i) => {
+        const n = i.btns.filter((b) => b.on).length;
+        return { ...i, level: i.btns.length > 1 ? String(n) : "", defib: i.id === "defib" ? { used } : null };
+      });
+      context.ccmp.impCards = taken.filter((i) => ACT[i.id]).map((i) => {
+        const a = ACT[i.id];
+        const short = i.id === "chest" ? `Місце для зберігання ${i.supPips?.length || 3 * (Number(i.level) || 1)} одиниць Припасів.` : a.short;
+        return { ...i, lim: a.lim || "", cls: a.cls || "free", short };
+      });
+      context.ccmp.impQuiet = taken.filter((i) => !ACT[i.id]);
     }
     return context;
   }

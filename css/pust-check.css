@@ -479,3 +479,22 @@
 .pust-roller .rres button[data-r="dmg"] { scroll-margin-bottom: 72px; }
 /* folded, the fold line already says what is rolled: the strip keeps only its button (and the targets' hint) */
 .pust-roller.pust-folded .pust-intent > b { display: none; }
+
+/* ===== «Стандартні дії» and the chat mode's strip (author, 2026-11-18; playtest item 1, mockup А; check-panel.mjs) ===== */
+/* the row stands with the ready checks (order 3), before «Атаки» in the markup; dark ink stripe, the pressed one a steel plate */
+.pust-roller .rpre.pust-std { --g: #3a3328; border-left-color: #3a3328; }
+.wastelanders .pust-roller .rpre.pust-std > button.chipb { min-height: 35px !important; } /* as tall as the ready checks' two-line buttons */
+.wastelanders .pust-roller .rpre.pust-std > button.chipb:not(.on) { background: #fbf6e6 !important; color: var(--pu-ink) !important; border-color: #6b604a !important; }
+.wastelanders .pust-roller .rpre.pust-std > button.chipb.on {
+  background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)) !important; color: var(--pu-amber, #ffd84a) !important;
+  border-color: var(--pu-steel-0) !important; box-shadow: 0 2px 0 var(--pu-steel-0) !important; }
+/* the chat mode is not public: hazard-yellow strip under the head with «Public as User» */
+.pust-check .pust-chatmode { flex: none; display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-bottom: 1px solid #1e1b17;
+  background: repeating-linear-gradient(-45deg, #f4d11a 0 10px, #e7c20f 10px 20px); color: #231b11;
+  font-family: var(--pu-f-label, "Roboto Condensed", sans-serif); font-size: 13px; line-height: 1.25; }
+.pust-check .pust-chatmode > i { flex: none; font-size: 14px; }
+.pust-check .pust-chatmode > span { flex: 1 1 auto; min-width: 0; }
+.wastelanders.pust-check .pust-chatmode > button { flex: none; width: auto; height: 24px; margin: 0; padding: 0 9px; line-height: 22px;
+  background: linear-gradient(180deg, #3d4241, #2c302f) !important; color: #f4d11a !important; border: 1px solid #1c1f1e !important; border-radius: 3px;
+  font-family: var(--pu-f-label, "Roboto Condensed", sans-serif); font-weight: 700; font-size: 12px; white-space: nowrap; }
+.wastelanders.pust-check .pust-chatmode > button:hover { filter: brightness(1.2); }

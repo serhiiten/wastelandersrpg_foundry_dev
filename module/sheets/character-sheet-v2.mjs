@@ -104,7 +104,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     // perks with «Застосувати» (author, 2026-11-18; perk-uses.mjs): the compact sheet's section, and each perk's / feat's card
     // of the full sheet with its uses; a free perk (from a feat, no slot) has its own card with its uses, unless the same perk
     // is also chosen (its card has the button already: one mark, one button)
-    const pk = perkSection(st, d);
+    const pk = perkSection(st, d, context.v.chips);
     for (const p of context.v.perks ?? []) p.uses = pk.uses.filter((u) => !u.feat && u.perk === p.n);
     for (const f of context.v.feats ?? []) f.uses = pk.uses.filter((u) => u.feat && u.perk === f.n);
     for (const p of context.v.freePerkRows ?? []) p.uses = st.perks.some((x) => x.n === p.n) ? [] : pk.uses.filter((u) => !u.feat && u.perk === p.n);
@@ -113,6 +113,10 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     if (this.ui.compact === undefined) this.ui.compact = compactStored(this.document);
     context.compact = !!this.ui.compact;
     if (context.compact) {
+      // «Статуси» of the compact sheet keep only states (heavy things, chems, consequences, addictions…): what perks and
+      // feats give is in their rows in «Перки та особливості» (author, 2026-11-18; playtest item 8, mockup В)
+      const own = (c) => !c.src;
+      context.v = { ...context.v, chips: context.v.chips.filter(own), chipsGood: context.v.chipsGood.filter(own), chipsBad: context.v.chipsBad.filter(own) };
       const v = context.v;
       context.cmp = {
         arch: v.arch || "",

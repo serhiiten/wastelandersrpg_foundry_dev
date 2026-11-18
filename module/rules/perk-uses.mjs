@@ -145,22 +145,34 @@ export function backLine(was, st) {
 }
 
 /**
- * The compact sheet's «Перки та особливості» (mockup А1): the uses as cards, «N з M доступні», and the passive perks and
- * feats as quiet chips with the book's text in the tooltip (Ерудит with its skill)
+ * The compact sheet's «Перки та особливості» (mockup А1): the uses as cards, «N з M доступні»; the passive perks and feats as
+ * rows «name + what it gives» (author, 2026-11-18; playtest item 8, mockup В): the texts of their status chips (`chips`:
+ * the sheet's view chips with `src` 'p:<perk>' / 'f:<feat>', from logic.mjs statusChips), else the book's text; the
+ * negative parts marked `bad`. Without `chips` the rows carry the book's text only.
  */
-export function perkSection(st, d = compute(st)) {
+export function perkSection(st, d = compute(st), chips = []) {
   const uses = usesFor(st, d);
   const active = new Set(uses.map((u) => u.perk));
+  const bySrc = new Map();
+  for (const c of chips || []) if (c?.src) (bySrc.get(c.src) ?? bySrc.set(c.src, []).get(c.src)).push(c);
+  // «Здоровань: +5 макс. ОЗ (Здоровань)», «Ерудит: Знання на рівень вище»: the row names the perk already
+  const bare = (t, n) => {
+    let s = String(t || "").trim();
+    if (s.endsWith(` (${n})`)) s = s.slice(0, -n.length - 3);
+    if (s.startsWith(n)) s = s.slice(n.length).replace(/^[\s:]+/, "");
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+  };
+  // one row a perk or feat: a perk taken with several notes («Улюблений ворог», «Спеціалізація») has a chip per note, all in it
   const seen = new Set(), passive = [];
-  const add = (n, tip, note = "") => {
-    const key = n + "|" + note;
+  const add = (n, key, book) => {
     if (!n || active.has(n) || seen.has(key)) return;
     seen.add(key);
-    passive.push({ n: note ? `${n}: ${note}` : n, tip: tip || "" });
+    const parts = (bySrc.get(key) || []).map((c) => ({ t: bare(c.t, n), bad: c.cls === "bad" })).filter((p) => p.t);
+    passive.push({ n, parts: parts.length ? parts : [{ t: String(book || "").trim(), bad: false }], tip: book || "" });
   };
-  for (const p of st.perks || []) add(p.n, PERK[p.n]?.d || p.d, String(p.note || "").trim());
-  for (const n of d.freePerks || []) add(n, PERK[n]?.d);
-  for (const n of st.feats || []) add(n, FEAT[n]?.d || (st.customFeats || []).find((c) => c.n === n)?.d);
+  for (const p of st.perks || []) add(p.n, "p:" + p.n, PERK[p.n]?.d || p.d);
+  for (const n of d.freePerks || []) add(n, "p:" + n, PERK[n]?.d);
+  for (const n of st.feats || []) add(n, "f:" + n, FEAT[n]?.d || (st.customFeats || []).find((c) => c.n === n)?.d);
   const live = uses.filter((u) => !u.show);
   return { uses, avail: live.filter((u) => !u.off).length, total: live.length, passive };
 }
