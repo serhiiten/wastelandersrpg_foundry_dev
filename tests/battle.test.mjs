@@ -350,6 +350,11 @@ ok(dbCount >= 80, "DB size " + dbCount);
   eq(dice("укус: 1к6 шкоди отрутою"), [["1d6", true, "poison"]], "к6 and poison");
   eq(dice("вибух завдає 2d6 всім у зоні"), [["2d6", true, "phys"]], "«завдає» before the die");
   eq(dice("Ніякого кидка, 12 ОЗ"), [], "no dice");
+  const full = (t) => B.diceInText(t).filter((p) => typeof p !== "string").map((p) => [p.dice, p.damage, p.type, p.ignoreArmor]);
+  eq(full("коли ОЗ сяючого гуля падають до 0, він вибухає й завдає всім істотам у своїй зоні 1d6+3 шкоди радіацією, що ігнорує броню."), [["1d6+3", true, "rad", true]], "Прощальний подарунок: «+3» is the die's, radiation, ignores armour");
+  eq(full("раз за сцену вражає ціль отруйним жалом. Протягом 3 кіл жертва отримує 1d6 шкоди від отрути щоразу, коли настає її черга діяти. Ця шкода ігнорує броню."), [["1d6", true, "poison", true]], "Отруєння: poison, «Ця шкода ігнорує броню» of the next sentence");
+  eq(full("раз за сцену вражає ціль отруйним жалом. Протягом 3 кіл жертва отримує 1d10 шкоди від отрути щоразу, коли настає її черга діяти. Ця шкода ігнорує броню."), [["1d10", true, "poison", true]], "Отруйне жало: poison, ignores armour");
+  eq(full("завдає 2d6 шкоди вогнем. Ця шкода ігнорує броню. Інша ціль отримує 1d6 шкоди."), [["2d6", true, "fire", true], ["1d6", true, "phys", false]], "the next sentence's piercing belongs to the die before it only");
   eq(B.diceInText("a 2d6 b").join("|").replace(/\[object Object\]/, "X"), "a |X| b", "the text around stays");
 }
 

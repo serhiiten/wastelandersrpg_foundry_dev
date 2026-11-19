@@ -176,13 +176,17 @@ export function diceInText(text) {
     // the clause the die stands in: from the last «.;» before it to the next «.;» after it
     const from = Math.max(t.lastIndexOf(".", at), t.lastIndexOf(";", at)) + 1;
     const ends = [t.indexOf(".", at + raw.length), t.indexOf(";", at + raw.length)].filter((x) => x >= 0);
-    const clause = t.slice(from, ends.length ? Math.min(...ends) : t.length);
+    let clause = t.slice(from, ends.length ? Math.min(...ends) : t.length);
+    // «…1d6 шкоди від отрути щоразу… Ця шкода ігнорує броню.»: the next sentence speaks of this very damage
+    const next = /^[.;]\s*(?:ця|ця\s+ж)\s+шкода\s+ігнору\S*\s+броню/i.exec(t.slice(from + clause.length));
+    if (next) clause += next[0];
     // damage when «шкод…» follows the die closely (before a comma) or «завдає / отримує» stands right before it
     const after = t.slice(at + raw.length).split(/[,.;:(]/)[0];
     const before = t.slice(Math.max(from, at - 24), at);
     const damage = (/^\s*(?:\S+\s+){0,2}шкод/i.test(after) || /(?:завда\S*|отриму\S*)\s*$/i.test(before)) && !/відновлю|лікує|зцілю|повертає\s+\S*\s*оз/i.test(clause);
     const dice = raw.replace(/\s+/g, "").replace(/к/gi, "d").replace(/^d/i, "1d");
-    const near = `${raw} ${after}`;
+    // «1d6+3 шкоди радіацією»: the «+3» is the die's, not an extra part of radiation
+    const near = /^\s*шкод/i.test(after) ? `${raw.replace(/\s*[+\-].*$/, "")} ${after}` : `${raw} ${after}`;
     out.push({ dice, label: raw, damage, type: atkType(near), ignoreArmor: atkIgnores(clause), ignoreN: atkIgnoreN(clause) });
     last = at + raw.length;
   }
@@ -544,7 +548,7 @@ export function atkType(text) {
   if (/кріо|морозн/.test(t)) return "cryo";
   if (/вогнемет|напалм|вогнян|запальн|молотова|струмін\S*\s+вогн|шкод\S*\s+вогнем|вогнем\s+\d/.test(t)) return "fire"; // «шкоди вогнем» too (author, 2026-11-14)
   if (/радіаційн|радіоактивн|гамма|шкод\S*\s+радіацією/.test(t)) return "rad";
-  if (/отруйн|токсичн|шкод\S*\s+отрутою/.test(t)) return "poison";
+  if (/отруйн|токсичн|шкод\S*\s+(?:отрутою|від\s+отрути)/.test(t)) return "poison";
   if (/психічн|пси[- ]/.test(t)) return "psychic";
   return "phys";
 }
