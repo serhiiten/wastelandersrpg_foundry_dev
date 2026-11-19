@@ -19,7 +19,7 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "pust-weather",
     classes: ["pust-weather"],
-    position: { width: 430, height: "auto" },
+    position: { width: 266, height: "auto" },
     window: { frame: false, positioned: true },
     actions: {
       wxPick: WeatherPanel.#pick,
@@ -85,15 +85,16 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   #place() {
     const btn = document.querySelector('#scene-controls-tools [data-tool="pustWeather"]');
     const r = btn?.getBoundingClientRect();
-    const w = this.element.offsetWidth || 430, h = this.element.offsetHeight || 500;
+    const w = this.element.offsetWidth || 266, h = this.element.offsetHeight || 300;
     const left = r ? r.right + 8 : 110, top = r ? r.top : 90;
     this.setPosition({ left: Math.max(4, Math.min(window.innerWidth - w - 4, left)), top: Math.max(4, Math.min(window.innerHeight - h - 4, top)) });
   }
 
-  async close(options) {
+  /** Closed at once, without Foundry's fade (author, 2026-11-19: a click on the tool during the fade did nothing) */
+  async close(options = {}) {
     if (this.#outside) document.removeEventListener("pointerdown", this.#outside, true);
     this.#outside = null;
-    return super.close(options);
+    return super.close({ animate: false, ...options });
   }
 
   static async #pick(_ev, btn) {
@@ -140,7 +141,8 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
 /** The tool «Погода й час дня»: opens the window, or closes it when it is open */
 export function toggleWeatherPanel(force = null) {
-  const open = foundry.applications.instances.get("pust-weather");
+  let open = foundry.applications.instances.get("pust-weather");
+  if (open && open.state === ApplicationV2.RENDER_STATES.CLOSING) open = null; // closing: a click opens it anew
   if (open && force !== true) return open.close();
   if (open) return open.render();
   return new WeatherPanel().render({ force: true });
