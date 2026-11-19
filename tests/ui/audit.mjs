@@ -646,8 +646,8 @@ const SCENARIOS = {
     a.readable(el, "button, span, b");
   },
 
-  /** «Погода й час дня» (author, 2026-11-19; module/applications/weather-panel.mjs): the GM's window opened, read, its narrowest
-   *  and usual width (one width: the window is not resizable), closed again if it was closed; nothing is chosen */
+  /** «Погода й час дня» (author, 2026-11-19; module/applications/weather-panel.mjs): the GM's popover opened beside its tool,
+   *  read at its one width, closed again if it was closed; nothing is chosen */
   async weather(a) {
     if (!game.user.isGM) return a.skip("погода й час дня", "лише Доглядач");
     const btn = document.querySelector('#scene-controls-tools [data-tool="pustWeather"]');
@@ -664,7 +664,10 @@ const SCENARIOS = {
       a.readable(el, "button, span, h3, h4, p");
       const rows = [".pust-wx-grid", ".pust-wx-times"].flatMap((g) => [...el.querySelectorAll(g)].map((x) => [...x.children].map((c) => Math.round(R(c).height))));
       a.ok("картки одного блока однакової висоти", rows.every((r) => new Set(r).size === 1), rows.map((r) => [...new Set(r)].join("/")).join(" · "));
-      await layoutAt(a, app, "погода й час дня");
+      a.scenario = `погода й час дня, ${Math.round(R(el).width)} px`; // a popover of one width
+      a.layout(el);
+      const btnR = btn && R(btn), elR = R(el);
+      a.ok("віконце поруч із кнопкою", !btnR || (elR.left >= btnR.right - PX && elR.left - btnR.right <= 16), btnR ? `кнопка ${Math.round(btnR.right)}, віконце ${Math.round(elR.left)}` : "");
     } finally { if (!was) await app.close(); }
   },
 

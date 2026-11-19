@@ -1,7 +1,9 @@
 /**
- * «Погода й час дня» (author, 2026-11-19; mockup Б, docs/decisions/weather.md): the GM's window opened by the tool
- * «Погода й час дня» at the end of every group of Foundry's scene controls. Cards of the weathers (the Пустка's, then
- * Foundry's own six), a slider «Слабка / Помірна / Сильна», and four times of day with «Як було».
+ * «Погода й час дня» (author, 2026-11-19; mockup Б, docs/decisions/weather.md): the GM's popover opened by the tool
+ * «Погода й час дня» at the end of every group of Foundry's scene controls, beside that button and over the other
+ * windows, in the look of Foundry's own dark windows (author, 2026-11-19); a click outside it closes it. Cards of the
+ * weathers (the Пустка's, then Foundry's own six, one grid), a slider «Слабка / Помірна / Сильна», and four times of day
+ * with «Як було».
  * The weather goes to the viewed scene's flag (module/canvas/weather.mjs); the time of day is one scene update of its
  * `environment` with Foundry's darkness animation.
  */
@@ -16,9 +18,9 @@ export const TIME_ANIMATION_MS = 4000;
 export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "pust-weather",
-    classes: ["wastelanders", "pust-weather"],
-    position: { width: 460, height: "auto" },
-    window: { title: "Погода й час дня", icon: "fa-solid fa-cloud-sun-rain", resizable: false },
+    classes: ["pust-weather"],
+    position: { width: 430, height: "auto" },
+    window: { frame: false, positioned: true },
     actions: {
       wxPick: WeatherPanel.#pick,
       wxTime: WeatherPanel.#time,
@@ -42,8 +44,7 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       scene: !!scene,
       sceneName: scene?.name ?? "",
       fieldWeather: !!scene?.weather,
-      wastes: [CLEAR, ...WASTES].map(card),
-      core: CORE.map(card),
+      cards: [CLEAR, ...WASTES, ...CORE].map(card),
       power,
       powers: POWERS.map((name, i) => ({ name, i, active: i === power })),
       powerName: POWERS[power],
@@ -57,6 +58,17 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender?.(context, options);
+    if (options.isFirstRender) {
+      this.#place();
+      this.#outside = (ev) => {
+        const t = ev.target;
+        if (!(t instanceof Element) || this.element.contains(t)) return;
+        if (t.closest('[data-tool="pustWeather"]')) return; // the tool's own click toggles it
+        if (foundry.nue.Tour.activeTour) return; // a tour shows it: the tour's card must not close it
+        this.close();
+      };
+      document.addEventListener("pointerdown", this.#outside, true);
+    }
     const range = this.element.querySelector(".pust-wx-range");
     if (!range) return;
     // the name follows the slider while it moves; the flag is written once, on release
@@ -65,6 +77,23 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       this.element.querySelectorAll(".pust-wx-ticks span").forEach((s, i) => s.classList.toggle("on", i === p));
     });
     range.addEventListener("change", () => setSceneWeather(canvas.scene, flagOf(canvas.scene)?.id ?? "", clampPower(range.value)));
+  }
+
+  #outside = null;
+
+  /** Beside the tool that opened it (the button of the active group), kept on screen */
+  #place() {
+    const btn = document.querySelector('#scene-controls-tools [data-tool="pustWeather"]');
+    const r = btn?.getBoundingClientRect();
+    const w = this.element.offsetWidth || 430, h = this.element.offsetHeight || 500;
+    const left = r ? r.right + 8 : 110, top = r ? r.top : 90;
+    this.setPosition({ left: Math.max(4, Math.min(window.innerWidth - w - 4, left)), top: Math.max(4, Math.min(window.innerHeight - h - 4, top)) });
+  }
+
+  async close(options) {
+    if (this.#outside) document.removeEventListener("pointerdown", this.#outside, true);
+    this.#outside = null;
+    return super.close(options);
   }
 
   static async #pick(_ev, btn) {

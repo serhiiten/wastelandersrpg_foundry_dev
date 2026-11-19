@@ -18,8 +18,8 @@ export const CORE_MULT = [0.6, 1, 1.4];
 export const SHADERS = ["FogShader", "RainShader", "SnowShader"];
 export const BLENDS = ["SCREEN", "NORMAL", "ADD"];
 
-/** Names of «Ясно» and Foundry's six (core has no Ukrainian translation; ordinary words, not terms of the game) */
-export const CLEAR = { id: "", name: "Ясно", icon: "fa-sun" };
+/** Names of «Чисто» and Foundry's six (core has no Ukrainian translation; ordinary words, not terms of the game) */
+export const CLEAR = { id: "", name: "Чисто", icon: "fa-sun" }; // «Ясно» renamed by the author (2026-11-19)
 export const CORE = [
   { id: "rain", name: "Дощ", icon: "fa-cloud-rain" },
   { id: "rainStorm", name: "Злива", icon: "fa-cloud-showers-heavy" },
@@ -41,23 +41,23 @@ export const WASTES = [
   {
     id: "dust", name: "Пилова буря", icon: "fa-wind",
     layers: [
-      fog({ tint: [1, 0.75, 0.45], slope: 0.55, speed: 1.4, rotation: 0.35 }, { intensity: [0.35, 0.5, 0.65] }, { blend: "NORMAL" }),
-      snow({ tint: [1, 0.78, 0.45], direction: 2.2, scale: 2 }, { speed: [7, 11, 16] }, { perf: 2 }),
+      fog({ tint: [1, 0.75, 0.45], slope: 0.55, speed: 1.4, rotation: 0.35 }, { intensity: [0.26, 0.38, 0.49] }, { blend: "NORMAL" }),
+      snow({ tint: [0.75, 0.58, 0.34], direction: 2.2, scale: 2 }, { speed: [7, 11, 16] }, { perf: 2 }),
     ],
   },
   {
     id: "radstorm", name: "Радіаційний шторм", icon: "fa-radiation",
     layers: [
       fog({ tint: [0.55, 0.9, 0.3], slope: 0.7, speed: 1.2 }, { intensity: [0.2, 0.3, 0.4] }, { blend: "NORMAL", perf: 2 }),
-      rain({ tint: [0.7, 1, 0.35], intensity: 1.4, strength: 1.4, rotation: 0.45, speed: 0.3 }, { opacity: [0.35, 0.5, 0.65] }),
+      rain({ tint: [0.7, 1, 0.35], intensity: 1.1, strength: 1.1, rotation: 0.45, speed: 0.3 }, { opacity: [0.2, 0.28, 0.36] }),
     ],
     flash: { tint: [0.6, 1, 0.35], every: [8, 18], peak: [0.25, 0.35, 0.45], bolt: false },
   },
   {
     id: "acidrain", name: "Кислотний дощ", icon: "fa-cloud-rain",
     layers: [
-      rain({ tint: [0.8, 1, 0.2], intensity: 1, strength: 1, rotation: 0.2, speed: 0.2 }, { opacity: [0.35, 0.5, 0.65] }),
-      fog({ tint: [0.8, 1, 0.3], slope: 0.6, speed: 0.4 }, { intensity: [0.15, 0.22, 0.3] }, { blend: "NORMAL", perf: 2 }),
+      rain({ tint: [1, 0.95, 0.15], intensity: 1, strength: 1, rotation: 0.2, speed: 0.2 }, { opacity: [0.35, 0.5, 0.65] }),
+      fog({ tint: [1, 0.92, 0.2], slope: 0.6, speed: 0.4 }, { intensity: [0.15, 0.22, 0.3] }, { blend: "NORMAL", perf: 2 }),
     ],
   },
   {
@@ -70,14 +70,14 @@ export const WASTES = [
   },
   {
     id: "lightning", name: "Ядучо-зелені блискавки", icon: "fa-bolt",
-    layers: [fog({ tint: [0.35, 0.45, 0.4], slope: 0.8, speed: 0.6 }, { intensity: [0.2, 0.3, 0.4] }, { blend: "NORMAL" })],
+    layers: [fog({ tint: [0.3, 0.55, 0.3], slope: 0.8, speed: 0.6 }, { intensity: [0.2, 0.3, 0.4] }, { blend: "NORMAL" })],
     flash: { tint: [0.55, 1, 0.3], every: [4, 12], peak: [0.3, 0.45, 0.6], bolt: true },
   },
   {
     id: "hurricane", name: "Ураган", icon: "fa-tornado",
     layers: [
-      rain({ tint: [0.8, 0.85, 0.9], intensity: 1.5, strength: 1.5, rotation: 1.0, speed: 0.6 }, { opacity: [0.35, 0.5, 0.65] }),
-      fog({ tint: [0.85, 0.85, 0.85], slope: 1.2, speed: -40, scale: 25 }, { intensity: [0.06, 0.1, 0.14] }, { perf: 2 }),
+      rain({ tint: [0.8, 0.85, 0.9], intensity: 1.5, strength: 1.5, rotation: 1.0, speed: 0.6 }, { opacity: [0.26, 0.38, 0.49] }),
+      fog({ tint: [0.85, 0.85, 0.85], slope: 1.2, speed: -40, scale: 25 }, { intensity: [0.045, 0.075, 0.1] }, { perf: 2 }),
     ],
   },
   {
@@ -195,7 +195,7 @@ export const TIMES = [
   { id: "morning", name: "Ранок", icon: "fa-cloud-sun", darkness: 0.2, dark: { hue: 28 / 360, intensity: 0.6, luminosity: -0.05, saturation: 0.3, shadows: 0 } },
   { id: "day", name: "День", icon: "fa-sun", darkness: 0, dark: { hue: 257 / 360, intensity: 0, luminosity: -0.25, saturation: 0, shadows: 0 } },
   { id: "evening", name: "Вечір", icon: "fa-cloud-moon", darkness: 0.4, dark: { hue: 15 / 360, intensity: 0.7, luminosity: -0.15, saturation: 0.35, shadows: 0 } },
-  { id: "night", name: "Ніч", icon: "fa-moon", darkness: 0.65, dark: { hue: 215 / 360, intensity: 0.6, luminosity: -0.3, saturation: -0.1, shadows: 0 } },
+  { id: "night", name: "Ніч", icon: "fa-moon", darkness: 0.5, dark: { hue: 215 / 360, intensity: 0.6, luminosity: -0.3, saturation: -0.1, shadows: 0 } },
 ];
 
 /** The change of `environment` for a time of day (one scene update) */

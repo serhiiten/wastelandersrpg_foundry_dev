@@ -35,7 +35,7 @@ ok(W.WASTES.find((w) => w.id === "psygas").pulse, "the gas pulses");
 // Foundry's six, «Ясно»
 ok(W.CORE.map((w) => w.id).join() === "rain,rainStorm,fog,snow,blizzard,leaves", "Foundry's six ids");
 ok(W.CORE.every((w) => w.name && !/[a-z]/i.test(w.name)), "Foundry's six named in Ukrainian");
-ok(W.CLEAR.name === "Ясно" && W.weatherName("") === "Ясно", "«Ясно»");
+ok(W.CLEAR.name === "Чисто" && W.weatherName("") === "Чисто", "«Чисто»");
 ok(W.weatherName("dust") === "Пилова буря" && W.weatherName("fog") === "Туман" && W.weatherName("nope") === null, "names by id");
 ok(new Set([...W.WASTES, ...W.CORE].map((w) => w.id)).size === 14, "ids unique");
 
@@ -47,7 +47,7 @@ ok(W.CORE_MULT.join() === "0.6,1,1.4", "Foundry's weathers: 0.6 / 1 / 1.4");
 // recipes
 const r0 = W.recipe("dust", 0), r2 = W.recipe("dust", 2);
 ok(r0.layers[0].config.intensity < r2.layers[0].config.intensity, "dust: stronger is denser");
-ok(r0.layers[0].config.tint === W.WASTES[0].layers[0].config.tint || r0.layers[0].config.tint.join() === "1,0.72,0.38", "dust: config kept");
+ok(r0.layers[0].config.tint === W.WASTES[0].layers[0].config.tint || r0.layers[0].config.tint.join() === "1,0.75,0.45", "dust: config kept");
 ok(new Set(r0.layers.map((l) => l.key)).size === r0.layers.length, "layer keys unique");
 ok(W.recipe("rain", 2).core && W.recipe("rain", 2).mult === 1.4, "a core recipe");
 ok(W.recipe("nope", 1) === null && W.recipe("", 1) === null, "no recipe for «Ясно» or unknown");

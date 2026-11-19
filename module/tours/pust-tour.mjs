@@ -467,11 +467,10 @@ export const PREPARE = {
   /** the travel window under «Подорож», with an event generated (nothing goes to the chat) */
   travel: async () => { (await import("../applications/map-dock.mjs")).setTravelOpen(true); opened.travel = true; await sleep(300); },
   /** the new counter's form of «Лічильники» */
-  /** «Погода й час дня»: the GM's window opened beside the scene controls (closed when the step is left) */
+  /** «Погода й час дня»: the GM's popover opened beside its tool (closed when the step is left) */
   weather: async () => {
     if (!foundry.applications.instances.get("pust-weather")) { await (await import("../applications/weather-panel.mjs")).toggleWeatherPanel(true); opened.weather = true; }
     await waitFor("#pust-weather");
-    foundry.applications.instances.get("pust-weather")?.setPosition({ left: 110, top: 90 });
     await sleep(300);
   },
   counterForm: async () => { await PREPARE.unfold("ctr"); (await import("../applications/game-counters.mjs")).setCountersForm(true); opened.form = true; await sleep(300); },
