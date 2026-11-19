@@ -12,7 +12,7 @@ import { variantTextures } from "../helpers/token-variants.mjs";
 import { tokenLevel } from "../helpers/token-level.mjs";
 import { enemyFromRecord } from "../rules/battle.mjs";
 import { toSystem } from "../rules/enemy-model.mjs";
-import { kindTokens } from "../rules/enemy-kinds.mjs";
+import { kindTokens, pickKind } from "../rules/enemy-kinds.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 /** Actor data of a group enemy made one concrete kind (author, 2026-11-16): its name, its token as picture and token */
@@ -142,12 +142,63 @@ export async function dropGeneratedEnemy(T, st, name, point) {
   if (!entry || !scene) return;
   const folder = await battleFolder(T.battle.BT.kindName(last.factionKey), st.battle.state.difficulty);
   const actor = await enemyActor(T, entry.enemy, folder);
+  return tokenAtPoint(scene, actor, point);
+}
+
+/** One unlinked token of `actor` centred on `point` of `scene`: a face of its kind, named after it («Ім'я N» when the
+ *  scene already has some of them) — a «Битви» chip and a compendium enemy dropped on the scene */
+export async function tokenAtPoint(scene, actor, point, extra = {}) {
   const same = scene.tokens.filter((t) => t.name === actor.name || t.name.startsWith(`${actor.name} `)).length;
   const [tex] = variantTextures(scene, actor, 1) ?? [];
-  const td = await actor.getTokenDocument({ name: same ? `${actor.name} ${same + 1}` : actor.name, actorLink: false, ...tokenLevel(scene), ...(tex ? { texture: { src: tex } } : {}) });
+  const td = await actor.getTokenDocument({ name: same ? `${actor.name} ${same + 1}` : actor.name, actorLink: false, ...tokenLevel(scene), ...(tex ? { texture: { src: tex } } : {}), ...extra });
   const g = scene.grid.size;
   const at = canvas.grid.getSnappedPoint({ x: point.x - (td.width * g) / 2, y: point.y - (td.height * g) / 2 }, { mode: CONST.GRID_SNAPPING_MODES.TOP_LEFT_CORNER, resolution: 1 });
   return scene.createEmbeddedDocuments("Token", [{ ...td.toObject(), x: at.x, y: at.y }], { pustTokens: true });
+}
+
+/** The top folder's name of a compendium document — its faction, as in the «Битва» panel's list; «Інші» without one */
+export function packFaction(folders, folderId) {
+  let f = folderId ? folders.get(folderId) : null;
+  while (f?.folder) f = folders.get(f.folder.id ?? f.folder);
+  return f?.name ?? "Інші";
+}
+
+/**
+ * The world actor of a compendium enemy for a battle (the «Битва» panel's «Супротивник» and a compendium enemy dropped
+ * on the scene): in «Битви → <фракція>», reused there by name or created from the compendium, a group as one concrete
+ * kind, marked `battleMade` — so it goes with its last token (wastelanders.mjs mapBound).
+ */
+export async function battleEnemyFromPack(pack, id) {
+  const doc = await pack.getDocument(id);
+  const folder = await battleFolder(packFaction(pack.folders, doc.folder?.id ?? doc.folder), "");
+  const kind = pickKind(doc.name, OPPONENT_ALIASES); // a group comes as one concrete kind (author, 2026-11-16)
+  const name = kind?.name ?? doc.name;
+  const have = game.actors.find((a) => a.type === "enemy" && a.folder?.id === folder.id && a.name === name);
+  if (have) return have;
+  const data = doc.toObject();
+  delete data._id;
+  foundry.utils.setProperty(data, "_stats.compendiumSource", doc.uuid);
+  data.folder = folder.id;
+  if (kind) asKind(data, kind.name);
+  foundry.utils.setProperty(data, "flags.pust.battleMade", true); // made for this battle: goes with its last token (wastelanders.mjs mapBound)
+  return Actor.implementation.create(data);
+}
+
+/** A drop on the canvas that is an enemy of a compendium (`entry`: its index entry or document) */
+export const isCompendiumEnemyDrop = (data, entry) => data?.type === "Actor" && String(data.uuid ?? "").startsWith("Compendium.")
+  && entry?.type === "enemy";
+
+/**
+ * An enemy dragged from a compendium straight onto the scene (author, 2026-11-19): the GM's goes the way of the «Битва»
+ * panel's — its actor in «Битви → <фракція>», marked to go with its last token — and one unlinked token at the drop point
+ * (hidden with Alt, as Foundry's drop). Without this Foundry imported it to the Actors' root, where it stayed.
+ */
+export async function dropCompendiumEnemy(data, { hidden = false } = {}) {
+  const scene = canvas?.scene;
+  const { collection, documentId } = foundry.utils.parseUuid(data.uuid);
+  if (!scene || !collection || !documentId) return;
+  const actor = await battleEnemyFromPack(collection, documentId);
+  return tokenAtPoint(scene, actor, { x: data.x, y: data.y }, hidden ? { hidden: true } : {});
 }
 
 /**

@@ -9,7 +9,7 @@ import { CASE_DIFF, caseBattle, caseKind, casePower } from "../rules/case-battle
 import { travelDamage } from "./battle-panel.mjs";
 import { sharedGet, sharedSet, travelToScene } from "../helpers/scene-shared.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
-import { createBattle, openGeneratedEnemy, generatedEnemyImg, dropGeneratedEnemy, OPPONENT_ALIASES } from "./terminal-battle.mjs";
+import { createBattle, openGeneratedEnemy, generatedEnemyImg, dropGeneratedEnemy, dropCompendiumEnemy, isCompendiumEnemyDrop, OPPONENT_ALIASES } from "./terminal-battle.mjs";
 import { concreteKinds, namePicks } from "../rules/enemy-kinds.mjs";
 import { postChat } from "./chat.mjs";
 import { postTerminalRoll } from "./check-panel.mjs";
@@ -119,6 +119,14 @@ Hooks.on("dropCanvasData", (cv, data) => {
   if (data?.type !== DROP_TYPE) return;
   const app = foundry.applications.instances.get("pust-terminal");
   if (app) dropGeneratedEnemy(app.T, app.st, data.name, { x: data.x, y: data.y });
+  return false;
+});
+
+/** An enemy dragged from a compendium onto the scene (author, 2026-11-19): the GM's goes to «Битви» as the «Битва» panel's */
+Hooks.on("dropCanvasData", (cv, data, event) => {
+  if (!game.user.isGM || !isCompendiumEnemyDrop(data, fromUuidSync(data?.uuid ?? "", { strict: false }))) return;
+  if (!canvas.dimensions.rect.contains(data.x, data.y)) return false;
+  dropCompendiumEnemy(data, { hidden: !!event?.altKey });
   return false;
 });
 

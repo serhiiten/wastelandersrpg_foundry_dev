@@ -21,8 +21,7 @@
 import { variantTextures } from "../helpers/token-variants.mjs";
 import { tokenLevel } from "../helpers/token-level.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
-import { battleFolder, asKind, OPPONENT_ALIASES } from "./terminal-battle.mjs";
-import { pickKind } from "../rules/enemy-kinds.mjs";
+import { battleEnemyFromPack } from "./terminal-battle.mjs";
 import { sceneZones, zoneOf, addBattleZone } from "../canvas/battle-zones.mjs";
 import { applyDamage, applyHeal, chosenTokens, warnNoTargets, clearTargets } from "./apply-damage.mjs";
 import { fatePickList } from "./map-dice.mjs";
@@ -437,20 +436,9 @@ async function onClick(ev, lite = false, body = null) {
     if (!entry) return;
     b.disabled = true;
     try {
-      const folder = await battleFolder(byFaction[ui_.faction].name, "");
-      // a group enemy comes as one concrete kind, the whole batch (author, 2026-11-16)
-      const kind = pickKind(entry.name, OPPONENT_ALIASES);
-      const name = kind?.name ?? entry.name;
-      let actor = game.actors.find((a) => a.type === "enemy" && a.folder?.id === folder.id && a.name === name);
-      if (!actor) {
-        const data = (await pack.getDocument(entry._id)).toObject();
-        delete data._id;
-        foundry.utils.setProperty(data, "_stats.compendiumSource", entry.uuid);
-        data.folder = folder.id;
-        if (kind) asKind(data, kind.name);
-        foundry.utils.setProperty(data, "flags.pust.battleMade", true); // made for this battle: goes with its last token (wastelanders.mjs mapBound)
-        actor = await Actor.implementation.create(data);
-      }
+      // its actor in «Битви → <фракція>», a group as one concrete kind (shared with a compendium enemy dropped on the scene)
+      const actor = await battleEnemyFromPack(pack, entry._id);
+      const name = actor.name;
       const zone = sceneZones().find((z) => z.id === ui_.zone) ?? null;
       const made = await tokensIntoZone(scene, actor, ui_.count, zone);
       notify.info(`${name} × ${made.length}${zone ? ` → «${zoneOf(zone.doc).name}»` : ""}`);
