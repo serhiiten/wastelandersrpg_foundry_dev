@@ -153,7 +153,7 @@ async function bodyHtml(lite = false) {
     ${damageHtml(true)}
     ${endHtml()}
     <button type="button" class="pust-md-bgoto" data-battle="goto" title="Відкрити й активувати бойову мапу: гравці перейдуть туди теж"><i class="fa-solid fa-crosshairs"></i><span>Перейти на бойову мапу</span></button>`;
-  return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place, bgButton(scene))}${row("hazard", "Небезпека", "fa-radiation", hazard)}
+  return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place, bgButton(scene))}${row("hazard", "Небезпека", "fa-radiation", hazard, await autoWeatherButton(scene))}
     <div class="pust-md-row pust-md-bbtns">
       <button type="button" data-battle="zone" title="Нова зона 6 × 5 клітинок біля центру огляду"><i class="fa-solid fa-vector-square"></i><span>Зона</span></button>
       <button type="button" data-battle="enemy" class="${ui_.open ? "on" : ""}" title="Додати супротивників із компендіуму в зону"><i class="fa-solid fa-skull"></i><span>Супротивник</span></button>
@@ -384,6 +384,7 @@ async function onClick(ev, lite = false, body = null) {
   if (act === "tgtclear") { canvas.tokens.setTargets([], { mode: "replace" }); return; }
   if (act === "pick") return togglePick(b);
   if (act === "bgpick" && scene) return toggleBgPick(b, scene);
+  if (act === "autoweather") { const W = await import("../canvas/weather.mjs"); return W.setAutoWeather(!W.autoWeatherOn()); }
   if (act === "goto") return gotoScene(lite);
   if (act === "sessreset") {
     // asks twice, as every destructive button (author, 2026-11-17)
@@ -535,6 +536,14 @@ function togglePick(btn) {
 
 /* ---------------- the battle scene's background (author, 2026-11-18) ---------------- */
 /** Beside «Місце»: the scene's picture in small, a click opens the list (full panel only: «Сцена» has no battle scene) */
+/** «Авто-погода» (author, 2026-11-19): the switch in the hazard's row, lit while on (module/canvas/weather.mjs) */
+async function autoWeatherButton(scene) {
+  if (!scene || !isBattleScene(scene)) return "";
+  const on = (await import("../canvas/weather.mjs")).autoWeatherOn();
+  const tip = on ? "Авто-погода увімкнена: небезпека сама ставить погоду бойової сцени. Натисни, щоб вимкнути" : "Авто-погода вимкнена. Натисни, щоб небезпека сама ставила погоду бойової сцени";
+  return `<button type="button" class="pust-md-bauto${on ? " on" : ""}" data-battle="autoweather" title="${tip}" aria-label="Авто-погода" aria-pressed="${on}"><i class="fa-solid fa-cloud-sun-rain"></i></button>`;
+}
+
 function bgButton(scene) {
   if (!scene || !isBattleScene(scene)) return "";
   const choice = bgChoice(scene), now = bgNow(scene);

@@ -51,6 +51,12 @@ export async function sharedSet(upd) {
     const scene = isBattleScene(canvas?.scene) ? canvas.scene : (await import("../applications/battle-panel.mjs")).battleScene();
     if (scene) await syncBattleBackground(scene, upd.place);
   }
+  // «Авто-погода» (author, 2026-11-19): the hazard sets the battle scene's weather (also when it is written again unchanged,
+  // as the terminal does when it places a battle)
+  if ("hazard" in upd) {
+    const W = await import("../canvas/weather.mjs");
+    await W.syncHazardWeather(await W.hazardScene(), upd.hazard);
+  }
 }
 
 /**

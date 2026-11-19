@@ -93,5 +93,20 @@ ok(W.currentTime({ ...W.timeEnvironment("night"), darknessLevel: 0.7 }) === null
 ok(W.currentTime({ ...W.timeEnvironment("night"), cycle: false }) === null, "no blend: none lit");
 ok(W.currentTime(null) === null, "no scene");
 
+// «Авто-погода»: the hazards of the inspiration tables (module/rules/terminal.mjs) → weathers
+import { readFileSync } from "node:fs";
+const termSrc = readFileSync(new URL("../module/rules/terminal.mjs", import.meta.url), "utf8");
+const HAZ = eval("[" + /const hazards = \[([\s\S]*?)\];/.exec(termSrc)[1] + "]");
+ok(HAZ.length === 36, "36 hazards in the tables");
+for (const h of Object.keys(W.HAZARD_WEATHER)) {
+  ok(HAZ.includes(h), `hazard «${h}» is in the tables`);
+  ok(W.weatherById(W.HAZARD_WEATHER[h]), `hazard «${h}» → a known weather`);
+}
+ok(Object.keys(W.HAZARD_WEATHER).length === 12, "twelve hazards with a weather");
+ok(HAZ.filter((h) => W.hazardWeather(h)).length === 12 && HAZ.filter((h) => !W.hazardWeather(h)).length === 24, "the other 24 → «Чисто»");
+ok(W.hazardWeather("Пилова буря") === "dust" && W.hazardWeather("  кислотний ДОЩ ") === "acidrain" && W.hazardWeather("Торнадо") === "hurricane", "by name, any case and spaces");
+ok(W.hazardWeather("Ядучо-зелені блискавки") === "lightning", "the weather's own name works too");
+ok(W.hazardWeather("Канібали") === "" && W.hazardWeather("") === "" && W.hazardWeather(null) === "", "no weather → «Чисто»");
+
 if (failures) { console.log(`weather: ${failures} failure(s)`); process.exit(1); }
 console.log("weather: all passed");

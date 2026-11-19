@@ -65,6 +65,8 @@ export async function startBattle() {
   // its background by the battle's place first, while nobody views it: one redraw (author, 2026-11-18)
   const { syncBattleBackground } = await import("../helpers/battle-background.mjs");
   await syncBattleBackground(scene, OPEN.T.battle.BT?.BT_SCENE?.place || sharedGet("place"));
+  // its weather by the battle's hazard («Авто-погода», author, 2026-11-19), before the players come
+  await (await import("../canvas/weather.mjs")).syncHazardWeather(scene, OPEN.T.battle.BT?.BT_SCENE?.hazard || sharedGet("hazard"));
   if (canvas?.scene?.id !== scene.id) {
     const ready = new Promise((r) => Hooks.once("canvasReady", r));
     await scene.activate();

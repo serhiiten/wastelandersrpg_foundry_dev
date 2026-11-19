@@ -217,3 +217,35 @@ export function currentTime(env) {
   }
   return null;
 }
+
+/* ---------------- «Авто-погода»: the battle's hazard → its weather ---------------- */
+
+/**
+ * The hazards of the inspiration tables (module/rules/terminal.mjs `hazards`) that have an obvious weather (author,
+ * 2026-11-19): the eight named like a weather of the Пустка, and four the author added. Any other hazard → «Чисто».
+ */
+export const HAZARD_WEATHER = {
+  "Пилова буря": "dust",
+  "Радіаційний шторм": "radstorm",
+  "Хмара отрути": "poison",
+  "Ураган": "hurricane",
+  "Кислотна хмара": "acidcloud",
+  "Ядучо-зелені блискавки з неба": "lightning",
+  "Психоактивний газ": "psygas",
+  "Кислотний дощ": "acidrain",
+  "Торнадо": "hurricane",
+  "Задушливе болото": "fog",
+  "Ядучі гейзери з-під землі": "poison",
+  "Вибухонебезпечний газ": "acidcloud",
+};
+
+const norm = (t) => String(t ?? "").toLocaleLowerCase("uk").replace(/[’ʼ']/g, "'").replace(/\s+/g, " ").replace(/[.!…]+$/, "").trim();
+const BY_HAZARD = new Map([
+  ...Object.entries(HAZARD_WEATHER).map(([h, id]) => [norm(h), id]),
+  ...WASTES.map((w) => [norm(w.name), w.id]), // a hazard written as the weather's own name («Ядучо-зелені блискавки»)
+]);
+
+/** The weather of a hazard («Пилова буря» → "dust"); "" (Чисто) for a hazard with no obvious weather or none */
+export function hazardWeather(hazard) {
+  return BY_HAZARD.get(norm(hazard)) ?? "";
+}

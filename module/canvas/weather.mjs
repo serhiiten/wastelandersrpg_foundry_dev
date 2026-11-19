@@ -8,7 +8,7 @@
  * When the scene's own `weather` field is set (Scene Configuration), it wins: the active GM clears the flag's weather.
  */
 import { activeGmHere } from "../helpers/main-window.mjs";
-import { BOLT_POINTS, CORE_MULT, FLASH_MS, boltPoints, clampPower, flashCurve, nextFlashDelay, pulseAlpha, recipe, weatherById } from "../rules/weather.mjs";
+import { BOLT_POINTS, CORE_MULT, FLASH_MS, boltPoints, clampPower, flashCurve, hazardWeather, nextFlashDelay, pulseAlpha, recipe, weatherById } from "../rules/weather.mjs";
 
 const SYS = () => game.system.id;
 export const flagOf = (scene) => scene?.getFlag?.(SYS(), "weather") ?? null;
@@ -273,7 +273,47 @@ function onUpdateScene(scene, changes) {
   if (flagChanged && !("weather" in changes)) applySceneWeather();
 }
 
+/* ---------------- «Авто-погода» (author, 2026-11-19) ---------------- */
+
+/**
+ * One switch for the world, on by default: the battle's «Небезпека» (shared by every scene) sets the weather of the
+ * battle scene — when the hazard is written (the panel's die, the terminal, a travel event), when «Почати бій» opens the
+ * battle map, when the terminal places a battle, and when the switch is turned on. A hazard with no obvious weather
+ * gives «Чисто». The time of day is left alone. The map and other non-battle scenes are never touched.
+ */
+export const autoWeatherOn = () => { try { return game.settings.get(SYS(), "autoWeather") !== false; } catch (_) { return true; } };
+
+export async function syncHazardWeather(scene, hazard) {
+  if (!game.user.isGM || !scene || !autoWeatherOn()) return;
+  const { isBattleScene } = await import("../helpers/default-scene.mjs");
+  if (!isBattleScene(scene)) return;
+  const id = hazardWeather(hazard);
+  const f = flagOf(scene);
+  if ((f?.id ?? "") === id && !scene.weather) return;
+  await setSceneWeather(scene, id, f?.power);
+}
+
+/** The battle scene the hazard belongs to: the one on view, else the battle map «Почати бій» would open */
+export async function hazardScene() {
+  const { isBattleScene } = await import("../helpers/default-scene.mjs");
+  if (isBattleScene(canvas?.scene)) return canvas.scene;
+  return (await import("../applications/battle-panel.mjs")).battleScene();
+}
+
+export async function setAutoWeather(on) {
+  if (!game.user.isGM) return;
+  await game.settings.set(SYS(), "autoWeather", !!on);
+  if (on) {
+    const { sharedGet } = await import("../helpers/scene-shared.mjs");
+    await syncHazardWeather(await hazardScene(), sharedGet("hazard"));
+  }
+}
+
 export function initWeather() {
+  Hooks.once("init", () => game.settings.register(SYS(), "autoWeather", {
+    scope: "world", config: false, type: Boolean, default: true,
+    onChange: () => import("../applications/battle-panel.mjs").then((m) => m.redrawBattlePanel()),
+  }));
   Hooks.on("canvasReady", () => { shown = null; applySceneWeather({ force: true }); });
   Hooks.on("updateScene", onUpdateScene);
 }
