@@ -46,6 +46,8 @@ const SAME = {
   "data-def-reset": 'data-k="defOv.{{k}}"' /* Foundry: the select's «за правилами» */,
   btnRefill: 'data-act="refill"', btnRepair: 'data-act="repair"',
   "data-brah": 'data-action="brahminBonus"', pathfinder: 'data-action="pathfinder"',
+  // row 3.2 (2026-11-19): «Турель» (its damage and type in «Налаштування», the dice button) and «Дефібрилятор»'s mark
+  turretDice: 'data-tf="dice"', turretType: 'data-tf="type"', "data-turret-roll": 'data-action="turretRoll"', "data-defib": 'data-action="defib"',
   // delegated buttons and fields (data-*)
   "data-step": 'data-act="step"', "data-pip": 'data-act="pip"', "data-imp-btn": 'data-act="imp"', "data-seg": 'data-act="seg"',
   "data-cnt-del": 'data-act="cnt-del"', "data-cg-del": 'data-act="cg-del"', "data-roll": 'data-act="roll"',

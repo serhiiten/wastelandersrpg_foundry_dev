@@ -11,6 +11,7 @@ import { readFileSync } from "node:fs";
 import * as R from "../module/rules/core.mjs";
 import { createLogic } from "../module/rules/logic.mjs";
 import { createController } from "../module/rules/controller.mjs";
+import { usesFor } from "../module/rules/perk-uses.mjs";
 import { actorToState, mergeSystem, planSync, stateToActor } from "../module/rules/character-adapter.mjs";
 import { loadHtmlSheet } from "./html-sandbox.mjs";
 
@@ -102,7 +103,7 @@ const SAME = {
   "k:bio": "note:bio", // «Біографія» / «Інші» in Foundry's editor (prose-mirror data-note; author, 2026-11-15)
   "k:others": "note:others",
   "k:weapons.N.en": "change:dtype", // «Тип»: the energy version plus fire / psi / poison / radiation (Foundry only, author 2026-11-14)
-  "act:rage": "act:perk-use", // «Лють ботана» is used by «Застосувати» of its perk card (perk-uses.mjs; author, 2026-11-18)
+  "act:rage": "act:perk-use", // «Лють ботана»: chem.js keeps the action, both sheets press it through «Застосувати» (perk-uses / perks.js)
   "act:dismiss": "SKIP",
   "ui:restN": "ui:restMedic",
   "ui:restQr": "ui:restQr",
@@ -208,7 +209,8 @@ function onFoundry(st0, step, s) {
   const toasts = [];
   const toast = (m) => toasts.push(String(m));
   const L = createLogic({ st, toast, ui: step.ui || {} });
-  const C = createController(st, L, { toast });
+  // the perks' dice as the HTML sheet's rnd() draws them from the shared stream (crypto), so both roll the same
+  const C = createController(st, L, { toast, rng: (n) => 1 + (Math.floor(stream() * 2 ** 32) % n) });
   seed = s;
   step.foundry(C, L, st);
   R.syncAuto(st);
@@ -273,6 +275,9 @@ function stepsFor(st) {
     },
   ];
   st.other.forEach((o, i) => { if (R.drugOf(o.n)) steps.push(act("chem-use", { i: String(i) })); });
+  // «Застосувати» of every perk use the character has (row 3.2): the state and the mark; the HTML sheet's toast and the
+  // result on its card stand for Foundry's chat card, so the messages aren't compared
+  for (const u of usesFor(st)) if (!u.show) steps.push({ ...act("perk-use", { id: u.id }), skipToasts: true }, act("perk-free", { id: u.id }));
   st.weapons.forEach((w, i) => {
     steps.push(field(`weapons.${i}.hand`, !w.hand), field(`weapons.${i}.h`, !w.h, { type: "checkbox" }), field(`weapons.${i}.n`, "Труба"));
   });
@@ -305,9 +310,9 @@ for (let c = 0; c < 60; c++) {
     }
     compared++;
     // the chem effects' «half» marker, which the HTML sheet doesn't write (Рад-Ікс / Отрута-Ікс go through it in Foundry:
-    // the constructors, row 5.2); perkUse: the perks' marks; «Скинути лічильники» clears swSession too (Foundry only,
-    // author 2026-11-18)
-    const lesser = (o) => { const r = clone(o); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; if (r.chem) { delete r.chem.perkUse; if (!r.chem.swSession) delete r.chem.swSession; } return r; };
+    // the constructors, row 5.2). The perks' marks (perkUse) and swSession are compared: both sheets have «Застосувати»
+    // since row 3.2 of the backport (2026-11-19)
+    const lesser = (o) => { const r = clone(o); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; return r; };
     const A = lesser(canon(h.st));
     const B = lesser(canon(f.st));
     if (step.fix) { step.fix(A); step.fix(B); }
