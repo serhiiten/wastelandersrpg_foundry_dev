@@ -106,3 +106,39 @@ const KIND_CROWD = {};
 for (const [c, list] of Object.entries(CROWDS)) list.forEach((k) => { KIND_CROWD[k] = c; });
 /** A group's first kind → its tier among the people (0 rank and file, 1 leader, 2 boss) */
 const PEOPLE_TIER = { "Бандит": 0, "Ватажок бандитів": 1, "Бос бандитів": 2 };
+
+/** The travel battles' names that point to a kind without starting with it (author, 2026-11-19) */
+export const NAME_KINDS = { "Ручний рейдер": "Рейдер", "Мафіозний бос": "Бос кримінальної родини", "Великий бос": "Великий бос рейдерів" };
+
+/** The kind of `list` ([[kind, tokens]]) a personal name points to: «Рейдер 3», «Дикун-людожер», NAME_KINDS — or null */
+export function kindOfName(name, list) {
+  const n = String(name || "").replace(/\s+\d+$/, "").trim();
+  const hint = NAME_KINDS[n];
+  if (hint) return list.some(([k]) => k === hint) ? hint : null;
+  const low = n.toLowerCase();
+  let best = null;
+  for (const [k] of list) {
+    const kl = k.toLowerCase();
+    if ((low === kl || low.startsWith(kl + " ") || low.startsWith(kl + "-")) && (!best || k.length > best.length)) best = k;
+  }
+  return best;
+}
+
+/**
+ * The picks a travel battle's names give (author, 2026-11-19: «Рейдер 3» is a Рейдер, not a Мафіозі): for each group entry
+ * named in `names` ([{base, names}], base = the entry's name) whose name points to one of the group's kinds. Goes into
+ * concreteKinds, which brings the crowd's leader and boss along.
+ */
+export function namePicks(allocations, names, aliases = {}) {
+  const picks = {};
+  for (const a of allocations ?? []) for (const e of a.entries ?? []) {
+    const en = e.enemy;
+    const list = en && !en.group ? kindsOf(en.name, aliases) : null;
+    if (!list) continue;
+    for (const n of (names ?? []).find((x) => x.base === en.name)?.names ?? []) {
+      const k = kindOfName(n, list);
+      if (k) { picks[`${en.name}|${e.cat}`] = k; break; }
+    }
+  }
+  return picks;
+}

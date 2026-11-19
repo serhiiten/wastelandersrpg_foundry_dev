@@ -10,7 +10,7 @@ import { travelDamage } from "./battle-panel.mjs";
 import { sharedGet, sharedSet, travelToScene } from "../helpers/scene-shared.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { createBattle, openGeneratedEnemy, generatedEnemyImg, dropGeneratedEnemy, OPPONENT_ALIASES } from "./terminal-battle.mjs";
-import { concreteKinds } from "../rules/enemy-kinds.mjs";
+import { concreteKinds, namePicks } from "../rules/enemy-kinds.mjs";
 import { postChat } from "./chat.mjs";
 import { postTerminalRoll } from "./check-panel.mjs";
 import { luckCaravan } from "./map-dice.mjs";
@@ -287,7 +287,8 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     sharedSet({ place: s.place || "", hazard: s.hazard || "" }); // the travel's place becomes the battle's, on every scene
     this.st.battle.difficulty = s.difficulty;
     this.st.battle.names = s.names || [];
-    this.st.battle.picks = {};
+    // the names say the kind: «Рейдер 3» is a Рейдер, and the crowd's leader and boss follow (author, 2026-11-19)
+    this.st.battle.picks = namePicks(s.last?.allocations, s.names, OPPONENT_ALIASES);
     this.st.battle.state = concreteKinds(clone({ ...s, names: undefined }), this.st.battle.picks, OPPONENT_ALIASES);
     this.st.tab = "battle";
     notify.info("Битву з подорожі перенесено на вкладку «Битви».");

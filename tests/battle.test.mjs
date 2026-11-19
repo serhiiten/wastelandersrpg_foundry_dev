@@ -231,7 +231,7 @@ ok(dbCount >= 80, "DB size " + dbCount);
 {
   const find = (n) => { for (const fk of Object.keys(DB)) for (const c of CATS) for (const r of DB[fk][c] || []) if (r.name === n) return r; };
   const e = B.enemyFromRecord(find("Паладин Братства Сталі"));
-  eq(e.attacks.map((a) => [a.name, a.dice, a.type, a.ammoMax, a.ignoreN]), [["Рідкісна плазмова зброя ближнього бою або бою на відстані", "3d6", "plasma", 0, 2], ["Плазмова граната", "3d6", "phys", 2, 0], ["Удар кулаком силової броні", "1d10", "phys", 0, 0]], "паладин attacks");
+  eq(e.attacks.map((a) => [a.name, a.dice, a.type, a.ammoMax, a.ignoreN]), [["Рідкісна важка плазмова зброя ближнього бою або бою на відстані", "3d6", "plasma", 0, 2], ["Плазмові гранати", "3d6", "phys", 2, 0], ["Кулаки силової броні", "1d10", "phys", 0, 0]], "паладин attacks");
   ok(e.traits.halfRad && e.traits.halfPoison && e.armor === 5, "паладин traits");
   const k = B.enemyFromRecord(find("Нічний мисливець"));
   eq(k.attacks.map((a) => [a.dice, a.type, a.note]), [["1d6", "phys", "+1d6 отрутою, ігнорує броню"]], "мисливець attack");
