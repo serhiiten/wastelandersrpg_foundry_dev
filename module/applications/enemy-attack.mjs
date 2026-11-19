@@ -13,6 +13,7 @@ import { TYPE_EFFECTS } from "../rules/damage-types.mjs";
 export { chatType, battleType } from "../rules/battle.mjs";
 import { chatType } from "../rules/battle.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { waitDice } from "../helpers/dice-rolls.mjs";
 
 export async function rollEnemyAttack(actor, i, { token = null } = {}) {
   const sys = actor.system;
@@ -38,11 +39,12 @@ export async function rollEnemyAttack(actor, i, { token = null } = {}) {
   }
   const total = Math.max(0, roll.total);
   const label = diceLabel(dice);
-  await postDamageCard(actor, {
+  const msg = await postDamageCard(actor, {
     head: `${actor.name}: ${a.name} (${label})`, wt, total,
     parts: [{ l: label, v: String(total), t: wt }], fx,
-    speaker: token ? ChatMessage.getSpeaker({ token }) : null,
+    speaker: token ? ChatMessage.getSpeaker({ token }) : null, rolls: [roll],
   });
+  await waitDice(msg); // «Завдати цілям» deals the damage once the 3D dice have landed (author, 2026-11-19)
   const nDice = roll.dice.reduce((n, d) => n + d.number, 0); // radiation that heals: +1 HP a die
   return { total, head: `${token?.name || actor.name}: ${a.name}`, data: { total, dice: nDice, type: wt, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0 } };
 }

@@ -19,6 +19,7 @@ import { enemyView, diceTextHtml } from "./enemy-view.mjs";
 import { postDamageCard, postExprRoll } from "../applications/check-panel.mjs";
 import { chatType } from "../rules/battle.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { waitDice } from "../helpers/dice-rolls.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -296,7 +297,8 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const name = this.token?.name || this.document.name;
     target.disabled = true;
     try {
-      await postDamageCard(this.document, { head: `${name}: ${src} (${expr})`, wt, total, parts: [{ l: expr, v: String(total), t: wt }], speaker: ChatMessage.getSpeaker({ actor: this.document, token: this.token }) });
+      const msg = await postDamageCard(this.document, { head: `${name}: ${src} (${expr})`, wt, total, parts: [{ l: expr, v: String(total), t: wt }], speaker: ChatMessage.getSpeaker({ actor: this.document, token: this.token }), rolls: [roll] });
+      await waitDice(msg); // the damage is dealt once the 3D dice have landed (author, 2026-11-19)
       await sendDamage({ total, dice, type: wt, ignoreArmor: target.dataset.ia === "1", ignoreN: Number(target.dataset.in) || 0 }, { head: `${name}: ${src}` });
     } finally { target.disabled = false; }
   }

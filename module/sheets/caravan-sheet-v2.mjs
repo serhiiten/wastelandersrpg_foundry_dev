@@ -224,7 +224,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     if (act === "rollFate") {
       const luck = parseInt(caravanToState(this.document.toObject()).luck, 10) || 0;
       const roll = await new Roll("1d10").evaluate();
-      return postFateCard(this.document, { v: roll.total, mod: luck, party: true });
+      return postFateCard(this.document, { v: roll.total, mod: luck, party: true, roll });
     }
     // the compact sheet: a new cargo row stays open as a small form till «Готово» (author, 2026-11-18)
     // a row removed: the open form follows its own row (or closes with it)

@@ -31,6 +31,7 @@ export function preprocessChatMessage(messageData, options, userId, diff) {
 export function renderChatMessage(message, html, context) {
   // the system's own cards spoken by no actor («Шкода», «Лікування», «Коло дій», «Хімія», «Термінал Доглядача»…; author,
   // 2026-11-15): no picture and no sender name — the card's own header says what it is; the time, delete and «To:» stay
+  // («To:» only on a card without dice: Foundry hides it on a whisper that carries rolls, the 3D dice cards of 2026-11-19)
   const sp = message.speaker ?? {};
   if (!sp.actor && !sp.token && String(message.content ?? "").includes("pust-chat")) {
     html.classList.add("pust-bare");

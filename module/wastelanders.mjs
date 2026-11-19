@@ -7,6 +7,7 @@ import { readyMacros, runMacro } from "./helpers/macros.mjs";
 import { WastelandersActor } from "./documents/actor.mjs";
 import { WastelandersItem } from "./documents/item.mjs";
 import { WastelandersScene, addSceneKindField } from "./documents/scene.mjs";
+import { WastelandersChatMessage } from "./documents/chat-message.mjs";
 import "./helpers/battle-background.mjs"; // a battle scene's background follows its choice (the hook on updateScene)
 import { WastelandersToken } from "./canvas/token.mjs";
 import { WastelandersTokenRuler } from "./canvas/token-ruler.mjs";
@@ -122,6 +123,7 @@ Hooks.once("init", async function () {
 
   CONFIG.Item.documentClass = WastelandersItem;
   CONFIG.Scene.documentClass = WastelandersScene; // «Create Scene» asks: a battle (default) or a map
+  CONFIG.ChatMessage.documentClass = WastelandersChatMessage; // our dice cards whispered stay hidden from the others
   CONFIG.Item.dataModels = {
     species: models.SpeciesData,
     feat: models.FeatData,

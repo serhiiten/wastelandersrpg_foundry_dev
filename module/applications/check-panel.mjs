@@ -15,6 +15,7 @@ import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { sendDamage } from "./apply-damage.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { checkDiceGroups, damageDiceGroups, poisonSidesOf, rollFromDice, rollList, seriesGroups, waitDice } from "../helpers/dice-rolls.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
@@ -537,32 +538,34 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const deal = kind === "click" && key === "dmg";
     if (deal) await this.render(); // the damage to deal (#apply) is made by the render
     else this.render();
-    if (kind === "click" && CHAT_ON.has(key)) await this.#post(key, out);
+    const msg = kind === "click" && CHAT_ON.has(key) ? await this.#post(key, out) : null;
+    if (deal) await waitDice(msg); // the damage is dealt once the 3D dice have landed (author, 2026-11-19)
     // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
     if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#apply.data, { partial: this.#apply.partial, head: this.#apply.head });
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
-    else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice);
+    else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice, out.before.last?.dmg?.extra ?? null);
   }
 
   async #post(key, { before, R, dmgTotal, dmgType, dmgFx, dmgChoice, verdicts, types }) {
     const L = R.last;
     if (["roll", "aspect", "modasp", "sitasp"].includes(key) && L) {
       if (key !== "roll" && JSON.stringify(L) === JSON.stringify(before.last)) return; // nothing invoked
-      return this.#chatCheck(L, verdicts, types, key !== "roll");
+      return this.#chatCheck(L, verdicts, types, key !== "roll", before.last);
     }
     if ((key === "dmg" || key === "dmgre") && L?.dmg && dmgTotal) return this.#chatDamage(L, dmgTotal, key === "dmgre", dmgType, false, dmgFx, dmgChoice);
   }
 
   /* ---------- chat ---------- */
 
-  #chat(content) {
+  #chat(content, rolls = null) {
     return postChat({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: `<div class="pust-chat">${content}</div>`,
-    }, { dice: true });
+    }, { dice: true, rolls });
   }
 
-  #chatCheck(last, verdicts, types, aspect) {
+  /** `before`: R.last before the press (an aspect: only its new die is thrown in 3D) */
+  #chatCheck(last, verdicts, types, aspect, before = null) {
     const T = types[last.type];
     // as in the panel: counted — lit, replaced by the skill or aspect die — dimmed, dropped by Посилення / Послаблення — crossed out
     const chosen = new Set((last.slots || []).filter((s) => s.src === "base").map((s) => s.i));
@@ -587,17 +590,21 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       + `<div class="rverd"><b class="rtot">${last.total}</b><span class="rranges">${lit}</span></div>`
       + `<p class="pust-cbreak">${dice}${skill}${asp}${boost} · ${mods}</p>`
       + (T?.d?.[v] ? `<p class="rdesc">${esc(T.d[v])}</p>` : "") + `</div>`,
+      rollList(rollFromDice(aspect ? checkDiceGroups(last, before) : checkDiceGroups(last))),
     );
   }
 
-  #chatDamage(last, t, reroll, wt, updated = false, fx = [], choice = null) {
+  /** `prevExtra`: the extra d6 before an option changed the damage («Шкода (оновлено)»: only the new ones are thrown) */
+  #chatDamage(last, t, reroll, wt, updated = false, fx = [], choice = null, prevExtra = undefined) {
     const dm = last.dmg;
+    const groups = damageDiceGroups(last, t.parts, dieSides(dm.p), { prevExtra: updated ? prevExtra ?? null : undefined, poisonSides: poisonSidesOf(last.poison?.dice) });
     let parts = (t.parts || []).map(([l, v]) => ({ l, v, t: partType(l, wt) }));
     const best = dm.r2 && dm.r2.sum > dm.r1.sum ? dm.r2 : dm.r1;
     if (!/^Максимум/.test(parts[0]?.l || "")) parts = splitDiceParts(parts, choice, dm.p, wt, best?.vals);
     return postDamageCard(this.actor, {
       head: `Шкода${reroll ? " (перекинуто)" : updated ? " (оновлено)" : ""}: ${dm.name} (${dm.dstr})`,
       wt, total: t.total, parts, fx, poison: last.poison && last.poisonRoll ? last.poisonRoll : null, spent: dm.spent,
+      rolls: rollList(rollFromDice(groups)),
     });
   }
 
@@ -758,7 +765,7 @@ export function damageData({ total, wt, fx = [], poison = null }) {
  * The damage chat card (author, 2026-11-14): the result only — the total with its type chips, the damage effects,
  * the breakdown when there are several parts (each number in its type's colour), the weapon's poison as its own line; no dice.
  */
-export function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null, spent = "", speaker = null }) {
+export function postDamageCard(actor, { head, wt, total, parts, fx = [], poison = null, spent = "", speaker = null, rolls = null }) {
   total = Math.max(0, Number(total) || 0); // damage is never below 0 (author, 2026-11-14)
   const types = [...parts.map((p) => p.t), ...(poison ? ["poison"] : [])];
   return postChat({
@@ -770,7 +777,7 @@ export function postDamageCard(actor, { head, wt, total, parts, fx = [], poison 
       + (parts.length > 1 ? `<p class="rdbrk">${parts.map((p) => `${esc(p.l)}: <b class="dt-${p.t}">${p.v}</b>`).join(" · ")}</p>` : "")
       + (poison ? `<div class="rdrow dt-poison"><span class="rdsum"><b class="rtot dt-poison">+${poison.sum}</b><span>отрутою</span></span></div>` : "")
       + (spent ? `<p class="rnote">${esc(spent)}</p>` : "") + `</div></div>`,
-  }, { dice: true });
+  }, { dice: true, rolls });
 }
 
 /**
@@ -791,14 +798,17 @@ export async function rollWeaponDamage(actor, i) {
   if (p.flat) parts.push({ l: "Бонус зброї", v: String(p.flat), t: wt });
   const total = Math.max(0, r.sum + (p.flat || 0));
   const fx = damageEffects(L.weaponTraits(c, "", d), c, termTypes(c, p, wt));
-  return postDamageCard(actor, { head: `Шкода: ${c.name} (${c.d})`, wt, total, parts, fx });
+  // its dice in 3D (author, 2026-11-19): «менша з 2d6» — the higher one is not counted
+  const hi = p.low ? (r.vals[0] > r.vals[1] ? 0 : 1) : -1;
+  const rolls = rollList(rollFromDice(seriesGroups(dieSides(p), r.vals, (k) => k === hi)));
+  return postDamageCard(actor, { head: `Шкода: ${c.name} (${c.d})`, wt, total, parts, fx, rolls });
 }
 
 /**
  * «Кістка Долі» to chat (author, 2026-11-14), the character's (Удача) and the caravan's (Удача партії) alike:
  * a screen like the check's — the verdict, the total, «d10 + Удача», the die.
  */
-export function postFateCard(actor, { v, mod, party = false }) {
+export function postFateCard(actor, { v, mod, party = false, roll = null }) {
   const total = v + mod;
   const ok = total >= 6;
   const who = party ? "персонажів" : "персонажа";
@@ -808,17 +818,17 @@ export function postFateCard(actor, { v, mod, party = false }) {
       + `<div class="pust-cres pust-cfate ${ok ? "v2" : "v0"}"><b class="rvhead">${ok ? `На користь ${who}` : `Не на користь ${who}`}</b>`
       + `<div class="rverd"><b class="rtot">${total}</b><span class="rranges"><span class="${ok ? "" : "hit v0"}">≤5</span><span class="${ok ? "hit v2" : ""}">6+</span></span></div>`
       + `<p class="pust-cbreak"><span class="die d10 kept">${v}</span> · ${party ? "Удача партії" : "Удача"} ${sgn(mod)}</p></div></div>`,
-  }, { dice: true });
+  }, { dice: true, rolls: [roll] });
 }
 
 /** The dice chat card: the check card's screen with the sum and every die in its shape (+ a flat bonus, if any) */
-function postDiceCard(speaker, what, total, dice, flat = 0) {
+function postDiceCard(speaker, what, total, dice, flat = 0, roll = null) {
   return postChat({
     speaker,
     content: `<div class="pust-chat pust-croll"><h4><i class="fa-solid fa-dice"></i> Кістки: ${esc(what)}</h4>`
       + `<div class="pust-cres pust-cpool"><div class="rverd"><b class="rtot">${total}</b><span class="rpool-sum">сума</span></div>`
       + `<p class="pust-cbreak">${dice}${flat ? ` · ${esc(sgn(flat))}` : ""}</p></div></div>`,
-  }, { dice: true });
+  }, { dice: true, rolls: [roll] });
 }
 
 /**
@@ -834,7 +844,7 @@ export async function postExprRoll(expr, speaker) {
   const roll = await new Roll(String(expr).replace(/^d/, "1d")).evaluate();
   const dice = roll.dice.flatMap((t) => t.results.map((r) => `<span class="die d${t.faces} kept" title="d${t.faces}">${r.result}</span>`)).join(" ");
   const sum = roll.dice.reduce((t, d) => t + d.total, 0);
-  await postDiceCard(speaker, expr, roll.total, dice, roll.total - sum);
+  await postDiceCard(speaker, expr, roll.total, dice, roll.total - sum, roll);
   return roll;
 }
 

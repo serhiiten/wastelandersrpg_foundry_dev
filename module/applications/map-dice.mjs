@@ -92,7 +92,7 @@ export async function rollFate(actors = null) {
   for (const a of list) {
     const mod = fateMod(a);
     const r = await new Roll("1d10").evaluate();
-    await postFateCard(a, { v: r.total, mod, party: a.type === "caravan" });
+    await postFateCard(a, { v: r.total, mod, party: a.type === "caravan", roll: r });
     out.push({ name: a.name, total: r.total + mod, die: r.total });
   }
   if (out.length === 1) return { what: `Доля · ${out[0].name}`, total: out[0].total, rolls: [out[0].die] };

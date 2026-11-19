@@ -9,6 +9,7 @@ import { chosenTokens, sendDamage, warnNoTargets } from "./apply-damage.mjs";
 import { DMG_TYPES, chatType, diceLabel } from "../rules/battle.mjs";
 import { TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { waitDice } from "../helpers/dice-rolls.mjs";
 
 export const TURRET_DEFAULT = { dice: "2d6", type: "phys" };
 
@@ -33,8 +34,9 @@ export async function rollTurret(actor, { apply = false } = {}) {
   if (TYPE_EFFECTS[wt]) fx.push(TYPE_EFFECTS[wt]); // the type's line also says how much armour it ignores
   const total = Math.max(0, roll.total);
   const label = diceLabel(dice);
-  await postDamageCard(actor, { head: `${actor.name}: турель (${label})`, wt, total, parts: [{ l: label, v: String(total), t: wt }], fx });
+  const msg = await postDamageCard(actor, { head: `${actor.name}: турель (${label})`, wt, total, parts: [{ l: label, v: String(total), t: wt }], fx, rolls: [roll] });
   if (!apply) return;
+  await waitDice(msg); // the damage is dealt once the 3D dice have landed (author, 2026-11-19)
   const nDice = roll.dice.reduce((n, d) => n + d.number, 0);
   return sendDamage({ total, dice: nDice, type: wt, ignoreN }, { head: `${actor.name}: турель` });
 }
