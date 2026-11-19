@@ -1,6 +1,6 @@
 // The release script's pure parts (tools/release.mjs; author's choice, 2026-11-18). Run: node tests/release.test.mjs
 import { readFileSync } from "node:fs";
-import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal } from "../tools/release.mjs";
+import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal, parseWorktrees, mainWorktree, porcelainPaths, cloneFastForwardBlock } from "../tools/release.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
@@ -42,6 +42,37 @@ ok(refusal("wastelanders").includes("only the DEV system"), "the stable id is re
 ok(refusal(undefined) !== "", "a missing id is refused");
 ok(buildPlan({ refusal: refusal("wastelanders"), branch: "main", dirty: false, version: "2.1.0", next: "2.1.1", message: "m", ahead: 0, slug: "a/b", timeout: 5 })[0].startsWith("✗ REFUSED"), "the plan shows the refusal first");
 ok(!buildPlan({ refusal: "", branch: "main", dirty: false, version: "1", next: "2", message: "", ahead: 0, slug: "a/b", timeout: 5 }).some((s) => /REFUSED/.test(s)), "no refusal line for DEV");
+
+// main checked out in another worktree (the shared clone): release from the branch itself (2026-11-19)
+const wtText = "worktree F:/Claude/pustelnyky/wastelandersrpg_foundry_dev\r\nHEAD 979f\r\nbranch refs/heads/main\r\n\r\n"
+  + "worktree F:/Claude/pustelnyky/_wt-x\nHEAD 979f\nbranch refs/heads/feature/x\n\nworktree F:/tmp/d\nHEAD 1234\ndetached\n";
+const wts = parseWorktrees(wtText);
+ok(wts.length === 3 && wts[0].branch === "main" && wts[1].branch === "feature/x" && wts[2].branch === "", "worktree list parsed (CRLF too, detached has no branch)");
+ok(mainWorktree(wts, "F:\\Claude\\pustelnyky\\_wt-x") === "F:/Claude/pustelnyky/wastelandersrpg_foundry_dev", "main found in the other worktree");
+ok(mainWorktree(wts, "f:/claude/pustelnyky/wastelandersrpg_foundry_dev/") === "", "main in this very folder is not «elsewhere»");
+ok(mainWorktree(wts.slice(1), "F:/Claude/pustelnyky/_wt-x") === "", "no worktree on main: the old way");
+
+ok(JSON.stringify(porcelainPaths(" M packs/a/LOG\r\n D packs/a/000008.log\nR  old.js -> new.js\n?? \"sp ace.txt\"\n")) === JSON.stringify(["packs/a/LOG", "packs/a/000008.log", "old.js", "new.js", "sp ace.txt"]), "porcelain paths, renames give both");
+
+const ff = (o) => cloneFastForwardBlock({ onMain: true, isAncestor: true, dirty: [], changed: [], ...o });
+ok(ff({ dirty: ["packs/a/LOG"], changed: ["module/x.mjs", "system.json"] }) === "", "dirty packs untouched: fast-forward");
+ok(ff({ dirty: ["packs/a/LOG", "packs/b/CURRENT"], changed: ["packs/a/LOG"] }).includes("1 file(s)"), "a touched dirty file blocks it");
+ok(ff({ dirty: ["newdir/"], changed: ["newdir/f.js"] }) !== "", "an untracked folder the fast-forward would fill blocks it");
+ok(ff({ dirty: ["packs/a"], changed: ["packs/ab/x"] }) === "", "a prefix that is not a folder does not block");
+ok(ff({ onMain: false }).includes("not on main"), "clone not on main: left alone");
+ok(ff({ isAncestor: false }).includes("commits that origin/main has not"), "clone main ahead: left alone");
+
+const wplan = buildPlan({ branch: "feature/x", dirty: false, version: "1.0.0-dev.1", next: "1.0.0-dev.2", message: "m", ahead: 3, behind: 0, mainAt: "F:/clone", slug: "a/b", timeout: 15 });
+const wat = (re) => wplan.findIndex((s) => re.test(s));
+ok(!wplan.some((s) => /git switch|merge --no-edit/.test(s)), "worktree: no switch to main, no merge into main");
+ok(wat(/contains origin\/main.*✓/) >= 0 && wat(/contains origin\/main/) < wat(/npm test/), "worktree: the fast-forward check comes before the tests");
+ok(wat(/npm test/) < wat(/version 1\.0\.0-dev\.1 → 1\.0\.0-dev\.2.*on feature\/x/), "worktree: version raised on the branch after the tests");
+ok(wat(/push origin feature\/x:main feature\/x/) > wat(/commit -m "v1\.0\.0-dev\.2: m"/), "worktree: branch:main pushed after the version commit");
+ok(wat(/wait for/) > wat(/push origin feature\/x:main/), "worktree: the wait follows the push");
+ok(wat(/merge --ff-only origin\/main.*Auto update/) > wat(/wait for/), "worktree: the branch fast-forwards after the build");
+ok(wat(/^F:\/clone: git merge --ff-only origin\/main/) === wplan.length - 1, "worktree: the clone's main is last, only when safe");
+const behindPlan = buildPlan({ branch: "feature/x", dirty: false, version: "1", next: "2", message: "", ahead: 1, behind: 2, mainAt: "F:/clone", slug: "a/b", timeout: 5 });
+ok(behindPlan.some((s) => /✗ 2 commit\(s\) of origin\/main missing/.test(s)), "worktree: a branch behind origin/main is shown");
 
 console.log(`release: ${checks - failures}/${checks} checks passed`);
 if (failures) process.exit(1);
