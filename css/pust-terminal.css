@@ -305,6 +305,8 @@
 #pust-mapdock .pust-md-map button[data-mapdock="town"] i { color: #7bd17f; }
 #pust-mapdock .pust-md-map button[data-mapdock="danger"] i { color: #ff7a6b; }
 #pust-mapdock .pust-md-map button[data-mapdock="poi"] i { color: #ffb15a; }
+#pust-mapdock .pust-md-map button[data-mapdock="factions"] i { color: #f2c230; }
+#pust-mapdock .pust-md-map button[data-mapdock="factions"].on { background: linear-gradient(180deg, #3f6b3a, #2b4a27); border-color: #8fd18a; box-shadow: 0 3px 0 #1e1b17, inset 0 0 0 1px #8fd18a; }
 #pust-mapdock select, #pust-mapdock input { height: 30px; margin: 0; background: #0f1412; color: #3dff47; border: 1px solid #0d0f0e; border-radius: 4px; font-family: "PT Mono", monospace; font-size: 13px; }
 #pust-mapdock select { flex: none; width: 52px; padding: 0 2px; }
 #pust-mapdock .pust-md-n { flex: none; display: inline-flex; align-items: center; gap: 2px; font-family: "PT Mono", monospace; color: #3dff47; }
