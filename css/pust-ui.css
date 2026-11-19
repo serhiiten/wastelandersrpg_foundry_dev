@@ -429,6 +429,9 @@
 .wastelanders .pust-en button.pust-en-dicechip:disabled { opacity: .45; cursor: default; }
 .pust-en .pust-en-atkhd > .pust-dmg-apply { margin-left: auto !important; }
 .pust-en .pust-en-atkhd { flex-wrap: nowrap !important; }
+/* an attack with an extra part («+1d6» «Отрута»; author, 2026-11-19): «Завдати цілям» goes to the next line, on the right, when the row is full */
+.pust-en .pust-en-atkhd.wrap { flex-wrap: wrap !important; row-gap: 4px; }
+.wastelanders .pust-en .pust-en-atkhd.wrap > button.pust-dmg-apply:not(.header-control) { margin-left: auto !important; }
 /* dice in a move's / note's text (author, 2026-11-14): a screen chip that rolls to chat; a damage die is red with a crosshair
    and hits the selected tokens, as «Завдати цілям» */
 .pust-en .pust-en-notes { font-size: 13px; color: var(--pu-ink-2); line-height: 1.5; white-space: normal; }
@@ -740,6 +743,8 @@ body.pust-touring #pause { display: none !important; }
 .chat-message .pust-chat.pust-ecard .pust-ec-atk, .chat-message .pust-chat.pust-ecard .pust-ec-move { padding: 3px 0; }
 .chat-message .pust-chat.pust-ecard .pust-ec-atk + .pust-ec-atk, .chat-message .pust-chat.pust-ecard .pust-ec-move + .pust-ec-move { border-top: 1px dashed #cfc6aa; }
 .chat-message .pust-chat.pust-ecard .pust-ec-atk > div { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+/* an attack's extra part («+1d6» «Отрута»; author, 2026-11-19): the pair wraps as one */
+.chat-message .pust-chat.pust-ecard .pust-ec-extra { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .chat-message .pust-chat.pust-ecard .pust-ec-atk p, .chat-message .pust-chat.pust-ecard .pust-ec-move > div { margin: 2px 0 0; padding: 0; font-family: "Ubuntu Mono", "PT Mono", monospace; font-size: 12px; color: #3d372a; }
 .chat-message .pust-chat.pust-ecard .pust-ec-dice, .chat-message .pust-chat.pust-ecard .pust-ec-type { padding: 1px 7px; border-radius: 3px; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .chat-message .pust-chat.pust-ecard .pust-ec-dice { background: #2b2f2e; color: #e2ad3b; }

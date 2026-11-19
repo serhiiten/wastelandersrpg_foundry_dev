@@ -40,7 +40,7 @@
         "ammoMax": 0,
         "ammo": 0,
         "ignoreN": 0,
-        "ignoreArmor": true
+        "ignoreArmor": false
       }
     ],
     "baseAspects": [
@@ -87,7 +87,7 @@
           "ammoMax": 0,
           "ammo": 0,
           "ignoreN": 0,
-          "ignoreArmor": true
+          "ignoreArmor": false
         }
       ],
       "baseAspects": [

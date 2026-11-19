@@ -555,9 +555,41 @@ export function atkIgnoreN(text) {
   return m ? Math.min(20, +m[1]) : 0;
 }
 
-/** «ігнорує броню» of the whole attack (not of an extra «+3 радіацією (ігнорує броню)» part). */
+/** «ігнорує броню» of the whole attack (not of an extra «+3 радіацією (ігнорує броню)» part, nor the compendium's
+ *  «+ 1d6 шкоди отрутою, …, отрута ігнорує броню»: that is the extra part's; author, 2026-11-19). */
 export function atkIgnores(text) {
-  return /ігнору\S*\s+броню/i.test(String(text || "").replace(/\+\s*\d*d?\d+\s+[^\s,;()]+(\s*\([^)]*\))?/g, " "));
+  return /ігнору\S*\s+броню/i.test(String(text || "")
+    .replace(/\+\s*\d*d?\d+\s+[^\s,;()]+(\s*\([^)]*\))?/g, " ")
+    .replace(/(?:отрута|радіація|кислота)\s+ігнору\S*\s+броню/gi, " "));
+}
+
+const EXTRA_TYPE = { "отрутою": "poison", "радіацією": "rad", "кислотою": "phys" };
+/**
+ * The extra part of an enemy's attack, written in its note (author, 2026-11-19): «фізичної шкоди + 1d6 шкоди отрутою, …»,
+ * «+ 3 шкоди радіацією», «+ 3 шкоди кислотою». Poison and radiation are their own types (they meet no physical armour; the
+ * enemy's poison works even when the armour stopped the physical part); acid is physical (it adds up with the main part).
+ * @param {string} note @returns {{expr:string, type:string, label:string}|null} `type` a key of DMG_TYPES
+ */
+export function attackExtra(note) {
+  // the compendium's «+ 1d6 шкоди отрутою» and the battle generator's «+1d6 отрутою» / «+3 радіацією»
+  const m = /\+\s*(\d*d\d+|\d+)\s+(?:шкод\S*\s+)?(отрутою|радіацією|кислотою)/i.exec(String(note || ""));
+  if (!m) return null;
+  const word = m[2].toLowerCase();
+  return { expr: m[1].toLowerCase(), type: EXTRA_TYPE[word], label: `${m[1].toLowerCase()} ${word}` };
+}
+
+/**
+ * An enemy attack's hit from its rolled parts (author, 2026-11-19): the chat card's parts ({l, v, t}: chat types), the total
+ * (the main part and the extra one) and what resolveHit needs (`parts` when the types differ, the dice count).
+ * @param {{l:string, v:number, t:string, dice?:number}} main  @param {{l:string, v:number, t:string, dice?:number}|null} extra
+ */
+export function attackHit(main, extra = null) {
+  const card = [main, ...(extra ? [extra] : [])].map((p) => ({ l: p.l, v: String(Math.max(0, Math.round(Number(p.v) || 0))), t: p.t }));
+  const total = card.reduce((n, p) => n + Number(p.v), 0);
+  const ap = applyParts(card);
+  const dice = (main.dice ?? diceIn(main.l)) + (extra ? (extra.dice ?? diceIn(extra.l)) : 0);
+  if (ap.parts) ap.parts.forEach((p, k) => { const src = k ? extra : main; if (src.dice !== undefined) p.dice = src.dice; });
+  return { card, total, dice, ...(ap.parts ? { parts: ap.parts } : {}) };
 }
 
 /** Charges / pieces in an attack description: «3 заряди», «2 штуки», «1 штука» → 3 / 2 / 1; 0 if none. */

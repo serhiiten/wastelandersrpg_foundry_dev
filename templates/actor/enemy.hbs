@@ -43,6 +43,7 @@
           <b class="pust-en-atkn">{{name}}</b>
           <span class="pust-en-dicechip {{tcls}}"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{diceText}}</span>
           <span class="pust-en-type {{tcls}}">{{typeLabel}}</span>
+          {{#if extra}}<span class="pust-en-dicechip pust-en-extra {{extra.tcls}}" title="{{extra.title}}">{{extra.text}}</span><span class="pust-en-type {{extra.tcls}}" title="{{extra.title}}">{{extra.label}}</span>{{/if}}
         </div>
         {{#if note}}<div class="pust-en-note">{{note}}</div>{{/if}}
       </div>
@@ -122,11 +123,12 @@
       {{else}}
       {{#each v.attacks}}
       <div class="pust-en-atk {{#if dead}}spent{{/if}}">
-        <div class="pust-en-atkhd">
+        <div class="pust-en-atkhd {{#if extra}}wrap{{/if}}">
           <b class="pust-en-atkn">{{name}}</b>
           {{#if ../editable}}<button type="button" class="pust-en-dicechip {{tcls}}" data-action="rollAtk" data-i="{{i}}" {{#if dead}}disabled{{/if}} title="{{#if dead}}Заряди скінчилися{{else}}Кинути шкоду цієї атаки в чат{{/if}}"><i class="fa-solid fa-dice-d6" aria-hidden="true"></i>{{diceText}}</button>{{else}}<span class="pust-en-dicechip {{tcls}}" title="Кістки шкоди">{{diceText}}</span>{{/if}}
           {{#if plus}}<span class="pust-en-plus" title="{{plusTitle}}">{{plusText}}</span>{{/if}}
           <span class="pust-en-type {{tcls}}">{{typeLabel}}</span>
+          {{#if extra}}<span class="pust-en-dicechip pust-en-extra {{extra.tcls}}" title="{{extra.title}}">{{extra.text}}</span><span class="pust-en-type {{extra.tcls}}" title="{{extra.title}}">{{extra.label}}</span>{{/if}}
           {{#if ../editable}}<button type="button" class="pust-dmg-apply" data-action="hitSel" data-i="{{i}}" {{#if dead}}disabled{{/if}} title="{{#if dead}}Заряди скінчилися{{else}}Кинути цю атаку й завдати шкоди цілям: броня й стійкості кожного враховуються{{/if}}"><i class="fa-solid fa-crosshairs"></i><span>Завдати цілям</span></button>{{/if}}
         </div>
         {{#if note}}<div class="pust-en-note">{{note}}</div>{{/if}}

@@ -5,7 +5,33 @@
  */
 import {
   diceInText, diceLabel, noteWithoutType, CAT_LABEL, QUICK_ASPECTS, DEF_FIELDS, R3, R4, DMG_TYPES, profileTags, tagHelp, moveHeal, psyMoveIdx, DICE_RE,
+  attackExtra,
 } from "../rules/battle.mjs";
+
+/** The extra part of an attack as chips (author, 2026-11-19): «+1d6» in its type's colour and the type next to it; acid is
+ *  physical damage, its chip says «Кислота». The note loses the words the chips show. */
+export function attackExtraView(note) {
+  const ex = attackExtra(note);
+  if (!ex) return null;
+  const acid = /кислот/.test(ex.label);
+  const tcls = typeClass(ex.type);
+  return {
+    text: `+${diceLabel(ex.expr)}`, tcls, label: acid ? "Кислота" : typeLabel(ex.type),
+    title: acid ? "Кислота: фізична шкода, кидається з атакою й рахується разом з основною (броня один раз)"
+      : `Додаткова шкода: кидається з атакою, ${ex.type === "poison" ? "отрута" : "радіація"} ігнорує фізичну броню`,
+  };
+}
+const EXTRA_WORDS = /\s*\+\s*(?:\d*d\d+|\d+)\s+(?:шкод\S*\s+)?(?:отрутою|радіацією|кислотою)\s*,?/i;
+/** An attack's note as shown next to its chips: without the words of its own type and of its extra part */
+export function attackNote(a) {
+  const n = noteWithoutType(a?.note, a?.type);
+  return attackExtra(a?.note) ? n.replace(EXTRA_WORDS, " ").replace(/^[\s,;]+/, "").replace(/\s{2,}/g, " ").trim() : n;
+}
+/** The words of an attack for a tooltip (author, 2026-11-19: «Огляд битви»): «+1d6 отрутою · ближній бій, …», no type words */
+export function attackTip(a) {
+  const ex = attackExtra(a?.note);
+  return [ex ? `+${ex.label}` : "", attackNote(a)].filter(Boolean).join(" · ");
+}
 import { profileOf, attackDice, normCat, bookCopy } from "../rules/enemy-model.mjs";
 
 const escH = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -161,7 +187,8 @@ export function enemyView(sys, o = {}) {
     const ammo = a.ammoMax > 0;
     return {
       i, name: a.name, dice, diceText: diceLabel(dice), base: diceLabel(a.dice), plus, plusText: plus ? `+${plus}` : "", plusTitle: plus ? `${who}: +${plus} шкоди` : "",
-      type: a.type, typeOpts: typeOptions(a.type), ammoMax: a.ammoMax || 0, typeLabel: typeLabel(a.type), tcls: typeClass(a.type), note: noteWithoutType(a.note, a.type), noteRaw: a.note,
+      type: a.type, typeOpts: typeOptions(a.type), ammoMax: a.ammoMax || 0, typeLabel: typeLabel(a.type), tcls: typeClass(a.type), noteRaw: a.note,
+      extra: attackExtraView(a.note), note: attackNote(a),
       ammo: ammo ? { max: a.ammoMax, value: a.ammo, empty: a.ammo <= 0, pips: Array.from({ length: a.ammoMax }, (_, k) => ({ n: k + 1, on: k < a.ammo })) } : null,
       dead: ammo && a.ammo <= 0, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0, diceOk: DICE_RE.test(String(a.dice).trim()),
     };

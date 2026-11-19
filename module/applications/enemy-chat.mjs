@@ -24,7 +24,10 @@ export function enemyCardHtml(actor) {
     + (v.psiArmor ? `<span class="pust-ec-tag"><i class="fa-solid fa-brain" aria-hidden="true"></i>Пси-броня ${v.psiArmor}</span>` : "")
     + tags.map((t) => `<span class="pust-ec-tag"><i class="fa-solid ${t.icon}" aria-hidden="true"></i>${esc(t.text)}</span>`).join("") + "</div>";
   const attacks = v.attacks.map((a) => `<div class="pust-ec-atk"><div><b>${esc(a.name)}</b>`
-    + `<span class="pust-ec-dice ${a.tcls}">${esc(a.diceText)}</span><span class="pust-ec-type ${a.tcls}">${esc(a.typeLabel)}</span></div>`
+    + `<span class="pust-ec-dice ${a.tcls}">${esc(a.diceText)}</span><span class="pust-ec-type ${a.tcls}">${esc(a.typeLabel)}</span>`
+    // the extra part (author, 2026-11-19): «+1d6» and its type, as on the card
+    + (a.extra ? `<span class="pust-ec-extra" title="${esc(a.extra.title)}"><span class="pust-ec-dice ${a.extra.tcls}">${esc(a.extra.text)}</span><span class="pust-ec-type ${a.extra.tcls}">${esc(a.extra.label)}</span></span>` : "")
+    + `</div>`
     + (a.note ? `<p>${esc(a.note)}</p>` : "")
     + (a.ammo ? `<p class="pust-ec-ammo">Заряди: ${a.ammo.value} / ${a.ammo.max}</p>` : "") + "</div>").join("");
   const moves = v.moves.map((m) => `<div class="pust-ec-move"><b>${esc(m.n)}</b><div>${moveTextHtml(m.t, m.n, false)}</div></div>`).join("");

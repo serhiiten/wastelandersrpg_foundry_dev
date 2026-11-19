@@ -14,7 +14,7 @@
 import { sceneZones, zoneOf, zoneOfToken, selectZone } from "../canvas/battle-zones.mjs";
 import { MAP_NOTE } from "../rules/map-notes.mjs";
 import { tokenAspects } from "../canvas/token.mjs";
-import { CAT_COLOR, catIconHtml, hpLevel, typeClass } from "../sheets/enemy-view.mjs";
+import { CAT_COLOR, catIconHtml, hpLevel, typeClass, attackTip } from "../sheets/enemy-view.mjs";
 import { diceLabel } from "../rules/battle.mjs";
 import { notify } from "../helpers/notify.mjs";
 
@@ -50,7 +50,7 @@ function enemyRow(t, a) {
   const asps = [...(s.baseAspects ?? []), ...(s.aspects ?? [])].filter((x) => String(x?.t ?? "").trim()).map((x) => ({ t: String(x.t).trim(), inv: Math.max(0, int(x.inv)) }));
   const atks = (s.attacks ?? []).map((k, i) => {
     const pips = k.ammoMax > 0 ? `<span class="pust-ov-pips" title="Заряди: ${int(k.ammo)} з ${int(k.ammoMax)}">${Array.from({ length: Math.min(int(k.ammoMax), 12) }, (_, j) => `<i class="${j < int(k.ammo) ? "on" : ""}"></i>`).join("")}</span>` : "";
-    return `<div class="pust-ov-atk"><span class="pust-ov-dice ${typeClass(k.type)}" title="${esc(k.note || "")}"><b>${esc(k.name || "Атака")}</b> ${esc(diceLabel(k.dice))}</span>${pips}<button type="button" class="pust-ov-hit" data-ov="hit" data-i="${i}" title="Кинути атаку й завдати шкоди цілям (T), як «Завдати цілям» на картці" ${k.ammoMax > 0 && int(k.ammo) <= 0 ? "disabled" : ""}><i class="fa-solid fa-crosshairs"></i>Цілям</button></div>`;
+    return `<div class="pust-ov-atk"><span class="pust-ov-dice ${typeClass(k.type)}" title="${esc(attackTip(k))}"><b>${esc(k.name || "Атака")}</b> ${esc(diceLabel(k.dice))}</span>${pips}<button type="button" class="pust-ov-hit" data-ov="hit" data-i="${i}" title="Кинути атаку й завдати шкоди цілям (T), як «Завдати цілям» на картці" ${k.ammoMax > 0 && int(k.ammo) <= 0 ? "disabled" : ""}><i class="fa-solid fa-crosshairs"></i>Цілям</button></div>`;
   }).join("");
   const moves = (s.moves ?? []).map((m, i) => (String(m.n || "").trim() ? `<button type="button" class="pust-ov-move${m.used ? " used" : ""}" data-ov="move" data-i="${i}" data-pust-tip="${esc(`${m.t || m.n}${m.used ? " Використано: клік знімає позначку." : " Клік позначає «використано»."}`)}">${esc(m.n)}</button>` : "")).join("");
   return `<div class="pust-ov-row${lv.dead ? " out" : ""}${t.hidden ? " hid" : ""}" data-tok="${t.id}">

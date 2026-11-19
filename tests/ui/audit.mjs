@@ -599,7 +599,7 @@ const SCENARIOS = {
   /** The enemy sheet: as read, with every fold open, and in edit mode (the first enemy token on the viewed scene) */
   async enemySheet(a) {
     const tok = canvas.scene?.tokens.find((t) => t.actor?.type === "enemy");
-    const actor = tok?.actor ?? game.actors.find((x) => x.type === "enemy" && x.visible);
+    const actor = auditActor("enemy") ?? tok?.actor ?? game.actors.find((x) => x.type === "enemy" && x.visible);
     if (!actor) return a.skip("аркуш супротивника", "немає супротивників");
     const sheet = actor.sheet;
     const was = sheet.rendered;
@@ -616,7 +616,15 @@ const SCENARIOS = {
       // the bar under the name (author, 2026-11-15): category, «Видимий / Прихований», «Редагувати» in one row
       { const kids = [...el.querySelectorAll(".pust-en-bar > *:not(.pust-en-sp)")].filter(shown); const mid = (e) => (R(e).top + R(e).bottom) / 2; if (kids.length > 1) a.ok("смуга під назвою в один ряд", kids.every((k) => Math.abs(mid(k) - mid(kids[0])) <= 1.5), kids.map((k) => Math.round(mid(k))).join(" / ")); }
       // the attack row (author, 2026-11-14): dice chip, type and «Завдати цілям» on one line, centred
-      for (const row of el.querySelectorAll(".pust-en-atkhd")) { const kids = [...row.querySelectorAll(":scope > .pust-en-dicechip, :scope > .pust-en-type, :scope > .pust-dmg-apply")].filter(shown); const mid = (e) => (R(e).top + R(e).bottom) / 2; a.ok("рядок атаки: чіп, тип і «Завдати цілям» по одній лінії", kids.every((k) => Math.abs(mid(k) - mid(kids[0])) <= 1.5), kids.map((k) => Math.round(mid(k))).join(" / ")); }
+      // an attack with an extra part (author, 2026-11-19; `.wrap`): the chips on one line, «Завдати цілям» may go to the next
+      // line, at the row's right edge
+      for (const row of el.querySelectorAll(".pust-en-atkhd")) {
+        const wrap = row.classList.contains("wrap");
+        const kids = [...row.querySelectorAll(`:scope > .pust-en-dicechip, :scope > .pust-en-type${wrap ? "" : ", :scope > .pust-dmg-apply"}`)].filter(shown); const mid = (e) => (R(e).top + R(e).bottom) / 2;
+        a.ok(wrap ? "рядок атаки з додатковою шкодою: чіпи по одній лінії" : "рядок атаки: чіп, тип і «Завдати цілям» по одній лінії", kids.every((k) => Math.abs(mid(k) - mid(kids[0])) <= 1.5), kids.map((k) => Math.round(mid(k))).join(" / "));
+        const btn = wrap && [...row.querySelectorAll(":scope > .pust-dmg-apply")].find(shown);
+        if (btn) a.ok("рядок атаки з додатковою шкодою: «Завдати цілям» біля правого краю", Math.abs(R(btn).right - R(row).right) <= 1.5 && (Math.abs(mid(btn) - mid(kids[0])) <= 1.5 || R(btn).top >= Math.max(...kids.map((k) => R(k).bottom)) - 1), `${Math.round(R(btn).right)} / ${Math.round(R(row).right)}`);
+      }
     };
     check("перегляд");
     sheet.element.querySelectorAll("details[data-fold]").forEach((d) => { d.open = true; });

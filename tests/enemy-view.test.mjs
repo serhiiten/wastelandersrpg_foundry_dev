@@ -99,5 +99,30 @@ ok(Object.values(V.HP_STATES).every((x) => x.label && /^fa-/.test(x.icon) && /^#
 ok(V.enemyView({ ...sys, hp: { value: 0, max: 12 } }).state.label === "Вибув", "the view carries the state");
 
 
+// an attack's extra part as chips (author, 2026-11-19): «+1d6» + «Отрута», the note without those words
+{
+  const s = toSystem({ ...parsed, attacks: [
+    { name: "Жало", dice: "1d10", type: "phys", note: "фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню" },
+    { name: "Лапи", dice: "1d6", type: "phys", note: "фізичної шкоди + 3 шкоди радіацією, ближній бій, радіація ігнорує броню" },
+    { name: "Мандибули", dice: "2d6", type: "phys", note: "фізичної шкоди + 3 шкоди кислотою, ближній бій" },
+    { name: "Мисливська рушниця", dice: "2d6", type: "phys", note: "бій на відстані" },
+  ] });
+  const a = V.enemyView(s, { gm: true }).attacks;
+  const ex = (k) => a[k].extra && [a[k].extra.text, a[k].extra.tcls, a[k].extra.label];
+  ok(JSON.stringify(ex(0)) === JSON.stringify(["+1d6", "dt-poison", "Отрута"]), `poison chips: ${JSON.stringify(ex(0))}`);
+  ok(JSON.stringify(ex(1)) === JSON.stringify(["+3", "dt-rad", "Радіація"]), `radiation chips: ${JSON.stringify(ex(1))}`);
+  ok(JSON.stringify(ex(2)) === JSON.stringify(["+3", "dt-phys", "Кислота"]), `acid chips: ${JSON.stringify(ex(2))}`);
+  ok(a[3].extra === null, "no extra part, no chips");
+  ok(a[0].note === "ближній бій, отрута ігнорує броню", `poison note: «${a[0].note}»`);
+  ok(a[1].note === "ближній бій, радіація ігнорує броню", `radiation note: «${a[1].note}»`);
+  ok(a[2].note === "ближній бій", `acid note: «${a[2].note}»`);
+  ok(a[0].noteRaw.includes("+ 1d6 шкоди отрутою"), "the stored note keeps the words (edit mode)");
+  // «Огляд битви»'s tooltip: the extra part, then the note, no type words
+  ok(V.attackTip(s.attacks[0]) === "+1d6 отрутою · ближній бій, отрута ігнорує броню", `tip: «${V.attackTip(s.attacks[0])}»`);
+  ok(V.attackTip(s.attacks[2]) === "+3 кислотою · ближній бій", `acid tip: «${V.attackTip(s.attacks[2])}»`);
+  ok(V.attackTip(s.attacks[3]) === "бій на відстані", `plain tip: «${V.attackTip(s.attacks[3])}»`);
+  ok(V.attackTip({ name: "Пси-удар", type: "psychic", note: "психічної шкоди, ігнорує фізичну броню" }) === "ігнорує фізичну броню", "psychic tip without its type words");
+}
+
 if (failures) { console.log(`${failures} failure(s)`); process.exit(1); }
 console.log("enemy-view: OK");

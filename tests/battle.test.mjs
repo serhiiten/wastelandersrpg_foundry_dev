@@ -149,6 +149,42 @@ eq(dmg({ armor: 1, defense: { phys: "half" }, flags: { kamikaze: true } }, 8, "p
   eq(B.atkIgnoreN("лапи 1d6"), 0, "ignoreN none");
   ok(B.atkIgnores("радіаційний промінь (радіація, ігнорує броню) 3d6"), "ignores armour");
   ok(!B.atkIgnores("лапи 1d6 +3 радіацією (ігнорує броню)"), "extra part's ignore is not the attack's");
+  // the compendium's wording (author, 2026-11-19): «отрута ігнорує броню» is the extra part's, not the attack's
+  ok(!B.atkIgnores("фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню"), "«отрута ігнорує броню» is the extra part's");
+  ok(!B.atkIgnores("фізичної шкоди + 3 шкоди радіацією, ближній бій, радіація ігнорує броню"), "«радіація ігнорує броню» is the extra part's");
+  ok(B.atkIgnores("шкоди радіацією, бій на відстані, ігнорує броню"), "a radiation beam still ignores armour");
+}
+
+/* ---------- attackExtra / attackHit: the extra part of an enemy's attack (author, 2026-11-19) ---------- */
+{
+  eq(B.attackExtra("фізичної шкоди + 1d6 шкоди отрутою, ближній бій, отрута ігнорує броню"), { expr: "1d6", type: "poison", label: "1d6 отрутою" }, "extra poison 1d6");
+  eq(B.attackExtra("фізичної шкоди + 3 шкоди радіацією, ближній бій"), { expr: "3", type: "rad", label: "3 радіацією" }, "extra radiation 3");
+  eq(B.attackExtra("фізичної шкоди + 3 шкоди кислотою, ближній бій"), { expr: "3", type: "phys", label: "3 кислотою" }, "acid is physical");
+  eq(B.attackExtra("+3 радіацією, ігнорує броню"), { expr: "3", type: "rad", label: "3 радіацією" }, "the generator's short wording");
+  eq(B.attackExtra("фізичної шкоди, бій на відстані"), null, "no extra part");
+  eq(B.attackExtra("+2 до атаки отрутою змащеною"), null, "no «шкоди» and no type word right after the number");
+  eq(B.attackExtra(""), null, "empty note");
+  // poison: two types → parts for resolveHit, the total of both
+  const h = B.attackHit({ l: "1d10", v: 6, t: "phys", dice: 1 }, { l: "1d6 отрутою", v: 4, t: "poison", dice: 1 });
+  eq([h.total, h.dice, h.card.map((p) => [p.l, p.v, p.t])], [10, 2, [["1d10", "6", "phys"], ["1d6 отрутою", "4", "poison"]]], "poison hit: card and total");
+  eq(h.parts, [{ total: 6, type: "phys", dice: 1 }, { total: 4, type: "poison", dice: 1 }], "poison hit: parts");
+  // acid: one type → no parts, the total meets the armour once
+  const acid = B.attackHit({ l: "2d6", v: 7, t: "phys", dice: 2 }, { l: "3 кислотою", v: 3, t: "phys", dice: 0 });
+  eq([acid.total, acid.dice, acid.parts, acid.card.length], [10, 2, undefined, 2], "acid hit: one physical total, two lines on the card");
+  // no extra part: as before
+  const one = B.attackHit({ l: "1d10+2", v: 8, t: "laser", dice: 1 });
+  eq([one.total, one.dice, one.parts, one.card], [8, 1, undefined, [{ l: "1d10+2", v: "8", t: "laser" }]], "plain hit");
+  // every compendium attack with «+ X шкоди …» in its note has its extra part found, and «ignoreArmor» stays off
+  const { readdirSync, readFileSync, statSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const found = [];
+  const walk = (d) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) walk(p); else if (f.endsWith(".json")) { const j = JSON.parse(readFileSync(p, "utf8")); if (j.type === "enemy") for (const a of j.system.attacks || []) if (/\+\s*\d*d?\d+\s+шкод/.test(a.note || "")) found.push([j.name, a]); } } };
+  walk("src/packs/opponents");
+  ok(found.length >= 14, `compendium attacks with an extra part: ${found.length}`);
+  for (const [n, a] of found) {
+    ok(B.attackExtra(a.note), `«${n}» «${a.name}»: extra part found in «${a.note}»`);
+    ok(!a.ignoreArmor && !B.atkIgnores(a.note), `«${n}» «${a.name}»: the whole attack doesn't ignore armour`);
+  }
   eq(B.atkAmmo("вогнемет (2 заряди, влучає по всіх у одній зоні)"), 2, "ammo charges");
   eq(B.atkAmmo("граната (1 штука, влучає)"), 1, "ammo piece");
   eq(B.atkAmmo("ракетниця (2 ракети)"), 0, "ammo «ракети» not in the tracker's regex");

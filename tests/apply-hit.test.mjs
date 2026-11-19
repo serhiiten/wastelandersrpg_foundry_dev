@@ -229,5 +229,29 @@ eq(dmg(P(), { total: 6, type: "psychic", parts: [{ total: 4, type: "psychic" }, 
   eq(targetProfile(null), null, "nobody");
 }
 
+/* ---------- an enemy attack's extra part (author, 2026-11-19): «+ 1d6 шкоди отрутою», «+ 3 радіацією», «+ 3 кислотою» ---------- */
+{
+  const hitOf = (main, extra) => { const h = B.attackHit(main, extra); return { total: h.total, type: main.t, dice: h.dice, ...(h.parts ? { parts: h.parts } : {}) }; };
+  // Касадор «Жало»: 1d10 (6) + 1d6 отрутою (4)
+  const sting = hitOf({ l: "1d10", v: 6, t: "phys", dice: 1 }, { l: "1d6 отрутою", v: 4, t: "poison", dice: 1 });
+  eq(dmg(P({ armor: 2 }), sting), 8, "sting vs armour 2: 6 − 2 + 4 poison");
+  eq(dmg(P({ armor: 9 }), sting), 4, "sting vs armour 9: the poison works even when the armour stopped the physical part");
+  eq(dmg(P({ armor: 2, poison: "immune" }), sting), 4, "sting vs a robot (poison immune): physical only");
+  eq(dmg(P({ armor: 2, poison: "half" }), sting), 6, "sting vs poison ½: 4 + 2");
+  // Сяючий дикий гуль «Лапи»: 1d6 (4) + 3 радіацією, against a ghoul (radiation heals: +1 HP a die, a fixed 3 has none)
+  const paws = hitOf({ l: "1d6", v: 4, t: "phys", dice: 1 }, { l: "3 радіацією", v: 3, t: "rad", dice: 0 });
+  eq(dmg(P({ armor: 1 }), paws), 6, "paws vs armour 1: 4 − 1 + 3 radiation");
+  const g = B.resolveHit(P({ armor: 1, rad: "heal" }), 10, 20, paws);
+  eq([g.hp, g.heal], [7, 0], "paws vs a ghoul: physical 3, the fixed radiation heals nothing");
+  eq(dmg(P({ armor: 1, rad: "half" }), paws), 5, "paws vs radiation ½: 3 + 2");
+  // Матка ванамінго «Мацяльця»: 2d6 (7) + 1d6 радіацією (5) against a ghoul: 1 die of radiation → +1 HP
+  const g2 = B.resolveHit(P({ armor: 2, rad: "heal" }), 10, 20, hitOf({ l: "2d6", v: 7, t: "phys", dice: 2 }, { l: "1d6 радіацією", v: 5, t: "rad", dice: 1 }));
+  eq([g2.hp, g2.heal], [6, 1], "tentacles vs a ghoul: 7 − 2 = 5 damage, +1 HP from 1 die of radiation");
+  // Гігантська мурашина матка «Мандибули»: 2d6 (7) + 3 кислотою: physical, the armour once
+  const acid = hitOf({ l: "2d6", v: 7, t: "phys", dice: 2 }, { l: "3 кислотою", v: 3, t: "phys", dice: 0 });
+  eq(dmg(P({ armor: 3 }), acid), 7, "mandibles vs armour 3: 7 + 3 − 3");
+  eq(dmg(P({ armor: 3, poison: "immune" }), acid), 7, "acid isn't poison: a robot takes it");
+}
+
 if (failures) { console.log(`FAILS: ${failures} of ${checks}`); process.exit(1); }
 console.log(`apply-hit: OK (${checks} checks)`);
