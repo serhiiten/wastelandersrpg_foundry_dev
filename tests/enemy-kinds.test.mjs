@@ -2,7 +2,7 @@
 // Run: node tests/enemy-kinds.test.mjs
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { ENEMY_KINDS, kindsOf, kindTokens, pickKind, concreteKinds } from "../module/rules/enemy-kinds.mjs";
+import { ENEMY_KINDS, kindsOf, kindTokens, pickKind, concreteKinds, kindOfName, namePicks } from "../module/rules/enemy-kinds.mjs";
 import { variantsFor } from "../module/rules/token-variants.mjs";
 import { OPPONENT_ALIASES } from "../module/applications/terminal-battle.mjs";
 import { createTerminal } from "../module/rules/terminal.mjs";
@@ -73,6 +73,30 @@ for (const r of [0, 0.3, 0.6, 0.99]) {
 const pk = { [`${gP}|regular`]: "Дикун" };
 const kept = concreteKinds(structuredClone(people), pk, {}, () => 0).last.allocations[0].entries.map((x) => x.enemy.name);
 ok(kept[0] === "Вождь племені" && kept[1] === "Ватажок дикунів", "a kept «Дикун» brings «Ватажок дикунів» and «Вождь племені»");
+
+// travel battles: the names say the kind, the crowd's leader and boss follow (author, 2026-11-19)
+const L = kindsOf(gP);
+ok(kindOfName("Рейдер 3", L) === "Рейдер" && kindOfName("Дикун-людожер", L) === "Дикун" && kindOfName("Рейдерка", L) === null, "a name that starts with a kind: «Рейдер 3», «Дикун-людожер»; «Рейдерка» is none");
+ok(kindOfName("Ручний рейдер", L) === "Рейдер" && kindOfName("Мафіозний бос", kindsOf(gB)) === "Бос кримінальної родини" && kindOfName("Великий бос", kindsOf(gB)) === "Великий бос рейдерів", "the hints: «Ручний рейдер», «Мафіозний бос», «Великий бос»");
+ok(kindOfName("Ватажок 2", kindsOf(gL)) === null && kindOfName("Мафіозний бос", L) === null, "«Ватажок» says no kind; a hint for another group is none");
+const TT = createTerminal({});
+const travel = (diff, idx) => {
+  const s = TT.battle.fromTravel({ diff, idx, place: "" });
+  const all = concreteKinds(structuredClone({ ...s, names: undefined }), namePicks(s.last.allocations, s.names, OPPONENT_ALIASES), OPPONENT_ALIASES).last.allocations.flatMap((a) => a.entries);
+  return new Set(all.filter((e) => e.enemy.group).map((e) => e.enemy.name));
+};
+const WANT = {
+  "light/1": ["Кротощур"], "light/8": ["Рейдер", "Ватажок рейдерів"], "medium/7": ["Рейдер", "Ватажок рейдерів"],
+  "hard/2": ["Рейдер"], "hard/3": ["Дикун", "Вождь племені"], "deadly/6": ["Ватажок рейдерів", "Великий бос рейдерів"], "deadly/8": ["Бос кримінальної родини"],
+};
+for (const [k, want] of Object.entries(WANT)) {
+  const [diff, idx] = k.split("/");
+  for (let i = 0; i < 12; i++) {
+    const got = [...travel(diff, +idx)].sort();
+    if (JSON.stringify(got) !== JSON.stringify([...want].sort())) { ok(false, `travel ${k}: ${got} ≠ ${want}`); break; }
+    if (i === 11) ok(true, `travel ${k}: ${want}`);
+  }
+}
 
 if (failures) { console.log(`${failures} failure(s) of ${checks}`); process.exit(1); }
 console.log(`enemy-kinds OK (${checks} checks)`);
