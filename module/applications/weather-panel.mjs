@@ -3,7 +3,7 @@
  * «Погода й час дня» at the end of every group of Foundry's scene controls, beside that button and over the other
  * windows, in the look of Foundry's own dark windows (author, 2026-11-19); a click outside it closes it. Cards of the
  * weathers (the Пустка's, then Foundry's own six, one grid), a slider «Слабка / Помірна / Сильна», and four times of day
- * with «Як було».
+ * with «Очистити».
  * The weather goes to the viewed scene's flag (module/canvas/weather.mjs); the time of day is one scene update of its
  * `environment` with Foundry's darkness animation.
  */
@@ -104,8 +104,7 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * A time of day: one update of the scene's `environment`, the darkness animated by Foundry. The first one keeps the
-   * scene's own lighting in the flag for «Як було».
+   * A time of day: one update of the scene's `environment`, the darkness animated by Foundry.
    */
   static async #time(_ev, btn) {
     const scene = canvas?.scene;
@@ -119,7 +118,7 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * «Як було» (author, 2026-11-19): no weather and the daylight of «День», in one scene update (the darkness animated);
+   * «Очистити» (author, 2026-11-19; first «Як було»): no weather and the daylight of «День», in one scene update (the darkness animated);
    * under Darkness Level Lock only the weather goes.
    */
   static async #restore() {

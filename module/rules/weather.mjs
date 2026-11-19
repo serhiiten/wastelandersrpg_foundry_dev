@@ -42,7 +42,7 @@ export const WASTES = [
     id: "dust", name: "Пилова буря", icon: "fa-wind",
     layers: [
       fog({ tint: [1, 0.75, 0.45], slope: 0.55, speed: 1.4, rotation: 0.35 }, { intensity: [0.26, 0.38, 0.49] }, { blend: "NORMAL" }),
-      snow({ tint: [0.56, 0.44, 0.26], direction: 2.2, scale: 2 }, { speed: [7, 11, 16] }, { perf: 2 }),
+      snow({ tint: [0.56, 0.44, 0.26], direction: 2.2, scale: 1.75 }, { speed: [5.25, 8.25, 12] }, { perf: 2 }),
     ],
   },
   {
