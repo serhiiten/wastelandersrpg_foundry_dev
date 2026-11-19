@@ -18,7 +18,8 @@ export const layerPicture = (systemId) => `systems/${systemId}/assets/maps/pustk
 export function factionTileData(systemId, dims, levelId = null) {
   return {
     name: LAYER_NAME,
-    texture: { src: layerPicture(systemId) },
+    // Foundry 14 places a tile by its texture's anchor: the top-left corner, so x / y are the picture's corner
+    texture: { src: layerPicture(systemId), anchorX: 0, anchorY: 0 },
     x: dims.sceneX,
     y: dims.sceneY,
     width: dims.sceneWidth,

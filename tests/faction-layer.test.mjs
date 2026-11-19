@@ -16,6 +16,7 @@ ok(L.layerPicture("wastelanders-dev") === "systems/wastelanders-dev/assets/maps/
 const dims = { sceneX: 324, sceneY: 432, sceneWidth: 5508, sceneHeight: 7560 };
 const t = L.factionTileData("wastelanders", dims, "pustkaMapLevel01");
 ok(t.x === 324 && t.y === 432 && t.width === 5508 && t.height === 7560, "laid over the scene's picture");
+ok(t.texture.anchorX === 0 && t.texture.anchorY === 0, "anchored at the top-left corner (Foundry 14 places tiles by the anchor)");
 ok(t.locked === true && t.hidden === false && t.alpha === 1, "locked, shown");
 ok(t.flags.wastelanders.factionLayer === 1, "flagged for the toggle");
 ok(t.name === "Положення сторін", "name");
