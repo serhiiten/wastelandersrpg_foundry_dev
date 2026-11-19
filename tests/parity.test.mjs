@@ -109,8 +109,6 @@ const SAME = {
   // the same field under a template loop: loot.yao / loot.egg; weapon and armor mods
   "k:loot.N": "k:loot.yao",
   "k:N.N.mods.N.n": "k:armor.N.mods.N.n",
-  // a mod's «used this session» is its free invokes now (mods are aspects; author, 2026-11-15): −/+ and «крит»
-  "k:N.N.mods.N.u": "act:mod-inv",
   // «гостра» is a word of the weapon's note in Foundry (prices.mjs syncSharpNotes; author, 2026-11-15)
   "k:weapons.N.sharp": "k:weapons.N.note",
 };
@@ -187,12 +185,9 @@ const canon = (v) =>
 let idSeq = 0;
 const newId = () => `id${String(++idSeq).padStart(14, "0")}`;
 
-/** Names the wiki changed: the Foundry rules use the wiki's, the HTML sheet its own (tools/port_rules.py) */
-const RENAMES = { "В кожному порту": "У кожному порту", "Загадковий незнайомець (або незнайомка)": "Загадковий незнайомець" };
-const renameState = (st, map) => JSON.parse(Object.entries(map).reduce(
-  (t, [a, b]) => t.split(JSON.stringify(a)).join(JSON.stringify(b)), JSON.stringify(st)));
-const toHtml = (st) => renameState(st, RENAMES);
-const fromHtml = (st) => renameState(st, Object.fromEntries(Object.entries(RENAMES).map(([a, b]) => [b, a])));
+// Both sheets use the wiki's perk names since the backport's stage 1 (2026-11-19): no renaming between them
+const toHtml = (st) => st;
+const fromHtml = (st) => st;
 
 /** Run an action on the HTML sheet; returns { st, toasts } */
 function onHtml(st0, step, s) {
@@ -246,15 +241,6 @@ const field = (k, v, opts = {}) => {
 
 // Manual bonuses and defences change only in «Вільний режим» in Foundry (author, 2026-11-14): compared in free mode
 const FREE = { type: "checkbox" };
-// «Новий день» and «Кінець сесії» end the scene first in Foundry (author, 2026-11-14): compared with the HTML sheet
-// pressing «Кінець сцени» before them; the log line and the toasts say more, so they are left out
-const afterScene = (name) => ({
-  name: `${name} (з кінцем сцени)`,
-  html: (S) => { S.act("chem-scene", {}); return S.act(name, {}); },
-  foundry: (C) => C.act(name, {}),
-  fix: (X) => { if (X.chem) delete X.chem.last; },
-  skipToasts: true,
-});
 const inFree = (step) => ({
   name: step.name + " (вільний режим)",
   html: (S) => { S.change("set.free", true, FREE); return step.html(S); },
@@ -275,7 +261,7 @@ function stepsFor(st) {
     act("step", { k: "hpRed", d: "1" }), act("step", { k: "caps", d: "5" }), act("step", { k: "xp", d: "1" }),
     act("step", { k: "supplies", d: "1" }), act("sup-set", { n: "1" }),
     act("sit-quick", { t: "Збитий з ніг" }), inFree(act("def-reset")), inFree(act("ov-reset", { k: "hpMaxOv" })),
-    act("chem-scene"), afterScene("chem-day"), afterScene("chem-session"), act("rest"), act("rage"), act("ko-fate"), act("ko-wind"), act("ko-quick"), act("chem-reset"),
+    act("chem-scene"), act("chem-day"), act("chem-session"), act("rest"), act("rage"), act("ko-fate"), act("ko-wind"), act("ko-quick"), act("chem-reset"),
     act("random"), act("new"),
     field("species", "ghoul"), field("arch", "Псионік"), field("exp", "point"), field("set.free", true), field("set.psi", false),
     field("cons.l", "Подряпина"), field("consT.l", true), field("hpCur", "99"), field("supplies", "9", { num: true }),
@@ -318,9 +304,10 @@ for (let c = 0; c < 60; c++) {
       continue;
     }
     compared++;
-    // Foundry writes «менша з 2d6» where the HTML sheet has «менший з 2d6» (author, 2026-11-14)
-    // (and the chem effects' «half» marker, which the HTML sheet doesn't write: Рад-Ікс / Отрута-Ікс go through it here)
-    const lesser = (o) => { const r = JSON.parse(JSON.stringify(o).replace(/менший з 2d6/g, "менша з 2d6")); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; delete r.consAt; if (r.chem) { delete r.chem.sceneAbs; delete r.chem.perkUse; if (!r.chem.swSession) delete r.chem.swSession; } return r; }; // perkUse: the perks' marks; «Скинути лічильники» clears swSession too (Foundry only, author 2026-11-18) // consAt / sceneAbs: when a treated consequence goes (Foundry only, author 2026-11-15)
+    // the chem effects' «half» marker, which the HTML sheet doesn't write (Рад-Ікс / Отрута-Ікс go through it in Foundry:
+    // the constructors, row 5.2); perkUse: the perks' marks; «Скинути лічильники» clears swSession too (Foundry only,
+    // author 2026-11-18)
+    const lesser = (o) => { const r = clone(o); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; if (r.chem) { delete r.chem.perkUse; if (!r.chem.swSession) delete r.chem.swSession; } return r; };
     const A = lesser(canon(h.st));
     const B = lesser(canon(f.st));
     if (step.fix) { step.fix(A); step.fix(B); }
