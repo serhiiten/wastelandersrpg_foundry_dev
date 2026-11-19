@@ -18,6 +18,7 @@ import { saveCaravan } from "./caravan-actions.mjs";
 import { joinPrices, splitPrices } from "../rules/prices.mjs";
 import { QUICK_CHARS } from "../rules/quickstart.mjs";
 import { fileStateOk } from "../rules/file-check.mjs";
+import { findRoundToken, roundCrop } from "../rules/round-portrait.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 const T = (key, data) =>
@@ -118,6 +119,40 @@ function quickPortrait(dataUri) {
 }
 
 /**
+ * A round token on black (the HTML sheet keeps portraits as JPEG, so a round token's transparent background turns black;
+ * author, 2026-11-19): cropped to its disk with everything outside it transparent, as WebP (PNG where the browser
+ * can't write WebP). null for any other picture: it stays as it is. Recognising: rules/round-portrait.mjs.
+ */
+async function roundTokenBlob(blob) {
+  try {
+    const bmp = await createImageBitmap(blob);
+    // recognised on a copy at most 512 px wide: enough for the shape, quick for a big picture
+    const s = Math.min(1, 512 / Math.max(bmp.width, bmp.height));
+    const w = Math.max(1, Math.round(bmp.width * s)), h = Math.max(1, Math.round(bmp.height * s));
+    const probe = document.createElement("canvas");
+    probe.width = w;
+    probe.height = h;
+    const pc = probe.getContext("2d", { willReadFrequently: true });
+    pc.drawImage(bmp, 0, 0, w, h);
+    const found = findRoundToken(pc.getImageData(0, 0, w, h).data, w, h);
+    if (!found) return null;
+    const crop = roundCrop({ cx: found.cx / s, cy: found.cy / s, r: found.r / s });
+    const out = document.createElement("canvas");
+    out.width = out.height = crop.size;
+    const oc = out.getContext("2d");
+    oc.beginPath();
+    oc.arc(crop.size / 2, crop.size / 2, crop.r, 0, 2 * Math.PI);
+    oc.clip();
+    oc.drawImage(bmp, crop.x, crop.y, crop.size, crop.size, 0, 0, crop.size, crop.size);
+    bmp.close?.();
+    return await new Promise((resolve) => out.toBlob(resolve, "image/webp", 0.92));
+  } catch (err) {
+    console.warn("Пустельники | round token check failed", err);
+    return null;
+  }
+}
+
+/**
  * A portrait from a file as a world image. The name comes from the picture itself (a hash), so opening the same
  * character again reuses the file instead of making another copy.
  */
@@ -129,10 +164,12 @@ async function uploadPortrait(dataUri, baseName) {
   const FP = foundry.applications.apps.FilePicker.implementation;
   try {
     await FP.createDirectory("data", PORTRAIT_DIR()).catch(() => {});
-    const blob = await (await fetch(dataUri)).blob();
-    const ext = blob.type.split("/")[1]?.replace("jpeg", "jpg") || "png";
-    const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-1", await blob.arrayBuffer()))].slice(0, 5)
+    const original = await (await fetch(dataUri)).blob();
+    // the hash is of the file's picture, so reopening the same file finds the cropped copy made the first time
+    const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-1", await original.arrayBuffer()))].slice(0, 5)
       .map((b) => b.toString(16).padStart(2, "0")).join("");
+    const blob = (await roundTokenBlob(original)) || original;
+    const ext = blob.type.split("/")[1]?.replace("jpeg", "jpg") || "png";
     const name = `${baseName.slugify({ strict: true }) || "portrait"}-${hash}.${ext}`;
     const existing = await FP.browse("data", PORTRAIT_DIR()).catch(() => null);
     const path = `${PORTRAIT_DIR()}/${name}`;
