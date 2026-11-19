@@ -15,7 +15,7 @@ import { HP_PER_CAP, SUP_PER_CAP, buyButton, consPlan } from "../rules/char-serv
 import { isPowerCell, usesPowerCells } from "../rules/power-cell.mjs";
 import { catalogDescription } from "../applications/catalog-descriptions.mjs";
 import { DMG_TYPES, EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
-import { GRANT_FEATS, grantOptions, lastingCaps, startPicks } from "../rules/skill-sources.mjs";
+import { GRANT_FEATS, grantOptions, impSkillOptions, startPicks } from "../rules/skill-sources.mjs";
 
 const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
 const CONS = [
@@ -147,7 +147,8 @@ export function buildView(st, d, L, ui = {}) {
       dots: [1, 2, 3].map((j) => {
         const locked = !free && (j >= 2 || fromSrc || (lv < 1 && (sp.left <= 0 || d.caps[s] < 1)));
         return { j, on: lv >= j, label: LVL[j], over: j > d.caps[s], locked,
-          why: !locked ? LVL[j] : j >= 2 ? "Підмайстер і майстер — через покращення" : fromSrc ? "Цю навичку дає покращення, перк чи особливість" : "Стартові навички вже обрано" };
+          why: !locked ? LVL[j] : j >= 2 ? "Підмайстер і майстер — через покращення" : fromSrc ? "Цю навичку дає покращення, перк чи особливість"
+            : d.caps[s] < 1 ? "Недоступна через особливість" : "Стартові навички вже обрано" }; // as the HTML sheet (row 3.3)
       }),
     };
   });
@@ -216,14 +217,8 @@ export function buildView(st, d, L, ui = {}) {
 
   /* ---------- improvements ---------- */
   // skill improvements offer only the skills they can raise: «учень» — skills not learnt yet, «підмайстер» — at учень,
-  // «майстер» — at підмайстер (Foundry only, author 2026-11-14); a skill another slot of the row took is left out, the chosen one stays
-  const SKILL_NEED = { skill: 0, skill2: 1, skill3: 2 };
-  const capsForImps = lastingCaps(st);
-  const skillFits = (k, i, s) => {
-    const others = (st.imp[k] || []).some((x, j) => j !== i && x.on && x.t === s);
-    const lv = parseInt(st.skills?.[s], 10) || 0;
-    return !others && lv === SKILL_NEED[k] && lv + 1 <= capsForImps[s]; // a lasting feat cap («Добра душа») bars it
-  };
+  // «майстер» — at підмайстер (author 2026-11-14); a skill another slot of the row took is left out, the chosen one stays;
+  // a lasting feat cap («Добра душа») bars it — impSkillOptions of skill-sources.mjs (from the HTML sheet's skills.js)
   // attribute improvements the same way: only attributes this step can raise, as they are before this slot
   // («до +2» — below +2; «з +2 до +3» — at +2; «з +3 до +4» — at +3; never past the species maximum)
   const ATTR_OK = Object.fromEntries(IMP_ATTR);
@@ -233,7 +228,7 @@ export function buildView(st, d, L, ui = {}) {
   };
   const targetOptions = (kind, cur, k, i) => [{ v: "", n: "— ціль —", sel: !cur }].concat(
     kind === "attr" ? ATTRS.filter((A) => A.k === cur || attrFits(k, i, A.k)).map((A) => ({ v: A.k, n: A.n, sel: cur === A.k }))
-      : SKILLS.filter((s) => s === cur || skillFits(k, i, s)).map((s) => ({ v: s, n: s, sel: cur === s })),
+      : impSkillOptions(st, k, i, cur).map((s) => ({ v: s, n: s, sel: cur === s })),
   );
   const imps = IMPS.map((im) => ({
     k: im.k, label: `${im.ico} ${im.t}${im.sub ? ` (${im.sub})` : ""}`, cost: im.cost,
