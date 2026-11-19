@@ -79,5 +79,20 @@ const odd = await battleEnemyFromPack(pack, "odd");
 ok(odd.folder?.name === "Інші" && odd.folder.folder?.name === "Битви" && odd.flags?.pust?.battleMade, "no faction → «Битви → Інші»");
 ok(folders.filter((f) => f.name === "Битви").length === 1, "one «Битви» folder");
 
+// A failure inside the drop is caught and told to the GM, not lost (the hook has already cancelled Foundry's drop)
+{
+  const shown = [];
+  globalThis.ui = { notifications: { error: (t) => shown.push(t) } };
+  const origErr = console.error; console.error = () => {};
+  const origParse = foundry.utils.parseUuid;
+  foundry.utils.parseUuid = () => { throw new Error("boom"); };
+  foundry.utils.escapeHTML ??= (s) => s;
+  let threw = false;
+  try { await dropCompendiumEnemy({ type: "Actor", uuid: docs.dog.uuid, x: 0, y: 0 }); } catch (_) { threw = true; }
+  foundry.utils.parseUuid = origParse; console.error = origErr;
+  ok(!threw, "a failed drop does not throw out of the hook");
+  ok(shown.length === 1 && /Не вдалося поставити супротивника/.test(shown[0]), "a failed drop shows the GM an error");
+}
+
 if (failures) { console.log(`terminal-battle: ${failures} failure(s)`); process.exit(1); }
 console.log("terminal-battle: OK");

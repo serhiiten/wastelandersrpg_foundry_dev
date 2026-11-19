@@ -192,13 +192,20 @@ export const isCompendiumEnemyDrop = (data, entry) => data?.type === "Actor" && 
  * An enemy dragged from a compendium straight onto the scene (author, 2026-11-19): the GM's goes the way of the «Битва»
  * panel's — its actor in «Битви → <фракція>», marked to go with its last token — and one unlinked token at the drop point
  * (hidden with Alt, as Foundry's drop). Without this Foundry imported it to the Actors' root, where it stayed.
+ * The hook cancels Foundry's own drop, so a failure here is caught and told to the GM (Fable's review before stable
+ * 2.3.1, 2026-11-19): otherwise the drag would end in nothing, with no word.
  */
 export async function dropCompendiumEnemy(data, { hidden = false } = {}) {
-  const scene = canvas?.scene;
-  const { collection, documentId } = foundry.utils.parseUuid(data.uuid);
-  if (!scene || !collection || !documentId) return;
-  const actor = await battleEnemyFromPack(collection, documentId);
-  return tokenAtPoint(scene, actor, { x: data.x, y: data.y }, hidden ? { hidden: true } : {});
+  try {
+    const scene = canvas?.scene;
+    const { collection, documentId } = foundry.utils.parseUuid(data.uuid);
+    if (!scene || !collection || !documentId) return;
+    const actor = await battleEnemyFromPack(collection, documentId);
+    return await tokenAtPoint(scene, actor, { x: data.x, y: data.y }, hidden ? { hidden: true } : {});
+  } catch (err) {
+    console.error("Wastelanders | compendium enemy drop failed", err);
+    notify.error("Не вдалося поставити супротивника на сцену. Подробиці — у консолі (F12).");
+  }
 }
 
 /**
