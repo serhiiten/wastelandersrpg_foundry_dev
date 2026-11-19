@@ -221,22 +221,31 @@ export function currentTime(env) {
 /* ---------------- «Авто-погода»: the battle's hazard → its weather ---------------- */
 
 /**
- * The hazards of the inspiration tables (module/rules/terminal.mjs `hazards`) that have an obvious weather (author,
- * 2026-11-19): the eight named like a weather of the Пустка, and four the author added. Any other hazard → «Чисто».
+ * The hazards of the inspiration tables (module/rules/terminal.mjs `hazards`) and their weather, as the author filled
+ * them in the Sheet «Погода Пустки: рішення», sheet «Небезпека → погода» (2026-11-19), in the tables' order. Any other
+ * hazard → «Чисто».
  */
 export const HAZARD_WEATHER = {
   "Пилова буря": "dust",
   "Радіаційний шторм": "radstorm",
+  "Гон мутантів": "dust",
   "Хмара отрути": "poison",
   "Ураган": "hurricane",
   "Кислотна хмара": "acidcloud",
+  "Кратер від атомної бомби": "poison",
+  "Розлив хімікатів": "poison",
+  "Ядерний могильник": "radstorm",
   "Ядучо-зелені блискавки з неба": "lightning",
-  "Психоактивний газ": "psygas",
-  "Кислотний дощ": "acidrain",
-  "Торнадо": "hurricane",
-  "Задушливе болото": "fog",
   "Ядучі гейзери з-під землі": "poison",
+  "Заражена радіацією місцина": "radstorm",
+  "Розплавлений мікроядерний реактор": "poison",
+  "Психоактивний газ": "psygas",
+  "Задушливе болото": "fog",
+  "Руїни лабораторії з ФЕВ": "acidcloud",
+  "Кислотний дощ": "acidrain",
+  "Викид ФЕВ": "poison",
   "Вибухонебезпечний газ": "acidcloud",
+  "Торнадо": "hurricane",
 };
 
 const norm = (t) => String(t ?? "").toLocaleLowerCase("uk").replace(/[’ʼ']/g, "'").replace(/\s+/g, " ").replace(/[.!…]+$/, "").trim();

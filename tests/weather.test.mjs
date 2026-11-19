@@ -102,10 +102,11 @@ for (const h of Object.keys(W.HAZARD_WEATHER)) {
   ok(HAZ.includes(h), `hazard «${h}» is in the tables`);
   ok(W.weatherById(W.HAZARD_WEATHER[h]), `hazard «${h}» → a known weather`);
 }
-ok(Object.keys(W.HAZARD_WEATHER).length === 12, "twelve hazards with a weather");
-ok(HAZ.filter((h) => W.hazardWeather(h)).length === 12 && HAZ.filter((h) => !W.hazardWeather(h)).length === 24, "the other 24 → «Чисто»");
+ok(Object.keys(W.HAZARD_WEATHER).length === 20, "twenty hazards with a weather");
+ok(HAZ.filter((h) => W.hazardWeather(h)).length === 20 && HAZ.filter((h) => !W.hazardWeather(h)).length === 16, "the other 16 → «Чисто»");
 ok(W.hazardWeather("Пилова буря") === "dust" && W.hazardWeather("  кислотний ДОЩ ") === "acidrain" && W.hazardWeather("Торнадо") === "hurricane", "by name, any case and spaces");
 ok(W.hazardWeather("Ядучо-зелені блискавки") === "lightning", "the weather's own name works too");
+ok(W.hazardWeather("Гон мутантів") === "dust" && W.hazardWeather("Викид ФЕВ") === "poison", "the author's additions");
 ok(W.hazardWeather("Канібали") === "" && W.hazardWeather("") === "" && W.hazardWeather(null) === "", "no weather → «Чисто»");
 
 if (failures) { console.log(`weather: ${failures} failure(s)`); process.exit(1); }
