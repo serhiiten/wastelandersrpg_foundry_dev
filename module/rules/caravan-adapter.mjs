@@ -11,7 +11,7 @@
  */
 import { IMPS } from "./caravan.mjs";
 import { createCaravanLogic } from "./caravan-logic.mjs";
-import { cleanDefOv, defOvCount } from "./caravan-defence.mjs";
+import { cleanDefOv } from "./caravan-defence.mjs";
 import { UNNAMED } from "./character-adapter.mjs";
 
 const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
@@ -145,8 +145,9 @@ export function caravanToState(actor, { withIds = false } = {}) {
       S.cargo.push({ kind: "pass", price: "", qty: "1", note: "", ...e, name: rowText(e.name, it.name) });
     }
   }
-  // the HTML sheet's «Далека доставка» for the whole caravan becomes the tick of every cargo row
-  if (S.longHaul) {
+  // the HTML sheet's «Далека доставка» for the whole caravan becomes the tick of every cargo row — only when no row has its
+  // own tick (the HTML sheet writes longHaul beside the rows' ticks since stage 3 of the backport, 2026-11-19)
+  if (S.longHaul && !S.cargo.some((r) => r.far)) {
     S.cargo.forEach((r) => { if (r.kind !== "pass") r.far = true; });
     S.longHaul = false;
   }
@@ -154,20 +155,25 @@ export function caravanToState(actor, { withIds = false } = {}) {
 }
 
 /**
- * S → the HTML caravan sheet's state (its .json): the bonuses become the sheet's absolute max HP / armour (the rules' value
- * + bonus, only when a bonus is set, so the HTML sheet shows the same numbers). The defences have no place there: `defOv`
- * is written only when one is set (the HTML sheet ignores the key; Foundry reads it back on import).
+ * S → the HTML caravan sheet's state (its .json). Since stage 3 of the backport (2026-11-19) the HTML sheet has the same
+ * bonuses and defences: the file carries `hpBonus`, `armorBonus`, `psiArmor`, `defOv`, and beside them the old keys for an
+ * older HTML sheet — `hpMaxOverride` / `armorOverride` as the absolute max HP / armour (null when the bonus is 0) and
+ * `longHaul` on when any cargo row is far. A reader takes an old key over the bonus when they disagree (`normalize`).
  */
 export function caravanHtmlState(S0) {
   const L = createCaravanLogic({ S: null });
   const S = clone(S0);
   const D = L.derived(S);
-  const out = { ...S, hpMaxOverride: int(S.hpBonus) ? D.maxHP : null, armorOverride: int(S.armorBonus) ? D.armor : null };
-  delete out.hpBonus;
-  delete out.armorBonus;
-  if (!int(S.psiArmor)) delete out.psiArmor; // Foundry only (the HTML sheet has no psychic armour)
-  if (!defOvCount(S.defOv)) delete out.defOv;
-  return out;
+  return {
+    ...S,
+    hpBonus: int(S.hpBonus),
+    armorBonus: int(S.armorBonus),
+    psiArmor: Math.max(0, int(S.psiArmor)),
+    defOv: cleanDefOv(S.defOv),
+    hpMaxOverride: int(S.hpBonus) ? D.maxHP : null,
+    armorOverride: int(S.armorBonus) ? D.armor : null,
+    longHaul: (S.cargo || []).some((r) => r.kind !== "pass" && r.far),
+  };
 }
 
 /**

@@ -10,7 +10,7 @@ import { loadHtmlCaravan } from "./caravan-sandbox.mjs";
 import { storeSystem } from "./schema-mock.mjs";
 import { createCaravanLogic } from "../module/rules/caravan-logic.mjs";
 import { createCaravanController } from "../module/rules/caravan-controller.mjs";
-import { caravanHtmlState, caravanToState, planCaravanSync, stateToCaravan } from "../module/rules/caravan-adapter.mjs";
+import { cargoHurtAt, caravanToState, planCaravanSync, stateToCaravan } from "../module/rules/caravan-adapter.mjs";
 
 const HBS = readFileSync(new URL("../templates/actor/caravan-v2.hbs", import.meta.url), "utf8");
 let failures = 0;
@@ -28,7 +28,7 @@ const SAME = {
   // buttons by id
   vehBrahmin: 'data-act="veh" data-veh="0"', vehTachka: 'data-act="veh" data-veh="1"',
   foldImps: 'data-key="foldImps"',
-  longHaul: 'data-k="cargo.{{i}}.far"' /* Foundry: a tick on each cargo row (author, 2026-11-14) */, addCustomImp: 'data-act="addCustomImp"', addCounter: 'data-act="addCounter"',
+  addCustomImp: 'data-act="addCustomImp"', addCounter: 'data-act="addCounter"',
   addCargo: 'data-act="addCargo"', rollRep: 'data-act="rollRep"', luckPanel: 'data-act="rollFate"',
   rollName: 'data-act="rollName"', rollKarma: 'data-act="rollKarma"', rollBudget: 'data-act="rollBudget"',
   rollImps: 'data-act="rollImps"', btnClear: 'data-act="clear"', btnRandom: 'data-act="random"',
@@ -40,6 +40,12 @@ const SAME = {
   notes: 'data-note="notes"' /* «Примітки» in Foundry's editor (prose-mirror; author, 2026-11-15) */, karma: 'data-k="karma"', budget: 'data-k="budget"',
   luck: 'data-k="luck"', karmaAspect: 'data-k="karmaAspect"',
   hpCurrent: 'data-k="hpCurrent"',
+  // stage 3 of the backport (2026-11-19): «Налаштування» (bonuses, defences), the paid services, the brahmins' choice
+  hpBonus: 'data-k="{{k}}"', armorBonus: 'data-k="{{k}}"', psiArmor: 'data-k="{{k}}"', defReset: 'data-act="def-reset"',
+  "data-ov-reset": 'data-act="ov-reset"', def: 'data-k="defOv.{{k}}"',
+  "data-def-reset": 'data-k="defOv.{{k}}"' /* Foundry: the select's «за правилами» */,
+  btnRefill: 'data-act="refill"', btnRepair: 'data-act="repair"',
+  "data-brah": 'data-action="brahminBonus"', pathfinder: 'data-action="pathfinder"',
   // delegated buttons and fields (data-*)
   "data-step": 'data-act="step"', "data-pip": 'data-act="pip"', "data-imp-btn": 'data-act="imp"', "data-seg": 'data-act="seg"',
   "data-cnt-del": 'data-act="cnt-del"', "data-cg-del": 'data-act="cg-del"', "data-roll": 'data-act="roll"',
@@ -138,6 +144,15 @@ const STEPS = {
 const field = (id, k, v) => [(h) => h.type(id, v), (C) => C.setField(k, v)];
 const data = (ds, act, d, times = 1) => [(h) => h.clickData(ds, times), (C) => C.act(act, d)];
 const rowField = (ds, k, v, tag) => [(h) => h.typeData(ds, v, tag), (C) => C.setField(k, v)];
+/** a delegated element of the page with its own properties (checkboxes, the defence selects) */
+const fireDoc = (h, type, dataset, props) => {
+  const t = { dataset: { ...dataset }, tagName: "INPUT", closest: () => null, matches: () => false, classList: { contains: () => false }, ...props };
+  (h.docListeners[type] || []).forEach((fn) => fn({ target: t, currentTarget: t, preventDefault() {}, stopPropagation() {} }));
+};
+/** a defence select: the HTML sheet's dropdown fires «change»; Foundry's select writes defOv.<type> */
+const defField = (k, v) => [(h) => fireDoc(h, "change", { def: k }, { tagName: "SELECT", value: v }), (C) => C.setField(`defOv.${k}`, v)];
+/** a cargo row's «Далека» / «Пошк.» tick */
+const tick = (f, on) => [(h) => fireDoc(h, "input", { cg: "0", f }, { type: "checkbox", checked: on, value: "on" }), (C) => C.setField(`cargo.0.${f}`, on)];
 Object.assign(STEPS, {
   name: field("companyName", "companyName", "Каравани «Ранок»"), nameClear: field("companyName", "companyName", " "),
   rep: field("reputation", "reputation", "Ті, що завжди повертаються"), meeting: field("storyMeeting", "story.meeting", "У барі «Аткінс»"),
@@ -162,17 +177,29 @@ Object.assign(STEPS, {
   cgName: rowField({ cg: "0", f: "name" }, "cargo.0.name", "Ядер-Кола"), cgKind: rowField({ cg: "0", f: "kind" }, "cargo.0.kind", "pass"),
   cgPrice: rowField({ cg: "0", f: "price" }, "cargo.0.price", "12"), cgQty: rowField({ cg: "0", f: "qty" }, "cargo.0.qty", "3"),
   cgNote: rowField({ cg: "0", f: "note" }, "cargo.0.note", "до Прімма", "TEXTAREA"),
+  // stage 3: bonuses (steppers, typed, ↺ one), defences (select, ↺ one), everything back (asks twice), paid services, row ticks
+  hpBonusUp: data({ step: "hpBonus", d: "1" }, "step", { step: "hpBonus", d: "1" }), hpBonusDown: data({ step: "hpBonus", d: "-1" }, "step", { step: "hpBonus", d: "-1" }),
+  armorBonusDown: data({ step: "armorBonus", d: "-1" }, "step", { step: "armorBonus", d: "-1" }), psiUp: data({ step: "psiArmor", d: "1" }, "step", { step: "psiArmor", d: "1" }),
+  psiDown: data({ step: "psiArmor", d: "-1" }, "step", { step: "psiArmor", d: "-1" }),
+  hpBonusTyped: field("hpBonus", "hpBonus", "-30"), hpBonusBig: field("hpBonus", "hpBonus", "12"), armorBonusTyped: field("armorBonus", "armorBonus", "3"),
+  psiTyped: field("psiArmor", "psiArmor", "-4"), hpBonusText: field("hpBonus", "hpBonus", "abc"),
+  hpBonusReset: data({ ovReset: "hpBonus" }, "ov-reset", { k: "hpBonus" }), armorBonusReset: data({ ovReset: "armorBonus" }, "ov-reset", { k: "armorBonus" }),
+  defRad: defField("rad", "immune"), defPhys: defField("phys", "half"), defNormal: defField("psy", "normal"), defRule: defField("fire", ""),
+  defRadReset: [(h) => h.clickData({ defReset: "rad" }), (C) => C.setField("defOv.rad", "")], defAll: [(h) => h.click("defReset", 2), (C) => C.act("def-reset")],
+  refill: [(h) => h.click("btnRefill"), (C) => C.act("refill")], repair: [(h) => h.click("btnRepair"), (C) => C.act("repair")],
+  cgFar: tick("far", true), cgFarOff: tick("far", false), cgHurt: tick("hurt", true), cgHurtOff: tick("hurt", false),
   cimpName: rowField({ cimpF: "name", cimpI: "0" }, "customImps.0.name", "Прапор"), cimpDesc: rowField({ cimpF: "desc", cimpI: "0" }, "customImps.0.desc", "Видно здалеку", "TEXTAREA"),
 });
 /** steps that need a row to exist first */
 const NEEDS = {
   seg: "addCounter", cntDel: "addCounter", cntName: "addCounter", cntSize: "addCounter",
-  cgDel: "addCargo", cgName: "addCargo", cgKind: "addCargo", cgPrice: "addCargo", cgQty: "addCargo", cgNote: "addCargo",
+  cgDel: "addCargo", cgFar: "addCargo", cgFarOff: "addCargo", cgHurt: "addCargo", cgHurtOff: "addCargo", cgName: "addCargo", cgKind: "addCargo", cgPrice: "addCargo", cgQty: "addCargo", cgNote: "addCargo",
   cimpDel: "addCustomImp", cimpName: "addCustomImp", cimpDesc: "addCustomImp",
 };
 
 /** Foundry: one step on a caravan actor, saved the way saveCaravan does and read back */
 function foundryStep(actor, fn, toasts) {
+  const wasHurt = cargoHurtAt(actor.system.hp?.value, actor.system.hp?.max);
   const S = caravanToState(actor, { withIds: true });
   const toast = (m) => toasts.push(String(m));
   const L = createCaravanLogic({ S, toast });
@@ -188,7 +215,15 @@ function foundryStep(actor, fn, toasts) {
   }
   actor.items = actor.items.filter((x) => !plan.delete.includes(x._id));
   for (const c of plan.create) actor.items.push(clone(c));
-  return foundryStore(actor);
+  const out = foundryStore(actor);
+  // WastelandersActor._onUpdate (module/documents/actor.mjs): the caravan has just taken more than half its HP of damage —
+  // every cargo item carried now is damaged; its warning comes after the sheet's own message (the HTML sheet shows the last)
+  if (!wasHurt && cargoHurtAt(out.system.hp?.value, out.system.hp?.max)) {
+    const ups = out.items.filter((i) => i.type === "cargo" && !i.system.engine?.hurt);
+    ups.forEach((i) => { i.system.engine = { ...i.system.engine, hurt: true }; });
+    if (ups.length) toasts.unshift("Караван отримав понад половину ОЗ шкоди — вантаж пошкоджено");
+  }
+  return out;
 }
 
 const names = Object.keys(STEPS);
@@ -230,7 +265,7 @@ for (let c = 0; c < CASES; c++) {
     }
     compared++;
     const want = H.getState();
-    const got = caravanHtmlState(caravanToState(actor)); // the HTML sheet's state: the bonuses are absolute numbers there
+    const got = caravanToState(actor); // the same state since stage 3 of the backport: bonuses, defences, rows' ticks
     if (!same(want, got)) {
       fail(`case ${c}, step ${s} «${n}»: ${firstDiff(want, got)}`);
       H.setState(got); // carry on from the same caravan

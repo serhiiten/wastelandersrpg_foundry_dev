@@ -155,14 +155,34 @@ for (let i = 0; i < 60; i++) {
   { const S = blank(); const L = createCaravanLogic({ S }); const C = createCaravanController(L); C.setField("hpBonus", "10");
     eq([L.getS().hpBonus, L.getS().hpCurrent], [10, 35], "hp follows max up"); C.setField("hpBonus", "-30"); eq([L.getS().hpCurrent, D(L.getS()).maxHP], [1, 1], "hp clamped"); }
 
-  // .json: Foundry → HTML sheet (absolute numbers, defences only when set) and back
-  const S2 = LB.normalize(blank({ hpBonus: 7, armorBonus: 2, defOv: { rad: "immune" } }));
+  // .json: Foundry → HTML sheet and back. Since stage 3 of the backport (2026-11-19) the file carries the bonuses and
+  // defences, and beside them the old absolute max HP / armour (null without a bonus) and longHaul for an older HTML sheet
+  const S2 = LB.normalize(blank({ hpBonus: 7, armorBonus: 2, psiArmor: 1, defOv: { rad: "immune" } }));
   const html = caravanHtmlState(S2);
-  eq([html.hpMaxOverride, html.armorOverride, "hpBonus" in html, "armorBonus" in html, html.defOv], [32, 3, false, false, { phys: "", energy: "", fire: "", rad: "immune", poison: "", psy: "" }], "export");
+  eq([html.hpMaxOverride, html.armorOverride, html.hpBonus, html.armorBonus, html.psiArmor, html.defOv], [32, 3, 7, 2, 1, { phys: "", energy: "", fire: "", rad: "immune", poison: "", psy: "" }], "export");
   const back = LB.normalize(JSON.parse(JSON.stringify(html)));
-  eq([back.hpBonus, back.armorBonus, back.defOv, "hpMaxOverride" in back], [7, 2, S2.defOv, false], "import");
+  eq([back.hpBonus, back.armorBonus, back.psiArmor, back.defOv, "hpMaxOverride" in back], [7, 2, 1, S2.defOv, false], "import");
   const plain = caravanHtmlState(blank());
-  eq([plain.hpMaxOverride, plain.armorOverride, "defOv" in plain], [null, null, false], "export without bonuses");
+  eq([plain.hpMaxOverride, plain.armorOverride, plain.hpBonus, plain.armorBonus, plain.psiArmor, plain.defOv, plain.longHaul],
+    [null, null, 0, 0, 0, { phys: "", energy: "", fire: "", rad: "", poison: "", psy: "" }, false], "export without bonuses");
+  // a bonus that the floor cuts (25 − 30 → 1 ОЗ) keeps its value: the old key agrees with the rules + bonus
+  { const low = caravanHtmlState(LB.normalize(blank({ hpBonus: -30, armorBonus: -5 })));
+    eq([low.hpMaxOverride, low.armorOverride], [1, 0], "export of a floored bonus");
+    const r = LB.normalize(JSON.parse(JSON.stringify(low)));
+    eq([r.hpBonus, r.armorBonus], [-30, -5], "a floored bonus read back"); }
+  // an older HTML sheet changed the old key of a new file: the old key wins (Fable's verdict, 2026-11-19)
+  { const f = JSON.parse(JSON.stringify(html)); f.hpMaxOverride = 40; f.armorOverride = null;
+    const r = LB.normalize(f);
+    eq([r.hpBonus, r.armorBonus, createCaravanLogic({ S: r }).derived(r).maxHP], [15, 0, 40], "the old key wins"); }
+  // longHaul: on when any cargo row is far; read back onto the rows only when no row has its own tick
+  { const c = blank({ cargo: [{ name: "a", kind: "cargo", price: "5", qty: "1", note: "", far: true }, { name: "b", kind: "cargo", price: "5", qty: "1", note: "" }, { name: "Мо", kind: "pass", price: "3", qty: "1", note: "" }] });
+    const f = caravanHtmlState(LB.normalize(c));
+    eq(f.longHaul, true, "export: longHaul with a far row");
+    eq(LB.normalize(JSON.parse(JSON.stringify(f))).cargo.map((r) => !!r.far), [true, false, false], "longHaul beside a row's tick: rows kept as they are");
+    const old = { ...c, longHaul: true, cargo: c.cargo.map(({ far, ...r }) => r) };
+    eq(LB.normalize(old).cargo.map((r) => !!r.far), [true, true, false], "an old file's longHaul: every cargo row far");
+    const a = foundryStore(stateToCaravan(c)); a.system.longHaul = true;
+    eq(caravanToState(a).cargo.map((r) => !!r.far), [true, false, false], "an actor's longHaul beside a row's tick: rows kept"); }
   // an HTML sheet's own file (absolute override, no Foundry keys)
   const htmlFile = { ...blank(), hpMaxOverride: 50, armorOverride: 0 };
   delete htmlFile.hpBonus; delete htmlFile.armorBonus; delete htmlFile.defOv;
