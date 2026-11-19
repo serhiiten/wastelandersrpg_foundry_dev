@@ -18,8 +18,8 @@
       "phys": "normal",
       "energy": "normal",
       "fire": "normal",
-      "rad": "normal",
-      "poison": "normal",
+      "rad": "half",
+      "poison": "immune",
       "psy": "normal"
     },
     "flags": {
@@ -71,8 +71,8 @@
         "phys": "normal",
         "energy": "normal",
         "fire": "normal",
-        "rad": "normal",
-        "poison": "normal",
+        "rad": "half",
+        "poison": "immune",
         "psy": "normal"
       },
       "flags": {

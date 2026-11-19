@@ -19,8 +19,8 @@
       "energy": "normal",
       "fire": "normal",
       "rad": "immune",
-      "poison": "normal",
-      "psy": "normal"
+      "poison": "immune",
+      "psy": "immune"
     },
     "flags": {
       "electricVuln": true,
@@ -111,8 +111,8 @@
         "energy": "normal",
         "fire": "normal",
         "rad": "immune",
-        "poison": "normal",
-        "psy": "normal"
+        "poison": "immune",
+        "psy": "immune"
       },
       "flags": {
         "electricVuln": true,
