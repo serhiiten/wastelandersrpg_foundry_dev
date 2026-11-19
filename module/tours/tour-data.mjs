@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 106;
+export const HELP_VERSION = 107;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -50,7 +50,8 @@ export const TOURS = [
       S("ctrmade", "Готові лічильники (приклади, лише на екрані): сцени з кнопками −2 невдача … +2 крит, загроза на 0, розв'язано на максимумі; гри з −/+, поділками з описами, назва в полі, × двічі; зміни пишуться в чат.", { selector: `${DOCK} .pust-md-ctr-gm .pust-md-body`, prepare: "counterDemo", tooltipDirection: "RIGHT" }),
       S("dice", "«Кістки»: N×d6/d8/d10/dN у чат. «Доля»: кістка Долі за виділені токени, а без виділення — список персонажів гравців і караванів з галочками.", { selector: `${DOCK} [data-mapdice="fate"]`, prepare: "unfold:dice", tooltipDirection: "RIGHT",  }),
       S("scenepanel", "Панель «Сцена» (угорі праворуч): місце й небезпека, жетони Долі, шкода й лікування персонажам і караванам зі списку, спільні значення, «Перейти на бойову мапу».", { prepare: "unfold:dmg", selector: `${DOCK} [data-unit="dmg"]`, tooltipDirection: "LEFT" }),
-      S("caravan", "Караван на мапі: при русі токена питає, чи списати запас ходу (1 клітинка — 1 одиниця, «Тачка» — 3 клітинки); перемикач «Витрачати автоматично» в аркуші каравану. Приклад: питання над токеном каравану (5 клітинок), нічого не рухається.", { selector: ".pust-cmove-demo", prepare: ["closeAll", "scene:map", "moveDemo"], tooltipDirection: "RIGHT" }),
+      S("weather", "«Погода й час дня»: кнопка в кінці кожної групи лівих кнопок (лише Доглядач); віконце: «Ясно», 8 погод Пустки, 6 погод Foundry, «Сила» Слабка / Помірна / Сильна; «Час дня» Ранок / День / Вечір / Ніч і «Як було». Погода в мітці сцени, без перемальовування; гравці бачать лише ефект; спалахи вимикає Photosensitivity Mode.", { selector: "#pust-weather", prepare: "weather", tooltipDirection: "RIGHT" }),
+    S("caravan", "Караван на мапі: при русі токена питає, чи списати запас ходу (1 клітинка — 1 одиниця, «Тачка» — 3 клітинки); перемикач «Витрачати автоматично» в аркуші каравану. Приклад: питання над токеном каравану (5 клітинок), нічого не рухається.", { selector: ".pust-cmove-demo", prepare: ["closeAll", "scene:map", "moveDemo"], tooltipDirection: "RIGHT" }),
     ],
   },
   {

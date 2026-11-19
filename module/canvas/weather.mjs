@@ -1,0 +1,279 @@
+/**
+ * «Погода й час дня» on the canvas (author, 2026-11-19; docs/decisions/weather.md).
+ *
+ * The one source of truth is the scene's flag `flags[system].weather = { id, power, envBackup? }`. Our weathers are NOT put
+ * in CONFIG.weatherEffects, and the scene's `weather` field is not written by a choice (a change of it redraws the canvas for
+ * everyone): every client builds the weather from the flag and gives it to `canvas.weather.initializeEffects` itself, on
+ * `canvasReady` and when the flag of the viewed scene changes. A change of strength only reconfigures the live effects.
+ * When the scene's own `weather` field is set (Scene Configuration), it wins: the active GM clears the flag's weather.
+ */
+import { activeGmHere } from "../helpers/main-window.mjs";
+import { BOLT_POINTS, CORE_MULT, FLASH_MS, boltPoints, clampPower, flashCurve, nextFlashDelay, pulseAlpha, recipe, weatherById } from "../rules/weather.mjs";
+
+const SYS = () => game.system.id;
+export const flagOf = (scene) => scene?.getFlag?.(SYS(), "weather") ?? null;
+
+/** What this client shows now: { sceneId, id, power } */
+let shown = null;
+/** The last flash on this client (ms, performance.now): switching weathers never gives two flashes in a row */
+let lastFlash = null;
+
+/* ---------------- building ---------------- */
+
+const shaderClass = (name) => foundry.canvas.rendering.shaders[name];
+
+/** The weather config Foundry's WeatherEffects layer takes, built from the flag's id and strength (null: clear) */
+export function buildWeather(id, power) {
+  const r = recipe(id, power);
+  if (!r) return null;
+  if (r.core) {
+    const base = CONFIG.weatherEffects[id];
+    if (!base) return null;
+    return {
+      ...base,
+      effects: base.effects.map((e) => ({
+        ...e,
+        config: e.config ? { ...e.config } : e.config,
+        // particles (Осіннє листя): their alpha range scaled by the strength, capped at 1
+        particles: e.particles?.map((p) => ({ ...p, alpha: p.alpha?.map((a) => Math.min(1, a * r.mult)) })),
+      })),
+    };
+  }
+  return {
+    id: `pust-${id}`,
+    filter: { enabled: false },
+    effects: r.layers.map((l) => ({
+      id: l.key,
+      effectClass: foundry.canvas.rendering.shaders.WeatherShaderEffect,
+      shaderClass: shaderClass(l.shader),
+      blendMode: PIXI.BLEND_MODES[l.blend],
+      performanceLevel: l.perf,
+      config: { ...l.config },
+    })),
+  };
+}
+
+/** Foundry's own weathers: the strength as the mesh's alpha (≤ 1) and, above 1, a stronger opacity / intensity uniform */
+function tuneCore(id, power) {
+  const mult = CORE_MULT[clampPower(power)];
+  const base = CONFIG.weatherEffects[id];
+  for (const e of base?.effects ?? []) {
+    const ec = canvas.weather.effects.get(e.id);
+    if (!ec || !ec.shader) continue;
+    ec.alpha = Math.min(1, mult);
+    const k = "opacity" in (e.config ?? {}) ? "opacity" : "intensity" in (e.config ?? {}) ? "intensity" : null;
+    if (k) ec.configure({ [k]: e.config[k] * Math.max(1, mult) });
+  }
+}
+
+/** A change of strength on the live effects, without building them again */
+function retune(id, power) {
+  const r = recipe(id, power);
+  if (!r) return;
+  if (r.core) return tuneCore(id, power);
+  for (const l of r.layers) canvas.weather.effects.get(l.key)?.configure(l.config);
+  const fl = canvas.weather.effects.get("pustFlash");
+  if (fl && r.flash) fl.peak = r.flash.peak;
+}
+
+/* ---------------- the flash ---------------- */
+
+/**
+ * Flashes (radiation storm, lightning): a weather shader of its own (masked under roofs by its own occlusion uniforms, as
+ * Foundry's weather shaders are). Fable's verdict (2026-11-19), after the live check showed the bolt grey and dim at night:
+ * it is drawn ABOVE the scene's lighting, in canvas.effects right after `coloration` (still under the fog of war), not in
+ * the weather layer (the primary group, which the darkness multiplies). So the region behaviour «Suppress Weather» is
+ * done here: copies of the regions' meshes erase the flash inside a container of its own (as WeatherEffects does).
+ * It stays registered in canvas.weather.effects, so the next weather and the canvas' tear-down destroy it.
+ * One flash: one rise and fall; the next after a random wait (setTimeout after the previous one), never two within
+ * FLASH_MIN_GAP. Clients are not synchronised. None in photosensitive mode.
+ */
+let FlashShader = null;
+function flashShaderClass() {
+  if (FlashShader) return FlashShader;
+  const Base = foundry.canvas.rendering.shaders.AbstractWeatherShader;
+  FlashShader = class PustFlashShader extends Base {
+    static get defaultUniforms() {
+      return { ...super.defaultUniforms, flash: 0, bolt: 0, aspect: 1, pts: new Float32Array(BOLT_POINTS * 2) };
+    }
+    static _createFragmentShader() {
+      return `
+      ${this.FRAGMENT_HEADER}
+      uniform float flash;
+      uniform float bolt;
+      uniform float aspect;
+      uniform vec2 pts[${BOLT_POINTS}];
+      float seg(vec2 p, vec2 a, vec2 b) {
+        vec2 pa = p - a, ba = b - a;
+        float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+        return length(pa - ba * h);
+      }
+      void main() {
+        ${this.COMPUTE_MASK}
+        vec2 sc = vec2(aspect, 1.0);
+        vec2 p = vStaticUvs * sc;
+        float core = 0.0;
+        if ( bolt > 0.5 ) {
+          float d = 10.0;
+          for ( int i = 0; i < ${BOLT_POINTS - 1}; i++ ) d = min(d, seg(p, pts[i] * sc, pts[i + 1] * sc));
+          core = smoothstep(0.004, 0.0, d) * 2.5 + exp(-d * 70.0) * 0.8;
+        }
+        vec3 col = tint * (0.6 + core);
+        gl_FragColor = vec4(col, 1.0) * flash * mask * alpha;
+      }`;
+    }
+  };
+  return FlashShader;
+}
+
+function makeFlash(spec) {
+  const E = foundry.canvas.rendering.shaders.WeatherShaderEffect;
+  const ec = new E({ tint: spec.tint }, flashShaderClass());
+  const sr = canvas.dimensions.sceneRect;
+  ec.shader.uniforms.aspect = sr.width / Math.max(1, sr.height);
+  ec.blendMode = PIXI.BLEND_MODES.NORMAL; // into the box's own texture; the box adds it to the scene
+  ec.peak = spec.peak;
+  // the box: the flash, then the «Suppress Weather» regions erasing it; rendered through a filter so the erase only
+  // touches the flash, and added to the lit scene
+  const box = new PIXI.Container();
+  box.eventMode = "none";
+  const voidF = foundry.canvas.rendering.filters.VoidFilter.create();
+  voidF.blendMode = PIXI.BLEND_MODES.ADD;
+  box.filters = [voidF];
+  box.filterArea = canvas.app.renderer.screen;
+  box.addChild(ec);
+  const erase = box.addChild(new PIXI.Container());
+  const syncErase = () => {
+    for (const c of erase.removeChildren()) c.destroy();
+    for (const m of canvas.weather.suppression?.children ?? []) {
+      const region = foundry.utils.fromUuidSync(m.name)?.parent?.object;
+      if (!region) continue;
+      const copy = new foundry.canvas.placeables.regions.RegionMesh(region);
+      copy.blendMode = PIXI.BLEND_MODES.ERASE;
+      erase.addChild(copy);
+    }
+  };
+  syncErase();
+  canvas.weather.suppression?.on("childAdded", syncErase);
+  canvas.weather.suppression?.on("childRemoved", syncErase);
+  const fx = canvas.effects;
+  fx.addChildAt(box, Math.min(fx.children.length, fx.getChildIndex(fx.coloration) + 1));
+  foundry.canvas.layers.WeatherEffects.configureOcclusionMask(ec.shader, canvas.weather.occlusionMaskConfig || { enabled: true });
+  if (canvas.weather.terrainMaskConfig) foundry.canvas.layers.WeatherEffects.configureTerrainMask(ec.shader, canvas.weather.terrainMaskConfig);
+  let timer = null, start = null;
+  const tick = () => {
+    if (ec.destroyed) return canvas.app.ticker.remove(tick);
+    const t = performance.now() - start;
+    ec.shader.uniforms.flash = flashCurve(t) * ec.peak;
+    if (t >= FLASH_MS) { canvas.app.ticker.remove(tick); ec.shader.uniforms.flash = 0; schedule(); }
+  };
+  const fire = () => {
+    timer = null;
+    if (ec.destroyed) return;
+    start = lastFlash = performance.now();
+    if (spec.bolt) ec.shader.uniforms.pts = new Float32Array(boltPoints(Math.random));
+    ec.shader.uniforms.bolt = spec.bolt ? 1 : 0;
+    canvas.app.ticker.add(tick);
+  };
+  const schedule = () => {
+    if (ec.destroyed) return;
+    timer = setTimeout(fire, nextFlashDelay(spec.every, performance.now(), lastFlash, Math.random()));
+  };
+  const destroy = ec.destroy.bind(ec);
+  ec.destroy = (...a) => {
+    clearTimeout(timer);
+    canvas.app?.ticker.remove(tick);
+    canvas.weather?.suppression?.off("childAdded", syncErase);
+    canvas.weather?.suppression?.off("childRemoved", syncErase);
+    box.parent?.removeChild(box);
+    for (const c of erase.removeChildren()) c.destroy();
+    box.removeChild(ec);
+    const r = destroy(...a);
+    box.destroy();
+    return r;
+  };
+  ec.play();
+  schedule();
+  return ec;
+}
+
+/** Psychoactive gas: its layers' alpha pulses slowly (steady in photosensitive mode) */
+function startPulse(r) {
+  const effects = r.layers.map((l) => canvas.weather.effects.get(l.key)).filter(Boolean);
+  if (!effects.length) return;
+  const steady = !!canvas.photosensitiveMode;
+  const t0 = performance.now();
+  const tick = () => {
+    if (effects.some((e) => e.destroyed)) return canvas.app.ticker.remove(tick);
+    const a = pulseAlpha(r.pulse, performance.now() - t0, steady);
+    for (const e of effects) e.alpha = a;
+    if (steady) canvas.app.ticker.remove(tick);
+  };
+  canvas.app.ticker.add(tick);
+}
+
+/* ---------------- applying ---------------- */
+
+/** Put the weather of the viewed scene's flag on the canvas, if it isn't there already */
+export function applySceneWeather({ force = false } = {}) {
+  const scene = canvas?.scene;
+  if (!canvas?.ready || !scene || !canvas.weather?.weatherEffects) return;
+  // the scene's own weather field wins (Scene Configuration): Foundry draws it, the flag is not shown
+  const f = scene.weather ? null : flagOf(scene);
+  const id = weatherById(f?.id) ? f.id : "";
+  const power = clampPower(f?.power);
+  const was = shown && shown.sceneId === scene.id ? shown : null;
+  if (!force && was && was.id === id && was.power === power) return;
+  if (!force && was && was.id === id && id) {
+    shown = { sceneId: scene.id, id, power };
+    // particles (Осіннє листя) can't be reconfigured: those are built again
+    if (CONFIG.weatherEffects[id]?.effects?.some((e) => e.particles?.length)) return show(id, power);
+    return retune(id, power);
+  }
+  if (!id && !was?.id && !force) { shown = { sceneId: scene.id, id, power }; return; }
+  if (!id && scene.weather) { shown = { sceneId: scene.id, id, power }; return; } // Foundry's own, from the field
+  show(id, power);
+}
+
+function show(id, power) {
+  shown = { sceneId: canvas.scene.id, id, power };
+  canvas.weather.initializeEffects(buildWeather(id, power));
+  if (!id) return;
+  const r = recipe(id, power);
+  if (r.core) return tuneCore(id, power);
+  if (r.flash && !canvas.photosensitiveMode) canvas.weather.effects.set("pustFlash", makeFlash(r.flash));
+  if (r.pulse) startPulse(r);
+}
+
+/** The weather this client shows now (for the panel and the tests) */
+export const shownWeather = () => (shown && shown.sceneId === canvas?.scene?.id ? { ...shown } : null);
+
+/* ---------------- writing (the GM's panel) ---------------- */
+
+/**
+ * The GM chooses a weather: written to the scene's flag. When the scene's own `weather` field is set, it is cleared once
+ * (Foundry redraws the canvas then; the panel says so).
+ */
+export async function setSceneWeather(scene, id, power) {
+  if (!scene || !game.user.isGM) return;
+  const cur = flagOf(scene) ?? {};
+  const upd = { [`flags.${SYS()}.weather`]: { ...cur, id: weatherById(id) ? id : "", power: clampPower(power ?? cur.power) } };
+  if (scene.weather) upd.weather = "";
+  await scene.update(upd);
+}
+
+/** A change of the scene's own weather field (Scene Configuration) takes the flag's weather off: the last choice wins */
+function onUpdateScene(scene, changes) {
+  const flagChanged = foundry.utils.hasProperty(changes, `flags.${SYS()}.weather`);
+  if ("weather" in changes && changes.weather && flagOf(scene)?.id && activeGmHere() && !flagChanged) {
+    scene.update({ [`flags.${SYS()}.weather.id`]: "" });
+  }
+  if (scene.id !== canvas?.scene?.id) return;
+  // a change of the field redraws the canvas (canvasReady applies then); only the flag is applied here
+  if (flagChanged && !("weather" in changes)) applySceneWeather();
+}
+
+export function initWeather() {
+  Hooks.on("canvasReady", () => { shown = null; applySceneWeather({ force: true }); });
+  Hooks.on("updateScene", onUpdateScene);
+}

@@ -14,6 +14,8 @@ import { WastelandersTokenRuler } from "./canvas/token-ruler.mjs";
 import { initMapNotes, readyMapNotes } from "./canvas/map-notes.mjs";
 import { initBattleZones, readyBattleZones } from "./canvas/battle-zones.mjs";
 import { initCaravanMove } from "./canvas/caravan-move.mjs";
+import { initWeather } from "./canvas/weather.mjs";
+import { addWeatherTool } from "./applications/weather-panel.mjs";
 import { readyApplyDamage } from "./applications/apply-damage.mjs";
 import { readyChemTarget } from "./applications/chem-target.mjs";
 import { readyGmRequests } from "./helpers/gm-request.mjs";
@@ -424,6 +426,10 @@ document.addEventListener("click", (ev) => {
 
 // «Мапа Пустки» and «Кістки»: panels docked under Foundry's left buttons (author, 2026-11-14), placed again when they render
 Hooks.on("renderSceneControls", () => renderMapDock());
+// «Погода й час дня» (author, 2026-11-19): the GM's tool at the end of every group of the scene controls; the weather of
+// the scene's flag drawn on every client (docs/decisions/weather.md)
+Hooks.on("getSceneControlButtons", addWeatherTool);
+initWeather();
 Hooks.once("ready", () => renderMapDock());
 
 // A place is seen by players only while one of its tokens is visible (the HTML «Видимо гравцям»): visible → LIMITED, all hidden → NONE.

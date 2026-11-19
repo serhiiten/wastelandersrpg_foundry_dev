@@ -162,7 +162,7 @@ function setIssuesDemo(on) {
     + ISSUES_DEMO.map(([lvl, msg]) => `<div class="pust-issue ${lvl}">${msg}</div>`).join("");
   nav.before(box);
 }
-const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false, compact: null };
+const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false, compact: null, weather: false };
 /**
  * «Компактний режим» (author, 2026-11-18): the step switches the sheet on show to compact by its own switch, and the view it
  * had comes back when the step is left or the tour ends, so the demonstration never changes the user's remembered choice
@@ -227,6 +227,7 @@ async function closeTransient(keep = new Set()) {
   if (opened.check && !keep.has("checkDemo")) { await (await import("../applications/check-panel.mjs")).setCheckDemo(null); opened.check = false; }
   if (opened.gear && !keep.has("gearDemo")) { try { await opened.gear.close({ animate: false }); } catch (_) { /* gone */ } opened.gear = null; }
   if (opened.cargo && !keep.has("cargoDemo")) { try { await opened.cargo.close({ animate: false }); } catch (_) { /* gone */ } opened.cargo = null; }
+  if (opened.weather && !keep.has("weather")) { await foundry.applications.instances.get("pust-weather")?.close({ animate: false }); opened.weather = false; }
   if (opened.newen && !keep.has("enemyCreate")) { await foundry.applications.instances.get("pust-enemy-create")?.close(); opened.newen = false; }
   if (opened.tgt && !keep.has("targetDemo")) { await (await import("../canvas/target-demo.mjs")).setTargetDemo(false); opened.tgt = false; }
   if (opened.eform && !keep.has("enemyForm")) { await (await import("../applications/battle-panel.mjs")).setEnemyFormOpen(false); opened.eform = false; }
@@ -466,6 +467,13 @@ export const PREPARE = {
   /** the travel window under «Подорож», with an event generated (nothing goes to the chat) */
   travel: async () => { (await import("../applications/map-dock.mjs")).setTravelOpen(true); opened.travel = true; await sleep(300); },
   /** the new counter's form of «Лічильники» */
+  /** «Погода й час дня»: the GM's window opened beside the scene controls (closed when the step is left) */
+  weather: async () => {
+    if (!foundry.applications.instances.get("pust-weather")) { await (await import("../applications/weather-panel.mjs")).toggleWeatherPanel(true); opened.weather = true; }
+    await waitFor("#pust-weather");
+    foundry.applications.instances.get("pust-weather")?.setPosition({ left: 110, top: 90 });
+    await sleep(300);
+  },
   counterForm: async () => { await PREPARE.unfold("ctr"); (await import("../applications/game-counters.mjs")).setCountersForm(true); opened.form = true; await sleep(300); },
   /** two example counters (a scene's and the game's), shown only; never written */
   counterDemo: async () => { await PREPARE.unfold("ctr"); const G = await import("../applications/game-counters.mjs"); G.setCountersForm(false); opened.form = false; await G.setCountersDemo(true); opened.demo = true; await sleep(300); },

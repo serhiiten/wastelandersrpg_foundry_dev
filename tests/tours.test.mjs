@@ -23,7 +23,7 @@ for (const t of TOURS) {
   ids.add(t.id);
   ok(t.title?.trim(), `${where}: title`);
   ok(t.description?.trim(), `${where}: description`);
-  ok(Array.isArray(t.steps) && t.steps.length >= 3 && t.steps.length <= 14, `${where}: 3–14 steps`);
+  ok(Array.isArray(t.steps) && t.steps.length >= 3 && t.steps.length <= 15, `${where}: 3–15 steps`);
   const sids = new Set();
   for (const s of t.steps) {
     const w = `${where}.${s.id}`;

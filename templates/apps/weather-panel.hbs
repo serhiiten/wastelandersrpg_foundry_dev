@@ -1,0 +1,36 @@
+{{!-- «Погода й час дня»: module/applications/weather-panel.mjs --}}
+<div class="pust-wx">
+  {{#unless scene}}
+  <p class="pust-wx-note">Немає відкритої сцени.</p>
+  {{else}}
+  <h3 class="pust-wx-h">Погода</h3>
+  {{#if fieldWeather}}
+  <p class="pust-wx-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Погоду цієї сцени задано в її налаштуваннях (Weather Effect). Вибір тут прибере її звідти, і сцена один раз перемалюється.</p>
+  {{/if}}
+  <div class="pust-wx-grid">
+    {{#each wastes}}
+    <button type="button" class="pust-wx-card{{#if active}} on{{/if}}" data-action="wxPick" data-id="{{id}}" aria-pressed="{{#if active}}true{{else}}false{{/if}}"><i class="fa-solid {{icon}}" aria-hidden="true"></i><span>{{name}}</span></button>
+    {{/each}}
+  </div>
+  <h4 class="pust-wx-sub">Звичайна погода</h4>
+  <div class="pust-wx-grid">
+    {{#each core}}
+    <button type="button" class="pust-wx-card{{#if active}} on{{/if}}" data-action="wxPick" data-id="{{id}}" aria-pressed="{{#if active}}true{{else}}false{{/if}}"><i class="fa-solid {{icon}}" aria-hidden="true"></i><span>{{name}}</span></button>
+    {{/each}}
+  </div>
+  <div class="pust-wx-power{{#if powerOff}} off{{/if}}">
+    <span class="pust-wx-lbl">Сила</span>
+    <div class="pust-wx-slider">
+      <input type="range" class="pust-wx-range" min="0" max="2" step="1" value="{{power}}" aria-label="Сила погоди" {{#if powerOff}}disabled{{/if}}>
+      <div class="pust-wx-ticks">{{#each powers}}<span{{#if active}} class="on"{{/if}}>{{name}}</span>{{/each}}</div>
+    </div>
+  </div>
+  <h3 class="pust-wx-h">Час дня</h3>
+  <div class="pust-wx-times">
+    {{#each times}}
+    <button type="button" class="pust-wx-time{{#if active}} on{{/if}}" data-action="wxTime" data-time="{{id}}" aria-pressed="{{#if active}}true{{else}}false{{/if}}" {{#if ../locked}}disabled title="{{../lockTip}}"{{/if}}><i class="fa-solid {{icon}}" aria-hidden="true"></i><span>{{name}}</span></button>
+    {{/each}}
+    <button type="button" class="pust-wx-time pust-wx-restore" data-action="wxRestore" {{#unless canRestore}}disabled{{/unless}} title="{{#if locked}}{{lockTip}}{{else}}Повернути освітлення сцени, яке було до першого вибору часу дня{{/if}}"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>Як було</span></button>
+  </div>
+  {{/unless}}
+</div>
