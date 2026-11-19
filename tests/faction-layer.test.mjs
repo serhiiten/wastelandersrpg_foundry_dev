@@ -41,7 +41,7 @@ ok(kind === "VP8L" && ((b[24] >> 4) & 1) === 1 || kind === "VP8X" && (b[20] & 0x
 
 // the GM's button and its help
 const dock = readFileSync(new URL("module/applications/map-dock.mjs", root), "utf8");
-ok(dock.includes('btn("factions", "fa-flag", "Фракції"'), "«Фракції» in the panel «Мапа Пустки»");
+ok(dock.includes('class="pust-md-layers"') && dock.includes('data-mapdock="factions"'), "«Фракції» in the row «Шари» of the panel «Мапа Пустки»");
 const tours = readFileSync(new URL("module/tours/tour-texts.mjs", root), "utf8");
 ok(tours.includes('"gm-map__factions"'), "tour step text");
 

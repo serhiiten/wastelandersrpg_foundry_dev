@@ -62,9 +62,10 @@ function mapButtons() {
     btn("danger", "fa-skull-crossbones", "Небезпека", "Додати небезпечне місце: червоний токен"),
     btn("poi", "fa-star", "Точка інтересу", "Додати точку інтересу: оранжевий токен"),
   ];
-  const row2 = [btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)"),
-    btn("factions", "fa-flag", "Фракції", FACTIONS_TIP.off)];
-  return [row1, row2].map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("");
+  const row2 = [btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")];
+  // «Шари» (author, 2026-11-19, mockup А): a row of its own under the place buttons, a switch per layer
+  const layers = `<div class="pust-md-layers"><span>Шари:</span><button type="button" class="pust-md-layer" data-mapdock="factions" aria-pressed="false" title="${FACTIONS_TIP.off}"><i class="fa-solid fa-flag"></i><span>Фракції</span></button></div>`;
+  return [row1, row2].map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("") + layers;
 }
 /** «Фракції» (author, 2026-11-19): the political layer «Положення сторін» on / off for everyone (helpers/faction-layer.mjs) */
 const FACTIONS_TIP = {
