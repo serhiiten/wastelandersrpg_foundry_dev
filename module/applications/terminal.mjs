@@ -69,7 +69,10 @@ export async function startBattle() {
   await (await import("../canvas/weather.mjs")).syncHazardWeather(scene, OPEN.T.battle.BT?.BT_SCENE?.hazard || sharedGet("hazard"));
   if (canvas?.scene?.id !== scene.id) {
     const ready = new Promise((r) => Hooks.once("canvasReady", r));
-    await scene.activate();
+    // an active scene isn't activated again by Foundry, so no canvasReady came and «Почати бій» hung (2026-11-19, the
+    // battle map active while the GM viewed «Мапа Пустки»): then it is only viewed, as «Перейти на бойову мапу» does
+    if (scene.active) await scene.view();
+    else await scene.activate();
     await ready;
   } else if (!scene.active) await scene.activate();
   await createBattle(OPEN.T, OPEN.st, "place");
