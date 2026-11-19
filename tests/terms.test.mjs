@@ -51,8 +51,27 @@ const walk = (d) => {
   }
 };
 SCAN.forEach((d) => fs.existsSync(path.join(ROOT, d)) && walk(path.join(ROOT, d)));
+// The HTML tools' sources next to the repo (the workspace, 2026-11-19, backport row 1.4): the character sheet, the caravan
+// sheet, the «Термінал Доглядача». Left out: their builds, vendored libraries, tests, and the terminal's embedded copies of
+// the sheets (cg_src.html, cg_embed.js, car_src.html, car_embed.js) — refreshed from the standalone sheets once a stage (0.8)
+const HTML_TOOLS = ["pustelnyky-character-generator/src", "pustelnyky-caravan/src", "pustelnyky_src (1)/pustelnyky_src"];
+const HTML_SKIP = /^(build|dist|vendor|tests|originals|docs|mapsrc|fonts|reference|node_modules|tok_car|out)$|^(cg_src\.html|cg_embed\.js|car_src\.html|car_embed\.js|character_generator\.html)$/;
+const walkHtml = (d) => {
+  for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+    if (HTML_SKIP.test(e.name)) continue;
+    const p = path.join(d, e.name);
+    if (e.isDirectory()) walkHtml(p);
+    else if (/\.(js|html|json)$/.test(e.name)) files.push(p);
+  }
+};
+const htmlRoots = HTML_TOOLS.map((d) => path.resolve(ROOT, "..", d)).filter((d) => fs.existsSync(d));
+htmlRoots.forEach(walkHtml);
+if (!htmlRoots.length) console.log("(no HTML tools next to the repo: their sources are not checked)");
 const L = "а-яіїєґА-ЯІЇЄҐ'’ʼ"; // a Cyrillic word's letters (\b doesn't know them)
-const word = (w) => new RegExp(`(?<![${L}])${w}(?![${L}])`, "g");
+// an apostrophe is part of a word only between letters (м'ясо): a quote right before or after the term ('Кубика Долі')
+// must not hide it
+const CYR = "а-яіїєґА-ЯІЇЄҐ";
+const word = (w) => new RegExp(`(?<![${CYR}]['’ʼ]?)(?:${w})(?!['’ʼ]?[${CYR}])`, "g");
 const where = (rel, text, i) => `${rel}:${text.slice(0, i).split("\n").length}`;
 
 const NAME_OF = Object.fromEntries(Object.values(ATTRS).map(([n, s]) => [s, n]));
