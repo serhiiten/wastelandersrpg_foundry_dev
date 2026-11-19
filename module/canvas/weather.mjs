@@ -1,7 +1,7 @@
 /**
  * «Погода й час дня» on the canvas (author, 2026-11-19; docs/decisions/weather.md).
  *
- * The one source of truth is the scene's flag `flags[system].weather = { id, power, envBackup? }`. Our weathers are NOT put
+ * The one source of truth is the scene's flag `flags[system].weather = { id, power }`. Our weathers are NOT put
  * in CONFIG.weatherEffects, and the scene's `weather` field is not written by a choice (a change of it redraws the canvas for
  * everyone): every client builds the weather from the flag and gives it to `canvas.weather.initializeEffects` itself, on
  * `canvasReady` and when the flag of the viewed scene changes. A change of strength only reconfigures the live effects.

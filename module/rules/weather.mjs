@@ -217,8 +217,3 @@ export function currentTime(env) {
   }
   return null;
 }
-
-/** What «Як було» restores: the scene's lighting before the first time of day was set */
-export function envBackupOf(env) {
-  return { darknessLevel: env?.darknessLevel ?? 0, cycle: env?.cycle ?? true, base: { ...BASE, ...(env?.base ?? {}) }, dark: { ...(env?.dark ?? TIMES[1].dark) } };
-}

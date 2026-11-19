@@ -7,7 +7,7 @@
  * The weather goes to the viewed scene's flag (module/canvas/weather.mjs); the time of day is one scene update of its
  * `environment` with Foundry's darkness animation.
  */
-import { CLEAR, CORE, POWERS, TIMES, WASTES, clampPower, currentTime, envBackupOf, timeEnvironment, weatherById } from "../rules/weather.mjs";
+import { CLEAR, CORE, POWERS, TIMES, WASTES, clampPower, currentTime, timeEnvironment, weatherById } from "../rules/weather.mjs";
 import { flagOf, setSceneWeather } from "../canvas/weather.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -52,7 +52,7 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       times: TIMES.map((t) => ({ ...t, active: t.id === now })),
       locked,
       lockTip: "Темряву цієї сцени заблоковано: Darkness Level Lock у налаштуваннях сцени",
-      canRestore: !locked && !!f.envBackup,
+      canRestore: !!id || now !== "day",
     };
   }
 
@@ -112,19 +112,29 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const src = scene?._source?.environment ?? scene?.environment;
     if (!scene || !env || src.darknessLock) return;
     const upd = { environment: env };
-    if (!flagOf(scene)?.envBackup) upd[`flags.${SYS()}.weather.envBackup`] = envBackupOf(src);
     // the same darkness: Foundry's animation ends at once without taking the new colours, so no animation then
     const same = Math.abs(src.darknessLevel - env.darknessLevel) < 1e-6;
     await scene.update(upd, same ? {} : { animateDarkness: TIME_ANIMATION_MS });
   }
 
-  /** «Як було»: the scene's lighting from before the first time of day */
+  /**
+   * «Як було» (author, 2026-11-19): no weather and the daylight of «День», in one scene update (the darkness animated);
+   * under Darkness Level Lock only the weather goes.
+   */
   static async #restore() {
     const scene = canvas?.scene;
-    const b = flagOf(scene)?.envBackup;
-    if (!scene || !b || scene.environment.darknessLock) return;
-    const same = Math.abs(scene.environment.darknessLevel - b.darknessLevel) < 1e-6;
-    await scene.update({ environment: b, [`flags.${SYS()}.weather.envBackup`]: null }, same ? {} : { animateDarkness: TIME_ANIMATION_MS });
+    if (!scene) return;
+    const src = scene._source?.environment ?? scene.environment;
+    const f = flagOf(scene) ?? {};
+    const upd = { [`flags.${SYS()}.weather`]: { id: "", power: clampPower(f.power) } };
+    if (scene.weather) upd.weather = "";
+    let opts = {};
+    if (!src.darknessLock) {
+      const day = timeEnvironment("day");
+      upd.environment = day;
+      if (Math.abs(src.darknessLevel - day.darknessLevel) > 1e-6) opts = { animateDarkness: TIME_ANIMATION_MS };
+    }
+    await scene.update(upd, opts);
   }
 }
 

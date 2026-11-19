@@ -24,7 +24,7 @@
     {{#each times}}
     <button type="button" class="pust-wx-card{{#if active}} on{{/if}}" data-action="wxTime" data-time="{{id}}" aria-pressed="{{#if active}}true{{else}}false{{/if}}" {{#if ../locked}}disabled title="{{../lockTip}}"{{/if}}><i class="fa-solid {{icon}}" aria-hidden="true"></i><span>{{name}}</span></button>
     {{/each}}
-    <button type="button" class="pust-wx-card pust-wx-restore" data-action="wxRestore" {{#unless canRestore}}disabled{{/unless}} title="{{#if locked}}{{lockTip}}{{else}}Повернути освітлення сцени, яке було до першого вибору часу дня. Погода не зміниться.{{/if}}"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>Як було</span></button>
+    <button type="button" class="pust-wx-card pust-wx-restore" data-action="wxRestore" {{#unless canRestore}}disabled{{/unless}} title="Прибрати погоду й повернути денне освітлення"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>Як було</span></button>
   </div>
   {{/unless}}
 </div>

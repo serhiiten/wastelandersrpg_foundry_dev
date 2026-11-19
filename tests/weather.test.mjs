@@ -92,8 +92,6 @@ ok(W.timeEnvironment("noon") === null, "unknown time");
 ok(W.currentTime({ ...W.timeEnvironment("night"), darknessLevel: 0.7 }) === null, "darkness moved by hand: none lit");
 ok(W.currentTime({ ...W.timeEnvironment("night"), cycle: false }) === null, "no blend: none lit");
 ok(W.currentTime(null) === null, "no scene");
-const bk = W.envBackupOf({ darknessLevel: 0.3, cycle: false, base: { hue: 0.1, intensity: 0.2 }, dark: { hue: 0.5 } });
-ok(bk.darknessLevel === 0.3 && bk.cycle === false && bk.base.intensity === 0.2 && bk.base.luminosity === 0 && bk.dark.hue === 0.5, "«Як було» keeps the scene's lighting");
 
 if (failures) { console.log(`weather: ${failures} failure(s)`); process.exit(1); }
 console.log("weather: all passed");
