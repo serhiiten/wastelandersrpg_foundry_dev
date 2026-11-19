@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 105;
+export const HELP_VERSION = 106;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -42,7 +42,7 @@ export const TOURS = [
       S("placecard", "Картка місця: назва з кубиком, тип поселення, експеримент сховища, аспекти (поле + Enter або кубик) з безкоштовними Посиленнями, примітка; гравці читають, поки місце видиме.", { selector: ".pust-place-sheet", prepare: ["closeAll", "sheet:place"], tooltipDirection: "RIGHT" }),
       S("note", "«Примітка»: стікер на мапі, подвійний клік — писати, кольори, приховати від гравців, згорнути.", { selector: `${DOCK} [data-mapdock="note"]`, tooltipDirection: "RIGHT",  }),
       S("notedemo", "Стікер-приклад з відкритим редактором: заголовок і текст пишуть на стікері, зберігається під час набору; панель: 5 кольорів, «Сховати від гравців», «Згорнути до позначки», «Закріпити», «Видалити» (двічі); подвійний клік відкриває редактор, тягнуть за смужку заголовка.", { selector: ".pust-mn-edit", prepare: "noteDemo", tooltipDirection: "DOWN" }),
-      S("factions", "«Фракції»: шар «Положення сторін» поверх мапи для всіх — території, спірні землі, Сяюче море, торгові шляхи, легенда; ще клік — чиста мапа.", { selector: `${DOCK} [data-mapdock="factions"]`, tooltipDirection: "RIGHT",  }),
+      S("factions", "«Шари:» «Фракції» — «Положення сторін» поверх мапи для всіх (території, спірні землі, Сяюче море, токени фракцій, легенда); «Шляхи» — торгові шляхи; ще клік — шар зникає.", { selector: `${DOCK} [data-mapdock="layer"][data-layer="factions"]`, tooltipDirection: "RIGHT",  }),
       S("travel", "«Подорож»: генератор подорожі з удачею вибраного каравану; бої з події — «Створити битву».", { selector: `${DOCK} [data-mapdock="travel"]`, tooltipDirection: "RIGHT",  }),
       S("travelwin", "Вікно «Подорож Пусткою»: тип події, Удача партії −2…+2 (з каравану, можна змінити; для поганої зустрічі не діє), «Згенерувати подію», «В чат», кістки в тексті, «Інші види», «Створити битву».", { selector: `${DOCK} .pust-md-tv`, prepare: "travel", tooltipDirection: "RIGHT" }),
       S("counters", "«Лічильники»: «+» — новий лічильник сцени (кістка, −2…+2) або гри (поділки з описами); гравці бачать їх лише для читання.", { selector: `${DOCK} [data-unit="ctr"] .pust-md-add`, prepare: "unfold:ctr", tooltipDirection: "RIGHT",  }),

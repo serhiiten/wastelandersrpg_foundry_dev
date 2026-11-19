@@ -32,7 +32,7 @@ import { evaluate, runAction } from "./character-actions.mjs";
 import { compute } from "../rules/core.mjs";
 import { fdOf, postFateChange, postSupChange } from "./fate-card.mjs";
 import { notify } from "../helpers/notify.mjs";
-import { factionLayerOn, toggleFactionLayer } from "../helpers/faction-layer.mjs";
+import { layerOn, toggleLayer } from "../helpers/faction-layer.mjs";
 
 const DOCK = "pust-mapdock";
 const POS_KEY = "pustelnyky-mapdock-pos";   // { map: {x, y}, dice: {x, y} } in window pixels; absent = the default place
@@ -64,23 +64,29 @@ function mapButtons() {
   ];
   const row2 = [btn("note", "fa-note-sticky", "Примітка", "Додати стікер на мапу й одразу писати на ньому (спершу схований від гравців)")];
   // «Шари» (author, 2026-11-19, mockup А): a row of its own under the place buttons, a switch per layer
-  const layers = `<div class="pust-md-layers"><span>Шари:</span><button type="button" class="pust-md-layer" data-mapdock="factions" aria-pressed="false" title="${FACTIONS_TIP.off}"><i class="fa-solid fa-flag"></i><span>Фракції</span></button></div>`;
+  const pill = (key) => `<button type="button" class="pust-md-layer" data-mapdock="layer" data-layer="${key}" aria-pressed="false" title="${LAYER_TIP[key].off}"><i class="fa-solid ${LAYER_TIP[key].icon}"></i><span>${LAYER_TIP[key].label}</span></button>`;
+  const layers = `<div class="pust-md-layers"><span>Шари:</span>${pill("factions")}${pill("routes")}</div>`;
   return [row1, row2].map((r) => `<div class="pust-md-row">${r.join("")}</div>`).join("") + layers;
 }
-/** «Фракції» (author, 2026-11-19): the political layer «Положення сторін» on / off for everyone (helpers/faction-layer.mjs) */
-const FACTIONS_TIP = {
-  off: "Показати всім шар «Положення сторін»: території фракцій, спірні землі, Сяюче море й торгові шляхи",
-  on: "Сховати шар «Положення сторін» (мапа знову чиста)",
+/** «Шари:» (author, 2026-11-19): the map's layers on / off for everyone (helpers/faction-layer.mjs) */
+const LAYER_TIP = {
+  factions: { label: "Фракції", icon: "fa-flag",
+    off: "Показати всім шар «Положення сторін»: території фракцій, спірні землі, Сяюче море, токени фракцій",
+    on: "Сховати шар «Положення сторін»" },
+  routes: { label: "Шляхи", icon: "fa-route",
+    off: "Показати всім торгові шляхи",
+    on: "Сховати торгові шляхи" },
 };
-function syncFactionsButton() {
-  const b = document.querySelector(`#${DOCK} [data-mapdock="factions"]`);
-  if (!b) return;
-  const on = factionLayerOn();
-  b.classList.toggle("on", on);
-  b.setAttribute("aria-pressed", String(on));
-  b.title = on ? FACTIONS_TIP.on : FACTIONS_TIP.off;
+function syncLayerButtons() {
+  for (const b of document.querySelectorAll(`#${DOCK} [data-mapdock="layer"]`)) {
+    const key = b.dataset.layer;
+    const on = layerOn(key);
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+    b.title = on ? LAYER_TIP[key].on : LAYER_TIP[key].off;
+  }
 }
-for (const h of ["createTile", "deleteTile", "canvasReady"]) Hooks.on(h, () => syncFactionsButton());
+for (const h of ["createTile", "deleteTile", "canvasReady"]) Hooks.on(h, () => syncLayerButtons());
 /** Players' «Примітка» (through the GM when Foundry does not let them draw; author, 2026-11-18) */
 const NOTE_TIP = "Додати стікер на мапу й одразу писати на ньому: його бачать усі, під ним стоїть твоє ім'я. Подвійний клік по стікеру знову відкриває його, розмір змінюється за правий нижній кут";
 
@@ -89,7 +95,7 @@ async function onMap(ev) {
   if (!b) return;
   const k = b.dataset.mapdock;
   if (k === "town" || k === "danger" || k === "poi") return addPlace(k);
-  if (k === "factions") return toggleFactionLayer();
+  if (k === "layer") return toggleLayer(b.dataset.layer);
   if (k === "note") {
     // the stickers live in module/canvas/map-notes.mjs (loaded lazily, so the panel works before they are there)
     const m = await import("../canvas/map-notes.mjs").catch(() => null);
@@ -666,7 +672,7 @@ export function renderMapDock() {
     const ctrUnit = dock.querySelector('[data-unit="ctr"]');
     const diceUnit = dock.querySelector('[data-unit="dice"]');
     mapUnit.querySelector(".pust-md-map .pust-md-body")?.addEventListener("click", onMap);
-    syncFactionsButton();
+    syncLayerButtons();
     dock.querySelector(".pust-md-note")?.addEventListener("click", onMap); // players' «Примітка» in the targets' row
     if (gm) mountBattlePanel(mapUnit.querySelector(".pust-md-battle"));
     // off the battle map the GM's «Битва» is «lite», top right (author, 2026-11-16: damage to the characters on «Мапа Пустки»)
