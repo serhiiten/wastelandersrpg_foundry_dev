@@ -54,10 +54,10 @@ function moveChip(m, i, s) {
   // a «лишається живим» move spent this scene (author, 2026-11-20): struck through, its click takes the mark off
   if (!spec.button && mk.used && spec.effects.some((e) => e.kind === "survive"))
     return `<button type="button" class="pust-ov-move used" data-ov="moveFree" data-i="${i}" data-pust-tip="${esc(`${m.t || m.n} Витрачено (${limitLabel(spec)}): удруге не врятує. Клік знімає позначку.`)}"><i class="fa-solid fa-rotate-left"></i>${esc(m.n)}</button>`;
-  if (!spec.button) return `<span class="pust-ov-move quiet" data-pust-tip="${esc(`${m.t || m.n}${spec.hint ? ` ${spec.hint}.` : ""}`)}">${esc(m.n)}</span>`;
+  if (!spec.button) return `<span class="pust-ov-move quiet" data-pust-tip="${esc(`${m.t || m.n}${spec.hint ? ` ${spec.hint}` : ""}`)}">${esc(m.n)}</span>`;
   const tip = mk.blocked
     ? `${m.t} Використано (${limitLabel(spec)}): клік знімає позначку.`
-    : `${m.t} Клік — «Використати»: ${spec.hint.replace(/^Картка/, "картка")}.${mk.used ? " Позначено використаним, але хід діє знову." : ""}`;
+    : `${m.t} Клік — «Використати». ${spec.hint}${mk.used ? " Позначено використаним, але хід діє знову." : ""}`;
   return `<button type="button" class="pust-ov-move${mk.used ? " used" : ""}" data-ov="${mk.blocked ? "moveFree" : "move"}" data-i="${i}" data-pust-tip="${esc(tip)}">${mk.blocked ? `<i class="fa-solid fa-rotate-left"></i>` : ""}${esc(m.n)}</button>`;
 }
 

@@ -171,7 +171,7 @@
         <div class="pust-pkuse-top">
           <span class="pust-pkuse-n">{{n}}</span>
           <span class="pust-pklim pk-{{cls}}">{{lim}}{{#if pips}} <span class="pust-mvpips" title="Лишилося використань">{{#each pips}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</span>{{/if}}</span>
-          {{#if ../editable}}<button type="button" class="pust-pkuse-go" data-action="useMove" data-i="{{i}}" {{#if off}}disabled{{/if}} title="{{#if offWhy}}{{offWhy}}{{else}}Використати: {{hint}}{{/if}}">Використати</button>{{/if}}
+          {{#if ../editable}}<button type="button" class="pust-pkuse-go" data-action="useMove" data-i="{{i}}" {{#if off}}disabled{{/if}} title="{{#if offWhy}}{{offWhy}}{{else}}{{hint}}{{/if}}">Використати</button>{{/if}}
         </div>
         <div class="pust-en-mvt">{{{tHtml}}}</div>
         {{!-- what the button does is its tooltip only, not a line under the text (author, 2026-11-20) --}}

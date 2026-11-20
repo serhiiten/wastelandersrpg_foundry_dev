@@ -70,8 +70,8 @@ ok(vp.attacks[0].plus === 2 && vp.attacks[0].plusTitle === "Камікадзе: 
 
 // the moves as buttons (author, 2026-11-19; mockup А): the limit chip, «Використати», what it does
 ok(v.moves[0].psy && v.moves[0].button && v.moves[0].lim === "раз за сцену", `the Психо move is a button: ${JSON.stringify(v.moves[0])}`);
-ok(v.moves[1].button && !v.moves[1].psy && v.moves[1].cls === "session" && v.moves[1].hint.startsWith("собі 1d6+4 ОЗ"), `self heal move: ${JSON.stringify(v.moves[1])}`);
-ok(v.moves[2].button && v.moves[2].hint.startsWith("+3 ОЗ своїм на сцені"), `group heal move: ${JSON.stringify(v.moves[2])}`);
+ok(v.moves[1].button && !v.moves[1].psy && v.moves[1].cls === "session" && v.moves[1].hint.startsWith("Ворог відновлює собі 1d6+4 ОЗ"), `self heal move: ${JSON.stringify(v.moves[1])}`);
+ok(v.moves[2].button && v.moves[2].hint.startsWith("Свої на сцені відновлюють по 3 ОЗ"), `group heal move: ${JSON.stringify(v.moves[2])}`);
 ok(!v.moves[3].button, "an ordinary move: no button");
 ok(v.moves[1].off, "not editable: the button is off");
 const ve = V.enemyView({ ...sys, moves: [{ n: "Порошок", t: "двічі за сцену відновлює собі або союзникові 3 ОЗ.", used: false, spent: 1 }, { n: "Захисний протокол", t: "раз за сцену ігнорує шкоду, яку йому щойно завдали." }] }, { editable: true, lastHit: null });

@@ -138,36 +138,47 @@ export function moveSpec(move, sys = null, i = -1) {
   return out("effect", effects, { again: !!lim.uses && /а\s+також\s+щоразу/i.test(t) });
 }
 
-/** The die / number with its damage type for a hint: «2d6 вогнем», «1d10 психічної шкоди» */
-const TYPE_WORD = { fire: "вогнем", rad: "радіацією", poison: "отрутою", psychic: "психічної шкоди", laser: "енергетичної шкоди", electric: "електрикою" };
-const hitWords = (h) => `${h.dice}${TYPE_WORD[h.type] ? ` ${TYPE_WORD[h.type]}` : ""}${h.ignoreArmor ? ", без броні" : h.ignoreN ? `, ігнорує ${h.ignoreN} броні` : ""}`;
+/** The die / number with its damage type for a hint: «2d6 шкоди вогнем», «1d10 психічної шкоди» */
+const TYPE_WORD = { fire: "шкоди вогнем", rad: "шкоди радіацією", poison: "шкоди отрутою", psychic: "психічної шкоди", laser: "енергетичної шкоди", electric: "шкоди електрикою" };
+const hitWords = (h) => `${h.dice} ${TYPE_WORD[h.type] ?? "шкоди"}${h.ignoreArmor ? " (броня не рятує)" : h.ignoreN ? ` (ігнорує ${h.ignoreN} броні)` : ""}`;
+const HIT_WHO = { all: "всім у своїй зоні", foes: "всім персонажам у своїй зоні" };
 
-/** What «Використати» will do, in a line under the move (the card) and in the chip's tooltip («Огляд битви») */
+/**
+ * What the move does, in plain words (author, 2026-11-20): the tooltip of «Використати» and of a quiet move's name (the card)
+ * and of the chip («Огляд битви»). Whole sentences, ending with a full stop.
+ */
 export function moveHint(spec) {
   if (spec.level === "auto") {
     const e = spec.effects[0];
-    if (e?.kind === "survive") return `Сам: замість 0 ОЗ лишається з ${e.hp} ОЗ (раз за сцену)`;
-    if (e?.kind === "bonus") return `Сам: коли ОЗ ${e.hpAtMost} або менше, +${e.dmg} шкоди${e.armor ? ` і +${e.armor} броні` : ""} до кінця сцени`;
-    return "Діє сам";
+    if (e?.kind === "survive") return `Спрацьовує сам: удар, що мав би звалити ворога, лишає йому ${e.hp} ОЗ. Раз за сцену.`;
+    if (e?.kind === "bonus") return `Спрацьовує сам: щойно ОЗ впадуть до ${e.hpAtMost}, ворог до кінця сцени б'є на ${e.dmg} сильніше${e.armor ? ` і має +${e.armor} броні` : ""}.`;
+    return "Діє сам, натискати нічого не треба.";
   }
   if (!spec.button) return "";
+  const exec = spec.effects.some((e) => e.kind === "execute"); // with an execution the target is the one executed
+  const orT = (w) => (exec ? "" : ` (або лише ${w})`);
   const parts = spec.effects.map((e) => {
     switch (e.kind) {
-      case "psycho": return "+2 шкоди атаками до кінця сцени";
-      case "heal": return { self: `собі ${e.expr} ОЗ`, targetOrSelf: `цілі (T) або собі ${e.expr} ОЗ`, faction: `+${e.expr} ОЗ своїм на сцені`, factionOthers: `+${e.expr} ОЗ іншим своїм на сцені` }[e.who];
-      case "execute": return "ціль (T) зі своїх вибуває";
-      case "revive": return `союзник (T) з 0 ОЗ повертається з ${e.hp} ОЗ`;
-      case "undo": return "скасовує щойно завдану шкоду";
-      case "bonus": return `+${e.dmg} шкоди до кінця сцени${e.stack ? " (складається)" : ""}`;
-      case "ammo": return `−${e.n} заряд`;
-      case "allyBonus": return `+${e.dmg} шкоди своїм — рядком у картці`;
-      case "attack": return "атака по ворогах у зоні або цілях (T)";
-      case "hit": return `${hitWords(e)} ${e.zone === "all" ? (e.spareKin ? "усім іншим у зоні, крім своїх" : "усім іншим у зоні") : e.zone === "foes" ? "ворогам у зоні" : "цілям (T)"}${e.zone ? " або цілям (T)" : ""}`;
-      case "psiPerk": return "псионічний перк: 1d6 і його опис у чат";
+      case "psycho": return "Ворог до кінця сцени б'є на 2 сильніше";
+      case "heal": return {
+        self: `Ворог відновлює собі ${e.expr} ОЗ`,
+        targetOrSelf: `Позначена ціль відновлює ${e.expr} ОЗ; без цілі — сам ворог`,
+        faction: `Свої на сцені відновлюють по ${e.expr} ОЗ${orT("позначені цілі")}`,
+        factionOthers: `Інші свої на сцені відновлюють по ${e.expr} ОЗ${orT("позначені цілі")}`,
+      }[e.who];
+      case "execute": return "Страчує позначеного свого: той вибуває з бою";
+      case "revive": return `Позначений союзник із 0 ОЗ повертається в бій з ${e.hp} ОЗ`;
+      case "undo": return "Шкода, яку ворогові щойно завдали, скасовується";
+      case "bonus": return `Ворог до кінця сцени б'є на ${e.dmg} сильніше${e.stack ? ` (кожне використання додає ще ${e.dmg})` : ""}`;
+      case "ammo": return `Зброя витрачає ${e.n} ${e.n === 1 ? "заряд" : "заряди"}`;
+      case "allyBonus": return `Свої до кінця сцени б'ють на ${e.dmg} сильніше: це поки додавай вручну`;
+      case "attack": return "Ворог атакує всіх персонажів у своїй зоні (або лише позначені цілі)";
+      case "hit": return `Завдає ${hitWords(e)} ${e.zone ? `${e.spareKin ? `${HIT_WHO.all}, крім таких самих, як він` : HIT_WHO[e.zone]} (або лише позначеним цілям)` : "позначеним цілям"}`;
+      case "psiPerk": return "Кидає 1d6 і показує, який псионічний перк випав";
       default: return "";
     }
   }).filter(Boolean);
-  return parts.length ? `${parts.join("; ")}; картка в чат` : "Картка в чат";
+  return parts.length ? `${parts.join(". ")}. Хід з'явиться в чаті.` : "Покаже хід у чаті, решту вирішуєш ти.";
 }
 
 /** The limit chip: «раз за сцену», «2 за сцену», «раз за сесію», «без ліміту» */
