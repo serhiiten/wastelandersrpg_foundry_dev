@@ -62,6 +62,12 @@ of = A.offer({ mode: "explosive", verdict: 2 });
 eq(A.hitFx(of, ["downAll"], ["T1", "T2"]).fx, [{ key: "down", on: ["T1", "T2"] }], "a blast knocks down all");
 eq(A.hitFx(of, ["destroy"], ["T1"]).said, ["destroy"], "a hand effect is said");
 
+// «Прикриваєш спільника»: the ally gets the cover; without an ally only a line
+of = A.offer({ mode: "ranged", verdict: 2 });
+eq(A.hitFx(of, ["cover"], ["T1"], "", "A1").cover, "A1", "cover goes to the ally");
+eq(A.hitFx(of, ["cover"], ["T1"]).said, ["cover"], "no ally: said only");
+eq([A.coverActive({ round: 3 }, 3), A.coverActive({ round: 2 }, 3), A.coverActive(null, 3)], [true, false, false], "cover lasts its round");
+
 // the GM accepts only the three states, only on the request's targets
 eq(A.cleanFx([{ key: "down", on: ["T1", "X"] }, { key: "burning", on: ["T1"] }, { key: "stunned", on: ["X"] }, null], ["T1"]), [{ key: "down", on: ["T1"] }], "cleanFx");
 eq(A.cleanFx("junk", ["T1"]), [], "cleanFx of junk");

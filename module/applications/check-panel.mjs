@@ -14,7 +14,8 @@ import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-c
 import { attackMode, choiceEmpOnly, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { sendDamage, sendEffects } from "./apply-damage.mjs";
-import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx } from "../rules/attack-effects.mjs";
+import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx, coverActive } from "../rules/attack-effects.mjs";
+import { sharedGet } from "../helpers/scene-shared.mjs";
 import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
 import { rowTotal, rowClosed, rowText, ATTR_SHORT } from "../rules/dodge.mjs";
 import { checkPenalty, spendCheckStates } from "./states.mjs";
@@ -243,14 +244,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    * the result's limits; «+2» / «+1d6» are the engine's own options (R.dmgOpt), the others live here a roll (`time`). The
    * states and «ігноруєш броню» go with the damage; on 10–14 without the perk an effect replaces it («Застосувати ефект»).
    */
-  #fx = { time: null, picks: [], one: "", done: "" };
+  #fx = { time: null, picks: [], one: "", done: "", ally: "" };
   #fxOf = null;
   #fxNow(L, st) {
     const last = L.R.last;
     if (!last || last.type !== "attack") return null;
     const mode = attackMode(last.skillName, last.attr);
     const of = fxOffer({ mode, verdict: last.verdict, perks: compute(st).allPerks });
-    if (this.#fx.time !== last.time) this.#fx = { time: last.time, picks: [], one: "", done: "" };
+    if (this.#fx.time !== last.time) this.#fx = { time: last.time, picks: [], one: "", done: "", ally: "" };
     // the engine's «+2» / «+1d6» as picks, in the order kept here
     const opt = L.R.dmgOpt || {};
     let picks = this.#fx.picks.filter((k) => (k === "plus2" ? opt.norm2 : k === "plus1d6" ? opt.crit : true));
@@ -272,7 +273,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const done = !!last.dmg || !!this.#fx.done;
     const row = (e, tier) => {
       const x = { ...e, tier }, on = picks.includes(e.key);
-      const tag = e.does === "state" ? `<small class="pust-fx-tag">${e.all ? "ляже на всіх" : "ляже на ціль"}</small>`
+      const tag = e.does === "cover" ? `<small class="pust-fx-tag">Посилення спільнику</small>` : e.does === "state" ? `<small class="pust-fx-tag">${e.all ? "ляже на всіх" : "ляже на ціль"}</small>`
         : e.does === "ignore" ? `<small class="pust-fx-tag">з шкодою</small>`
         : e.does === "text" ? `<small class="pust-fx-tag hand">руками</small>` : "";
       return `<label class="tog pust-fxt${on ? " on" : ""}"><input type="checkbox" data-fx="${e.key}"${on ? " checked" : ""}${done ? " disabled" : ""}> <span>${esc(effectText(L.ATK_FX, mode, x))}</span>${tag}</label>`;
@@ -284,11 +285,20 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const targets = [...(game.user.targets ?? [])].filter((t) => t?.document);
     const needOne = picks.some((k) => { const e = effectOf(of, k); return e?.does === "state" && !e.all; }) && targets.length > 1;
     const one = needOne ? `<label class="pust-fx-one">Ефект на: <select data-fx-one>${targets.map((t) => `<option value="${t.document.uuid}"${t.document.uuid === this.#fx.one ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>` : "";
+    // «Прикриваєш спільника»: an ally of the scene (a character's token, not this one's)
+    let ally = "";
+    if (picks.includes("cover")) {
+      const own = new Set((canvas?.scene?.tokens ?? []).filter((t) => t.actor?.id === this.actor.id).map((t) => t.uuid));
+      const allies = (canvas?.scene?.tokens ?? []).filter((t) => t.actor?.type === "character" && !own.has(t.uuid) && !t.hidden);
+      if (!allies.some((t) => t.uuid === this.#fx.ally)) this.#fx.ally = allies[0]?.uuid ?? "";
+      ally = allies.length ? `<label class="pust-fx-one">Кого прикриваєш: <select data-fx-ally>${allies.map((t) => `<option value="${t.uuid}"${t.uuid === this.#fx.ally ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>`
+        : `<p class="rhint">На сцені немає спільників: ефект ляже лише рядком на картку.</p>`;
+    }
     const applyFx = of.instead && picks.length && !done ? `<button type="button" class="btn rust pust-fx-apply" data-fx-apply><i class="fa-solid fa-bolt"></i>Застосувати ефект без шкоди</button>` : "";
     const block = `<div class="rfx pust-fx"><h4>Ефекти: ${esc(L.ATK_FX[mode]?.n?.toLowerCase() ?? "")}</h4>${perkNotes}<p class="rhint">${esc(limit)}${done ? " Уже застосовано." : ""}</p>`
       + (of.crit.length ? `<h5>Критичні</h5>${of.crit.map((e) => row(e, "crit")).join("")}` : "")
       + (of.normal.length ? `<h5>Звичайні</h5>${of.normal.map((e) => row(e, "normal")).join("")}` : "")
-      + one + applyFx + `</div>`;
+      + one + ally + applyFx + `</div>`;
     return html.replace(/<details class="rfx"[^>]*>[\s\S]*?<\/details>/, block);
   }
 
@@ -312,10 +322,21 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // 10–14 without the perk: damage or an effect — the damage carries none
     if (!f || !f.picks.length || (f.of.instead && !effectOnly)) return {};
     const targets = [...(game.user.targets ?? [])].filter((t) => t?.document).map((t) => t.document.uuid);
-    const h = hitFx(f.of, f.picks, targets, this.#fx.one);
+    const h = hitFx(f.of, f.picks, targets, this.#fx.one, this.#fx.ally);
     const { L } = evaluate(this.actor);
     const said = h.said.map((k) => effectText(L.ATK_FX, f.mode, effectOf(f.of, k))).filter(Boolean);
-    return { ...(h.ignoreArmor ? { ignoreArmor: true, ignoreN: 0 } : {}), ...(h.fx.length ? { fx: h.fx } : {}), ...(said.length ? { said } : {}) };
+    return { ...(h.ignoreArmor ? { ignoreArmor: true, ignoreN: 0 } : {}), ...(h.fx.length ? { fx: h.fx } : {}), ...(said.length ? { said } : {}), ...(h.cover ? { cover: h.cover } : {}) };
+  }
+
+  /** «Прикриваєш спільника» on this character, in force this round, or null */
+  #cover() {
+    const f = this.actor.getFlag?.(game.system.id, "cover");
+    return coverActive(f, Math.max(1, Number(sharedGet("round")) || 1)) ? f : null;
+  }
+
+  /** This character's token on the viewed scene (the effect's source), or "" */
+  #ownToken() {
+    return (canvas?.scene?.tokens ?? []).find((t) => t.actor?.id === this.actor.id)?.uuid ?? "";
   }
 
   async _prepareContext() {
@@ -357,7 +378,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // the roar's −2 among the automatic conditions, ticked and locked (it goes with the next roll; #intent counts it)
     const pen = checkPenalty(this.actor);
     const penHtml = pen ? `<div class="ramods pust-ramods-state"><span class="rl">Стан</span><label class="tog" title="Аспект «${pen.aspect}»: −2 до цього кидка, після нього аспект зникне"><input type="checkbox" data-r="am" data-k="state-check" checked disabled> <span>«${pen.aspect}»: <b>−${-pen.n}</b></span></label></div>` : "";
-    const withPen = penHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}<button type="button" class="btn rust rgo"`) : html;
+    const cov = R.type === "dodge" ? this.#cover() : null;
+    const covHtml = cov ? `<div class="ramods pust-ramods-state"><span class="rl">Прикриття</span><label class="tog" title="Спільник прикриває тебе: Посилення до наступного уникнення шкоди в цьому колі дій"><input type="checkbox" checked disabled> <span>${esc(cov.byName || "Спільник")} прикриває: <b>Посилення</b></span></label></div>` : "";
+    const withPen = penHtml || covHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}${covHtml}<button type="button" class="btn rust rgo"`) : html;
     return { html: this.#pendBar(R) + this.#damageBlock(this.#effectsBlock(withPen, L, st), L, st) };
   }
 
@@ -500,7 +523,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         if (fa.disabled) return;
         if (!game.user.targets.size) return notify.warn(NO_TARGETS);
         fa.disabled = true;
-        const ok = await sendEffects(this.#fxData(true), { head: `${this.actor.name}: ефект атаки` });
+        const ok = await sendEffects(this.#fxData(true), { head: `${this.actor.name}: ефект атаки`, source: this.#ownToken() });
         if (ok) { this.#fx.done = "applied"; this.render(); } else fa.disabled = false;
         return;
       }
@@ -517,7 +540,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         ev.preventDefault();
         if (!this.#apply || ap.disabled) return;
         ap.disabled = true;
-        try { await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head }); } finally { ap.disabled = false; }
+        try { await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() }); } finally { ap.disabled = false; }
         return;
       }
       const b = ev.target.closest("[data-r]");
@@ -542,6 +565,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     root.addEventListener("change", (ev) => {
       const fx = ev.target.closest("input[data-fx]");
       if (fx) { this.#fxPick(fx.dataset.fx, fx.checked); return; }
+      const al = ev.target.closest("select[data-fx-ally]");
+      if (al) { this.#fx.ally = al.value; return; }
       const one = ev.target.closest("select[data-fx-one]");
       if (one) { this.#fx.one = one.value; return; }
       const t = ev.target.closest("[data-r]");
@@ -677,15 +702,24 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // touched — the −2 rides on R.mod for the roll only and is shown among the automatic conditions
     const pen = kind === "click" && key === "roll" ? checkPenalty(this.actor) : null;
     let penUsed = false;
+    // «Прикриваєш спільника» (A2): +1 Посилення on this character's next avoidance in the round it was given, then it goes
+    const cover = kind === "click" && key === "roll" ? this.#cover() : null;
+    let coverUsed = false;
     await runAction(this.actor, (st, L) => {
       const R = this.#load(L);
       const t0 = R.last?.time;
       if (pen) R.mod = (+R.mod || 0) + pen.n;
+      const coverOn = cover && R.type === "dodge";
+      if (coverOn) R.boost = (+R.boost || 0) + 1;
       // the damage as it stands (to post the new result when an option changes it: Психо, effect, crit…)
       const dmgNow = () => (R.last?.dmg && R.last.dmg.key === R.dmgKey ? JSON.stringify(L.dmgTotal(R.last, compute(st))) : null);
       const before = { last: clone(R.last), dmg: dmgNow() };
       if (kind === "click") L.rollerClick(node);
       else L.rollerChange(node);
+      if (coverOn) {
+        R.boost = (+R.boost || 0) - 1;
+        if (R.last && R.last.time !== t0) { R.last.autoList = [...(R.last.autoList || []), `Посилення: прикриває ${cover.byName || "спільник"}`]; coverUsed = true; }
+      }
       if (pen) {
         R.mod = (+R.mod || 0) - pen.n;
         if (R.last && R.last.time !== t0) {
@@ -707,6 +741,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await postFateIfChanged(this.actor, fdWas);
     await postSupIfChanged(this.actor, supWas);
     if (penUsed) await spendCheckStates(this.actor);
+    if (coverUsed) await this.actor.unsetFlag(game.system.id, "cover");
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
     const deal = kind === "click" && key === "dmg";
     if (deal) await this.render(); // the damage to deal (#apply) is made by the render
@@ -721,7 +756,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       await answerPending(this.#pend.msg, this.#pend.row, { op: "rolled", verdict: nl.verdict });
     }
     // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
-    if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head });
+    if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() });
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
     else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice, out.before.last?.dmg?.extra ?? null);
   }

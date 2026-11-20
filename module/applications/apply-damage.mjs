@@ -248,6 +248,18 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
 async function effectLines(uuids, data, source = "") {
   const out = [];
   for (const t of (Array.isArray(data.said) ? data.said : []).slice(0, 4)) { const h = `<div class="pust-da-note">${esc(`Ефект: ${t}`)}</div>`; out.push({ full: h, short: h }); }
+  // «Прикриваєш спільника» (A2): the ally (a character) gets Посилення on its next avoidance in this round
+  if (data.cover) {
+    const { tok, actor } = await targetOf(String(data.cover));
+    if (actor?.type === "character") {
+      const { sharedGet } = await import("../helpers/scene-shared.mjs");
+      const src = source ? await targetOf(source) : null;
+      const byName = src?.tok?.name || src?.actor?.name || "";
+      await actor.setFlag(game.system.id, "cover", { round: Math.max(1, Number(sharedGet("round")) || 1), by: source, byName });
+      const h = `<div class="pust-da-note">${esc(`${tok?.name || actor.name}: Посилення до наступного уникнення шкоди в цьому колі дій${byName ? ` (прикриває ${byName})` : ""}.`)}</div>`;
+      out.push({ full: h, short: tok?.hidden ? "" : h });
+    }
+  }
   const fx = cleanFx(data.fx, uuids);
   if (!fx.length) return out;
   const { putStates } = await import("./states.mjs");
@@ -275,12 +287,12 @@ export async function applyEffects(tokenUuids, data, { head = "", source = "" } 
 }
 
 /** «Застосувати ефект без шкоди» of «Зробити перевірку»: to the targets, through the GM as the damage goes */
-export async function sendEffects(data, { head = "" } = {}) {
+export async function sendEffects(data, { head = "", source = "" } = {}) {
   const targets = chosenTokens();
   if (!targets.length) { warnNoTargets(); return false; }
-  if (game.user.isGM) { await applyEffects(targets, data, { head }); clearTargets(); return true; }
+  if (game.user.isGM) { await applyEffects(targets, data, { head, source }); clearTargets(); return true; }
   if (!game.users.activeGM) { notify.warn("Ефект застосовує Доглядач, а його зараз немає в грі."); return false; }
-  askGM({ op: "applyEffects", targets, data, head }, "Ефект");
+  askGM({ op: "applyEffects", targets, data, head, source }, "Ефект");
   clearTargets();
   return true;
 }
@@ -309,7 +321,7 @@ export async function sendDamage(data, { partial = false, dodge = false, head = 
 export function readyApplyDamage() {
   game.socket.on(SOCKET(), (msg) => {
     if (!activeGmHere()) return;
-    if (msg?.op === "applyEffects") return answerGM(msg, () => applyEffects(msg.targets || [], msg.data || {}, { head: String(msg.head || "") }));
+    if (msg?.op === "applyEffects") return answerGM(msg, () => applyEffects(msg.targets || [], msg.data || {}, { head: String(msg.head || ""), source: String(msg.source || "") }));
     if (msg?.op === "applyDamage") answerGM(msg, () => applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, dodge: !!msg.dodge, head: String(msg.head || ""), source: String(msg.source || "") }));
   });
 }
