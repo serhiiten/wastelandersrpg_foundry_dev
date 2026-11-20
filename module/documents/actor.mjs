@@ -6,6 +6,7 @@
  */
 import { mine } from "../helpers/main-window.mjs";
 import { cargoHurtAt } from "../rules/caravan-adapter.mjs";
+import { activeStates } from "../rules/states.mjs";
 
 export class WastelandersActor extends Actor {
   /** Actor types whose tokens follow the rules below */
@@ -261,6 +262,9 @@ export class WastelandersActor extends Actor {
     if (!mine(userId)) return; // the user's main window only (helpers/main-window.mjs)
     // 0 ОЗ: the token lies «Unconscious»; 1 or more: it gets up (author, 2026-11-14)
     this.syncUnconscious();
+    // a state's aspect deleted (a player got up, put the fire out…): its record goes at once, so the same aspect added again
+    // later is only an aspect, not the old state back (author, 2026-11-20; rules/states.mjs)
+    if (foundry.utils.hasProperty(changed, "system.situational") || foundry.utils.hasProperty(changed, "system.aspects")) this.#sweepStates();
     // a renamed caravan renames its own folder (the sheet saves with recursive: false, so the name comes wrapped, not as a string)
     if (this.type === "caravan" && "name" in changed) {
       const folder = game.folders.find((f) => f.type === "Actor" && f.getFlag(game.system.id, "caravan") === this.id);
@@ -281,6 +285,17 @@ export class WastelandersActor extends Actor {
         ui.notifications?.warn(`${foundry.utils.escapeHTML(this.name)}: караван отримав понад половину ОЗ шкоди — вантаж пошкоджено`);
       }
     }
+  }
+
+  /** The states whose aspect is gone are dropped from `flags.<system>.states` (by the user who changed the aspects) */
+  #sweepStates() {
+    const sys = game.system.id;
+    const flag = this.getFlag(sys, "states");
+    if (!Array.isArray(flag) || !flag.length || !this.isOwner) return;
+    const texts = this.type === "character" ? (this.system.situational ?? []).map((a) => a.name) : (this.system.aspects ?? []).map((a) => a.t);
+    const keep = activeStates(flag, texts);
+    if (keep.length === flag.length) return;
+    this.update(keep.length ? { [`flags.${sys}.states`]: keep } : { [`flags.${sys}.-=states`]: null }).catch((err) => console.warn(err));
   }
 
   /** Tokens of a character on every scene take the character's name */
