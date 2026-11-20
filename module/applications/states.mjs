@@ -137,9 +137,9 @@ export async function tickRound(r) {
  * the situational aspects typed by hand stay (author, 2026-11-20)
  */
 export async function clearAllStates(scene = canvas?.scene) {
-  if (!game.user.isGM) return 0;
-  let n = 0;
-  for (const { actor } of carriers(scene)) {
+  if (!game.user.isGM) return [];
+  const out = [];
+  for (const { tok, actor } of carriers(scene)) {
     const f = actor.flags?.[sys()] ?? {};
     const states = Array.isArray(f.states) ? f.states : [];
     // every standard aspect goes too, the states' and the same words added by hand («Збитий з ніг» of the quick aspects…);
@@ -150,9 +150,9 @@ export async function clearAllStates(scene = canvas?.scene) {
     const upd = { ...(drop.length ? aspectUpdate(actor, [], drop) : {}) };
     for (const k of ["states", "statesOnce", "lastKill"]) if (f[k] !== undefined) upd[`flags.${sys()}.-=${k}`] = null;
     await actor.update(upd);
-    if (states.length || drop.length) n++;
+    if (drop.length) out.push({ actor, name: tok?.name || actor.name, img: tok?.texture?.src || actor.img, gone: drop.map((k) => STATES[k].aspect) });
   }
-  return n;
+  return out; // [{actor, name, img, gone: [aspect texts]}]
 }
 
 

@@ -29,6 +29,16 @@ export function groupCharacters() {
   return [...out.values()];
 }
 
+/**
+ * Whom «Кінець сцени» / «Новий день» / «Кінець сесії» take (author, 2026-11-20): the group's characters and every character
+ * with a token on the viewed scene, assigned to a player or not; each once
+ */
+export function endCharacters() {
+  const out = new Map(groupCharacters().map((a) => [a.uuid, a]));
+  for (const t of canvas?.scene?.tokens ?? []) if (t.actor?.type === "character" && !out.has(t.actor.uuid)) out.set(t.actor.uuid, t.actor);
+  return [...out.values()];
+}
+
 /** The group's session number (each character keeps its own; author, 2026-11-17): «3», or «2–3» when they differ */
 export function groupSession() {
   const ns = groupCharacters().map((a) => { try { return Number(readState(a).chem?.session) || 1; } catch (_) { return 1; } });
@@ -84,7 +94,7 @@ function sceneEnemies() {
 export async function endForAll(kind, { moves = false, fate = null } = {}) {
   const def = GROUP_END[kind];
   if (!def || !game.user.isGM) return;
-  const chars = groupCharacters();
+  const chars = endCharacters();
   if (!chars.length && !moves) {
     if (kind !== "session") await clearDefibs(); // the caravans' marks end with the scene even with no characters assigned (a session asks first)
     return notify.warn("Жодного персонажа не призначено гравцям. Признач їх у налаштуваннях гравців (Player Character).");
@@ -111,7 +121,7 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
       const hp = Number(a.system.hp?.value) || 0;
       const items = sentences(ownPart(msg));
       if (back) items.push(back);
-      rows.push({ name: a.name, img: a.img, items, hp: hp - hp0, hpNow: hp, fd0, fd: fateNow(a) });
+      rows.push({ uuid: a.uuid, name: a.name, img: a.img, items, hp: hp - hp0, hpNow: hp, fd0, fd: fateNow(a) });
     } catch (err) {
       console.error(err);
       rows.push({ name: a.name, img: a.img, items: ["Не вдалося застосувати: аркуш пошкоджений."], bad: true, hp: 0, fd0, fd: fd0 });
@@ -136,7 +146,13 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
     }
   }
   // the states put on by enemies' moves end with the scene, their aspects too (author, 2026-11-20)
-  await clearAllStates();
+  // the aspects taken off are said in the card (author, 2026-11-20): in a character's row, a row of their own for the others
+  for (const g of await clearAllStates()) {
+    const item = `Аспекти зникли: ${g.gone.map((t) => `«${t}»`).join(", ")}.`;
+    const r = rows.find((x) => x.uuid === g.actor.uuid);
+    if (r) r.items.push(item);
+    else rows.push({ uuid: g.actor.uuid, name: g.name, img: g.img, items: [item], hp: 0 });
+  }
   await postChat({ speaker: { alias: def.title }, content: endCard(kind, def, rows, moves ? movesN : null) });
   notify.info(`${def.title}: ${chars.length} ${chars.length === 1 ? "персонаж" : chars.length < 5 && chars.length > 1 ? "персонажі" : "персонажів"}. Коло дій 1${fate != null ? `, жетонів Долі Доглядача: ${Math.max(0, fate)}` : ""}.`);
   return true;
