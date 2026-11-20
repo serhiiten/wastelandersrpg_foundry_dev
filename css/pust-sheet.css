@@ -1951,3 +1951,10 @@
 .pust-cmp-wpn.kind-boom { --gc: #e07b25; } .pust-cmp-wpn.kind-psi { --gc: #7b4fb0; } .pust-cmp-wpn.kind-natural { --gc: #6f7d2c; }
 .wastelanders .pust-cmp-wpn > button.pust-use-btn:not(.header-control) { flex: none; width: auto !important; height: 22px !important; line-height: 20px !important; padding: 0 7px !important; font-size: 12px !important; white-space: nowrap; }
 .wastelanders .pust-cmp-wpn > button.pust-cmp-dmg:not(.header-control) { font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); background: var(--dt-bg, #6e3b22) !important; color: var(--dt-fg, #f4d11a) !important; }
+
+/* the compact sheet's «Швидкий доступ» sticks while it fits (author, 2026-11-20; `pust-qsticky` set by #compactSticky);
+   the inner box takes its content's height, as the full sheet's (U1) */
+.wastelanders.pust-sheet:not(.pust-caravan-sheet, .pust-en-sheet, .pust-place-sheet) .pust-sheet-inner.pust-compact { flex-shrink: 0; }
+.pust-compact > .pust-quickbar.pust-qsticky { position: sticky; top: 0; z-index: 5; box-shadow: 0 4px 8px -4px rgba(0,0,0,.55); }
+/* the weapon's «Вид» in its grid cell next to «Вартість» (author, 2026-11-20): «Ближній бій» fits with the list's arrow */
+.wastelanders.pust-sheet .pust-gc select[data-k$=".wk"] { padding: 0 2px !important; font-size: 12px !important; }

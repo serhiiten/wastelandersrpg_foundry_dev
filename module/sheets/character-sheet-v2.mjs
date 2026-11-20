@@ -183,6 +183,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     // the compact chips show only their icons: the names go to the tooltips
     // the compact chips (author, 2026-11-17): short names (ОЗ, Броня, ЖД, Припаси, (к), ОД), the full one in the tooltip;
     // the caps' field takes a smaller font past two digits
+    this.#compactSticky();
     if (this.ui.compact) {
       const SHORT = { "fa-heart-pulse": "ОЗ", "fa-shield-halved": "Броня", "fa-clover": "ЖД", "fa-backpack": "Припаси", "fa-coins": "(к)", "fa-medal": "ОД" };
       this.element.querySelectorAll(".pust-qgrid .pust-qi > span:first-child").forEach((s) => {
@@ -207,6 +208,9 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         hotbarDraggable(el, () => (name(el) ? { kind: "attack", actor: uuid, label: name(el) } : null)));
       this.element.querySelectorAll('[data-action="weaponDamage"][data-weapon]').forEach((el) =>
         hotbarDraggable(el, () => (name(el) ? { kind: "damage", actor: uuid, label: name(el) } : null)));
+      // a grenade's / explosive's «Атака» (author, 2026-11-20)
+      this.element.querySelectorAll('[data-action="checkPanel"][data-other]').forEach((el) =>
+        hotbarDraggable(el, () => (name(el) ? { kind: "throw", actor: uuid, label: name(el) } : null)));
     }
     const root = this.element;
     const fits = []; // every wrapping field's fit, run again when the window's width changes (refitOnResize)
@@ -482,6 +486,22 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       if (go.startsWith(".q-")) this.ui.quickFold = false; // «Швидкий доступ» unfolds to show ОЗ / жетони Долі
     }
     this.render();
+  }
+
+  /**
+   * The compact sheet's «Швидкий доступ» sticks to the window's top (author, 2026-11-20) while it takes at most 70 % of the
+   * window's height: a taller block would cover the sheet and its own end could not be scrolled to
+   */
+  #compactSticky() {
+    this._pustStickyRO?.disconnect();
+    const wc = this.element.querySelector(".window-content");
+    const q = this.element.querySelector(".pust-compact > .pust-quickbar");
+    if (!wc || !q) return;
+    const fit = () => q.classList.toggle("pust-qsticky", q.offsetHeight <= wc.clientHeight * 0.7);
+    fit();
+    this._pustStickyRO = new ResizeObserver(fit);
+    this._pustStickyRO.observe(wc);
+    this._pustStickyRO.observe(q);
   }
 
   /** A tab was picked from the tab bar: the re-render scrolls back no lower than the bar's place (it stays stuck on top) */

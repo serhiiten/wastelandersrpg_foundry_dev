@@ -3,6 +3,7 @@
  *   an attribute / a skill (character sheet)   → «Зробити перевірку» opened with it
  *   a weapon's attack button (Мотлох)          → «Зробити перевірку» opened as an attack with that weapon
  *   a weapon's crosshair (Мотлох)              → just its damage to chat
+ *   a grenade's / explosive's attack button     → «Зробити перевірку» opened as СПР + Техніка with that thing (2026-11-20)
  *   a ready check (the check panel's buttons)  → «Зробити перевірку» opened with it
  *   «Доля» («Кістки» panel)                    → Кістка Долі, as the button does
  *   «Удача партії» (caravan sheet)             → the caravan's Кістка Долі
@@ -36,6 +37,7 @@ function look(d, actor) {
     case "skill": return { name: `${who}${d.label}`, img: actor?.img || "icons/svg/d20-black.svg" };
     case "attack": return { name: `${who}${d.label}`, img: "icons/svg/sword.svg" };
     case "damage": return { name: `${who}шкода: ${d.label}`, img: "icons/svg/explosion.svg" };
+    case "throw": return { name: `${who}${d.label}`, img: "icons/svg/fire.svg" };
     case "preset": case "xpreset": return { name: `${who}${d.label}`, img: actor?.img || "icons/svg/d20-black.svg" };
     case "fate": return { name: "Кістка Долі", img: "icons/svg/d10-grey.svg" };
     case "luck": return { name: `${who}Удача партії`, img: "icons/svg/d10-grey.svg" };
@@ -53,7 +55,7 @@ export function readyMacros() {
 }
 
 /** The kinds a macro may be, and which of them act on an actor (a character; «luck» a caravan) */
-const KINDS = { attr: "character", skill: "character", attack: "character", damage: "character", preset: "character", xpreset: "character", fate: null, luck: "caravan" };
+const KINDS = { attr: "character", skill: "character", attack: "character", damage: "character", throw: "character", preset: "character", xpreset: "character", fate: null, luck: "caravan" };
 
 async function makeMacro(data, slot) {
   const { type, ...d } = data;
@@ -84,6 +86,11 @@ export async function runMacro(d = {}) {
       const i = readState(actor).weapons.findIndex((w) => String(w.n || "").trim() === d.label);
       if (i < 0) return notify.warn(`У «${actor.name}» більше немає зброї «${d.label}».`);
       return d.kind === "attack" ? panel.openCheckPanel(actor, { weapon: i }) : panel.rollWeaponDamage(actor, i);
+    }
+    case "throw": {
+      const i = readState(actor).other.findIndex((o) => String(o.n || "").trim() === d.label);
+      if (i < 0) return notify.warn(`У «${actor.name}» більше немає «${d.label}».`);
+      return panel.openCheckPanel(actor, { other: i });
     }
     case "preset": case "xpreset": {
       const st = readState(actor);
