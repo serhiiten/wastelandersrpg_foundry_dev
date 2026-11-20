@@ -122,7 +122,8 @@ export function hpState(value, max) {
 
 /**
  * A move on the card (author, 2026-11-19; mockup А: like the compact sheet's perks): the limit chip («раз за сцену», «2 за
- * сцену» with pips, «без ліміту»), «Використати», under the text what the button does (move-spec.mjs); a used one greyed,
+ * сцену» with pips, «без ліміту»), «Використати» with what it does as its tooltip (move-spec.mjs; not a line under the
+ * text: author, 2026-11-20); a used one greyed,
  * «Використано · повернеться після «Кінця сцени»» and «↺ Зняти позначку». A move that acts by itself or is never automated
  * is a quiet line without a button; a «лишається живим» move that already saved the enemy this scene (`gone`) is struck
  * through with «Витрачено» and «↺ Зняти позначку» (author, 2026-11-20). `o.lastHit`: the enemy's last hit (undo works only while it is there).
