@@ -205,9 +205,9 @@ export function enemyView(sys, o = {}) {
   const psyIdx = psyMoveIdx(sys);
   const psycho = !!profile.psycho;
   const attacks = (sys.attacks ?? []).map((a, i) => {
-    const dice = attackDice(sys, i) || a.dice;
+    const dice = attackDice(sys, i, o.buffs) || a.dice;
     const plus = dice !== a.dice && dice.startsWith(a.dice) ? Number(dice.slice(a.dice.length)) || 0 : 0;
-    const who = andList(bonusFrom(sys, i));
+    const who = andList(bonusFrom(sys, i, o.buffs));
     const ammo = a.ammoMax > 0;
     return {
       i, name: a.name, dice, diceText: diceLabel(dice), base: diceLabel(a.dice), plus, plusText: plus ? `+${plus}` : "", plusTitle: plus ? `${who}: +${plus} шкоди` : "",

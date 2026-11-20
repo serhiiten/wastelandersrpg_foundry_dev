@@ -132,7 +132,7 @@ export async function tickRound(r) {
 }
 
 /**
- * «Кінець сцени» (and the day's, the session's): every state, the stun marks and the last kill are gone, and every standard
+ * «Кінець сцени» (and the day's, the session's): every state, the stun marks, the last kill and the allies' bonus are gone, and every standard
  * aspect (rules/states.mjs STATES: the states' and the quick ones, put on by a move or by hand) on characters and enemies;
  * the situational aspects typed by hand stay (author, 2026-11-20)
  */
@@ -146,9 +146,9 @@ export async function clearAllStates(scene = canvas?.scene) {
     // the other situational aspects stay (author, 2026-11-20)
     const texts = actor.type === "character" ? (actor.system.situational ?? []).map((x) => x.name) : (actor.system.aspects ?? []).map((x) => x.t);
     const drop = Object.keys(STATES).filter((k) => texts.includes(STATES[k].aspect));
-    if (!states.length && !drop.length && !f.statesOnce && !f.lastKill) continue;
+    if (!states.length && !drop.length && !f.statesOnce && !f.lastKill && !f.buffs) continue;
     const upd = { ...(drop.length ? aspectUpdate(actor, [], drop) : {}) };
-    for (const k of ["states", "statesOnce", "lastKill"]) if (f[k] !== undefined) upd[`flags.${sys()}.-=${k}`] = null;
+    for (const k of ["states", "statesOnce", "lastKill", "buffs"]) if (f[k] !== undefined) upd[`flags.${sys()}.-=${k}`] = null;
     await actor.update(upd);
     if (drop.length) out.push({ actor, name: tok?.name || actor.name, img: tok?.texture?.src || actor.img, gone: drop.map((k) => STATES[k].aspect) });
   }

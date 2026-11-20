@@ -102,21 +102,21 @@ export function plusDice(dice, n) {
  * The attack's dice with the Kamikaze / Психо +2 (not for unarmed attacks or Пси-удар) and the moves' own bonus
  * («Це не моя фінальна форма», «Берсерк-протокол», «Тільки не по дітях»: every attack, unarmed too; author, 2026-11-19)
  */
-export function attackDice(sys, i) {
+export function attackDice(sys, i, buffs = null) {
   const a = sys.attacks?.[i];
   if (!a) return "";
-  return plusDice(B.kamiDice(a.dice, `${a.name} ${a.note}`, profileOf(sys)), moveBonus(sys).dmg);
+  return plusDice(B.kamiDice(a.dice, `${a.name} ${a.note}`, profileOf(sys)), moveBonus(sys, buffs).dmg);
 }
 
 /** Who adds to the attack's damage, for the card and the tooltip: «Психо», «Камікадзе», the moves' names */
-export function bonusFrom(sys, i) {
+export function bonusFrom(sys, i, buffs = null) {
   const a = sys.attacks?.[i];
   if (!a) return [];
   const base = B.kamiDice(a.dice, `${a.name} ${a.note}`, profileOf(sys)) !== a.dice;
   const who = [];
   if (base && psychoOn(sys)) who.push("Психо");
   if (base && sys.flags?.kamikaze) who.push("Камікадзе");
-  return [...who, ...moveBonus(sys).from.map((n) => `«${n}»`)];
+  return [...who, ...moveBonus(sys, buffs).from.map((n) => `«${n}»`)];
 }
 
 /** «Психо», «Психо й Камікадзе», «Психо, Камікадзе й «Берсерк-протокол»» */

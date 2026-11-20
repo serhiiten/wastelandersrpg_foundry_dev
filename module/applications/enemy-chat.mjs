@@ -14,7 +14,7 @@ const aspectChips = (list) => list.map((a) => `<span class="pust-ec-asp">${esc(a
 
 /** The chat card's HTML of an enemy actor */
 export function enemyCardHtml(actor) {
-  const v = enemyView(actor.system, { editable: false });
+  const v = enemyView(actor.system, { editable: false, buffs: actor.getFlag(game.system.id, "buffs") ?? null });
   const sec = (icon, title, body) => (body ? `<div class="pust-ec-sec"><h4><i class="fa-solid ${icon}" aria-hidden="true"></i>${title}</h4>${body}</div>` : "");
   const head = `<div class="pust-ec-hd"><img src="${esc(actor.img)}" alt=""><div><b>${esc(actor.name)}</b><span>${esc(v.catLabel)}</span></div></div>`;
   const hp = `<div class="pust-ec-row"><span class="pust-ec-hp"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i>ОЗ <b>${v.hp.value} / ${v.hp.max}</b></span>`

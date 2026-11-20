@@ -18,11 +18,12 @@ import { waitDice } from "../helpers/dice-rolls.mjs";
 
 export async function rollEnemyAttack(actor, i, { token = null, plus = "" } = {}) {
   const sys = actor.system;
+  const buffs = actor.getFlag?.(game.system.id, "buffs") ?? null; // «Ave!», «Децимація» (move-spec.mjs buffList)
   const a = sys.attacks?.[i];
   if (!a) return null;
   if (a.ammoMax > 0 && a.ammo <= 0) return notify.warn(`«${a.name}»: заряди скінчилися.`);
   // `plus`: a die on top, «+1d6» of «Прицільний постріл» (author, 2026-11-20)
-  const dice = (attackDice(sys, i) || a.dice) + (plus ? `+${plus}` : "");
+  const dice = (attackDice(sys, i, buffs) || a.dice) + (plus ? `+${plus}` : "");
   let roll;
   try { roll = await new Roll(String(dice).replace(/^d/i, "1d")).evaluate(); }
   catch (_) { return notify.warn(`Не вдалося розібрати кістки атаки «${a.name}»: ${dice}`); }
@@ -32,9 +33,9 @@ export async function rollEnemyAttack(actor, i, { token = null, plus = "" } = {}
   else if (a.ignoreN > 0) fx.push(`Ігнорує ${a.ignoreN} броні.`);
   if (TYPE_EFFECTS[wt]) fx.push(TYPE_EFFECTS[wt]);
   if (/зон[іиу]/i.test(a.note)) fx.push("Влучає по всіх в одній зоні.");
-  const own = attackDice(sys, i) || a.dice;
+  const own = attackDice(sys, i, buffs) || a.dice;
   const bonus = own !== a.dice ? own.slice(a.dice.length) : "";
-  if (bonus) fx.push(`${bonus} шкоди: ${andList(bonusFrom(sys, i))}.`);
+  if (bonus) fx.push(`${bonus} шкоди: ${andList(bonusFrom(sys, i, buffs))}.`);
   if (plus) fx.push(`+${plus} шкоди: вибраний ефект.`);
   // «під час атаки самознищується» (Бум-око; author, 2026-11-20): the attack is its last
   const boom = /самознищу/i.test(a.note ?? "");

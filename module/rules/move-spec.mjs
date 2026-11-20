@@ -255,7 +255,7 @@ export function moveHint(spec) {
       case "undo": return "Шкода, яку ворогові щойно завдали, скасовується";
       case "bonus": return `Ворог до кінця сцени б'є на ${e.dmg} сильніше${e.stack ? ` (кожне використання додає ще ${e.dmg})` : ""}`;
       case "ammo": return `Зброя витрачає ${e.n} ${e.n === 1 ? "заряд" : "заряди"}`;
-      case "allyBonus": return `Свої до кінця сцени б'ють на ${e.dmg} сильніше: це поки додавай вручну`;
+      case "allyBonus": return `Свої до кінця сцени б'ють на ${e.dmg} сильніше`;
       case "attack": return "Ворог атакує всіх персонажів у своїй зоні (або лише позначені цілі)";
       case "hit": return `Завдає ${hitWords(e)} ${e.zone ? `${e.spareKin ? `${HIT_WHO.all}, крім таких самих, як він` : HIT_WHO[e.zone]} (або лише позначеним цілям)` : "позначеним цілям"}`;
       case "psiPerk": return "Кидає 1d6 і показує, який псионічний перк випав";
@@ -391,9 +391,11 @@ export const canUndo = (lastHit, hpNow) => !!lastHit && Number(lastHit.after) ==
  * attack, unarmed too.
  * @returns {{dmg:number, armor:number, from:string[]}}
  */
-export function moveBonus(sys) {
+export function moveBonus(sys, buffs = null) {
   let dmg = 0, armor = 0;
   const from = [];
+  // the allies' bonus put on it by another's move («Ave!», «Децимація»; author, 2026-11-20): the actor's flag `buffs`
+  for (const b of buffList(buffs)) { dmg += b.dmg; from.push(b.from); }
   (sys?.moves ?? []).forEach((m) => {
     const spec = moveSpec(m);
     for (const e of spec.effects) {
@@ -406,6 +408,21 @@ export function moveBonus(sys) {
     }
   });
   return { dmg, armor, from };
+}
+
+/**
+ * The allies' bonus (stage 3, author 2026-11-20): `flags.<system>.buffs = {<move key>: {dmg, from}}` on every one a move
+ * like «Ave! True to Caesar!» takes; the same move again replaces its record, different moves add up («Ave!» +2 and
+ * «Децимація» +1 give +3). Cleared by «Кінець сцени» (applications/states.mjs clearAllStates).
+ */
+export function buffList(buffs) {
+  if (!buffs || typeof buffs !== "object") return [];
+  return Object.values(buffs).filter((b) => b && Number(b.dmg) > 0).map((b) => ({ dmg: Math.round(Number(b.dmg)), from: String(b.from ?? "") }));
+}
+
+/** The record a move puts into `buffs`: its key is the move's normalised name */
+export function putBuff(buffs, moveName, dmg) {
+  return { ...(buffs && typeof buffs === "object" ? buffs : {}), [normMoveName(moveName)]: { dmg: Math.round(Number(dmg) || 0), from: String(moveName ?? "") } };
 }
 
 /** «Псионічний талант»: the perk the 1d6 picks from the move's list «1 — «Цілющий дотик», 2 — …»; "" when not listed */

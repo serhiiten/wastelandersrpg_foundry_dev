@@ -6,6 +6,7 @@
  * then one card «<name> використовує «<move>»» for everyone (author: the players see the move's name). Damage goes through
  * applyDamage, so armour, defences and the damage card are the usual ones.
  */
+import { putBuff } from "../rules/move-spec.mjs";
 import { moveSpec, moveMarks, spendMove, freeMove as freeMark, canUndo, healWho, factionOf, bookName, normEnemyName, psiPerkOf, limitLabel, attackMenu } from "../rules/move-spec.mjs";
 import { zoneOfPoint, chatType } from "../rules/battle.mjs";
 import { BOOK } from "../rules/book.mjs";
@@ -76,6 +77,9 @@ export function zoneTargets(actor, tok, how, { spareKin = false } = {}) {
     return true;
   });
 }
+
+/** Who «свої» are on a card, by the faction (move-spec.mjs FACTIONS) */
+const FACTION_SIDE = { legion: "Бійці Легіону", ncr: "Бійці НКР", supermutants: "Супермутанти" };
 
 /** The living enemies of the user's faction on the scene (author, 2026-11-19), the user included */
 function factionTokens(actor, tok) {
@@ -169,6 +173,7 @@ export async function useMove(actor, i, { token = null } = {}) {
   const lines = [];
   let icon = "fa-person-running", cls = "move";
   const hits = []; // the damage, dealt after the card
+  let group = null; // whom a group heal took: the allies' bonus goes to the same ones
   for (const e of spec.effects) {
     switch (e.kind) {
       case "psycho":
@@ -192,10 +197,12 @@ export async function useMove(actor, i, { token = null } = {}) {
           why = r.why;
         }
         const got = [];
+        group = [];
         for (const t of list) {
           if (t && exe && t === tDocs[0]) continue; // the one executed isn't healed
           const a = t ? actorOf(t) : actor;
           if (!a?.system?.hp) continue;
+          group.push({ a, name: t ? nameOf(t) : name });
           const line = await healOne(a, t ? nameOf(t) : name, e.expr);
           if (line) got.push(line);
         }
@@ -223,9 +230,15 @@ export async function useMove(actor, i, { token = null } = {}) {
         lines.push(`+${e.dmg} шкоди атаками до кінця сцени${e.stack && k > 1 ? ` (разом +${e.dmg * k})` : ""}.`);
         break;
       }
-      case "allyBonus": // stage 3: the system doesn't add it yet, the card says it
-        lines.push(`Свої до кінця сцени завдають +${e.dmg} шкоди.`);
+      case "allyBonus": {
+        // stage 3 (author, 2026-11-20): the ones the move's heal took (not the executed one) deal +N till the scene's end;
+        // the same move again replaces its record, different moves add up (move-spec.mjs putBuff)
+        const who = group ?? [{ a: actor, name }];
+        for (const g of who) await g.a.setFlag(sysId(), "buffs", putBuff(g.a.getFlag(sysId(), "buffs"), mv.n, e.dmg));
+        const side = FACTION_SIDE[factionOf(bookNameOf(actor, tok))] ?? "Свої";
+        lines.push(`${side} до кінця сцени завдають +${e.dmg} шкоди: ${who.map((g) => g.name).join(", ")}.`);
         break;
+      }
       case "ammo":
         if (ammoIdx >= 0) lines.push(`«${sys.attacks[ammoIdx].name}»: −${e.n} заряд.`);
         break;

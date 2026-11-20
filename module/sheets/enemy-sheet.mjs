@@ -104,7 +104,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const editable = this.isEditable;
     const gm = game.user.isGM;
     const edit = this.#ui.edit && editable;
-    const v = enemyView(s, { editable, gm, lastHit: doc.getFlag(game.system.id, "lastHit") ?? null, names: enemyNames(doc) });
+    const v = enemyView(s, { editable, gm, lastHit: doc.getFlag(game.system.id, "lastHit") ?? null, buffs: doc.getFlag(game.system.id, "buffs") ?? null, names: enemyNames(doc) });
     Object.assign(context, {
       v, editable, gm, edit, ui: this.#ui, limited: !doc.isOwner,
       // «Спостережливість» (author, 2026-11-17; wiki: «ти завжди знаєш точну кількість ОЗ супротивників і чим вони озброєні»):

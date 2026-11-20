@@ -153,5 +153,21 @@ eq(S.attackStates("шкоди вогнем всім істотам в одній
 eq(S.attackStates("фізичної шкоди, ближній бій, ігнорує 2 броні, спричиняє кровотечу"), [{ key: "bleeding", dice: "1d6", left: 1, ignoreArmor: true }], "«спричиняє кровотечу»");
 eq(S.attackStates("фізичної шкоди, бій на відстані"), [], "a plain note puts nothing");
 
+// stage 3 (author, 2026-11-20): the allies' bonus of «Ave!» / «Децимація» on the ones the move took
+{
+  let b = S.putBuff(null, "Ave! True to Caesar!", 2);
+  eq(S.buffList(b), [{ dmg: 2, from: "Ave! True to Caesar!" }], "Ave! puts +2");
+  b = S.putBuff(b, "Ave! True to Caesar!", 2);
+  eq(S.buffList(b).length, 1, "the same move again replaces, doesn't stack");
+  b = S.putBuff(b, "Децимація", 1);
+  const leg = { hp: { value: 10, max: 10 }, moves: [], attacks: [{ name: "Мачете", dice: "1d10", note: "" }, { name: "Кулак", dice: "1d6", note: "" }] };
+  eq(S.moveBonus(leg, b).dmg, 3, "different moves add up: +3");
+  eq([attackDice(leg, 0, b), attackDice(leg, 1, b)], ["1d10+3", "1d6+3"], "every attack, unarmed too");
+  eq(bonusFrom(leg, 0, b), ["«Ave! True to Caesar!»", "«Децимація»"], "the moves named on the card");
+  eq(attackDice(leg, 0), "1d10", "no flag: no bonus");
+  eq(S.buffList({ x: { dmg: 0, from: "x" }, y: null }), [], "empty records count nothing");
+  ok(((h) => /сильніше/.test(h) && !/вручну/.test(h))(S.moveHint(spec("Ave! True to Caesar!", "раз за сцену видає бойовий клич. Усі бійці Легіону, які його чують, відновлюють 5 ОЗ і до кінця сцени завдають +2 шкоди."))), "the tooltip no longer says «add by hand»");
+}
+
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
 if (failures) process.exit(1);
