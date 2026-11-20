@@ -46,7 +46,7 @@ function compactWeapons(v) {
 }
 function compactGear(v) {
   const a = (v.armorList ?? []).map((x) => ({ l: "armor", i: x.i, n: x.n || "без назви", kind: x.kind, stat: String(x.v ?? "").trim() ? `броня ${x.v}` : "", statCls: "arm" }));
-  const o = (v.other ?? []).filter((x) => !x.hasActs).map((x) => ({ l: "other", i: x.i, n: x.n || "без назви", kind: x.kind, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "" }));
+  const o = (v.other ?? []).filter((x) => !x.hasActs && !x.atk).map((x) => ({ l: "other", i: x.i, n: x.n || "без назви", kind: x.kind, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "" }));
   return [...a, ...o];
 }
 
@@ -130,6 +130,8 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         aspects: (v.aspects ?? []).filter((a) => String(a.v).trim()),
         chems: (v.other ?? []).filter((o) => o.hasActs).map((o) => ({ ...o, more: !!o.treat })),
         weapons: compactWeapons(v),
+        // the grenades and explosives the attack can throw: in «Зброя» with «Атака» (author, 2026-11-20), not among the chips
+        grenades: (v.other ?? []).filter((x) => x.atk && !x.hasActs).map((x) => ({ i: x.i, n: x.n || "без назви", d: x.atkD, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "" })),
         gear: compactGear(v),
         perks: pk,
         catSecName: (v.catSecs ?? []).find((o) => o.sel)?.n ?? "", catSecAll: !!(v.catSecs ?? [])[0]?.sel,

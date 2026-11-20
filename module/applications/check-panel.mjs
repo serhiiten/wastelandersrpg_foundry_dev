@@ -186,6 +186,19 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       L.applyTypeDefaults("attack");
       R.dmgKey = `w${p.weapon}`;
       R.dmgUser = true;
+      // the attack by the weapon's «Вид» (author, 2026-11-20): melee → СЛ + Герць, ranged → СПР + Стрільба; unknown kinds and
+      // psychic powers keep the attack's defaults
+      const kind = L.weaponKind({ key: R.dmgKey, w: st.weapons[+p.weapon] });
+      if (kind === "melee") { R.attr = "SL"; R.skill = "Герць"; }
+      else if (kind === "ranged") { R.attr = "SPR"; R.skill = "Стрільба"; }
+    }
+    // a grenade or explosive of «Інший мотлох» (author, 2026-11-20): СПР + Техніка, its damage chosen
+    if (p.other != null && st.other[+p.other]) {
+      R.type = "attack";
+      L.applyTypeDefaults("attack");
+      R.attr = "SPR"; R.skill = "Техніка";
+      R.dmgKey = `o${p.other}`;
+      R.dmgUser = true;
     }
     // a ready check (a hotbar macro; author, 2026-11-17): as a press of its button
     if (p.r) L.rollerClick({ tagName: "BUTTON", dataset: { r: p.r, v: String(p.v) } });

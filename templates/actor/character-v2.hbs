@@ -180,7 +180,7 @@
   {{/if}}
   {{!-- «Зброя» above «Хімія» (author, 2026-11-20; Fable's analysis U2, variant Б): each weapon with the full sheet's two actions,
        the attack with it and its damage roll; no price, no × (those are the full sheet's) --}}
-  {{#if cmp.weapons.length}}
+  {{#if (or cmp.weapons.length cmp.grenades.length)}}
   <section class="pust-block pust-cmp-weapons">
     <h3><i class="fa-solid fa-gun pust-qic" aria-hidden="true"></i>Зброя</h3>
     {{#each cmp.weapons}}
@@ -188,6 +188,13 @@
       <span class="pust-cmp-cn">{{n}}</span>
       <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-weapon="{{i}}" data-name="{{n}}" title="Атака цією зброєю: «Зробити перевірку». Перетягни на панель макросів, щоб атакувати звідти"><i class="fa-solid fa-dice-d20"></i> Атака</button>
       {{#if stat}}<button type="button" class="pust-use-btn pust-cmp-dmg {{statCls}}" data-action="weaponDamage" data-weapon="{{i}}" data-name="{{n}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i> {{stat}}</button>{{/if}}
+    </div>
+    {{/each}}
+    {{#each cmp.grenades}}
+    <div class="pust-cmp-wpn kind-boom">
+      <span class="pust-cmp-cn">{{n}}{{#if q}} <small>×{{q}}</small>{{/if}}</span>
+      <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-other="{{i}}" title="Атака цією гранатою чи вибухівкою: «Зробити перевірку» (СПР + Техніка)"><i class="fa-solid fa-dice-d20"></i> Атака</button>
+      {{#if d}}<span class="pust-cmp-gs pust-cmp-gd">{{d}}</span>{{/if}}
     </div>
     {{/each}}
   </section>
@@ -576,6 +583,7 @@
             <label class="pust-fchip pust-fchip-tog pust-heavy {{#if h}}on{{/if}}" title="Важка річ: рахується у важких речах"><input type="checkbox" data-k="weapons.{{i}}.h" {{#if h}}checked{{/if}} aria-label="Важка"> Важка</label>
             {{#unless locked}}<button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="weapons" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>{{/unless}}
           </div>
+          {{#if wkOptions}}<label class="pust-gf2 pust-gc-full"><span class="pust-fchip">Вид</span><select data-k="weapons.{{i}}.wk" title="Вид зброї: від нього «Атака» бере СПР + Стрільба чи СЛ + Герць. Система визначає вид сама (за доповненням чи назвою), тут його можна змінити" aria-label="Вид зброї">{{#each wkOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>{{/if}}
           <label class="pust-gf2 pust-gc-full"><span class="pust-fchip">Примітка</span><textarea rows="1" data-k="weapons.{{i}}.note" placeholder="—" class="pust-gnote-ta" aria-label="Примітка">{{note}}</textarea></label>
           <label class="pust-gf2"><span class="pust-fchip">Тип</span>
             <select data-change="dtype" data-i="{{i}}" title="Тип шкоди: енергетична версія (лазерна, електрична, плазмова, кріо, гаус) змінює правила зброї; вогонь, пси, отрута й радіація — лише колір шкоди" class="pust-en">{{#each energyOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>
@@ -673,6 +681,7 @@
           </div>{{/if}}
           <div class="pust-gc-head">
             <div class="pust-gf2"><span class="pust-fchip">Назва</span><input type="text" data-k="other.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" aria-label="Назва" {{#if auto}}readonly{{/if}}></div>
+            {{#if atk}}<a class="pust-roll pust-gc-atk" data-action="checkPanel" data-other="{{i}}" title="Атака цією гранатою чи вибухівкою: «Зробити перевірку» (СПР + Техніка)" aria-label="Атака цією гранатою чи вибухівкою"><i class="fa-solid fa-dice-d20"></i></a>{{/if}}
             <label class="pust-fchip pust-fchip-tog pust-heavy {{#if h}}on{{/if}}" title="Важка річ: рахується у важких речах"><input type="checkbox" data-k="other.{{i}}.h" {{#if h}}checked{{/if}} aria-label="Важка"> Важка</label>
             <button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="other" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>
           </div>

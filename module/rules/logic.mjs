@@ -976,7 +976,7 @@ const WK_MELEE=new RegExp(WK_PRE+"(ближн|кастет|ніж|нож|меч|
 const WK_RANGED=new RegExp(WK_PRE+"(стрілец|пістолет|гвинтівк|рушниц|дробовик|кулемет|автомат|лук|арбалет|револьвер|обріз|двостволк|гармат|мініган|гатлінг|базук|гранатомет|вогнемет|бластер|голкостріл|снайпер|самопал|плазмомет|турбоплазмомет|томмі|маузер|desert|pancor|маслянк|h&k|ak112|fal|підпалювач|ствол|бій на відстані)");
 function weaponKind(c){
   if(c.key==='unarmed') return 'melee'; if(c.expl) return 'explosive';
-  const w=c.w; if(!w) return 'any'; if(w.claw) return 'melee'; if(w.auto==='psi') return 'psi';
+  const w=c.w; if(!w) return 'any'; if(w.claw) return 'melee'; if(w.auto==='psi') return 'psi'; if(w.wk==='melee'||w.wk==='ranged') return w.wk;
   if(w.r==='melee' || w.rof==='melee') return 'melee';
   if(w.zone || ['1','2','max'].includes(w.r) || ['single','semi','auto'].includes(w.rof)) return 'ranged';
   for(const t of [catNorm(w.n), catNorm(w.note)]){ const m=WK_MELEE.test(t), r=WK_RANGED.test(t); if(m&&!r) return 'melee'; if(r&&!m) return 'ranged'; }
