@@ -1,7 +1,8 @@
 // The guard of the enemies' moves' automation levels (author, 2026-11-19): every move of the «opponents» compendium and of
 // the battle generator gets the level of the author's decision table «Ходи супротивників: автоматизація»
 // (https://claude.ai/artifact/2bDVJFHAEoDeSfc7Spmh5C, sheet «Ходи», column «Рішення»; «Вже працює» for a move = a button
-// with its effect). Rows 26, 27, 60, 78 and 109–115 are notes of attacks, not moves, and are left out. A new move in the
+// with its effect). Rows 26, 27, 60, 78 and 109–115 are notes of attacks, not moves, and are left out. «Підкріплення» and
+// «Сигналізація» were «Кнопка, лише картка» till stage 3 (author, 2026-11-19: summons in stage 3). A new move in the
 // compendium or the generator fails here until it has a row: ask the author for its level.
 // Run: node tests/move-levels.test.mjs
 import { readFileSync, readdirSync } from "node:fs";
@@ -28,10 +29,10 @@ const TABLE = [
   ["Реаніматор", E], ["Улюблений ворог", A], ["Бомбардування", E], ["Політ", N], ["Круте піке", T],
   ["Це не моя фінальна форма", A], ["Точний удар", E], ["Неймовірна живучість", A], ["Космічна програма Анклаву", W],
   ["Ану, вставай!", E], ["Стелс-піхота", E], ["Диверсія", E], ["Кільце вогню", E], ["Полум’яний ривок", E],
-  ["Затиснути гашетку", E], ["Живучість", A], ["Бийтеся, ідіоти", W], ["Перегрів ядра", T], ["Сигналізація", C],
+  ["Затиснути гашетку", E], ["Живучість", A], ["Бийтеся, ідіоти", W], ["Перегрів ядра", T], ["Сигналізація", E],
   ["Захоплення цілі", E], ["Рад-промінь", E], ["Пси-вибух", E], ["Захисний протокол", E], ["Берсерк-протокол", A],
   ["Клешні-лещата", E], ["Самоліквідація", T], ["Вогняне дихання", E], ["Плювок кислотою", E], ["Кусь", E],
-  ["Підкріплення", C], ["Бомбардування кислотою", E], ["Регенерація", W], ["Могутні щелепи", E], ["Стрибок", N],
+  ["Підкріплення", E], ["Бомбардування кислотою", E], ["Регенерація", W], ["Могутні щелепи", E], ["Стрибок", N],
   ["Приголомшливий рев", E], ["Непомітність", N], ["Споровий вибух", E], ["Стелс-койот", E], ["Радіоактивний плювок", E],
   ["І куди його бити?", E], ["Мамо, тату!", N], ["І куди її бити?", E], ["Лють", E], ["Підйом-переворот", E], ["Ривок", E],
   ["Тільки не по дітях", E],

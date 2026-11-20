@@ -99,6 +99,49 @@ async function healOne(actor, name, expr) {
   return `${name} +${now - int(hp.value)}${r.text ? ` (${r.text})` : ""}`;
 }
 
+/**
+ * A summons (stage 3, author 2026-11-20; move-spec.mjs SUMMONS): the compendium's enemy as a battle's actor
+ * (terminal-battle.mjs battleEnemyFromPack: «Битви → <фракція>», goes with its last token), `n` unlinked tokens in the
+ * summoner's zone, else beside it; a hidden summoner brings hidden help. @returns {Promise<TokenDocument[]>}
+ */
+async function summon(actor, tok, e) {
+  const scene = tok?.parent ?? canvas.scene;
+  const pack = game.packs.find((p) => p.metadata.type === "Actor" && p.metadata.name === "opponents");
+  if (!scene || !pack) return [];
+  const idx = await pack.getIndex({ fields: ["type"] });
+  const entry = idx.find((x) => x.type === "enemy" && normEnemyName(x.name) === normEnemyName(e.book));
+  if (!entry) return [];
+  const { battleEnemyFromPack, tokenAtPoint } = await import("./terminal-battle.mjs");
+  const { tokensIntoZone } = await import("./battle-panel.mjs");
+  const who = await battleEnemyFromPack(pack, entry._id);
+  const zone = tok ? zoneTools(scene).zoneOf(tok) : null;
+  let made = [];
+  if (zone) made = await tokensIntoZone(scene, who, e.n, zone);
+  else {
+    const g = scene.grid.size;
+    for (let k = 0; k < e.n; k++) {
+      const at = tok ? { x: tok.x + (tok.width + 0.5 + k) * g, y: tok.y + g / 2 } : canvas.stage.pivot;
+      made.push(...await tokenAtPoint(scene, who, at));
+    }
+  }
+  if (tok?.hidden && made.length) await scene.updateEmbeddedDocuments("Token", made.map((t) => ({ _id: t.id, hidden: true })));
+  return made;
+}
+
+/** «Сигналізація»: every enemy of the summoner's kind on the scene, the one that came too, has the move spent */
+async function spendKin(actor, tok, moveName, made) {
+  const scene = tok?.parent ?? canvas.scene;
+  const kin = normEnemyName(bookNameOf(actor, tok));
+  const key = normEnemyName(moveName);
+  const toks = (scene?.tokens ?? []).filter((t) => t.actor?.type === "enemy" && (made.some((m) => m.id === t.id) || normEnemyName(bookNameOf(t.actor, t)) === kin));
+  for (const t of toks) {
+    if (t.id === tok?.id) continue; // the summoner's own use is spent already
+    const ms = t.actor.system.moves ?? [];
+    if (!ms.some((m) => normEnemyName(m.n) === key)) continue;
+    await t.actor.update({ "system.moves": ms.map((m, k) => (normEnemyName(m.n) === key ? spendMove(m, moveSpec(m, t.actor.system, k)) : { ...m })) });
+  }
+}
+
 /** The attack a «Лють» swings: the one whose name holds the move's weapon word, else the first */
 const rageAttack = (sys, word) => Math.max(0, word ? (sys.attacks ?? []).findIndex((a) => String(a.name).toLowerCase().includes(word)) : 0);
 
@@ -261,6 +304,12 @@ export async function useMove(actor, i, { token = null } = {}) {
         }
         hits.push({ e, uuids, zone: !targets.length });
         lines.push(`Шкода ${e.dice}: ${targets.length ? "цілям" : e.zone === "killFoes" ? "ворогам у зоні зваленої цілі" : e.zone === "foes" ? "ворогам у зоні" : "усім у зоні"} (${uuids.length}).`);
+        break;
+      }
+      case "summon": {
+        const made = await summon(actor, tok, e);
+        lines.push(made.length ? `Кличе на допомогу: ${made.map((t) => t.name).join(", ")}.` : `«${e.book}» у компендіумі не знайдено: постав сам.`);
+        if (e.sceneOnce && made.length) await spendKin(actor, tok, mv.n, made);
         break;
       }
       case "psiPerk": {

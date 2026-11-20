@@ -194,5 +194,21 @@ eq(S.attackStates("фізичної шкоди, бій на відстані"), 
   ok(!ave.effects.some((e) => e.only), "Ave!: every fighter of the Legion");
 }
 
+// summons (stage 3): a button with its effect; who comes is an enemy of the compendium
+{
+  const { readFileSync, readdirSync } = await import("node:fs");
+  const { join, resolve, dirname } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((x) => (x.isDirectory() ? walk(join(d, x.name)) : [join(d, x.name)]));
+  const names = new Set(walk(join(ROOT, "src/packs/opponents")).filter((f) => f.endsWith(".json")).map((f) => JSON.parse(readFileSync(f, "utf8"))).filter((j) => j.type === "enemy").map((j) => S.normEnemyName(j.name)));
+  for (const [n, sm] of Object.entries(S.SUMMONS)) {
+    ok(names.has(S.normEnemyName(sm.book)), `«${n}» calls «${sm.book}», an enemy of the compendium`);
+    const s = S.moveSpec({ n, t: "раз за сцену кличе на допомогу" });
+    ok(s.level === "effect" && s.button && s.effects[0].kind === "summon" && s.effects[0].n === sm.n, `«${n}»: a button that summons`);
+  }
+  ok(S.SUMMONS["сигналізація"].sceneOnce && !S.SUMMONS["підкріплення"].sceneOnce, "only «Сигналізація» is once a scene for all its kind");
+}
+
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
 if (failures) process.exit(1);

@@ -28,9 +28,19 @@ const BY_NAME = {
   // never automated (the author's table): movement, damage taken for another, hiding
   "політ": "none", "невпинність": "none", "амбразури": "none", "стрибок": "none", "мамо, тату!": "none", "непомітність": "none",
   // the button posts the card only
-  "бойові рефлекси": "card", "бтр-магеддон": "card", "сигналізація": "card", "підкріплення": "card", "псионічний талант": "card",
+  "бойові рефлекси": "card", "бтр-магеддон": "card", "псионічний талант": "card",
   // acts by itself: +2 against mutants (stage 3: the effect `favFoe`, dealt by applyDamage)
   "улюблений ворог": "auto",
+};
+
+/**
+ * Summons (stage 3, author 2026-11-20): who a move calls onto the scene, by the compendium's book name. `sceneOnce`: once a
+ * scene for every enemy of the summoner's kind («Якщо в сцені один сек'юритрон уже покликав допомогу, інші цього зробити не
+ * можуть») — the use marks the move spent on all of them and on the one that came.
+ */
+export const SUMMONS = {
+  "підкріплення": { book: "Гігантська мураха-солдат", n: 2 },
+  "сигналізація": { book: "Секʼюритрон", n: 1, sceneOnce: true },
 };
 
 /** «раз / двічі за сцену / сесію»: {uses, per}; no limit → {uses: 0, per: null} */
@@ -77,6 +87,7 @@ export function moveSpec(move, sys = null, i = -1) {
   const named = BY_NAME[n];
   if (named === "none") return out("none");
   if (named === "card") return out("card", [{ kind: n === "псионічний талант" ? "psiPerk" : "card" }]);
+  if (SUMMONS[n]) return out("effect", [{ kind: "summon", ...SUMMONS[n] }]);
   if (named === "auto") {
     // «Улюблений ворог»: «завдає на 2 шкоди більше мутантам…» (stage 3, author 2026-11-20: applyDamage adds it to a mutant)
     const fav = /на\s+(\d+)\s+шкоди\s+більше\s+мутантам/i.exec(t);
@@ -270,6 +281,7 @@ export function moveHint(spec) {
       case "attack": return "Ворог атакує всіх персонажів у своїй зоні (або лише позначені цілі)";
       case "hit": return `Завдає ${hitWords(e)} ${e.zone ? `${e.spareKin ? `${HIT_WHO.all}, крім таких самих, як він` : HIT_WHO[e.zone]} (або лише позначеним цілям)` : "позначеним цілям"}`;
       case "psiPerk": return "Кидає 1d6 і показує, який псионічний перк випав";
+      case "summon": return `Кличе на сцену ${e.n > 1 ? `${e.n} × ` : ""}«${e.book}» у свою зону${e.sceneOnce ? "; після цього ніхто з таких самих у сцені кликати вже не може" : ""}`;
       case "state": {
         // one sentence for all the move's states, at the first of them
         if (spec.effects.find((x) => x.kind === "state") !== e) return "";
