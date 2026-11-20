@@ -13,7 +13,10 @@ import { isPublicMode, postChat } from "./chat.mjs";
 import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { attackMode, choiceEmpOnly, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
-import { sendDamage } from "./apply-damage.mjs";
+import { sendDamage, sendEffects } from "./apply-damage.mjs";
+import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx } from "../rules/attack-effects.mjs";
+import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
+import { rowTotal, rowClosed, rowText, ATTR_SHORT } from "../rules/dodge.mjs";
 import { checkPenalty, spendCheckStates } from "./states.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { checkDiceGroups, damageDiceGroups, poisonSidesOf, rollFromDice, rollList, seriesGroups, waitDice } from "../helpers/dice-rolls.mjs";
@@ -109,6 +112,11 @@ function redrawPanels(actor) {
   }, 120));
 }
 Hooks.on("updateActor", (actor) => redrawPanels(actor));
+// an enemy's attack card changed (A1): the panels answering it, or open on an avoidance, show its new state
+Hooks.on("updateChatMessage", (m) => {
+  if (!pendOf(m)) return;
+  for (const app of [...OPEN.values(), DOCKED]) if (app?.rendered && app.actor?.isOwner) app.render();
+});
 for (const h of ["createItem", "updateItem", "deleteItem"]) Hooks.on(h, (item) => redrawPanels(item?.parent));
 
 export function openCheckPanel(actor, preset = {}) {
@@ -159,6 +167,40 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     return `Зробити перевірку — ${this.actor.name}`;
   }
 
+  /**
+   * The enemy's attack this avoidance answers (A1; author, 2026-11-20): {msg, row} of its card (pending-attack.mjs). Set by
+   * the card's «Уникнути»; an avoidance rolled without it takes the character's newest waiting attack by itself.
+   */
+  #pend = null;
+  bindPend(b) { this.#pend = b?.msg && b?.row ? { msg: b.msg, row: b.row } : null; return this; }
+  get pendMsgId() { return this.#pend?.msg ?? null; }
+
+  /** The bound attack's record and row, while «Уникнення шкоди» is the check's type */
+  #pendNow(R) {
+    if (R.type !== "dodge") return null;
+    const bound = () => { const m = this.#pend ? game.messages.get(this.#pend.msg) : null; return { msg: m, pend: pendOf(m), row: pendOf(m)?.rows?.[this.#pend?.row] }; };
+    // none bound, or the bound one closed before this roll: the character's newest waiting attack
+    let b = bound();
+    if (!b.row || (rowClosed(b.row) && !R.last)) { const o = openRowOf(this.actor.uuid); if (o) { this.#pend = o; b = bound(); } }
+    const { msg, pend, row } = b;
+    return row ? { pend, row, msg } : null;
+  }
+
+  /** The strip over the panel: who attacks, the damage, and after the roll the button that applies it */
+  #pendBar(R) {
+    const p = this.#pendNow(R);
+    if (!p) return "";
+    const { pend, row } = p;
+    const tot = rowTotal(pend, row);
+    const what = `${esc(pend.srcName || "Ворог")} атакує: <b>${tot}</b> шкоди${pend.half ? " (½ з ефекту)" : ""}`;
+    let tail = "";
+    if (row.status === "wait") tail = `<span class="pust-pendbar-st">Кидай уникнення ${ATTR_SHORT[pend.attr] ?? "ВП"}.</span>`;
+    else if (row.status === "rolled") tail = `<button type="button" class="btn rust pust-pendbar-go" data-pend-apply>${row.verdict === 1 ? `Отримати половину: ${Math.ceil(tot / 2)}` : `Отримати повну шкоду: ${tot}`}</button>`
+      + `<span class="pust-pendbar-st">Спершу можеш викликати аспект.</span>`;
+    else tail = `<span class="pust-pendbar-st">${esc(rowText(row, pend.attr))}</span>`;
+    return `<div class="pust-pendbar${rowClosed(row) ? " done" : ""}"><i class="fa-solid fa-shield-halved"></i><span>${what}</span>${tail}</div>`;
+  }
+
   /** The panel state R, loaded into a fresh logic instance */
   #load(L) {
     const saved = STATES.get(this.actor.uuid);
@@ -194,6 +236,86 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       R.am = {};
     }
     this.#save(L);
+  }
+
+  /**
+   * The attack's effects as toggles (A2; author, 2026-11-20; rules/attack-effects.mjs): in place of the engine's list, within
+   * the result's limits; «+2» / «+1d6» are the engine's own options (R.dmgOpt), the others live here a roll (`time`). The
+   * states and «ігноруєш броню» go with the damage; on 10–14 without the perk an effect replaces it («Застосувати ефект»).
+   */
+  #fx = { time: null, picks: [], one: "", done: "" };
+  #fxOf = null;
+  #fxNow(L, st) {
+    const last = L.R.last;
+    if (!last || last.type !== "attack") return null;
+    const mode = attackMode(last.skillName, last.attr);
+    const of = fxOffer({ mode, verdict: last.verdict, perks: compute(st).allPerks });
+    if (this.#fx.time !== last.time) this.#fx = { time: last.time, picks: [], one: "", done: "" };
+    // the engine's «+2» / «+1d6» as picks, in the order kept here
+    const opt = L.R.dmgOpt || {};
+    let picks = this.#fx.picks.filter((k) => (k === "plus2" ? opt.norm2 : k === "plus1d6" ? opt.crit : true));
+    if (opt.norm2 && !picks.includes("plus2")) picks.push("plus2");
+    if (opt.crit && !picks.includes("plus1d6")) picks.push("plus1d6");
+    picks = fxKeep(of, picks);
+    this.#fx.picks = picks;
+    return { of, mode, picks, last };
+  }
+
+  #effectsBlock(html, L, st) {
+    const f = this.#fxNow(L, st);
+    this.#fxOf = f;
+    if (!f) return html;
+    const { of, mode, picks, last } = f;
+    // the engine's own «+2» / «+1d6» toggles under the damage move into this list
+    html = html.replace(/<label class="tog"><input type="checkbox" id="dm-(?:norm2|crit)"[^>]*>[^<]*<\/label>/g, "");
+    if (!of.normal.length && !of.crit.length) return html.replace(/<details class="rfx"[^>]*>[\s\S]*?<\/details>/, "");
+    const done = !!last.dmg || !!this.#fx.done;
+    const row = (e, tier) => {
+      const x = { ...e, tier }, on = picks.includes(e.key);
+      const tag = e.does === "state" ? `<small class="pust-fx-tag">${e.all ? "ляже на всіх" : "ляже на ціль"}</small>`
+        : e.does === "ignore" ? `<small class="pust-fx-tag">з шкодою</small>`
+        : e.does === "text" ? `<small class="pust-fx-tag hand">руками</small>` : "";
+      return `<label class="tog pust-fxt${on ? " on" : ""}"><input type="checkbox" data-fx="${e.key}"${on ? " checked" : ""}${done ? " disabled" : ""}> <span>${esc(effectText(L.ATK_FX, mode, x))}</span>${tag}</label>`;
+    };
+    const perkNotes = /<ul class="rperk">[\s\S]*?<\/ul>/.exec(html)?.[0] ?? "";
+    const limit = of.instead ? "Завдай шкоди або обери замість неї 1 звичайний ефект."
+      : last.verdict === 3 ? (of.slots.length > 1 ? "Обери до двох ефектів." : "Обери 1 критичний або звичайний ефект.")
+      : (of.slots.length > 1 ? "Обери до двох звичайних ефектів." : "Обери 1 звичайний ефект.");
+    const targets = [...(game.user.targets ?? [])].filter((t) => t?.document);
+    const needOne = picks.some((k) => { const e = effectOf(of, k); return e?.does === "state" && !e.all; }) && targets.length > 1;
+    const one = needOne ? `<label class="pust-fx-one">Ефект на: <select data-fx-one>${targets.map((t) => `<option value="${t.document.uuid}"${t.document.uuid === this.#fx.one ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>` : "";
+    const applyFx = of.instead && picks.length && !done ? `<button type="button" class="btn rust pust-fx-apply" data-fx-apply><i class="fa-solid fa-bolt"></i>Застосувати ефект без шкоди</button>` : "";
+    const block = `<div class="rfx pust-fx"><h4>Ефекти: ${esc(L.ATK_FX[mode]?.n?.toLowerCase() ?? "")}</h4>${perkNotes}<p class="rhint">${esc(limit)}${done ? " Уже застосовано." : ""}</p>`
+      + (of.crit.length ? `<h5>Критичні</h5>${of.crit.map((e) => row(e, "crit")).join("")}` : "")
+      + (of.normal.length ? `<h5>Звичайні</h5>${of.normal.map((e) => row(e, "normal")).join("")}` : "")
+      + one + applyFx + `</div>`;
+    return html.replace(/<details class="rfx"[^>]*>[\s\S]*?<\/details>/, block);
+  }
+
+  /** A toggle pressed: the picks within the limits; «+2» / «+1d6» through the engine's own options */
+  async #fxPick(key, on) {
+    const f = this.#fxOf;
+    if (!f) return;
+    const next = fxToggle(f.of, f.picks, key, on);
+    const want = { norm2: next.includes("plus2"), crit: next.includes("plus1d6") };
+    const { L } = evaluate(this.actor);
+    const R = this.#load(L);
+    this.#fx.picks = next;
+    for (const k of ["norm2", "crit"]) if (!!R.dmgOpt?.[k] !== want[k]) await this.#run("change", { tagName: "INPUT", dataset: { r: "dopt", k }, value: "", checked: want[k] });
+    this.#fx.picks = next;
+    this.render();
+  }
+
+  /** What the picks add to the hit: ignored armour, the states on the target(s), the text effects */
+  #fxData(effectOnly = false) {
+    const f = this.#fxOf;
+    // 10–14 without the perk: damage or an effect — the damage carries none
+    if (!f || !f.picks.length || (f.of.instead && !effectOnly)) return {};
+    const targets = [...(game.user.targets ?? [])].filter((t) => t?.document).map((t) => t.document.uuid);
+    const h = hitFx(f.of, f.picks, targets, this.#fx.one);
+    const { L } = evaluate(this.actor);
+    const said = h.said.map((k) => effectText(L.ATK_FX, f.mode, effectOf(f.of, k))).filter(Boolean);
+    return { ...(h.ignoreArmor ? { ignoreArmor: true, ignoreN: 0 } : {}), ...(h.fx.length ? { fx: h.fx } : {}), ...(said.length ? { said } : {}) };
   }
 
   async _prepareContext() {
@@ -236,7 +358,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const pen = checkPenalty(this.actor);
     const penHtml = pen ? `<div class="ramods pust-ramods-state"><span class="rl">Стан</span><label class="tog" title="Аспект «${pen.aspect}»: −2 до цього кидка, після нього аспект зникне"><input type="checkbox" data-r="am" data-k="state-check" checked disabled> <span>«${pen.aspect}»: <b>−${-pen.n}</b></span></label></div>` : "";
     const withPen = penHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}<button type="button" class="btn rust rgo"`) : html;
-    return { html: this.#damageBlock(withPen, L, st) };
+    return { html: this.#pendBar(R) + this.#damageBlock(this.#effectsBlock(withPen, L, st), L, st) };
   }
 
   /**
@@ -245,6 +367,11 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   /** What «Завдати цілям» sends: the damage shown in the panel now */
   #apply = null;
+  /** The damage with the chosen effects (A2): the weapon's own «ігнорує броню» stays */
+  #hitData() {
+    const d = this.#apply.data, fx = this.#fxData();
+    return { ...d, ...fx, ...(d.ignoreArmor ? { ignoreArmor: true, ignoreN: d.ignoreN } : {}) };
+  }
 
   #damageBlock(html, L, st) {
     const last = L.R.last;
@@ -367,12 +494,30 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const inv = asp?.querySelector(':scope > button[data-r="aspect"]');
     if (inv && !inv.querySelector("i")) inv.insertAdjacentHTML("afterbegin", '<i class="fa-solid fa-wand-magic-sparkles"></i>');
     root.addEventListener("click", async (ev) => {
+      const fa = ev.target.closest("[data-fx-apply]");
+      if (fa) {
+        ev.preventDefault();
+        if (fa.disabled) return;
+        if (!game.user.targets.size) return notify.warn(NO_TARGETS);
+        fa.disabled = true;
+        const ok = await sendEffects(this.#fxData(true), { head: `${this.actor.name}: ефект атаки` });
+        if (ok) { this.#fx.done = "applied"; this.render(); } else fa.disabled = false;
+        return;
+      }
+      const pa = ev.target.closest("[data-pend-apply]");
+      if (pa) {
+        ev.preventDefault();
+        if (pa.disabled || !this.#pend) return;
+        pa.disabled = true;
+        await answerPending(this.#pend.msg, this.#pend.row, { op: "apply" });
+        return;
+      }
       const ap = ev.target.closest("[data-apply]");
       if (ap) {
         ev.preventDefault();
         if (!this.#apply || ap.disabled) return;
         ap.disabled = true;
-        try { await sendDamage(this.#apply.data, { partial: this.#apply.partial, head: this.#apply.head }); } finally { ap.disabled = false; }
+        try { await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head }); } finally { ap.disabled = false; }
         return;
       }
       const b = ev.target.closest("[data-r]");
@@ -389,10 +534,16 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#fastLayout(root);
     syncChatMode(this.element);
     syncDealButton(root);
+    // 10–14: the effect applied instead of the damage — no damage after it (A2; the wiki: «завдай шкоди або обери ефект»)
+    if (this.#fx.done) root.querySelectorAll('button[data-r="dmg"]').forEach((x) => { x.disabled = true; x.title = "Замість шкоди вже обрано ефект"; });
     // the damage is dealt with its roll: the options over it (Психо, the effect, the crit) are set before it, then locked
     // and so is the weapon (author, 2026-11-17)
     if (root.querySelector(".rdmg .rdres")) root.querySelectorAll(".rdmg .rdopts input, .rdmg .rdopts select, .rdmg .pust-wchip").forEach((i) => { i.disabled = true; i.title = "Шкоду вже кинуто й завдано"; });
     root.addEventListener("change", (ev) => {
+      const fx = ev.target.closest("input[data-fx]");
+      if (fx) { this.#fxPick(fx.dataset.fx, fx.checked); return; }
+      const one = ev.target.closest("select[data-fx-one]");
+      if (one) { this.#fx.one = one.value; return; }
       const t = ev.target.closest("[data-r]");
       if (t) this.#run("change", t);
     });
@@ -562,8 +713,15 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     else this.render();
     const msg = kind === "click" && CHAT_ON.has(key) ? await this.#post(key, out) : null;
     if (deal) await waitDice(msg); // the damage is dealt once the 3D dice have landed (author, 2026-11-19)
+    // an avoidance answering an enemy's attack (A1): its verdict goes to the card once the dice have landed; an aspect invoked
+    // after it sends the new one (15+ closes the row by itself, author 2026-11-20)
+    const nl = out.R.last, ol = out.before.last;
+    if (nl?.type === "dodge" && (nl.time !== ol?.time || nl.verdict !== ol?.verdict) && this.#pendNow(out.R)?.row && !rowClosed(this.#pendNow(out.R).row)) {
+      await waitDice(msg);
+      await answerPending(this.#pend.msg, this.#pend.row, { op: "rolled", verdict: nl.verdict });
+    }
     // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
-    if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#apply.data, { partial: this.#apply.partial, head: this.#apply.head });
+    if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head });
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
     else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice, out.before.last?.dmg?.extra ?? null);
   }

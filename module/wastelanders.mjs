@@ -17,6 +17,7 @@ import { initCaravanMove } from "./canvas/caravan-move.mjs";
 import { initWeather } from "./canvas/weather.mjs";
 import { addWeatherTool } from "./applications/weather-panel.mjs";
 import { readyApplyDamage } from "./applications/apply-damage.mjs";
+import { readyPending } from "./applications/pending-attack.mjs";
 import { readyChemTarget } from "./applications/chem-target.mjs";
 import { readyGmRequests } from "./helpers/gm-request.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
@@ -257,6 +258,7 @@ Hooks.once("ready", () => {
   readyMapNotes();
   readyBattleZones();
   readyApplyDamage();
+  readyPending(); // «Уникнення шкоди» on an enemy's attack card (A1; author, 2026-11-20)
   readyChemTarget();
   readyGmRequests();
   readyMainWindow(); // one window of a user does the shared work (helpers/main-window.mjs)

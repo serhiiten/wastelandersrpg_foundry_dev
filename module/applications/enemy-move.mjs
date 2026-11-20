@@ -20,6 +20,7 @@ import { putStates, hiddenRow, whisperGM, GM_CHIP } from "./states.mjs";
 import { isPublicMode } from "./chat.mjs";
 import { stunnedBefore } from "../rules/states.mjs";
 import { pickMenu } from "../helpers/pick-menu.mjs";
+import { splitWaiting, postPending } from "./pending-attack.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const int = (v, d = 0) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : d; };
@@ -240,6 +241,7 @@ export async function useMove(actor, i, { token = null } = {}) {
   const hid = (t) => hiddenRow(t, pub);
   let icon = "fa-person-running", cls = "move";
   const hits = []; // the damage, dealt after the card
+  let deferStates = []; // the states of the waiting characters (pending-attack.mjs)
   let group = null; // whom a group heal took: the allies' bonus goes to the same ones
   for (const e of spec.effects) {
     switch (e.kind) {
@@ -358,8 +360,12 @@ export async function useMove(actor, i, { token = null } = {}) {
   // the states (author, 2026-11-20): on the ones the move hits, else on the targets; before the damage, so the card says them
   if (stateFx.length) {
     const scene = tok?.parent ?? canvas.scene;
-    const on = hitFx ? [...new Set(hits.flatMap((h) => h.uuids))] : tDocs.length || !heard ? tDocs.map((t) => t.uuid)
+    const on0 = hitFx ? [...new Set(hits.flatMap((h) => h.uuids))] : tDocs.length || !heard ? tDocs.map((t) => t.uuid)
       : (scene?.tokens ?? []).filter((t) => t.actor?.type === "character" && alive(t)).map((t) => t.uuid);
+    // a damaging move's states on a player's character land with its damage, after the avoidance (A1; author, 2026-11-20)
+    const waitOn = hitFx ? (await splitWaiting(on0)).wait : [];
+    const on = on0.filter((u) => !waitOn.some((w) => w.uuid === u));
+    if (waitOn.length) { deferStates = stateFx; lines.push(`${waitOn.map((w) => w.name).join(", ")}: стан ляже разом зі шкодою, якщо не уникне.`); }
     // a hidden one's state lines go to the GMs (author, 2026-11-20)
     const docs = await Promise.all(on.map((u) => fromUuid(u)));
     const { open: onOpen, hidden: onHid } = splitHidden(on, (u) => hid(docs[on.indexOf(u)]));
@@ -373,16 +379,20 @@ export async function useMove(actor, i, { token = null } = {}) {
   const speaker = tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor });
   await postChat({ content: moveCardHtml(name, mv, spec, lines, icon, cls), speaker });
   if (gmLines.length) await whisperGM(speaker, moveCardHtml(name, mv, spec, gmLines, icon, cls));
+  // the players' characters wait for their avoidance (A1; author, 2026-11-20): one avoidance for every part of the move
+  const pendHits = [], pendWho = new Map();
+  let pendMsg = null;
   for (const { e, uuids: all, zone, hidden } of hits) {
     const head = `${name}: ${mv.n}`;
     // a zone hit takes only those still standing: the second part of a blast skips the ones the first brought down
-    const uuids = zone ? (await Promise.all(all.map((u) => fromUuid(u)))).filter((t) => t && alive(t)).map((t) => t.uuid) : all;
-    if (!uuids.length) continue;
-    let data;
+    const standing = zone ? (await Promise.all(all.map((u) => fromUuid(u)))).filter((t) => t && alive(t)).map((t) => t.uuid) : all;
+    const { wait, now: uuids } = await splitWaiting(standing);
+    if (!uuids.length && !wait.length) continue;
+    let data, card;
     if (e.kind === "attack") {
       const r = await rollEnemyAttack(actor, rageAttack(actor.system, e.weapon), { token: tok });
       if (!r?.data) continue;
-      data = r.data;
+      data = r.data; card = r.msg;
     } else {
       const r = await roll(e.dice);
       const wt = chatType(e.type);
@@ -392,7 +402,14 @@ export async function useMove(actor, i, { token = null } = {}) {
       });
       await waitDice(msg); // the damage is dealt once the 3D dice have landed
       data = { total: r.total, dice: r.roll.dice.reduce((n, d) => n + d.number, 0), type: wt, ignoreArmor: !!e.ignoreArmor, ignoreN: e.ignoreN || 0 };
+      card = msg;
     }
+    if (wait.length) {
+      const k = pendHits.push({ data, head }) - 1;
+      pendMsg = card ?? pendMsg;
+      for (const w of wait) { const t = pendWho.get(w.uuid) ?? { ...w, hits: [] }; t.hits.push(k); pendWho.set(w.uuid, t); }
+    }
+    if (!uuids.length) continue;
     // the hidden ones' rows: a card of their own, whispered to the GMs (author, 2026-11-20)
     const { open, hidden: hidUuids } = splitHidden(uuids, (u) => hidden.has(u));
     if (open.length) await applyDamage(open, data, { head, source: tok?.uuid ?? "" });
@@ -402,6 +419,7 @@ export async function useMove(actor, i, { token = null } = {}) {
       if (rows.length) await whisperGM({ alias: "Шкода" }, applyCard({ dt: chatType(battleType(data.type)), icon: "fa-burst", title: `Шкода: ${esc(head)}`, chips: GM_CHIP, rows: rows.map((l) => l.full) }));
     }
   }
+  if (pendWho.size) await postPending(pendMsg, { hits: pendHits, targets: [...pendWho.values()], source: tok?.uuid ?? "", srcName: name, states: deferStates });
   if (targets.length) clearTargets();
   return true;
 }
@@ -433,14 +451,22 @@ export async function attackWithMenu(actor, i, { token = null, anchor = null } =
   if (!r?.data) return false;
   const data = { ...r.data, ...(pick.k === "ignore" ? { ignoreArmor: true, ignoreN: 0 } : {}) };
   const STATE = { disarmed: "disarmed", stunned: "stunned", down: "down", halfDown: "down" };
+  // the players' characters wait for their avoidance on the attack's card (A1; author, 2026-11-20): their states of the menu
+  // land with the damage, never when the avoidance took it all; the others are hit at once, as before
+  const { wait, now } = await splitWaiting(targets);
+  const byName = tok?.name || actor.name, once = pick.k === "stunned" && !!pick.once;
+  const states = STATE[pick.k] ? [{ key: STATE[pick.k] }] : [];
   if (pick.k !== "none") {
-    // the effect's card, before the damage: what was chosen and the states put on
+    // the effect's card, before the damage: what was chosen and the states put on the ones hit at once
     const mv = sys.moves[pick.mi];
     const lines = [`${a.name}: ${pick.label.charAt(0).toLowerCase()}${pick.label.slice(1)}.`];
-    if (STATE[pick.k]) lines.push(...await putStates(targets, [{ key: STATE[pick.k] }], { by, byName: tok?.name || actor.name, once: pick.k === "stunned" && !!pick.once }));
-    await postChat({ content: moveCardHtml(tok?.name || actor.name, mv, moveSpec(mv, sys, pick.mi), lines), speaker: tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor }) });
+    if (states.length && now.length) lines.push(...await putStates(now, states, { by, byName, once }));
+    if (states.length && wait.length) lines.push(`${wait.map((w) => w.name).join(", ")}: стан ляже разом зі шкодою, якщо не уникне.`);
+    await postChat({ content: moveCardHtml(byName, mv, moveSpec(mv, sys, pick.mi), lines), speaker: tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor }) });
   }
-  await sendDamage(data, { head: r.head, source: by, dodge: pick.k === "halfDown" });
+  if (now.length) await applyDamage(now, data, { head: r.head, source: by, dodge: pick.k === "halfDown" });
+  if (wait.length) await postPending(r.msg, { hits: [{ data, head: r.head }], targets: wait, half: pick.k === "halfDown", source: by, srcName: byName, states, once });
+  clearTargets();
   return true;
 }
 

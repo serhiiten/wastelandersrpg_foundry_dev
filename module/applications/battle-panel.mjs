@@ -206,7 +206,9 @@ export function stepRound(step) {
   if (step > 0) {
     postChat({ speaker: { alias: "Коло дій" }, content: `<div class="pust-chat pust-round"><div class="pust-round-hd"><i class="fa-solid fa-rotate"></i><span>Почалося коло дій</span><b>${r}</b></div><p>Спершу діють гравці, потім Доглядач робить хід і переміщує одного НІПа.</p></div>` })
       // the states tick after the round's card (author, 2026-11-20; applications/states.mjs): the round from here, not the setting
-      .then(() => import("./states.mjs")).then((m) => m.tickRound(r)).catch((err) => console.error(err));
+      .then(() => import("./states.mjs")).then((m) => m.tickRound(r))
+      // the attacks still waiting for an avoidance: a reminder, nothing applied by itself (A1; author, 2026-11-20)
+      .then(() => import("./pending-attack.mjs")).then((m) => m.remindPending()).catch((err) => console.error(err));
   }
 }
 
