@@ -15,6 +15,8 @@
  * Every state ends at «Кінець сцени».
  */
 
+import { isMachineName } from "./chem-target.mjs";
+
 /** The table of states; the aspects are the wiki's words, proofread by the author (2026-11-20), always masculine */
 export const STATES = {
   down:     { aspect: "Збитий з ніг", until: "free", immune: "noKnockdown" },
@@ -23,11 +25,33 @@ export const STATES = {
   burning:  { aspect: "Палає", until: "rounds", dice: "1d6", type: "fire", left: 1, immuneDef: "fire" },
   grabbed:  { aspect: "Захоплений", until: "holder" },
   poisoned: { aspect: "Отруєний", until: "rounds", type: "poison", ignoreArmor: true, immuneDef: "poison" },
-  bleeding: { aspect: "Кровотеча", until: "rounds", dice: "1d10", ignoreArmor: true, left: 1 },
+  bleeding: { aspect: "Кровотеча", until: "rounds", dice: "1d10", ignoreArmor: true, left: 1, immune: "nonliving" }, // a robot doesn't bleed (author)
   blinded:  { aspect: "Засліплений", until: "scene" },
   aimed:    { aspect: "На прицілі", until: "scene" },
   acid:     { aspect: "−2 до фізичної броні", until: "scene", armor: -2 },
 };
+
+/**
+ * «Неживий» (the wiki's species property; author, 2026-11-20: a hidden tag, robots without «Кіборг» don't bleed). The
+ * compendium's non-living enemies by their book names (the 13 of «Роботи», БТР and Вертиберд — all its enemies immune to
+ * poisons); a character's comes from the rules engine (`robotLike`: a robot without «Кіборг», «Синт» too).
+ */
+export const NONLIVING_BOOK = ["Вертиберд", "БТР Братства Сталі", "Гігантський робо-скорпіон X-42", "Робот-вартовий", "Важка турель",
+  "Містер Сміливець", "Робо-скорпіон Mk6", "Робомозок", "Секʼюритрон", "Містер Помічник", "Протектрон", "Робо-скорпіон Mk1", "Турель",
+  "Бум-око", "Робооко"];
+const nameKey = (n) => String(n ?? "").toLowerCase().replace(/[’ʼ`]/g, "'").replace(/\s+/g, " ").trim();
+const NONLIVING_SET = new Set(NONLIVING_BOOK.map(nameKey));
+
+/**
+ * Is an enemy non-living: the card's «Неживий» tick when the GM set it (true / false), otherwise its book name is one of the
+ * compendium's, or a machine's name immune to poisons (the battle generator's robots; «Кіберпес» is alive).
+ * @param {boolean|null} flag @param {string[]} names book name, actor name… @param {object} [sys] for the poison defence
+ */
+export function enemyNonliving(flag, names = [], sys = null) {
+  if (flag === true || flag === false) return flag;
+  if (names.some((n) => NONLIVING_SET.has(nameKey(n)))) return true;
+  return sys?.def?.poison === "immune" && names.some((n) => isMachineName(n));
+}
 
 /** The aspect texts of the states (the terms test checks them) */
 export const STATE_ASPECTS = Object.values(STATES).map((s) => s.aspect);

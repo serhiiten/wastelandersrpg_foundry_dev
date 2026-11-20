@@ -16,6 +16,7 @@ import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
 import { sendDamage, chosenTokens, warnNoTargets } from "../applications/apply-damage.mjs";
 import { enemyView, diceTextHtml } from "./enemy-view.mjs";
 import { useMove, freeMove, attackWithMenu } from "../applications/enemy-move.mjs";
+import { enemyNames } from "../rules/target-profile.mjs";
 import { postDamageCard, postExprRoll } from "../applications/check-panel.mjs";
 import { chatType } from "../rules/battle.mjs";
 import { notify } from "../helpers/notify.mjs";
@@ -103,7 +104,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     const editable = this.isEditable;
     const gm = game.user.isGM;
     const edit = this.#ui.edit && editable;
-    const v = enemyView(s, { editable, gm, lastHit: doc.getFlag(game.system.id, "lastHit") ?? null });
+    const v = enemyView(s, { editable, gm, lastHit: doc.getFlag(game.system.id, "lastHit") ?? null, names: enemyNames(doc) });
     Object.assign(context, {
       v, editable, gm, edit, ui: this.#ui, limited: !doc.isOwner,
       // «Спостережливість» (author, 2026-11-17; wiki: «ти завжди знаєш точну кількість ОЗ супротивників і чим вони озброєні»):

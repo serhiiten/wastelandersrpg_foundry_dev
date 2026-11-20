@@ -55,7 +55,13 @@ eq(S.withStates({ armor: 4 }, acid).armor, 2, "−2 armour");
 // immunity, the stun once a scene
 ok(S.immuneTo("down", { noKnockdown: true }) && !S.immuneTo("down", {}) && !S.immuneTo("poisoned", { noKnockdown: true }), "immunity");
 ok(S.immuneTo("poisoned", { poison: "immune" }) && !S.immuneTo("poisoned", { poison: "half" }) && S.immuneTo("burning", { fire: "immune" }) && !S.immuneTo("burning", { fire: "normal" }), "immune to poisons / fire: no «Отруєний» / «Палає»; a half still gets it");
-ok(!S.immuneTo("bleeding", { poison: "immune", fire: "immune" }), "bleeding: no immunity yet (the living tag is to come)");
+ok(!S.immuneTo("bleeding", { poison: "immune", fire: "immune" }) && S.immuneTo("bleeding", { nonliving: true }), "bleeding: only «Неживий» is immune");
+// «Неживий» of an enemy (author, 2026-11-20): the GM's tick, else the compendium's 15, else a machine's name immune to poisons
+eq(S.NONLIVING_BOOK.length, 15, "the compendium's non-living");
+ok(S.enemyNonliving(null, ["БТР Братства Сталі"]) && S.enemyNonliving(null, ["Робомозок"]) && S.enemyNonliving(null, ["Секʼюритрон"]), "by the book's name");
+ok(!S.enemyNonliving(null, ["Кіберпес"], { def: { poison: "normal" } }), "«Кіберпес» is alive");
+ok(S.enemyNonliving(null, ["Робот-охоронець"], { def: { poison: "immune" } }) && !S.enemyNonliving(null, ["Робот-охоронець"], { def: { poison: "normal" } }), "a generator's robot: a machine's name and immune to poisons");
+ok(!S.enemyNonliving(false, ["Протектрон"]) && S.enemyNonliving(true, ["Легіонер"]), "the GM's tick wins");
 const once = S.markStunned({}, "R1");
 ok(S.stunnedBefore(once, "R1") && !S.stunnedBefore(once, "R2"), "the stun once a scene by the same enemy");
 

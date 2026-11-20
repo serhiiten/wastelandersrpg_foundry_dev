@@ -12,6 +12,7 @@
 import { compute } from "./core.mjs";
 import { profileOf as enemyProfile } from "./enemy-model.mjs";
 import { caravanDefAuto, caravanDefences } from "./caravan-defence.mjs";
+import { enemyNonliving } from "./states.mjs";
 import { logicFor, readState } from "../applications/character-actions.mjs";
 
 const int = (v, d = 0) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? n : d; };
@@ -42,14 +43,24 @@ export function characterProfileFromState(st) {
     electricVuln: flag(A.electric, "electric"), halfPartial: flag(A.partial, "partial"),
     noKnockdown: flag(A.noKnock, "noKnock"), noStun: flag(A.noStun, "noStun"), noDisarm: flag(A.noDisarm, "noDisarm"),
     kamikaze: !!d.has?.("Камікадзе"),
+    // «Неживий»: a robot without «Кіборг» (the engine's robotLike; author, 2026-11-20)
+    nonliving: flag(d.robotLike, "nonliving"),
   });
   return prof;
+}
+
+/** An enemy's names for the book's tables: its compendium entry's, the `baseName` flag, the base actor's, its own */
+export function enemyNames(actor) {
+  let src = "";
+  try { const u = actor._stats?.compendiumSource ?? actor.flags?.core?.sourceId; src = u ? globalThis.fromUuidSync?.(u)?.name ?? "" : ""; } catch (_) { src = ""; }
+  const base = actor.getFlag?.(globalThis.game?.system?.id, "baseName") ?? "";
+  return [src, base, actor.token?.baseActor?.name ?? "", String(actor.name ?? "").replace(/\s*(?:#|№)?\s*\d+$/, "")].filter(Boolean);
 }
 
 /** The profile of an actor (or null when it can't take damage) */
 export function targetProfile(actor) {
   if (!actor) return null;
-  if (actor.type === "enemy") return enemyProfile(actor.system);
+  if (actor.type === "enemy") return { ...enemyProfile(actor.system), nonliving: enemyNonliving(actor.system.flags?.nonliving ?? null, enemyNames(actor), actor.system) };
   if (actor.type === "character") return characterProfileFromState(readState(actor));
   if (actor.type === "caravan") return caravanProfile(actor.system);
   return null;

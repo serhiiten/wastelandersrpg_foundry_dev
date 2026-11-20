@@ -33,6 +33,7 @@ export function attackTip(a) {
   return [ex ? `+${ex.label}` : "", attackNote(a)].filter(Boolean).join(" · ");
 }
 import { moveSpec, moveMarks, limitLabel, canUndo, attackMenu } from "../rules/move-spec.mjs";
+import { enemyNonliving } from "../rules/states.mjs";
 import { profileOf, attackDice, bonusFrom, andList, normCat, bookCopy } from "../rules/enemy-model.mjs";
 
 const escH = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -172,13 +173,15 @@ export function defPath(f) {
 const defOf = (sys, f) => (f === "armor" ? sys.armor : f === "psyArmor" ? sys.psiArmor : ["phys", "energy", "fire", "rad", "poison", "psy"].includes(f) ? sys.def?.[f] : !!sys.flags?.[f]);
 
 /** The defence editor's rows: {f, label, kind, value, options?, path} (+ the extra «отримує психічну шкоду» flag) */
-export function defenceRows(sys) {
+export function defenceRows(sys, names = []) {
   const rows = DEF_FIELDS.map(([f, label, kind]) => {
     const row = { f, label, kind, path: defPath(f), value: defOf(sys, f), num: kind === "num", chk: kind === "chk", sel: kind === "r3" || kind === "r4" };
     if (row.sel) row.options = Object.entries(kind === "r4" ? R4 : R3).map(([v, l]) => ({ v, l, sel: v === row.value }));
     return row;
   });
   rows.push({ f: "psyVuln", label: "Отримує психічну шкоду", kind: "chk", path: defPath("psyVuln"), value: !!sys.flags?.psyVuln, num: false, chk: true, sel: false });
+  // «Неживий» (author, 2026-11-20): ticked by the book when the GM never set it (rules/states.mjs enemyNonliving)
+  rows.push({ f: "nonliving", label: "Неживий", kind: "chk", path: defPath("nonliving"), value: enemyNonliving(sys.flags?.nonliving ?? null, names, sys), num: false, chk: true, sel: false });
   return rows;
 }
 
@@ -223,7 +226,7 @@ export function enemyView(sys, o = {}) {
     baseAspects: (sys.baseAspects ?? []).map((a, i) => ({ i, t: a.t, inv: a.inv, len: Math.max(6, String(a.t ?? "").length + 1) })),
     attacks, moves, psycho, psyIdx, psyMove: psyIdx >= 0 ? moves[psyIdx] : null,
     changed: !!sys.orig && JSON.stringify(sys.orig.attacks ?? null) !== JSON.stringify(sys.attacks) ? true : false,
-    canReset: !!sys.orig, differs: differsFromBook(sys), defence: o.gm ? defenceRows(sys) : [],
+    canReset: !!sys.orig, differs: differsFromBook(sys), defence: o.gm ? defenceRows(sys, o.names ?? []) : [],
     reveal: !!sys.reveal,
   };
 }
