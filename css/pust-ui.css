@@ -905,6 +905,7 @@ body.pust-no-combat #token-hud [data-action="combat"] { display: none !important
   background: #f7efd6; color: #2a261c; border: 1px solid #8e887f; border-radius: 4px; font: 700 12px/1 "Roboto Condensed", "PT Sans Narrow", sans-serif; cursor: pointer; box-shadow: none; }
 .chat-message .pust-pend button.pust-pend-b.dodge { background: linear-gradient(180deg, #5d6b78, #3f4b56); color: #f1f5f8; border-color: #2c353d; }
 .chat-message .pust-pend button.pust-pend-b.ghost { background: transparent; }
+.chat-message .pust-pend button.pust-pend-b.full { background: linear-gradient(180deg, #a3261a, #7d1c13); color: #fbeee4; border-color: #5a120b; }
 .chat-message .pust-pend button.pust-pend-b:disabled { opacity: .5; cursor: default; }
 .pust-pend .pust-pend-gm { display: inline-flex; align-items: center; gap: 4px; color: #2a261c; font-size: 12px; font-weight: 700; cursor: pointer; }
 .pust-pend .pust-pend-gm input { margin: 0; }

@@ -182,7 +182,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const bound = () => { const m = this.#pend ? game.messages.get(this.#pend.msg) : null; return { msg: m, pend: pendOf(m), row: pendOf(m)?.rows?.[this.#pend?.row] }; };
     // none bound, or the bound one closed before this roll: the character's newest waiting attack
     let b = bound();
-    if (!b.row || (rowClosed(b.row) && !R.last)) { const o = openRowOf(this.actor.uuid); if (o) { this.#pend = o; b = bound(); } }
+    // (a newer attack than the last roll: the closed one gives way, so the panel never answers an old card)
+    if (!b.row || (rowClosed(b.row) && (!R.last || (game.messages.get(openRowOf(this.actor.uuid)?.msg)?.timestamp ?? 0) > (R.last.time ?? 0)))) {
+      const o = openRowOf(this.actor.uuid); if (o) { this.#pend = o; b = bound(); }
+    }
     const { msg, pend, row } = b;
     return row ? { pend, row, msg } : null;
   }
@@ -195,7 +198,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const tot = rowTotal(pend, row);
     const what = `${esc(pend.srcName || "Ворог")} атакує: <b>${tot}</b> шкоди${pend.half ? " (½ з ефекту)" : ""}`;
     let tail = "";
-    if (row.status === "wait") tail = `<span class="pust-pendbar-st">Кидай уникнення ${ATTR_SHORT[pend.attr] ?? "ВП"}.</span>`;
+    // a roll made after the attack that never reached the card (the GM didn't answer): sent again, not rolled again
+    const sent = R.last?.type === "dodge" && (R.last.time ?? 0) > (p.msg?.timestamp ?? 0);
+    if (row.status === "wait" && sent) tail = `<button type="button" class="btn rust pust-pendbar-go" data-pend-send>Надіслати результат ще раз</button><span class="pust-pendbar-st">Доглядач ще не отримав твій кидок.</span>`;
+    else if (row.status === "wait") tail = `<span class="pust-pendbar-st">Кидай уникнення ${ATTR_SHORT[pend.attr] ?? "ВП"}.</span>`;
     else if (row.status === "rolled") tail = `<button type="button" class="btn rust pust-pendbar-go" data-pend-apply>${row.verdict === 1 ? `Отримати половину: ${Math.ceil(tot / 2)}` : `Отримати повну шкоду: ${tot}`}</button>`
       + `<span class="pust-pendbar-st">Спершу можеш викликати аспект.</span>`;
     else tail = `<span class="pust-pendbar-st">${esc(rowText(row, pend.attr))}</span>`;
@@ -273,7 +279,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const done = !!last.dmg || !!this.#fx.done;
     const row = (e, tier) => {
       const x = { ...e, tier }, on = picks.includes(e.key);
-      const tag = e.does === "cover" ? `<small class="pust-fx-tag">Посилення спільнику</small>` : e.does === "state" ? `<small class="pust-fx-tag">${e.all ? "ляже на всіх" : "ляже на ціль"}</small>`
+      const tag = e.does === "cover" ? `<small class="pust-fx-tag">Посилення спільнику</small>` : e.does === "state" ? `<small class="pust-fx-tag">${e.all ? "застосується до всіх" : "застосується до цілі"}</small>`
         : e.does === "ignore" ? `<small class="pust-fx-tag">з шкодою</small>`
         : e.does === "text" ? `<small class="pust-fx-tag hand">руками</small>` : "";
       return `<label class="tog pust-fxt${on ? " on" : ""}"><input type="checkbox" data-fx="${e.key}"${on ? " checked" : ""}${done ? " disabled" : ""}> <span>${esc(effectText(L.ATK_FX, mode, x))}</span>${tag}</label>`;
@@ -292,7 +298,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const allies = (canvas?.scene?.tokens ?? []).filter((t) => t.actor?.type === "character" && !own.has(t.uuid) && !t.hidden);
       if (!allies.some((t) => t.uuid === this.#fx.ally)) this.#fx.ally = allies[0]?.uuid ?? "";
       ally = allies.length ? `<label class="pust-fx-one">Кого прикриваєш: <select data-fx-ally>${allies.map((t) => `<option value="${t.uuid}"${t.uuid === this.#fx.ally ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>`
-        : `<p class="rhint">На сцені немає спільників: ефект ляже лише рядком на картку.</p>`;
+        : `<p class="rhint">На сцені немає спільників: ефект буде лише рядком на картці.</p>`;
     }
     const applyFx = of.instead && picks.length && !done ? `<button type="button" class="btn rust pust-fx-apply" data-fx-apply><i class="fa-solid fa-bolt"></i>Застосувати ефект без шкоди</button>` : "";
     const block = `<div class="rfx pust-fx"><h4>Ефекти: ${esc(L.ATK_FX[mode]?.n?.toLowerCase() ?? "")}</h4>${perkNotes}<p class="rhint">${esc(limit)}${done ? " Уже застосовано." : ""}</p>`
@@ -525,6 +531,17 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         fa.disabled = true;
         const ok = await sendEffects(this.#fxData(true), { head: `${this.actor.name}: ефект атаки`, source: this.#ownToken() });
         if (ok) { this.#fx.done = "applied"; this.render(); } else fa.disabled = false;
+        return;
+      }
+      const ps = ev.target.closest("[data-pend-send]");
+      if (ps) {
+        ev.preventDefault();
+        if (ps.disabled || !this.#pend) return;
+        ps.disabled = true;
+        const { L } = evaluate(this.actor);
+        const v = this.#load(L).last?.verdict;
+        if (Number.isInteger(v)) await answerPending(this.#pend.msg, this.#pend.row, { op: "rolled", verdict: v });
+        ps.disabled = false;
         return;
       }
       const pa = ev.target.closest("[data-pend-apply]");

@@ -1,7 +1,7 @@
 /**
  * «Уникнення шкоди» bound to an enemy's attack (A1; author, 2026-11-20, Asking, mockup А; Fable's verdict; the rules and the
  * record: module/rules/dodge.mjs). An enemy's hit on a player's character waits on the attack's own card: a row a target,
- * «Уникнути ВП» and «Прийняти» for its owner, «Без уникнення» (a tick a row) and «Усім без уникнення» / «Скасувати» for the
+ * «Уникнути ВП» and «Повністю» (the full damage without a roll) for its owner, «Без уникнення» (a tick a row) and «Усім без уникнення» / «Скасувати» for the
  * GM. The avoidance is rolled in «Зробити перевірку»; 15+ closes the row by itself, 9− and 10–14 are applied with a button
  * there (an aspect may be invoked first). The damage then goes through applyDamage as before (its usual «Шкода» card); the
  * menu's states (збити з ніг, приголомшити…) land only with the damage. Only the GM writes the record; the players' answers
@@ -179,7 +179,8 @@ export function renderPending(message, html) {
     const btns = [];
     if (open && mine && r.status === "wait") {
       btns.push(`<button type="button" class="pust-pend-b dodge" data-pend="dodge" data-row="${id}" title="Відкрити «Зробити перевірку» на уникненні ${a}"><i class="fa-solid fa-person-running"></i>Уникнути ${a}</button>`);
-      btns.push(`<button type="button" class="pust-pend-b" data-pend="take" data-row="${id}" title="Отримати повну шкоду без кидка">Прийняти</button>`);
+      // «Повністю» (author, 2026-11-20: was «Прийняти»; red): the full damage without rolling
+      btns.push(`<button type="button" class="pust-pend-b full" data-pend="take" data-row="${id}" title="Отримати повну шкоду без кидка уникнення">Повністю</button>`);
     }
     if (open && mine && r.status === "rolled") {
       const tot = rowTotal(pend, r);
@@ -222,9 +223,9 @@ async function onClick(ev, message, pend) {
   await answerPending(message.id, id, { op: act });
 }
 
-/** Wiring (wastelanders.mjs, ready): the card's rows and the GM's socket */
+/** Wiring (wastelanders.mjs, ready): the GM's socket */
 export function readyPending() {
-  Hooks.on("renderChatMessageHTML", renderPending);
+  // (the card's rows: renderChatMessageHTML is hooked at load in wastelanders.mjs — the chat log renders before «ready»)
   game.socket.on(SOCKET(), (msg) => {
     if (msg?.op !== "resolvePend" || !activeGmHere()) return;
     answerGM(msg, () => resolvePend(String(msg.msg || ""), String(msg.row || ""), msg.a || {}, String(msg.from || "")));

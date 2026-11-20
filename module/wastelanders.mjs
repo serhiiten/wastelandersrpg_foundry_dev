@@ -17,7 +17,7 @@ import { initCaravanMove } from "./canvas/caravan-move.mjs";
 import { initWeather } from "./canvas/weather.mjs";
 import { addWeatherTool } from "./applications/weather-panel.mjs";
 import { readyApplyDamage } from "./applications/apply-damage.mjs";
-import { readyPending } from "./applications/pending-attack.mjs";
+import { readyPending, renderPending } from "./applications/pending-attack.mjs";
 import { readyChemTarget } from "./applications/chem-target.mjs";
 import { readyGmRequests } from "./helpers/gm-request.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
@@ -320,6 +320,8 @@ Hooks.on("preCreateChatMessage", preprocessChatMessage);
 
 // Render chat message hook
 Hooks.on("renderChatMessageHTML", renderChatMessage);
+// «Уникнення шкоди» rows on an enemy's attack card (A1): hooked at load, so the chat log rendered before «ready» has them too
+Hooks.on("renderChatMessageHTML", renderPending);
 
 // Compendium Packs (author, 2026-11-15): the item compendiums behind the sheets' lists and catalogues are hidden for everyone
 // (still read by the sheets and the .json import); the GM may show them back to themselves with the setting «showDataPacks»

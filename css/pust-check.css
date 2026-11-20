@@ -430,6 +430,8 @@
 .pust-roller > .rmods { order: 5; }
 .pust-roller > .pust-rgo-bar { order: 7; }
 .pust-roller > .rres { order: 8; }
+/* the enemy's attack the avoidance answers (A1): right over the result, its button after the roll stays in sight when folded */
+.pust-roller > .pust-pendbar { order: 7; }
 /* after a roll (folded): the line «… змінити» sticks to the top and the strip goes under the result, sticking to the bottom,
    so both stay on screen while the result scrolls (author, 2026-11-18, after the review) */
 .pust-roller.pust-folded > .pust-fold { position: sticky; top: 0; z-index: 3; }
@@ -461,7 +463,7 @@
 .pust-roller .pust-rgo-bar > .rgo { flex: 0 0 auto; width: auto; margin: 0; padding: 0 16px !important; }
 
 /* after a roll the set-up is one line «змінити» */
-.pust-roller.pust-folded > :not(.rwho, .pust-fold, .pust-rgo-bar, .rres) { display: none !important; }
+.pust-roller.pust-folded > :not(.rwho, .pust-fold, .pust-rgo-bar, .rres, .pust-pendbar) { display: none !important; }
 .wastelanders .pust-roller button.pust-fold { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; height: auto; min-height: 30px;
   margin: 0; padding: 4px 8px; background: rgba(255,252,240,.6) !important; border: 1px dashed var(--pu-ink-3) !important; box-shadow: none !important;
   font-family: var(--pu-f-label); font-size: 13px; color: var(--pu-ink) !important; text-align: left; line-height: 1.25; }

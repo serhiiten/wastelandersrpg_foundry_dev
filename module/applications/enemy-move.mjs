@@ -365,7 +365,7 @@ export async function useMove(actor, i, { token = null } = {}) {
     // a damaging move's states on a player's character land with its damage, after the avoidance (A1; author, 2026-11-20)
     const waitOn = hitFx ? (await splitWaiting(on0)).wait : [];
     const on = on0.filter((u) => !waitOn.some((w) => w.uuid === u));
-    if (waitOn.length) { deferStates = stateFx; lines.push(`${waitOn.map((w) => w.name).join(", ")}: стан ляже разом зі шкодою, якщо не уникне.`); }
+    if (waitOn.length) { deferStates = stateFx; lines.push(`${waitOn.map((w) => w.name).join(", ")}: стан застосується разом зі шкодою, якщо не уникне.`); }
     // a hidden one's state lines go to the GMs (author, 2026-11-20)
     const docs = await Promise.all(on.map((u) => fromUuid(u)));
     const { open: onOpen, hidden: onHid } = splitHidden(on, (u) => hid(docs[on.indexOf(u)]));
@@ -461,7 +461,7 @@ export async function attackWithMenu(actor, i, { token = null, anchor = null } =
     const mv = sys.moves[pick.mi];
     const lines = [`${a.name}: ${pick.label.charAt(0).toLowerCase()}${pick.label.slice(1)}.`];
     if (states.length && now.length) lines.push(...await putStates(now, states, { by, byName, once }));
-    if (states.length && wait.length) lines.push(`${wait.map((w) => w.name).join(", ")}: стан ляже разом зі шкодою, якщо не уникне.`);
+    if (states.length && wait.length) lines.push(`${wait.map((w) => w.name).join(", ")}: стан застосується разом зі шкодою, якщо не уникне.`);
     await postChat({ content: moveCardHtml(byName, mv, moveSpec(mv, sys, pick.mi), lines), speaker: tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor }) });
   }
   if (now.length) await applyDamage(now, data, { head: r.head, source: by, dodge: pick.k === "halfDown" });
