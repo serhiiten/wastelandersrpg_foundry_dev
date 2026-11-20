@@ -58,6 +58,7 @@ const once = S.markStunned({}, "R1");
 ok(S.stunnedBefore(once, "R1") && !S.stunnedBefore(once, "R2"), "the stun once a scene by the same enemy");
 
 eq(S.stateWords({ key: "burning", dice: "1d6", type: "fire", left: 3 }), "«Палає» (1d6 вогнем щоразу, 3 кола)", "the card's words");
+eq(S.stateWords({ key: "bleeding", dice: "1d6", left: 1, ignoreArmor: true }), "«Кровотеча» (1d6 раз, коли настане черга діяти, броня не рятує)", "once");
 
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `states: OK (${checks} checks)`);
 if (failures) process.exit(1);

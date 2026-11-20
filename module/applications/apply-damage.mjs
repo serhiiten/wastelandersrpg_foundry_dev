@@ -154,7 +154,7 @@ function triggerMoves(actor, when) {
 export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, head = "", source = "", noLastHit = false, collect = null } = {}) {
   const lines = [];
   const src = source ? await targetOf(source) : null;
-  const killed = [];
+  const killed = [], wounded = [];
   const type = battleType(data.type);
   const rollD6 = () => rollDie(6); // the electricity bonus; not Roll#evaluateSync, which Foundry 14 refuses for dice (helpers/dice.mjs)
   for (const uuid of tokenUuids) {
@@ -194,6 +194,7 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     const gm = [];
     if (fell && actor.type === "enemy") for (const n of triggerMoves(actor, "down")) gm.push(`Має хід «${esc(n)}»: «Використати» на картці ворога.`);
     if (fell && tok) killed.push(tok.uuid);
+    if (r.damage >= 1 && Array.isArray(data.onHit) && data.onHit.length) wounded.push(uuid);
     if (aimed) steps.push("+2 на прицілі");
     const gmNote = gm.join(" ");
     // the short row (everyone): no steps (armour, defences); HP only where everyone sees them
@@ -204,6 +205,12 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     await src.actor.setFlag(game.system.id, "lastKill", { target: killed[0], at: Date.now() });
     const n = triggerMoves(src.actor, "kill").join("», «");
     lines.push({ full: `<div class="pust-da-note">${esc(`${src.tok?.name || src.actor.name} має хід «${n}»: «Використати» на його картці.`)}</div>`, short: "" });
+  }
+  // «Підпал» / «Кровотеча» of the attack's note: the ones it dealt at least 1 damage after armour (author, 2026-11-20)
+  if (wounded.length) {
+    const { putStates } = await import("./states.mjs");
+    const said = await putStates(wounded, data.onHit, { by: source, byName: src?.tok?.name || src?.actor?.name || "" });
+    for (const l of said) { const h = `<div class="pust-da-note">${esc(l)}</div>`; lines.push({ full: h, short: h }); }
   }
   if (collect) { collect.push(...lines); return lines.length; }
   // the full card's header also says what the dice gave, before armour and defences (author, 2026-11-15)

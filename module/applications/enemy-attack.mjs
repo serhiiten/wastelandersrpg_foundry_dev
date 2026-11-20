@@ -7,6 +7,7 @@
  */
 import { postDamageCard } from "./check-panel.mjs";
 import { attackDice, bonusFrom, andList } from "../rules/enemy-model.mjs";
+import { attackStates } from "../rules/move-spec.mjs";
 import { diceLabel, attackExtra, attackHit } from "../rules/battle.mjs";
 import { TYPE_EFFECTS } from "../rules/damage-types.mjs";
 
@@ -61,6 +62,8 @@ export async function rollEnemyAttack(actor, i, { token = null, plus = "" } = {}
   });
   if (boom && Number(sys.hp?.value) > 0) await actor.update({ "system.hp.value": 0 });
   await waitDice(msg); // «Завдати цілям» deals the damage once the 3D dice have landed (author, 2026-11-19)
-  const data = { total, dice: hit.dice, type: wt, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0, ...(hit.parts ? { parts: hit.parts } : {}) };
+  // the states of the note («підпалює ціль», «спричиняє кровотечу»): on those it wounds (apply-damage.mjs; author, 2026-11-20)
+  const onHit = attackStates(a.note);
+  const data = { total, dice: hit.dice, type: wt, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0, ...(hit.parts ? { parts: hit.parts } : {}), ...(onHit.length ? { onHit } : {}) };
   return { total, head: `${token?.name || actor.name}: ${a.name}`, data };
 }

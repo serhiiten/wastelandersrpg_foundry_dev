@@ -147,7 +147,9 @@ export function stateWords(s) {
   const def = STATES[s?.key];
   if (!def) return "";
   const bits = [];
-  if (s.dice) bits.push(`${s.dice}${TYPE_WORD[s.type] ? ` ${TYPE_WORD[s.type]}` : ""} щоразу${s.ignoreArmor ? ", броня не рятує" : ""}`);
+  // once («Підпал», a bleeding) or every turn (poison, a grab, «Кільце вогню»)
+  const once = def.until === "rounds" && num(s.left) <= 1;
+  if (s.dice) bits.push(`${s.dice}${TYPE_WORD[s.type] ? ` ${TYPE_WORD[s.type]}` : ""} ${once ? "раз, коли настане черга діяти" : "щоразу"}${s.ignoreArmor ? ", броня не рятує" : ""}`);
   if (def.until === "rounds" && num(s.left) > 1) bits.push(`${num(s.left)} ${num(s.left) < 5 ? "кола" : "кіл"}`);
   if (def.until === "holder") bits.push("доки не вирветься");
   if (def.until === "skip") bits.push("пропускає наступну дію");

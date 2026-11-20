@@ -178,6 +178,18 @@ export function statesOf(text) {
 }
 
 /**
+ * The states an attack's note puts on the ones it wounds (author, 2026-11-20; the wiki's weapon properties): «підпалює ціль /
+ * цілі» — «Підпал», «палає» 1d6 fire once; «спричиняє кровотечу» — «Кровотеча» 1d6 ignoring armour once. Only a target the
+ * attack dealt at least 1 damage after armour gets it (apply-damage.mjs).
+ */
+export function attackStates(note) {
+  const t = String(note ?? ""), out = [];
+  if (/підпалю\S*/i.test(t)) out.push({ key: "burning", dice: "1d6", left: 1, type: "fire" });
+  if (/кровотеч/i.test(t)) out.push({ key: "bleeding", dice: "1d6", left: 1, ignoreArmor: true });
+  return out;
+}
+
+/**
  * The effect menu under «Завдати цілям» of an attack (author, 2026-11-20, mockup А): the options of «Прицільний постріл» /
  * «Точний удар» («вибери на додачу до шкоди один ефект») and of «Кусь» / «Здимів звідси» (half the damage to knock the target
  * down). null when the enemy has none for this attack. Options: {k, label, dice?, once?}.

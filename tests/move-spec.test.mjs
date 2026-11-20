@@ -147,6 +147,11 @@ const dog = { moves: [{ n: "Кусь", t: "атакуючи в ближньом�
 eq(S.attackMenu(dog, { note: "ближній бій" }).map((o) => o.k), ["none", "halfDown"], "«Кусь»: half to knock down");
 ok(S.attackMenu(dog, { note: "бій на відстані" }) === null, "«Кусь» is melee only");
 ok(S.attackMenu({ moves: [{ n: "Лють", t: "раз за сцену" }] }, {}) === null, "no menu without such a move");
+// an attack's note: «Підпал» and «Кровотеча» (the wiki's weapon properties), 1d6 once
+eq(S.attackStates("шкоди вогнем, ближній бій, підпалює ціль"), [{ key: "burning", dice: "1d6", left: 1, type: "fire" }], "«підпалює ціль»");
+eq(S.attackStates("шкоди вогнем всім істотам в одній зоні, 2 шт., підпалюють цілі").map((x) => x.key), ["burning"], "«підпалюють цілі»");
+eq(S.attackStates("фізичної шкоди, ближній бій, ігнорує 2 броні, спричиняє кровотечу"), [{ key: "bleeding", dice: "1d6", left: 1, ignoreArmor: true }], "«спричиняє кровотечу»");
+eq(S.attackStates("фізичної шкоди, бій на відстані"), [], "a plain note puts nothing");
 
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
 if (failures) process.exit(1);
