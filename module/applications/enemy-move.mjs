@@ -6,17 +6,18 @@
  * then one card «<name> використовує «<move>»» for everyone (author: the players see the move's name). Damage goes through
  * applyDamage, so armour, defences and the damage card are the usual ones.
  */
-import { putBuff } from "../rules/move-spec.mjs";
+import { putBuff, moveBlock, splitHidden } from "../rules/move-spec.mjs";
 import { moveSpec, moveMarks, spendMove, freeMove as freeMark, canUndo, healWho, factionOf, bookName, normEnemyName, psiPerkOf, limitLabel, attackMenu } from "../rules/move-spec.mjs";
 import { zoneOfPoint, chatType } from "../rules/battle.mjs";
 import { BOOK } from "../rules/book.mjs";
 import { postChat } from "./chat.mjs";
 import { postDamageCard } from "./check-panel.mjs";
-import { applyDamage, chosenTokens, clearTargets, sendDamage, warnNoTargets } from "./apply-damage.mjs";
-import { rollEnemyAttack } from "./enemy-attack.mjs";
+import { applyDamage, applyCard, chosenTokens, clearTargets, sendDamage, warnNoTargets } from "./apply-damage.mjs";
+import { rollEnemyAttack, battleType } from "./enemy-attack.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { waitDice } from "../helpers/dice-rolls.mjs";
-import { putStates } from "./states.mjs";
+import { putStates, hiddenRow, whisperGM, GM_CHIP } from "./states.mjs";
+import { isPublicMode } from "./chat.mjs";
 import { stunnedBefore } from "../rules/states.mjs";
 import { pickMenu } from "../helpers/pick-menu.mjs";
 
@@ -104,13 +105,19 @@ async function healOne(actor, name, expr) {
  * (terminal-battle.mjs battleEnemyFromPack: «Битви → <фракція>», goes with its last token), `n` unlinked tokens in the
  * summoner's zone, else beside it; a hidden summoner brings hidden help. @returns {Promise<TokenDocument[]>}
  */
-async function summon(actor, tok, e) {
-  const scene = tok?.parent ?? canvas.scene;
+/** The summoned enemy in the compendium: {pack, entry}, or null (then the move isn't spent; author, 2026-11-20) */
+async function findSummon(e) {
   const pack = game.packs.find((p) => p.metadata.type === "Actor" && p.metadata.name === "opponents");
-  if (!scene || !pack) return [];
+  if (!pack) return null;
   const idx = await pack.getIndex({ fields: ["type"] });
   const entry = idx.find((x) => x.type === "enemy" && normEnemyName(x.name) === normEnemyName(e.book));
-  if (!entry) return [];
+  return entry ? { pack, entry } : null;
+}
+
+async function summon(actor, tok, e, found) {
+  const scene = tok?.parent ?? canvas.scene;
+  if (!scene || !found) return [];
+  const { pack, entry } = found;
   const { battleEnemyFromPack, tokenAtPoint } = await import("./terminal-battle.mjs");
   const { tokensIntoZone } = await import("./battle-panel.mjs");
   const who = await battleEnemyFromPack(pack, entry._id);
@@ -208,6 +215,15 @@ export async function useMove(actor, i, { token = null } = {}) {
     ammoIdx = (sys.attacks ?? []).findIndex((a) => a.ammoMax > 0 && String(a.name).toLowerCase().includes(ammo.weapon));
     if (ammoIdx >= 0 && int(sys.attacks[ammoIdx].ammo) < ammo.n) { notify.warn(`«${mv.n}»: у «${sys.attacks[ammoIdx].name}» не лишилося зарядів.`); return false; }
   }
+  // the effect must be able to act, or the move isn't spent (author, 2026-11-20; move-spec.mjs moveBlock): a zone hit
+  // outside the zones, a summons missing from the compendium, an execution outside the user's zone
+  const zoneId = (t) => { const sc = t?.parent ?? tok?.parent ?? canvas.scene; return t && sc ? zoneTools(sc).zoneOf(t)?.id ?? null : null; };
+  const sm = has("summon");
+  const found = sm ? await findSummon(sm) : null;
+  const block = moveBlock(spec, { targets: targets.length, zone: zoneId(tok), killZone: zoneId(killTok), targetZone: exe ? zoneId(tDocs[0]) : null, found: !sm || !!found });
+  if (block?.why === "noZone") { notify.warn(block.kill ? `«${mv.n}»: звалена ціль стоїть поза зонами — познач цілі (T).` : `«${mv.n}»: ворог стоїть поза зонами — постав його в зону або познач цілі (T).`); return false; }
+  if (block?.why === "noSummon") { notify.warn(`«${mv.n}»: «${block.book}» у компендіумі не знайдено — постав сам.`); return false; }
+  if (block?.why === "otherZone") { notify.warn(`«${mv.n}»: страчують лише ${exe.only ? exe.only.map((n) => n.toLowerCase() + "а").join(" чи ") + " " : ""}у своїй зоні — ця ціль в іншій зоні.`); return false; }
 
   // spent first: a second click while the dice roll finds it used; a use clears the last hit's record (Fable's verdict)
   const moves = sys.moves.map((m, k) => (k === i ? spendMove(m, spec) : { ...m }));
@@ -219,6 +235,9 @@ export async function useMove(actor, i, { token = null } = {}) {
   if (lastKill) await actor.unsetFlag(sysId(), "lastKill");
 
   const lines = [];
+  // a hidden token's lines go to the GMs in a whisper (author, 2026-11-20); the summons' card stays as it is
+  const gmLines = [], pub = isPublicMode();
+  const hid = (t) => hiddenRow(t, pub);
   let icon = "fa-person-running", cls = "move";
   const hits = []; // the damage, dealt after the card
   let group = null; // whom a group heal took: the allies' bonus goes to the same ones
@@ -245,18 +264,24 @@ export async function useMove(actor, i, { token = null } = {}) {
           list = r.ids.map((u) => (u === self ? null : byId.get(u))).filter((x) => x !== undefined);
           why = r.why;
         }
-        const got = [];
         group = [];
+        // «Децимація» / «Бийтеся, ідіоти» with nobody else of the side on the scene (author, 2026-11-20)
+        if (why === "none") { lines.push("Своїх поруч нема: лікувати й підбадьорювати нікого."); break; }
+        const got = [], gotHid = [];
         for (const t of list) {
           if (t && exe && t === tDocs[0]) continue; // the one executed isn't healed
           const a = t ? actorOf(t) : actor;
           if (!a?.system?.hp) continue;
-          group.push({ a, name: t ? nameOf(t) : name });
+          const h = hid(t ?? tok);
+          group.push({ a, name: t ? nameOf(t) : name, hidden: h });
           const line = await healOne(a, t ? nameOf(t) : name, e.expr);
-          if (line) got.push(line);
+          if (line) (h ? gotHid : got).push(line);
         }
         const whom = why === "targets" ? "цілям" : why === "faction" ? (e.only ? "легіонерам на сцені" : "своїм на сцені") : "собі";
-        lines.push(`Відновлює ${e.expr} ОЗ ${whom}: ${got.length ? got.join(", ") : "ОЗ уже повні"}.`);
+        const say = (to, ls) => to.push(`Відновлює ${e.expr} ОЗ ${whom}: ${ls.length ? ls.join(", ") : "ОЗ уже повні"}.`);
+        const { open: gOpen, hidden: gHid } = splitHidden(group, (g) => g.hidden);
+        if (gOpen.length) say(lines, got);
+        if (gHid.length) say(gmLines, gotHid);
         break;
       }
       case "execute":
@@ -282,11 +307,14 @@ export async function useMove(actor, i, { token = null } = {}) {
       case "allyBonus": {
         // stage 3 (author, 2026-11-20): the ones the move's heal took (not the executed one) deal +N till the scene's end;
         // the same move again replaces its record, different moves add up (move-spec.mjs putBuff)
-        const who = group ?? [{ a: actor, name }];
+        const who = group ?? [{ a: actor, name, hidden: hid(tok) }];
+        if (!who.length) break; // nobody else of the side: the heal's line says so
         for (const g of who) await g.a.setFlag(sysId(), "buffs", putBuff(g.a.getFlag(sysId(), "buffs"), mv.n, e.dmg));
         const only = spec.effects.find((x) => x.kind === "heal")?.only;
         const side = only ? "Легіонери" : FACTION_SIDE[factionOf(bookNameOf(actor, tok))] ?? "Свої";
-        lines.push(`${side} до кінця сцени завдають +${e.dmg} шкоди: ${who.map((g) => g.name).join(", ")}.`);
+        const { open: wOpen, hidden: wHid } = splitHidden(who, (g) => g.hidden);
+        if (wOpen.length) lines.push(`${side} до кінця сцени завдають +${e.dmg} шкоди: ${wOpen.map((g) => g.name).join(", ")}.`);
+        if (wHid.length) gmLines.push(`${side} до кінця сцени завдають +${e.dmg} шкоди: ${wHid.map((g) => g.name).join(", ")}.`);
         break;
       }
       case "ammo":
@@ -297,17 +325,21 @@ export async function useMove(actor, i, { token = null } = {}) {
         // the targets (T) when the GM chose some; otherwise a zone move takes its zone by itself (author, 2026-11-19)
         // «Розпад»: the foes in the zone of the target its attack has just brought down
         const zoneTok = e.zone === "killFoes" ? killTok : tok, how = e.zone === "killFoes" ? "foes" : e.zone;
-        const uuids = targets.length ? targets : e.zone ? zoneTargets(actor, zoneTok, how, { spareKin: !!e.spareKin }).map((t) => t.uuid) : [];
+        const zt = targets.length || !e.zone ? [] : zoneTargets(actor, zoneTok, how, { spareKin: !!e.spareKin });
+        const uuids = targets.length ? targets : zt.map((t) => t.uuid);
         if (!uuids.length) {
           lines.push(e.zone ? "Нікого поруч у зоні: шкоду не завдано." : "Цілі не позначено: шкоду не завдано (кинь кістку з тексту ходу, позначивши цілі).");
           break;
         }
-        hits.push({ e, uuids, zone: !targets.length });
-        lines.push(`Шкода ${e.dice}: ${targets.length ? "цілям" : e.zone === "killFoes" ? "ворогам у зоні зваленої цілі" : e.zone === "foes" ? "ворогам у зоні" : "усім у зоні"} (${uuids.length}).`);
+        // a zone hit takes the hidden ones too, but only the GM's cards name them (author, 2026-11-20)
+        const hidden = new Set(zt.filter((t) => hid(t)).map((t) => t.uuid));
+        hits.push({ e, uuids, zone: !targets.length, hidden });
+        const seen = uuids.length - hidden.size;
+        if (seen) lines.push(`Шкода ${e.dice}: ${targets.length ? "цілям" : e.zone === "killFoes" ? "ворогам у зоні зваленої цілі" : e.zone === "foes" ? "ворогам у зоні" : "усім у зоні"} (${seen}).`);
         break;
       }
       case "summon": {
-        const made = await summon(actor, tok, e);
+        const made = await summon(actor, tok, e, found);
         lines.push(made.length ? `Кличе на допомогу: ${made.map((t) => t.name).join(", ")}.` : `«${e.book}» у компендіумі не знайдено: постав сам.`);
         if (e.sceneOnce && made.length) await spendKin(actor, tok, mv.n, made);
         break;
@@ -328,16 +360,20 @@ export async function useMove(actor, i, { token = null } = {}) {
     const scene = tok?.parent ?? canvas.scene;
     const on = hitFx ? [...new Set(hits.flatMap((h) => h.uuids))] : tDocs.length || !heard ? tDocs.map((t) => t.uuid)
       : (scene?.tokens ?? []).filter((t) => t.actor?.type === "character" && alive(t)).map((t) => t.uuid);
-    if (on.length) lines.push(...await putStates(on, stateFx, { by: tok?.uuid ?? "", byName: name }));
-    else if (heard) lines.push("Персонажів на сцені немає: ніхто не чує.");
+    // a hidden one's state lines go to the GMs (author, 2026-11-20)
+    const docs = await Promise.all(on.map((u) => fromUuid(u)));
+    const { open: onOpen, hidden: onHid } = splitHidden(on, (u) => hid(docs[on.indexOf(u)]));
+    const o = { by: tok?.uuid ?? "", byName: name };
+    if (onOpen.length) lines.push(...await putStates(onOpen, stateFx, o));
+    if (onHid.length) gmLines.push(...await putStates(onHid, stateFx, o));
+    if (!on.length && heard) lines.push("Персонажів на сцені немає: ніхто не чує.");
   }
 
   // the card for everyone (author, 2026-11-19: the players see the move's name), then the damage
-  await postChat({
-    content: moveCardHtml(name, mv, spec, lines, icon, cls),
-    speaker: tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor }),
-  });
-  for (const { e, uuids: all, zone } of hits) {
+  const speaker = tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor });
+  await postChat({ content: moveCardHtml(name, mv, spec, lines, icon, cls), speaker });
+  if (gmLines.length) await whisperGM(speaker, moveCardHtml(name, mv, spec, gmLines, icon, cls));
+  for (const { e, uuids: all, zone, hidden } of hits) {
     const head = `${name}: ${mv.n}`;
     // a zone hit takes only those still standing: the second part of a blast skips the ones the first brought down
     const uuids = zone ? (await Promise.all(all.map((u) => fromUuid(u)))).filter((t) => t && alive(t)).map((t) => t.uuid) : all;
@@ -357,7 +393,14 @@ export async function useMove(actor, i, { token = null } = {}) {
       await waitDice(msg); // the damage is dealt once the 3D dice have landed
       data = { total: r.total, dice: r.roll.dice.reduce((n, d) => n + d.number, 0), type: wt, ignoreArmor: !!e.ignoreArmor, ignoreN: e.ignoreN || 0 };
     }
-    await applyDamage(uuids, data, { head, source: tok?.uuid ?? "" });
+    // the hidden ones' rows: a card of their own, whispered to the GMs (author, 2026-11-20)
+    const { open, hidden: hidUuids } = splitHidden(uuids, (u) => hidden.has(u));
+    if (open.length) await applyDamage(open, data, { head, source: tok?.uuid ?? "" });
+    if (hidUuids.length) {
+      const rows = [];
+      await applyDamage(hidUuids, data, { head, source: tok?.uuid ?? "", collect: rows });
+      if (rows.length) await whisperGM({ alias: "Шкода" }, applyCard({ dt: chatType(battleType(data.type)), icon: "fa-burst", title: `Шкода: ${esc(head)}`, chips: GM_CHIP, rows: rows.map((l) => l.full) }));
+    }
   }
   if (targets.length) clearTargets();
   return true;

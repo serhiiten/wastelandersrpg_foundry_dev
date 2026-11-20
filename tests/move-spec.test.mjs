@@ -210,5 +210,31 @@ eq(S.attackStates("фізичної шкоди, бій на відстані"), 
   ok(S.SUMMONS["сигналізація"].sceneOnce && !S.SUMMONS["підкріплення"].sceneOnce, "only «Сигналізація» is once a scene for all its kind");
 }
 
+// before the DEV release (author, 2026-11-20): nobody else of the side, what stops a move before it is spent, the hidden ones
+{
+  eq(S.healWho({ targets: [], faction: ["a"], self: "a", others: true }), { ids: [], why: "none" }, "«others» with nobody else on the scene: none");
+  eq(S.healWho({ targets: [], faction: [], self: "a", others: true }), { ids: [], why: "none" }, "«others» with no faction at all: none");
+  const dec = spec("Децимація", "раз за сцену показово страчує одного легіонера у своїй зоні. Усі інші легіонери, які це бачать, негайно відновлюють 5 ОЗ і до кінця сцени завдають +1 шкоди.");
+  ok(dec.effects[0].kind === "execute" && dec.effects[0].sameZone === true, "Децимація: the execution «у своїй зоні»");
+  ok(S.moveBlock(dec, { zone: "z1", targetZone: "z1" }) === null, "Децимація: the legionary in the centurion's zone");
+  eq(S.moveBlock(dec, { zone: "z1", targetZone: "z2" }), { why: "otherZone" }, "Децимація: a legionary in another zone");
+  eq(S.moveBlock(dec, { zone: "z1", targetZone: null }), { why: "otherZone" }, "Децимація: a legionary outside the zones");
+  ok(S.moveBlock(dec, { zone: null, targetZone: "z2" }) === null, "Децимація: the centurion outside the zones is not stopped (the author's question)");
+  const zoneHit = { effects: [{ kind: "hit", dice: "2d6", zone: "all" }] };
+  eq(S.moveBlock(zoneHit, { zone: null }), { why: "noZone", kill: false }, "a zone hit outside the zones, no targets");
+  ok(S.moveBlock(zoneHit, { zone: "z1" }) === null, "a zone hit in a zone");
+  ok(S.moveBlock(zoneHit, { zone: null, targets: 2 }) === null, "a zone hit outside the zones with targets");
+  eq(S.moveBlock({ effects: [{ kind: "hit", dice: "2d6", zone: "killFoes" }] }, { zone: "z1", killZone: null }), { why: "noZone", kill: true }, "«Розпад»: the fallen target outside the zones");
+  eq(S.moveBlock({ effects: [{ kind: "attack", zone: "foes" }] }, { zone: null }), { why: "noZone", kill: false }, "«Лють» outside the zones, no targets");
+  ok(S.moveBlock({ effects: [{ kind: "hit", dice: "2d6", zone: "" }] }, { zone: null }) === null, "a hit at the targets isn't a zone hit");
+  const sm = S.moveSpec({ n: "Підкріплення", t: "раз за сцену кличе на допомогу" });
+  eq(S.moveBlock(sm, { found: false }), { why: "noSummon", book: "Гігантська мураха-солдат" }, "a summons missing from the compendium");
+  ok(S.moveBlock(sm, { found: true }) === null, "a summons found");
+  ok(S.moveBlock(spec("Ave! True to Caesar!", "раз за сцену видає бойовий клич. Усі бійці Легіону, які його чують, відновлюють 5 ОЗ і до кінця сцени завдають +2 шкоди."), {}) === null, "a move with nothing to check");
+  const toks = [{ id: "a", hidden: false }, { id: "b", hidden: true }, { id: "c" }, { id: "d", hidden: true }];
+  eq(S.splitHidden(toks, (t) => !!t.hidden), { open: [{ id: "a", hidden: false }, { id: "c" }], hidden: [{ id: "b", hidden: true }, { id: "d", hidden: true }] }, "the hidden ones apart, order kept");
+  eq(S.splitHidden(null, () => true), { open: [], hidden: [] }, "nothing to split");
+}
+
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
 if (failures) process.exit(1);

@@ -15,7 +15,7 @@ import { backLine, chemReset, usedNames } from "../rules/perk-uses.mjs";
 import { clearDefibs } from "./caravan-defib.mjs";
 import { rollCaravanSuperDice } from "./caravan-superdice.mjs";
 import { notify } from "../helpers/notify.mjs";
-import { clearAllStates } from "./states.mjs";
+import { clearAllStates, hiddenRow, whisperGM } from "./states.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 
@@ -61,10 +61,12 @@ const sentences = (t) => String(t || "").split(/(?<=[.!?])\s+(?=[А-ЯІЇЄҐA-
 /**
  * The chat card (author, 2026-11-17: as handsome as the damage cards): a header in the kind's colours with chips («Коло дій 1»,
  * the enemies whose moves came back), the general line, then a row for every character: the portrait, the name, the change of
- * ОЗ as a big number and the Fate tokens restored on the right, its own events under them («без змін» when none)
+ * ОЗ as a big number and the Fate tokens restored on the right, its own events under them («без змін» when none).
+ * `gm`: the hidden tokens' rows whispered to the GMs (author, 2026-11-20): the chip «Доглядачу», no general line
  */
-function endCard(kind, def, rows, movesN) {
-  const chips = [`<span class="pust-end-chip" title="Нова сцена починається з першого кола дій"><i class="fa-solid fa-rotate"></i>Коло дій 1</span>`];
+function endCard(kind, def, rows, movesN, { gm = false } = {}) {
+  const chips = [gm ? `<span class="pust-end-chip" title="Бачить лише Доглядач"><i class="fa-solid fa-eye-slash"></i>Доглядачу</span>`
+    : `<span class="pust-end-chip" title="Нова сцена починається з першого кола дій"><i class="fa-solid fa-rotate"></i>Коло дій 1</span>`];
   if (movesN != null) chips.push(`<span class="pust-end-chip" title="Ворогів сцени, яким повернуто використані ходи"><i class="fa-solid fa-skull"></i>Ходи ворогів: ${movesN}</span>`);
   const row = (r) => {
     const marks = [];
@@ -74,7 +76,7 @@ function endCard(kind, def, rows, movesN) {
     return `<div class="pust-end-row${r.bad ? " bad" : ""}"><div class="pust-end-main"><img src="${esc(r.img)}" alt=""><span class="pust-end-name">${esc(r.name)}</span>${marks.join("")}</div>${items}</div>`;
   };
   return `<div class="pust-chat pust-endcard pust-end-${kind}"><div class="pust-end-hd"><i class="fa-solid ${def.icon}"></i><span class="pust-end-title">${def.title}</span>${chips.join("")}</div>`
-    + (rows.length ? `<p class="pust-end-gen">${def.gen}</p><div class="pust-end-list">${rows.map(row).join("")}</div>` : `<p class="pust-end-gen">Жодного персонажа не призначено гравцям.</p>`) + `</div>`;
+    + (rows.length ? `${gm ? "" : `<p class="pust-end-gen">${def.gen}</p>`}<div class="pust-end-list">${rows.map(row).join("")}</div>` : `<p class="pust-end-gen">Жодного персонажа не призначено гравцям.</p>`) + `</div>`;
 }
 
 /** the enemies of the viewed scene: a linked one once, an unlinked one by its token */
@@ -147,13 +149,16 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   }
   // the states put on by enemies' moves end with the scene, their aspects too (author, 2026-11-20)
   // the aspects taken off are said in the card (author, 2026-11-20): in a character's row, a row of their own for the others
+  // a hidden token's own row goes to the GMs in a whisper (author, 2026-11-20)
+  const hidRows = [];
   for (const g of await clearAllStates()) {
     const item = `Аспекти зникли: ${g.gone.map((t) => `«${t}»`).join(", ")}.`;
     const r = rows.find((x) => x.uuid === g.actor.uuid);
     if (r) r.items.push(item);
-    else rows.push({ uuid: g.actor.uuid, name: g.name, img: g.img, items: [item], hp: 0 });
+    else (hiddenRow(g) ? hidRows : rows).push({ uuid: g.actor.uuid, name: g.name, img: g.img, items: [item], hp: 0 });
   }
   await postChat({ speaker: { alias: def.title }, content: endCard(kind, def, rows, moves ? movesN : null) });
+  if (hidRows.length) await whisperGM({ alias: def.title }, endCard(kind, def, hidRows, null, { gm: true }));
   notify.info(`${def.title}: ${chars.length} ${chars.length === 1 ? "персонаж" : chars.length < 5 && chars.length > 1 ? "персонажі" : "персонажів"}. Коло дій 1${fate != null ? `, жетонів Долі Доглядача: ${Math.max(0, fate)}` : ""}.`);
   return true;
 }

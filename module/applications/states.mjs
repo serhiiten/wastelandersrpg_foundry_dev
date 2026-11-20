@@ -6,6 +6,7 @@
 import { STATES, putState, tickStates, immuneTo, stunnedBefore, markStunned, stateWords } from "../rules/states.mjs";
 import { targetProfile } from "../rules/target-profile.mjs";
 import { applyDamage, statesOf, postSplit, applyCard } from "./apply-damage.mjs";
+import { isPublicMode } from "./chat.mjs";
 import { chatType } from "../rules/battle.mjs";
 import { groupCharacters } from "./group-end.mjs";
 import { sharedGet } from "../helpers/scene-shared.mjs";
@@ -13,6 +14,21 @@ import { sharedGet } from "../helpers/scene-shared.mjs";
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const sys = () => game.system.id;
 const round = () => Math.max(1, Number(sharedGet("round")) || 1);
+
+/** The chip of a card only the GMs see (apply-damage.mjs postSplit's) */
+export const GM_CHIP = `<span class="pust-da-chip gm" title="Бачить лише Доглядач"><i class="fa-solid fa-eye-slash"></i>Доглядачу</span>`;
+
+/**
+ * A card whispered to the GMs (author, 2026-11-20: the hidden enemies' rows stay off the public cards), the way
+ * apply-damage.mjs postSplit whispers its full card. @param {object} speaker @param {string} content
+ */
+export function whisperGM(speaker, content) {
+  const CM = ChatMessage.implementation;
+  return CM.create({ speaker, whisper: CM.getWhisperRecipients("GM").map((u) => u.id), content });
+}
+
+/** Is this token's row for the GMs only: a hidden token while the chat's mode is public (another mode posts as before) */
+export const hiddenRow = (tok, pub = isPublicMode()) => pub && !!tok?.hidden;
 
 /** A target by uuid: {tok, actor} (a token or an actor) */
 async function docOf(uuid) {
@@ -102,8 +118,11 @@ function holderOk(scene, uuid) {
 export async function tickRound(r) {
   if (!game.user.isGM) return;
   const scene = canvas?.scene;
-  const rows = [], said = [];
+  const pub = isPublicMode();
+  // a hidden token's rows go to the GMs in a whisper (author, 2026-11-20)
+  const open = { rows: [], said: [] }, hid = { rows: [], said: [] };
   for (const { uuid, tok, actor } of carriers(scene)) {
+    const { rows, said } = hiddenRow(tok, pub) ? hid : open;
     const flag = actor.getFlag(sys(), "states");
     if (!Array.isArray(flag) || !flag.length) continue;
     const active = statesOf(actor);
@@ -124,11 +143,15 @@ export async function tickRound(r) {
     }
     for (const k of t.gone) said.push(`${name}: аспект «${STATES[k].aspect}» зник.`);
   }
-  if (!rows.length && !said.length) return;
-  const extra = said.map((l) => `<div class="pust-da-note">${esc(l)}</div>`).join("");
-  const card = (ls, gmNote = "") => applyCard({ icon: "fa-hourglass-half", title: `Стани: коло ${r}`, chips: gmNote, rows: [...ls, extra] });
-  if (rows.length) await postSplit("Стани", rows, card);
-  else await postSplit("Стани", [{ full: "", short: "" }], card);
+  const notes = (said) => said.map((l) => `<div class="pust-da-note">${esc(l)}</div>`).join("");
+  if (open.rows.length || open.said.length) {
+    const extra = notes(open.said);
+    const card = (ls, gmNote = "") => applyCard({ icon: "fa-hourglass-half", title: `Стани: коло ${r}`, chips: gmNote, rows: [...ls, extra] });
+    await postSplit("Стани", open.rows.length ? open.rows : [{ full: "", short: "" }], card);
+  }
+  if (hid.rows.length || hid.said.length) {
+    await whisperGM({ alias: "Стани" }, applyCard({ icon: "fa-hourglass-half", title: `Стани: коло ${r}`, chips: GM_CHIP, rows: [...hid.rows.map((l) => l.full), notes(hid.said)] }));
+  }
 }
 
 /**
@@ -150,9 +173,9 @@ export async function clearAllStates(scene = canvas?.scene) {
     const upd = { ...(drop.length ? aspectUpdate(actor, [], drop) : {}) };
     for (const k of ["states", "statesOnce", "lastKill", "buffs"]) if (f[k] !== undefined) upd[`flags.${sys()}.-=${k}`] = null;
     await actor.update(upd);
-    if (drop.length) out.push({ actor, name: tok?.name || actor.name, img: tok?.texture?.src || actor.img, gone: drop.map((k) => STATES[k].aspect) });
+    if (drop.length) out.push({ actor, name: tok?.name || actor.name, img: tok?.texture?.src || actor.img, gone: drop.map((k) => STATES[k].aspect), hidden: !!tok?.hidden });
   }
-  return out; // [{actor, name, img, gone: [aspect texts]}]
+  return out; // [{actor, name, img, gone: [aspect texts], hidden: a hidden token's}]
 }
 
 /**

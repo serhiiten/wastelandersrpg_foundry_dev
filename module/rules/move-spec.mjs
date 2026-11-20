@@ -130,7 +130,8 @@ export function moveSpec(move, sys = null, i = -1) {
     effects.push({ kind: "heal", expr: h.expr, who, ...(only ? { only } : {}) });
   }
   // the one executed is «одного легіонера» too (author, 2026-11-20)
-  if (/страчу\S*/i.test(t)) effects.unshift({ kind: "execute", ...(/страчу\S*\s+(?:\S+\s+)?легіонер/i.test(t) ? { only: ["Легіонер"] } : {}) });
+  // «… у своїй зоні»: only one standing in the user's zone (author, 2026-11-20; moveBlock)
+  if (/страчу\S*/i.test(t)) effects.unshift({ kind: "execute", ...(/страчу\S*\s+(?:\S+\s+)?легіонер/i.test(t) ? { only: ["Легіонер"] } : {}), ...(/страчу.*?у\s+своїй\s+зоні/i.test(t) ? { sameZone: true } : {}) });
   // «повертає в сцену з 10 ОЗ живого союзника…» (Дефібрилятор) and «…союзника, чиї ОЗ упали до 0, з 5 ОЗ»
   const rv = /повер[нт]\S*\s+в\s+сцену\s+(?:з|із)\s+(\d+)\s+ОЗ/i.exec(t) ?? /повер[нт]\S*\s+в\s+сцену.*?упали\s+до\s+0,\s+(?:з|із)\s+(\d+)\s+ОЗ/i.exec(t)
     ?? /повер[нт]\S*\s+в\s+сцену.*?(?:з|із)\s+(\d+)\s+ОЗ/i.exec(t);
@@ -366,7 +367,31 @@ export function healWho({ targets = [], faction = [], self = "", others = false 
   if (targets.length) return { ids: targets, why: "targets" };
   const fac = faction.filter((id) => !others || id !== self);
   if (fac.length) return { ids: others ? fac : [...new Set([self, ...fac])], why: "faction" };
-  return { ids: others ? [] : [self], why: "self" };
+  // «others» with nobody else of the side on the scene (author, 2026-11-20): nobody, and the card says so
+  return others ? { ids: [], why: "none" } : { ids: [self], why: "self" };
+}
+
+/**
+ * What keeps a move's effect from acting, checked before the move is spent (author, 2026-11-20): a zone hit with no targets
+ * while its token stands in no zone (`zone` / `killZone`: the zone ids of the user and of the target its attack brought
+ * down), a summons not found in the compendium (`found`), an execution «у своїй зоні» of one standing elsewhere
+ * (`targetZone`). A user in no zone doesn't stop the execution: whose zone counts then is the author's question.
+ * @returns {null|{why:"noZone"|"noSummon"|"otherZone", kill?:boolean, book?:string}}
+ */
+export function moveBlock(spec, { targets = 0, zone = null, killZone = null, targetZone = null, found = true } = {}) {
+  for (const e of spec?.effects ?? []) {
+    if ((e.kind === "hit" || e.kind === "attack") && e.zone && !targets && !(e.zone === "killFoes" ? killZone : zone)) return { why: "noZone", kill: e.zone === "killFoes" };
+    if (e.kind === "summon" && !found) return { why: "noSummon", book: e.book };
+    if (e.kind === "execute" && e.sameZone && zone && targetZone !== zone) return { why: "otherZone" };
+  }
+  return null;
+}
+
+/** The public cards and the hidden tokens (author, 2026-11-20): the items split by `isHidden` into {open, hidden}, order kept */
+export function splitHidden(items, isHidden) {
+  const open = [], hidden = [];
+  for (const x of items ?? []) (isHidden(x) ? hidden : open).push(x);
+  return { open, hidden };
 }
 
 /* ---------------- the damage path: survive, the HP bonus, undo ---------------- */
