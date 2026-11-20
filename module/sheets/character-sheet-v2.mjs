@@ -489,7 +489,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   }
 
   /**
-   * The compact sheet's «Швидкий доступ» sticks to the window's top (author, 2026-11-20) while it takes at most 70 % of the
+   * The compact sheet's «Швидкий доступ» sticks to the window's top (author, 2026-11-20) while it takes at most 50 % of the
    * window's height: a taller block would cover the sheet and its own end could not be scrolled to
    */
   #compactSticky() {
@@ -497,7 +497,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     const wc = this.element.querySelector(".window-content");
     const q = this.element.querySelector(".pust-compact > .pust-quickbar");
     if (!wc || !q) return;
-    const fit = () => q.classList.toggle("pust-qsticky", q.offsetHeight <= wc.clientHeight * 0.7);
+    const fit = () => q.classList.toggle("pust-qsticky", q.offsetHeight <= wc.clientHeight * 0.5);
     fit();
     this._pustStickyRO = new ResizeObserver(fit);
     this._pustStickyRO.observe(wc);
