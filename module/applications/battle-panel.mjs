@@ -39,7 +39,7 @@ const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const sys = () => game.system.id;
 let T = null;
 const term = () => (T ??= createTerminal({ toast: () => {}, icon: () => "" }));
-const ui_ = { open: false, faction: "", enemy: "", count: 1, zone: "", dmg: { expr: "", type: "phys", ignore: false, dodge: false }, moves: false };
+const ui_ = { open: false, faction: "", enemy: "", count: 1, zone: "", dmg: { expr: "", type: "phys", ignore: false, dodge: false }, moves: true }; // «Скинути ходи ворогів сцени» on by default (author, 2026-11-19)
 const QUICK_DICE = ["1d6", "1d10", "2d6", "3d6"];
 /** the panel's sections: the battle map's one and the «lite» one (sec → lite) */
 const sections = new Map();

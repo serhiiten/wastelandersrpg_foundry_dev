@@ -1,0 +1,116 @@
+// What an enemy's move does, read from its text (author, 2026-11-19; module/rules/move-spec.mjs): the patterns on the
+// book's texts, the hint under the button, the marks `used` / `spent`, the factions, whom a group heal takes, the damage
+// path (survive, the HP-threshold bonus, the hit kept for undo) and the moves' bonus to the attacks.
+// The levels of every move against the author's table: tests/move-levels.test.mjs. Run: node tests/move-spec.test.mjs
+import * as S from "../module/rules/move-spec.mjs";
+import { attackDice, profileOf, bonusFrom } from "../module/rules/enemy-model.mjs";
+
+let failures = 0, checks = 0;
+const ok = (c, m) => { checks++; if (!c) { failures++; console.log("FAIL " + m); } };
+const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b), `${m}: got ${JSON.stringify(a)}, want ${JSON.stringify(b)}`);
+const spec = (n, t) => S.moveSpec({ n, t });
+const kinds = (s) => s.effects.map((e) => e.kind).join(",");
+
+// the limit; a part's «лише раз за сцену» (the aimed shot's stun) is not the move's
+eq(S.moveLimit("раз за сцену відновлює ОЗ 5"), { uses: 1, per: "scene" }, "раз за сцену");
+eq(S.moveLimit("двічі за сцену відновлює собі 3 ОЗ"), { uses: 2, per: "scene" }, "двічі за сцену");
+eq(S.moveLimit("Раз за сесію"), { uses: 1, per: "session" }, "раз за сесію");
+eq(S.moveLimit("Ту саму ціль рейнджер може приголомшити лише раз за сцену"), { uses: 0, per: null }, "лише раз за сцену: no limit");
+eq(["раз за сцену", "2 за сцену", "раз за сесію", "без ліміту"], [S.limitLabel({ uses: 1, per: "scene" }), S.limitLabel({ uses: 2, per: "scene" }), S.limitLabel({ uses: 1, per: "session" }), S.limitLabel({ uses: 0 })], "limit labels");
+
+// the book's texts
+const AIM = "коли рейнджер стріляє, вибери на додачу до шкоди один ефект: • рейнджер вибиває зброю з рук цілі… • рейнджер ненадовго приголомшує ціль, і та пропускає свою наступну дію. Ту саму ціль рейнджер може приголомшити лише раз за сцену; • шкода повністю ігнорує броню цілі.";
+let s = spec("Прицільний постріл", AIM);
+ok(s.level === "effect" && s.button && !s.uses && !s.effects.length && s.hint === "Картка в чат", `the aimed shot: a button, the card only (stage 2): ${JSON.stringify(s)}`);
+s = spec("Точний удар", "коли суперсолдат б'є чи стріляє, вибери на додачу до шкоди один ефект: • суперсолдат завдає додатково 1d6 шкоди; • …");
+ok(!s.effects.length, "Точний удар: no 1d6 hit");
+s = spec("Дефібрилятор", "раз за сцену повертає в сцену з 10 ОЗ живого союзника, чиї ОЗ упали до 0, якщо той перебуває в зоні БТРа і його тіло вціліло.");
+eq(s.effects, [{ kind: "revive", hp: 10 }], "Дефібрилятор revives with 10");
+s = spec("Ребут", "раз за сцену може повернути в сцену союзника-робота, чиї ОЗ упали до 0, з 5 ОЗ, якщо його корпус не знищено повністю.");
+eq(s.effects, [{ kind: "revive", hp: 5 }], "Ребут revives with 5");
+s = spec("Захисний протокол", "раз за сцену ігнорує шкоду, яку йому щойно завдали.");
+ok(kinds(s) === "undo" && s.hint === "скасовує щойно завдану шкоду; картка в чат", `undo, the hint without a gender: ${s.hint}`);
+s = spec("Суперстимпак", "раз за сцену відновлює ОЗ 1d6+4.");
+eq(s.effects, [{ kind: "heal", expr: "1d6+4", who: "self" }], "self heal");
+s = spec("Цілющий порошок", "двічі за сцену відновлює собі або союзникові 3 ОЗ.");
+ok(s.uses === 2 && s.effects[0].who === "targetOrSelf", "the powder: twice, the target or self");
+s = spec("Перегрупуймося", "раз за сцену наказує своєму загону перегрупуватися. Усі бійці НКР, які чують наказ, відновлюють по 3 ОЗ і, якщо їм ніщо не заважає, можуть переміститися на одну зону.");
+eq(s.effects, [{ kind: "heal", expr: "3", who: "faction" }], "Перегрупуймося heals the faction");
+s = spec("Децимація", "раз за сцену показово страчує одного легіонера у своїй зоні. Усі інші легіонери, які це бачать, негайно відновлюють 5 ОЗ і до кінця сцени завдають +1 шкоди.");
+ok(kinds(s) === "execute,heal,allyBonus" && s.effects[1].who === "factionOthers" && s.effects[2].dmg === 1, `Децимація: execute, the others healed, +1 a line: ${kinds(s)}`);
+s = spec("Удар-землетрус", "раз за сцену завдає 3d6 шкоди всім іншим істотам у своїй зоні; вони падають з ніг і приголомшені.");
+ok(s.effects[0]?.kind === "hit" && s.effects[0].dice === "3d6" && s.effects[0].zone === "all", `the earthquake hits everyone in the zone: ${JSON.stringify(s.effects)}`);
+s = spec("Вогняне дихання", "раз за сцену завдає 2d6 шкоди вогнем усім істотам у тій самій зоні, що й він. Інші вогнедишні гекони від цього шкоди не отримують.");
+ok(s.effects[0].type === "fire" && s.effects[0].zone === "all" && s.effects[0].spareKin, `the gecko spares its kind: ${JSON.stringify(s.effects)}`);
+s = spec("Полум’яний ривок", "раз за сцену завдає 2d6 шкоди ворогам у своїй зоні й підпалює їх; у сусідній зоні — 2d6 одній цілі.");
+ok(s.effects[0].type === "fire" && s.effects[0].zone === "foes", `the flame dash burns the foes of the zone: ${JSON.stringify(s.effects)}`);
+s = spec("Лють", "раз за сцену, а також щоразу після загибелі дитинчати, завдає шкоди пазурями (3d6, ігнорує 4 броні) всім ворогам у своїй зоні.");
+ok(kinds(s) === "attack" && s.effects[0].weapon === "пазур" && s.effects[0].zone === "foes" && s.again, `«Лють» swings the claws, again after a cub: ${JSON.stringify(s)}`);
+s = spec("Тільки не по дітях", "щоразу, коли гине одне з її дитинчат, самиця відновлює 5 ОЗ, а її шкода до кінця сцени зростає на 2.");
+ok(kinds(s) === "heal,bonus" && s.effects[1].stack && !s.uses, "«Тільки не по дітях»: heal and a stacking bonus, no limit");
+s = spec("Неймовірна живучість", "раз за сцену, якщо отримана шкода мала б знизити ОЗ самиці до 0, вона натомість лишається живою з 10 ОЗ.");
+ok(s.level === "auto" && !s.button && s.effects[0].kind === "survive" && s.effects[0].hp === 10, `survive with 10: ${JSON.stringify(s)}`);
+s = spec("Кільце вогню", "раз за сцену витрачає 1 заряд важкого вогнемета й підпалює всі сусідні зони, крім своєї. … Поки істота палає, щоразу, коли настає її черга діяти, вона отримує 1d6 шкоди вогнем. Ефект триває 3 кола…");
+ok(kinds(s) === "ammo" && s.effects[0].n === 1, `the ring of fire spends a charge, no damage now: ${kinds(s)}`);
+s = spec("Псионічний талант*", "раз за сцену застосовує псионічний перк. … кинь 1d6: 1 — «Цілющий дотик», 2 — «Телекінез», 3 — «Сканування розуму», 4 — «Навіювання», 5 — «Невидимість», 6 — «Обраний».");
+ok(s.level === "card" && kinds(s) === "psiPerk", "the psionic talent: the card with the perk");
+eq([1, 3, 6].map((n) => S.psiPerkOf("кинь 1d6: 1 — «Цілющий дотик», 2 — «Телекінез», 3 — «Сканування розуму», 4 — «Навіювання», 5 — «Невидимість», 6 — «Обраний».", n)), ["Цілющий дотик", "Сканування розуму", "Обраний"], "the psionic perk by the die");
+s = S.moveSpec({ n: "Ін’єкція Психо", t: "" }, { moves: [{ n: "Ін’єкція Психо", t: "" }] }, 0);
+ok(kinds(s) === "psycho" && s.uses === 1 && s.per === "scene", "Психо: once a scene, even with no words of a limit");
+ok(spec("Політ", "може переміщатися між будь-якими зонами").level === "none", "Політ: words only");
+
+// marks: `spent` and the old `used`
+const two = { n: "Цілющий порошок", t: "двічі за сцену відновлює собі або союзникові 3 ОЗ." };
+const sp = S.moveSpec(two);
+eq(S.moveMarks(two, sp), { spent: 0, used: false, left: 2, blocked: false }, "fresh");
+let m1 = S.spendMove(two, sp);
+eq([m1.spent, m1.used, S.moveMarks(m1, sp).left], [1, false, 1], "one of two used");
+m1 = S.spendMove(m1, sp);
+eq([m1.spent, m1.used, S.moveMarks(m1, sp).blocked], [2, true, true], "two of two: used and blocked");
+eq(S.freeMove(m1), { ...two, spent: 0, used: false }, "«Зняти позначку» gives back every use");
+eq(S.moveMarks({ ...two, used: true }, sp), { spent: 2, used: true, left: 0, blocked: true }, "an old tick counts as all uses");
+const rage = { n: "Лють", t: "раз за сцену, а також щоразу після загибелі дитинчати, завдає шкоди пазурями всім ворогам у своїй зоні." };
+ok(!S.moveMarks(S.spendMove(rage), S.moveSpec(rage)).blocked && S.spendMove(rage).used, "«а також щоразу»: marked, not blocked");
+const kids = { n: "Тільки не по дітях", t: "щоразу, коли гине одне з її дитинчат, самиця відновлює 5 ОЗ, а її шкода до кінця сцени зростає на 2." };
+ok(S.spendMove(kids).spent === 1 && !S.spendMove(kids).used, "no limit: counted, never used");
+eq(S.resetMoveList([{ ...two, spent: 1 }, { n: "x", used: false }]).map((m) => [m.spent, m.used]), [[0, false], [0, false]], "the scene's end clears all");
+ok(S.resetMoveList([{ n: "x", used: false, spent: 0 }]) === null, "nothing to clear");
+
+// factions (author, 2026-11-19: the wiki's groups by the book's names)
+eq(["Легіонер 3", "Бойовий раб Легіону", "Рядовий армії НКР", "Супермутант‑майстер", "Пес Легіону", "Кентавр"].map(S.factionOf), ["legion", "legion", "ncr", "supermutants", "", ""], "factions");
+eq(S.bookName({ source: "Центуріон", name: "Хтось 2" }), "Центуріон", "the compendium's name first");
+eq(S.bookName({ base: "Легіонер", name: "Луцій" }), "Легіонер", "the base actor's name");
+eq(S.bookName({ name: "Легіонер 4" }), "Легіонер", "the name without its number");
+eq(S.healWho({ targets: ["t1"], faction: ["a", "b"], self: "a" }), { ids: ["t1"], why: "targets" }, "targets first");
+eq(S.healWho({ targets: [], faction: ["a", "b"], self: "a" }), { ids: ["a", "b"], why: "faction" }, "the faction on the scene, the user too");
+eq(S.healWho({ targets: [], faction: ["a", "b"], self: "a", others: true }), { ids: ["b"], why: "faction" }, "the faction without the user");
+eq(S.healWho({ targets: [], faction: [], self: "a" }), { ids: ["a"], why: "self" }, "no faction: only the user");
+
+// the damage path
+const SURV = { n: "Живучість", t: "раз за сцену, якщо отримана шкода мала б знизити ОЗ супермутанта до 0, він натомість лишається живим з 5 ОЗ." };
+let sys = { hp: { value: 9, max: 30 }, moves: [SURV] };
+let ah = S.afterHit(sys, 9, 0, "Рейдер: Мисливська рушниця");
+ok(ah.hp === 5 && ah.moves[0].used && ah.moves[0].spent === 1 && /Живучість/.test(ah.note), `survive with 5: ${JSON.stringify(ah)}`);
+eq(ah.lastHit, { before: 9, after: 5, head: "Рейдер: Мисливська рушниця" }, "the hit kept");
+ah = S.afterHit({ hp: { value: 5, max: 30 }, moves: [{ ...SURV, used: true }] }, 5, 0);
+ok(ah.hp === 0 && !ah.moves && !ah.note, "survive once a scene");
+ah = S.afterHit(sys, 9, 9);
+ok(ah.lastHit === null && ah.hp === 9, "a hit of 0 keeps nothing");
+const FORM = { n: "Це не моя фінальна форма", t: "коли ОЗ суперсолдата знижуються до половини (25 або менше), уся його шкода до кінця сцени зростає на 2." };
+sys = { hp: { value: 40, max: 50 }, moves: [FORM], attacks: [{ name: "Кулак", dice: "1d6", note: "" }, { name: "Плазмова гвинтівка", dice: "2d6+1", note: "" }] };
+eq(S.moveBonus(sys), { dmg: 0, armor: 0, from: [] }, "above the threshold: no bonus");
+ah = S.afterHit(sys, 40, 22);
+ok(ah.moves?.[0]?.spent === 1 && /фінальна форма/.test(ah.note), `past the threshold: marked: ${JSON.stringify(ah)}`);
+const healed = { ...sys, hp: { value: 40, max: 50 }, moves: ah.moves };
+eq(S.moveBonus(healed).dmg, 2, "the bonus lasts, healed or not");
+eq([attackDice(healed, 0), attackDice(healed, 1)], ["1d6+2", "2d6+3"], "every attack +2, unarmed too");
+eq(bonusFrom(healed, 0), ["«Це не моя фінальна форма»"], "the bonus's source named");
+const BERS = { n: "Берсерк-протокол", t: "раз за сцену, коли ОЗ робо-скорпіона знижуються до 20 або менше, його броня і шкода до кінця сцени зростають на 2." };
+sys = { armor: 5, hp: { value: 18, max: 60 }, moves: [BERS], attacks: [] };
+eq([S.moveBonus(sys).armor, profileOf(sys).armor], [2, 7], "Берсерк-протокол: +2 armour at 20 HP or less");
+sys = { hp: { value: 30, max: 40 }, moves: [{ ...kids, spent: 2 }], attacks: [{ name: "Пазурі", dice: "3d6", note: "" }] };
+eq(attackDice(sys, 0), "3d6+4", "«Тільки не по дітях» +2 a cub");
+ok(S.canUndo({ before: 12, after: 4 }, 4) && !S.canUndo({ before: 12, after: 4 }, 6) && !S.canUndo(null, 4), "undo only while the HP are what the hit left");
+
+console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
+if (failures) process.exit(1);

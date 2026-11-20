@@ -27,8 +27,5 @@ export function ownPart(text) {
   return s.replace(/\s{2,}/g, " ").trim();
 }
 
-/** An enemy's moves with «використано» cleared; null when none was used */
-export function resetMoves(moves) {
-  if (!Array.isArray(moves) || !moves.some((m) => m?.used)) return null;
-  return moves.map((m) => ({ ...m, used: false }));
-}
+/** An enemy's moves with «використано» and the count of uses cleared (move-spec.mjs); null when none was used */
+export { resetMoveList as resetMoves } from "./move-spec.mjs";

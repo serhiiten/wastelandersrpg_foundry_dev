@@ -5,7 +5,8 @@
  *   – a click on the name selects the token and pans the view to it;
  *   – the crosshair at the row's right makes the token a target or takes it off, the other targets stay;
  *   – enemies: category, HP − / + and armour, the book's and situational aspects with +N, attacks with their dice,
- *     charges and «Цілям» (the card's «Завдати цілям»), moves (a click ticks / clears «використано»), «Видимий /
+ *     charges and «Цілям» (the card's «Завдати цілям»), moves (author, 2026-11-19: a click uses the move — its effect and the chat card; on a used one ↺ takes the mark off;
+ *     a passive move is a quiet chip), «Видимий /
  *     Прихований», the card;
  *   – characters and caravans: HP − / +, situational aspects, the sheet.
  * The header carries the targets' count, «Вибрати цілі» (the selected tokens become the targets) and «Зняти вибір»
@@ -16,6 +17,7 @@ import { MAP_NOTE } from "../rules/map-notes.mjs";
 import { tokenAspects } from "../canvas/token.mjs";
 import { CAT_COLOR, catIconHtml, hpLevel, typeClass, attackTip } from "../sheets/enemy-view.mjs";
 import { diceLabel } from "../rules/battle.mjs";
+import { moveSpec, moveMarks, limitLabel } from "../rules/move-spec.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -42,6 +44,20 @@ export function mountOverview(sec) {
 
 const aspChips = (list) => list.map((a) => `<span class="pust-ov-asp"><span>${esc(a.t)}</span>${a.inv > 0 ? `<b title="Безкоштовні Посилення">+${a.inv}</b>` : ""}</span>`).join("");
 
+/**
+ * A move's chip (author, 2026-11-19; mockup А): a click uses it (`useMove`: the effect and the chat card), the tooltip says
+ * what will happen; a used one is struck through with ↺ and its click takes the mark off; a passive move is a quiet chip.
+ */
+function moveChip(m, i, s) {
+  const spec = moveSpec(m, s, i);
+  const mk = moveMarks(m, spec);
+  if (!spec.button) return `<span class="pust-ov-move quiet" data-pust-tip="${esc(`${m.t || m.n}${spec.hint ? ` ${spec.hint}.` : ""}`)}">${esc(m.n)}</span>`;
+  const tip = mk.blocked
+    ? `${m.t} Використано (${limitLabel(spec)}): клік знімає позначку.`
+    : `${m.t} Клік — «Використати»: ${spec.hint.replace(/^Картка/, "картка")}.${mk.used ? " Позначено використаним, але хід діє знову." : ""}`;
+  return `<button type="button" class="pust-ov-move${mk.used ? " used" : ""}" data-ov="${mk.blocked ? "moveFree" : "move"}" data-i="${i}" data-pust-tip="${esc(tip)}">${mk.blocked ? `<i class="fa-solid fa-rotate-left"></i>` : ""}${esc(m.n)}</button>`;
+}
+
 function enemyRow(t, a) {
   const s = a.system;
   const hp = int(s.hp?.value), max = int(s.hp?.max, hp);
@@ -52,7 +68,7 @@ function enemyRow(t, a) {
     const pips = k.ammoMax > 0 ? `<span class="pust-ov-pips" title="Заряди: ${int(k.ammo)} з ${int(k.ammoMax)}">${Array.from({ length: Math.min(int(k.ammoMax), 12) }, (_, j) => `<i class="${j < int(k.ammo) ? "on" : ""}"></i>`).join("")}</span>` : "";
     return `<div class="pust-ov-atk"><span class="pust-ov-dice ${typeClass(k.type)}" title="${esc(attackTip(k))}"><b>${esc(k.name || "Атака")}</b> ${esc(diceLabel(k.dice))}</span>${pips}<button type="button" class="pust-ov-hit" data-ov="hit" data-i="${i}" title="Кинути атаку й завдати шкоди цілям (T), як «Завдати цілям» на картці" ${k.ammoMax > 0 && int(k.ammo) <= 0 ? "disabled" : ""}><i class="fa-solid fa-crosshairs"></i>Цілям</button></div>`;
   }).join("");
-  const moves = (s.moves ?? []).map((m, i) => (String(m.n || "").trim() ? `<button type="button" class="pust-ov-move${m.used ? " used" : ""}" data-ov="move" data-i="${i}" data-pust-tip="${esc(`${m.t || m.n}${m.used ? " Використано: клік знімає позначку." : " Клік позначає «використано»."}`)}">${esc(m.n)}</button>` : "")).join("");
+  const moves = (s.moves ?? []).map((m, i) => (String(m.n || "").trim() ? moveChip(m, i, s) : "")).join("");
   return `<div class="pust-ov-row${lv.dead ? " out" : ""}${t.hidden ? " hid" : ""}" data-tok="${t.id}">
     ${pic(t, `<span class="pust-ov-cat" style="--cc:${CAT_COLOR[cat] ?? "#6b6f6c"}" title="${CAT_NAME[cat] ?? ""}">${catIconHtml(cat)}</span>`)}
     <div class="pust-ov-main">
@@ -165,12 +181,12 @@ async function onClick(ev) {
   // ОЗ −/+ for enemies, characters and caravans alike (author, 2026-11-17), as the damage writes them; within 0…max
   if (act === "hp") return actor.update({ "system.hp.value": Math.max(0, Math.min(int(s.hp?.max), int(s.hp?.value) + int(b.dataset.d))) });
   if (actor.type !== "enemy") return;
-  if (act === "move") {
-    const moves = foundry.utils.deepClone(s.moves ?? []);
-    const m = moves[int(b.dataset.i)];
-    if (!m) return;
-    m.used = !m.used;
-    return actor.update({ "system.moves": moves });
+  if (act === "move" || act === "moveFree") {
+    const { useMove, freeMove } = await import("./enemy-move.mjs");
+    if (act === "moveFree") return freeMove(actor, int(b.dataset.i));
+    b.disabled = true;
+    try { await useMove(actor, int(b.dataset.i), { token: doc }); } finally { b.disabled = false; }
+    return;
   }
   if (act === "reveal") {
     const open = !s.reveal;

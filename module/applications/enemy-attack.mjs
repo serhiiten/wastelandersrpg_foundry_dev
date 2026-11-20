@@ -6,7 +6,7 @@
  * attack's dice into its damage panel; here the roll is made right away.
  */
 import { postDamageCard } from "./check-panel.mjs";
-import { attackDice } from "../rules/enemy-model.mjs";
+import { attackDice, bonusFrom, andList } from "../rules/enemy-model.mjs";
 import { diceLabel, attackExtra, attackHit } from "../rules/battle.mjs";
 import { TYPE_EFFECTS } from "../rules/damage-types.mjs";
 
@@ -31,7 +31,7 @@ export async function rollEnemyAttack(actor, i, { token = null } = {}) {
   if (TYPE_EFFECTS[wt]) fx.push(TYPE_EFFECTS[wt]);
   if (/зон[іиу]/i.test(a.note)) fx.push("Влучає по всіх в одній зоні.");
   const bonus = dice !== a.dice ? dice.slice(a.dice.length) : "";
-  if (bonus) fx.push(`${bonus} шкоди: ${sys.flags?.kamikaze ? "Камікадзе" : ""}${sys.flags?.kamikaze && bonus === "+4" ? " і " : ""}${bonus === "+4" || !sys.flags?.kamikaze ? "Психо" : ""}.`);
+  if (bonus) fx.push(`${bonus} шкоди: ${andList(bonusFrom(sys, i))}.`);
   // the charge left isn't written on the chat card (author, 2026-11-15): players mustn't count the enemy's ammo
   if (a.ammoMax > 0) {
     const attacks = sys.attacks.map((x, k) => (k === i ? { ...x, ammo: Math.max(0, x.ammo - 1) } : x));

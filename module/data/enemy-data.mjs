@@ -29,7 +29,7 @@ export default class EnemyData extends foundry.abstract.TypeDataModel {
       })),
       baseAspects: new f.ArrayField(aspect()),
       aspects: new f.ArrayField(aspect()),
-      moves: new f.ArrayField(new f.SchemaField({ n: new f.StringField({ initial: "" }), t: new f.StringField({ initial: "" }), used: new f.BooleanField() })),
+      moves: new f.ArrayField(new f.SchemaField({ n: new f.StringField({ initial: "" }), t: new f.StringField({ initial: "" }), used: new f.BooleanField(), spent: new f.NumberField({ initial: 0, min: 0, integer: true }) })),
       notes: new f.StringField({ initial: "" }),
       reveal: new f.BooleanField(),
       orig: new f.ObjectField({ required: false, nullable: true, initial: null }),

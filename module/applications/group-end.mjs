@@ -125,6 +125,9 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   let movesN = 0;
   if (moves) {
     for (const e of sceneEnemies()) {
+      // the last hit's record for undo goes too (Fable's verdict, 2026-11-19: cleared by the scene's end)
+      const hit = e.getFlag?.(game.system.id, "lastHit");
+      if (hit) await e.unsetFlag(game.system.id, "lastHit");
       const next = resetMoves(e.system?.moves);
       if (!next) continue;
       await e.update({ "system.moves": next });

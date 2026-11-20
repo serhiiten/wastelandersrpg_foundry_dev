@@ -49,6 +49,10 @@ ok(ownPart("Кінець сесії 2. Жетони Долі відновлен�
 ok(resetMoves([{ n: "a", used: false }]) === null, "no used move: nothing to write");
 const r = resetMoves([{ n: "a", t: "раз за сцену", used: true }, { n: "Психо", used: true }, { n: "b", used: false }]);
 ok(r && r.every((m) => m.used === false) && r[0].t === "раз за сцену", "every move cleared, texts kept");
+// the count of uses goes too (Fable's verdict, 2026-11-19): «2 за сцену» half used, «Тільки не по дітях» stacked twice
+const r2 = resetMoves([{ n: "Цілющий порошок", t: "двічі за сцену відновлює собі 3 ОЗ", used: false, spent: 1 }, { n: "c", used: false, spent: 0 }]);
+ok(r2 && r2.every((m) => m.used === false && m.spent === 0), "spent cleared, even with no tick");
+ok(resetMoves([{ n: "c", used: false, spent: 0 }]) === null, "nothing spent: nothing to write");
 
 console.log(failures ? `FAIL (${failures} of ${checks})` : `OK (${checks})`);
 if (failures) process.exit(1);

@@ -15,6 +15,7 @@
  * `orig` keeps the book's version (attacks, aspects, moves, notes, defence) for «Як у книзі».
  */
 import * as B from "./battle.mjs";
+import { moveBonus, moveMarks } from "./move-spec.mjs";
 
 export const ENEMY_V = 1;
 export const CATS = ["statists", "regular", "elite", "boss"];
@@ -77,19 +78,46 @@ export function resetToBook(sys) {
 }
 
 /** The Психо move is used: +2 damage to attacks */
-export const psychoOn = (sys) => { const i = B.psyMoveIdx(sys); return i >= 0 && !!sys.moves?.[i]?.used; };
+export const psychoOn = (sys) => { const i = B.psyMoveIdx(sys); const m = i >= 0 ? sys.moves?.[i] : null; return !!m && (!!m.used || moveMarks(m).spent > 0); };
 
 /** The flat defence profile of the tracker (computeDamage, profileTags, quick-aspect locks) */
 export function profileOf(sys) {
   return {
-    armor: int(sys.armor), psyArmor: int(sys.psiArmor), ...Object.fromEntries(DEF_KEYS.map((k) => [k, sys.def?.[k] || "normal"])),
+    // «Берсерк-протокол»: +2 armour past its HP threshold (move-spec.mjs moveBonus; author, 2026-11-19)
+    armor: int(sys.armor) + moveBonus(sys).armor, psyArmor: int(sys.psiArmor), ...Object.fromEntries(DEF_KEYS.map((k) => [k, sys.def?.[k] || "normal"])),
     ...Object.fromEntries(FLAG_KEYS.map((k) => [k, !!sys.flags?.[k]])), psycho: psychoOn(sys),
   };
 }
 
-/** The attack's dice with the Kamikaze / Психо +2 (not for unarmed attacks or Пси-удар) */
+/** «1d10» + 2 → «1d10+2», «2d6+1» + 2 → «2d6+3»; dice it can't read stay as they are */
+export function plusDice(dice, n) {
+  if (!n) return dice;
+  const m = /^(\d*d\d+(?:kl1)?)([+\-]\d+)?$/i.exec(String(dice ?? "").replace(/\s+/g, ""));
+  if (!m) return dice;
+  const mod = (+m[2] || 0) + n;
+  return m[1] + (mod > 0 ? "+" + mod : mod < 0 ? String(mod) : "");
+}
+
+/**
+ * The attack's dice with the Kamikaze / Психо +2 (not for unarmed attacks or Пси-удар) and the moves' own bonus
+ * («Це не моя фінальна форма», «Берсерк-протокол», «Тільки не по дітях»: every attack, unarmed too; author, 2026-11-19)
+ */
 export function attackDice(sys, i) {
   const a = sys.attacks?.[i];
   if (!a) return "";
-  return B.kamiDice(a.dice, `${a.name} ${a.note}`, profileOf(sys));
+  return plusDice(B.kamiDice(a.dice, `${a.name} ${a.note}`, profileOf(sys)), moveBonus(sys).dmg);
 }
+
+/** Who adds to the attack's damage, for the card and the tooltip: «Психо», «Камікадзе», the moves' names */
+export function bonusFrom(sys, i) {
+  const a = sys.attacks?.[i];
+  if (!a) return [];
+  const base = B.kamiDice(a.dice, `${a.name} ${a.note}`, profileOf(sys)) !== a.dice;
+  const who = [];
+  if (base && psychoOn(sys)) who.push("Психо");
+  if (base && sys.flags?.kamikaze) who.push("Камікадзе");
+  return [...who, ...moveBonus(sys).from.map((n) => `«${n}»`)];
+}
+
+/** «Психо», «Психо й Камікадзе», «Психо, Камікадзе й «Берсерк-протокол»» */
+export const andList = (l) => (l.length > 1 ? `${l.slice(0, -1).join(", ")} й ${l[l.length - 1]}` : l.join(""));

@@ -4,7 +4,7 @@
  * the portrait, the GM switch, the enriched description.
  */
 import {
-  diceInText, diceLabel, noteWithoutType, CAT_LABEL, QUICK_ASPECTS, DEF_FIELDS, R3, R4, DMG_TYPES, profileTags, tagHelp, moveHeal, psyMoveIdx, DICE_RE,
+  diceInText, diceLabel, noteWithoutType, CAT_LABEL, QUICK_ASPECTS, DEF_FIELDS, R3, R4, DMG_TYPES, profileTags, tagHelp, psyMoveIdx, DICE_RE,
   attackExtra,
 } from "../rules/battle.mjs";
 
@@ -32,7 +32,8 @@ export function attackTip(a) {
   const ex = attackExtra(a?.note);
   return [ex ? `+${ex.label}` : "", attackNote(a)].filter(Boolean).join(" · ");
 }
-import { profileOf, attackDice, normCat, bookCopy } from "../rules/enemy-model.mjs";
+import { moveSpec, moveMarks, limitLabel, canUndo } from "../rules/move-spec.mjs";
+import { profileOf, attackDice, bonusFrom, andList, normCat, bookCopy } from "../rules/enemy-model.mjs";
 
 const escH = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -119,9 +120,26 @@ export function hpState(value, max) {
   return { key, ...HP_STATES[key] };
 }
 
-/** A move that can be used once («раз за сцену / за сесію») or is the Психо move */
-export function onceMove(text, isPsy = false) {
-  return !!isPsy || /раз за (сцену|сесію)/i.test(String(text || ""));
+/**
+ * A move on the card (author, 2026-11-19; mockup А: like the compact sheet's perks): the limit chip («раз за сцену», «2 за
+ * сцену» with pips, «без ліміту»), «Використати», under the text what the button does (move-spec.mjs); a used one greyed,
+ * «Використано · повернеться після «Кінця сцени»» and «↺ Зняти позначку». A move that acts by itself or is never automated
+ * is a quiet line without a button. `o.lastHit`: the enemy's last hit (undo works only while it is there).
+ */
+export function moveView(m, i, sys, o = {}) {
+  const spec = moveSpec(m, sys, i);
+  const mk = moveMarks(m, spec);
+  const undo = spec.effects.some((e) => e.kind === "undo");
+  const noHit = undo && !canUndo(o.lastHit, sys.hp?.value);
+  const off = !o.editable || mk.blocked || noHit;
+  const back = spec.per === "session" ? "повернеться після «Кінця сесії»" : "повернеться після «Кінця сцени»";
+  return {
+    i, n: m.n, t: m.t, level: spec.level, button: spec.button, psy: spec.effects.some((e) => e.kind === "psycho"),
+    hint: spec.hint, lim: limitLabel(spec), cls: !spec.uses ? "free" : spec.per === "session" ? "session" : "scene",
+    pips: spec.uses > 1 ? Array.from({ length: spec.uses }, (_, k) => ({ on: k < mk.left })) : null,
+    used: mk.used, spent: mk.spent, again: spec.again, back, off,
+    offWhy: mk.blocked ? `Уже використано: ${back}` : noHit ? "Нема що скасовувати: ворогові щойно не завдавали шкоди" : "",
+  };
 }
 
 /** The damage type's short name: «Лазерна (ігнорує 1 броні)» → «Лазерна» */
@@ -183,7 +201,7 @@ export function enemyView(sys, o = {}) {
   const attacks = (sys.attacks ?? []).map((a, i) => {
     const dice = attackDice(sys, i) || a.dice;
     const plus = dice !== a.dice && dice.startsWith(a.dice) ? Number(dice.slice(a.dice.length)) || 0 : 0;
-    const who = psycho && sys.flags?.kamikaze ? "Психо й Камікадзе" : psycho ? "Психо" : "Камікадзе";
+    const who = andList(bonusFrom(sys, i));
     const ammo = a.ammoMax > 0;
     return {
       i, name: a.name, dice, diceText: diceLabel(dice), base: diceLabel(a.dice), plus, plusText: plus ? `+${plus}` : "", plusTitle: plus ? `${who}: +${plus} шкоди` : "",
@@ -193,11 +211,7 @@ export function enemyView(sys, o = {}) {
       dead: ammo && a.ammo <= 0, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0, diceOk: DICE_RE.test(String(a.dice).trim()),
     };
   });
-  const moves = (sys.moves ?? []).map((m, i) => {
-    const psy = i === psyIdx;
-    const heal = moveHeal(m.t);
-    return { i, n: m.n, t: m.t, tHtml: moveTextHtml(m.t, m.n, !!o.editable), used: !!m.used, psy, once: onceMove(m.t, psy), heal: heal ? heal.expr : "", healGroup: !!heal?.group };
-  });
+  const moves = (sys.moves ?? []).map((m, i) => ({ ...moveView(m, i, sys, o), tHtml: moveTextHtml(m.t, m.n, !!o.editable) }));
   return {
     cat, catLabel: CAT_LABEL[cat] ?? "", catColor: CAT_COLOR[cat] ?? CAT_COLOR.regular, catIcon: catIconHtml(cat),
     hp, state, armor: sys.armor ?? 0, psiArmor: sys.psiArmor ?? 0, armorText: sys.armorText ?? "",

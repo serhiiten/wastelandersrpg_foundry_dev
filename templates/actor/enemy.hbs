@@ -136,8 +136,9 @@
       </div>
       {{else}}<div class="pust-en-muted">Атак немає</div>{{/each}}
       {{#if v.psyMove}}
-      <label class="pust-en-psy {{#if v.psycho}}on{{/if}}" title="Хід «{{v.psyMove.n}}»: до кінця сцени +2 шкоди атаками (крім беззбройних і Пси-удару)">
-        <input type="checkbox" data-used="{{v.psyMove.i}}" {{#if v.psycho}}checked{{/if}} {{#unless editable}}disabled{{/unless}}> Діє Психо <small>+2 шкоди</small></label>
+      {{!-- an indicator only (author, 2026-11-19): the move's «Використати» in «Деталі» turns it on --}}
+      <div class="pust-en-psy {{#if v.psycho}}on{{/if}}" title="Хід «{{v.psyMove.n}}»: до кінця сцени +2 шкоди атаками (крім беззбройних і Пси-удару). Вмикає «Використати» цього ходу в «Деталях»">
+        <i class="fa-solid fa-syringe"></i> {{#if v.psycho}}Діє Психо <small>+2 шкоди</small>{{else}}Психо не діє <small>«{{v.psyMove.n}}» у «Деталях»</small>{{/if}}</div>
       {{/if}}
       {{/if}}
     </section>
@@ -163,13 +164,24 @@
         <textarea data-mf="t" data-i="{{i}}" rows="2" placeholder="Що робить хід" aria-label="Опис ходу">{{t}}</textarea>
       </div>
       {{else}}
-      <div class="pust-en-move {{#if used}}used{{/if}}">
-        <div class="pust-en-mvhd"><b>{{n}}</b>
-          {{#if once}}<label class="pust-en-used" title="{{#if psy}}Діє до кінця сцени: +2 шкоди атаками{{else}}Раз за сцену чи сесію{{/if}}"><input type="checkbox" data-used="{{i}}" {{#if used}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}}> {{#if psy}}Діє Психо (+2 шкоди){{else}}використано{{/if}}</label>{{/if}}
+      {{#if button}}
+      {{!-- a move with «Використати» (author, 2026-11-19; mockup А, like the compact sheet's perks: templates/actor/parts/perk-use.hbs) --}}
+      <div class="pust-en-move pust-pkuse pk-{{cls}}{{#if used}} used{{/if}}">
+        <div class="pust-pkuse-top">
+          <span class="pust-pkuse-n">{{n}}</span>
+          <span class="pust-pklim pk-{{cls}}">{{lim}}{{#if pips}} <span class="pust-mvpips" title="Лишилося використань">{{#each pips}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</span>{{/if}}</span>
+          {{#if ../editable}}<button type="button" class="pust-pkuse-go" data-action="useMove" data-i="{{i}}" {{#if off}}disabled{{/if}} title="{{#if offWhy}}{{offWhy}}{{else}}Використати: {{hint}}{{/if}}">Використати</button>{{/if}}
         </div>
         <div class="pust-en-mvt">{{{tHtml}}}</div>
-        {{#if heal}}<small class="pust-en-hint"><i class="fa-solid fa-kit-medical"></i> Відновлює ОЗ: {{heal}}{{#if healGroup}} (і союзникам у зоні){{/if}}; відмітка «використано» лікує сама</small>{{/if}}
+        <p class="pust-pkuse-t">{{#if used}}<b class="pust-pkuse-usedtag">Використано</b> · {{back}}.{{#if ../editable}} <button type="button" class="pust-pkuse-free" data-action="freeMove" data-i="{{i}}" title="Зняти позначку «використано»: хід знову доступний, застосований ефект лишається"><i class="fa-solid fa-rotate-left"></i> Зняти позначку</button>{{/if}}{{else}}{{#if spent}}{{#if again}}Використано разів: {{spent}} · {{/if}}{{/if}}{{hint}}{{/if}}</p>
       </div>
+      {{else}}
+      <div class="pust-en-move">
+        <div class="pust-en-mvhd"><b>{{n}}</b></div>
+        <div class="pust-en-mvt">{{{tHtml}}}</div>
+        {{#if hint}}<small class="pust-en-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> {{hint}}</small>{{/if}}
+      </div>
+      {{/if}}
       {{/if}}
       {{else}}<div class="pust-en-muted">Ходів немає</div>{{/each}}
       {{#if edit}}

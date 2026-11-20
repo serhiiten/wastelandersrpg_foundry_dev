@@ -813,6 +813,9 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock .pust-ov-moves { display: flex; flex-wrap: wrap; gap: 3px; }
 #pust-mapdock button.pust-ov-move { flex: none; height: 20px; padding: 0 6px; font-size: 11px; font-weight: 700; }
 #pust-mapdock button.pust-ov-move.used { text-decoration: line-through; color: #8a8170; background: #262a29; }
+#pust-mapdock button.pust-ov-move > i { margin-right: 3px; font-size: 9px; text-decoration: none; }
+/* a passive move (author, 2026-11-19): a quiet chip with no action */
+#pust-mapdock span.pust-ov-move.quiet { flex: none; height: 20px; padding: 0 6px; border: 1px dashed #5d6360; border-radius: 3px; color: #a9a294; font-size: 11px; line-height: 18px; cursor: help; }
 #pust-mapdock .pust-ov-side { display: flex; flex-direction: column; gap: 4px; }
 #pust-mapdock button.pust-ov-ib { flex: none; width: 26px; height: 24px; padding: 0; font-size: 13px; }
 #pust-mapdock button.pust-ov-tgt.on, #pust-mapdock .pust-ov-zone > button.pust-ov-ztgt.on { background: linear-gradient(180deg, #c8301f, #8a2419); color: #fff; border-color: #ff7a6b; box-shadow: 0 0 6px rgba(255,90,60,.5); }

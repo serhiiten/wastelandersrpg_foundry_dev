@@ -1165,6 +1165,17 @@
 .pust-en .pust-en-mvhd b { font-family: var(--pu-f-label); font-weight: 800; font-size: 14px; }
 .pust-en .pust-en-used { display: inline-flex; align-items: center; gap: 5px; margin: 0; font-size: 12.5px; }
 .pust-en .pust-en-mvt { font-size: 13px; color: var(--pu-ink-2); margin-top: 2px; }
+/* moves with «Використати» (author, 2026-11-19; mockup А): the perks' cards (.pust-pkuse) in the enemy's «Деталі»; the pips of
+   «2 за сцену» in the limit chip; a used one's text greyed */
+.pust-en .pust-en-move.pust-pkuse { margin: 5px 0; padding: 3px 6px 5px; border-bottom: 1px solid #b9ad8a; }
+.pust-en .pust-en-move.pust-pkuse.used .pust-en-mvt { color: var(--pu-ink-3); }
+.pust-en .pust-en-move.pust-pkuse .pust-pkuse-t { margin-top: 3px; }
+/* over the card's general buttons (margin 0, 28px): «Використати» on the right as on the perks, «Зняти позначку» a link */
+.wastelanders .pust-en .pust-en-move button.pust-pkuse-go:not(.header-control) { margin: 0 0 0 auto !important; height: 22px !important; padding: 0 8px !important; line-height: 20px !important; }
+.wastelanders .pust-en .pust-en-move button.pust-pkuse-free:not(.header-control) { margin: 0 !important; height: auto !important; padding: 0 2px !important; line-height: 1.3 !important; }
+.pust-mvpips { display: inline-flex; gap: 2px; margin-left: 3px; vertical-align: 0; }
+.pust-mvpips > i { width: 6px; height: 6px; border-radius: 50%; border: 1px solid rgba(255,255,255,.85); }
+.pust-mvpips > i.on { background: #fff; }
 
 /* the editor */
 .pust-en .pust-en-ed { display: flex; flex-direction: column; gap: 4px; padding: 6px; margin-bottom: 6px; background: rgba(223,207,156,.35); border: 1px solid var(--pu-paper-3); border-left: 4px solid var(--pu-rust-3, #c06a35); border-radius: 3px; }

@@ -68,12 +68,17 @@ ok(vp.attacks[0].plus === 4 && vp.attacks[0].dice === "2d6+4" && vp.attacks[0].p
 vp = V.enemyView({ ...sys, flags: { ...sys.flags, kamikaze: true } });
 ok(vp.attacks[0].plus === 2 && vp.attacks[0].plusTitle === "Камікадзе: +2 шкоди", "kamikaze alone");
 
-// once per scene / session, heal moves
-ok(v.moves[0].once && v.moves[0].psy, "the Психо move is once-only");
-ok(v.moves[1].once && !v.moves[1].psy && v.moves[1].heal === "1d6+4" && !v.moves[1].healGroup, `self heal move: ${JSON.stringify(v.moves[1])}`);
-ok(v.moves[2].once && v.moves[2].heal === "3" && v.moves[2].healGroup, `group heal move: ${JSON.stringify(v.moves[2])}`);
-ok(!v.moves[3].once && !v.moves[3].heal, "an ordinary move");
-ok(V.onceMove("Раз за сесію ...") && V.onceMove("раз за сцену") && !V.onceMove("щось інше") && V.onceMove("x", true), "onceMove");
+// the moves as buttons (author, 2026-11-19; mockup А): the limit chip, «Використати», what it does
+ok(v.moves[0].psy && v.moves[0].button && v.moves[0].lim === "раз за сцену", `the Психо move is a button: ${JSON.stringify(v.moves[0])}`);
+ok(v.moves[1].button && !v.moves[1].psy && v.moves[1].cls === "session" && v.moves[1].hint.startsWith("собі 1d6+4 ОЗ"), `self heal move: ${JSON.stringify(v.moves[1])}`);
+ok(v.moves[2].button && v.moves[2].hint.startsWith("+3 ОЗ своїм на сцені"), `group heal move: ${JSON.stringify(v.moves[2])}`);
+ok(!v.moves[3].button, "an ordinary move: no button");
+ok(v.moves[1].off, "not editable: the button is off");
+const ve = V.enemyView({ ...sys, moves: [{ n: "Порошок", t: "двічі за сцену відновлює собі або союзникові 3 ОЗ.", used: false, spent: 1 }, { n: "Захисний протокол", t: "раз за сцену ігнорує шкоду, яку йому щойно завдали." }] }, { editable: true, lastHit: null });
+ok(ve.moves[0].lim === "2 за сцену" && ve.moves[0].pips.map((p) => p.on).join() === "true,false" && !ve.moves[0].used && !ve.moves[0].off, `2 a scene, one spent: ${JSON.stringify(ve.moves[0])}`);
+ok(ve.moves[1].off && /Нема що скасовувати/.test(ve.moves[1].offWhy), "undo with no hit: off");
+const vu = V.enemyView({ ...sys, hp: { value: 4, max: 12 }, moves: [{ n: "Захисний протокол", t: "раз за сцену ігнорує шкоду, яку йому щойно завдали.", used: true }] }, { editable: true, lastHit: { before: 9, after: 4 } });
+ok(vu.moves[0].used && vu.moves[0].off && vu.moves[0].back === "повернеться після «Кінця сцени»", "used (the old tick): off, comes back after the scene");
 
 // defence editor (GM only)
 ok(V.enemyView(sys, { gm: false }).defence.length === 0, "no defence rows for players");

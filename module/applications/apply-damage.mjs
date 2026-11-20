@@ -12,6 +12,7 @@
 import { activeGmHere } from "../helpers/main-window.mjs";
 import { chatType, resolveHit } from "../rules/battle.mjs";
 import { targetProfile as profileOf } from "../rules/target-profile.mjs";
+import { afterHit } from "../rules/move-spec.mjs";
 import { battleType } from "./enemy-attack.mjs";
 import { postChat, isPublicMode } from "./chat.mjs";
 import { askGM, answerGM } from "../helpers/gm-request.mjs";
@@ -134,11 +135,26 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     // one rule for every hit (module/rules/battle.mjs resolveHit): parts by type, Камікадзе once, nothing below 0
     const hit = { ...data, type, parts: Array.isArray(data.parts) ? data.parts.map((x) => ({ ...x, type: battleType(x.type) })) : undefined };
     const r = resolveHit(prof, hp0, max, hit, { partial, dodge, rollD6 });
-    const hp = r.hp, steps = r.steps;
-    if (hp !== hp0) await actor.update({ "system.hp.value": hp });
+    let hp = r.hp, moveNote = "";
+    const steps = r.steps;
+    if (actor.type === "enemy") {
+      // an enemy's moves after the hit (move-spec.mjs afterHit; author, 2026-11-19): «лишається живим з N ОЗ», the bonus past
+      // its HP threshold, and the hit kept for «Захисний протокол» / «І куди його бити?» (a hit of 0 clears it) — one update
+      const ah = afterHit(actor.system, hp0, hp, head);
+      hp = ah.hp; moveNote = ah.note;
+      const upd = {};
+      if (hp !== hp0) upd["system.hp.value"] = hp;
+      if (ah.moves) upd["system.moves"] = ah.moves;
+      const key = `flags.${game.system.id}.lastHit`;
+      if (hp < hp0) upd[key] = { before: hp0, after: hp, head: String(head || "") };
+      else if (actor.getFlag(game.system.id, "lastHit")) upd[`flags.${game.system.id}.-=lastHit`] = null;
+      if (Object.keys(upd).length) await actor.update(upd);
+    } else if (hp !== hp0) await actor.update({ "system.hp.value": hp });
     const name = esc(tok?.name || actor.name);
     const gain = hp >= hp0 && !!r.heal;
-    const row = { name, delta: gain ? hp - hp0 : hp0 - hp, gain, hp0, hp, max, out: !!r.out, note: r.heal ? `лікує ${esc(r.heal)}` : "" };
+    // the move that kept the enemy alive is named on the card for everyone (author, 2026-11-19)
+    const note = [r.heal ? `лікує ${esc(r.heal)}` : "", moveNote ? esc(moveNote) : ""].filter(Boolean).join("; ");
+    const row = { name, delta: gain ? hp - hp0 : hp0 - hp, gain, hp0, hp, max, out: !!r.out && hp <= 0, note };
     // the short row (everyone): no steps (armour, defences); HP only where everyone sees them
     lines.push({ full: targetRow({ ...row, showHp: true, steps }), short: targetRow({ ...row, showHp: hpOpen(actor) }) });
   }
