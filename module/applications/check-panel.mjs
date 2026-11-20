@@ -14,6 +14,7 @@ import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-c
 import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { sendDamage } from "./apply-damage.mjs";
+import { checkPenalty, spendCheckStates } from "./states.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { checkDiceGroups, damageDiceGroups, poisonSidesOf, rollFromDice, rollList, seriesGroups, waitDice } from "../helpers/dice-rolls.mjs";
 
@@ -231,7 +232,11 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       // no «кидаєш 2d10…» line over the roll button; only the critical-success note stays, when there is one
       .replace(/<p class="rnote">(?:кидаєш|нейтралізують)[^<]*((?:<b>[^<]*<\/b>)*)<\/p>(?=<button type="button" class="btn rust rgo")/,
         (m, crit) => (crit ? `<p class="rnote">${crit.trim()}</p>` : ""));
-    return { html: this.#damageBlock(html, L, st) };
+    // the roar's −2 among the automatic conditions, ticked and locked (it goes with the next roll; #intent counts it)
+    const pen = checkPenalty(this.actor);
+    const penHtml = pen ? `<div class="ramods pust-ramods-state"><span class="rl">Стан</span><label class="tog" title="Аспект «${pen.aspect}»: −2 до цього кидка, після нього аспект зникне"><input type="checkbox" data-r="am" data-k="state-check" checked disabled> <span>«${pen.aspect}»: <b>−${-pen.n}</b></span></label></div>` : "";
+    const withPen = penHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}<button type="button" class="btn rust rgo"`) : html;
+    return { html: this.#damageBlock(withPen, L, st) };
   }
 
   /**
@@ -517,13 +522,29 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     let out;
     const fdWas = fateSnap(this.actor); // an aspect invoked with a Fate token posts a card (author, 2026-11-15)
     const supWas = supSnap(this.actor); // a Припас spent by a check («Автоматний псих»…) too
+    // the roar's «−2 до наступної перевірки» (author, 2026-11-20): counted in this roll, then its aspect goes; the engine isn't
+    // touched — the −2 rides on R.mod for the roll only and is shown among the automatic conditions
+    const pen = kind === "click" && key === "roll" ? checkPenalty(this.actor) : null;
+    let penUsed = false;
     await runAction(this.actor, (st, L) => {
       const R = this.#load(L);
+      const t0 = R.last?.time;
+      if (pen) R.mod = (+R.mod || 0) + pen.n;
       // the damage as it stands (to post the new result when an option changes it: Психо, effect, crit…)
       const dmgNow = () => (R.last?.dmg && R.last.dmg.key === R.dmgKey ? JSON.stringify(L.dmgTotal(R.last, compute(st))) : null);
       const before = { last: clone(R.last), dmg: dmgNow() };
       if (kind === "click") L.rollerClick(node);
       else L.rollerChange(node);
+      if (pen) {
+        R.mod = (+R.mod || 0) - pen.n;
+        if (R.last && R.last.time !== t0) {
+          // the same total; the −2 is named as a condition, not a bare «мод.»
+          R.last.mod -= pen.n;
+          R.last.autoFlat = (R.last.autoFlat || 0) + pen.n;
+          R.last.autoList = [...(R.last.autoList || []), `«${pen.aspect}» −${-pen.n}, аспект знято`];
+          penUsed = true;
+        }
+      }
       this.#save(L);
       const dmgChoice = R.last?.dmg ? L.dmgChoices(compute(st)).find((x) => x.key === R.last.dmg.key) : null;
       const dmgType = weaponDmgType(dmgChoice);
@@ -534,6 +555,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     });
     await postFateIfChanged(this.actor, fdWas);
     await postSupIfChanged(this.actor, supWas);
+    if (penUsed) await spendCheckStates(this.actor);
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
     const deal = kind === "click" && key === "dmg";
     if (deal) await this.render(); // the damage to deal (#apply) is made by the render

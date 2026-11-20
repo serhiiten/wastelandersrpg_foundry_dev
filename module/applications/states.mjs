@@ -68,7 +68,7 @@ export async function putStates(uuids, list, { by = "", byName = "", once = fals
       await actor.update({ ...aspectUpdate(actor, put), [`flags.${sys()}.states`]: states, ...(once ? { [`flags.${sys()}.statesOnce`]: onceFlag } : {}) });
       lines.push(`${name}: ${put.map((k) => stateWords(states.find((s) => s.key === k))).join(", ")}.`);
     }
-    const IMM = { down: "не можна збити з ніг", stunned: "не можна приголомшити", disarmed: "не можна обеззброїти", poisoned: "невразливий до отрут", burning: "невразливий до вогню", bleeding: "неживий, не кровоточить", stunnedOnce: "цієї сцени вже приголомшено" };
+    const IMM = { roar: "неживий, рев не діє", down: "не можна збити з ніг", stunned: "не можна приголомшити", disarmed: "не можна обеззброїти", poisoned: "невразливий до отрут", burning: "невразливий до вогню", bleeding: "неживий, не кровоточить", stunnedOnce: "цієї сцени вже приголомшено" };
     for (const k of immune) lines.push(`${name}: ${IMM[k] ?? "стан не діє"}.`);
   }
   return lines;
@@ -155,4 +155,20 @@ export async function clearAllStates(scene = canvas?.scene) {
   return out; // [{actor, name, img, gone: [aspect texts]}]
 }
 
+/**
+ * The roar's −2 (rules/states.mjs `until: "check"`; author, 2026-11-20): the penalty of a character's next check, or null.
+ * @returns {{n:number, aspect:string}|null}
+ */
+export function checkPenalty(actor) {
+  const s = statesOf(actor).find((x) => STATES[x.key]?.until === "check");
+  return s ? { n: STATES[s.key].check, aspect: STATES[s.key].aspect } : null;
+}
 
+/** After the check: the state and its aspect go (the roller owns the character, so it may write it; actor.mjs #sweepStates) */
+export async function spendCheckStates(actor) {
+  const keys = statesOf(actor).filter((x) => STATES[x.key]?.until === "check").map((x) => x.key);
+  if (!keys.length) return false;
+  const rest = (actor.getFlag(sys(), "states") ?? []).filter((x) => !keys.includes(x.key));
+  await actor.update({ ...aspectUpdate(actor, [], keys), [`flags.${sys()}.states`]: rest });
+  return true;
+}

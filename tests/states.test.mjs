@@ -9,7 +9,7 @@ const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b), `${m}: got $
 
 // the aspects are the quick aspects' words for the three of them (battle.mjs QUICK_ASPECTS), masculine
 eq([S.STATES.down.aspect, S.STATES.stunned.aspect, S.STATES.disarmed.aspect], ["Збитий з ніг", "Приголомшений", "Без зброї"], "quick aspects' texts");
-eq(S.STATE_ASPECTS.length, 10, "ten states");
+eq(S.STATE_ASPECTS.length, 11, "eleven states (the roar's of stage 3)");
 
 // in force only while the aspect is on
 let list = S.putState([], "poisoned", { dice: "1d6", left: 3, round: 2, by: "T1" });
@@ -90,6 +90,17 @@ eq(S.stateWords({ key: "bleeding", dice: "1d6", left: 1, ignoreArmor: true }), "
   ok(gen.length > 10 && !miss.length, `the generator's mutants by name: missing ${miss.join(", ")}`);
   ok(!S.enemyMutant(["Рейдер", "Легат"]) && S.enemyMutant(["Супермутант‑майстер 2", "Супермутант-майстер"]), "others aren't; names with the generator's hyphen are");
   eq(S.MUTANT_SPECIES, ["ghoul", "mutant", "claw"], "the characters' species");
+}
+
+// «Приголомшливий рев» (stage 3): −2 to the next check, not on the non-living, no tick, its words
+{
+  const R = S.STATES.roar;
+  ok(R.aspect === "−2 до наступної перевірки" && R.check === -2 && R.until === "check", "the roar's state");
+  ok(S.immuneTo("roar", { nonliving: true }) && !S.immuneTo("roar", { nonliving: false }), "a robot doesn't hear it");
+  const on = S.putState([], "roar", { round: 1 });
+  const t = S.tickStates(on, 3);
+  ok(t.next.length === 1 && !t.gone.length && !t.hits.length, "▶ doesn't take it off: it waits for the check");
+  ok(S.stateWords({ key: "roar" }) === "«−2 до наступної перевірки» (зникне після кидка)", `its words: ${S.stateWords({ key: "roar" })}`);
 }
 
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `states: OK (${checks} checks)`);

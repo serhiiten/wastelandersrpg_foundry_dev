@@ -12,6 +12,7 @@
  *   skip   — stunned: at the first tick «пропускає дію», at the second it is gone
  *   rounds — burning, poisoned, bleeding: damage at every tick, `left` ticks
  *   holder — grabbed: damage at every tick while its holder stands on the scene with HP above 0
+ *   check  — the roar's −2: «Зробити перевірку» counts it in the next check, then takes the aspect off (check-panel.mjs)
  * Every state ends at «Кінець сцени».
  */
 
@@ -29,6 +30,8 @@ export const STATES = {
   blinded:  { aspect: "Засліплений", until: "scene" },
   aimed:    { aspect: "На прицілі", until: "scene" },
   acid:     { aspect: "−2 до фізичної броні", until: "scene", armor: -2 },
+  // «Приголомшливий рев» (stage 3, author 2026-11-20): «живі вороги» get −2 to their next check; it goes with that roll
+  roar:     { aspect: "−2 до наступної перевірки", until: "check", check: -2, immune: "nonliving" },
 };
 
 /**
@@ -199,5 +202,6 @@ export function stateWords(s) {
   if (def.until === "holder") bits.push("доки не вирветься");
   if (def.until === "skip") bits.push("пропускає наступну дію");
   if (def.until === "scene") bits.push("до кінця сцени");
+  if (def.until === "check") bits.push("зникне після кидка");
   return `«${def.aspect}»${bits.length ? ` (${bits.join(", ")})` : ""}`;
 }

@@ -146,7 +146,9 @@ export async function useMove(actor, i, { token = null } = {}) {
   const stateFx = spec.effects.filter((e) => e.kind === "state");
   const hitFx = spec.effects.some((e) => e.kind === "hit" || e.kind === "attack");
   if (spec.level === "trigger" && spec.effects.some((e) => e.kind === "hit" && !e.zone) && !targets.length) { notify.warn(`«${mv.n}»: спершу познач цілі (T) у зоні, куди він падає.`); return false; }
-  if (stateFx.length && !hitFx && !tDocs.length) { notify.warn(`«${mv.n}»: спершу познач ціль (T).`); return false; }
+  // «які чують» (the roar): with no targets, the living characters on the scene (author, 2026-11-19)
+  const heard = stateFx.length && stateFx.every((e) => e.heard);
+  if (stateFx.length && !hitFx && !tDocs.length && !heard) { notify.warn(`«${mv.n}»: спершу познач ціль (T).`); return false; }
 
   // what the move needs before it is spent: a target to execute or to bring back, a hit to undo, the charges
   const exe = has("execute"), rv = has("revive"), undo = has("undo"), ammo = has("ammo");
@@ -269,8 +271,11 @@ export async function useMove(actor, i, { token = null } = {}) {
 
   // the states (author, 2026-11-20): on the ones the move hits, else on the targets; before the damage, so the card says them
   if (stateFx.length) {
-    const on = hitFx ? [...new Set(hits.flatMap((h) => h.uuids))] : tDocs.map((t) => t.uuid);
+    const scene = tok?.parent ?? canvas.scene;
+    const on = hitFx ? [...new Set(hits.flatMap((h) => h.uuids))] : tDocs.length || !heard ? tDocs.map((t) => t.uuid)
+      : (scene?.tokens ?? []).filter((t) => t.actor?.type === "character" && alive(t)).map((t) => t.uuid);
     if (on.length) lines.push(...await putStates(on, stateFx, { by: tok?.uuid ?? "", byName: name }));
+    else if (heard) lines.push("Персонажів на сцені немає: ніхто не чує.");
   }
 
   // the card for everyone (author, 2026-11-19: the players see the move's name), then the damage

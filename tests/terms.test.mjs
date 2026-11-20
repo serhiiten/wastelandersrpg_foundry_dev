@@ -115,7 +115,7 @@ for (const f of files) {
 {
   const { STATE_ASPECTS } = await import("../module/rules/states.mjs");
   const { QUICK_ASPECTS } = await import("../module/rules/battle.mjs");
-  const APPROVED = ["Збитий з ніг", "Приголомшений", "Без зброї", "Палає", "Захоплений", "Отруєний", "Кровотеча", "Засліплений", "На прицілі", "−2 до фізичної броні"];
+  const APPROVED = ["Збитий з ніг", "Приголомшений", "Без зброї", "Палає", "Захоплений", "Отруєний", "Кровотеча", "Засліплений", "На прицілі", "−2 до фізичної броні", "−2 до наступної перевірки"];
   ok(JSON.stringify(STATE_ASPECTS) === JSON.stringify(APPROVED), `states' aspects = the author's list: ${JSON.stringify(STATE_ASPECTS)}`);
   for (const [, t] of QUICK_ASPECTS) ok(STATE_ASPECTS.includes(t), `quick aspect «${t}» is a state's aspect`);
 }

@@ -178,6 +178,9 @@ export function statesOf(text) {
   if (/[−-]\s*2\s+до\s+фізичної\s+броні/i.test(t)) out.push({ key: "acid" });
   if (/засліплю/i.test(t)) out.push({ key: "blinded" });
   if (/бере\s+на\s+приціл/i.test(t)) out.push({ key: "aimed" });
+  // «Приголомшливий рев»: «усі живі вороги, які його чують, отримують −2 до своєї наступної перевірки» — the characters on the
+  // scene when no targets are chosen (author, 2026-11-19: «which hear» = on the scene)
+  if (/[−-]\s*2\s+до\s+(?:своєї\s+)?наступної\s+перевірки/i.test(t)) out.push({ key: "roar", heard: true });
   return out;
 }
 
@@ -269,7 +272,8 @@ export function moveHint(spec) {
         if (spec.effects.find((x) => x.kind === "state") !== e) return "";
         const hit = spec.effects.some((x) => x.kind === "hit" || x.kind === "attack");
         const names = stateNames(spec.effects);
-        return `${hit ? "Тим, кого вразить, накладає" : "Позначеним цілям накладає"} ${names.length > 1 ? "аспекти" : "аспект"} ${names.join(" і ")}`;
+        const who = hit ? "Тим, кого вразить, накладає" : e.heard ? "Живим персонажам на сцені (або лише позначеним цілям) накладає" : "Позначеним цілям накладає";
+        return `${who} ${names.length > 1 ? "аспекти" : "аспект"} ${names.join(" і ")}${e.key === "roar" ? ": −2 до кидка, після нього аспект зникне" : ""}`;
       }
       default: return "";
     }

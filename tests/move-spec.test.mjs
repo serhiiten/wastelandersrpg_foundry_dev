@@ -178,5 +178,12 @@ eq(S.attackStates("фізичної шкоди, бій на відстані"), 
   eq([S.favFoeBonus({ moves: [FAV] }), S.favFoeBonus({ moves: [] }), S.favFoeBonus(null)], [2, 0, 0], "the bonus of an attacker");
 }
 
+// «Приголомшливий рев» (stage 3): the state of those who hear
+{
+  const s = S.moveSpec({ n: "Приголомшливий рев", t: "раз за сцену оглушливо реве. Усі живі вороги, які його чують, отримують −2 до своєї наступної перевірки." });
+  eq(s.effects, [{ kind: "state", key: "roar", heard: true }], "the roar puts its state on those who hear");
+  ok(s.level === "effect" && s.button && /Живим персонажам на сцені/.test(s.hint), `its tooltip: ${s.hint}`);
+}
+
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
 if (failures) process.exit(1);
