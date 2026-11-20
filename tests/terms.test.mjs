@@ -111,5 +111,14 @@ for (const f of files) {
   }
 }
 
+/* ---------- the states enemies' moves put on (author, 2026-11-20: the wiki's words he proofread, always masculine) ---------- */
+{
+  const { STATE_ASPECTS } = await import("../module/rules/states.mjs");
+  const { QUICK_ASPECTS } = await import("../module/rules/battle.mjs");
+  const APPROVED = ["Збитий з ніг", "Приголомшений", "Без зброї", "Палає", "Захоплений", "Отруєний", "Кровотеча", "Засліплений", "На прицілі", "−2 до фізичної броні"];
+  ok(JSON.stringify(STATE_ASPECTS) === JSON.stringify(APPROVED), `states' aspects = the author's list: ${JSON.stringify(STATE_ASPECTS)}`);
+  for (const [, t] of QUICK_ASPECTS) ok(STATE_ASPECTS.includes(t), `quick aspect «${t}» is a state's aspect`);
+}
+
 console.log(failures ? `FAIL (${failures})` : `OK (${checks} checks, ${files.length} files)`);
 if (failures) process.exitCode = 1;

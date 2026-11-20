@@ -15,7 +15,7 @@ import { postEnemyCard } from "../applications/enemy-chat.mjs";
 import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
 import { sendDamage, chosenTokens, warnNoTargets } from "../applications/apply-damage.mjs";
 import { enemyView, diceTextHtml } from "./enemy-view.mjs";
-import { useMove, freeMove } from "../applications/enemy-move.mjs";
+import { useMove, freeMove, attackWithMenu } from "../applications/enemy-move.mjs";
 import { postDamageCard, postExprRoll } from "../applications/check-panel.mjs";
 import { chatType } from "../rules/battle.mjs";
 import { notify } from "../helpers/notify.mjs";
@@ -259,10 +259,8 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       return warnNoTargets();
     }
     target.disabled = true;
-    try {
-      const r = await rollEnemyAttack(this.document, i, { token: this.token });
-      if (r?.data) await sendDamage(r.data, { head: r.head });
-    } finally { target.disabled = false; }
+    // the effect menu of «Прицільний постріл» & Co. opens under the button (enemy-move.mjs attackWithMenu; author, 2026-11-20)
+    try { await attackWithMenu(this.document, i, { token: this.token, anchor: target }); } finally { target.disabled = false; }
   }
 
   /* ---------- dice in the moves' and notes' text (author, 2026-11-14) ---------- */

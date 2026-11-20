@@ -200,10 +200,8 @@ async function onClick(ev) {
     if (!game.user.targets.size) return notify.warn("Спершу познач цілі (T або кнопкою з мішенню в рядку).");
     b.disabled = true;
     try {
-      const { rollEnemyAttack } = await import("./enemy-attack.mjs");
-      const { sendDamage } = await import("./apply-damage.mjs");
-      const r = await rollEnemyAttack(actor, int(b.dataset.i), { token: doc });
-      if (r?.data) await sendDamage(r.data, { head: r.head });
+      const { attackWithMenu } = await import("./enemy-move.mjs");
+      await attackWithMenu(actor, int(b.dataset.i), { token: doc, anchor: b });
     } finally { b.disabled = false; }
   }
 }

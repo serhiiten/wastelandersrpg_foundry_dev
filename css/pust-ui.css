@@ -869,3 +869,18 @@ body.pust-no-combat #token-hud [data-action="combat"] { display: none !important
 .pust-wx-range { width: 100%; margin: 0; accent-color: #d9a441; }
 .pust-wx-ticks { display: flex; justify-content: space-between; font-size: 10px; color: #9a958b; }
 .pust-wx-ticks span.on { color: #e3a63a; }
+
+/* The effect menu under «Завдати цілям» (author, 2026-11-20, mockup А; module/helpers/pick-menu.mjs): paper, a rust rule, one
+   row an effect; a row that can't be chosen greyed */
+.wastelanders.pust-pickmenu { position: fixed; z-index: 10000; min-width: 190px; max-width: 280px; padding: 4px; display: flex; flex-direction: column; gap: 2px;
+  background: linear-gradient(180deg, #efe4c4, var(--pu-paper-2)); color: var(--pu-ink); border: 1px solid #7d1c13; border-left: 4px solid #b45a28; border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.45); }
+.wastelanders.pust-pickmenu .pust-pickmenu-hd { padding: 3px 8px 4px; border-bottom: 1px dotted rgba(74,56,30,.45); margin-bottom: 2px;
+  font: 700 11px/1.2 var(--pu-f-label, "Oswald"), "PT Sans Narrow", sans-serif; letter-spacing: .05em; text-transform: uppercase; color: #7d1c13; }
+.wastelanders.pust-pickmenu > button { all: unset; box-sizing: border-box; width: 100%; padding: 5px 8px; border-radius: 3px; cursor: pointer;
+  font: 600 13px/1.25 var(--pu-f-text, "PT Sans"), sans-serif; color: var(--pu-ink); }
+.wastelanders.pust-pickmenu > button:hover, .wastelanders.pust-pickmenu > button:focus-visible { background: rgba(180,90,40,.16); color: #5a1a0f; outline: none; }
+.wastelanders.pust-pickmenu > button:disabled { opacity: .45; cursor: default; background: none; }
+.wastelanders .pust-en button.pust-dmg-apply .pust-pick-caret { margin-left: -2px; font-size: 11px; }
+/* the character's armour lowered by a state («−2 до фізичної броні», author 2026-11-20) */
+.pust-qarm .arm-low { color: #a3261a !important; text-decoration: underline dotted; cursor: help; }

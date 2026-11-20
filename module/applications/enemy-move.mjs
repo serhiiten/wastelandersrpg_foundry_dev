@@ -6,15 +6,18 @@
  * then one card «<name> використовує «<move>»» for everyone (author: the players see the move's name). Damage goes through
  * applyDamage, so armour, defences and the damage card are the usual ones.
  */
-import { moveSpec, moveMarks, spendMove, freeMove as freeMark, canUndo, healWho, factionOf, bookName, normEnemyName, psiPerkOf, limitLabel } from "../rules/move-spec.mjs";
+import { moveSpec, moveMarks, spendMove, freeMove as freeMark, canUndo, healWho, factionOf, bookName, normEnemyName, psiPerkOf, limitLabel, attackMenu } from "../rules/move-spec.mjs";
 import { zoneOfPoint, chatType } from "../rules/battle.mjs";
 import { BOOK } from "../rules/book.mjs";
 import { postChat } from "./chat.mjs";
 import { postDamageCard } from "./check-panel.mjs";
-import { applyDamage, chosenTokens, clearTargets } from "./apply-damage.mjs";
+import { applyDamage, chosenTokens, clearTargets, sendDamage, warnNoTargets } from "./apply-damage.mjs";
 import { rollEnemyAttack } from "./enemy-attack.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { waitDice } from "../helpers/dice-rolls.mjs";
+import { putStates } from "./states.mjs";
+import { stunnedBefore } from "../rules/states.mjs";
+import { pickMenu } from "../helpers/pick-menu.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const int = (v, d = 0) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : d; };
@@ -130,6 +133,17 @@ export async function useMove(actor, i, { token = null } = {}) {
   const tDocs = (await Promise.all(targets.map((u) => fromUuid(u)))).filter(Boolean);
   const has = (k) => spec.effects.find((e) => e.kind === k);
 
+  // a trigger (author, 2026-11-20): at 0 HP, or right after its attack brought a target down («Розпад»)
+  const lastKill = spec.when === "kill" ? actor.getFlag(sysId(), "lastKill") : null;
+  const killTok = lastKill?.target ? await fromUuid(lastKill.target) : null;
+  if (spec.when === "down" && int(sys.hp?.value) > 0) { notify.warn(`«${mv.n}» працює, коли ворога звалено (0 ОЗ).`); return false; }
+  if (spec.when === "kill" && !killTok && !targets.length) { notify.warn(`«${mv.n}» працює, щойно атака ворога звалила ціль (або познач цілі).`); return false; }
+  // a state with no damage goes to the targets (T)
+  const stateFx = spec.effects.filter((e) => e.kind === "state");
+  const hitFx = spec.effects.some((e) => e.kind === "hit" || e.kind === "attack");
+  if (spec.level === "trigger" && spec.effects.some((e) => e.kind === "hit" && !e.zone) && !targets.length) { notify.warn(`«${mv.n}»: спершу познач цілі (T) у зоні, куди він падає.`); return false; }
+  if (stateFx.length && !hitFx && !tDocs.length) { notify.warn(`«${mv.n}»: спершу познач ціль (T).`); return false; }
+
   // what the move needs before it is spent: a target to execute or to bring back, a hit to undo, the charges
   const exe = has("execute"), rv = has("revive"), undo = has("undo"), ammo = has("ammo");
   const down = tDocs.filter((t) => actorOf(t)?.system?.hp && int(actorOf(t).system.hp.value) <= 0);
@@ -150,6 +164,7 @@ export async function useMove(actor, i, { token = null } = {}) {
   if (undo) upd["system.hp.value"] = int(lastHit.before);
   await actor.update(upd);
   if (lastHit) await actor.unsetFlag(sysId(), "lastHit");
+  if (lastKill) await actor.unsetFlag(sysId(), "lastKill");
 
   const lines = [];
   let icon = "fa-person-running", cls = "move";
@@ -217,13 +232,15 @@ export async function useMove(actor, i, { token = null } = {}) {
       case "attack":
       case "hit": {
         // the targets (T) when the GM chose some; otherwise a zone move takes its zone by itself (author, 2026-11-19)
-        const uuids = targets.length ? targets : e.zone ? zoneTargets(actor, tok, e.zone, { spareKin: !!e.spareKin }).map((t) => t.uuid) : [];
+        // «Розпад»: the foes in the zone of the target its attack has just brought down
+        const zoneTok = e.zone === "killFoes" ? killTok : tok, how = e.zone === "killFoes" ? "foes" : e.zone;
+        const uuids = targets.length ? targets : e.zone ? zoneTargets(actor, zoneTok, how, { spareKin: !!e.spareKin }).map((t) => t.uuid) : [];
         if (!uuids.length) {
           lines.push(e.zone ? "Нікого поруч у зоні: шкоду не завдано." : "Цілі не позначено: шкоду не завдано (кинь кістку з тексту ходу, позначивши цілі).");
           break;
         }
         hits.push({ e, uuids });
-        lines.push(`Шкода: ${targets.length ? "цілям" : e.zone === "foes" ? "ворогам у зоні" : "усім у зоні"} (${uuids.length}).`);
+        lines.push(`Шкода ${e.dice}: ${targets.length ? "цілям" : e.zone === "killFoes" ? "ворогам у зоні зваленої цілі" : e.zone === "foes" ? "ворогам у зоні" : "усім у зоні"} (${uuids.length}).`);
         break;
       }
       case "psiPerk": {
@@ -235,6 +252,12 @@ export async function useMove(actor, i, { token = null } = {}) {
       }
       default: break;
     }
+  }
+
+  // the states (author, 2026-11-20): on the ones the move hits, else on the targets; before the damage, so the card says them
+  if (stateFx.length) {
+    const on = hitFx ? [...new Set(hits.flatMap((h) => h.uuids))] : tDocs.map((t) => t.uuid);
+    if (on.length) lines.push(...await putStates(on, stateFx, { by: tok?.uuid ?? "", byName: name }));
   }
 
   // the card for everyone (author, 2026-11-19: the players see the move's name), then the damage
@@ -259,9 +282,47 @@ export async function useMove(actor, i, { token = null } = {}) {
       await waitDice(msg); // the damage is dealt once the 3D dice have landed
       data = { total: r.total, dice: r.roll.dice.reduce((n, d) => n + d.number, 0), type: wt, ignoreArmor: !!e.ignoreArmor, ignoreN: e.ignoreN || 0 };
     }
-    await applyDamage(uuids, data, { head });
+    await applyDamage(uuids, data, { head, source: tok?.uuid ?? "" });
   }
   if (targets.length) clearTargets();
+  return true;
+}
+
+/**
+ * «Завдати цілям» of an enemy's attack (the card's and «Огляд битви»'s «Цілям»): a new roll and its damage to the targets.
+ * An enemy with «Прицільний постріл» / «Точний удар» / «Кусь» / «Здимів звідси» first opens the effect menu under the button
+ * (author, 2026-11-20, mockup А): +1d6, disarm, stun (a target once a scene by the same enemy: greyed when every target
+ * was), knock down, ignore armour, half the damage to knock down; the effect's card names the move.
+ * @returns {Promise<boolean>}
+ */
+export async function attackWithMenu(actor, i, { token = null, anchor = null } = {}) {
+  const sys = actor.system, a = sys.attacks?.[i];
+  if (!a) return false;
+  const targets = chosenTokens();
+  if (!targets.length) { warnNoTargets(); return false; }
+  const tok = tokenOf(actor, token);
+  const by = tok?.uuid ?? "";
+  const menu = attackMenu(sys, a);
+  let pick = { k: "none" };
+  if (menu) {
+    const tDocs = (await Promise.all(targets.map((u) => fromUuid(u)))).filter(Boolean);
+    const allStunned = tDocs.length && tDocs.every((t) => stunnedBefore(actorOf(t)?.getFlag(sysId(), "statesOnce"), by));
+    const items = menu.map((o) => (o.k === "stunned" && o.once && allStunned ? { ...o, off: true, tip: "Цих цілей цей ворог уже приголомшував цієї сцени." } : o));
+    pick = await pickMenu(anchor, items, { title: sys.moves?.[menu[1]?.mi]?.n ?? "" });
+    if (!pick) return false;
+  }
+  const r = await rollEnemyAttack(actor, i, { token: tok, plus: pick.k === "plus" ? pick.dice : "" });
+  if (!r?.data) return false;
+  const data = { ...r.data, ...(pick.k === "ignore" ? { ignoreArmor: true, ignoreN: 0 } : {}) };
+  const STATE = { disarmed: "disarmed", stunned: "stunned", down: "down", halfDown: "down" };
+  if (pick.k !== "none") {
+    // the effect's card, before the damage: what was chosen and the states put on
+    const mv = sys.moves[pick.mi];
+    const lines = [`${a.name}: ${pick.label.charAt(0).toLowerCase()}${pick.label.slice(1)}.`];
+    if (STATE[pick.k]) lines.push(...await putStates(targets, [{ key: STATE[pick.k] }], { by, byName: tok?.name || actor.name, once: pick.k === "stunned" && !!pick.once }));
+    await postChat({ content: moveCardHtml(tok?.name || actor.name, mv, moveSpec(mv, sys, pick.mi), lines), speaker: tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor }) });
+  }
+  await sendDamage(data, { head: r.head, source: by, dodge: pick.k === "halfDown" });
   return true;
 }
 

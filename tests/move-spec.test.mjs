@@ -51,7 +51,7 @@ ok(kinds(s) === "heal,bonus" && s.effects[1].stack && !s.uses, "«Тільки �
 s = spec("Неймовірна живучість", "раз за сцену, якщо отримана шкода мала б знизити ОЗ самиці до 0, вона натомість лишається живою з 10 ОЗ.");
 ok(s.level === "auto" && !s.button && s.effects[0].kind === "survive" && s.effects[0].hp === 10, `survive with 10: ${JSON.stringify(s)}`);
 s = spec("Кільце вогню", "раз за сцену витрачає 1 заряд важкого вогнемета й підпалює всі сусідні зони, крім своєї. … Поки істота палає, щоразу, коли настає її черга діяти, вона отримує 1d6 шкоди вогнем. Ефект триває 3 кола…");
-ok(kinds(s) === "ammo" && s.effects[0].n === 1, `the ring of fire spends a charge, no damage now: ${kinds(s)}`);
+ok(kinds(s) === "ammo,state" && s.effects[0].n === 1 && s.effects[1].key === "burning", `the ring of fire spends a charge and sets on fire, no damage now: ${kinds(s)}`);
 s = spec("Псионічний талант*", "раз за сцену застосовує псионічний перк. … кинь 1d6: 1 — «Цілющий дотик», 2 — «Телекінез», 3 — «Сканування розуму», 4 — «Навіювання», 5 — «Невидимість», 6 — «Обраний».");
 ok(s.level === "card" && kinds(s) === "psiPerk", "the psionic talent: the card with the perk");
 eq([1, 3, 6].map((n) => S.psiPerkOf("кинь 1d6: 1 — «Цілющий дотик», 2 — «Телекінез», 3 — «Сканування розуму», 4 — «Навіювання», 5 — «Невидимість», 6 — «Обраний».", n)), ["Цілющий дотик", "Сканування розуму", "Обраний"], "the psionic perk by the die");
@@ -111,6 +111,42 @@ eq([S.moveBonus(sys).armor, profileOf(sys).armor], [2, 7], "Берсерк-пр�
 sys = { hp: { value: 30, max: 40 }, moves: [{ ...kids, spent: 2 }], attacks: [{ name: "Пазурі", dice: "3d6", note: "" }] };
 eq(attackDice(sys, 0), "3d6+4", "«Тільки не по дітях» +2 a cub");
 ok(S.canUndo({ before: 12, after: 4 }, 4) && !S.canUndo({ before: 12, after: 4 }, 6) && !S.canUndo(null, 4), "undo only while the HP are what the hit left");
+
+// stage 2 (author, 2026-11-20): states, triggers with a button, the effect menu
+const st = (x) => x.effects.filter((e) => e.kind === "state");
+s = spec("Удар-землетрус", "раз за сцену б'є суперсиловим кулаком об землю. Усі інші істоти в його зоні отримують 3d6 шкоди, падають з ніг і приголомшені: пропускають свою наступну дію.");
+eq(st(s).map((e) => e.key), ["down", "stunned"], "the earthquake knocks down and stuns");
+ok(s.effects.some((e) => e.kind === "hit" && e.zone === "all"), "the earthquake hits everyone else in the zone");
+s = spec("Отруєння", "раз за сцену вражає ціль отруйним жалом. Протягом 3 кіл жертва отримує 1d6 шкоди від отрути щоразу, коли настає її черга діяти. Ця шкода ігнорує броню.");
+eq(st(s), [{ kind: "state", key: "poisoned", dice: "1d6", left: 3, type: "poison", ignoreArmor: true }], "poison: 1d6 for 3 rounds");
+ok(!s.effects.some((e) => e.kind === "hit"), "poison deals nothing now");
+s = spec("Клешні-лещата", "раз за сцену, завдаючи шкоди, хапає ціль клешнею й накладає на неї аспект захоплена. … щоразу, коли настає її черга діяти, вона автоматично отримує 3d6 шкоди від стискання клешні.");
+eq(st(s), [{ kind: "state", key: "grabbed", dice: "3d6" }], "the claws grab with 3d6");
+s = spec("Помах Меча Сходу", "раз за сцену завдає 3d6 шкоди всім ворогам у своїй зоні, відкидає їх на одну зону, збиває з ніг і пускає їм кров. Ця кровотеча завдає 1d10 шкоди, що ігнорує броню, коли настає їхня черга діяти, після чого минає.");
+eq(st(s).map((e) => e.key), ["down", "bleeding"], "the sword knocks down and bleeds");
+s = spec("Плювок кислотою", "раз за сцену плює їдкою кислотою в ціль у своїй або сусідній зоні. Кислота завдає 2d6 шкоди, а ціль до кінця сцени отримує −2 до фізичної броні (мінімум 0).");
+eq(st(s).map((e) => e.key), ["acid"], "the acid's −2 armour");
+s = spec("Розірву пащеку", "раз за сцену залякує одну ціль у своїй зоні, і та пропускає свою наступну дію.");
+eq(st(s).map((e) => e.key), ["stunned"], "«Розірву пащеку» stuns (author)");
+s = spec("Прицільний постріл", "коли рейнджер стріляє, вибери на додачу до шкоди один ефект: • рейнджер ненадовго приголомшує ціль, і та пропускає свою наступну дію.");
+ok(!st(s).length, "the aimed shot's text puts no state by its button (the menu does)");
+// triggers
+s = spec("Перегрів ядра", "коли ОЗ робота-вартового падають до 0, він вибухає й завдає всім істотам у своїй зоні 1d10 шкоди вогнем + 1d6 шкоди радіацією, що ігнорує броню.");
+ok(s.level === "trigger" && s.button && s.when === "down" && s.uses === 1, "a 0-HP blast: a button, once");
+eq(s.effects.map((e) => [e.dice, e.type, e.ignoreArmor, e.zone]), [["1d10", "fire", false, "all"], ["1d6", "rad", true, "all"]], "both parts; «ігнорує броню» is the last one's");
+s = spec("Круте піке", "коли ОЗ вертиберда знижуються до 0, він каменем падає й мальовничо вибухає, завдаючи 3d6 шкоди всім істотам в одній вибраній зоні.");
+ok(s.effects[0].zone === "", "the dive hits the targets (the zone chosen)");
+s = spec("Розпад", "коли паладин своєю атакою знижує ОЗ цілі до 0, усі вороги в зоні цілі отримують 1d10 енергетичної шкоди, що ігнорує броню.");
+ok(s.when === "kill" && s.uses === 0 && s.effects[0].zone === "killFoes" && s.effects[0].type === "laser", "«Розпад»: on a kill, energy, the zone of the target");
+// the menu
+const ranger = { moves: [{ n: "Прицільний постріл", t: "коли елітний рейнджер стріляє, вибери на додачу до шкоди один ефект: • елітний рейнджер завдає додатково 1d6 шкоди; • елітний рейнджер вибиває зброю з рук цілі, якщо та озброєна. • елітний рейнджер ненадовго приголомшує ціль, і та пропускає свою наступну дію. Ту саму ціль елітний рейнджер може приголомшити лише раз за сцену; • елітний рейнджер збиває ціль з ніг. • шкода повністю ігнорує броню цілі." }] };
+eq(S.attackMenu(ranger, { note: "бій на відстані" }).map((o) => o.k), ["none", "plus", "disarmed", "stunned", "down", "ignore"], "the aimed shot's menu");
+ok(S.attackMenu(ranger, { note: "ближній бій" }) === null, "«коли … стріляє»: no menu for a melee attack");
+ok(S.attackMenu(ranger, { note: "" }).find((o) => o.k === "stunned").once, "the stun once a scene");
+const dog = { moves: [{ n: "Кусь", t: "атакуючи в ближньому бою, може завдати вдвічі меншої шкоди, щоб натомість збити ціль з ніг." }] };
+eq(S.attackMenu(dog, { note: "ближній бій" }).map((o) => o.k), ["none", "halfDown"], "«Кусь»: half to knock down");
+ok(S.attackMenu(dog, { note: "бій на відстані" }) === null, "«Кусь» is melee only");
+ok(S.attackMenu({ moves: [{ n: "Лють", t: "раз за сцену" }] }, {}) === null, "no menu without such a move");
 
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
 if (failures) process.exit(1);

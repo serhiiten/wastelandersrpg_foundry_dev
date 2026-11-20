@@ -15,6 +15,7 @@ import { backLine, chemReset, usedNames } from "../rules/perk-uses.mjs";
 import { clearDefibs } from "./caravan-defib.mjs";
 import { rollCaravanSuperDice } from "./caravan-superdice.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { clearAllStates } from "./states.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 
@@ -134,6 +135,8 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
       movesN++;
     }
   }
+  // the states put on by enemies' moves end with the scene, their aspects too (author, 2026-11-20)
+  await clearAllStates();
   await postChat({ speaker: { alias: def.title }, content: endCard(kind, def, rows, moves ? movesN : null) });
   notify.info(`${def.title}: ${chars.length} ${chars.length === 1 ? "персонаж" : chars.length < 5 && chars.length > 1 ? "персонажі" : "персонажів"}. Коло дій 1${fate != null ? `, жетонів Долі Доглядача: ${Math.max(0, fate)}` : ""}.`);
   return true;

@@ -32,7 +32,7 @@ export function attackTip(a) {
   const ex = attackExtra(a?.note);
   return [ex ? `+${ex.label}` : "", attackNote(a)].filter(Boolean).join(" · ");
 }
-import { moveSpec, moveMarks, limitLabel, canUndo } from "../rules/move-spec.mjs";
+import { moveSpec, moveMarks, limitLabel, canUndo, attackMenu } from "../rules/move-spec.mjs";
 import { profileOf, attackDice, bonusFrom, andList, normCat, bookCopy } from "../rules/enemy-model.mjs";
 
 const escH = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -211,6 +211,7 @@ export function enemyView(sys, o = {}) {
       type: a.type, typeOpts: typeOptions(a.type), ammoMax: a.ammoMax || 0, typeLabel: typeLabel(a.type), tcls: typeClass(a.type), noteRaw: a.note,
       extra: attackExtraView(a.note), note: attackNote(a),
       ammo: ammo ? { max: a.ammoMax, value: a.ammo, empty: a.ammo <= 0, pips: Array.from({ length: a.ammoMax }, (_, k) => ({ n: k + 1, on: k < a.ammo })) } : null,
+      menu: !!attackMenu(sys, a), // «Прицільний постріл» & Co.: «Завдати цілям ▾» opens the effects (author, 2026-11-20)
       dead: ammo && a.ammo <= 0, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0, diceOk: DICE_RE.test(String(a.dice).trim()),
     };
   });

@@ -10,10 +10,12 @@
  *   effect  — «Кнопка, ефект сам»: «Використати» spends it and applies what stage 1 knows (the rest is the chat card)
  *   card    — «Кнопка, лише картка»: «Використати» spends it and posts the card
  *   auto    — «Сам, без кнопки»: the system does it (survive, a bonus past an HP threshold); no button
- *   trigger — «Тригер-підказка»: acts at 0 HP / on a kill (stage 2); no button, its dice chips still hit
+ *   trigger — «Тригер-підказка»: acts at 0 HP / on a kill (author, 2026-11-20): the damage card says so, and its «Використати»
+ *             works only then (`when`: "down" — the enemy at 0 HP, "kill" — its attack has just brought a target to 0)
  *   none    — «Не автоматизуємо»: words only; no button
  */
 import { diceInText, moveHeal, psyMoveIdx } from "./battle.mjs";
+import { STATES } from "./states.mjs";
 
 /** The button's levels */
 export const BUTTON_LEVELS = new Set(["effect", "card"]);
@@ -80,8 +82,19 @@ export function moveSpec(move, sys = null, i = -1) {
   // Психо: +2 damage of the attacks to the end of the scene
   if ((sys && i >= 0 && psyMoveIdx(sys) === i) || /^(?:ін'єкція\s+)?психо$/.test(n)) return out("effect", [{ kind: "psycho" }], { uses: lim.uses || 1, per: lim.per || "scene" });
 
-  // at 0 HP or on a kill: stage 2
-  if (/коли\s+ОЗ\s+\S+(?:\s+\S+)?\s+(?:падають|знижуються)\s+до\s+0\b/i.test(t) || /знижує\s+ОЗ\s+цілі\s+до\s+0/i.test(t)) return out("trigger");
+  // at 0 HP or on a kill (author, 2026-11-20: a hint and a button): every damage die of the text, at the zone or the targets
+  const onKill = /знижує\s+ОЗ\s+цілі\s+до\s+0/i.test(t);
+  if (/коли\s+ОЗ\s+\S+(?:\s+\S+)?\s+(?:падають|знижуються)\s+до\s+0\b/i.test(t) || onKill) {
+    // «Розпад»: the foes in the zone of the target brought down; a blast: its own zone, or the zone chosen (the targets)
+    const zone = onKill ? "killFoes" : /в\s+одній\s+вибраній\s+зоні/i.test(t) ? "" : zoneOf(t) || "all";
+    // «Розпад» is energy damage, the parser's `laser` (author, 2026-11-19); «1d10 шкоди вогнем + 2d6 шкоди радіацією, що
+    // ігнорує броню»: the clause is the last part's, the fire meets the armour
+    const hits = hitsOf(t).map((h, k, all) => ({
+      kind: "hit", ...h, ...(/енергетичн/i.test(t) && h.type === "phys" ? { type: "laser" } : {}),
+      ...(k < all.length - 1 ? { ignoreArmor: false } : {}), zone,
+    }));
+    return out("trigger", hits, { button: hits.length > 0, when: onKill ? "kill" : "down", ...(onKill ? {} : { uses: 1, per: "scene" }) });
+  }
 
   // «якщо отримана шкода мала б знизити ОЗ … до 0, … лишається живим з N ОЗ»
   const sv = /мала\s+б\s+знизити\s+ОЗ.*?до\s+0.*?лиша\S*\s+жив\S*\s+(?:з|із)\s+(\d+)\s+ОЗ/i.exec(t);
@@ -131,6 +144,9 @@ export function moveSpec(move, sys = null, i = -1) {
     }
   }
 
+  // the states the move puts on the ones it hits, or on the targets (author, 2026-11-20; rules/states.mjs)
+  if (!/вибери\s+.*?ефект|вдвічі\s+менш/i.test(t)) for (const st of statesOf(t)) effects.push({ kind: "state", ...st });
+
   // with no limit a move is a button only when it is an action of its own: «Здимів звідси», «Кусь», «Ривок», the aimed
   // shot's menu, «Космічна програма», «Тільки не по дітях»; otherwise words (movement, a jump)
   if (!lim.uses && !effects.length && !/вдвічі\s+менш|вибери\s+.*?ефект|збити\s+(?:її\s+|ціль\s+)?з\s+ніг/i.test(t)) return out("none");
@@ -138,10 +154,66 @@ export function moveSpec(move, sys = null, i = -1) {
   return out("effect", effects, { again: !!lim.uses && /а\s+також\s+щоразу/i.test(t) });
 }
 
+/**
+ * The states of a move's text (rules/states.mjs keys) with their dice and rounds: [{key, dice?, left?, type?, ignoreArmor?}]
+ */
+export function statesOf(text) {
+  const t = String(text ?? ""), out = [];
+  if (/зби(?:ва\S*|ти)\s+(?:\S+\s+)?з\s+ніг|пада\S*\s+з\s+ніг/i.test(t)) out.push({ key: "down" });
+  if (/пропуска\S*\s+свою\s+наступну\s+дію/i.test(t)) out.push({ key: "stunned" });
+  const grab = /аспект\s+захоплен/i.test(t) && /отриму\S*\s+(\d*d\d+)\s+шкоди\s+від\s+стискання/i.exec(t);
+  if (grab) out.push({ key: "grabbed", dice: grab[1] });
+  const poison = /протягом\s+(\d+)\s+кіл.*?отриму\S*\s+(\d*d\d+)\s+шкоди\s+від\s+отрути/i.exec(t);
+  if (poison) out.push({ key: "poisoned", dice: poison[2], left: +poison[1], type: "poison", ignoreArmor: true });
+  if (/аспект\s+палає/i.test(t)) {
+    const d = /отриму\S*\s+(\d*d\d+)\s+шкоди\s+вогнем/i.exec(t), n = /триває\s+(\d+)\s+кол/i.exec(t);
+    out.push({ key: "burning", dice: d ? d[1] : "1d6", left: n ? +n[1] : 1, type: "fire" });
+  } else if (/підпал(?:ює|ити)/i.test(t)) out.push({ key: "burning", dice: "1d6", left: 1, type: "fire" }); // the general «Підпал»
+  const bleed = /пуска\S*\s+\S+\s+кров/i.test(t) && /кровотеча\s+завдає\s+(\d*d\d+)\s+шкоди/i.exec(t);
+  if (bleed) out.push({ key: "bleeding", dice: bleed[1], left: 1, ignoreArmor: true });
+  if (/[−-]\s*2\s+до\s+фізичної\s+броні/i.test(t)) out.push({ key: "acid" });
+  if (/засліплю/i.test(t)) out.push({ key: "blinded" });
+  if (/бере\s+на\s+приціл/i.test(t)) out.push({ key: "aimed" });
+  return out;
+}
+
+/**
+ * The effect menu under «Завдати цілям» of an attack (author, 2026-11-20, mockup А): the options of «Прицільний постріл» /
+ * «Точний удар» («вибери на додачу до шкоди один ефект») and of «Кусь» / «Здимів звідси» (half the damage to knock the target
+ * down). null when the enemy has none for this attack. Options: {k, label, dice?, once?}.
+ * @param {object} sys the enemy's system @param {{note?:string}} attack
+ */
+export function attackMenu(sys, attack) {
+  const note = String(attack?.note ?? "");
+  const ranged = /відстан/i.test(note), melee = /ближн/i.test(note);
+  const opts = [];
+  (sys?.moves ?? []).forEach((m, mi) => {
+    const t = String(m?.t ?? "");
+    const push = (o) => opts.push({ ...o, mi }); // mi: the move's index, for its chat card
+    if (/вибери\s+.*?ефект/i.test(t)) {
+      // «коли … стріляє» is for shots only (a melee-only attack gets no menu); «б'є чи стріляє» for every attack
+      if (/стріляє/i.test(t) && !/\S+\s+чи\s+стріляє/i.test(t) && melee && !ranged) return;
+      const plus = /завдає\s+додатково\s+(\d*d\d+)\s+шкоди/i.exec(t);
+      if (plus) push({ k: "plus", label: `+${plus[1]} шкоди`, dice: plus[1] });
+      if (/вибиває\s+зброю/i.test(t)) push({ k: "disarmed", label: "Вибити зброю" });
+      if (/приголомшує/i.test(t)) push({ k: "stunned", label: "Приголомшити", once: /лише\s+раз\s+за\s+сцену/i.test(t) });
+      if (/збиває\s+ціль\s+з\s+ніг/i.test(t)) push({ k: "down", label: "Збити з ніг" });
+      if (/ігнорує\s+броню/i.test(t)) push({ k: "ignore", label: "Шкода ігнорує броню" });
+    } else if (/вдвічі\s+менш/i.test(t) && /з\s+ніг/i.test(t)) {
+      if (/ближньому\s+бою/i.test(t) && ranged && !melee) return;
+      push({ k: "halfDown", label: /відкинути/i.test(t) ? "½ шкоди, відкинути й збити з ніг" : "½ шкоди, збити з ніг" });
+    }
+  });
+  if (!opts.length) return null;
+  return [{ k: "none", label: "Без ефекту" }, ...opts.filter((o, i) => opts.findIndex((x) => x.k === o.k) === i)];
+}
+
 /** The die / number with its damage type for a hint: «2d6 шкоди вогнем», «1d10 психічної шкоди» */
 const TYPE_WORD = { fire: "шкоди вогнем", rad: "шкоди радіацією", poison: "шкоди отрутою", psychic: "психічної шкоди", laser: "енергетичної шкоди", electric: "шкоди електрикою" };
 const hitWords = (h) => `${h.dice} ${TYPE_WORD[h.type] ?? "шкоди"}${h.ignoreArmor ? " (броня не рятує)" : h.ignoreN ? ` (ігнорує ${h.ignoreN} броні)` : ""}`;
-const HIT_WHO = { all: "всім у своїй зоні", foes: "всім персонажам у своїй зоні" };
+const HIT_WHO = { all: "всім у своїй зоні", foes: "всім персонажам у своїй зоні", killFoes: "всім персонажам у зоні щойно зваленої цілі" };
+/** The aspects of a move's states, «Збитий з ніг» and «Кровотеча» */
+const stateNames = (effects) => effects.filter((e) => e.kind === "state").map((e) => `«${STATES[e.key]?.aspect ?? e.key}»`);
 
 /**
  * What the move does, in plain words (author, 2026-11-20): the tooltip of «Використати» and of a quiet move's name (the card)
@@ -175,10 +247,18 @@ export function moveHint(spec) {
       case "attack": return "Ворог атакує всіх персонажів у своїй зоні (або лише позначені цілі)";
       case "hit": return `Завдає ${hitWords(e)} ${e.zone ? `${e.spareKin ? `${HIT_WHO.all}, крім таких самих, як він` : HIT_WHO[e.zone]} (або лише позначеним цілям)` : "позначеним цілям"}`;
       case "psiPerk": return "Кидає 1d6 і показує, який псионічний перк випав";
+      case "state": {
+        // one sentence for all the move's states, at the first of them
+        if (spec.effects.find((x) => x.kind === "state") !== e) return "";
+        const hit = spec.effects.some((x) => x.kind === "hit" || x.kind === "attack");
+        const names = stateNames(spec.effects);
+        return `${hit ? "Тим, кого вразить, накладає" : "Позначеним цілям накладає"} ${names.length > 1 ? "аспекти" : "аспект"} ${names.join(" і ")}`;
+      }
       default: return "";
     }
   }).filter(Boolean);
-  return parts.length ? `${parts.join(". ")}. Хід з'явиться в чаті.` : "Покаже хід у чаті, решту вирішуєш ти.";
+  const when = spec.level !== "trigger" ? "" : spec.when === "kill" ? "Працює, щойно атака ворога звалила ціль. " : "Працює, коли ворога звалено (0 ОЗ). ";
+  return parts.length ? `${when}${parts.join(". ")}. Хід з'явиться в чаті.` : "Покаже хід у чаті, решту вирішуєш ти.";
 }
 
 /** The limit chip: «раз за сцену», «2 за сцену», «раз за сесію», «без ліміту» */

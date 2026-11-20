@@ -204,7 +204,9 @@ export function stepRound(step) {
   for (const [sec] of sections) if (sec.isConnected) showRoundFate(sec.querySelector(".pust-md-body"), r, Math.max(0, flagNow(canvas.scene, "battleFate", 0)));
   writePending();
   if (step > 0) {
-    postChat({ speaker: { alias: "Коло дій" }, content: `<div class="pust-chat pust-round"><div class="pust-round-hd"><i class="fa-solid fa-rotate"></i><span>Почалося коло дій</span><b>${r}</b></div><p>Спершу діють гравці, потім Доглядач робить хід і переміщує одного НІПа.</p></div>` });
+    postChat({ speaker: { alias: "Коло дій" }, content: `<div class="pust-chat pust-round"><div class="pust-round-hd"><i class="fa-solid fa-rotate"></i><span>Почалося коло дій</span><b>${r}</b></div><p>Спершу діють гравці, потім Доглядач робить хід і переміщує одного НІПа.</p></div>` })
+      // the states tick after the round's card (author, 2026-11-20; applications/states.mjs): the round from here, not the setting
+      .then(() => import("./states.mjs")).then((m) => m.tickRound(r)).catch((err) => console.error(err));
   }
 }
 

@@ -21,6 +21,8 @@ import { openCheckPanel, rollWeaponDamage } from "../applications/check-panel.mj
 import { EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
 import { fateNow, fateSnap, postFateChange, postFateIfChanged, postSupIfChanged, supSnap } from "../applications/fate-card.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { stateArmor } from "../rules/states.mjs";
+import { statesOf } from "../applications/apply-damage.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -99,6 +101,9 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         .map((i) => ({ id: i.id, n: i.name, recipe: i.system.recipe, desc: recipeToDef(i.system.recipe).d })).sort((a, b) => a.n.localeCompare(b.n, "uk")),
     };
     context.v = buildView(st, d, L, { ...this.ui, ...world });
+    // a state's armour (the acid's «−2 до фізичної броні» till the end of the scene; author, 2026-11-20): the number the hits meet
+    const sa = stateArmor(statesOf(this.document));
+    if (sa) { context.v.armor = Math.max(0, context.v.armor + sa); context.v.armorState = `Стан «−2 до фізичної броні»: до кінця сцени броня менша на ${-sa}.`; }
     context.actor = this.document;
     context.tab = this.ui.tab;
     // perks with «Застосувати» (author, 2026-11-18; perk-uses.mjs): the compact sheet's section, and each perk's / feat's card
