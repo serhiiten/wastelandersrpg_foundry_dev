@@ -155,7 +155,10 @@ function setIssuesDemo(on) {
   if (!on) return;
   const sheet = [...document.querySelectorAll(".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)")].find((x) => x.offsetParent);
   const nav = sheet?.querySelector("nav.pust-tabs");
-  if (!nav || sheet.querySelector(".pust-issues")) return;
+  if (!nav) return;
+  // a real block, folded by default (author, 2026-11-20; U1): opened in the page for the step, the sheet's next render folds it
+  const real = sheet.querySelector(".pust-issues:not(.pust-demo-issues)");
+  if (real) { real.classList.remove("folded"); return; }
   const box = document.createElement("section");
   box.className = "pust-issues pust-demo-issues";
   box.innerHTML = `<div class="pust-issues-hd"><i class="fa-solid fa-triangle-exclamation"></i> Сповіщення й попередження <small>${ISSUES_DEMO.length}</small></div>`
@@ -459,6 +462,11 @@ export const PREPARE = {
     await sleep(200);
   },
   issuesDemo: async () => { setIssuesDemo(true); opened.issues = true; await sleep(150); },
+  /** «Статуси й відпочинок» folded by default (author, 2026-11-20; U1): opened in the page for the step, so its buttons show */
+  statusOpen: async () => {
+    document.querySelectorAll(".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet) .pust-qstat.folded").forEach((x) => x.classList.remove("folded"));
+    await sleep(50);
+  },
   targetDemo: async () => { await (await import("../canvas/target-demo.mjs")).setTargetDemo(true, await actorFor("enemy")); opened.tgt = true; await sleep(200); },
   enemyForm: async () => { await (await import("../applications/battle-panel.mjs")).setEnemyFormOpen(true); opened.eform = true; await sleep(300); },
   zoneDemo: async () => { await (await import("../canvas/battle-zones.mjs")).setZoneDemo(true); opened.zone = true; await sleep(300); },

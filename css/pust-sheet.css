@@ -1926,3 +1926,28 @@
 .pust-imp-defib { display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; }
 .wastelanders .pust-ccmp-iact button.pust-turret-dice:not(.header-control), .wastelanders .pust-ccmp-iact button.pust-turret-hit:not(.header-control) { width: auto; height: 22px !important; min-height: 0; padding: 0 6px !important; font-size: 12px !important; line-height: 20px !important; }
 .wastelanders .pust-ccmp-iact .pust-seg2 > button:not(.header-control) { height: 22px !important; padding: 0 6px !important; font-size: 11px !important; line-height: 20px !important; }
+
+/* ===== Fable's analysis U1 (author, 2026-11-20; variants А + Б): the tab bar sticks to the window's top as the sheet scrolls;
+   «Сповіщення й попередження» folds to its header (button) with the counter, folded by default, as «Статуси й відпочинок» ===== */
+/* the character sheet only (the caravan's tabs stay as they are); the inner box takes its content's height instead of
+   shrinking to the window's (a flex item), or the bar would be pushed up with its box's end */
+.wastelanders.pust-sheet:not(.pust-caravan-sheet, .pust-en-sheet, .pust-place-sheet) .pust-sheet-inner:has(> nav.pust-tabs) { flex-shrink: 0; }
+.wastelanders.pust-sheet:not(.pust-caravan-sheet, .pust-en-sheet, .pust-place-sheet) .pust-sheet-inner > nav.pust-tabs { position: sticky; top: 0; z-index: 5; }
+.wastelanders.pust-sheet button.pust-issues-hd:not(.header-control) { display: flex !important; align-items: center; justify-content: flex-start !important; gap: 6px;
+  width: 100%; height: 24px !important; min-height: 0; margin: 0 0 3px; padding: 0 2px !important; line-height: 22px !important; text-align: left; cursor: pointer;
+  background: transparent !important; border: 0 !important; box-shadow: none !important; color: var(--pu-ink) !important;
+  font-family: var(--pu-f-label); font-weight: 800; font-size: 12.5px !important; text-transform: uppercase; letter-spacing: .05em; }
+.wastelanders.pust-sheet button.pust-issues-hd:not(.header-control):hover { background: rgba(0,0,0,.06) !important; }
+.pust-issues-hd > i.pust-fold-ico { width: 10px; font-size: 10px; color: var(--pu-ink-2) !important; }
+.pust-issues.folded { padding-bottom: 2px; }
+.pust-issues.folded > .pust-issues-hd { margin-bottom: 0 !important; }
+.pust-issues.folded > .pust-issue { display: none; }
+
+/* ===== Fable's analysis U2 (author, 2026-11-20; variant Б): the compact sheet's «Зброя» above «Хімія» — a row per weapon:
+   its name, «Атака» (the full sheet's d20) and its damage (the full sheet's crosshairs) ===== */
+.pust-compact .pust-cmp-weapons { margin-top: 6px !important; display: flex; flex-direction: column; gap: 4px; }
+.pust-cmp-wpn { --gc: #6b4a2b; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; padding: 3px 6px; border-left: 4px solid var(--gc); border-radius: 3px; background: rgba(255,255,255,.35); }
+.pust-cmp-wpn.kind-gun { --gc: var(--pu-rust-3, #c06a35); } .pust-cmp-wpn.kind-energy { --gc: #c0392b; } .pust-cmp-wpn.kind-melee { --gc: #6b4a2b; }
+.pust-cmp-wpn.kind-boom { --gc: #e07b25; } .pust-cmp-wpn.kind-psi { --gc: #7b4fb0; } .pust-cmp-wpn.kind-natural { --gc: #6f7d2c; }
+.wastelanders .pust-cmp-wpn > button.pust-use-btn:not(.header-control) { flex: none; width: auto !important; height: 22px !important; line-height: 20px !important; padding: 0 7px !important; font-size: 12px !important; white-space: nowrap; }
+.wastelanders .pust-cmp-wpn > button.pust-cmp-dmg:not(.header-control) { font-family: var(--pu-f-mono, "Ubuntu Mono", monospace); background: var(--dt-bg, #6e3b22) !important; color: var(--dt-fg, #f4d11a) !important; }

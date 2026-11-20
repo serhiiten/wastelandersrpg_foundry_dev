@@ -178,6 +178,20 @@
     {{#if cmp.perks.passive.length}}<dl class="pust-cmp-prows">{{#each cmp.perks.passive}}<dt title="{{tip}}">{{n}}</dt><dd>{{#each parts}}{{#unless @first}}; {{/unless}}<span class="{{#if bad}}bad{{/if}}">{{t}}</span>{{/each}}</dd>{{/each}}</dl>{{/if}}
   </section>
   {{/if}}
+  {{!-- «Зброя» above «Хімія» (author, 2026-11-20; Fable's analysis U2, variant Б): each weapon with the full sheet's two actions,
+       the attack with it and its damage roll; no price, no × (those are the full sheet's) --}}
+  {{#if cmp.weapons.length}}
+  <section class="pust-block pust-cmp-weapons">
+    <h3><i class="fa-solid fa-gun pust-qic" aria-hidden="true"></i>Зброя</h3>
+    {{#each cmp.weapons}}
+    <div class="pust-cmp-wpn kind-{{kind}}">
+      <span class="pust-cmp-cn">{{n}}</span>
+      <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-weapon="{{i}}" data-name="{{n}}" title="Атака цією зброєю: «Зробити перевірку». Перетягни на панель макросів, щоб атакувати звідти"><i class="fa-solid fa-dice-d20"></i> Атака</button>
+      {{#if stat}}<button type="button" class="pust-use-btn pust-cmp-dmg {{statCls}}" data-action="weaponDamage" data-weapon="{{i}}" data-name="{{n}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i> {{stat}}</button>{{/if}}
+    </div>
+    {{/each}}
+  </section>
+  {{/if}}
   {{!-- the chems of «Інший мотлох» with their description: «Вжити», «На ціль» and the rest, as on its cards --}}
   {{#if cmp.chems.length}}
   <section class="pust-block pust-cmp-chems">
@@ -200,12 +214,13 @@
     {{/each}}
   </section>
   {{/if}}
-  {{!-- the rest of «Мотлох» as chips «назва · шкода / броня · кількість · вартість ×», and «+ Річ» for the catalogue --}}
+  {{!-- the rest of «Мотлох» as chips «назва · броня · кількість» (price and × only in the full sheet: author, 2026-11-20, U2),
+       and «+ Річ» for the catalogue --}}
   <section class="pust-block pust-cmp-gear">
     <h3><i class="fa-solid fa-box-open pust-qic" aria-hidden="true"></i>Мотлох
       <button type="button" class="pust-go pust-cmp-add" data-action="uiToggle" data-key="cat" title="Додати зброю, броню чи іншу річ із довідника спорядження">{{#if v.cat}}<i class="fa-solid fa-xmark"></i> Сховати довідник{{else}}<i class="fa-solid fa-plus"></i> Річ{{/if}}</button></h3>
     <div class="pust-cmp-chips">
-      {{#each cmp.gear}}<span class="pust-cmp-gc kind-{{kind}}"><b>{{n}}</b>{{#if stat}}<span class="pust-cmp-gs {{statCls}}">{{stat}}</span>{{/if}}{{#if q}}<span class="pust-cmp-gq">×{{q}}</span>{{/if}}{{#if price}}<span class="pust-cmp-gp">{{price}}</span>{{/if}}{{#unless locked}}<button type="button" class="pust-cmp-gx" data-action="act" data-act="row-del" data-l="{{l}}" data-i="{{i}}" data-confirm="1" title="Прибрати «{{n}}» (натисни двічі)" aria-label="Прибрати «{{n}}»"><i class="fa-solid fa-xmark"></i></button>{{/unless}}</span>
+      {{#each cmp.gear}}<span class="pust-cmp-gc kind-{{kind}}"><b>{{n}}</b>{{#if stat}}<span class="pust-cmp-gs {{statCls}}">{{stat}}</span>{{/if}}{{#if q}}<span class="pust-cmp-gq">×{{q}}</span>{{/if}}</span>
       {{else}}<span class="pust-sub">Порожньо.</span>{{/each}}
     </div>
     {{#if v.cat}}
@@ -230,8 +245,9 @@
   </section>
   {{else}}
   {{#if v.issues.length}}
-  <section class="pust-issues">
-    <div class="pust-issues-hd"><i class="fa-solid fa-triangle-exclamation"></i> Сповіщення й попередження <small>{{v.issues.length}}</small></div>
+  {{!-- folded by default to its header with the counter (author, 2026-11-20; Fable's analysis U1) --}}
+  <section class="pust-issues {{#if issuesFold}}folded{{/if}}">
+    <button type="button" class="pust-issues-hd" data-action="uiToggle" data-key="issuesFold" title="{{#if issuesFold}}Розгорнути сповіщення й попередження{{else}}Згорнути сповіщення й попередження{{/if}}"><i class="fa-solid {{#if issuesFold}}fa-chevron-right{{else}}fa-chevron-down{{/if}} pust-fold-ico"></i><i class="fa-solid fa-triangle-exclamation"></i> Сповіщення й попередження <small>{{v.issues.length}}</small></button>
     {{#each v.issues}}<div class="pust-issue {{lvl}}">{{msg}}</div>{{/each}}
   </section>
   {{/if}}
