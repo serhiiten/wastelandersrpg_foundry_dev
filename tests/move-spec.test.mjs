@@ -169,5 +169,14 @@ eq(S.attackStates("фізичної шкоди, бій на відстані"), 
   ok(((h) => /сильніше/.test(h) && !/вручну/.test(h))(S.moveHint(spec("Ave! True to Caesar!", "раз за сцену видає бойовий клич. Усі бійці Легіону, які його чують, відновлюють 5 ОЗ і до кінця сцени завдають +2 шкоди."))), "the tooltip no longer says «add by hand»");
 }
 
+// «Улюблений ворог» (stage 3): acts by itself, +2 to a mutant target (applyDamage)
+{
+  const FAV = { n: "Улюблений ворог", t: "завдає на 2 шкоди більше мутантам, супермутантам та гулям." };
+  const s = S.moveSpec(FAV);
+  ok(s.level === "auto" && !s.button && s.effects[0]?.kind === "favFoe" && s.effects[0].dmg === 2, `favFoe: ${JSON.stringify(s)}`);
+  ok(/мутантам, супермутантам і гулям/.test(s.hint), `its tooltip: ${s.hint}`);
+  eq([S.favFoeBonus({ moves: [FAV] }), S.favFoeBonus({ moves: [] }), S.favFoeBonus(null)], [2, 0, 0], "the bonus of an attacker");
+}
+
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
 if (failures) process.exit(1);

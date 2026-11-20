@@ -12,7 +12,7 @@
 import { compute } from "./core.mjs";
 import { profileOf as enemyProfile } from "./enemy-model.mjs";
 import { caravanDefAuto, caravanDefences } from "./caravan-defence.mjs";
-import { enemyNonliving } from "./states.mjs";
+import { enemyNonliving, enemyMutant, MUTANT_SPECIES } from "./states.mjs";
 import { logicFor, readState } from "../applications/character-actions.mjs";
 
 const int = (v, d = 0) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? n : d; };
@@ -45,6 +45,8 @@ export function characterProfileFromState(st) {
     kamikaze: !!d.has?.("Камікадзе"),
     // «Неживий»: a robot without «Кіборг» (the engine's robotLike; author, 2026-11-20)
     nonliving: flag(d.robotLike, "nonliving"),
+    // «Улюблений ворог» (author, 2026-11-19): гуль, супермутант, розумний Пазур Смерті
+    mutant: MUTANT_SPECIES.includes(st.species),
   });
   return prof;
 }
@@ -60,7 +62,10 @@ export function enemyNames(actor) {
 /** The profile of an actor (or null when it can't take damage) */
 export function targetProfile(actor) {
   if (!actor) return null;
-  if (actor.type === "enemy") return { ...enemyProfile(actor.system), nonliving: enemyNonliving(actor.system.flags?.nonliving ?? null, enemyNames(actor), actor.system) };
+  if (actor.type === "enemy") {
+    const names = enemyNames(actor);
+    return { ...enemyProfile(actor.system), nonliving: enemyNonliving(actor.system.flags?.nonliving ?? null, names, actor.system), mutant: enemyMutant(names) };
+  }
   if (actor.type === "character") return characterProfileFromState(readState(actor));
   if (actor.type === "caravan") return caravanProfile(actor.system);
   return null;

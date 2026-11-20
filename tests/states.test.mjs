@@ -68,5 +68,29 @@ ok(S.stunnedBefore(once, "R1") && !S.stunnedBefore(once, "R2"), "the stun once a
 eq(S.stateWords({ key: "burning", dice: "1d6", type: "fire", left: 3 }), "«Палає» (1d6 вогнем щоразу, 3 кола)", "the card's words");
 eq(S.stateWords({ key: "bleeding", dice: "1d6", left: 1, ignoreArmor: true }), "«Кровотеча» (1d6 раз, коли настане черга діяти, броня не рятує)", "once");
 
+// «Улюблений ворог»'s mutants (stage 3, author 2026-11-20): the compendium's two folders and the generator's three factions
+{
+  const { readFileSync, readdirSync } = await import("node:fs");
+  const { join, resolve, dirname } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const { createTerminal } = await import("../module/rules/terminal.mjs");
+  const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((x) => (x.isDirectory() ? walk(join(d, x.name)) : [join(d, x.name)]));
+  const pack = [];
+  for (const top of readdirSync(join(ROOT, "src/packs/opponents")).filter((d) => /^(Мутанти|Гулі_та_супермутанти)_/.test(d))) {
+    for (const f of walk(join(ROOT, "src/packs/opponents", top)).filter((f) => f.endsWith(".json"))) {
+      const j = JSON.parse(readFileSync(f, "utf8"));
+      if (j.type === "enemy") pack.push(j.name);
+    }
+  }
+  ok(pack.length === S.MUTANT_BOOK.length && pack.every((n) => S.enemyMutant([n])), `MUTANT_BOOK = the compendium's mutants: ${pack.join(", ")}`);
+  const DB = createTerminal({ toast: () => {}, icon: () => "" }).battle.BT.DB;
+  const gen = ["mutants", "ghouls", "supermutants"].flatMap((f) => ["statists", "regular", "elite", "boss"].flatMap((c) => (DB[f][c] ?? []).map((r) => r.name ?? r.n)));
+  const miss = gen.filter((n) => !S.enemyMutant([n]));
+  ok(gen.length > 10 && !miss.length, `the generator's mutants by name: missing ${miss.join(", ")}`);
+  ok(!S.enemyMutant(["Рейдер", "Легат"]) && S.enemyMutant(["Супермутант‑майстер 2", "Супермутант-майстер"]), "others aren't; names with the generator's hyphen are");
+  eq(S.MUTANT_SPECIES, ["ghoul", "mutant", "claw"], "the characters' species");
+}
+
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `states: OK (${checks} checks)`);
 if (failures) process.exit(1);

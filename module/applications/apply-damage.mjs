@@ -12,7 +12,7 @@
 import { activeGmHere } from "../helpers/main-window.mjs";
 import { chatType, resolveHit } from "../rules/battle.mjs";
 import { targetProfile as profileOf } from "../rules/target-profile.mjs";
-import { afterHit, moveSpec, moveMarks } from "../rules/move-spec.mjs";
+import { afterHit, moveSpec, moveMarks, favFoeBonus } from "../rules/move-spec.mjs";
 import { activeStates, withStates } from "../rules/states.mjs";
 import { battleType } from "./enemy-attack.mjs";
 import { postChat, isPublicMode } from "./chat.mjs";
@@ -167,6 +167,9 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     // «На прицілі» (author, 2026-11-20): the one who aimed deals it +2
     const aimed = source && statesOf(actor).some((s) => s.key === "aimed" && s.by === source);
     if (aimed) { if (hit.parts) hit.parts.push({ total: 2, type, dice: 0 }); else hit.total = int(hit.total) + 2; }
+    // «Улюблений ворог» (author, 2026-11-20): the attacker deals a mutant +N
+    const fav = src?.actor?.type === "enemy" && prof.mutant ? favFoeBonus(src.actor.system) : 0;
+    if (fav) { if (hit.parts) hit.parts.push({ total: fav, type, dice: 0 }); else hit.total = int(hit.total) + fav; }
     const r = resolveHit(prof, hp0, max, hit, { partial, dodge, rollD6 });
     let hp = r.hp, moveNote = "";
     const steps = r.steps;
@@ -187,7 +190,8 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     const name = esc(tok?.name || actor.name);
     const gain = hp >= hp0 && !!r.heal;
     // the move that kept the enemy alive is named on the card for everyone (author, 2026-11-19)
-    const note = [r.heal ? `лікує ${esc(r.heal)}` : "", moveNote ? esc(moveNote) : ""].filter(Boolean).join("; ");
+    // the move that added to the hit is named for everyone (no HP in it), like the one that kept an enemy alive
+    const note = [r.heal ? `лікує ${esc(r.heal)}` : "", moveNote ? esc(moveNote) : "", fav ? esc(`+${fav} від «Улюблений ворог»`) : ""].filter(Boolean).join("; ");
     const row = { name, delta: gain ? hp - hp0 : hp0 - hp, gain, hp0, hp, max, out: !!r.out && hp <= 0, note };
     // the GM's hint (author, 2026-11-20): an enemy just fallen has a move that acts now
     const fell = hp <= 0 && hp0 > 0;
@@ -196,6 +200,7 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     if (fell && tok) killed.push(tok.uuid);
     if (r.damage >= 1 && Array.isArray(data.onHit) && data.onHit.length) wounded.push(uuid);
     if (aimed) steps.push("+2 на прицілі");
+    if (fav) steps.push(`+${fav} «Улюблений ворог»`);
     const gmNote = gm.join(" ");
     // the short row (everyone): no steps (armour, defences); HP only where everyone sees them
     lines.push({ full: targetRow({ ...row, note: [note, gmNote].filter(Boolean).join(" "), showHp: true, steps }), short: targetRow({ ...row, showHp: hpOpen(actor) }) });

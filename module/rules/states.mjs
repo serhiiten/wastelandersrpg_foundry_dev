@@ -39,7 +39,7 @@ export const STATES = {
 export const NONLIVING_BOOK = ["Вертиберд", "БТР Братства Сталі", "Гігантський робо-скорпіон X-42", "Робот-вартовий", "Важка турель",
   "Містер Сміливець", "Робо-скорпіон Mk6", "Робомозок", "Секʼюритрон", "Містер Помічник", "Протектрон", "Робо-скорпіон Mk1", "Турель",
   "Бум-око", "Робооко"];
-const nameKey = (n) => String(n ?? "").toLowerCase().replace(/[’ʼ`]/g, "'").replace(/\s+/g, " ").trim();
+const nameKey = (n) => String(n ?? "").toLowerCase().replace(/[’ʼ`]/g, "'").replace(/[‑–—]/g, "-").replace(/\s+/g, " ").trim();
 const NONLIVING_SET = new Set(NONLIVING_BOOK.map(nameKey));
 
 /**
@@ -52,6 +52,20 @@ export function enemyNonliving(flag, names = [], sys = null) {
   if (names.some((n) => NONLIVING_SET.has(nameKey(n)))) return true;
   return sys?.def?.poison === "immune" && names.some((n) => isMachineName(n));
 }
+
+/**
+ * «Мутанти» for «Улюблений ворог» («мутантам, супермутантам та гулям»; author, 2026-11-19 / 20): the enemies of the
+ * compendium's folders «Мутанти» and «Гулі та супермутанти» by their book names (the battle generator's factions mutants /
+ * ghouls / supermutants carry the same names; tests/states.test.mjs checks both); a character by its species.
+ */
+export const MUTANT_BOOK = ["Матка ванамінго", "Самець Пазура Смерті", "Самиця Пазура Смерті", "Ванамінго", "Дитинча Пазура Смерті",
+  "Кентавр", "Нічний мисливець", "Спороносець", "Літун", "Озерник", "Тунельник", "Хижа рослина",
+  "Супермутант-майстер", "Найткін-рейдер", "Супермутант-рейдер", "Сяючий дикий гуль", "Дикий гуль"];
+const MUTANT_SET = new Set(MUTANT_BOOK.map(nameKey));
+/** The character species that count as mutants: гуль, супермутант, розумний Пазур Смерті (rules/core.mjs keys) */
+export const MUTANT_SPECIES = ["ghoul", "mutant", "claw"];
+/** Is an enemy a mutant: one of its names (book, base, own) is in MUTANT_BOOK */
+export const enemyMutant = (names = []) => names.some((n) => MUTANT_SET.has(nameKey(n)));
 
 /** The aspect texts of the states (the terms test checks them) */
 export const STATE_ASPECTS = Object.values(STATES).map((s) => s.aspect);

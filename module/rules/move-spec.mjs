@@ -29,7 +29,7 @@ const BY_NAME = {
   "політ": "none", "невпинність": "none", "амбразури": "none", "стрибок": "none", "мамо, тату!": "none", "непомітність": "none",
   // the button posts the card only
   "бойові рефлекси": "card", "бтр-магеддон": "card", "сигналізація": "card", "підкріплення": "card", "псионічний талант": "card",
-  // acts by itself: +2 against mutants (stage 3)
+  // acts by itself: +2 against mutants (stage 3: the effect `favFoe`, dealt by applyDamage)
   "улюблений ворог": "auto",
 };
 
@@ -77,7 +77,11 @@ export function moveSpec(move, sys = null, i = -1) {
   const named = BY_NAME[n];
   if (named === "none") return out("none");
   if (named === "card") return out("card", [{ kind: n === "псионічний талант" ? "psiPerk" : "card" }]);
-  if (named === "auto") return out("auto");
+  if (named === "auto") {
+    // «Улюблений ворог»: «завдає на 2 шкоди більше мутантам…» (stage 3, author 2026-11-20: applyDamage adds it to a mutant)
+    const fav = /на\s+(\d+)\s+шкоди\s+більше\s+мутантам/i.exec(t);
+    return out("auto", fav ? [{ kind: "favFoe", dmg: +fav[1] }] : []);
+  }
 
   // Психо: +2 damage of the attacks to the end of the scene
   if ((sys && i >= 0 && psyMoveIdx(sys) === i) || /^(?:ін'єкція\s+)?психо$/.test(n)) return out("effect", [{ kind: "psycho" }], { uses: lim.uses || 1, per: lim.per || "scene" });
@@ -236,6 +240,7 @@ export function moveHint(spec) {
     const e = spec.effects[0];
     if (e?.kind === "survive") return `Спрацьовує сам: удар, що мав би звалити ворога, лишає йому ${e.hp} ОЗ. Раз за сцену.`;
     if (e?.kind === "bonus") return `Спрацьовує сам: щойно ОЗ впадуть до ${e.hpAtMost}, ворог до кінця сцени б'є на ${e.dmg} сильніше${e.armor ? ` і має +${e.armor} броні` : ""}.`;
+    if (e?.kind === "favFoe") return `Спрацьовує сам: кожна атака ворога завдає на ${e.dmg} шкоди більше мутантам, супермутантам і гулям.`;
     return "Діє сам, натискати нічого не треба.";
   }
   if (!spec.button) return "";
@@ -346,6 +351,13 @@ export function healWho({ targets = [], faction = [], self = "", others = false 
 }
 
 /* ---------------- the damage path: survive, the HP bonus, undo ---------------- */
+
+/** «Улюблений ворог» (stage 3, author 2026-11-20): the extra damage an enemy deals a mutant target; 0 without the move */
+export function favFoeBonus(sys) {
+  let n = 0;
+  for (const m of sys?.moves ?? []) for (const e of moveSpec(m).effects) if (e.kind === "favFoe") n += e.dmg;
+  return n;
+}
 
 /** The index and spec of the first move of a kind among the auto ones («survive», «bonus») */
 function autoMove(moves, kind) {
