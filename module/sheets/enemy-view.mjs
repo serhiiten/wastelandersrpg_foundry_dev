@@ -140,7 +140,7 @@ export function moveView(m, i, sys, o = {}) {
     hint: spec.hint, lim: limitLabel(spec), cls: !spec.uses ? "free" : spec.per === "session" ? "session" : "scene",
     pips: spec.uses > 1 ? Array.from({ length: spec.uses }, (_, k) => ({ on: k < mk.left })) : null,
     used: mk.used, spent: mk.spent, again: spec.again, back, off,
-    gone: !spec.button && mk.used && spec.effects.some((e) => e.kind === "survive"),
+    gone: !spec.button && mk.used && spec.effects.some((e) => e.kind === "survive"), limited: spec.uses > 0,
     offWhy: mk.blocked ? `Уже використано: ${back}` : noHit ? "Нема що скасовувати: ворогові щойно не завдавали шкоди" : "",
   };
 }
