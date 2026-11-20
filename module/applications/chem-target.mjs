@@ -12,7 +12,8 @@
 import { activeGmHere } from "../helpers/main-window.mjs";
 import { DRUGS, OFFICIAL_DRUGS, boosterAttr, drugOf, registerCustomDrugs } from "../rules/core.mjs";
 import { createLogic } from "../rules/logic.mjs";
-import { ROBOT_FOLDER, isMachineName, planHeal, spendDose, useCopyOn } from "../rules/chem-target.mjs";
+import { planHeal, spendDose, useCopyOn } from "../rules/chem-target.mjs";
+import { targetProfile } from "../rules/target-profile.mjs";
 import { applyHeal, clearTargets } from "./apply-damage.mjs";
 import { readState, runAction } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
@@ -23,27 +24,6 @@ import { rollDie } from "../helpers/dice.mjs";
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const warn = (m) => notify.warn(m);
-
-/** Is this enemy a machine: a machine word in the name, or its compendium source sits in the folder «Роботи» */
-export async function enemyIsMachine(actor, tokenName = "") {
-  if (isMachineName(actor?.name) || isMachineName(tokenName)) return true;
-  const src = actor?._stats?.compendiumSource;
-  if (!src) return false;
-  try {
-    const { collection, id } = foundry.utils.parseUuid(src);
-    const pack = collection?.index ? collection : game.packs.get(String(collection?.collection ?? collection));
-    if (!pack) return false;
-    const idx = await pack.getIndex({ fields: ["folder", "name"] });
-    const e = idx.get(id);
-    if (!e) return false;
-    if (isMachineName(e.name)) return true;
-    let f = e.folder ? pack.folders.get(e.folder?.id ?? e.folder) : null;
-    while (f?.folder) f = pack.folders.get(f.folder.id ?? f.folder);
-    return f?.name === ROBOT_FOLDER;
-  } catch (err) {
-    return false;
-  }
-}
 
 /** Runs the dose on a state with a toast collector; returns what the engine said. Nothing is saved here */
 function dryRun(actor, row) {
@@ -122,7 +102,8 @@ export async function useOnTarget(giverActor, i) {
     const r = dryRun(target, row);
     if (!r.ok) { warn(r.msgs[0] || `«${key}» на ${target.name} не діє.`); return false; }
   } else if (target.type === "enemy" || target.type === "caravan") {
-    const machine = target.type === "enemy" ? await enemyIsMachine(target, tok.name) : true;
+    // a machine is what the hidden tag «Неживий» says (author, 2026-11-20): the GM's tick on the card, else the book
+    const machine = target.type === "enemy" ? !!targetProfile(target)?.nonliving : true;
     healPlan = planHeal(key, D, {
       kind: target.type, machine, vehicle: target.system?.vehicle,
       hp: target.system?.hp?.value, max: target.system?.hp?.max,

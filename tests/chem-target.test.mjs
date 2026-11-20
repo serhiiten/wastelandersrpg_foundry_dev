@@ -97,5 +97,26 @@ ok(!useCopyOn(t.s, t.L, { n: "Бустер" }) , "booster with no attribute: ref
 t = pc("human", [], { hpCur: "" });
 ok(!useCopyOn(t.s, t.L, { n: "Стимпак" }), "full HP: the engine refuses the stimpak");
 
+// «На ціль» reads the hidden tag «Неживий» (author, 2026-11-20): every compendium enemy, the old guess (a machine word in the
+// name or the folder «Роботи») against the tag by the book; exactly БТР (now repaired) and Кіберпес (alive: author) differ
+{
+  const { readFileSync, readdirSync } = await import("node:fs");
+  const { join, resolve, dirname, sep } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const { enemyNonliving } = await import("../module/rules/states.mjs");
+  const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((x) => (x.isDirectory() ? walk(join(d, x.name)) : [join(d, x.name)]));
+  const diff = [];
+  for (const f of walk(join(ROOT, "src/packs/opponents")).filter((f) => f.endsWith(".json"))) {
+    const j = JSON.parse(readFileSync(f, "utf8"));
+    if (j.type !== "enemy") continue;
+    const was = isMachineName(j.name) || f.split(sep).some((d) => d.startsWith("Роботи_"));
+    const now = enemyNonliving(null, [j.name], j.system);
+    if (was !== now) diff.push(`${j.name}: ${now ? "machine" : "living"}`);
+  }
+  ok(diff.sort().join("; ") === "БТР Братства Сталі: machine; Кіберпес: living", `compendium before / after: ${diff.join("; ")}`);
+  ok(enemyNonliving(true, ["Рейдер"]) && !enemyNonliving(false, ["Протектрон"]), "the GM's tick wins over the book");
+}
+
 console.log(`${checks} checks, ${failures} failures`);
 process.exit(failures ? 1 : 0);

@@ -9,14 +9,11 @@
  *   – a place and a caravan with brahmins are never valid.
  */
 
-/** Words in a name that make an enemy a machine (case-insensitive), besides belonging to the compendium's folder «Роботи» */
+/** Words in a name that make a battle generator's enemy immune to poisons non-living (rules/states.mjs enemyNonliving) */
 export const MACHINE_WORDS = [
   "робот", "робо", "турель", "протектрон", "сек'юритрон", "секʼюритрон", "вертиберд", "містер помічник", "містер сміливець",
   "робомозок", "робооко", "бум-око", "кіберпес",
 ];
-
-/** The compendium folder whose enemies are robots */
-export const ROBOT_FOLDER = "Роботи";
 
 const norm = (s) => String(s ?? "").toLowerCase().replace(/[’`]/g, "'");
 
