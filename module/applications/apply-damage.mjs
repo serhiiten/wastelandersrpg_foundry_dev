@@ -74,7 +74,8 @@ export async function applyHeal(tokenUuids, amount, { head = "", defer = 0 } = {
         : esc("Наприкінці сцени — 1d6 шкоди, ігноруючи броню: кидає Доглядач.");
     }
     const row = { name, delta: hp - hp0, gain: true, hp0, hp, max, note };
-    lines.push({ full: targetRow({ ...row, showHp: true }), short: targetRow({ ...row, showHp: hpOpen(actor) }) });
+    // a hidden token's row only on the GM's card (author, 2026-11-20)
+    lines.push({ full: targetRow({ ...row, showHp: true }), short: tok?.hidden ? "" : targetRow({ ...row, showHp: hpOpen(actor) }) });
   }
   const card = (ls, gmNote = "") => applyCard({ heal: true, icon: "fa-kit-medical", title: `Лікування${head ? `: ${esc(head)}` : ""}`, chips: gmNote, rows: ls });
   await postSplit("Лікування", lines, card);
@@ -117,7 +118,8 @@ export async function postSplit(alias, lines, card) {
   if (!lines.length) return;
   const full = lines.map((l) => l.full), short = lines.map((l) => l.short);
   if (!isPublicMode()) return postChat({ speaker: { alias }, content: card(full, "", true) });
-  await postChat({ speaker: { alias }, content: card(short) });
+  // rows with no short line are the GM's only (a hidden token's — author, 2026-11-20): no public card when none is left
+  if (short.some(Boolean) || !full.some(Boolean)) await postChat({ speaker: { alias }, content: card(short) });
   // nothing more to tell the GM when the short card already says it all
   if (full.join("") === short.join("")) return;
   const CM = ChatMessage.implementation;
@@ -154,7 +156,7 @@ function triggerMoves(actor, when) {
 export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, head = "", source = "", noLastHit = false, collect = null } = {}) {
   const lines = [];
   const src = source ? await targetOf(source) : null;
-  const killed = [], wounded = [];
+  const killed = [], wounded = [], woundedHid = [];
   const type = battleType(data.type);
   const rollD6 = () => rollDie(6); // the electricity bonus; not Roll#evaluateSync, which Foundry 14 refuses for dice (helpers/dice.mjs)
   for (const uuid of tokenUuids) {
@@ -198,12 +200,12 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     const gm = [];
     if (fell && actor.type === "enemy") for (const n of triggerMoves(actor, "down")) gm.push(`Має хід «${esc(n)}»: «Використати» на картці ворога.`);
     if (fell && tok) killed.push(tok.uuid);
-    if (r.damage >= 1 && Array.isArray(data.onHit) && data.onHit.length) wounded.push(uuid);
+    if (r.damage >= 1 && Array.isArray(data.onHit) && data.onHit.length) (tok?.hidden ? woundedHid : wounded).push(uuid);
     if (aimed) steps.push("+2 на прицілі");
     if (fav) steps.push(`+${fav} «Улюблений ворог»`);
     const gmNote = gm.join(" ");
     // the short row (everyone): no steps (armour, defences); HP only where everyone sees them
-    lines.push({ full: targetRow({ ...row, note: [note, gmNote].filter(Boolean).join(" "), showHp: true, steps }), short: targetRow({ ...row, showHp: hpOpen(actor) }) });
+    lines.push({ full: targetRow({ ...row, note: [note, gmNote].filter(Boolean).join(" "), showHp: true, steps }), short: tok?.hidden ? "" : targetRow({ ...row, showHp: hpOpen(actor) }) });
   }
   // «Розпад» (author, 2026-11-20): the attacker brought a target down — its move works on the zone of that target now
   if (killed.length && src?.actor?.type === "enemy" && triggerMoves(src.actor, "kill").length) {
@@ -212,10 +214,14 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     lines.push({ full: `<div class="pust-da-note">${esc(`${src.tok?.name || src.actor.name} має хід «${n}»: «Використати» на його картці.`)}</div>`, short: "" });
   }
   // «Підпал» / «Кровотеча» of the attack's note: the ones it dealt at least 1 damage after armour (author, 2026-11-20)
-  if (wounded.length) {
+  // a hidden one's state line only on the GM's card (author, 2026-11-20)
+  if (wounded.length || woundedHid.length) {
     const { putStates } = await import("./states.mjs");
-    const said = await putStates(wounded, data.onHit, { by: source, byName: src?.tok?.name || src?.actor?.name || "" });
-    for (const l of said) { const h = `<div class="pust-da-note">${esc(l)}</div>`; lines.push({ full: h, short: h }); }
+    const by = { by: source, byName: src?.tok?.name || src?.actor?.name || "" };
+    for (const [list, open] of [[wounded, true], [woundedHid, false]]) {
+      if (!list.length) continue;
+      for (const l of await putStates(list, data.onHit, by)) { const h = `<div class="pust-da-note">${esc(l)}</div>`; lines.push({ full: h, short: open ? h : "" }); }
+    }
   }
   if (collect) { collect.push(...lines); return lines.length; }
   // the full card's header also says what the dice gave, before armour and defences (author, 2026-11-15)
