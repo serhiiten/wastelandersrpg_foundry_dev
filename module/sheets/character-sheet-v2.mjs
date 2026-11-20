@@ -18,7 +18,7 @@ import { useOnTarget } from "../applications/chem-target.mjs";
 import { applyPerkUse } from "../applications/perk-card.mjs";
 import { perkSection } from "../rules/perk-uses.mjs";
 import { openCheckPanel, rollWeaponDamage } from "../applications/check-panel.mjs";
-import { EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
+import { EXTRA_TYPES, catalogEnergy, weaponDmgType } from "../rules/damage-types.mjs";
 import { fateNow, fateSnap, postFateChange, postFateIfChanged, postSupIfChanged, supSnap } from "../applications/fate-card.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { stateArmor } from "../rules/states.mjs";
@@ -391,6 +391,10 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         if (EXTRA_TYPES.includes(v)) {
           if (w.en) C.setField(`weapons.${i}.en`, "");
           st.weapons[i].dt = v;
+        } else if (catalogEnergy(w)) {
+          // a catalogue weapon with its own energy type (F9, author 2026-11-20): «Тип» changes only the type, not the weapon —
+          // no energy version on top (its price, a cryo weapon's damage one step down), the item's `damageType` kept
+          st.weapons[i].dt = v || "phys";
         } else {
           if ((w.en || "") !== v) C.setField(`weapons.${i}.en`, v);
           delete st.weapons[i].dt;

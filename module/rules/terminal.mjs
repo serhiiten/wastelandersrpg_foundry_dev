@@ -1580,7 +1580,8 @@ window.__cs = { get: () => CS, set: (v) => { CS = v; if (v) currentDifficulty = 
             window.PustBattle.exportTravel(spec, t);
         });
 
-window.TravelGen = { generateEvent, kindsRoll: tvKindsRoll, randomText: tvRandomText };
+// specials: «Особлива зустріч» rerolled in Foundry (F5 of Fable's analysis, author 2026-11-20: module/rules/travel-special.mjs)
+window.TravelGen = { generateEvent, kindsRoll: tvKindsRoll, randomText: tvRandomText, specials: () => specialEncounters };
   })();
 
   // ===== 5. Битви (battle) =====
@@ -2456,6 +2457,7 @@ function refreshTextExport(){
       },
       kindsRoll: (prev) => window.TravelGen.kindsRoll(prev),
       randomText: (ks) => window.TravelGen.randomText(ks),
+      specials: () => window.TravelGen.specials(),
     },
     tables: {
       name(cat, n = 1) { byId("namesCat").value = cat; byId("namesCount").value = String(n); window.TablesGen.generateName(); return out("namesOut"); },

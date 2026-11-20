@@ -253,5 +253,35 @@ eq(dmg(P(), { total: 6, type: "psychic", parts: [{ total: 4, type: "psychic" }, 
   eq(dmg(P({ armor: 3, poison: "immune" }), acid), 7, "acid isn't poison: a robot takes it");
 }
 
+/* ---------- F1, F2 of Fable's analysis (author, 2026-11-20): electricity's +1d6 once; «Електромагнітна граната» ---------- */
+{
+  const robot = P({ armor: 0, electricVuln: true, nonliving: true });
+  const living = P({ armor: 0 });
+  const cyborg = P({ armor: 0, electricVuln: true, nonliving: false });
+  eq(dmg(robot, { total: 7, type: "electric" }), 10, "F1: an electric hit adds +1d6 to a robot once (7 + 3)");
+  eq(dmg(living, { total: 7, type: "electric" }), 7, "F1: no +1d6 for the living");
+  const emp = { total: 14, type: "electric", empOnly: true };
+  let r = B.resolveHit(living, 50, 50, emp, { rollD6: d6(3) });
+  eq([r.hp, r.damage], [50, 0], "F2: EMP leaves the living untouched");
+  ok(r.steps.some((s) => /лише роботам/.test(s)), "F2: the card says why");
+  eq(dmg(robot, emp), 14, "F2: EMP on a robot: 4d6 as rolled, no +1d6 on top");
+  eq(dmg(cyborg, emp), 14, "F2: EMP hits a cyborg too (author: «Кіборга теж б'є»)");
+  eq(dmg(P({ armor: 0, nonliving: true }), emp), 14, "F2: EMP hits the non-living without the electricity flag (a machine)");
+  eq(dmg(P({ armor: 2, electricVuln: true, nonliving: true }), emp), 12, "F2: armour still counts");
+  // the real profiles: a robot character, a cyborg, a human; an enemy robot; «Тачка» and brahmins
+  const stOf = (sp, feats = []) => { Rc.setRandom(Rc.mulberry32(7)); const st = Rc.rollCharacter(null); st.species = sp; st.feats = feats; return st; };
+  const human = characterProfileFromState(stOf("human"));
+  const robo = characterProfileFromState(stOf("robot"));
+  const cyb = characterProfileFromState(stOf("robot", ["Кіборг"]));
+  eq(B.resolveHit(human, 50, 50, emp).damage, 0, "F2: a human character takes no EMP damage");
+  ok(B.resolveHit(robo, 50, 50, emp).damage > 0, "F2: a robot character takes EMP damage");
+  ok(B.resolveHit(cyb, 50, 50, emp).damage > 0, "F2: a cyborg character takes EMP damage");
+  const { caravanProfile } = await import("../module/rules/target-profile.mjs");
+  ok(B.resolveHit(caravanProfile({ vehicle: "tachka", armor: 0 }), 50, 50, emp).damage > 0, "F2: EMP hits «Тачка»");
+  eq(B.resolveHit(caravanProfile({ vehicle: "brahmin", armor: 0 }), 50, 50, emp).damage, 0, "F2: EMP leaves brahmins alone");
+  const e = (rec) => enemyProfile(toSystem(B.enemyFromRecord(rec)));
+  eq(dmg(e({ name: "Робот-вартовий", hp: 30, armor: "0", dmg: "лазер 1d10", notes: "Отримує +1d6 шкоди від електрики." }), emp), 14, "F2: an enemy robot: no +1d6 on top");
+}
+
 if (failures) { console.log(`FAILS: ${failures} of ${checks}`); process.exit(1); }
 console.log(`apply-hit: OK (${checks} checks)`);

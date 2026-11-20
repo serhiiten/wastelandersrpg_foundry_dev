@@ -81,5 +81,6 @@ export function caravanProfile(sys = {}) {
   const lead = (int(sys.imp?.lead ?? sys.rules?.S?.imp?.lead) || 0) > 0;
   const def = caravanDefences(caravanDefAuto({ tachka: sys.vehicle === "tachka", lead }), sys.defOv);
   // psychic armour set in «Надбавки» (author, 2026-11-15)
-  return { armor: Math.max(0, int(sys.armor)), psyArmor: Math.max(0, int(sys.psiArmor)), ...Object.fromEntries(RES.map((k) => [k, def[k] || "normal"])) };
+  // «Тачка» is a machine, the brahmins are alive: «Електромагнітна граната» takes only the first (author, 2026-11-20)
+  return { armor: Math.max(0, int(sys.armor)), psyArmor: Math.max(0, int(sys.psiArmor)), ...Object.fromEntries(RES.map((k) => [k, def[k] || "normal"])), nonliving: sys.vehicle === "tachka" };
 }

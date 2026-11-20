@@ -60,6 +60,13 @@ const catalogType = (name) => {
   return CATALOG_TYPES[n] || null;
 };
 
+/**
+ * A catalogue weapon whose own type is an energy one (a compendium's `damageType` → the row's `dt`, no energy version `en`):
+ * «Імпульсний пістолет YK32» electric, «Кріорушниця» cryo. Its «Тип» shows and changes `dt` (F9, author 2026-11-20).
+ */
+export const ENERGY_TYPES = ["laser", "electric", "plasma", "cryo", "gauss"];
+export const catalogEnergy = (w) => !!w && !w.en && ENERGY_TYPES.includes(w.dt);
+
 /** Types a weapon row can be set to in «Тип» besides the energy versions (they change only the colour, not the rules) */
 export const EXTRA_TYPES = ["fire", "psi", "poison", "rad"];
 
@@ -86,6 +93,18 @@ export function weaponDmgType(c) {
   for (const [type, re] of WORDS) if (re.test(text)) return type;
   return "phys";
 }
+
+/**
+ * «Електромагнітна граната» (author, 2026-11-20; the wiki: «Завдає шкоди лише роботам та електроніці»): by its name, so a note
+ * cleared by hand doesn't change it, or by the words of its note. Takes strings: a weapon's name and note, an attack's.
+ */
+export function empOnly(...texts) {
+  const t = lower(texts.filter(Boolean).join(" "));
+  return /електромагнітн[а-яіїєґ']*\s+гранат/.test(t) || /лише\s+роботам/.test(t);
+}
+/** The same for a damage choice of the HTML sheet ({w} — a weapon, {o} — a grenade from «Інший мотлох») */
+export const EMP_EFFECT = "Завдає шкоди лише роботам та електроніці. Додатковий 1d6 шкоди вже враховано.";
+export const choiceEmpOnly = (c) => !!c && empOnly(c.w?.n, c.w?.note, c.o?.n, c.o?.note, c.name);
 
 /** The type of one part of the damage total (dmgTotal's parts): the robot bonus is electric, the rest is the weapon's */
 export function partType(label, weaponType) {
@@ -136,6 +155,8 @@ export function damageEffects(traits, c, types) {
     if (["laser", "plasma", "gauss"].includes(t) && t === weaponDmgType(c) && fx.some((x) => /ігнору/i.test(x))) continue;
     if (t === "psi" && fx.some((x) => /Психічна шкода/.test(x))) continue;
     if (t === "cryo" && fx.some((x) => /^Кріо/.test(x))) continue;
+    // «Електромагнітна граната» (F2, author 2026-11-20): not «+1d6 роботам», but its own property, as the catalogue words it
+    if (t === "electric" && choiceEmpOnly(c)) { fx.push(EMP_EFFECT); continue; }
     fx.push(line);
   }
   return fx;

@@ -1,7 +1,7 @@
 // Damage types of «Зробити перевірку» (Foundry only, author 2026-11-14): the type of a weapon, a grenade or a psi power,
 // the type of each part of the total, and the sides of each rolled die.
 // Run: node tests/damage-types.test.mjs
-import { damageEffects, dieSides, dieTypes, isDamageEffect, labelType, partType, splitDiceParts, termTypes, typeChips, weaponDmgType } from "../module/rules/damage-types.mjs";
+import { catalogEnergy, choiceEmpOnly, empOnly, damageEffects, dieSides, dieTypes, isDamageEffect, labelType, partType, splitDiceParts, termTypes, typeChips, weaponDmgType } from "../module/rules/damage-types.mjs";
 
 let failures = 0;
 const eq = (got, want, msg) => { if (JSON.stringify(got) !== JSON.stringify(want)) { failures++; console.log(`FAIL ${msg}: ${JSON.stringify(got)} ≠ ${JSON.stringify(want)}`); } };
@@ -9,6 +9,18 @@ const W = (n, extra = {}) => ({ w: { n, note: "", ...extra } });
 const O = (n, note = "") => ({ o: { n, note }, expl: true });
 
 eq(weaponDmgType(W("10мм пістолет")), "phys", "plain gun");
+// F2, F9 of Fable's analysis (author, 2026-11-20)
+eq(empOnly("Електромагнітна граната", ""), true, "EMP by its name");
+eq(empOnly("Саморобний ЕМІ", "Завдає шкоди лише роботам та електроніці"), true, "EMP by its note");
+eq(empOnly("Армійська граната", "уся зона"), false, "an ordinary grenade");
+eq(choiceEmpOnly(O("Електромагнітна граната", "4d6 лише роботам та електроніці")), true, "a grenade of «Інший мотлох»");
+eq(choiceEmpOnly(W("Імпульсний пістолет YK32 (легкий)", { dt: "electric" })), false, "an electric gun hurts the living too");
+eq(catalogEnergy({ n: "Імпульсний пістолет YK32", dt: "electric" }), true, "a catalogue electric weapon");
+eq(catalogEnergy({ n: "Кріорушниця", dt: "cryo" }), true, "a catalogue cryo weapon");
+eq(catalogEnergy({ n: "Шокова дубинка", en: "electric" }), false, "an energy version is not a catalogue type");
+eq(catalogEnergy({ n: "Вогнемет", dt: "fire" }), false, "fire is not an energy type");
+eq(damageEffects([], W("Електромагнітна граната", { dt: "electric" }), ["electric"]), ["Завдає шкоди лише роботам та електроніці. Додатковий 1d6 шкоди вже враховано."], "EMP: its own line, not «+1d6 роботам»");
+eq(damageEffects([], W("Імпульсний пістолет", { dt: "electric" }), ["electric"]), ["Електрика: +1d6 шкоди роботам та електроніці."], "an electric gun keeps «+1d6 роботам»");
 eq(weaponDmgType(W("Лазерний пістолет", { en: "laser" })), "laser", "energy: laser");
 eq(weaponDmgType(W("Мисливська гвинтівка", { en: "plasma" })), "plasma", "energy set in Тип wins over the name");
 eq(weaponDmgType(W("Гаус-гвинтівка", { en: "gauss" })), "gauss", "gauss");

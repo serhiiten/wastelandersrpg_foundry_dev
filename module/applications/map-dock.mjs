@@ -25,7 +25,8 @@ import { postChat } from "./chat.mjs";
 import { postTerminalRoll, toggleDockCheck, placeDockCheck, dockCheckOpen } from "./check-panel.mjs";
 import { battleFromTravel, startTravelBattle } from "./terminal.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
-import { LUCKS, prettyTravel, travelChat } from "./terminal-view.mjs";
+import { LUCKS, prettyTravel, specialRerollHtml, travelChat } from "./terminal-view.mjs";
+import { rerollSpecial, specialLeft } from "../rules/travel-special.mjs";
 import { battleSectionHtml, mountBattlePanel, redrawBattlePanel, travelDamage } from "./battle-panel.mjs";
 import { isBattleScene } from "../helpers/default-scene.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
@@ -306,6 +307,9 @@ function redrawTravel() {
   if (tv.open) {
     box.innerHTML = travelHtml();
     travelBattleButtons(box);
+    // «Особлива зустріч»: «Перекинути» (F5, author 2026-11-20)
+    T ??= createTerminal({ toast: (m) => notify.info(m) });
+    box.querySelectorAll(".pust-md-tvout .special-encounter").forEach((sec) => sec.insertAdjacentHTML("beforeend", specialRerollHtml(specialLeft(tv.main, T.travel.specials()), 'data-tv="special"')));
     // a hazard's damage die says where it goes (author, 2026-11-16)
     box.querySelectorAll(".pust-md-tvout button.die[data-dice]").forEach((b) => { if (travelDamage(b)) { b.title = "Перенести в «Шкода й лікування» панелі"; b.classList.add("pust-die-dmg"); } });
   }
@@ -376,6 +380,7 @@ async function onTravel(ev) {
     travelToScene(tv.main, tv.additional); // its place and hazard into «Сцена» / «Битва» (author, 2026-11-16)
   }
   if (k === "kinds") travelKinds(+b.dataset.i);
+  if (k === "special") { T ??= createTerminal({ toast: (m) => notify.info(m) }); tv.main = rerollSpecial(tv.main, T.travel.specials()) ?? tv.main; }
   if (k === "battle") return battleFromTravel({ type: tv.type, luck: tv.luck, main: tv.main, additional: tv.additional }, +b.dataset.i);
   if (k === "fight") { tv.open = false; redrawTravel(); return startTravelBattle({ type: tv.type, luck: tv.luck, main: tv.main, additional: tv.additional }, +b.dataset.i); }
   if (k === "chat") {

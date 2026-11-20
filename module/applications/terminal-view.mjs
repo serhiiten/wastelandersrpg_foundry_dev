@@ -108,6 +108,15 @@ function travelView(st) {
   };
 }
 
+/**
+ * «Перекинути» under «Особлива зустріч» (F5 of Fable's analysis, author 2026-11-20): another encounter, not one this result has
+ * shown (module/rules/travel-special.mjs); off once all of them were. `attr` is the window's own way to call it.
+ */
+export function specialRerollHtml(left, attr) {
+  const tip = left ? "Інша особлива зустріч, якої ще не було в цьому результаті" : "Усі особливі зустрічі вже були в цьому результаті";
+  return `<div class="pust-tvb-actions"><button type="button" ${attr} title="${tip}"${left ? "" : " disabled"}><i class="fa-solid fa-rotate"></i> Перекинути</button></div>`;
+}
+
 /** The travel event as chat HTML: the generator's own HTML without the window's buttons */
 export function travelChat(st) {
   const t = st.travel;

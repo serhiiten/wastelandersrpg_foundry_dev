@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 111;
+export const HELP_VERSION = 112;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -39,7 +39,7 @@ export const TOURS = [
     steps: [
       S("scene", "Сцена «Мапа Пустки»: спільна мапа, по якій їде караван; клітинки, лінійка Foundry. Панелі ліворуч тягнуться за заголовок, клік — згорнути, подвійний клік — на місце.", { prepare: ["closeAll", "scene:map"] }),
       S("places", "Поселення / Небезпека / Точка інтересу: клік — і клік по мапі ставить місце з випадковою назвою й аспектами; картка місця, «Видиме / Приховане» (гравці бачать лише видимі), «Закріплене», «В чат», «В журнал».", { selector: `${DOCK} [data-mapdock="town"]`, prepare: ["closeAll", "unfold:map"], tooltipDirection: "RIGHT",  }),
-      S("placecard", "Картка місця: назва з кубиком, тип поселення, експеримент сховища, аспекти (поле + Enter або кубик) з безкоштовними Посиленнями, примітка; гравці читають, поки місце видиме.", { selector: ".pust-place-sheet", prepare: ["closeAll", "sheet:place"], tooltipDirection: "RIGHT" }),
+      S("placecard", "Картка місця: назва з кісткою, тип поселення, експеримент сховища, аспекти (поле + Enter або кістка) з безкоштовними Посиленнями, примітка; гравці читають, поки місце видиме.", { selector: ".pust-place-sheet", prepare: ["closeAll", "sheet:place"], tooltipDirection: "RIGHT" }),
       S("note", "«Примітка»: стікер на мапі, подвійний клік — писати, кольори, приховати від гравців, згорнути.", { selector: `${DOCK} [data-mapdock="note"]`, tooltipDirection: "RIGHT",  }),
       S("notedemo", "Стікер-приклад з відкритим редактором: заголовок і текст пишуть на стікері, зберігається під час набору; панель: 5 кольорів, «Сховати від гравців», «Згорнути до позначки», «Закріпити», «Видалити» (двічі); подвійний клік відкриває редактор, тягнуть за смужку заголовка.", { selector: ".pust-mn-edit", prepare: "noteDemo", tooltipDirection: "DOWN" }),
       S("factions", "«Шари:» «Фракції» — «Положення сторін» поверх мапи для всіх (території, спірні землі, Сяюче море, токени фракцій, легенда); «Шляхи» — торгові шляхи; ще клік — шар зникає.", { selector: `${DOCK} [data-mapdock="layer"][data-layer="factions"]`, tooltipDirection: "RIGHT",  }),
@@ -58,7 +58,7 @@ export const TOURS = [
     id: "gm-terminal", gm: true, next: ["gm-battle"], title: "Термінал Доглядача", description: "",
     steps: [
       S("open", "Термінал: вікно генераторів, результат лишається у вікні, «В чат» — показати гравцям, «В журнал» — зберегти для підготовки.", { selector: ".wastelanders-terminal-open", prepare: "closeAll", tooltipDirection: "DOWN",  }),
-      S("case", "«Справа»: складність → «Згенерувати справу»; кожен блок можна перекинути кубиком праворуч.", { selector: `${TERM} [data-action="caseGen"]`, prepare: "terminal:case", tooltipDirection: "LEFT",  }),
+      S("case", "«Справа»: складність → «Згенерувати справу»; кожен блок можна перекинути кісткою праворуч.", { selector: `${TERM} [data-action="caseGen"]`, prepare: "terminal:case", tooltipDirection: "LEFT",  }),
       S("journal", "«В журнал»: справа (або битва) стає журналом у теці «Термінал Доглядача», кістки в ньому кидаються кліком.", { prepare: ["terminal:case", "termGen:case"], selector: `${TERM} [data-action="toJournal"][data-what="case"]`, tooltipDirection: "LEFT",  }),
       S("travel", "«Подорож»: тип (подорож чи погана зустріч), удача партії, «Згенерувати подію».", { selector: `${TERM} [data-action="travelGen"]`, prepare: "terminal:travel", tooltipDirection: "LEFT",  }),
       S("tables", "«Натхнення»: імена, нагороди, вантажі, місця, небезпеки — кожна таблиця «Згенерувати» і «В чат».", { selector: `${TERM} [data-action="tableGen"]`, prepare: "terminal:tables", tooltipDirection: "LEFT",  }),
@@ -85,7 +85,7 @@ export const TOURS = [
   {
     id: "gm-enemy", gm: true, next: ["gm-char"], title: "Картка ворога", description: "",
     steps: [
-      S("en-head", "Картка ворога: шапка — портрет, ім'я (кубик кидає ім'я), категорія; ті самі позначки на токені.", { selector: `${EN} .pust-en-hd`, prepare: ["closeAll", "sheet:enemy"], tooltipDirection: "RIGHT",  }),
+      S("en-head", "Картка ворога: шапка — портрет, ім'я (кістка кидає ім'я), категорія; ті самі позначки на токені.", { selector: `${EN} .pust-en-hd`, prepare: ["closeAll", "sheet:enemy"], tooltipDirection: "RIGHT",  }),
       S("en-reveal", "Перемикач «Видимий / Прихований»: картка для гравців і токени разом; Hide токена перемикає картку.", { selector: `${EN} [data-action=\"revealToggle\"]`, tooltipDirection: "DOWN",  }),
       S("en-chat", "«В чат»: уся картка ворога в чат — ОЗ і стан, броня, лише відмінні від звичайних захисти, атаки, аспекти, ходи, примітки; гравці дізнаються про ворога в грі.", { selector: `${EN} [data-action="toChat"]`, tooltipDirection: "DOWN" }),
       S("en-edit", "«Редагувати»: ОЗ, броня, атаки, ходи, захисти; заготовки; «Як у книзі».", { selector: `${EN} [data-action=\"editToggle\"]`, tooltipDirection: "DOWN",  }),

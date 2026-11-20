@@ -1279,7 +1279,7 @@ function collectIssues(st, d){
   if(!st.arch) out.push(['info','Архетип не обрано — він необов\'язковий, але допомагає з кидками.']);
   if(st.arch==='Псионік' && st.species!=='human') out.push(['bad','Псионіком може бути лише людина.']);
   if(st.arch==='Псионік' && !d.has('Псионік')) out.push(['bad','Архетип «Псионік» потребує особливості «Псионік».']);
-  { const bad=[['концепція',st.concept],['проблема',st.problem],['ціль',st.goal]].filter(x=>x[1] && !aspFits(String(x[1]).trim(), st.species, st.gender)); if(bad.length) out.push(['warn','Аспект не пасує до виду'+(bad.some(x=>ASP_GENDER[String(x[1]).trim()])?' чи статі':'')+' персонажа: '+bad.map(x=>x[0]+' «'+String(x[1]).trim()+'»').join(', ')+'. Зміни його або кинь кубик ще раз.']); }
+  { const bad=[['концепція',st.concept],['проблема',st.problem],['ціль',st.goal]].filter(x=>x[1] && !aspFits(String(x[1]).trim(), st.species, st.gender)); if(bad.length) out.push(['warn','Аспект не пасує до виду'+(bad.some(x=>ASP_GENDER[String(x[1]).trim()])?' чи статі':'')+' персонажа: '+bad.map(x=>x[0]+' «'+String(x[1]).trim()+'»').join(', ')+'. Зміни його або кинь кістку ще раз.']); }
   if(st.species==='claw' && !st.set.claws) out.push(['warn','Розумні Пазурі Смерті вимкнені в налаштуваннях групи.']);
   if(d.left>0) out.push(['warn','Не розподілено пунктів атрибутів: '+d.left+'.']);
   if(d.left<0) out.push(['bad','Перевитрачено пунктів атрибутів: '+(-d.left)+'.']);

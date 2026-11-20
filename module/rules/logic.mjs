@@ -787,8 +787,8 @@ function renderRoller(){
     const chosenBase=new Set(L.slots.filter(s=>s.src==='base').map(s=>s.i));
     const keptOrig=new Set(L.keep);
     const base=L.dice.map((v,i)=>dieChip(v,10, chosenBase.has(i)?'kept':(keptOrig.has(i)?'swapped':'drop'), chosenBase.has(i)?'Враховано':(keptOrig.has(i)?'Замінено':'Відкинуто'))).join('');
-    const sk = L.skill ? '<span class="dsep">навичка</span>'+dieChip(L.skill.v, L.skill.sides, L.skill.replaced?'kept skill':'drop skill', L.skill.replaced?'Замінила '+L.skill.oldV:'Не вища за менший кубик') : '';
-    const as = L.aspect ? '<span class="dsep">аспект</span>'+dieChip(L.aspect.v, 10, L.aspect.replaced?'kept aspect':'drop aspect', L.aspect.replaced?'Замінив '+L.aspect.oldV:'Не вищий за менший кубик') : '';
+    const sk = L.skill ? '<span class="dsep">навичка</span>'+dieChip(L.skill.v, L.skill.sides, L.skill.replaced?'kept skill':'drop skill', L.skill.replaced?'Замінила '+L.skill.oldV:'Не вища за меншу кістку') : '';
+    const as = L.aspect ? '<span class="dsep">аспект</span>'+dieChip(L.aspect.v, 10, L.aspect.replaced?'kept aspect':'drop aspect', L.aspect.replaced?'Замінив '+L.aspect.oldV:'Не вищий за меншу кістку') : '';
     const parts = L.slots.map(s=>s.v).join(' + ')+' '+(L.attrVal<0?'− '+(-L.attrVal):'+ '+L.attrVal)+' '+ASHORT[L.attr]+(L.mod?' '+(L.mod<0?'− '+(-L.mod):'+ '+L.mod)+' мод.':'')+(L.addFlat?' − '+(-L.addFlat)+' залежн.':'')+(L.autoFlat?' '+(L.autoFlat<0?'− ':'+ ')+Math.abs(L.autoFlat)+' авто':'');
     const notes=[];
     if(L.net>0) notes.push('Посилення: обрано два найбільші з '+L.dice.length+'d10.');
@@ -798,7 +798,7 @@ function renderRoller(){
     if(L.autoList&&L.autoList.length) notes.push('Автоматично: '+L.autoList.join('; ')+'.');
     if(L.poison) notes.push('Витрачено дозу: '+L.poison.n+' (+'+L.poison.dice+' шкоди отрутою, якщо влучиш).');
     if(L.addPen) notes.push('Три й більше залежностей без дози: Послаблення.');
-    if(L.skill) notes.push(L.skill.replaced ? 'Кістка навички ('+L.skill.v+') замінила менший кубик ('+L.skill.oldV+').' : 'Кістка навички ('+L.skill.v+') не вища за менший кубик ('+L.skill.oldV+') — нічого не змінює.');
+    if(L.skill) notes.push(L.skill.replaced ? 'Кістка навички ('+L.skill.v+') замінила меншу кістку ('+L.skill.oldV+').' : 'Кістка навички ('+L.skill.v+') не вища за меншу кістку ('+L.skill.oldV+') — нічого не змінює.');
     if(L.aspect) notes.push((L.aspect.replaced ? 'Виклик аспекту: '+L.aspect.v+' замінило '+L.aspect.oldV+'.' : 'Виклик аспекту: '+L.aspect.v+' не вище за '+L.aspect.oldV+' — нічого не змінює.')+(L.aspect.spent?' Витрачено жетон Долі.':'')+(L.aspect.mod?' Безкоштовне Посилення '+L.aspect.mod+'.':''));
     const amode = L.type==='attack' ? attackMode(L.skillName, L.attr) : null;
     const desc = amode==='explosive' ? EXPLOSIVE_D[L.verdict] : (CHECK_TYPES[L.type].d ? CHECK_TYPES[L.type].d[L.verdict] : '');
@@ -863,7 +863,7 @@ function renderRoller(){
       '<div class="seg" role="group" aria-label="Чия Удача"><button type="button" data-r="fmode" data-v="char" class="'+(R.fateMode==='char'?'on':'')+'">Персонаж: УДЧ '+sgn(d.eff.UDCH)+'</button><button type="button" data-r="fmode" data-v="party" class="'+(R.fateMode==='party'?'on':'')+'">Партія</button></div>'+
       (R.fateMode==='party'?'<div class="rparty"><label for="r-party">Удача партії</label><select id="r-party" data-r="party">'+[-2,-1,0,1,2].map(v=>'<option value="'+v+'"'+(+R.party===v?' selected':'')+'>'+sgn(v)+'</option>').join('')+'</select><details><summary>Як порахувати</summary><table><tr><th>Сума УДЧ партії</th><th>Удача партії</th></tr>'+PARTY_LUCK.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')+'</table></details></div>':'')+
       '<button type="button" class="btn" data-r="fate">'+icon('dice')+'Кинути Кістку Долі</button>'+fateRes+'</div>'+
-    '<div class="rpool"><h3>Просто кубики</h3><div class="rmods">'+[6,8,10].map(k=>'<div class="rstep"><span>d'+k+'</span><button type="button" data-r="pool" data-k="'+k+'" data-d="-1" '+(R.pool[k]<=0?'disabled':'')+' aria-label="Менше d'+k+'">'+icon('minus')+'</button><output>'+R.pool[k]+'</output><button type="button" data-r="pool" data-k="'+k+'" data-d="1" '+(R.pool[k]>=10?'disabled':'')+' aria-label="Більше d'+k+'">'+icon('plus')+'</button></div>').join('')+'</div>'+
+    '<div class="rpool"><h3>Просто кістки</h3><div class="rmods">'+[6,8,10].map(k=>'<div class="rstep"><span>d'+k+'</span><button type="button" data-r="pool" data-k="'+k+'" data-d="-1" '+(R.pool[k]<=0?'disabled':'')+' aria-label="Менше d'+k+'">'+icon('minus')+'</button><output>'+R.pool[k]+'</output><button type="button" data-r="pool" data-k="'+k+'" data-d="1" '+(R.pool[k]>=10?'disabled':'')+' aria-label="Більше d'+k+'">'+icon('plus')+'</button></div>').join('')+'</div>'+
       '<button type="button" class="btn" data-r="poolroll" '+(R.pool[6]+R.pool[8]+R.pool[10]?'':'disabled')+'>'+icon('dice')+'Кинути '+[6,8,10].filter(k=>R.pool[k]).map(k=>R.pool[k]+'d'+k).join(' + ')+'</button>'+
       (R.poolRes?'<div class="rpres" aria-live="polite"><div class="rdice">'+[6,8,10].map(k=>R.poolRes.out[k].map(v=>dieChip(v,k,'kept','')).join('')).join('')+'</div><div class="rpsum">'+[6,8,10].filter(k=>R.poolRes.out[k].length).map(k=>R.poolRes.out[k].length+'d'+k+': '+R.poolRes.out[k].reduce((a,b)=>a+b,0)).join(' · ')+'<b>Разом: '+R.poolRes.total+'</b></div></div>':'')+'</div>'+
     hist;
@@ -1119,14 +1119,13 @@ function renderDamage(L, d){
   const psiW = !!(c && c.w && c.w.auto==='psi');
   const bareW = !!(c && (c.key==='unarmed' || /беззбройн|кулак|рукопаш|голими руками|удар рукою/i.test(c.name||'')));
   if(!psiW && !bareW && !robotBody()) toggles.push(typeof chemHas==='function' && chemHas('Психо') ? '<label class="tog"><input type="checkbox" checked disabled> Психо діє (+2 шкоди) — вжито з мотлоху</label>' : tog('psycho','Психо діє (+2 шкоди)'));
-  if(c && isElectric(c)) toggles.push(tog('robot','Ціль — робот чи електроніка (+1d6)'));
   if(!psiW && has('Тиха смерть')) toggles.push(tog('silent','Тиха смерть: ціль не очікує атаки (максимум + 1d6)'));
   if(!psiW && has('Автоматний псих') && mode==='ranged' && !(gunsOn() && c && c.w && c.w.rof && c.w.rof!=='auto')) toggles.push(tog('auto','Автоматний псих: витратити 1 Припас, кинути двічі'));
   if(!psiW && has('З двох рук') && mode==='ranged') toggles.push(tog('dual','З двох рук: дві однакові зброї (категорія вища)'));
   const traits = c ? weaponTraits(c, mode, d) : [];
   const props = c ? weaponPropsHint(c) : '';
   const fav = c && c.w && c.w.fav ? '<p class="rnote"><b>Улюблена зброя:</b> +1 до перевірки атаки вже враховано автоматично.</p>' : '';
-  let out='<div class="rdmg"><h4>Шкода</h4>'+(F.fb?'<p class="rhint">'+esc(F.m==='explosive'?'У мотлосі немає гранат чи вибухівки з кубиками шкоди в примітці — показано всю зброю.':F.m==='melee'?'У мотлосі немає зброї ближнього бою — показано всю зброю.':'У мотлосі немає зброї для бою на відстані — показано всю зброю.')+'</p>':'')+'<div class="rdmgsel"><select id="r-dmgw" data-r="dmgw" aria-label="Зброя для кидка шкоди">'+ch.map(x=>'<option value="'+x.key+'"'+(x.key===R.dmgKey?' selected':'')+'>'+esc(x.name)+' · '+esc(x.d)+'</option>').join('')+'</select></div>'+
+  let out='<div class="rdmg"><h4>Шкода</h4>'+(F.fb?'<p class="rhint">'+esc(F.m==='explosive'?'У мотлосі немає гранат чи вибухівки з кістками шкоди в примітці — показано всю зброю.':F.m==='melee'?'У мотлосі немає зброї ближнього бою — показано всю зброю.':'У мотлосі немає зброї для бою на відстані — показано всю зброю.')+'</p>':'')+'<div class="rdmgsel"><select id="r-dmgw" data-r="dmgw" aria-label="Зброя для кидка шкоди">'+ch.map(x=>'<option value="'+x.key+'"'+(x.key===R.dmgKey?' selected':'')+'>'+esc(x.name)+' · '+esc(x.d)+'</option>').join('')+'</select></div>'+
     (traits.length?'<ul class="rtraits">'+traits.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+props+fav+
     '<div class="rdopts">'+toggles.join('')+'</div>';
   if(L.dmg && L.dmg.key===R.dmgKey){

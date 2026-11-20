@@ -15,8 +15,9 @@ import { postChat } from "./chat.mjs";
 import { postTerminalRoll } from "./check-panel.mjs";
 import { luckCaravan } from "./map-dice.mjs";
 import {
-  TABLE_CARDS, battleChat, battleJournal, blankTerminal, buildTerminalView, caseChat, caseJournal, runTable, tableChat, travelChat,
+  TABLE_CARDS, battleChat, battleJournal, blankTerminal, buildTerminalView, caseChat, caseJournal, runTable, specialRerollHtml, tableChat, travelChat,
 } from "./terminal-view.mjs";
+import { rerollSpecial, specialLeft } from "../rules/travel-special.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -151,6 +152,11 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
       travelGen: TerminalApp.#on((app) => { Object.assign(app.st.travel, app.T.travel.generate(app.st.travel.type, app.st.travel.luck)); travelToScene(app.st.travel.main, app.st.travel.additional); }),
       travelKinds: TerminalApp.#on((app, t) => app.#travelKinds(+t.dataset.i)),
       travelBattle: TerminalApp.#on((app, t) => app.#travelBattle(+t.dataset.i)),
+      travelSpecial: TerminalApp.#on((app) => {
+        const html = rerollSpecial(app.st.travel.main, app.T.travel.specials());
+        if (!html) return false;
+        app.st.travel.main = html;
+      }),
       travelFight: TerminalApp.#on((app, t) => { startTravelBattle(clone(app.st.travel), +t.dataset.i); return false; }),
       battleFight: TerminalApp.#on(() => { startBattle(); return false; }),
       caseBattle: TerminalApp.#on((app) => app.#caseBattle()),
@@ -417,6 +423,10 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
         + `<button type="button" class="pust-term-go pust-tvb-fight" data-action="travelFight" data-i="${i}" title="Перейти на бойову мапу, активувати її (гравці теж перейдуть) і розставити супротивників цієї битви по зонах"><i class="fa-solid fa-flag"></i> Почати бій</button>`
         + `<span class="pust-sub">${span.classList.contains("tvb-rnd") ? "Склад супротивників кинеться за правилами генератора битв." : "Кількість супротивників кинеться за описом битви."} Місце піде у вкладку «Битви».</span>`;
       sec.append(btns);
+    });
+    // «Особлива зустріч»: «Перекинути» (F5, author 2026-11-20)
+    root.querySelectorAll(".pust-travel .special-encounter").forEach((sec) => {
+      sec.insertAdjacentHTML("beforeend", specialRerollHtml(specialLeft(this.st.travel.main, this.T.travel.specials()), 'data-action="travelSpecial"'));
     });
     // selects and checkboxes of the tabs
     root.querySelectorAll("[data-k]").forEach((el) => el.addEventListener("change", () => {

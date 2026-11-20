@@ -312,6 +312,7 @@ export function normalizeTarget(t = {}) {
     halfPartial: flag("halfPartial", "partialHalf"),
     noKnockdown: flag("noKnockdown"), noStun: flag("noStun"), noDisarm: flag("noDisarm"),
     kamikaze: flag("kamikaze"), psycho: flag("psycho"), psyVuln: flag("psyVuln"),
+    nonliving: flag("nonliving"),
   };
 }
 
@@ -345,7 +346,7 @@ function computeDamageCore(p, base, typeKey, opts) {
   const type = DMG_TYPES[typeKey] || DMG_TYPES.phys;
   const steps = [];
   let dmg = base;
-  if (type.electric && p.electricVuln) {
+  if (type.electric && p.electricVuln && !opts.noElectric) {
     const r = opts.rollD6 ? opts.rollD6() : randIntWith(opts.rnd || Math.random)(1, 6);
     dmg += r; steps.push(`+1d6 електрика [${r}]`);
   }
@@ -436,6 +437,11 @@ const SPECIAL = new Set(["rad", "poison", "psychic"]);
 export function resolveHit(target, hp0, max, hit, opts = {}) {
   const p = normalizeTarget(target);
   const n0 = (v) => Math.max(0, Math.round(Number(v) || 0));
+  // «Електромагнітна граната» (author, 2026-11-20; the wiki: «лише роботам та електроніці»): only the non-living and those
+  // weak to electricity (robots, cyborgs, electronics) take it; its extra 1d6 is in the dice already, so no +1d6 on top
+  if (hit.empOnly && !p.nonliving && !p.electricVuln) {
+    return { hp: n0(hp0), damage: 0, heal: 0, steps: ["лише роботам та електроніці: живих не зачіпає"], out: false };
+  }
   const type = DMG_TYPES[hit.type] ? hit.type : "phys";
   // the parts: given, or the whole total in its type; a weapon's poison on top
   let parts = Array.isArray(hit.parts) && hit.parts.length
@@ -456,7 +462,7 @@ export function resolveHit(target, hp0, max, hit, opts = {}) {
   let damage = 0, heal = 0;
   const steps = [];
   for (const g of groups) {
-    const r = computeDamage(noKami, g.total, g.type, { ignoreArmor: !!hit.ignoreArmor, ignoreN: n0(hit.ignoreN), partial: !!opts.partial, dodge: !!opts.dodge, dice: g.dice, rollD6: opts.rollD6, rnd: opts.rnd });
+    const r = computeDamage(noKami, g.total, g.type, { ignoreArmor: !!hit.ignoreArmor, ignoreN: n0(hit.ignoreN), partial: !!opts.partial, dodge: !!opts.dodge, dice: g.dice, rollD6: opts.rollD6, rnd: opts.rnd, noElectric: !!hit.empOnly });
     const h = n0(r.heal), f = n0(r.final);
     heal += h;
     if (!r.heal) damage += f;

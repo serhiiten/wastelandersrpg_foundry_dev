@@ -76,6 +76,21 @@ for (let i = 0; i < 200; i++) {
   else console.log("free perk rows: OK");
 }
 
+// F9 of Fable's analysis (author, 2026-11-20): «Тип» of a catalogue weapon shows its own type, not «звичайна»
+{
+  R.setRandom(R.mulberry32(5));
+  const st = R.rollCharacter(null);
+  st.weapons = [
+    { n: "Імпульсний пістолет YK32 (легкий)", d: "1d10", dt: "electric" },
+    { n: "Кріорушниця (середня)", d: "1d6", dt: "cryo" },
+    { n: "Шокова дубинка", d: "1d6", en: "electric" },
+    { n: "10мм пістолет", d: "3d6" },
+  ];
+  const v = buildView(st, R.compute(st), createLogic({ st }), {});
+  const sel = v.weapons.map((w) => (w.energyOptions.find((o) => o.sel) || {}).v);
+  if (JSON.stringify(sel) !== JSON.stringify(["electric", "cryo", "electric", ""])) { errors++; console.log("FAIL F9: «Тип» shows", JSON.stringify(sel)); }
+  if (v.weapons[1].dEff) { errors++; console.log("FAIL F9: a catalogue cryo weapon's damage is cut a step:", v.weapons[1].dEff); }
+}
 R.setRandom(null);
 console.log(`views ${views}, errors ${errors}`);
 console.log(errors ? "FAIL" : "OK");

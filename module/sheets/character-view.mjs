@@ -14,7 +14,7 @@ import { recipeTotals } from "../rules/designer.mjs";
 import { HP_PER_CAP, SUP_PER_CAP, buyButton, consPlan } from "../rules/char-services.mjs";
 import { isPowerCell, usesPowerCells } from "../rules/power-cell.mjs";
 import { catalogDescription } from "../applications/catalog-descriptions.mjs";
-import { DMG_TYPES, EXTRA_TYPES, weaponDmgType } from "../rules/damage-types.mjs";
+import { DMG_TYPES, EXTRA_TYPES, catalogEnergy, weaponDmgType } from "../rules/damage-types.mjs";
 import { GRANT_FEATS, grantOptions, lastingCaps, startPicks } from "../rules/skill-sources.mjs";
 
 const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
@@ -296,7 +296,9 @@ export function buildView(st, d, L, ui = {}) {
   // shown: the type chosen, else the energy version, else a fire / psi / poison / radiation type found in the name or note
   const typeOptions = (w) => {
     const auto = weaponDmgType({ w });
-    const cur = EXTRA_TYPES.includes(w.dt) ? w.dt : w.en || (!w.dt && EXTRA_TYPES.includes(auto) ? auto : "");
+    // a catalogue weapon's own energy type (a compendium's `damageType`: «Імпульсний пістолет» electric, «Кріорушниця» cryo) is
+    // shown as chosen (F9 of Fable's analysis, author 2026-11-20), not as «звичайна»
+    const cur = EXTRA_TYPES.includes(w.dt) ? w.dt : w.en || (catalogEnergy(w) ? w.dt : !w.dt && EXTRA_TYPES.includes(auto) ? auto : "");
     return [...energyOptions(cur), ...EXTRA_TYPES.map((k) => ({ v: k, n: DMG_TYPES[k], sel: cur === k }))];
   };
   const opts = (map, cur) => Object.entries(map).map(([v, n]) => ({ v, n, sel: (cur || "") === v }));

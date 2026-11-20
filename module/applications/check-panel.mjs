@@ -11,7 +11,7 @@ import { ASHORT, compute } from "../rules/core.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { isPublicMode, postChat } from "./chat.mjs";
 import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-card.mjs";
-import { attackMode, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
+import { attackMode, choiceEmpOnly, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { sendDamage } from "./apply-damage.mjs";
 import { checkPenalty, spendCheckStates } from "./states.mjs";
@@ -288,7 +288,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // for those who take ½ on a partial success (the tracker's «Частковий успіх», set by the verdict itself)
     const partial = last.verdict === 1;
     this.#apply = {
-      data: damageData({ total: L.dmgTotal(last, compute(st)).total, wt, fx, poison: last.poison && last.poisonRoll ? last.poisonRoll : null }),
+      data: damageData({ total: L.dmgTotal(last, compute(st)).total, wt, fx, poison: last.poison && last.poisonRoll ? last.poisonRoll : null, emp: choiceEmpOnly(choice) }),
       partial, head: D.name,
     };
     const applyBtn = ""; // dealt by the roll itself (author, 2026-11-17): no «Завдати цілям» after it
@@ -775,11 +775,12 @@ class DockedCheckPanel extends CheckPanel {
  * What «Завдати цілям» needs (module/applications/apply-damage.mjs): the total, its type, armour ignored — for a
  * character's weapon read from its effect lines (not the damage type's own line: the type is counted by the rules already)
  */
-export function damageData({ total, wt, fx = [], poison = null }) {
+export function damageData({ total, wt, fx = [], poison = null, emp = false }) {
   const own = fx.filter((x) => !Object.values(TYPE_EFFECTS).includes(x));
   return {
     total: Math.max(0, Number(total) || 0), type: wt, ignoreArmor: own.some((x) => atkIgnores(x)), ignoreN: Math.max(0, ...own.map((x) => atkIgnoreN(x))),
     poison: poison?.sum ?? 0,
+    ...(emp ? { empOnly: true } : {}),
   };
 }
 

@@ -54,6 +54,14 @@ for (let i = 0; i < 300; i++) {
     fail(i, "roller", err);
   }
 }
+// F1, F8 of Fable's analysis (author, 2026-11-20): no «Ціль — робот чи електроніка (+1d6)» in Foundry (the hit adds it, once);
+// the wiki's «кістка», never «кубик»
+{
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../module/rules/logic.mjs", import.meta.url), "utf8");
+  if (/tog\('robot'/.test(src)) { errors++; console.log("FAIL F1: the robot toggle is back in logic.mjs"); }
+  if (/убик/.test(src)) { errors++; console.log("FAIL F8: «кубик» in logic.mjs"); }
+}
 R.setRandom(null);
 console.log(`characters 300, drug uses ${uses}, checks ${checks}, damage rolls ${damage}, errors ${errors}`);
 console.log(errors ? "FAIL" : "OK");

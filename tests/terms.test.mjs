@@ -109,6 +109,15 @@ for (const f of files) {
   for (const [re, instead] of FORBIDDEN) {
     for (const m of text.matchAll(word(re))) ok(false, `${where(rel, text, m.index)}: «${m[0]}» — write «${instead}»`);
   }
+  // «кубик» in what Foundry shows (author, 2026-11-20, F8 of Fable's analysis): the wiki says «кістка». Only the system's own
+  // files and not their comments: the HTML tools keep their word, and the code's notes may name the HTML sheet's «Просто кубики»
+  if (!rel.startsWith("..") && !rel.startsWith("tests/")) {
+    text.split("\n").forEach((line, i) => {
+      if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;
+      const code = line.replace(/\s\/\/\s.*$/, "");
+      for (const m of code.matchAll(word("[Кк]убик[а-яіїєґ]*"))) ok(false, `${rel}:${i + 1}: «${m[0]}» — write «кістка»`);
+    });
+  }
 }
 
 /* ---------- the states enemies' moves put on (author, 2026-11-20: the wiki's words he proofread, always masculine) ---------- */
