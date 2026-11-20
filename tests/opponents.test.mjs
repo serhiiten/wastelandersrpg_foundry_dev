@@ -74,5 +74,17 @@ if (page) {
   }
 } else console.log("(the wiki isn't next to the repo: the table isn't checked against it)");
 
+// «Не можна обеззброїти» (author, 2026-11-20): natural or built-in weapons — every enemy of «Звірі», «Мутанти», «Роботи», the
+// two feral ghouls, БТР and Вертиберд; nobody else (a weapon in hand can be knocked out). The flag and «Як у книзі»'s (orig)
+const all = [];
+const walkAll = (d, fac = "") => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) walkAll(p, fac || f.split("_")[0]); else if (f.endsWith(".json")) { const j = JSON.parse(readFileSync(p, "utf8")); if (j.type === "enemy") all.push({ fac, j }); } } };
+walkAll(packDir);
+const NO_DISARM_NAMES = new Set(["Дикий гуль", "Сяючий дикий гуль", "БТР Братства Сталі", "Вертиберд"]);
+for (const { fac, j } of all) {
+  const want = ["Звірі", "Мутанти", "Роботи"].includes(fac) || NO_DISARM_NAMES.has(j.name);
+  ok(!!j.system.flags?.noDisarm === want && !!j.system.orig?.flags?.noDisarm === want, `«${j.name}» (${fac}): «Не можна обеззброїти» ${want ? "set" : "not set"}`);
+}
+ok(all.filter(({ j }) => j.system.flags?.noDisarm).length === 45, "45 enemies can't be disarmed");
+
 if (failures) { console.log(`${failures} failure(s) of ${checks}`); process.exit(1); }
 console.log(`opponents OK (${checks} checks)`);
