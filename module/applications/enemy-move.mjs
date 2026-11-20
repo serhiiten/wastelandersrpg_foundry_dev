@@ -239,7 +239,7 @@ export async function useMove(actor, i, { token = null } = {}) {
           lines.push(e.zone ? "Нікого поруч у зоні: шкоду не завдано." : "Цілі не позначено: шкоду не завдано (кинь кістку з тексту ходу, позначивши цілі).");
           break;
         }
-        hits.push({ e, uuids });
+        hits.push({ e, uuids, zone: !targets.length });
         lines.push(`Шкода ${e.dice}: ${targets.length ? "цілям" : e.zone === "killFoes" ? "ворогам у зоні зваленої цілі" : e.zone === "foes" ? "ворогам у зоні" : "усім у зоні"} (${uuids.length}).`);
         break;
       }
@@ -265,8 +265,11 @@ export async function useMove(actor, i, { token = null } = {}) {
     content: moveCardHtml(name, mv, spec, lines, icon, cls),
     speaker: tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor }),
   });
-  for (const { e, uuids } of hits) {
+  for (const { e, uuids: all, zone } of hits) {
     const head = `${name}: ${mv.n}`;
+    // a zone hit takes only those still standing: the second part of a blast skips the ones the first brought down
+    const uuids = zone ? (await Promise.all(all.map((u) => fromUuid(u)))).filter((t) => t && alive(t)).map((t) => t.uuid) : all;
+    if (!uuids.length) continue;
     let data;
     if (e.kind === "attack") {
       const r = await rollEnemyAttack(actor, rageAttack(actor.system, e.weapon), { token: tok });
