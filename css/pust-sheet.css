@@ -1161,6 +1161,7 @@
 /* moves */
 .pust-en .pust-en-move { padding: 4px 0 6px; border-bottom: 1px dotted var(--pu-paper-3); }
 .pust-en .pust-en-move.used .pust-en-mvhd b { text-decoration: line-through; color: var(--pu-ink-3); }
+.pust-en .pust-en-move.used:not(.pust-pkuse) .pust-en-mvt { color: var(--pu-ink-3); }
 .pust-en .pust-en-mvhd { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .pust-en .pust-en-mvhd b { font-family: var(--pu-f-label); font-weight: 800; font-size: 14px; }
 .pust-en .pust-en-used { display: inline-flex; align-items: center; gap: 5px; margin: 0; font-size: 12.5px; }

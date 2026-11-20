@@ -176,10 +176,13 @@
         <p class="pust-pkuse-t">{{#if used}}<b class="pust-pkuse-usedtag">Використано</b> · {{back}}.{{#if ../editable}} <button type="button" class="pust-pkuse-free" data-action="freeMove" data-i="{{i}}" title="Зняти позначку «використано»: хід знову доступний, застосований ефект лишається"><i class="fa-solid fa-rotate-left"></i> Зняти позначку</button>{{/if}}{{else}}{{#if spent}}{{#if again}}Використано разів: {{spent}} · {{/if}}{{/if}}{{hint}}{{/if}}</p>
       </div>
       {{else}}
-      <div class="pust-en-move">
+      <div class="pust-en-move{{#if gone}} used{{/if}}">
         <div class="pust-en-mvhd"><b>{{n}}</b></div>
         <div class="pust-en-mvt">{{{tHtml}}}</div>
-        {{#if hint}}<small class="pust-en-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> {{hint}}</small>{{/if}}
+        {{#if gone}}
+        {{!-- a «лишається живим» move already spent this scene (author, 2026-11-20): the GM sees it will not save the enemy again --}}
+        <p class="pust-pkuse-t"><b class="pust-pkuse-usedtag">Витрачено</b> · {{back}}.{{#if ../editable}} <button type="button" class="pust-pkuse-free" data-action="freeMove" data-i="{{i}}" title="Зняти позначку «витрачено»: хід знову врятує ворога від 0 ОЗ"><i class="fa-solid fa-rotate-left"></i> Зняти позначку</button>{{/if}}</p>
+        {{else}}{{#if hint}}<small class="pust-en-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> {{hint}}</small>{{/if}}{{/if}}
       </div>
       {{/if}}
       {{/if}}

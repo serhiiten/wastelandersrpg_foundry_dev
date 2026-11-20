@@ -129,5 +129,15 @@ ok(V.enemyView({ ...sys, hp: { value: 0, max: 12 } }).state.label === "Вибу�
   ok(V.attackTip({ name: "Пси-удар", type: "psychic", note: "психічної шкоди, ігнорує фізичну броню" }) === "ігнорує фізичну броню", "psychic tip without its type words");
 }
 
+{
+  // a «лишається живим» move spent this scene is shown as such (author, 2026-11-20); a fresh one and a bonus move are not
+  const t = "раз за сцену, якщо отримана шкода мала б знизити ОЗ самиці до 0, вона натомість лишається живою з 10 ОЗ.";
+  const sys = { hp: { value: 10, max: 45 }, moves: [] };
+  const fresh = V.moveView({ n: "Неймовірна живучість", t }, 0, sys, { editable: true });
+  const spent = V.moveView({ n: "Неймовірна живучість", t, spent: 1, used: true }, 0, sys, { editable: true });
+  ok(!fresh.button && !fresh.gone, "a fresh survive move is a quiet line");
+  ok(!spent.button && spent.gone && /Кінця сцени/.test(spent.back), `a spent survive move is gone: ${JSON.stringify(spent)}`);
+}
+
 if (failures) { console.log(`${failures} failure(s)`); process.exit(1); }
 console.log("enemy-view: OK");

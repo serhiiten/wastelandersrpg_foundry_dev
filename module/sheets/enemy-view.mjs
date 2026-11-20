@@ -124,7 +124,8 @@ export function hpState(value, max) {
  * A move on the card (author, 2026-11-19; mockup А: like the compact sheet's perks): the limit chip («раз за сцену», «2 за
  * сцену» with pips, «без ліміту»), «Використати», under the text what the button does (move-spec.mjs); a used one greyed,
  * «Використано · повернеться після «Кінця сцени»» and «↺ Зняти позначку». A move that acts by itself or is never automated
- * is a quiet line without a button. `o.lastHit`: the enemy's last hit (undo works only while it is there).
+ * is a quiet line without a button; a «лишається живим» move that already saved the enemy this scene (`gone`) is struck
+ * through with «Витрачено» and «↺ Зняти позначку» (author, 2026-11-20). `o.lastHit`: the enemy's last hit (undo works only while it is there).
  */
 export function moveView(m, i, sys, o = {}) {
   const spec = moveSpec(m, sys, i);
@@ -138,6 +139,7 @@ export function moveView(m, i, sys, o = {}) {
     hint: spec.hint, lim: limitLabel(spec), cls: !spec.uses ? "free" : spec.per === "session" ? "session" : "scene",
     pips: spec.uses > 1 ? Array.from({ length: spec.uses }, (_, k) => ({ on: k < mk.left })) : null,
     used: mk.used, spent: mk.spent, again: spec.again, back, off,
+    gone: !spec.button && mk.used && spec.effects.some((e) => e.kind === "survive"),
     offWhy: mk.blocked ? `Уже використано: ${back}` : noHit ? "Нема що скасовувати: ворогові щойно не завдавали шкоди" : "",
   };
 }

@@ -51,6 +51,9 @@ const aspChips = (list) => list.map((a) => `<span class="pust-ov-asp"><span>${es
 function moveChip(m, i, s) {
   const spec = moveSpec(m, s, i);
   const mk = moveMarks(m, spec);
+  // a «лишається живим» move spent this scene (author, 2026-11-20): struck through, its click takes the mark off
+  if (!spec.button && mk.used && spec.effects.some((e) => e.kind === "survive"))
+    return `<button type="button" class="pust-ov-move used" data-ov="moveFree" data-i="${i}" data-pust-tip="${esc(`${m.t || m.n} Витрачено (${limitLabel(spec)}): удруге не врятує. Клік знімає позначку.`)}"><i class="fa-solid fa-rotate-left"></i>${esc(m.n)}</button>`;
   if (!spec.button) return `<span class="pust-ov-move quiet" data-pust-tip="${esc(`${m.t || m.n}${spec.hint ? ` ${spec.hint}.` : ""}`)}">${esc(m.n)}</span>`;
   const tip = mk.blocked
     ? `${m.t} Використано (${limitLabel(spec)}): клік знімає позначку.`
