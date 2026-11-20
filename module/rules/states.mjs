@@ -20,9 +20,9 @@ export const STATES = {
   down:     { aspect: "Збитий з ніг", until: "free", immune: "noKnockdown" },
   stunned:  { aspect: "Приголомшений", until: "skip", immune: "noStun" },
   disarmed: { aspect: "Без зброї", until: "free", immune: "noDisarm" },
-  burning:  { aspect: "Палає", until: "rounds", dice: "1d6", type: "fire", left: 1 },
+  burning:  { aspect: "Палає", until: "rounds", dice: "1d6", type: "fire", left: 1, immuneDef: "fire" },
   grabbed:  { aspect: "Захоплений", until: "holder" },
-  poisoned: { aspect: "Отруєний", until: "rounds", type: "poison", ignoreArmor: true },
+  poisoned: { aspect: "Отруєний", until: "rounds", type: "poison", ignoreArmor: true, immuneDef: "poison" },
   bleeding: { aspect: "Кровотеча", until: "rounds", dice: "1d10", ignoreArmor: true, left: 1 },
   blinded:  { aspect: "Засліплений", until: "scene" },
   aimed:    { aspect: "На прицілі", until: "scene" },
@@ -51,8 +51,15 @@ export function activeStates(states, aspectTexts) {
   return (Array.isArray(states) ? states : []).filter((s) => STATES[s?.key] && have.has(STATES[s.key].aspect));
 }
 
-/** The target is immune to the state (the profile's «Не можна збити з ніг / приголомшити / обеззброїти») */
-export const immuneTo = (key, profile) => !!(STATES[key]?.immune && profile?.[STATES[key].immune]);
+/**
+ * The target is immune to the state: the profile's «Не можна збити з ніг / приголомшити / обеззброїти», or immune to the
+ * state's damage type (author, 2026-11-20: a robot immune to poisons isn't «Отруєний», one immune to fire doesn't «Палає»;
+ * a half defence only halves the tick)
+ */
+export const immuneTo = (key, profile) => {
+  const d = STATES[key];
+  return !!(d && ((d.immune && profile?.[d.immune]) || (d.immuneDef && profile?.[d.immuneDef] === "immune")));
+};
 
 /**
  * Put a state on (the active list → the new list). The same state again refreshes (author, 2026-11-20): the longer `left`,

@@ -68,7 +68,7 @@ export async function putStates(uuids, list, { by = "", byName = "", once = fals
       await actor.update({ ...aspectUpdate(actor, put), [`flags.${sys()}.states`]: states, ...(once ? { [`flags.${sys()}.statesOnce`]: onceFlag } : {}) });
       lines.push(`${name}: ${put.map((k) => stateWords(states.find((s) => s.key === k))).join(", ")}.`);
     }
-    const IMM = { down: "не можна збити з ніг", stunned: "не можна приголомшити", disarmed: "не можна обеззброїти", stunnedOnce: "цієї сцени вже приголомшено" };
+    const IMM = { down: "не можна збити з ніг", stunned: "не можна приголомшити", disarmed: "не можна обеззброїти", poisoned: "невразливий до отрут", burning: "невразливий до вогню", stunnedOnce: "цієї сцени вже приголомшено" };
     for (const k of immune) lines.push(`${name}: ${IMM[k] ?? "стан не діє"}.`);
   }
   return lines;

@@ -54,6 +54,8 @@ eq(S.withStates({ armor: 4 }, acid).armor, 2, "−2 armour");
 
 // immunity, the stun once a scene
 ok(S.immuneTo("down", { noKnockdown: true }) && !S.immuneTo("down", {}) && !S.immuneTo("poisoned", { noKnockdown: true }), "immunity");
+ok(S.immuneTo("poisoned", { poison: "immune" }) && !S.immuneTo("poisoned", { poison: "half" }) && S.immuneTo("burning", { fire: "immune" }) && !S.immuneTo("burning", { fire: "normal" }), "immune to poisons / fire: no «Отруєний» / «Палає»; a half still gets it");
+ok(!S.immuneTo("bleeding", { poison: "immune", fire: "immune" }), "bleeding: no immunity yet (the living tag is to come)");
 const once = S.markStunned({}, "R1");
 ok(S.stunnedBefore(once, "R1") && !S.stunnedBefore(once, "R2"), "the stun once a scene by the same enemy");
 
