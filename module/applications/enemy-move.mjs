@@ -6,7 +6,7 @@
  * then one card «<name> використовує «<move>»» for everyone (author: the players see the move's name). Damage goes through
  * applyDamage, so armour, defences and the damage card are the usual ones.
  */
-import { moveSpec, moveMarks, spendMove, freeMove as freeMark, canUndo, healWho, factionOf, bookName, normEnemyName, psiPerkOf } from "../rules/move-spec.mjs";
+import { moveSpec, moveMarks, spendMove, freeMove as freeMark, canUndo, healWho, factionOf, bookName, normEnemyName, psiPerkOf, limitLabel } from "../rules/move-spec.mjs";
 import { zoneOfPoint, chatType } from "../rules/battle.mjs";
 import { BOOK } from "../rules/book.mjs";
 import { postChat } from "./chat.mjs";
@@ -98,6 +98,19 @@ const rageAttack = (sys, word) => Math.max(0, word ? (sys.attacks ?? []).findInd
 /** A target's actor (a token document or an actor) and its name */
 const actorOf = (t) => t?.actor ?? t;
 const nameOf = (t) => t?.name ?? actorOf(t)?.name ?? "";
+
+/**
+ * The move's chat card, like a used perk's (author, 2026-11-20; perk-card.mjs perkCardHtml): the rust stripe of a move with
+ * «Використати», «Хто: «Хід»» with the limit chip, what the system did, the book's text under a dotted rule.
+ */
+export function moveCardHtml(name, mv, spec, lines, icon = "fa-person-running", cls = "move") {
+  const limCls = !spec.uses ? "free" : spec.per === "session" ? "session" : "scene";
+  const did = lines.map((l) => `<p class="pust-pk-did">${esc(l)}</p>`).join("");
+  const book = String(mv.t ?? "").trim();
+  return `<div class="pust-chat pust-perkcard pust-mvcard ${cls}"><div class="pust-pk-hd"><i class="fa-solid ${icon}"></i>`
+    + `<span class="pust-pk-title">${esc(name)}: «${esc(mv.n)}»</span><span class="pust-pk-lim pk-${limCls}">${esc(limitLabel(spec))}</span></div>`
+    + did + (book ? `<div class="pust-pk-book">${esc(book)}</div>` : "") + `</div>`;
+}
 
 /**
  * «Використати»: spends the move and applies it. The GM only (enemies are his).
@@ -226,8 +239,7 @@ export async function useMove(actor, i, { token = null } = {}) {
 
   // the card for everyone (author, 2026-11-19: the players see the move's name), then the damage
   await postChat({
-    content: `<div class="pust-chat pust-encard ${cls}"><div class="pust-encard-hd"><i class="fa-solid ${icon}"></i><span><b>${esc(name)}</b> використовує «${esc(mv.n)}»</span></div>`
-      + `<p>${(lines.length ? lines : [mv.t]).map(esc).join("<br>")}</p></div>`,
+    content: moveCardHtml(name, mv, spec, lines, icon, cls),
     speaker: tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor }),
   });
   for (const { e, uuids } of hits) {

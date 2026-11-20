@@ -827,6 +827,10 @@ body.pust-no-combat #token-hud [data-action="combat"] { display: none !important
 .pust-perkcard .pust-pk-title { flex: 1 1 auto; min-width: 0; font-weight: 700; color: #9a4a20; }
 .pust-perkcard .pust-pk-lim { flex: none; padding: 0 5px; border-radius: 2px; background: var(--pk); color: #fff; font-size: 11px; }
 .pust-perkcard .pust-pk-did { margin: 4px 0 0; font-weight: 600; }
+/* an enemy's move (author, 2026-11-20): the perk's card with the rust stripe of «Використати»; the limit chip keeps the colours
+   of the enemy card's chips (steel a scene, violet a session, grey no limit) */
+.chat-message .pust-chat.pust-perkcard.pust-mvcard { --pk: #b45a28; }
+.pust-mvcard .pust-pk-lim.pk-scene { background: #3f6d8c; } .pust-mvcard .pust-pk-lim.pk-session { background: #5b4a86; } .pust-mvcard .pust-pk-lim.pk-free { background: #7a7262; }
 .pust-perkcard .pust-pk-book { margin-top: 4px; padding-top: 4px; border-top: 1px dotted #8e887f; font-size: 12px; line-height: 1.35; color: #4a4336; }
 
 /* «Погода й час дня» (author, 2026-11-19; mockup Б; module/applications/weather-panel.mjs): a popover beside its tool,
