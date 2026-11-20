@@ -131,18 +131,26 @@ export async function tickRound(r) {
   else await postSplit("Стани", [{ full: "", short: "" }], card);
 }
 
-/** «Кінець сцени» (and the day's, the session's): every state, its aspect, the stun marks and the last kill are gone */
+/**
+ * «Кінець сцени» (and the day's, the session's): every state, the stun marks and the last kill are gone, and every standard
+ * aspect (rules/states.mjs STATES: the states' and the quick ones, put on by a move or by hand) on characters and enemies;
+ * the situational aspects typed by hand stay (author, 2026-11-20)
+ */
 export async function clearAllStates(scene = canvas?.scene) {
   if (!game.user.isGM) return 0;
   let n = 0;
   for (const { actor } of carriers(scene)) {
     const f = actor.flags?.[sys()] ?? {};
     const states = Array.isArray(f.states) ? f.states : [];
-    if (!states.length && !f.statesOnce && !f.lastKill) continue;
-    const upd = { ...(states.length ? aspectUpdate(actor, [], states.map((s) => s.key)) : {}) };
+    // every standard aspect goes too, the states' and the same words added by hand («Збитий з ніг» of the quick aspects…);
+    // the other situational aspects stay (author, 2026-11-20)
+    const texts = actor.type === "character" ? (actor.system.situational ?? []).map((x) => x.name) : (actor.system.aspects ?? []).map((x) => x.t);
+    const drop = Object.keys(STATES).filter((k) => texts.includes(STATES[k].aspect));
+    if (!states.length && !drop.length && !f.statesOnce && !f.lastKill) continue;
+    const upd = { ...(drop.length ? aspectUpdate(actor, [], drop) : {}) };
     for (const k of ["states", "statesOnce", "lastKill"]) if (f[k] !== undefined) upd[`flags.${sys()}.-=${k}`] = null;
     await actor.update(upd);
-    if (states.length) n++;
+    if (states.length || drop.length) n++;
   }
   return n;
 }
