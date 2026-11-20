@@ -154,6 +154,9 @@ export async function useMove(actor, i, { token = null } = {}) {
   const exe = has("execute"), rv = has("revive"), undo = has("undo"), ammo = has("ammo");
   const down = tDocs.filter((t) => actorOf(t)?.system?.hp && int(actorOf(t).system.hp.value) <= 0);
   if (exe && !tDocs.length) { notify.warn(`«${mv.n}»: спершу познач ціль (T) — кого страчують.`); return false; }
+  // «Децимація» executes a legionary only (author, 2026-11-20)
+  const onlyOk = (only, t) => !only || only.some((n) => normEnemyName(n) === normEnemyName(bookNameOf(actorOf(t), t)));
+  if (exe?.only && !onlyOk(exe.only, tDocs[0])) { notify.warn(`«${mv.n}»: страчують лише ${exe.only.map((n) => n.toLowerCase() + "а").join(" чи ")} — познач його ціллю (T).`); return false; }
   if (rv && !down.length) { notify.warn(`«${mv.n}»: спершу познач ціль (T) — союзника з 0 ОЗ.`); return false; }
   const lastHit = actor.getFlag(sysId(), "lastHit");
   if (undo && !canUndo(lastHit, sys.hp?.value)) { notify.warn(`«${mv.n}»: ворогові щойно не завдавали шкоди — нема що скасовувати.`); return false; }
@@ -190,7 +193,8 @@ export async function useMove(actor, i, { token = null } = {}) {
         if (e.who === "self") { list = [null]; why = "self"; }
         else if (e.who === "targetOrSelf") { list = tDocs.length ? tDocs.slice(0, 1) : [null]; why = tDocs.length ? "targets" : "self"; }
         else {
-          const fac = factionTokens(actor, tok);
+          // «усі інші легіонери» (Децимація): only those book names of the faction (author, 2026-11-20)
+          const fac = factionTokens(actor, tok).filter((t) => onlyOk(e.only, t));
           const self = tok?.uuid ?? "";
           // with an execution («Децимація») the target is the one executed: the heal takes the faction
           const r = healWho({ targets: exe ? [] : tDocs.map((t) => t.uuid), faction: fac.map((t) => t.uuid), self, others: e.who === "factionOthers" });
@@ -208,7 +212,7 @@ export async function useMove(actor, i, { token = null } = {}) {
           const line = await healOne(a, t ? nameOf(t) : name, e.expr);
           if (line) got.push(line);
         }
-        const whom = why === "targets" ? "цілям" : why === "faction" ? "своїм на сцені" : "собі";
+        const whom = why === "targets" ? "цілям" : why === "faction" ? (e.only ? "легіонерам на сцені" : "своїм на сцені") : "собі";
         lines.push(`Відновлює ${e.expr} ОЗ ${whom}: ${got.length ? got.join(", ") : "ОЗ уже повні"}.`);
         break;
       }
@@ -237,7 +241,8 @@ export async function useMove(actor, i, { token = null } = {}) {
         // the same move again replaces its record, different moves add up (move-spec.mjs putBuff)
         const who = group ?? [{ a: actor, name }];
         for (const g of who) await g.a.setFlag(sysId(), "buffs", putBuff(g.a.getFlag(sysId(), "buffs"), mv.n, e.dmg));
-        const side = FACTION_SIDE[factionOf(bookNameOf(actor, tok))] ?? "Свої";
+        const only = spec.effects.find((x) => x.kind === "heal")?.only;
+        const side = only ? "Легіонери" : FACTION_SIDE[factionOf(bookNameOf(actor, tok))] ?? "Свої";
         lines.push(`${side} до кінця сцени завдають +${e.dmg} шкоди: ${who.map((g) => g.name).join(", ")}.`);
         break;
       }

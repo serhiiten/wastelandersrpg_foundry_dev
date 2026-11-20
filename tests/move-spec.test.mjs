@@ -185,5 +185,14 @@ eq(S.attackStates("фізичної шкоди, бій на відстані"), 
   ok(s.level === "effect" && s.button && /Живим персонажам на сцені/.test(s.hint), `its tooltip: ${s.hint}`);
 }
 
+// «Децимація» takes only the legionaries, «Ave!» every fighter of the Legion (author, 2026-11-20: the Центуріон mustn't heal the Легат)
+{
+  const dec = S.moveSpec({ n: "Децимація", t: "раз за сцену показово страчує одного легіонера у своїй зоні. Усі інші легіонери, які це бачать, негайно відновлюють 5 ОЗ і до кінця сцени завдають +1 шкоди." });
+  eq(dec.effects.filter((e) => e.only).map((e) => [e.kind, e.only]), [["execute", ["Легіонер"]], ["heal", ["Легіонер"]]], "Децимація: a legionary executed, the other legionaries healed");
+  ok(/Інші легіонери на сцені/.test(dec.hint) && /Вони до кінця сцени/.test(dec.hint), `its tooltip: ${dec.hint}`);
+  const ave = S.moveSpec({ n: "Ave! True to Caesar!", t: "раз за сцену видає бойовий клич. Усі бійці Легіону, які його чують, відновлюють 5 ОЗ і до кінця сцени завдають +2 шкоди." });
+  ok(!ave.effects.some((e) => e.only), "Ave!: every fighter of the Legion");
+}
+
 console.log(failures ? `FAILS: ${failures} of ${checks}` : `move-spec: OK (${checks} checks)`);
 if (failures) process.exit(1);

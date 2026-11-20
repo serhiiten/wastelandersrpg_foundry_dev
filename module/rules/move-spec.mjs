@@ -114,9 +114,12 @@ export function moveSpec(move, sys = null, i = -1) {
   const h = moveHeal(t);
   if (h) {
     const who = /собі\s+(?:або|чи)\s+союзник/i.test(t) ? "targetOrSelf" : h.group ? (h.others ? "factionOthers" : "faction") : "self";
-    effects.push({ kind: "heal", expr: h.expr, who });
+    // «Децимація»: «усі інші легіонери» — only the book's «Легіонер», not the Легат or a Преторіанець (author, 2026-11-20)
+    const only = /інші\s+легіонер/i.test(t) ? ["Легіонер"] : null;
+    effects.push({ kind: "heal", expr: h.expr, who, ...(only ? { only } : {}) });
   }
-  if (/страчу\S*/i.test(t)) effects.unshift({ kind: "execute" });
+  // the one executed is «одного легіонера» too (author, 2026-11-20)
+  if (/страчу\S*/i.test(t)) effects.unshift({ kind: "execute", ...(/страчу\S*\s+(?:\S+\s+)?легіонер/i.test(t) ? { only: ["Легіонер"] } : {}) });
   // «повертає в сцену з 10 ОЗ живого союзника…» (Дефібрилятор) and «…союзника, чиї ОЗ упали до 0, з 5 ОЗ»
   const rv = /повер[нт]\S*\s+в\s+сцену\s+(?:з|із)\s+(\d+)\s+ОЗ/i.exec(t) ?? /повер[нт]\S*\s+в\s+сцену.*?упали\s+до\s+0,\s+(?:з|із)\s+(\d+)\s+ОЗ/i.exec(t)
     ?? /повер[нт]\S*\s+в\s+сцену.*?(?:з|із)\s+(\d+)\s+ОЗ/i.exec(t);
@@ -256,14 +259,14 @@ export function moveHint(spec) {
         self: `Ворог відновлює собі ${e.expr} ОЗ`,
         targetOrSelf: `Позначена ціль відновлює ${e.expr} ОЗ; без цілі — сам ворог`,
         faction: `Свої на сцені відновлюють по ${e.expr} ОЗ${orT("позначені цілі")}`,
-        factionOthers: `Інші свої на сцені відновлюють по ${e.expr} ОЗ${orT("позначені цілі")}`,
+        factionOthers: e.only ? `Інші ${e.only.map((n) => n.toLowerCase() + "и").join(", ")} на сцені відновлюють по ${e.expr} ОЗ` : `Інші свої на сцені відновлюють по ${e.expr} ОЗ${orT("позначені цілі")}`,
       }[e.who];
-      case "execute": return "Страчує позначеного свого: той вибуває з бою";
+      case "execute": return e.only ? `Страчує позначеного ${e.only.map((n) => n.toLowerCase() + "а").join(" чи ")}: той вибуває з бою` : "Страчує позначеного свого: той вибуває з бою";
       case "revive": return `Позначений союзник із 0 ОЗ повертається в бій з ${e.hp} ОЗ`;
       case "undo": return "Шкода, яку ворогові щойно завдали, скасовується";
       case "bonus": return `Ворог до кінця сцени б'є на ${e.dmg} сильніше${e.stack ? ` (кожне використання додає ще ${e.dmg})` : ""}`;
       case "ammo": return `Зброя витрачає ${e.n} ${e.n === 1 ? "заряд" : "заряди"}`;
-      case "allyBonus": return `Свої до кінця сцени б'ють на ${e.dmg} сильніше`;
+      case "allyBonus": return `${spec.effects.some((x) => x.kind === "heal" && x.only) ? "Вони" : "Свої"} до кінця сцени б'ють на ${e.dmg} сильніше`;
       case "attack": return "Ворог атакує всіх персонажів у своїй зоні (або лише позначені цілі)";
       case "hit": return `Завдає ${hitWords(e)} ${e.zone ? `${e.spareKin ? `${HIT_WHO.all}, крім таких самих, як він` : HIT_WHO[e.zone]} (або лише позначеним цілям)` : "позначеним цілям"}`;
       case "psiPerk": return "Кидає 1d6 і показує, який псионічний перк випав";
