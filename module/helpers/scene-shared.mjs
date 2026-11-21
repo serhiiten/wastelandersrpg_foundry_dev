@@ -2,7 +2,7 @@ import { activeGmHere } from "./main-window.mjs";
 /**
  * The «Битва» / «Сцена» panels' values, one set for every scene (author, 2026-11-16: «значення в полях панелі сцена/битва
  * мають бути синхронізовані між усіма мапами»): the place and hazard, the GM's Fate tokens and the round — a world setting
- * `sceneShared` = { place, hazard, fate, round }. Scenes made before keep their old flags (`battlePlace`, `battleHazard`,
+ * `sceneShared` = { place, hazard, fate, round, placeOpen, hazardOpen }. Scenes made before keep their old flags (`battlePlace`, `battleHazard`,
  * `battleFate`, `battleRound`): the active scene's become the shared values once, while nothing is shared yet.
  */
 const FLAG = { place: "battlePlace", hazard: "battleHazard", fate: "battleFate", round: "battleRound" };
@@ -15,6 +15,7 @@ export function registerSceneShared() {
     default: {},
     onChange: () => {
       import("../applications/battle-panel.mjs").then((m) => m.redrawBattlePanel());
+      import("../applications/map-dock.mjs").then((m) => m.redrawPlayerStrip()); // the players' strip on the battle map (U3)
       const term = foundry.applications.instances.get("pust-terminal"); // the terminal's «Битви» shows them too
       if (term?.rendered) term.render();
     },
@@ -38,10 +39,37 @@ globalThis.Hooks?.once("ready", async () => { // (tests import this module outsi
   if (Object.keys(upd).length) await sharedSet(upd);
 });
 
+/**
+ * U3 (author, 2026-11-21): the players see the place / the hazard only while the GM opens it (`placeOpen` / `hazardOpen`);
+ * a new text written without its switch closes it again (a new roll is hidden until shown). Pure: the update to write.
+ */
+export function withOpenReset(prev = {}, upd = {}) {
+  const out = { ...upd };
+  for (const [k, open] of [["place", "placeOpen"], ["hazard", "hazardOpen"]]) {
+    if (k in upd && !(open in upd) && (upd[k] ?? "") !== (prev[k] ?? "")) out[open] = false;
+  }
+  return out;
+}
+
+const escHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+/**
+ * The players' strip on the battle map (U3, author, 2026-11-21), read-only: «Коло дій N», then the place and the hazard
+ * as chips, each only while the GM opened it. Pure (Node-testable).
+ */
+export function playerBattleStripHtml({ round, place, hazard, placeOpen, hazardOpen } = {}) {
+  const n = Math.max(1, Number(round) || 1);
+  const chip = (title, icon, text) => `<span class="pust-md-pschip" title="${title}"><i class="fa-solid ${icon}" aria-hidden="true"></i><span>${escHtml(text)}</span></span>`;
+  return `<span class="pust-md-psround"><i class="fa-solid fa-rotate" aria-hidden="true"></i>Коло дій <b>${n}</b></span>`
+    + (placeOpen === true && String(place ?? "").trim() ? chip("Місце", "fa-location-dot", place) : "")
+    + (hazardOpen === true && String(hazard ?? "").trim() ? chip("Небезпека", "fa-radiation", hazard) : "");
+}
+
 /** Write some shared values (the GM) */
 export async function sharedSet(upd) {
   if (!game.user.isGM) return;
   const placeBefore = all().place ?? "";
+  upd = withOpenReset(all(), upd);
   await game.settings.set(game.system.id, "sceneShared", { ...all(), ...upd });
   // a new «Місце»: the battle scene on view (else the battle map «Почати бій» would open) takes its background
   // (author, 2026-11-18; here, not in onChange: once, in the window that wrote it, and awaited — tokens come after the redraw)

@@ -171,7 +171,7 @@ export async function clearAllStates(scene = canvas?.scene) {
     const drop = Object.keys(STATES).filter((k) => texts.includes(STATES[k].aspect));
     if (!states.length && !drop.length && !f.statesOnce && !f.lastKill && !f.buffs && !f.cover) continue;
     const upd = { ...(drop.length ? aspectUpdate(actor, [], drop) : {}) };
-    for (const k of ["states", "statesOnce", "lastKill", "buffs", "cover"]) if (f[k] !== undefined) upd[`flags.${sys()}.-=${k}`] = null;
+    for (const k of ["states", "statesOnce", "lastKill", "buffs", "cover"]) if (f[k] !== undefined) upd[`flags.${sys()}.${k}`] = _del; // not «-=» (deprecated since Foundry 14)
     await actor.update(upd);
     if (drop.length) out.push({ actor, name: tok?.name || actor.name, img: tok?.texture?.src || actor.img, gone: drop.map((k) => STATES[k].aspect), hidden: !!tok?.hidden });
   }

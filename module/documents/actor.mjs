@@ -295,7 +295,7 @@ export class WastelandersActor extends Actor {
     const texts = this.type === "character" ? (this.system.situational ?? []).map((a) => a.name) : (this.system.aspects ?? []).map((a) => a.t);
     const keep = activeStates(flag, texts);
     if (keep.length === flag.length) return;
-    this.update(keep.length ? { [`flags.${sys}.states`]: keep } : { [`flags.${sys}.-=states`]: null }).catch((err) => console.warn(err));
+    this.update(keep.length ? { [`flags.${sys}.states`]: keep } : { [`flags.${sys}.states`]: _del }).catch((err) => console.warn(err));
   }
 
   /** Tokens of a character on every scene take the character's name */

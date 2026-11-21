@@ -15,6 +15,7 @@ import { postChat } from "./chat.mjs";
 import { askGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { rollDie } from "../helpers/dice.mjs";
+import { warnDoomed } from "./battle-health.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const rng = rollDie; // not Roll#evaluateSync: Foundry 14 refuses it for dice (helpers/dice.mjs)
@@ -72,6 +73,7 @@ export async function applyPerkUse(actor, id) {
     const uuid = target.uuid;
     const head = `${res.name} (${actor.name})`;
     const ta = target.actor;
+    if (res.back) warnDoomed(ta, "Цілющий дотик (повернення)");
     if (game.user.isGM || ta.isOwner) await applyHeal([uuid], amount, { head });
     else askGM({ op: "chemHeal", token: uuid, amount, head }, "Цілющий дотик", "Перк використано, але ціль не зцілено.");
     clearTargets();

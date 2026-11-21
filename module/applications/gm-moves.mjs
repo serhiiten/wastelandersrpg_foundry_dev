@@ -4,6 +4,7 @@
  * and the order of the moves under them are the layout's (approved by the author on the mockup), not the book's.
  * A second press, a click outside or Esc closes it. No tour: the plate explains itself.
  */
+import { quietGmMoveAlert } from "./gm-move-alert-ui.mjs";
 
 /** When the GM makes a move (wiki, verbatim) */
 export const GM_MOVE_WHEN = [
@@ -66,6 +67,7 @@ export function closeGmMoves() {
 /** Open under the plate `btn`, or close if open */
 export function toggleGmMoves(btn) {
   if (card) return closeGmMoves();
+  quietGmMoveAlert(); // U4: opening the moves puts out the plate's glow (gm-move-alert-ui.mjs)
   card = document.createElement("section");
   card.className = "pust-gm-moves";
   card.setAttribute("role", "dialog");

@@ -16,6 +16,9 @@ import { clearDefibs } from "./caravan-defib.mjs";
 import { rollCaravanSuperDice } from "./caravan-superdice.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { clearAllStates, hiddenRow, whisperGM } from "./states.mjs";
+import { sceneEndHealth } from "../rules/battle-health.mjs";
+import { compute } from "../rules/core.mjs";
+import { endSceneInvokes } from "./battle-health.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 
@@ -51,7 +54,7 @@ export function groupSession() {
 export async function resetGroupCounters() {
   const chars = groupCharacters();
   if (!chars.length) return notify.warn("Жодного персонажа не призначено гравцям.");
-  for (const a of chars) await runAction(a, (st, L) => chemReset(st, L), { quiet: true });
+  for (const a of chars) await runAction(a, (st, L) => { delete st.medDay; return chemReset(st, L); }, { quiet: true }); // the day's help mark too (A7)
   notify.info(`Відлік скинуто: сесія 1, день 1, сцена 1 (${chars.map((a) => a.name).join(", ")}).`);
 }
 
@@ -118,6 +121,8 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
       const { msg, back } = await runAction(a, (st, L) => {
         const was = usedNames(st);
         L[def.fn]();
+        // the free invokes, 19+ of «Отримання наслідків», the doomed (author, 2026-11-21; rules/battle-health.mjs)
+        sceneEndHealth(st, L, compute(st));
         return { msg: L.chem().last, back: backLine(was, st) };
       }, { quiet: true });
       const hp = Number(a.system.hp?.value) || 0;
@@ -159,6 +164,8 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
     if (r) r.items.push(item);
     else (hiddenRow(g) ? hidRows : rows).push({ uuid: g.actor.uuid, name: g.name, img: g.img, items: [item], hp: 0 });
   }
+  // the free invokes of the scene's enemies and zones (A5, author 2026-11-21): the aspects stay
+  for (const g of await endSceneInvokes()) (g.hidden ? hidRows : rows).push({ name: g.name, img: g.img, items: g.items, hp: 0 });
   await postChat({ speaker: { alias: def.title }, content: endCard(kind, def, rows, moves ? movesN : null) });
   if (hidRows.length) await whisperGM({ alias: def.title }, endCard(kind, def, hidRows, null, { gm: true }));
   notify.info(`${def.title}: ${chars.length} ${chars.length === 1 ? "персонаж" : chars.length < 5 && chars.length > 1 ? "персонажі" : "персонажів"}. Коло дій 1${fate != null ? `, жетонів Долі Доглядача: ${Math.max(0, fate)}` : ""}.`);

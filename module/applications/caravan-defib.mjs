@@ -11,6 +11,7 @@ import { applyHeal, clearTargets } from "./apply-damage.mjs";
 import { postChat } from "./chat.mjs";
 import { askGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { warnDoomed } from "./battle-health.mjs";
 
 const FLAG = "defibUsed";
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -36,6 +37,7 @@ export async function useDefib(actor) {
   await postChat({ speaker: ChatMessage.getSpeaker({ actor }), content });
   await actor.setFlag(game.system.id, FLAG, true);
   const head = `Дефібрилятор (${actor.name})`;
+  warnDoomed(ta, "Дефібрилятор");
   if (own) await applyHeal([target.uuid], 1, { head });
   else askGM({ op: "chemHeal", token: target.uuid, amount: 1, head }, "Дефібрилятор", "Дефібрилятор використано, але ціль не повернуто.");
   clearTargets();

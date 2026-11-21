@@ -28,7 +28,7 @@ export async function rollCaravanSuperDice() {
     const roll = await new Roll(`${n}d6`).evaluate({ allowInteractive: false });
     const hp0 = parseInt(a.system?.hp?.value, 10) || 0;
     const hp = Math.max(0, hp0 - roll.total);
-    await a.update({ "system.hp.value": hp, [`flags.${game.system.id}.-=${FLAG}`]: null });
+    await a.update({ "system.hp.value": hp, [`flags.${game.system.id}.${FLAG}`]: _del });
     rows.push({
       name: a.name, img: a.img, hp: hp - hp0, hpNow: hp,
       items: [`Відкладені кістки Критфікса: ${n}d6 = ${roll.total} шкоди, ігноруючи броню. ОЗ ${hp0} → ${hp}.`],

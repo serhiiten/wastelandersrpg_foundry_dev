@@ -18,6 +18,7 @@ import { initWeather } from "./canvas/weather.mjs";
 import { addWeatherTool } from "./applications/weather-panel.mjs";
 import { readyApplyDamage } from "./applications/apply-damage.mjs";
 import { readyPending, renderPending } from "./applications/pending-attack.mjs";
+import { readyBattleHealth } from "./applications/battle-health.mjs";
 import { readyChemTarget } from "./applications/chem-target.mjs";
 import { readyGmRequests } from "./helpers/gm-request.mjs";
 import { WastelandersCharacterSheetV2 } from "./sheets/character-sheet-v2.mjs";
@@ -46,6 +47,7 @@ import { BOOK } from "./rules/book.mjs";
 import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { toggleGmMoves } from "./applications/gm-moves.mjs";
+import { registerGmMoveAlert } from "./applications/gm-move-alert-ui.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
 import { autoStartTour, ensureHelpJournal, registerSystemTours, registerTourEnricher } from "./tours/tours.mjs";
@@ -260,6 +262,7 @@ Hooks.once("ready", () => {
   readyApplyDamage();
   readyPending(); // «Уникнення шкоди» on an enemy's attack card (A1; author, 2026-11-20)
   readyChemTarget();
+  readyBattleHealth(); // «Аспекти поруч», «Медична допомога» on someone else (author, 2026-11-21)
   readyGmRequests();
   readyMainWindow(); // one window of a user does the shared work (helpers/main-window.mjs)
   readyMacros();
@@ -395,6 +398,8 @@ function dockTerminal() {
 }
 Hooks.on("renderSceneNavigation", () => requestAnimationFrame(dockTerminal));
 Hooks.once("ready", () => requestAnimationFrame(dockTerminal));
+// U4 (author, 2026-11-21): a check that asks for the GM's move whispers «Зроби хід проти …» and lights «Ходи Доглядача»
+registerGmMoveAlert();
 
 // «Лічильники»: the scene counters live on the viewed scene, so the GM's panel is redrawn when it changes or is switched
 Hooks.on("updateScene", (scene) => { if (scene.id === canvas?.scene?.id) import("./applications/game-counters.mjs").then((m) => m.refreshGameCounters()); });

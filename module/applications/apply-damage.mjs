@@ -189,7 +189,7 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
       const key = `flags.${game.system.id}.lastHit`;
       if (noLastHit) { /* a state's tick: undo doesn't take it back, the last hit's record stays */ }
       else if (hp < hp0) upd[key] = { before: hp0, after: hp, head: String(head || "") };
-      else if (actor.getFlag(game.system.id, "lastHit")) upd[`flags.${game.system.id}.-=lastHit`] = null;
+      else if (actor.getFlag(game.system.id, "lastHit")) upd[`flags.${game.system.id}.lastHit`] = _del; // not «-=» (deprecated since Foundry 14, gone in 16)
       if (Object.keys(upd).length) await actor.update(upd);
     } else if (hp !== hp0) await actor.update({ "system.hp.value": hp });
     if (report) report.push({ uuid, hp0, hp, damage: r.damage });
