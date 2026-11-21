@@ -31,6 +31,10 @@ eq(dmg(P({ armor: 0 }), { total: 7, type: "phys" }, { dodge: true }), 4, "dodge 
 eq(dmg(P({ armor: 0 }), { total: 7, type: "rad" }, { dodge: true }), 4, "dodge on radiation: 7 → 4");
 eq(dmg(P({ armor: 0, rad: "half" }), { total: 7, type: "rad" }, { dodge: true }), 0, "dodge + radiation ½: two halves → 0");
 eq(dmg(P({ armor: 0, halfPartial: true }), { total: 8, type: "phys" }, { dodge: true }), 4, "dodge without «partial» leaves halfPartial alone");
+// a partial avoidance (10–14) of an enemy's hit (A1, rules/dodge.mjs): one more «½», before the armour; with the menu's «½» → 0
+eq(dmg(plain, { total: 7, type: "phys" }, { avoid: true }), 2, "avoid: 7 → 4, armour 2 → 2");
+eq(dmg(P({ armor: 0 }), { total: 9, type: "psi" }, { avoid: true }), 5, "avoid on psychic: 9 → 5");
+eq(dmg(P({ armor: 0 }), { total: 9, type: "phys" }, { avoid: true, dodge: true }), 0, "avoid + the menu's ½: two halves → 0");
 eq(dmg(P({ armor: 0 }), { total: 7, type: "phys" }, { dodge: false }), 7, "no dodge: whole damage");
 
 /* ---------- armour piercing ---------- */

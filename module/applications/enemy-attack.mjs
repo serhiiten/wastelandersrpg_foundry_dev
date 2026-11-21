@@ -66,5 +66,6 @@ export async function rollEnemyAttack(actor, i, { token = null, plus = "" } = {}
   // the states of the note («підпалює ціль», «спричиняє кровотечу»): on those it wounds (apply-damage.mjs; author, 2026-11-20)
   const onHit = attackStates(a.note);
   const data = { total, dice: hit.dice, type: wt, ignoreArmor: !!a.ignoreArmor, ignoreN: a.ignoreN || 0, ...(hit.parts ? { parts: hit.parts } : {}), ...(onHit.length ? { onHit } : {}), ...(empOnly(a.name, a.note) ? { empOnly: true } : {}) };
-  return { total, head: `${token?.name || actor.name}: ${a.name}`, data };
+  // `msg`: the attack's card, where the waiting targets' avoidance goes (pending-attack.mjs; author, 2026-11-20)
+  return { total, head: `${token?.name || actor.name}: ${a.name}`, data, msg };
 }

@@ -27,7 +27,7 @@
       "halfPartial": false,
       "noKnockdown": true,
       "noStun": false,
-      "noDisarm": false,
+      "noDisarm": true,
       "kamikaze": false,
       "psyVuln": false
     },
@@ -109,7 +109,7 @@
         "halfPartial": false,
         "noKnockdown": true,
         "noStun": false,
-        "noDisarm": false,
+        "noDisarm": true,
         "kamikaze": false,
         "psyVuln": false
       },

@@ -20,6 +20,7 @@ import { askGM, answerGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { rollDie } from "../helpers/dice.mjs";
 import { deferSuperDice } from "./caravan-superdice.mjs";
+import { cleanFx } from "../rules/attack-effects.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -151,9 +152,11 @@ function triggerMoves(actor, when) {
 /**
  * The damage to the targets.
  * @param {object} [o] `source` — the attacker's token uuid («Розпад», «На прицілі»); `noLastHit` — a state's tick, not a hit
- *   undo may take back; `collect` — an array: the rows go there and no card is posted (the round's states card)
+ *   undo may take back; `collect` — an array: the rows go there and no card is posted (the round's states card); `avoid` — a
+ *   partial avoidance (10–14) of an enemy's hit, one more «½» (rules/dodge.mjs); `report` — an array: {uuid, hp0, hp, damage}
+ *   a target
  */
-export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, head = "", source = "", noLastHit = false, collect = null } = {}) {
+export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, avoid = false, head = "", source = "", noLastHit = false, collect = null, report = null } = {}) {
   const lines = [];
   const src = source ? await targetOf(source) : null;
   const killed = [], wounded = [], woundedHid = [];
@@ -172,7 +175,7 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     // «Улюблений ворог» (author, 2026-11-20): the attacker deals a mutant +N
     const fav = src?.actor?.type === "enemy" && prof.mutant ? favFoeBonus(src.actor.system) : 0;
     if (fav) { if (hit.parts) hit.parts.push({ total: fav, type, dice: 0 }); else hit.total = int(hit.total) + fav; }
-    const r = resolveHit(prof, hp0, max, hit, { partial, dodge, rollD6 });
+    const r = resolveHit(prof, hp0, max, hit, { partial, dodge, avoid, rollD6 });
     let hp = r.hp, moveNote = "";
     const steps = r.steps;
     if (actor.type === "enemy") {
@@ -189,6 +192,7 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
       else if (actor.getFlag(game.system.id, "lastHit")) upd[`flags.${game.system.id}.-=lastHit`] = null;
       if (Object.keys(upd).length) await actor.update(upd);
     } else if (hp !== hp0) await actor.update({ "system.hp.value": hp });
+    if (report) report.push({ uuid, hp0, hp, damage: r.damage });
     const name = esc(tok?.name || actor.name);
     const gain = hp >= hp0 && !!r.heal;
     // the move that kept the enemy alive is named on the card for everyone (author, 2026-11-19)
@@ -223,15 +227,74 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
       for (const l of await putStates(list, data.onHit, by)) { const h = `<div class="pust-da-note">${esc(l)}</div>`; lines.push({ full: h, short: open ? h : "" }); }
     }
   }
+  // the attack's chosen effects (A2; author, 2026-11-20): states on their target(s), whatever the armour let through; said lines
+  lines.push(...await effectLines(tokenUuids, data, source));
   if (collect) { collect.push(...lines); return lines.length; }
   // the full card's header also says what the dice gave, before armour and defences (author, 2026-11-15)
   const rolled = Number.isFinite(Number(data.total)) ? `<span class="pust-dmg-rolled" title="Скільки випало на кістках (з модифікаторами), до броні й стійкостей">випало <b>${Math.max(0, int(data.total))}</b></span>` : "";
   const card = (ls, gmNote = "", full = false) => applyCard({
     dt: chatType(type), icon: "fa-burst", title: `Шкода${head ? `: ${esc(head)}` : ""}`,
-    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (dodge ? `<span class="pust-da-chip">½ шкоди</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
+    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (dodge ? `<span class="pust-da-chip">½ шкоди</span>` : "") + (avoid ? `<span class="pust-da-chip">уникнення: ½</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
   });
   await postSplit("Шкода", lines, card);
   return lines.length;
+}
+
+/**
+ * The chosen effects of a character's attack (A2; rules/attack-effects.mjs): `data.fx` — states (only «Збитий з ніг»,
+ * «Приголомшений», «Без зброї», only on the request's own targets: cleanFx), `data.said` — the effects done by hand, one line
+ * each. A hidden one's state line is the GM's only. @returns {Promise<{full:string, short:string}[]>}
+ */
+async function effectLines(uuids, data, source = "") {
+  const out = [];
+  for (const t of (Array.isArray(data.said) ? data.said : []).slice(0, 4)) { const h = `<div class="pust-da-note">${esc(`Ефект: ${t}`)}</div>`; out.push({ full: h, short: h }); }
+  // «Прикриваєш спільника» (A2): the ally (a character) gets Посилення on its next avoidance in this round
+  if (data.cover) {
+    const { tok, actor } = await targetOf(String(data.cover));
+    if (actor?.type === "character") {
+      const { sharedGet } = await import("../helpers/scene-shared.mjs");
+      const src = source ? await targetOf(source) : null;
+      const byName = src?.tok?.name || src?.actor?.name || "";
+      await actor.setFlag(game.system.id, "cover", { round: Math.max(1, Number(sharedGet("round")) || 1), by: source, byName });
+      const h = `<div class="pust-da-note">${esc(`${tok?.name || actor.name}: Посилення до наступного уникнення шкоди в цьому колі дій${byName ? ` (прикриває ${byName})` : ""}.`)}</div>`;
+      out.push({ full: h, short: tok?.hidden ? "" : h });
+    }
+  }
+  const fx = cleanFx(data.fx, uuids);
+  if (!fx.length) return out;
+  const { putStates } = await import("./states.mjs");
+  const src = source ? await targetOf(source) : null;
+  const by = { by: source, byName: src?.tok?.name || src?.actor?.name || "" };
+  for (const { key, on } of fx) {
+    for (const uuid of on) {
+      const { tok } = await targetOf(uuid);
+      for (const l of await putStates([uuid], [{ key }], by)) { const h = `<div class="pust-da-note">${esc(l)}</div>`; out.push({ full: h, short: tok?.hidden ? "" : h }); }
+    }
+  }
+  return out;
+}
+
+/**
+ * An effect without damage (A2: 10–14, «завдай шкоди або обери ефект»): the states and said lines on a card of their own.
+ * Not through applyDamage with 0 (Fable): that would clear an enemy's last hit («Захисний протокол»).
+ */
+export async function applyEffects(tokenUuids, data, { head = "", source = "" } = {}) {
+  const lines = await effectLines(tokenUuids, data, source);
+  if (!lines.length) return 0;
+  const card = (ls, gmNote = "") => applyCard({ icon: "fa-bolt", title: `Ефект${head ? `: ${esc(head)}` : ""}`, chips: gmNote, rows: ls });
+  await postSplit("Ефект", lines, card);
+  return lines.length;
+}
+
+/** «Застосувати ефект без шкоди» of «Зробити перевірку»: to the targets, through the GM as the damage goes */
+export async function sendEffects(data, { head = "", source = "" } = {}) {
+  const targets = chosenTokens();
+  if (!targets.length) { warnNoTargets(); return false; }
+  if (game.user.isGM) { await applyEffects(targets, data, { head, source }); clearTargets(); return true; }
+  if (!game.users.activeGM) { notify.warn("Ефект застосовує Доглядач, а його зараз немає в грі."); return false; }
+  askGM({ op: "applyEffects", targets, data, head, source }, "Ефект");
+  clearTargets();
+  return true;
 }
 
 /**
@@ -258,6 +321,7 @@ export async function sendDamage(data, { partial = false, dodge = false, head = 
 export function readyApplyDamage() {
   game.socket.on(SOCKET(), (msg) => {
     if (!activeGmHere()) return;
+    if (msg?.op === "applyEffects") return answerGM(msg, () => applyEffects(msg.targets || [], msg.data || {}, { head: String(msg.head || ""), source: String(msg.source || "") }));
     if (msg?.op === "applyDamage") answerGM(msg, () => applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, dodge: !!msg.dodge, head: String(msg.head || ""), source: String(msg.source || "") }));
   });
 }

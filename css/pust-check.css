@@ -430,6 +430,8 @@
 .pust-roller > .rmods { order: 5; }
 .pust-roller > .pust-rgo-bar { order: 7; }
 .pust-roller > .rres { order: 8; }
+/* the enemy's attack the avoidance answers (A1): right over the result, its button after the roll stays in sight when folded */
+.pust-roller > .pust-pendbar { order: 7; }
 /* after a roll (folded): the line «… змінити» sticks to the top and the strip goes under the result, sticking to the bottom,
    so both stay on screen while the result scrolls (author, 2026-11-18, after the review) */
 .pust-roller.pust-folded > .pust-fold { position: sticky; top: 0; z-index: 3; }
@@ -461,7 +463,7 @@
 .pust-roller .pust-rgo-bar > .rgo { flex: 0 0 auto; width: auto; margin: 0; padding: 0 16px !important; }
 
 /* after a roll the set-up is one line «змінити» */
-.pust-roller.pust-folded > :not(.rwho, .pust-fold, .pust-rgo-bar, .rres) { display: none !important; }
+.pust-roller.pust-folded > :not(.rwho, .pust-fold, .pust-rgo-bar, .rres, .pust-pendbar) { display: none !important; }
 .wastelanders .pust-roller button.pust-fold { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; height: auto; min-height: 30px;
   margin: 0; padding: 4px 8px; background: rgba(255,252,240,.6) !important; border: 1px dashed var(--pu-ink-3) !important; box-shadow: none !important;
   font-family: var(--pu-f-label); font-size: 13px; color: var(--pu-ink) !important; text-align: left; line-height: 1.25; }
@@ -503,3 +505,18 @@
   background: linear-gradient(180deg, #3d4241, #2c302f) !important; color: #f4d11a !important; border: 1px solid #1c1f1e !important; border-radius: 3px;
   font-family: var(--pu-f-label, "Roboto Condensed", sans-serif); font-weight: 700; font-size: 12px; white-space: nowrap; }
 .wastelanders.pust-check .pust-chatmode > button:hover { filter: brightness(1.2); }
+
+/* the attack's effects as toggles (A2; author, 2026-11-20; check-panel.mjs #effectsBlock): one row an effect on the result's
+   screen, the chosen one lit; a small tag says what the system does with it («ляже на ціль», «з шкодою», «руками») */
+.pust-roller .rfx.pust-fx { display: flex; flex-direction: column; gap: 2px; }
+.pust-roller .rfx.pust-fx h4 { margin: 2px 0 0; font-family: var(--pu-f-label); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--pu-green); }
+.pust-roller .rfx.pust-fx h5 { margin: 5px 0 1px; color: var(--pu-amber); font-size: 11.5px; font-weight: 700; }
+.pust-roller .rfx.pust-fx .rhint { margin: 0; font-size: 12px; }
+.pust-roller .rfx.pust-fx label.tog.pust-fxt { color: #cfe9d2; padding: 2px 4px 2px 28px; border-radius: 3px; cursor: pointer; }
+.pust-roller .rfx.pust-fx label.tog.pust-fxt.on { background: rgba(61,255,71,.13); color: #eaffea; }
+.pust-roller .rfx.pust-fx label.tog.pust-fxt:has(input:disabled) { cursor: default; opacity: .75; }
+.pust-roller .rfx.pust-fx .pust-fx-tag { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 3px; background: rgba(255,216,74,.18); color: var(--pu-amber); font-size: 11px; text-indent: 0; }
+.pust-roller .rfx.pust-fx .pust-fx-tag.hand { background: rgba(255,255,255,.08); color: #b9cdbd; }
+.pust-roller .rfx.pust-fx .pust-fx-one { display: flex; align-items: center; gap: 6px; margin-top: 4px; color: #cfe9d2; font-size: 12.5px; }
+.pust-roller .rfx.pust-fx .pust-fx-one select { flex: 1 1 auto; min-width: 0; }
+.pust-roller .rfx.pust-fx .pust-fx-apply { align-self: flex-start; margin-top: 5px; display: inline-flex; align-items: center; gap: 6px; }

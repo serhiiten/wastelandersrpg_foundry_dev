@@ -13,7 +13,8 @@ import { CATS, resetToBook } from "../rules/enemy-model.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { postEnemyCard } from "../applications/enemy-chat.mjs";
 import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
-import { sendDamage, chosenTokens, warnNoTargets } from "../applications/apply-damage.mjs";
+import { applyDamage, chosenTokens, clearTargets, warnNoTargets } from "../applications/apply-damage.mjs";
+import { splitWaiting, postPending } from "../applications/pending-attack.mjs";
 import { enemyView, diceTextHtml } from "./enemy-view.mjs";
 import { useMove, freeMove, attackWithMenu } from "../applications/enemy-move.mjs";
 import { enemyNames } from "../rules/target-profile.mjs";
@@ -286,7 +287,13 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
     try {
       const msg = await postDamageCard(this.document, { head: `${name}: ${src} (${expr})`, wt, total, parts: [{ l: expr, v: String(total), t: wt }], speaker: ChatMessage.getSpeaker({ actor: this.document, token: this.token }), rolls: [roll] });
       await waitDice(msg); // the damage is dealt once the 3D dice have landed (author, 2026-11-19)
-      await sendDamage({ total, dice, type: wt, ignoreArmor: target.dataset.ia === "1", ignoreN: Number(target.dataset.in) || 0 }, { head: `${name}: ${src}` });
+      // the players' characters wait for their avoidance on this card (A1; author, 2026-11-20), the others are hit at once
+      const data = { total, dice, type: wt, ignoreArmor: target.dataset.ia === "1", ignoreN: Number(target.dataset.in) || 0 };
+      const source = this.token?.uuid ?? "", head = `${name}: ${src}`;
+      const { wait, now } = await splitWaiting(chosenTokens());
+      if (now.length) await applyDamage(now, data, { head, source });
+      if (wait.length) await postPending(msg, { hits: [{ data, head }], targets: wait, source, srcName: name });
+      clearTargets();
     } finally { target.disabled = false; }
   }
 

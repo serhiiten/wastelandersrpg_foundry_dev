@@ -150,6 +150,8 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   // the states put on by enemies' moves end with the scene, their aspects too (author, 2026-11-20)
   // the aspects taken off are said in the card (author, 2026-11-20): in a character's row, a row of their own for the others
   // a hidden token's own row goes to the GMs in a whisper (author, 2026-11-20)
+  // the attacks still waiting for an avoidance are taken back, nothing dealt (A1; Fable: an old card mustn't hit next scene)
+  await (await import("./pending-attack.mjs")).cancelOpenPending();
   const hidRows = [];
   for (const g of await clearAllStates()) {
     const item = `Аспекти зникли: ${g.gone.map((t) => `«${t}»`).join(", ")}.`;
