@@ -42,7 +42,7 @@ function compactStore(actor, on) { try { if (on) localStorage.setItem(compactKey
  * quantity; price and × only in the full sheet
  */
 function compactWeapons(v) {
-  return (v.weapons ?? []).map((x) => ({ i: x.i, n: x.n || "без назви", kind: x.kind, stat: String(x.dEff || x.d || "").trim(), statCls: `pust-dtin dt-${x.dt}` }));
+  return (v.weapons ?? []).map((x) => ({ i: x.i, n: x.n || "без назви", nm: x.n || "", kind: x.kind, stat: String(x.dEff || x.d || "").trim(), statCls: `pust-dtin dt-${x.dt}` }));
 }
 function compactGear(v) {
   const a = (v.armorList ?? []).map((x) => ({ l: "armor", i: x.i, n: x.n || "без назви", kind: x.kind, stat: String(x.v ?? "").trim() ? `броня ${x.v}` : "", statCls: "arm" }));
@@ -131,7 +131,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         chems: (v.other ?? []).filter((o) => o.hasActs).map((o) => ({ ...o, more: !!o.treat })),
         weapons: compactWeapons(v),
         // the grenades and explosives the attack can throw: in «Зброя» with «Атака» (author, 2026-11-20), not among the chips
-        grenades: (v.other ?? []).filter((x) => x.atk && !x.hasActs).map((x) => ({ i: x.i, n: x.n || "без назви", d: x.atkD, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "" })),
+        grenades: (v.other ?? []).filter((x) => x.atk && !x.hasActs).map((x) => ({ i: x.i, n: x.n || "без назви", nm: x.n || "", d: x.atkD, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "" })),
         gear: compactGear(v),
         perks: pk,
         catSecName: (v.catSecs ?? []).find((o) => o.sel)?.n ?? "", catSecAll: !!(v.catSecs ?? [])[0]?.sel,

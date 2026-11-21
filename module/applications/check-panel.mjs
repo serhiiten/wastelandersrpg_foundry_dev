@@ -17,7 +17,7 @@ import { sendDamage, sendEffects } from "./apply-damage.mjs";
 import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx, coverActive } from "../rules/attack-effects.mjs";
 import { sharedGet } from "../helpers/scene-shared.mjs";
 import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
-import { rowTotal, rowClosed, rowText, ATTR_SHORT } from "../rules/dodge.mjs";
+import { rowTotal, rowDeal, rowClosed, rowText, ATTR_SHORT } from "../rules/dodge.mjs";
 import { checkPenalty, spendCheckStates } from "./states.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { checkDiceGroups, damageDiceGroups, poisonSidesOf, rollFromDice, rollList, seriesGroups, waitDice } from "../helpers/dice-rolls.mjs";
@@ -114,7 +114,8 @@ function redrawPanels(actor) {
 }
 Hooks.on("updateActor", (actor) => redrawPanels(actor));
 // an enemy's attack card changed (A1): the panels answering it, or open on an avoidance, show its new state
-Hooks.on("updateChatMessage", (m) => {
+// (and a card of its own, created with the record: a private attack or none to write on; reviewer, 2026-11-21)
+for (const h of ["updateChatMessage", "createChatMessage"]) Hooks.on(h, (m) => {
   if (!pendOf(m)) return;
   for (const app of [...OPEN.values(), DOCKED]) if (app?.rendered && app.actor?.isOwner) app.render();
 });
@@ -173,18 +174,23 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    * the card's «Уникнути»; an avoidance rolled without it takes the character's newest waiting attack by itself.
    */
   #pend = null;
+  /** The row the last avoidance roll was sent to, and whether the GM's answer is still on its way (reviewer, 2026-11-21:
+   *  bound at the roll, never by comparing the player's clock with the card's) */
+  #sent = null;
+  #sending = false;
   bindPend(b) { this.#pend = b?.msg && b?.row ? { msg: b.msg, row: b.row } : null; return this; }
   get pendMsgId() { return this.#pend?.msg ?? null; }
 
   /** The bound attack's record and row, while «Уникнення шкоди» is the check's type */
-  #pendNow(R) {
+  #pendNow(R, rebind = false) {
     if (R.type !== "dodge") return null;
     const bound = () => { const m = this.#pend ? game.messages.get(this.#pend.msg) : null; return { msg: m, pend: pendOf(m), row: pendOf(m)?.rows?.[this.#pend?.row] }; };
-    // none bound, or the bound one closed before this roll: the character's newest waiting attack
+    // none bound, or the bound one closed: the character's newest waiting attack — at a new roll always, on screen only when
+    // its card is newer than the closed one's (both cards' times come from the same place, unlike the player's roll time)
     let b = bound();
-    // (a newer attack than the last roll: the closed one gives way, so the panel never answers an old card)
-    if (!b.row || (rowClosed(b.row) && (!R.last || (game.messages.get(openRowOf(this.actor.uuid)?.msg)?.timestamp ?? 0) > (R.last.time ?? 0)))) {
-      const o = openRowOf(this.actor.uuid); if (o) { this.#pend = o; b = bound(); }
+    const o = openRowOf(this.actor.uuid);
+    if (o && (!b.row || (rowClosed(b.row) && (rebind || (game.messages.get(o.msg)?.timestamp ?? 0) > (b.msg?.timestamp ?? 0))))) {
+      this.#pend = o; b = bound();
     }
     const { msg, pend, row } = b;
     return row ? { pend, row, msg } : null;
@@ -196,13 +202,15 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!p) return "";
     const { pend, row } = p;
     const tot = rowTotal(pend, row);
+    const id = this.#pend?.row;
     const what = `${esc(pend.srcName || "Ворог")} атакує: <b>${tot}</b> шкоди${pend.half ? " (½ з ефекту)" : ""}`;
     let tail = "";
     // a roll made after the attack that never reached the card (the GM didn't answer): sent again, not rolled again
-    const sent = R.last?.type === "dodge" && (R.last.time ?? 0) > (p.msg?.timestamp ?? 0);
-    if (row.status === "wait" && sent) tail = `<button type="button" class="btn rust pust-pendbar-go" data-pend-send>Надіслати результат ще раз</button><span class="pust-pendbar-st">Доглядач ще не отримав твій кидок.</span>`;
+    const sent = R.last?.type === "dodge" && this.#sent?.msg === p.msg?.id && this.#sent?.row === id;
+    if (row.status === "wait" && sent && this.#sending) tail = `<span class="pust-pendbar-st">Кидок надіслано Доглядачу…</span>`;
+    else if (row.status === "wait" && sent) tail = `<button type="button" class="btn rust pust-pendbar-go" data-pend-send>Надіслати результат ще раз</button><span class="pust-pendbar-st">Доглядач ще не отримав твій кидок.</span>`;
     else if (row.status === "wait") tail = `<span class="pust-pendbar-st">Кидай уникнення ${ATTR_SHORT[pend.attr] ?? "ВП"}.</span>`;
-    else if (row.status === "rolled") tail = `<button type="button" class="btn rust pust-pendbar-go" data-pend-apply>${row.verdict === 1 ? `Отримати половину: ${Math.ceil(tot / 2)}` : `Отримати повну шкоду: ${tot}`}</button>`
+    else if (row.status === "rolled") tail = `<button type="button" class="btn rust pust-pendbar-go" data-pend-apply>${esc(rowDeal(pend, row).label)}</button>`
       + `<span class="pust-pendbar-st">Спершу можеш викликати аспект.</span>`;
     else tail = `<span class="pust-pendbar-st">${esc(rowText(row, pend.attr))}</span>`;
     return `<div class="pust-pendbar${rowClosed(row) ? " done" : ""}"><i class="fa-solid fa-shield-halved"></i><span>${what}</span>${tail}</div>`;
@@ -549,11 +557,11 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const ps = ev.target.closest("[data-pend-send]");
       if (ps) {
         ev.preventDefault();
-        if (ps.disabled || !this.#pend) return;
+        if (ps.disabled || !this.#sent) return;
         ps.disabled = true;
         const { L } = evaluate(this.actor);
         const v = this.#load(L).last?.verdict;
-        if (Number.isInteger(v)) await answerPending(this.#pend.msg, this.#pend.row, { op: "rolled", verdict: v });
+        if (Number.isInteger(v)) await answerPending(this.#sent.msg, this.#sent.row, { op: "rolled", verdict: v });
         ps.disabled = false;
         return;
       }
@@ -773,6 +781,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (penUsed) await spendCheckStates(this.actor);
     if (coverUsed) await this.actor.unsetFlag(game.system.id, "cover");
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
+    // an avoidance answering an enemy's attack (A1): the row is chosen now, before the render shows the new roll
+    const nl = out.R.last, ol = out.before.last;
+    const dodged = nl?.type === "dodge" && (nl.time !== ol?.time || nl.verdict !== ol?.verdict);
+    const fresh = dodged && nl.time !== ol?.time; // a new roll (not an aspect invoked on the last one) may answer a newer attack
+    const target = dodged ? this.#pendNow(out.R, fresh) : null;
+    if (target?.row && !rowClosed(target.row)) { this.#sent = { ...this.#pend }; this.#sending = true; }
     const deal = kind === "click" && key === "dmg";
     if (deal) await this.render(); // the damage to deal (#apply) is made by the render
     else this.render();
@@ -780,10 +794,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (deal) await waitDice(msg); // the damage is dealt once the 3D dice have landed (author, 2026-11-19)
     // an avoidance answering an enemy's attack (A1): its verdict goes to the card once the dice have landed; an aspect invoked
     // after it sends the new one (15+ closes the row by itself, author 2026-11-20)
-    const nl = out.R.last, ol = out.before.last;
-    if (nl?.type === "dodge" && (nl.time !== ol?.time || nl.verdict !== ol?.verdict) && this.#pendNow(out.R)?.row && !rowClosed(this.#pendNow(out.R).row)) {
-      await waitDice(msg);
-      await answerPending(this.#pend.msg, this.#pend.row, { op: "rolled", verdict: nl.verdict });
+    if (this.#sending && this.#sent) {
+      const to = this.#sent;
+      try { await waitDice(msg); await answerPending(to.msg, to.row, { op: "rolled", verdict: nl.verdict }); }
+      finally { this.#sending = false; if (this.rendered) this.render(); }
     }
     // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
     if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() });

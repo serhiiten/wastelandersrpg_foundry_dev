@@ -186,14 +186,14 @@
     {{#each cmp.weapons}}
     <div class="pust-cmp-wpn kind-{{kind}}">
       <span class="pust-cmp-cn">{{n}}</span>
-      <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-weapon="{{i}}" data-name="{{n}}" title="Атака цією зброєю: «Зробити перевірку». Перетягни на панель макросів, щоб атакувати звідти"><i class="fa-solid fa-dice-d20"></i> Атака</button>
-      {{#if stat}}<button type="button" class="pust-use-btn pust-cmp-dmg {{statCls}}" data-action="weaponDamage" data-weapon="{{i}}" data-name="{{n}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i> {{stat}}</button>{{/if}}
+      <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-weapon="{{i}}" data-name="{{nm}}" title="Атака цією зброєю: «Зробити перевірку». Перетягни на панель макросів, щоб атакувати звідти"><i class="fa-solid fa-dice-d20"></i> Атака</button>
+      {{#if stat}}<button type="button" class="pust-use-btn pust-cmp-dmg {{statCls}}" data-action="weaponDamage" data-weapon="{{i}}" data-name="{{nm}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i> {{stat}}</button>{{/if}}
     </div>
     {{/each}}
     {{#each cmp.grenades}}
     <div class="pust-cmp-wpn kind-boom">
       <span class="pust-cmp-cn">{{n}}{{#if q}} <small>×{{q}}</small>{{/if}}</span>
-      <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-other="{{i}}" data-name="{{n}}" title="Атака цією гранатою чи вибухівкою: «Зробити перевірку» (СПР + Техніка). Перетягни на панель макросів, щоб атакувати звідти"><i class="fa-solid fa-dice-d20"></i> Атака</button>
+      <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-other="{{i}}" data-name="{{nm}}" title="Атака цією гранатою чи вибухівкою: «Зробити перевірку» (СПР + Техніка). Перетягни на панель макросів, щоб атакувати звідти"><i class="fa-solid fa-dice-d20"></i> Атака</button>
       {{#if d}}<span class="pust-cmp-gs pust-cmp-gd">{{d}}</span>{{/if}}
     </div>
     {{/each}}

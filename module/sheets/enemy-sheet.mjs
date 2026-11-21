@@ -13,7 +13,7 @@ import { CATS, resetToBook } from "../rules/enemy-model.mjs";
 import { createTerminal } from "../rules/terminal.mjs";
 import { postEnemyCard } from "../applications/enemy-chat.mjs";
 import { rollEnemyAttack } from "../applications/enemy-attack.mjs";
-import { applyDamage, chosenTokens, clearTargets, warnNoTargets } from "../applications/apply-damage.mjs";
+import { applyDamage, chosenTokens, clearTargets, sendDamage, warnNoTargets } from "../applications/apply-damage.mjs";
 import { splitWaiting, postPending } from "../applications/pending-attack.mjs";
 import { enemyView, diceTextHtml } from "./enemy-view.mjs";
 import { useMove, freeMove, attackWithMenu } from "../applications/enemy-move.mjs";
@@ -290,6 +290,7 @@ export class WastelandersEnemySheet extends HandlebarsApplicationMixin(ActorShee
       // the players' characters wait for their avoidance on this card (A1; author, 2026-11-20), the others are hit at once
       const data = { total, dice, type: wt, ignoreArmor: target.dataset.ia === "1", ignoreN: Number(target.dataset.in) || 0 };
       const source = this.token?.uuid ?? "", head = `${name}: ${src}`;
+      if (!game.user.isGM) { await sendDamage(data, { head, source }); return; } // only the GM keeps the waiting record (reviewer, 2026-11-21)
       const { wait, now } = await splitWaiting(chosenTokens());
       if (now.length) await applyDamage(now, data, { head, source });
       if (wait.length) await postPending(msg, { hits: [{ data, head }], targets: wait, source, srcName: name });

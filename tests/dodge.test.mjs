@@ -53,6 +53,14 @@ eq([D.statesLand("full"), D.statesLand("half"), D.statesLand(null)], [true, true
 const pend = { hits: [{ data: { total: 9 } }, { data: { total: 4 } }], rows: { r0: { ...w, hits: [0, 1] }, r1: { ...rows.r1, status: "none" } } };
 eq(D.openRows(pend).map(([id]) => id), ["r0"], "open rows");
 eq(D.rowTotal(pend, pend.rows.r0), 13, "a row's total over its hits");
+{
+  const two = { hits: [{ data: { total: 3 } }, { data: { total: 3 } }], rows: { r0: { hits: [0, 1] } } };
+  eq(D.rowDeal(two, two.rows.r0, 1).n, 4, "10–14: each part halved and rounded up (2 + 2)");
+  eq(D.rowDeal(two, two.rows.r0, 0).label, "Отримати повну шкоду: 6", "9−: the full damage");
+  const h = { half: true, hits: [{ data: { total: 12 } }], rows: { r0: { hits: [0] } } };
+  eq(D.rowDeal(h, h.rows.r0, 1).label, "Отримати: 0 (½ + ½)", "the menu's ½ with 10–14: nothing");
+  eq(D.rowDeal(h, h.rows.r0, 0).label, "Отримати половину: 6", "the menu's ½ with 9−: half");
+}
 ok(D.rowText({ status: "wait" }).includes("чекає"), "waiting row's text");
 
 console.log(`dodge: ${checks - failures}/${checks} passed`);

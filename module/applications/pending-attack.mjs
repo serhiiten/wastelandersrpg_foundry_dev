@@ -13,7 +13,7 @@ import { activeGmHere } from "../helpers/main-window.mjs";
 import { askGM, answerGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { sharedGet } from "../helpers/scene-shared.mjs";
-import { pendRows, answerRow, statesLand, rowText, rowTotal, openRows, rowClosed, dodgeAttr, ATTR_SHORT } from "../rules/dodge.mjs";
+import { pendRows, answerRow, statesLand, rowText, rowDeal, openRows, rowClosed, dodgeAttr, ATTR_SHORT } from "../rules/dodge.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const sys = () => game.system.id;
@@ -183,8 +183,7 @@ export function renderPending(message, html) {
       btns.push(`<button type="button" class="pust-pend-b full" data-pend="take" data-row="${id}" title="Отримати повну шкоду без кидка уникнення">Повністю</button>`);
     }
     if (open && mine && r.status === "rolled") {
-      const tot = rowTotal(pend, r);
-      btns.push(`<button type="button" class="pust-pend-b dodge" data-pend="apply" data-row="${id}">${r.verdict === 1 ? `Отримати половину: ${Math.ceil(tot / 2)}` : "Отримати повну шкоду"}</button>`);
+      btns.push(`<button type="button" class="pust-pend-b dodge" data-pend="apply" data-row="${id}">${esc(rowDeal(pend, r).label)}</button>`);
     }
     if (open && gm) btns.push(`<label class="pust-pend-gm" title="Уникати не можна (відповідь на невдачу чи частковий успіх атаки гравця): повна шкода одразу"><input type="checkbox" data-pend="gm" data-row="${id}"> Без уникнення</label>`);
     return `<div class="pust-pend-row st-${r.status}"><span class="pust-pend-name">${esc(r.name)}</span><span class="pust-pend-st">${esc(rowText(r, pend.attr))}</span>`

@@ -102,6 +102,22 @@ export function rowText(row, attr = "VP") {
   }
 }
 
+/**
+ * The apply button's words after the avoidance roll (before armour): each hit is halved and rounded up on its own, as
+ * computeDamageCore does, and the menu's «½ шкоди» (`pend.half`) with 10–14 is ½ + ½ — nothing (reviewer, 2026-11-21).
+ * @returns {{n:number, label:string}}
+ */
+export function rowDeal(pend, row, verdict = row?.verdict) {
+  const halves = (pend?.half ? 1 : 0) + (verdict === 1 ? 1 : 0);
+  const hits = pend?.hits ?? [];
+  const n = halves >= 2 ? 0 : (row?.hits ?? [0]).reduce((s, i) => {
+    const t = Math.max(0, Math.round(Number(hits[i]?.data?.total) || 0));
+    return s + (halves ? Math.ceil(t / 2) : t);
+  }, 0);
+  const label = halves >= 2 ? `Отримати: ${n} (½ + ½)` : halves ? `Отримати половину: ${n}` : `Отримати повну шкоду: ${n}`;
+  return { n, label };
+}
+
 /** The total of a record's hits for a row (before armour), for the button «Отримати половину: N» */
 export function rowTotal(pend, row) {
   const hits = pend?.hits ?? [];

@@ -453,7 +453,9 @@ export async function attackWithMenu(actor, i, { token = null, anchor = null } =
   const STATE = { disarmed: "disarmed", stunned: "stunned", down: "down", halfDown: "down" };
   // the players' characters wait for their avoidance on the attack's card (A1; author, 2026-11-20): their states of the menu
   // land with the damage, never when the avoidance took it all; the others are hit at once, as before
-  const { wait, now } = await splitWaiting(targets);
+  // only the GM keeps the waiting record; anyone else who holds an enemy (a player's robot companion) hits through the GM as
+  // before A1, nobody waiting (reviewer, 2026-11-21)
+  const { wait, now } = game.user.isGM ? await splitWaiting(targets) : { wait: [], now: targets };
   const byName = tok?.name || actor.name, once = pick.k === "stunned" && !!pick.once;
   const states = STATE[pick.k] ? [{ key: STATE[pick.k] }] : [];
   if (pick.k !== "none") {
@@ -464,6 +466,7 @@ export async function attackWithMenu(actor, i, { token = null, anchor = null } =
     if (states.length && wait.length) lines.push(`${wait.map((w) => w.name).join(", ")}: стан застосується разом зі шкодою, якщо не уникне.`);
     await postChat({ content: moveCardHtml(byName, mv, moveSpec(mv, sys, pick.mi), lines), speaker: tok ? ChatMessage.getSpeaker({ token: tok }) : ChatMessage.getSpeaker({ actor }) });
   }
+  if (!game.user.isGM) return sendDamage(data, { head: r.head, source: by, dodge: pick.k === "halfDown" });
   if (now.length) await applyDamage(now, data, { head: r.head, source: by, dodge: pick.k === "halfDown" });
   if (wait.length) await postPending(r.msg, { hits: [{ data, head: r.head }], targets: wait, half: pick.k === "halfDown", source: by, srcName: byName, states, once });
   clearTargets();
