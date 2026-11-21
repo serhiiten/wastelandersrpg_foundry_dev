@@ -196,7 +196,8 @@ export function buildView(st, d, L, ui = {}) {
   if (ui.pick === "perk") {
     const have = new Set(st.perks.map((p) => p.n));
     const groups = {};
-    PERKS.filter((p) => !have.has(p.n) && (st.set.psi || !p.psi) && match(p)).forEach((p) => {
+    // a perk taken once stays in the list when it may be taken again (rep: «Здоровань», «Улюблена зброя»…); perkElig counts the limit
+    PERKS.filter((p) => (!have.has(p.n) || (p.rep || 1) > 1) && (st.set.psi || !p.psi) && match(p)).forEach((p) => {
       const ev = perkElig(p, st, d, -1);
       if (!ui.showAll && !ev.ok && !free) return;
       (groups[p.c] ||= []).push({ n: p.n, ok: ev.ok, why: ev.why.join("; "), req: p.rt, text: p.d });
