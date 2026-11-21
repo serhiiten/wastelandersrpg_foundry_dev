@@ -47,6 +47,9 @@ ok(W.CORE_MULT.join() === "0.6,1,1.4", "Foundry's weathers: 0.6 / 1 / 1.4");
 // recipes
 const r0 = W.recipe("dust", 0), r2 = W.recipe("dust", 2);
 ok(r0.layers[0].config.intensity < r2.layers[0].config.intensity, "dust: stronger is denser");
+// the dust's grains (author, 2026-11-21, «А — дрібний пил»): the system's own round grains, small, not Foundry's snow (streaks)
+ok(r0.layers[1].shader === "PustDustShader" && r0.layers[1].config.grain <= 2.5 && r0.layers[1].config.stretch === 1, "dust: small round grains");
+ok(r0.layers[1].config.speed < r2.layers[1].config.speed && r2.layers[1].config.grain === r0.layers[1].config.grain, "dust: stronger is faster, same grains");
 ok(r0.layers[0].config.tint === W.WASTES[0].layers[0].config.tint || r0.layers[0].config.tint.join() === "1,0.75,0.45", "dust: config kept");
 ok(new Set(r0.layers.map((l) => l.key)).size === r0.layers.length, "layer keys unique");
 ok(W.recipe("rain", 2).core && W.recipe("rain", 2).mult === 1.4, "a core recipe");
