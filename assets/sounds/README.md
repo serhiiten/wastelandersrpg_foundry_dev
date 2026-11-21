@@ -1,14 +1,18 @@
 # Звуки подій (V4): походження кожного файлу
 
-Звуки грає `module/helpers/sfx.mjs` (каналом інтерфейсу Foundry, гучність — повзунок Interface на вкладці Playlists; вимикає налаштування клієнта «Звуки подій»). Рішення: `docs/decisions/battle.md`, розділ «Event sounds (V4)» у робочій теці проєкту. Кожен файл має ліцензію CC0 (Creative Commons Zero, https://creativecommons.org/publicdomain/zero/1.0/). Тексти ліцензій пакетів лежать поруч: `LICENSE-kenney-*.txt`.
+Звуки грає `module/helpers/sfx.mjs` (каналом інтерфейсу Foundry, гучність — повзунок Interface на вкладці Playlists; вимикає налаштування клієнта «Звуки подій»). Рішення: `docs/decisions/battle.md`, розділ «Event sounds (V4)» у робочій теці проєкту. Кожен файл має ліцензію CC0 (Creative Commons Zero, https://creativecommons.org/publicdomain/zero/1.0/).
+
+Усі шість звуків — власний синтез проєкту, без семплів і записів. П'ять синтезовано в дусі Fallout 1/2 скриптом `tools/sfx/make-sfx-fallout.mjs` (варіанти Ф1–Ф4 на кожну подію; автор обрав 2026-11-21 на сторінці вибору). Усі шість вирівняно за гучністю скриптом `tools/sfx/level-sfx.mjs` (−17,4 LUFS, пік не вище −1 дБ; Гейгер тихіший, бо його впирає пік).
 
 | Файл | Подія | Джерело | Автор | Ліцензія | Посилання | Отримано |
 |---|---|---|---|---|---|---|
-| `bong_001.ogg` | нове коло дій («Почалося коло дій») | Kenney «Interface Sounds» 1.0 (11-02-2020), `Audio/bong_001.ogg`, без змін | Kenney (www.kenney.nl) | CC0 | https://kenney.nl/assets/interface-sounds | 2026-11-21, архів 834 536 байт |
-| `glass_004.ogg` | витрачено жетон Долі | те саме, `Audio/glass_004.ogg` | Kenney | CC0 | https://kenney.nl/assets/interface-sounds | 2026-11-21 |
-| `confirmation_004.ogg` | критичний успіх перевірки | те саме, `Audio/confirmation_004.ogg` | Kenney | CC0 | https://kenney.nl/assets/interface-sounds | 2026-11-21 |
-| `minimize_006.ogg` | хтось вибуває (картка шкоди з «вибуває») | те саме, `Audio/minimize_006.ogg` | Kenney | CC0 | https://kenney.nl/assets/interface-sounds | 2026-11-21 |
-| `chips-collide-3.ogg` | Кришки (картка торгівлі каравану) | Kenney «Casino Audio» 1.1, `Audio/chips-collide-3.ogg`, без змін | Kenney Vleugels (Kenney.nl) | CC0 | https://kenney.nl/assets/casino-audio | 2026-11-21, архів 876 839 байт |
-| `geiger.wav` | шкода радіацією (лічильник Гейгера) | синтезовано скриптом `tools/make-geiger.mjs` (випадкові клацання, фіксоване зерно) | проєкт «Пустельники» | CC0 | — | 2026-11-21 |
+| `round.wav` | нове коло дій («Почалося коло дій») | `tools/sfx/make-sfx-fallout.mjs`, варіант `round-f1` (термінал: два біпи вгору), вирівняно `level-sfx.mjs` | проєкт «Пустельники» | CC0 | — | 2026-11-21 |
+| `fate.wav` | витрачено жетон Долі | те саме, `fate-f1` (два м'які біпи Pip-Boy) | проєкт «Пустельники» | CC0 | — | 2026-11-21 |
+| `crit.wav` | критичний успіх перевірки | те саме, `crit-f3` (вібрафон 50-х, мажорний акорд) | проєкт «Пустельники» | CC0 | — | 2026-11-21 |
+| `out.wav` | хтось вибуває (картка шкоди з «вибуває») | те саме, `out-f1` (кінескоп гасне з клацом) | проєкт «Пустельники» | CC0 | — | 2026-11-21 |
+| `caps.wav` | Кришки (картка торгівлі каравану) | те саме, `caps-f4` (термінал підтверджує угоду) | проєкт «Пустельники» | CC0 | — | 2026-11-21 |
+| `geiger.wav` | шкода радіацією (лічильник Гейгера) | синтезовано скриптом `tools/make-geiger.mjs` (випадкові клацання, фіксоване зерно), вирівняно `level-sfx.mjs` | проєкт «Пустельники» | CC0 | — | 2026-11-21 |
+
+Відтворити файли: `node tools/sfx/make-sfx-fallout.mjs <тека>`, `node tools/make-geiger.mjs`, потім `node tools/sfx/level-sfx.mjs <тека>`.
 
 Замінити звук: поклади новий файл сюди, допиши рядок у цю таблицю (джерело, автор, ліцензія лише CC0, посилання) і зміни назву в `SFX` у `module/helpers/sfx.mjs`.

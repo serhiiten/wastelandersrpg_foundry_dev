@@ -9,12 +9,12 @@
 
 /** The sounds by kind (assets/sounds/README.md has each file's source, author and licence) */
 export const SFX = {
-  crit: "confirmation_004.ogg",
-  out: "minimize_006.ogg",
+  crit: "crit.wav",
+  out: "out.wav",
   rad: "geiger.wav",
-  round: "bong_001.ogg",
-  fate: "glass_004.ogg",
-  caps: "chips-collide-3.ogg",
+  round: "round.wav",
+  fate: "fate.wav",
+  caps: "caps.wav",
 };
 
 /** One card, one sound: the first kind of this list that the card has */
