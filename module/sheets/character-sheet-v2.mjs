@@ -75,6 +75,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       addPick: WastelandersCharacterSheetV2.#onAddPick,
       drugAdd: WastelandersCharacterSheetV2.#onDrugAdd,
       compactToggle: WastelandersCharacterSheetV2.#onCompactToggle,
+      noteEdit: WastelandersCharacterSheetV2.#onNoteEdit,
     },
   };
 
@@ -146,6 +147,19 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     context.issuesFold = this.ui.issuesFold ?? true;
     context.ui = { ovOpen: !!this.ui.ovOpen, defOpen: !!this.ui.defOpen, xpHelpOpen: !!this.ui.xpHelpOpen, sheetBarOpen: !!this.ui.sheetBarOpen }; // folded blocks in «Налаштування» (closed by default)
     context.restUi = this.ui.rest;
+    // «Записи» (U8, author 2026-11-21, mockup А): the text as text, the editor behind the pencil in the block's heading;
+    // whoever may not edit the character sees only the text
+    if (this.ui.tab === "notes") {
+      const TE = foundry.applications.ux.TextEditor.implementation;
+      const owner = this.document.isOwner;
+      context.notes = [];
+      for (const [k, title] of [["bio", "Біографія"], ["others", "Інші"]]) {
+        const raw = String(context.v?.[k] ?? "");
+        const editing = this.isEditable && this.#noteEdit.has(k);
+        const html = editing || !raw.trim() ? "" : await TE.enrichHTML(textToHtml(raw), { secrets: owner, relativeTo: this.document });
+        context.notes.push({ k, title, raw, editing, html, empty: !raw.replace(/<[^>]*>/g, "").trim() });
+      }
+    }
     context.customKind = this.customKind;
     context.editable = this.isEditable;
     context.qsLock = isQuickstartActor(this.document) ? qsLockTip(this.document) : ""; // «Швидкий старт» actors: no random / clear (quickstart-lock.mjs)
@@ -336,6 +350,21 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   }
 
   #refocus = null;
+
+  /** The notes («Біографія» / «Інші») whose editor is open (U8); none by default */
+  #noteEdit = new Set();
+
+  /** The pencil / «Готово» of a note: opens its editor, or saves it and shows the text again */
+  static async #onNoteEdit(event, target) {
+    const k = target.dataset.note;
+    if (!k || !this.isEditable) return;
+    if (this.#noteEdit.has(k)) {
+      const el = this.element?.querySelector(`prose-mirror[data-note="${k}"]`);
+      if (el) await this.#saveNote(el);
+      this.#noteEdit.delete(k);
+    } else this.#noteEdit.add(k);
+    this.render();
+  }
 
   /** Save a note editor's text when it changed: straight into the actor, no re-render (the editor keeps its state);
    *  the .json gets plain text */

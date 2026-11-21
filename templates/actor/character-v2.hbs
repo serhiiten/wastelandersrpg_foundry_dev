@@ -728,12 +728,20 @@
 
   {{!-- ===== Записи ===== --}}
   {{#if (eq tab 'notes')}}
-    <section class="pust-block">
-      {{!-- Foundry's own editor with its formatting tools, on ruled paper (author, 2026-11-15); saved when the editor is left --}}
-      <h3>Біографія</h3>
-      <prose-mirror class="pust-notes-ed pust-notes-bio" data-note="bio" value="{{v.bio}}"></prose-mirror>
-      <h3>Інші</h3>
-      <prose-mirror class="pust-notes-ed" data-note="others" value="{{v.others}}"></prose-mirror>
+    <section class="pust-block pust-notes-blk">
+      {{!-- the text as text; the pencil in the heading opens Foundry's own editor, «Готово» closes it (U8, author 2026-11-21);
+           the editor saves as you write (author, 2026-11-15) --}}
+      {{#each notes}}
+      <h3 class="pust-note-hd">{{title}}
+        {{#if ../editable}}
+        {{#if editing}}<button type="button" class="pust-note-pen on" data-action="noteEdit" data-note="{{k}}" title="Закрити редактор: запис збережено"><i class="fa-solid fa-check"></i> Готово</button>
+        {{else}}<button type="button" class="pust-note-pen" data-action="noteEdit" data-note="{{k}}" title="Редагувати «{{title}}»" aria-label="Редагувати «{{title}}»"><i class="fa-solid fa-pen"></i></button>{{/if}}
+        {{/if}}
+      </h3>
+      {{#if editing}}<prose-mirror class="pust-notes-ed{{#if (eq k 'bio')}} pust-notes-bio{{/if}}" data-note="{{k}}" value="{{raw}}"></prose-mirror>
+      {{else if empty}}<p class="pust-note-view pust-note-empty">Поки порожньо.</p>
+      {{else}}<div class="pust-note-view" data-note-view="{{k}}">{{{html}}}</div>{{/if}}
+      {{/each}}
     </section>
   {{/if}}
 

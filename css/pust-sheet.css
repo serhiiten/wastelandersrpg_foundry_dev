@@ -1988,3 +1988,19 @@
 .pust-ko-mark { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 3px; background: #9a6a12; color: #fff8e8; font-size: 11.5px; letter-spacing: .04em; vertical-align: middle; }
 .pust-ko-mark.doomed { background: #a8121a; }
 .pust-cons > .pust-cons-red { grid-column: 2; font-family: var(--pu-f-num); font-size: 12px; color: #a8121a; }
+
+/* «Записи» (U8, author 2026-11-21, mockup А): the note as text on paper; the pencil (or «Готово» while editing) at the
+   right of its heading, clear of the heading's rule like the compact sheet's «+» (.pust-cmp-gear > h3) */
+.pust-notes-blk > h3.pust-note-hd { display: flex; align-items: center; gap: 8px; min-height: 30px; padding-bottom: 4px; }
+.pust-notes-blk > h3.pust-note-hd ~ h3.pust-note-hd { margin-top: 10px; }
+.wastelanders .pust-notes-blk > h3 > button.pust-note-pen:not(.header-control) { height: 24px; line-height: 22px; margin: 0 0 2px auto; padding: 0 8px; flex: none; text-transform: none; }
+.wastelanders .pust-notes-blk > h3 > button.pust-note-pen.on:not(.header-control) { background: var(--pu-good); color: #e7ffd9; border-color: #1d4421; box-shadow: 0 2px 0 #1d4421; }
+.pust-notes-blk .pust-note-view { margin: 2px 0 6px; padding: 6px 12px; border: 1px solid var(--pu-paper-3); border-radius: 4px; background: #fffaf0;
+  font-family: var(--pu-f-text); font-size: 14px; line-height: 1.5; color: var(--pu-ink); overflow-wrap: anywhere; }
+.pust-notes-blk .pust-note-view > * { margin: 0; }
+.pust-notes-blk .pust-note-view > * + * { margin-top: .35em; }
+.pust-notes-blk .pust-note-view :is(h1, h2, h3, h4, h5, h6) { font-size: 16px; line-height: 1.3; border: 0; padding: 0; margin-top: .5em; text-transform: none; }
+.pust-notes-blk .pust-note-view :is(ul, ol) { padding-left: 20px; }
+.pust-notes-blk .pust-note-view blockquote { padding-left: 10px; border-left: 3px solid var(--pu-rust-4); }
+.pust-notes-blk .pust-note-view table { width: 100%; margin: .35em 0; }
+.pust-notes-blk .pust-note-empty { color: var(--pu-ink-3); font-style: italic; }
