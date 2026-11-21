@@ -21,6 +21,8 @@ import { openCheckPanel, rollWeaponDamage } from "../applications/check-panel.mj
 import { EXTRA_TYPES, catalogEnergy, weaponDmgType } from "../rules/damage-types.mjs";
 import { fateNow, fateSnap, postFateChange, postFateIfChanged, postSupIfChanged, supSnap } from "../applications/fate-card.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { cardText, channelOf } from "../rules/sheet-channels.mjs";
+import { postSheetCard } from "../applications/sheet-cards.mjs";
 import { stateArmor } from "../rules/states.mjs";
 import { statesOf } from "../applications/apply-damage.mjs";
 
@@ -51,6 +53,8 @@ function compactGear(v) {
 }
 
 /** Actions that make the character anew: their Fate count is no token spent or gained */
+/** How long the line under a block stays (U7) */
+const NOTE_MS = 6000;
 const FATE_QUIET = new Set(["new", "random", "preset", "apply-arch", "species-x", "roll-species", "roll-perks", "roll-feats", "roll-gear"]);
 
 export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
@@ -75,6 +79,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       addPick: WastelandersCharacterSheetV2.#onAddPick,
       drugAdd: WastelandersCharacterSheetV2.#onDrugAdd,
       compactToggle: WastelandersCharacterSheetV2.#onCompactToggle,
+      noteEdit: WastelandersCharacterSheetV2.#onNoteEdit,
     },
   };
 
@@ -146,16 +151,99 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     context.issuesFold = this.ui.issuesFold ?? true;
     context.ui = { ovOpen: !!this.ui.ovOpen, defOpen: !!this.ui.defOpen, xpHelpOpen: !!this.ui.xpHelpOpen, sheetBarOpen: !!this.ui.sheetBarOpen }; // folded blocks in «Налаштування» (closed by default)
     context.restUi = this.ui.rest;
+    // «Записи» (U8, author 2026-11-21, mockup А): the text as text, the editor behind the pencil in the block's heading;
+    // whoever may not edit the character sees only the text
+    if (this.ui.tab === "notes") {
+      const TE = foundry.applications.ux.TextEditor.implementation;
+      const owner = this.document.isOwner;
+      context.notes = [];
+      for (const [k, title] of [["bio", "Біографія"], ["others", "Інші"]]) {
+        const raw = String(context.v?.[k] ?? "");
+        const editing = this.isEditable && this.#noteEdit.has(k);
+        const html = editing || !raw.trim() ? "" : await TE.enrichHTML(textToHtml(raw), { secrets: owner, relativeTo: this.document });
+        context.notes.push({ k, title, raw, editing, html, empty: !raw.replace(/<[^>]*>/g, "").trim() && !/<(img|table|iframe|video|audio|hr)/i.test(raw) });
+      }
+    }
     context.customKind = this.customKind;
     context.editable = this.isEditable;
     context.qsLock = isQuickstartActor(this.document) ? qsLockTip(this.document) : ""; // «Швидкий старт» actors: no random / clear (quickstart-lock.mjs)
     return context;
   }
 
-  /** Run one of the HTML sheet's handlers on this character and save */
-  #run(fn) {
-    const toast = (msg, kind) => (kind === "bad" ? notify.warn(msg) : notify.info(msg));
-    return runAction(this.document, (st, L) => fn(createController(st, L, { toast }), st, L), { ui: this.ui.rest });
+  /**
+   * Run one of the HTML sheet's handlers on this character and save. Its messages go where the action says (U7, author
+   * 2026-11-21; module/rules/sheet-channels.mjs): a refusal pops up, a change in play becomes a chat card, the rest a line
+   * under the pressed block. `ctx.act` / `ctx.data`: the action; `fn` gets a 4th argument to add a message of its own.
+   */
+  async #run(fn, ctx = {}) {
+    const msgs = [];
+    const toast = (msg, kind) => { if (!msg) return; if (kind === "bad") notify.warn(msg); else msgs.push(String(msg)); };
+    this.#clearNote();
+    let chem = null;
+    const out = await runAction(this.document, async (st, L) => {
+      const r = await fn(createController(st, L, { toast }), st, L, (m) => toast(m));
+      chem = foundry.utils.deepClone(st.chem ?? {});
+      return r;
+    }, { ui: this.ui.rest, toast });
+    await this.#say(msgs, chem, ctx);
+    return out;
+  }
+
+  /** The messages of an action, by its channel */
+  async #say(msgs, chem, { act = "", data = {} } = {}) {
+    if (!msgs.length) return;
+    const c = channelOf(act, data);
+    if (c.ch === "none") return;
+    if (c.ch === "card") return void (await postSheetCard(this.document, cardText(c.act, msgs, chem ?? {})));
+    this.#note = { ...(this.#anchor ?? {}), tab: this.ui.tab, text: msgs.join(" "), until: Date.now() + NOTE_MS, fresh: true };
+    if (this.element) this.#showNote(this.element);
+  }
+
+  /** The block last pressed in (its heading's text and its place among the blocks), to find it again after a re-render */
+  #anchor = null;
+  /** The line under a block (U7): { head, idx, text, until, fresh } */
+  #note = null;
+  #noteTimer = null;
+
+  #anchorOf(el) {
+    const block = el?.closest?.(".pust-block, .pust-quickbar");
+    if (!block || !this.element?.contains(block)) return null;
+    const head = block.querySelector(":scope > h3, :scope > h4")?.textContent?.replace(/\s+/g, " ").trim() || "";
+    return { head, idx: [...this.element.querySelectorAll(".pust-block, .pust-quickbar")].indexOf(block) };
+  }
+
+  #clearNote() {
+    this.#note = null;
+    clearTimeout(this.#noteTimer);
+    this.element?.querySelectorAll(".pust-inl-note").forEach((p) => p.remove());
+  }
+
+  /** Put the line under its block (again after a render); a block that is gone gives the first block of the tab */
+  #showNote(root) {
+    const n = this.#note;
+    root.querySelectorAll(".pust-inl-note").forEach((p) => p.remove());
+    if (!n || Date.now() >= n.until || n.tab !== this.ui.tab) return void (this.#note = null); // another tab: gone
+    const blocks = [...root.querySelectorAll(".pust-block, .pust-quickbar")];
+    const headOf = (b) => b.querySelector(":scope > h3, :scope > h4")?.textContent?.replace(/\s+/g, " ").trim() || "";
+    const block = (n.head && blocks.find((b, i) => i === n.idx && headOf(b) === n.head)) || (n.head && blocks.find((b) => headOf(b) === n.head))
+      || (!n.head && blocks[n.idx]) || root.querySelector(".pust-body .pust-block") || blocks[0];
+    if (!block) return;
+    const p = document.createElement("p");
+    p.className = "pust-inl-note";
+    p.setAttribute("role", "status");
+    p.setAttribute("aria-live", "polite");
+    p.innerHTML = `<i class="fa-solid fa-check"></i> `;
+    p.append(document.createTextNode(n.text));
+    block.append(p);
+    if (n.fresh) {
+      n.fresh = false;
+      block.classList.remove("pust-flash");
+      void block.offsetWidth;
+      block.classList.add("pust-flash");
+      setTimeout(() => block.classList.remove("pust-flash"), 1800);
+    }
+    clearTimeout(this.#noteTimer);
+    this.#noteTimer = setTimeout(() => { if (this.#note === n) this.#clearNote(); }, Math.max(0, n.until - Date.now()));
   }
 
   /** @override */
@@ -236,6 +324,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     root.querySelector(".pust-props")?.addEventListener("toggle", (ev) => { this.ui.propsOpen = ev.currentTarget.open; });
     root.querySelectorAll("details[data-fold]").forEach((el) => el.addEventListener("toggle", () => { this.ui[el.dataset.fold] = el.open; }));
     this.#showGoTo(root);
+    this.#showNote(root); // U7: the line under the pressed block survives the re-render its own action caused
     // the damage field (author, 2026-11-14): a long value («менша з 2d6») gets a smaller font (down to 10 px), so it fits the cell;
     // one that still doesn't fit («1d10[отрута]+2d6[пси]») moves to a row of its own under the weapon, with a «Шкода» chip,
     // and wraps there (the field grows with its text; Enter leaves the field)
@@ -337,6 +426,21 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   #refocus = null;
 
+  /** The notes («Біографія» / «Інші») whose editor is open (U8); none by default */
+  #noteEdit = new Set();
+
+  /** The pencil / «Готово» of a note: opens its editor, or saves it and shows the text again */
+  static async #onNoteEdit(event, target) {
+    const k = target.dataset.note;
+    if (!k || !this.isEditable) return;
+    if (this.#noteEdit.has(k)) {
+      const el = this.element?.querySelector(`prose-mirror[data-note="${k}"]`);
+      if (el) await this.#saveNote(el);
+      this.#noteEdit.delete(k);
+    } else this.#noteEdit.add(k);
+    this.render();
+  }
+
   /** Save a note editor's text when it changed: straight into the actor, no re-render (the editor keeps its state);
    *  the .json gets plain text */
   #saveNote(el) {
@@ -396,13 +500,13 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       notify.warn(`«${item.name}»: ${err}`);
       return false;
     }
-    return this.#run((C, st) => {
+    return this.#run((C, st, L, say) => {
       const caps = parseInt(st.caps, 10) || 0;
       if (pay > caps) { notify.warn(`Не вистачає кришок: треба ${pay}(к), є ${caps}(к).`); return false; }
       const ok = C.act("drug-add-custom", { n: item.name, def: recipeToDef(recipe) });
-      if (ok !== false && pay > 0) { st.caps = caps - pay; notify.info(`Куплено за ${pay}(к): ${item.name}. Кришок лишилося ${st.caps}.`); }
+      if (ok !== false && pay > 0) { st.caps = caps - pay; say(`Куплено за ${pay}(к): ${item.name}. Кришок лишилося ${st.caps}.`); }
       return ok;
-    });
+    }, { act: pay > 0 ? "buy" : "drug-add-custom" }); // a purchase is a chat card (U7)
   }
 
   #onSpecialChange(event) {
@@ -453,6 +557,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   /** A button of the HTML sheet (data-act + its dataset) */
   static async #onAct(event, target) {
+    this.#clearNote(); // the line of the last action goes with the next one (U7)
     const { action, act, confirm, ...data } = target.dataset;
     if (QS_LOCKED_ACTS.has(act) && isQuickstartActor(this.document)) return void notify.warn(qsLockTip(this.document));
     if (confirm && !WastelandersCharacterSheetV2.#armed(target)) return;
@@ -472,7 +577,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     // dropping to 0 ОЗ, «Кінець сесії»… — not a character made anew
     const fdWas = FATE_QUIET.has(act) ? null : fateSnap(this.document);
     const supWas = FATE_QUIET.has(act) ? null : supSnap(this.document); // Припаси too: lamps, rest, «Поповнити» (author, 2026-11-15)
-    const ok = await this.#run((C) => C.act(act, data));
+    const ok = await this.#run((C) => C.act(act, data), { act, data });
     if (fdWas) await postFateIfChanged(this.document, fdWas);
     if (supWas) await postSupIfChanged(this.document, supWas);
     // «Очистити аркуш» also puts back the default picture (portrait and token)
@@ -484,6 +589,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   /** A tab; a guide link also names the block to show (data-go: a selector; no data-tab — the block is above the tabs) */
   static #onTab(event, target) {
+    this.#clearNote();
     const { tab, go } = target.dataset;
     if (tab) this.ui.tab = tab;
     // a tab picked from the stuck bar (U1, author 2026-11-20) opens from its start, not from the old tab's scroll
@@ -573,6 +679,9 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   /** Opened compact (remembered for this character): at the compact width from the start */
   _onFirstRender(context, options) {
     super._onFirstRender?.(context, options);
+    // the block pressed in, for the line of U7 (the window's element lives through the re-renders)
+    const mark = (ev) => { const a = this.#anchorOf(ev.target); if (a) this.#anchor = a; };
+    for (const t of ["pointerdown", "keydown", "change"]) this.element.addEventListener(t, mark, true);
     if (this.ui.compact) { this.#fullSize = { width: 900, height: 920 }; this.setPosition({ width: COMPACT_W, height: Math.min(this.position.height, 760) }); }
   }
 

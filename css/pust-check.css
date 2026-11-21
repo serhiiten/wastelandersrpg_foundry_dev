@@ -216,6 +216,10 @@
   background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29); color: var(--pu-green);
   border: 3px solid var(--pu-steel-0); border-radius: 6px; box-shadow: inset 0 0 18px rgba(0,0,0,.45); }
 .pust-chat .pust-cres > * { margin: 0; }
+/* A10 (author 2026-11-21): «+1 ОД в аркуш» on the check's card when the panel added the ОД by itself */
+.pust-chat .pust-cres .pust-cxp { align-self: flex-start; padding: 1px 7px; border-radius: 3px; background: #3a2f6b; color: #efe9ff;
+  font-family: "Ubuntu Mono", Consolas, monospace; font-size: 12.5px; font-weight: 700; }
+.pust-chat .pust-cres .pust-cxp > i { margin-right: 3px; }
 .chat-message .pust-chat .pust-cres .rtot { flex: none; font-family: var(--pu-f-num); font-size: 26px; line-height: 1; color: #b6ffb9; text-shadow: 0 0 10px rgba(61,255,71,.5); }
 .pust-chat .pust-cres .rverd { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; padding: 4px 8px; border-radius: 3px; background: rgba(0,0,0,.25); }
 .chat-message .pust-chat .pust-cres .rverd > b:not(.rtot) { flex: 0 1 auto; min-width: 0; font-family: var(--pu-f-label); font-weight: 800; font-size: 15px; line-height: 1.1; text-transform: uppercase; letter-spacing: .03em; }

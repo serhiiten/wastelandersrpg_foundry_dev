@@ -1,0 +1,30 @@
+/* «Кінець сесії: ОД» (A10, author 2026-11-21, mockup Б; module/applications/session-xp.mjs): the group's questions, then a
+   card for every character. Palette, cards and buttons are the system's (pust-ui.css); the ОД chips are the violet of
+   the end card's «+N ОД». Narrowest width 460, like the check panel. */
+.application.pust-sessxp { min-width: 460px; }
+.pust-sessxp .window-content { padding: 0; overflow: hidden; }
+.pust-sx { display: flex; flex-direction: column; gap: 8px; padding: 8px 10px 10px; max-height: 78vh; }
+.pust-sx-list { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; padding-right: 2px; } /* the list scrolls (its scroll kept through a tick); the buttons stay under it */
+.pust-sx .pust-block { display: flex; flex-direction: column; gap: 4px; margin: 0; }
+.pust-sx .pust-block > h3 { display: flex; align-items: center; gap: 8px; min-height: 28px; padding-bottom: 3px; margin: 0 0 2px; }
+.pust-sx .pust-block > h3 > img { flex: none; width: 24px; height: 24px; border: 1px solid var(--pu-ink-2); border-radius: 50%; object-fit: cover; }
+.pust-sx .pust-sx-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pust-sx .pust-sx-group > h3 > .pust-sx-n { margin-left: auto; }
+.pust-sx .pust-sx-n { flex: none; padding: 1px 7px; border-radius: 3px; background: #3a2f6b; color: #efe9ff;
+  font-family: var(--pu-f-num); font-size: 13px; font-weight: 700; text-transform: none; letter-spacing: 0; white-space: nowrap; }
+.pust-sx .pust-sx-gets { flex: none; display: inline-flex; align-items: center; gap: 2px; font-family: var(--pu-f-label); font-size: 12px;
+  font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--pu-ink-2); cursor: pointer; }
+.pust-sx .pust-sx-q { display: flex; align-items: flex-start; gap: 6px; font-family: var(--pu-f-label); font-size: 13.5px; line-height: 1.3; cursor: pointer; }
+.pust-sx .pust-sx-q > input { margin-top: 2px; }
+.pust-sx .pust-sx-q b { font-weight: 700; }
+.pust-sx .pust-sx-asp { color: var(--pu-ink-3); font-style: italic; overflow-wrap: anywhere; }
+.pust-sx .pust-sx-char.off .pust-sx-q { opacity: .5; cursor: default; }
+.pust-sx .pust-sx-char.off .pust-sx-n { background: var(--pu-ink-3); }
+.pust-sx .pust-sx-none { margin: 4px 2px; color: var(--pu-ink-3); font-style: italic; }
+.pust-sx .pust-sx-btns { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; padding-top: 2px; }
+.pust-sx .pust-sx-btns > button { flex: none; height: 28px; }
+
+/* «Питання в чат»: the wiki's questions for the players */
+.chat-message .pust-chat.pust-sxcard h3 { display: flex; align-items: center; gap: 6px; margin: 0 0 4px; font-size: 14px; }
+.chat-message .pust-chat.pust-sxcard p { margin: 4px 0 2px; font-size: 13px; line-height: 1.3; }
+.chat-message .pust-chat.pust-sxcard ul { margin: 0 0 4px; padding-left: 18px; font-size: 13px; line-height: 1.3; }

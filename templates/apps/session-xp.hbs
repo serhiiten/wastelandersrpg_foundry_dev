@@ -1,0 +1,29 @@
+{{!-- «Кінець сесії: ОД» (A10, author 2026-11-21, mockup Б): the group's questions, then a card for every character with its
+     main aspects beside the personal questions; the wiki's full questions are in the tooltips. module/applications/session-xp.mjs --}}
+<div class="pust-sx">
+  <div class="pust-sx-list">
+  <section class="pust-block pust-sx-group">
+    <h3>Уся група <span class="pust-sx-n" title="ОД кожному, хто отримує ОД">+{{groupN}} кожному</span></h3>
+    {{#each group}}
+    <label class="pust-sx-q"><input type="checkbox" data-sx="group" data-i="{{i}}" {{#if on}}checked{{/if}}><span>{{q}}</span></label>
+    {{/each}}
+  </section>
+  {{#each chars}}
+  <section class="pust-block pust-sx-char{{#unless gets}} off{{/unless}}">
+    <h3><img src="{{img}}" alt=""><span class="pust-sx-name">{{name}}</span>
+      <label class="pust-sx-gets" title="Зніми, якщо цього персонажа не було на сесії або він не з групи"><input type="checkbox" data-sx="gets" data-u="{{uuid}}" {{#if gets}}checked{{/if}}> отримує ОД</label>
+      <span class="pust-sx-n">+{{n}} ОД</span></h3>
+    {{#each qs}}
+    <label class="pust-sx-q" title="{{q}}"><input type="checkbox" data-sx="own" data-u="{{../uuid}}" data-k="{{k}}" {{#if on}}checked{{/if}} {{#unless ../gets}}disabled{{/unless}}><span><b>{{n}}</b>{{#if asp}} <i class="pust-sx-asp">«{{asp}}»</i>{{/if}}</span></label>
+    {{/each}}
+  </section>
+  {{else}}
+  <p class="pust-sx-none">Жодного персонажа не призначено гравцям.</p>
+  {{/each}}
+  </div>
+  <div class="pust-sx-btns">
+    <button type="button" data-action="sxChat" title="Покласти групові й особисті запитання з правил у чат, щоб гравці їх бачили">Питання в чат</button>
+    <button type="button" data-action="sxCancel">Скасувати</button>
+    <button type="button" class="pust-go" data-action="sxEnd" {{#if busy}}disabled{{/if}} title="Нарахувати ОД і завершити сцену й сесію для всіх">Завершити сесію</button>
+  </div>
+</div>

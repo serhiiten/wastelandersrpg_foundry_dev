@@ -111,7 +111,7 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
       const chips = shown.map((a) => {
         const c = new PIXI.Container();
         const text = new PIXI.Text(a.t, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
-        const inv = a.inv > 0 ? new PIXI.Text(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: "PT Mono", fontSize: fs * 0.95, fontWeight: "700", fill: 0xe7ffd9 })) : null;
+        const inv = a.inv > 0 ? new PIXI.Text(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs * 0.95, fontWeight: "800", fill: 0xe7ffd9 })) : null;
         const tw = Math.min(text.width, maxW - 2 * padX - (inv ? inv.width + 8 * s : 0));
         const iw = inv ? inv.width + 6 * s : 0;
         const w = padX + tw + lean + (inv ? 4 * s + iw : 0) + (inv ? 2 * s : padX);

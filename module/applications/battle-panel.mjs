@@ -33,6 +33,7 @@ import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
 import { chatType } from "./enemy-attack.mjs";
 import { postChat } from "./chat.mjs";
 import { endForAll, groupSession, resetGroupCounters } from "./group-end.mjs";
+import { openSessionXp } from "./session-xp.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -416,8 +417,11 @@ async function onClick(ev, lite = false, body = null) {
     try {
       // a new scene starts: round 1, the GM's Fate tokens as «За гравцями» of this panel (author, 2026-11-17)
       const fate = lite ? litePcCount() : pcCount(scene);
+      const after = () => { pend.battleRound = null; pend.battleFate = null; redrawBattlePanel(); };
+      // «Кінець сесії» asks its questions of ОД first (A10, author 2026-11-21); the window ends the session itself
+      if (b.dataset.kind === "session") return void (await openSessionXp({ moves: ui_.moves, fate, onDone: after }));
       const done = await endForAll(b.dataset.kind, { moves: ui_.moves, fate });
-      if (done) { pend.battleRound = null; pend.battleFate = null; redrawBattlePanel(); }
+      if (done) after();
     } finally { b.disabled = false; }
     return;
   }

@@ -142,7 +142,8 @@ function covered(kind, feature) {
   if (same) {
     const [k2, f2] = same.split(":");
     if (k2 === "action") return new RegExp(`data-action="${f2}"|${f2}:`).test(foundry);
-    if (k2 === "note") return new RegExp(`data-note="${f2}"`).test(foundry);
+    // a note's editor is drawn from the sheet's list of notes (U8, author 2026-11-21: `["bio", "Біографія"]` → data-note="{{k}}")
+    if (k2 === "note") return foundry.includes(`data-note="${f2}"`) || (foundry.includes(`["${f2}", "`) && foundry.includes('data-note="{{k}}"'));
     return F[k2]?.has(f2);
   }
   return F[kind]?.has(feature);

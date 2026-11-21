@@ -54,7 +54,8 @@ export function groupSession() {
 export async function resetGroupCounters() {
   const chars = groupCharacters();
   if (!chars.length) return notify.warn("Жодного персонажа не призначено гравцям.");
-  for (const a of chars) await runAction(a, (st, L) => { delete st.medDay; return chemReset(st, L); }, { quiet: true }); // the day's help mark too (A7)
+  // the day's help mark too (A7); the session's failures of «Старанний учень» (A10)
+  for (const a of chars) await runAction(a, (st, L) => { delete st.medDay; if (st.chem && "studFails" in st.chem) delete st.chem.studFails; return chemReset(st, L); }, { quiet: true });
   notify.info(`Відлік скинуто: сесія 1, день 1, сцена 1 (${chars.map((a) => a.name).join(", ")}).`);
 }
 
@@ -73,6 +74,7 @@ function endCard(kind, def, rows, movesN, { gm = false } = {}) {
   if (movesN != null) chips.push(`<span class="pust-end-chip" title="Ворогів сцени, яким повернуто використані ходи"><i class="fa-solid fa-skull"></i>Ходи ворогів: ${movesN}</span>`);
   const row = (r) => {
     const marks = [];
+    if (r.xp) marks.push(`<span class="pust-end-xp" title="Очки досвіду за сесію">+${r.xp} ОД</span>`); // A10
     if (r.hp) marks.push(`<span class="pust-end-hp ${r.hp > 0 ? "gain" : "lost"}" title="Зміна ОЗ, тепер ${r.hpNow}">${r.hp > 0 ? "+" : "−"}${Math.abs(r.hp)} ОЗ</span>`);
     if (r.fd != null && r.fd0 != null && r.fd > r.fd0) marks.push(`<span class="pust-end-fd" title="Жетони Долі відновлено"><i class="fa-solid fa-clover"></i>${r.fd}</span>`);
     const items = r.items.length ? `<ul>${r.items.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : `<div class="pust-end-quiet">без змін</div>`;
@@ -96,7 +98,11 @@ function sceneEnemies() {
   return out;
 }
 
-export async function endForAll(kind, { moves = false, fate = null } = {}) {
+/**
+ * `xp` (A10): Map uuid → { n, why } from «Кінець сесії: ОД»; the ОД are added in the same write as the character's end of the
+ * session (Fable's verdict, 2026-11-21: no ОД without the end, never twice). `asked`: that window was the confirmation.
+ */
+export async function endForAll(kind, { moves = false, fate = null, xp = null, asked = false } = {}) {
   const def = GROUP_END[kind];
   if (!def || !game.user.isGM) return;
   const chars = endCharacters();
@@ -104,7 +110,7 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
     if (kind !== "session") await clearDefibs(); // the caravans' marks end with the scene even with no characters assigned (a session asks first)
     return notify.warn("Жодного персонажа не призначено гравцям. Признач їх у налаштуваннях гравців (Player Character).");
   }
-  if (kind === "session") {
+  if (kind === "session" && !asked) {
     const yes = await foundry.applications.api.DialogV2.confirm({
       window: { title: "Кінець сесії" },
       content: `<p>Завершити сесію для ${chars.length ? chars.map((a) => `«${esc(a.name)}»`).join(", ") : "групи"}?</p><p>Спершу завершиться сцена; Жетони Долі відновляться, модифікації знову дадуть безкоштовне Посилення.</p>`,
@@ -115,6 +121,7 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
   const rows = [];
   for (const a of chars) {
     const hp0 = Number(a.system.hp?.value) || 0, fd0 = fateNow(a);
+    const give = kind === "session" ? xp?.get(a.uuid) : null;
     try {
       // the perks' marks that this time clears are named too (playtest 2026-11-18, item 7: «Залізячник» came back, the card
       // said «без змін»)
@@ -123,15 +130,17 @@ export async function endForAll(kind, { moves = false, fate = null } = {}) {
         L[def.fn]();
         // the free invokes, 19+ of «Отримання наслідків», the doomed (author, 2026-11-21; rules/battle-health.mjs)
         sceneEndHealth(st, L, compute(st));
+        if (give?.n > 0) st.xp = (Number(st.xp) || 0) + give.n; // A10
         return { msg: L.chem().last, back: backLine(was, st) };
       }, { quiet: true });
       const hp = Number(a.system.hp?.value) || 0;
       const items = sentences(ownPart(msg));
       if (back) items.push(back);
-      rows.push({ uuid: a.uuid, name: a.name, img: a.img, items, hp: hp - hp0, hpNow: hp, fd0, fd: fateNow(a) });
+      if (give?.n > 0 && give.why) items.push(`ОД: ${give.why}`);
+      rows.push({ uuid: a.uuid, name: a.name, img: a.img, items, hp: hp - hp0, hpNow: hp, fd0, fd: fateNow(a), xp: give?.n || 0 });
     } catch (err) {
       console.error(err);
-      rows.push({ name: a.name, img: a.img, items: ["Не вдалося застосувати: аркуш пошкоджений."], bad: true, hp: 0, fd0, fd: fd0 });
+      rows.push({ name: a.name, img: a.img, items: [`Не вдалося застосувати: аркуш пошкоджений.${give?.n ? " ОД не нараховано." : ""}`], bad: true, hp: 0, fd0, fd: fd0 });
     }
   }
   await clearDefibs(); // the caravans' «Дефібрилятор» marks end with the scene (author, 2026-11-18)

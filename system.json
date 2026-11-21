@@ -24,13 +24,15 @@
     "module/wastelanders.mjs"
   ],
   "styles": [
+    "css/pust-fonts.css",
     "css/wastelanders.css",
     "css/pust-ui.css",
     "css/pust-sheet.css",
     "css/pust-check.css",
     "css/pust-terminal.css",
     "css/pust-enemy-create.css",
-    "css/pust-builder.css"
+    "css/pust-builder.css",
+    "css/pust-session-xp.css"
   ],
   "languages": [
     {
