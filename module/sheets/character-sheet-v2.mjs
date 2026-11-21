@@ -52,9 +52,9 @@ function compactGear(v) {
   return [...a, ...o];
 }
 
-/** Actions that make the character anew: their Fate count is no token spent or gained */
 /** How long the line under a block stays (U7) */
 const NOTE_MS = 6000;
+/** Actions that make the character anew: their Fate count is no token spent or gained */
 const FATE_QUIET = new Set(["new", "random", "preset", "apply-arch", "species-x", "roll-species", "roll-perks", "roll-feats", "roll-gear"]);
 
 export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
