@@ -532,7 +532,7 @@
 .pust-roller .pust-hx.done { border-left-color: #2f6b35; }
 .pust-roller .pust-hx h4 { margin: 0; font-family: var(--pu-f-label); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--pu-green); }
 .pust-roller .pust-hx .rhint { margin: 0; }
-.pust-roller .pust-hx-name { display: flex; align-items: center; gap: 6px; width: 100%; flex-wrap: wrap; font-size: 13px; }
+.pust-roller .pust-hx-name { display: flex; align-items: center; gap: 6px; width: 100%; flex-wrap: wrap; font-family: var(--pu-f-label); font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: #cfe9d2; }
 .pust-roller .pust-hx-name input, .pust-roller .pust-hx-name select { flex: 1 1 180px; min-width: 0; }
 .pust-roller .pust-hx > button { height: auto !important; min-height: 28px; line-height: 1.2 !important; padding: 4px 10px !important; white-space: normal; text-align: left; }
 .pust-roller .pust-hx > button i { margin-right: 6px; }

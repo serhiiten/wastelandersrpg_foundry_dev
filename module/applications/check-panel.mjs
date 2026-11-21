@@ -19,7 +19,7 @@ import { sharedGet } from "../helpers/scene-shared.mjs";
 import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
 import { rowTotal, rowDeal, rowClosed, rowText, ATTR_SHORT } from "../rules/dodge.mjs";
 import { checkPenalty, spendCheckStates } from "./states.mjs";
-import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, medOffer, medHtml, medPress } from "./battle-health.mjs";
+import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, medOffer, medHtml, medPress, medBlocked } from "./battle-health.mjs";
 import { checkFlag } from "../rules/gm-move-alert.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { checkDiceGroups, damageDiceGroups, poisonSidesOf, rollFromDice, rollList, seriesGroups, waitDice } from "../helpers/dice-rolls.mjs";
@@ -37,6 +37,7 @@ const OPEN = new Map();
 const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "nearasp", "dmg", "dmgre"]);
 /** What the blocks of A6 / A7 did for a roll: actor uuid → {time, text} (author, 2026-11-21; one press a roll) */
 const HX_DONE = new Map();
+const WHY_SAID = new Map();
 const hxDone = (uuid, last) => { const d = HX_DONE.get(uuid); return d && last && d.time === last.time ? d.text : ""; };
 
 /**
@@ -435,7 +436,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const done = hxDone(this.actor.uuid, last);
     let block = "";
     if (last.type === "consq") block = consqHtml(consqOffer(this.actor, last), done);
-    else if (["med", "repair", "treat"].includes(last.type)) block = medHtml(await medOffer(this.actor, last), done);
+    else if (["med", "repair", "treat"].includes(last.type)) {
+      const o = await medOffer(this.actor, last);
+      block = medHtml(o, done);
+      // a refusal said once a roll in the notifications too (author, 2026-11-21: a robot treated with «Медицина»)
+      if (o?.why && o.patient && !done && WHY_SAID.get(this.actor.uuid) !== last.time) { WHY_SAID.set(this.actor.uuid, last.time); notify.warn(o.why); }
+    }
     if (block) html = html.replace('<div class="rasp">', () => `${block}<div class="rasp">`);
     return html;
   }
@@ -797,6 +803,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const { st, L } = evaluate(this.actor);
       const t = this.#load(L).type;
       if (["med", "repair"].includes(t) && (parseInt(st.supplies, 10) || 0) <= 0) return notify.warn(`${L.CHECK_TYPES[t]?.n}: потрібна одиниця Припасів, а їх немає.`);
+      // the target can't be helped now (a machine, the day's limit): no roll, no Припас (author, 2026-11-21)
+      const why = await medBlocked(this.actor, t);
+      if (why) return notify.warn(`${L.CHECK_TYPES[t]?.n}: ${why}`);
     }
     let out;
     const fdWas = fateSnap(this.actor); // an aspect invoked with a Fate token posts a card (author, 2026-11-15)

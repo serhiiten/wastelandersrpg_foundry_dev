@@ -234,12 +234,27 @@ export async function medOffer(actor, last) {
     }
     o.formula = medFormula(last.verdict, { perks, repair });
   } else if (p.actor.type === "character") {
+    // a robot's consequences are repaired by the same check, not with «Медицина» (author, 2026-11-21): refused, a hint
+    if (last.skillName === "Медицина" && await isMachine(p.actor)) o.why = "Пацієнт — механізм: медицина на нього не діє. Обери ІН + Техніка й кинь перевірку ще раз.";
     try {
       const pst = readState(p.actor);
       o.slots = ["l", "m", "m2", "h"].filter((k) => String(pst.cons?.[k] ?? "").trim()).map((k) => ({ k, label: SLOT_NAME[k], t: String(pst.cons[k]).trim() }));
     } catch (_) { o.slots = null; }
   }
   return o;
+}
+
+/**
+ * Before «Медична допомога» / «Ремонт» is rolled (its Припас goes with the roll): the reason it can't help the one target
+ * now — a machine and «Медицина» or the other way round, the day's limit used up — or "" (none or several targets: the
+ * block says so after the roll)
+ */
+export async function medBlocked(actor, type) {
+  if (!["med", "repair"].includes(type)) return "";
+  const o = await medOffer(actor, { type, verdict: 1 });
+  if (!o?.patient) return "";
+  if (o.why) return o.why;
+  return o.limit && o.limit.left <= 0 ? `Сьогодні пацієнтові (${o.patient.name}) уже допомагали: більше не можна до нового дня.` : "";
 }
 
 /** The block under the verdict (mockup А). `done`: what was done for this roll */
@@ -252,6 +267,7 @@ export function medHtml(o, done = "") {
     const who = o.patient ? `<p class="rhint">Пацієнт (T): <b>${esc(o.patient.name)}</b></p>` : `<p class="rhint">${esc(o.why)}</p>`;
     if (!o.patient) return `<div class="pust-hx"><h4>${title}</h4>${who}</div>`;
     if (o.patient.type !== "character") return `<div class="pust-hx"><h4>${title}</h4>${who}<p class="rhint">Слоти наслідків є лише в персонажів.</p></div>`;
+    if (o.why) return `<div class="pust-hx"><h4>${title}</h4>${who}<p class="rhint">${esc(o.why)}</p></div>`;
     const opts = o.slots === null ? `<p class="rhint">Наслідки пацієнта бачить лише Доглядач і власник.</p>`
       : !o.slots.length ? `<p class="rhint">У пацієнта немає наслідків.</p>`
         : `<label class="pust-hx-name">Наслідок <select data-hx-slot>${o.slots.map((s) => `<option value="${s.k}">${esc(s.label)}: «${esc(s.t)}»</option>`).join("")}</select></label>`
@@ -280,9 +296,12 @@ async function onPatient({ uuid, kind, amount = 0, head = "", repair = false, pe
   return queued(actor.uuid, async () => {
     if (kind === "red") {
       if (actor.type !== "character") throw new Error("Слоти наслідків є лише в персонажів.");
-      const ok = await runAction(actor, (st) => {
+      const ok = await runAction(actor, (st, L) => {
         if (!String(st.cons?.[slot] ?? "").trim()) return false;
         addConsRed(st, slot, amount);
+        // the current HP no higher than the new maximum
+        const d = compute(st), max = L.hpMaxNow(d);
+        if (L.curHp(d) > max) st.hpCur = String(Math.max(0, max));
         return true;
       }, { quiet: true });
       if (!ok) throw new Error("Цього наслідку в пацієнта вже немає.");
@@ -304,7 +323,7 @@ async function onPatient({ uuid, kind, amount = 0, head = "", repair = false, pe
         return true;
       }, { quiet: true });
       if (ok === "noname") throw new Error("Впиши назву наслідку.");
-      if (!ok) throw new Error(`Сьогодні ${actor.name} вже отримав допомогу: більше не можна до нового дня.`);
+      if (!ok) throw new Error(`Сьогодні пацієнтові (${actor.name}) уже допомагали: більше не можна до нового дня.`);
     }
     const tokUuid = doc.documentName === "Actor" ? uuid : doc.uuid;
     if (kind === "heal") await applyHeal([tokUuid], amount, { head });
