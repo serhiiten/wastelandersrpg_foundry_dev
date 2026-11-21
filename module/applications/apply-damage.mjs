@@ -336,7 +336,10 @@ export async function sendSplitDamage(data, { targets = [], split, id = "", part
   if (err) { notify.warn(`Розподіл шкоди: ${err}. Нічого не застосовано.`); return false; }
   if (game.user.isGM) { await applySplit(targets, data, { split, id, partial, head, source }); return true; }
   if (!game.users.activeGM) { notify.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
-  return askGM({ op: "applySplit", targets, data, split, id, partial, head, source }, "Шкода");
+  // no answer in time is not «nothing applied»: the GM's game may still apply it (reviewer, author 2026-11-21); a second
+  // press is safe, the GM applies one id once
+  return askGM({ op: "applySplit", targets, data, split, id, partial, head, source }, "Шкода",
+    "Шкоду може бути застосовано, щойно його гра відгукнеться: перш ніж тиснути вдруге, глянь, чи з'явилася її картка в чаті (вдруге та сама шкода однаково не пройде).");
 }
 
 /** The GM's side of a split hit: checked again, applied once an id */

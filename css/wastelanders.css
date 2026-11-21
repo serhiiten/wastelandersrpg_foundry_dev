@@ -60,12 +60,10 @@ select.clear-select {
   background: none;
 }
 
-.window-app {
-  font-family: "Scada", sans-serif;
-}
-
+/* The old Google font is no longer loaded (V7): the system's windows take Roboto Condensed (their own rules set the rest); other
+   modules' windows keep Foundry's font (reviewer, author 2026-11-21) */
 .wastelanders {
-  font-family: "Scada", sans-serif;
+  font-family: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif;
 }
 
 .window-content input[type=number] {

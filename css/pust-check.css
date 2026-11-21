@@ -561,3 +561,6 @@
 .pust-roller .rdmg .pust-split-left { margin: 0; font-family: var(--pu-f-num); font-size: 13px; color: #e3c7b0; }
 .pust-roller .rdmg .pust-split-left.over { color: #ff9a8a; font-weight: 700; }
 .pust-roller .rdmg .pust-split-box > button[data-split-go] { align-self: flex-start; }
+/* the effect's target gets no damage (the split waits), and why a split is not offered (reviewer, author 2026-11-21) */
+.pust-roller .rdmg .pust-split-warn { margin: 0; font-family: var(--pu-f-num); font-size: 13px; line-height: 1.3; color: #ff9a8a; font-weight: 700; }
+.pust-roller .rdmg .pust-split-no { margin: 3px 0 0; font-size: 12.5px; }

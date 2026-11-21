@@ -419,7 +419,9 @@ async function onClick(ev, lite = false, body = null) {
       const fate = lite ? litePcCount() : pcCount(scene);
       const after = () => { pend.battleRound = null; pend.battleFate = null; redrawBattlePanel(); };
       // «Кінець сесії» asks its questions of ОД first (A10, author 2026-11-21); the window ends the session itself
-      if (b.dataset.kind === "session") return void (await openSessionXp({ moves: ui_.moves, fate, onDone: after }));
+      // the window may stay open while the GM goes to another scene: the Fate tokens and «Скинути ходи» are read when
+      // «Завершити сесію» is pressed, from the scene viewed then (reviewer, author 2026-11-21)
+      if (b.dataset.kind === "session") return void (await openSessionXp({ moves: () => ui_.moves, fate: () => (lite ? litePcCount() : pcCount(canvas.scene)), onDone: after }));
       const done = await endForAll(b.dataset.kind, { moves: ui_.moves, fate });
       if (done) after();
     } finally { b.disabled = false; }

@@ -68,3 +68,17 @@ export function reconcileAutoXp(st, last, perks = []) {
   else delete last.xpAuto;
   return delta;
 }
+
+/**
+ * The options of «Кінець сесії: ОД» for `endForAll` as they are at the press (reviewer, author 2026-11-21): `moves` / `fate`
+ * given as functions are read now — the window may stay open while the GM goes to another scene, and the GM's Fate tokens
+ * are the characters of the scene viewed then; a plain value is kept as it is.
+ */
+export const endOptsNow = (o = {}) => ({ ...o, moves: typeof o.moves === "function" ? !!o.moves() : o.moves, fate: typeof o.fate === "function" ? o.fate() : o.fate });
+
+/**
+ * Did the panel already add this roll's ОД of this kind (`k` «sav» — «Савант», else the failure's)? Then the result's ОД
+ * button does nothing; otherwise (a roll from before «ОД за невдачу» was turned on, a tour's demo) it adds the ОД as before
+ * (reviewer, author 2026-11-21: never a dead button).
+ */
+export const xpAutoGiven = (last, k) => !!(k === "sav" ? last?.xpAuto?.sav : last?.xpAuto?.fail);

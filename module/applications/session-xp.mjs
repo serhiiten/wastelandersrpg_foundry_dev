@@ -8,7 +8,7 @@
  * The ticks live in this module only (an accidental close keeps them; nothing stale in the world for the next session).
  * Only the GM sees it: the players answer aloud; «Питання в чат» shows them the questions.
  */
-import { CAMP, GROUP_QUESTIONS, OWN_QUESTIONS, sessionXp } from "../rules/session-xp.mjs";
+import { CAMP, GROUP_QUESTIONS, OWN_QUESTIONS, endOptsNow, sessionXp } from "../rules/session-xp.mjs";
 import { endCharacters, endForAll, groupCharacters } from "./group-end.mjs";
 import { readState } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
@@ -108,7 +108,7 @@ export class SessionXpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
         const r = sessionXp(TICKS.group, TICKS.own[a.uuid] || {});
         if (r.n) xp.set(a.uuid, r);
       }
-      const done = await endForAll("session", { ...this.endOpts, xp, asked: true });
+      const done = await endForAll("session", { ...endOptsNow(this.endOpts), xp, asked: true });
       if (done) {
         TICKS.group = GROUP_QUESTIONS.map(() => false);
         TICKS.own = {};

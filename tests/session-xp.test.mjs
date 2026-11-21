@@ -4,7 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CAMP, GROUP_QUESTIONS, OWN_QUESTIONS, reconcileAutoXp, sessionXp } from "../module/rules/session-xp.mjs";
+import { CAMP, GROUP_QUESTIONS, OWN_QUESTIONS, endOptsNow, reconcileAutoXp, sessionXp, xpAutoGiven } from "../module/rules/session-xp.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 let failures = 0, checks = 0;
@@ -68,6 +68,18 @@ L = fail();
 reconcileAutoXp(s5, L, ["Старанний учень"]);
 s5.chem.session = 2;
 ok(reconcileAutoXp(s5, L, ["Старанний учень"]) === 0 && s5.xp === 2 && !(s5.chem.studFails.sess === 2), "an ended session's roll: no extra ОД, no failure in the new session");
+
+// the result's ОД button (reviewer, 2026-11-21): dead only when the panel already added that ОД
+ok(xpAutoGiven({ xpAuto: { fail: 1, sav: 0 } }) && !xpAutoGiven({ xpAuto: { fail: 1, sav: 0 } }, "sav"), "a failure's ОД added: its button idle, «Савант» not");
+ok(!xpAutoGiven({ verdict: 0 }) && !xpAutoGiven(null) && !xpAutoGiven({ verdict: 3 }, "sav"), "an old roll or a tour's demo: the button adds the ОД");
+ok(xpAutoGiven({ xpAuto: { fail: 0, sav: 1 } }, "sav"), "«Савант» added: its button idle");
+// «Кінець сесії: ОД»: the scene's Fate tokens and «Скинути ходи» read at the press, not when the window opened
+let viewedPcs = 3, movesOn = true;
+const live = { moves: () => movesOn, fate: () => viewedPcs, onDone: 1 };
+viewedPcs = 5; movesOn = false;
+const now = endOptsNow(live);
+ok(now.fate === 5 && now.moves === false && now.onDone === 1, `functions read at the press (${now.fate}, ${now.moves})`);
+ok(endOptsNow({ fate: 2, moves: true }).fate === 2 && endOptsNow({}).fate === undefined, "plain values kept");
 
 console.log(`session-xp: ${checks - failures}/${checks} passed`);
 if (failures) process.exit(1);

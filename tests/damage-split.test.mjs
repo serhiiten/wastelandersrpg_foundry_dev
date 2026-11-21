@@ -51,5 +51,11 @@ eq([h2.poison, h2.ignoreArmor], [4, false], "the first with damage gets the pois
 // the effect's target may take 0 damage: the poison is simply not dealt (wiki: poison needs a hit)
 eq(S.splitHit(data, { shares: { a: 13, b: 0 }, one: "b" }, "a").poison, 0, "effect target with 0: nobody else gets the poison");
 
+// why not split (reviewer, author 2026-11-21): the panel says it for damage of several types
+eq([S.splitBlock({ targets: 1 }), S.splitBlock({ targets: 2, zone: true }), S.splitBlock({ targets: 2, types: 2 }), S.splitBlock({ targets: 2 })], ["targets", "zone", "types", ""], "splitBlock");
+// the effect's target with 0: the panel warns and waits (the chosen one, else the first)
+eq([S.effectTargetIdle({ a: 0, b: 5 }, "a"), S.effectTargetIdle({ a: 0, b: 5 }, "b"), S.effectTargetIdle({ a: 0, b: 5 }, ""), S.effectTargetIdle({ a: 3, b: 0 }, "x"), S.effectTargetIdle({}, "a")],
+  [true, false, true, false, false], "effectTargetIdle");
+
 console.log(`${checks - failures}/${checks} checks passed`);
 if (failures) process.exit(1);

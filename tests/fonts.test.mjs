@@ -21,6 +21,8 @@ for (const f of cssFiles) {
   ok(!/@import\b/.test(s), `${f}: no @import (every file is listed in system.json once)`);
   ok(!/fonts\.(googleapis|gstatic)\.com|https?:\/\/[^)"']+\.(woff2?|ttf|otf)/.test(s), `${f}: no font from the internet`);
   ok(!/Marck Script|--pu-f-hand/.test(s), `${f}: no handwritten font (V5)`);
+  ok(!/\bScada\b/.test(s), `${f}: no Scada (not loaded since V7; reviewer, author 2026-11-21)`);
+  ok(!/(^|\})\s*\.window-app\s*\{[^}]*font-family/m.test(s), `${f}: no font for every .window-app (other modules' windows keep Foundry's)`);
   for (const m of s.matchAll(/@keyframes\s+([\w-]+)/g)) {
     ok(!frames.has(m[1]), `@keyframes ${m[1]} declared once (${f}${frames.has(m[1]) ? ", " + frames.get(m[1]) : ""})`);
     frames.set(m[1], f);

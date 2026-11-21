@@ -14,7 +14,7 @@ import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-c
 import { attackMode, choiceEmpOnly, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { clearTargets, sendDamage, sendEffects, sendSplitDamage } from "./apply-damage.mjs";
-import { canSplit, clampShare, evenSplit, splitLeft } from "../rules/damage-split.mjs";
+import { clampShare, effectTargetIdle, evenSplit, splitBlock, splitLeft } from "../rules/damage-split.mjs";
 import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx, coverActive } from "../rules/attack-effects.mjs";
 import { sharedGet } from "../helpers/scene-shared.mjs";
 import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
@@ -23,7 +23,7 @@ import { checkPenalty, spendCheckStates } from "./states.mjs";
 import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, medOffer, medHtml, medPress, medBlocked } from "./battle-health.mjs";
 import { checkFlag } from "../rules/gm-move-alert.mjs";
 import { notify } from "../helpers/notify.mjs";
-import { reconcileAutoXp } from "../rules/session-xp.mjs";
+import { reconcileAutoXp, xpAutoGiven } from "../rules/session-xp.mjs";
 
 /** The world's «ОД за невдачу нараховується само» (A10; on by default) */
 const autoXpOn = () => { try { return game.settings.get(game.system.id, "autoXp") !== false; } catch (_) { return true; } };
@@ -67,6 +67,8 @@ function syncDealButton(root) {
   // A8: «Розподілити між цілями» only while two targets or more are chosen
   const sp = root?.querySelector("details.pust-split");
   if (sp) sp.hidden = game.user.targets.size < 2;
+  const no = root?.querySelector(".pust-split-no");
+  if (no) no.hidden = game.user.targets.size < 2;
   const b = root?.querySelector('button[data-r="dmg"]');
   if (!b) return;
   const n = game.user.targets.size;
@@ -507,13 +509,26 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   #splitOpen = true;
   /** A8: «Завдати шкоди» was pressed with the fold open and two targets or more: the roll waits for the split */
   #splitPress = false;
-  /** A8: can this attack's damage be split — an attack, a weapon not of the whole zone, one damage type */
+  /** A8: can this attack's damage be split — "" (yes), "types" (damage of several types), "zone", "no" (not an attack) */
   #splitFits(L, c, wt, last) {
-    if (!c || !last || last.type !== "attack") return false;
+    if (!c || !last || last.type !== "attack") return "no";
     const zone = !!(c.expl || c.w?.zone) || attackMode(last.skillName, last.attr) === "explosive";
     let types = 1;
     try { const p = L.parseDmg?.(c.d); if (p) types = new Set(termTypes(c, p, wt)).size; } catch (_) { /* unreadable: the engine says so */ }
-    return canSplit({ targets: 2, zone, types });
+    return splitBlock({ targets: 2, zone, types });
+  }
+  /** A8: what goes only to the effect's target with a split hit — the poison, «ігноруєш броню», both — or "" */
+  #splitOneNeed() {
+    const f = this.#fxOf;
+    const last = f?.last ?? this.#load(evaluate(this.actor).L).last;
+    const ignore = !!f && f.picks.length > 0 && !f.of.instead && f.picks.some((k) => effectOf(f.of, k)?.does === "ignore");
+    const poison = !!(last?.poison && last?.poisonRoll);
+    return ignore && poison ? "Отрута й «ігноруєш броню» діють" : poison ? "Отрута діє" : ignore ? "«Ігноруєш броню» діє" : "";
+  }
+  /** A8: the effect's target of the split, as #splitSend sends it */
+  #splitOne(s) {
+    const uuids = s.targets.map((t) => t.uuid);
+    return uuids.includes(this.#fx.one) ? this.#fx.one : uuids[0];
   }
   /** A8: the split waiting for this damage roll, or null */
   #splitNow(last) {
@@ -539,9 +554,15 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         + `<input type="text" class="pust-screen" data-split-v data-u="${esc(t.uuid)}" value="${v}" inputmode="numeric" aria-label="Шкода: ${esc(t.name)}">`
         + `<button type="button" data-split-d="1" data-d="1" data-u="${esc(t.uuid)}" aria-label="Більше шкоди: ${esc(t.name)}"${left <= 0 ? " disabled" : ""}>+</button></span></div>`;
     }).join("");
+    // the effect's target with a share of 0 would lose the poison / «ігноруєш броню»: said, and the damage waits (reviewer,
+    // author 2026-11-21)
+    const need = this.#splitOneNeed(), one = this.#splitOne(s);
+    const idle = !!need && effectTargetIdle(s.shares, one);
+    const oneName = s.targets.find((t) => t.uuid === one)?.name ?? "";
+    const warn = idle ? `<p class="pust-split-warn">${need} лише на ${esc(oneName)}, а ця ціль не отримує шкоди. Дай їй хоч 1 або обери вище іншу ціль ефекту.</p>` : "";
     return `<div class="pust-split-box"><h5>Розподіл шкоди: ${s.total}</h5>${rows}`
-      + `<p class="pust-split-left${left < 0 ? " over" : ""}">${left < 0 ? `Розподілено більше, ніж випало: на ${-left}` : `Лишилося: ${left} із ${s.total}`}</p>`
-      + `<button type="button" class="btn rust" data-split-go${left < 0 || !any ? " disabled" : ""}><i class="fa-solid fa-burst"></i>Завдати розподілену шкоду</button></div>`;
+      + `<p class="pust-split-left${left < 0 ? " over" : ""}">${left < 0 ? `Розподілено більше, ніж випало: на ${-left}` : `Лишилося: ${left} із ${s.total}`}</p>${warn}`
+      + `<button type="button" class="btn rust" data-split-go${left < 0 || !any || idle ? " disabled" : ""}><i class="fa-solid fa-burst"></i>Завдати розподілену шкоду</button></div>`;
   }
   /** A8: redraw the rows in place (no render: the panel keeps its scroll and the other fields) */
   #splitRedraw(root, s) {
@@ -585,7 +606,13 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // A8 (author, 2026-11-21, mockup Б): «Розподілити між цілями» under the button, open by itself (the wiki's rule for an
     // attack on several); folded, every target takes the full damage as before. Not for a weapon that hits the whole zone,
     // nor for damage of several types (Fable's verdict)
-    if (!D && this.#splitFits(L, choices.find((x) => x.key === L.R.dmgKey), wt, last)) {
+    const why = D ? "no" : this.#splitFits(L, choices.find((x) => x.key === L.R.dmgKey), wt, last);
+    // damage of several types: no fold, a line says why (reviewer, author 2026-11-21)
+    if (why === "types") {
+      const no = `<p class="rhint pust-split-no"${game.user.targets.size < 2 ? " hidden" : ""}>Розподілити між цілями не вийде: у цієї шкоди кілька типів, тож кожна ціль отримає її повністю.</p>`;
+      html = html.replace(/(<button type="button" class="btn rust" data-r="dmg">[\s\S]*?<\/button>)/, `$1${no}`);
+    }
+    if (why === "") {
       const fold = `<details class="pust-split"${this.#splitOpen ? " open" : ""}${game.user.targets.size < 2 ? " hidden" : ""}><summary>Розподілити між цілями</summary>`
         + `<p class="rhint">Шкоду буде кинуто, але не завдано: розподіли її між цілями на власний розсуд. Згорни, щоб кожна ціль отримала повну шкоду.</p></details>`;
       html = html.replace(/(<button type="button" class="btn rust" data-r="dmg">[\s\S]*?<\/button>)/, `$1${fold}`);
@@ -790,7 +817,13 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const al = ev.target.closest("select[data-fx-ally]");
       if (al) { this.#fx.ally = al.value; return; }
       const one = ev.target.closest("select[data-fx-one]");
-      if (one) { this.#fx.one = one.value; return; }
+      if (one) {
+        this.#fx.one = one.value;
+        // A8: a split waiting — its rows say again whether the effect's target gets damage
+        const s = SPLIT.get(this.actor.uuid);
+        if (s && !s.sent) this.#splitRedraw(root, s);
+        return;
+      }
       // A8: a share typed by hand
       const sv = ev.target.closest("input[data-split-v]");
       if (sv) {
@@ -955,8 +988,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       // «Мастак-ремонтник»: +1 to «Ремонт» (wiki «Перки»), named among the automatic conditions as the roar's −2 is
       const fixer = kind === "click" && key === "roll" && R.type === "repair" && compute(st).allPerks.includes("Мастак-ремонтник");
       if (fixer) R.mod = (+R.mod || 0) + 1;
-      // A10: with «ОД за невдачу» on, the result's ОД buttons do nothing (the ОД is added below; «Савант» too)
-      const xpBtn = kind === "click" && key === "xp" && autoXpOn();
+      // A10: an ОД button of a roll whose ОД the panel already added does nothing; the button shows only when it did not
+      // (a roll from before «ОД за невдачу» was turned on, a tour's demo): then it adds the ОД as before (reviewer, 2026-11-21)
+      const xpBtn = kind === "click" && key === "xp" && xpAutoGiven(R.last, node?.dataset?.k);
       if (kind === "click" && key === "nearasp") L.invokeAspect(el.src); // «Аспекти поруч»: the invoke already spent
       else if (xpBtn) { /* already added */ }
       else if (kind === "click") L.rollerClick(node);
@@ -1018,7 +1052,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
     // A8: with the fold open the roll waits for the split (one type only: a hit of several types is dealt in full, as before)
     if (deal && this.#apply && out.R.last?.dmg && this.#splitPress && !this.#apply.data.parts) { this.#splitPress = false; this.#startSplit(out.R.last.dmg); this.render(); }
-    else if (deal && this.#apply && out.R.last?.dmg) { this.#splitPress = false; await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() }); }
+    else if (deal && this.#apply && out.R.last?.dmg) {
+      // the fold was open, but the rolled damage came out of several types: dealt in full, and said so (reviewer, 2026-11-21)
+      if (this.#splitPress) notify.warn("Шкода вийшла кількох типів, тож розподілити її не вийде: кожна ціль отримує її повністю.");
+      this.#splitPress = false; await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() }); }
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
     else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice, out.before.last?.dmg?.extra ?? null);
   }

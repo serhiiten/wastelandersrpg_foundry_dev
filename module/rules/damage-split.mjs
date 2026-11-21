@@ -7,7 +7,26 @@
 
 /** May this attack be split? Two targets or more, one damage type, not a weapon that hits the whole zone (A12 later) */
 export function canSplit({ targets = 0, zone = false, types = 1 } = {}) {
-  return targets >= 2 && !zone && types <= 1;
+  return !splitBlock({ targets, zone, types });
+}
+
+/** Why this attack can't be split: "targets" (fewer than two), "zone" (a weapon of the whole zone), "types" (damage of
+ *  several types: each target takes it in full; the panel says so — reviewer, author 2026-11-21), or "" */
+export function splitBlock({ targets = 0, zone = false, types = 1 } = {}) {
+  if (targets < 2) return "targets";
+  if (zone) return "zone";
+  if (types > 1) return "types";
+  return "";
+}
+
+/**
+ * The effect's target of a split (the weapon's poison, the effect «ігноруєш броню») gets no damage: what goes with the
+ * damage would be lost (reviewer, author 2026-11-21: never silently). `one` — the chosen target, else the first.
+ */
+export function effectTargetIdle(shares, one) {
+  const keys = Object.keys(shares || {});
+  const t = keys.includes(one) ? one : keys[0];
+  return !!t && !((Number(shares[t]) || 0) > 0);
 }
 
 /** An even split, the remainder to the first ones: 13 among 3 → 5, 4, 4. @returns {Record<string, number>} */
