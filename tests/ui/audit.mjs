@@ -1145,7 +1145,15 @@ const SCENARIOS = {
         const src = steps[i], sel = src.selector;
         if (!wantStep(t.id, src.id)) continue;
         try { await tour.progress(i); } catch (err) { a.ok(`${t.id}.${src.id}: крок показано`, false, String(err).slice(0, 160)); continue; }
-        await sleep(200);
+        // the step settles: a sheet opened for it cuts its content, a fold scrolls into view, and the tour redraws the step
+        // where its element now is (every 250 ms; a re-rendered sheet settles its height up to ~0.6 s later). Measured at 200 ms these were flaky (2026-11-21: en-details, gm-char.perks,
+        // gm-battle.zone between runs), so wait until the highlight stands still, at most 1.5 s
+        { let was = "", same = 0;
+          for (let k = 0; k < 15 && same < 2; k++) {
+            await sleep(100);
+            const now = tour.fadeElement?.style.cssText ?? "-";
+            same = now === was && k >= 6 ? same + 1 : 0; was = now;
+          } }
         // a hidden page draws no tooltip and runs no animation frames: nothing it shows can be judged
         if (document.hidden) { a.skip(`${t.id}.${src.id}`, "сторінка прихована (вкладка не на виду) — прогнати ще раз"); continue; }
         // in the middle = the element wasn't found; «aside» = found, but the card had no room beside it
@@ -1171,7 +1179,15 @@ const SCENARIOS = {
           const target = tour.targetElement?.classList?.contains("pust-tour-proxy") ? tour.targetElement : parts[0]; // a `union` step lights a box over all its parts
           const fade = tour.fadeElement, pad = foundry.nue.Tour.HIGHLIGHT_PADDING / 2;
           if (target && fade) {
-            const e = target.getBoundingClientRect(), f = fade.getBoundingClientRect();
+            // the part the element's scrolling windows show (pust-tour's visibleBox): a fold taller than its sheet is lit to the
+            // sheet's edge (2026-11-21); a window hanging past the screen still fails «у вікні»
+            const { visibleBox } = await import(`/systems/${game.system.id}/module/tours/pust-tour.mjs`);
+            // the highlight's own box from its style: Foundry moves it with a 0.3 s transition, and a pane that draws no frames
+            // (hidden) keeps returning the transition's first value (2026-11-21)
+            const fs = fade.style, fr = fade.getBoundingClientRect();
+            const f = fs.width ? { left: parseFloat(fs.left), top: parseFloat(fs.top), width: parseFloat(fs.width), height: parseFloat(fs.height) } : fr;
+            f.right = f.left + f.width; f.bottom = f.top + f.height;
+            const e = visibleBox(target);
             const off = Math.max(Math.abs(f.left + pad - e.left), Math.abs(f.top + pad - e.top), Math.abs(f.right - pad - e.right), Math.abs(f.bottom - pad - e.bottom));
             a.ok(`${t.id}.${src.id}: підсвітка на елементі й свого розміру`, off <= 2,
               `підсвітка ${Math.round(f.left + pad)},${Math.round(f.top + pad)} ${Math.round(f.width - 2 * pad)}×${Math.round(f.height - 2 * pad)}, елемент ${Math.round(e.left)},${Math.round(e.top)} ${Math.round(e.width)}×${Math.round(e.height)}`);

@@ -591,9 +591,12 @@ export async function setZoneFrame(part) {
   if (!own) return null;
   // the whole zone in view, not closer than it is now
   const side = document.querySelector("#sidebar")?.getBoundingClientRect();
-  const roomW = (side?.left || window.innerWidth) - 120, roomH = window.innerHeight - 120;
+  // the whole zone keeps room for the tour's card (~500 px) on its right: a zone filling the screen left the card nowhere
+  // but over it (2026-11-21, pl-battle.zones)
+  const card = part === "zone" ? 540 : 0;
+  const roomW = (side?.left || window.innerWidth) - 120 - card, roomH = window.innerHeight - 120;
   const scale = Math.min(canvas.stage.scale.x, roomW / own.w, roomH / own.h);
-  await canvas.animatePan({ x: own.x + own.w / 2, y: own.y + own.h / 2, scale, duration: 250 });
+  await canvas.animatePan({ x: own.x + own.w / 2 + card / 2 / scale, y: own.y + own.h / 2, scale, duration: 250 });
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   const tb = tgtBox(own.w);
   const box = part === "target" ? { x: own.x + tb.x, y: own.y + tb.y, w: tb.w, h: tb.s } : { x: own.x, y: own.y, w: own.w, h: own.h };

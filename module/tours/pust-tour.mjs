@@ -249,7 +249,11 @@ export const PREPARE = {
   sidebar: async (tab) => {
     if (ui.sidebar?.changeTab) ui.sidebar.changeTab(tab, "primary"); else ui[tab]?.activate?.();
     if (ui.sidebar && !ui.sidebar.expanded) ui.sidebar.expand?.();
-    await sleep(500); // the sidebar slides open: the highlight is measured once it stands still
+    // the sidebar slides open: the highlight is measured once it stands still (2026-11-21: from a collapsed sidebar the slide
+    // was still under way after a fixed 500 ms, and the step was lit past the screen's right edge)
+    await sleep(300);
+    const at = () => Math.round(document.querySelector("#sidebar")?.getBoundingClientRect().left ?? 0);
+    for (let i = 0, was = at(); i < 20; i++) { await sleep(100); const now = at(); if (now === was && now < innerWidth - 200) break; was = now; }
   },
   scene: async (which) => {
     const s = which === "map" ? findMapScene() : which === "battle" ? bestBattleScene()
@@ -550,6 +554,24 @@ function outerBox(el) {
   return u;
 }
 
+/**
+ * The part of an element its scrolling windows show (2026-11-21: an open fold taller than its sheet's content, e.g. the
+ * enemy card's «Деталі», ran the highlight past the screen's edge; the hidden part is scrolled away, not off screen).
+ * `screen`: also within the browser window.
+ */
+export function visibleBox(el, { screen = false } = {}) {
+  const b = el.getBoundingClientRect();
+  const u = { left: b.left, top: b.top, right: b.right, bottom: b.bottom };
+  for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+    const cs = getComputedStyle(p);
+    if (!/(auto|scroll|hidden|clip)/.test(cs.overflowY + cs.overflowX)) continue;
+    const r = p.getBoundingClientRect();
+    u.left = Math.max(u.left, r.left); u.top = Math.max(u.top, r.top); u.right = Math.min(u.right, r.right); u.bottom = Math.min(u.bottom, r.bottom);
+  }
+  if (screen) { u.left = Math.max(u.left, 0); u.top = Math.max(u.top, 0); u.right = Math.min(u.right, innerWidth); u.bottom = Math.min(u.bottom, innerHeight); }
+  return { ...u, width: Math.max(0, u.right - u.left), height: Math.max(0, u.bottom - u.top) };
+}
+
 /** Esc always leaves a tour of the system: nothing else can be pressed while its overlay is up */
 document.addEventListener("keydown", (ev) => {
   const t = foundry.nue?.Tour?.activeTour;
@@ -621,7 +643,8 @@ export class PustTour extends foundry.nue.Tour {
     this.#unwatch();
     const key = () => {
       const el = this.currentStep?.selector ? this._getTargetElement(this.currentStep.selector) : null;
-      const r = el?.getBoundingClientRect();
+      // the shown part too: a window that settles its height later cuts a tall fold after the step was drawn
+      const r = el ? visibleBox(el, { screen: true }) : null;
       return `${innerWidth}x${innerHeight}|${r ? [r.left, r.top, r.width, r.height].map(Math.round).join(",") : "-"}`;
     };
     this.#watchRect = key();
@@ -631,12 +654,26 @@ export class PustTour extends foundry.nue.Tour {
       // editor's step lost its card after «Далі»): drawn again
       if (this.#onTooltip && !game.tooltip.tooltip.classList.contains("active")) { this.#watchRect = key(); return this.#redraw(); }
       const k = key();
-      if (k === this.#watchRect) return;
+      if (k === this.#watchRect && !this.#fadeOff()) return;
       this.#watchRect = k;
       this.#redraw();
     }, 250);
   }
   #unwatch() { clearInterval(this.#watchTimer); this.#watchTimer = null; }
+  /** the highlight no longer over its element's shown part (the element was replaced or cut after the step was drawn) */
+  #fadeOff() {
+    // the highlight's box from its style, not its rect: Foundry moves it with a 0.3 s transition (a rect read mid-way would
+    // ask for one redraw after another)
+    const sel = this.currentStep?.selector, fs = this.fadeElement?.style;
+    const el = sel ? this._getTargetElement(sel) : null;
+    if (!el || !fs?.width || this.#hidden) return false;
+    const f = { left: parseFloat(fs.left), top: parseFloat(fs.top) };
+    f.right = f.left + parseFloat(fs.width); f.bottom = f.top + parseFloat(fs.height);
+    if (this.targetElement !== el) return true; // replaced: the redraw takes the new one
+    const v = visibleBox(el, { screen: true }), pad = foundry.nue.Tour.HIGHLIGHT_PADDING / 2;
+    if (!v.width || !v.height) return false;
+    return Math.max(Math.abs(f.left + pad - v.left), Math.abs(f.top + pad - v.top), Math.abs(f.right - pad - v.right), Math.abs(f.bottom - pad - v.bottom)) > 2;
+  }
   /** the same step drawn again where its element is now */
   async #redraw() {
     this.#unwatch();
@@ -711,7 +748,22 @@ export class PustTour extends foundry.nue.Tour {
       if (lit) { this.#centerCard = card; card.classList.add("pust-tour-aside"); placeAside(card, lit); }
       else this.targetElement = card;
     }
-    this.fadeElement = foundry.nue.Tour.highlightElement(this.targetElement, { padding: step.selector && !this.#hidden ? foundry.nue.Tour.HIGHLIGHT_PADDING : 0 });
+    const pad = step.selector && !this.#hidden ? foundry.nue.Tour.HIGHLIGHT_PADDING : 0;
+    this.fadeElement = foundry.nue.Tour.highlightElement(this.targetElement, { padding: pad });
+    // only the part its window shows: a fold taller than the sheet's content is lit down to the sheet's edge, not past the screen
+    if (this.targetElement !== card) {
+      const fade = this.fadeElement, sel = step.selector;
+      const clip = () => {
+        if (!fade.isConnected) return;
+        // found again: a sheet re-rendered for the step (a fold remembered) has replaced the element it was measured on
+        const el = (sel && this._getTargetElement(sel)) || this.targetElement;
+        if (!el?.isConnected) return;
+        const v = visibleBox(el, { screen: true });
+        if (v.width && v.height) Object.assign(fade.style, { transition: "none", left: `${v.left - pad / 2}px`, top: `${v.top - pad / 2}px`, width: `${v.width + pad}px`, height: `${v.height + pad}px` });
+      };
+      // again once the window has settled its height (a sheet opened for the step cuts its content a moment later)
+      clip(); setTimeout(clip, 60); setTimeout(clip, 150);
+    }
     this.overlayElement = document.createElement("div");
     this.overlayElement.classList.add("tour-overlay");
     document.body.appendChild(this.overlayElement);
