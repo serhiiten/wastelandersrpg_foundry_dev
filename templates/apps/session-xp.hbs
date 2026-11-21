@@ -1,6 +1,7 @@
 {{!-- «Кінець сесії: ОД» (A10, author 2026-11-21, mockup Б): the group's questions, then a card for every character with its
      main aspects beside the personal questions; the wiki's full questions are in the tooltips. module/applications/session-xp.mjs --}}
 <div class="pust-sx">
+  <div class="pust-sx-list">
   <section class="pust-block pust-sx-group">
     <h3>Уся група <span class="pust-sx-n" title="ОД кожному, хто отримує ОД">+{{groupN}} кожному</span></h3>
     {{#each group}}
@@ -19,6 +20,7 @@
   {{else}}
   <p class="pust-sx-none">Жодного персонажа не призначено гравцям.</p>
   {{/each}}
+  </div>
   <div class="pust-sx-btns">
     <button type="button" data-action="sxChat" title="Покласти групові й особисті запитання з правил у чат, щоб гравці їх бачили">Питання в чат</button>
     <button type="button" data-action="sxCancel">Скасувати</button>

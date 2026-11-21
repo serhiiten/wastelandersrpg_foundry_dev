@@ -24,6 +24,7 @@ export const SHEET_CHANNELS = {
   "buy-heal": { ch: "card", icon: "fa-coins", title: "Лікування за кришки" },
   "buy-sup": { ch: "card", icon: "fa-coins", title: "Припаси за кришки" },
   "buy-cons": { ch: "card", icon: "fa-coins", title: "Лікування наслідку за кришки" },
+  "power-use": { ch: "card", icon: "fa-battery-half", title: "Елемент живлення" },
   buy: { ch: "card", icon: "fa-coins", title: "Покупка" }, // «Купити за N(к)» of the catalogue and of a designer drug
   "ko-fate": { ch: "none" }, // the Fate card (fate-card.mjs)
   "perk-use": { ch: "none" }, // the perk's card (perk-card.mjs)
@@ -49,7 +50,11 @@ export function cardText(act, msgs, chem = {}) {
     // «Стимпак. +8 ОЗ…» → title «Стимпак», the rest is the text
     const last = String(chem.last || "");
     const m = /^([^.]+)\.\s*([\s\S]*)$/.exec(last);
-    return m ? { title: m[1], text: m[2] || msgs.join(" "), icon: c.icon } : { title: "Хімія", text: msgs.join(" "), icon: c.icon };
+    // the engine repeats the name («Стимпак: +5 ОЗ.»): the card's title says it already
+    if (!m) return { title: "Хімія", text: msgs.join(" "), icon: c.icon };
+    let text = m[2] || msgs.join(" ");
+    if (text.startsWith(`${m[1]}:`)) text = text.slice(m[1].length + 1).trim();
+    return { title: m[1], text, icon: c.icon };
   }
   if (act === "rest" && chem.restLast) return { title: c.title, text: String(chem.restLast), icon: c.icon };
   if (["chem-scene", "chem-day", "chem-session"].includes(act) && chem.last) return { title: c.title, text: String(chem.last), icon: c.icon };

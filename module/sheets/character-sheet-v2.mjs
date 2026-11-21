@@ -161,7 +161,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         const raw = String(context.v?.[k] ?? "");
         const editing = this.isEditable && this.#noteEdit.has(k);
         const html = editing || !raw.trim() ? "" : await TE.enrichHTML(textToHtml(raw), { secrets: owner, relativeTo: this.document });
-        context.notes.push({ k, title, raw, editing, html, empty: !raw.replace(/<[^>]*>/g, "").trim() });
+        context.notes.push({ k, title, raw, editing, html, empty: !raw.replace(/<[^>]*>/g, "").trim() && !/<(img|table|iframe|video|audio|hr)/i.test(raw) });
       }
     }
     context.customKind = this.customKind;
@@ -195,7 +195,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     const c = channelOf(act, data);
     if (c.ch === "none") return;
     if (c.ch === "card") return void (await postSheetCard(this.document, cardText(c.act, msgs, chem ?? {})));
-    this.#note = { ...(this.#anchor ?? {}), text: msgs.join(" "), until: Date.now() + NOTE_MS, fresh: true };
+    this.#note = { ...(this.#anchor ?? {}), tab: this.ui.tab, text: msgs.join(" "), until: Date.now() + NOTE_MS, fresh: true };
     if (this.element) this.#showNote(this.element);
   }
 
@@ -222,11 +222,11 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   #showNote(root) {
     const n = this.#note;
     root.querySelectorAll(".pust-inl-note").forEach((p) => p.remove());
-    if (!n || Date.now() >= n.until) return void (this.#note = null);
+    if (!n || Date.now() >= n.until || n.tab !== this.ui.tab) return void (this.#note = null); // another tab: gone
     const blocks = [...root.querySelectorAll(".pust-block, .pust-quickbar")];
     const headOf = (b) => b.querySelector(":scope > h3, :scope > h4")?.textContent?.replace(/\s+/g, " ").trim() || "";
     const block = (n.head && blocks.find((b, i) => i === n.idx && headOf(b) === n.head)) || (n.head && blocks.find((b) => headOf(b) === n.head))
-      || blocks[n.idx] || root.querySelector(".pust-body .pust-block") || blocks[0];
+      || (!n.head && blocks[n.idx]) || root.querySelector(".pust-body .pust-block") || blocks[0];
     if (!block) return;
     const p = document.createElement("p");
     p.className = "pust-inl-note";
@@ -557,6 +557,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   /** A button of the HTML sheet (data-act + its dataset) */
   static async #onAct(event, target) {
+    this.#clearNote(); // the line of the last action goes with the next one (U7)
     const { action, act, confirm, ...data } = target.dataset;
     if (QS_LOCKED_ACTS.has(act) && isQuickstartActor(this.document)) return void notify.warn(qsLockTip(this.document));
     if (confirm && !WastelandersCharacterSheetV2.#armed(target)) return;
@@ -588,6 +589,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   /** A tab; a guide link also names the block to show (data-go: a selector; no data-tab — the block is above the tabs) */
   static #onTab(event, target) {
+    this.#clearNote();
     const { tab, go } = target.dataset;
     if (tab) this.ui.tab = tab;
     // a tab picked from the stuck bar (U1, author 2026-11-20) opens from its start, not from the old tab's scroll

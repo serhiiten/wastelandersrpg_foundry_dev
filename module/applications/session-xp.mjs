@@ -12,6 +12,7 @@ import { CAMP, GROUP_QUESTIONS, OWN_QUESTIONS, sessionXp } from "../rules/sessio
 import { endCharacters, endForAll, groupCharacters } from "./group-end.mjs";
 import { readState } from "./character-actions.mjs";
 import { postChat } from "./chat.mjs";
+import { notify } from "../helpers/notify.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -33,7 +34,7 @@ export class SessionXpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     },
   };
 
-  static PARTS = { body: { template: "systems/wastelanders-dev/templates/apps/session-xp.hbs", scrollable: [".pust-sx"] } };
+  static PARTS = { body: { template: "systems/wastelanders-dev/templates/apps/session-xp.hbs", scrollable: [".pust-sx-list"] } };
 
   /** `opts`: what endForAll needs besides the ОД ({ moves, fate }) and `onDone` (the panel's redraw) */
   constructor(opts = {}) {
@@ -57,6 +58,7 @@ export class SessionXpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       ];
       return { uuid: a.uuid, name: a.name, img: a.img, gets, qs, n: gets ? sessionXp(TICKS.group, own).n : 0 };
     });
+    this.shown = chars.map((c) => c.uuid).sort().join();
     return {
       group: GROUP_QUESTIONS.map((q, i) => ({ q, i, on: !!TICKS.group[i] })),
       groupN: TICKS.group.filter(Boolean).length,
@@ -92,6 +94,11 @@ export class SessionXpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   /** ОД and the end of the session for everyone, in one go; the ticks are cleared once it is done */
   static async #end() {
     if (this.busy) return;
+    // the viewed scene changed since the window was drawn: its characters may differ, so show them first
+    if (endCharacters().map((a) => a.uuid).sort().join() !== this.shown) {
+      notify.warn("Сцена змінилася: перевір список персонажів і натисни ще раз.");
+      return void this.render();
+    }
     this.busy = true;
     this.render();
     try {
@@ -115,6 +122,9 @@ export class SessionXpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   }
 }
+
+/** A new viewed scene redraws the window (its characters follow the scene) */
+Hooks.on("canvasReady", () => { if (APP?.rendered) APP.render(); });
 
 /** Open (or bring up) the window; `opts` as the constructor's */
 export function openSessionXp(opts = {}) {

@@ -844,7 +844,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       else if (kind === "click") L.rollerClick(node);
       else L.rollerChange(node);
       // the ОД this roll gives, again after every action (an aspect that turns a failure takes it back; tours never)
-      if (autoXpOn() && !this.actor.pustTourDemo) reconcileAutoXp(st, R.last, compute(st).allPerks);
+      // only a new roll or one that already got its ОД (an old roll from before the setting was on stays as it was)
+      if (autoXpOn() && !this.actor.pustTourDemo && R.last && (R.last.time !== t0 || R.last.xpAuto)) reconcileAutoXp(st, R.last, compute(st).allPerks);
       if (fixer) {
         R.mod = (+R.mod || 0) - 1;
         if (R.last && R.last.time !== t0) { R.last.mod -= 1; R.last.autoFlat = (R.last.autoFlat || 0) + 1; R.last.autoList = [...(R.last.autoList || []), "Мастак-ремонтник +1"]; }

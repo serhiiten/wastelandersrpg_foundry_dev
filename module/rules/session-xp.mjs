@@ -47,13 +47,15 @@ export function sessionXp(group = [], own = {}) {
  *   – «Савант»: 1 ОД for a critical success without the skill;
  *   – the session's failures are counted for everyone in `st.chem.studFails` = { sess, n } (the perk may come later).
  * A roll whose ОД was already given by the button (`xpGiven` / `savGiven`) is left alone.
- * `last.xpAuto` = { fail, sav, stud } — what this roll gave. Returns the change of `st.xp`.
+ * `last.xpAuto` = { fail, sav, stud, sess } — what this roll gave, in which session (a roll of an ended session is left
+ * alone). Returns the change of `st.xp`.
  */
 export function reconcileAutoXp(st, last, perks = []) {
   if (!last || !Number.isInteger(last.verdict)) return 0;
   const had = last.xpAuto || { fail: 0, sav: 0, stud: 0 };
   const c = (st.chem ||= {});
   const sess = Number(c.session) || 1;
+  if (had.sess != null && had.sess !== sess) return 0; // a roll of a session already ended: left as it was
   const failsBefore = Math.max(0, (c.studFails?.sess === sess ? Number(c.studFails.n) || 0 : 0) - (had.stud || 0));
   const failed = last.verdict === 0 && !last.xpGiven;
   const fail = failed ? (perks.includes("Старанний учень") && failsBefore < 3 ? 2 : 1) : 0;
@@ -62,7 +64,7 @@ export function reconcileAutoXp(st, last, perks = []) {
   c.studFails = { sess, n: failsBefore + stud };
   const delta = fail + sav - (had.fail || 0) - (had.sav || 0);
   if (delta) st.xp = Math.max(0, (Number(st.xp) || 0) + delta);
-  if (fail || sav || stud) last.xpAuto = { fail, sav, stud };
+  if (fail || sav || stud) last.xpAuto = { fail, sav, stud, sess };
   else delete last.xpAuto;
   return delta;
 }

@@ -202,7 +202,7 @@
    reddish Очистити (as the sheets' «Очистити аркуш») */
 /* two rows always (author, 2026-11-16): the title alone on the first (it wraps when long), the case and «В чат» / «В журнал» on the second */
 .pust-terminal .pust-term-hd:has(> .pust-battle-case) > b { flex: 1 1 100%; }
-.pust-terminal .pust-term-hd > .pust-battle-case { flex: 1 1 auto; min-width: 0; margin: 0 6px 0 0; font-size: 15px; line-height: 1.15; padding-top: 2px; overflow-wrap: anywhere; }
+.pust-terminal .pust-term-hd > .pust-battle-case { flex: 1 1 auto; min-width: 0; margin: 0 6px 0 0; font-size: 13.5px; line-height: 1.25; padding-top: 2px; overflow-wrap: anywhere; }
 .pust-terminal .pust-battle-make { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--pu-ink-3); }
 .pust-terminal .pust-battle-hint { flex: 1 1 200px; min-width: 0; font-size: 12px; line-height: 1.3; }
 .pust-terminal .pust-battle-btns { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin-left: auto; }

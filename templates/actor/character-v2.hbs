@@ -735,7 +735,7 @@
       <h3 class="pust-note-hd">{{title}}
         {{#if ../editable}}
         {{#if editing}}<button type="button" class="pust-note-pen on" data-action="noteEdit" data-note="{{k}}" title="Закрити редактор: запис збережено"><i class="fa-solid fa-check"></i> Готово</button>
-        {{else}}<button type="button" class="pust-note-pen" data-action="noteEdit" data-note="{{k}}" title="Редагувати «{{title}}»" aria-label="Редагувати «{{title}}»"><i class="fa-solid fa-pen"></i></button>{{/if}}
+        {{else}}<button type="button" class="pust-note-pen" data-action="noteEdit" data-note="{{k}}" title="Редагувати: {{title}}" aria-label="Редагувати: {{title}}"><i class="fa-solid fa-pen"></i></button>{{/if}}
         {{/if}}
       </h3>
       {{#if editing}}<prose-mirror class="pust-notes-ed{{#if (eq k 'bio')}} pust-notes-bio{{/if}}" data-note="{{k}}" value="{{raw}}"></prose-mirror>

@@ -62,6 +62,12 @@ ok(reconcileAutoXp(s4, { verdict: 3, lvl: 0 }, ["Савант"]) === 1, "«Са�
 ok(reconcileAutoXp(s4, { verdict: 3, lvl: 1 }, ["Савант"]) === 0, "…not with the skill");
 ok(reconcileAutoXp(s4, { verdict: 3, lvl: 0 }, []) === 0, "…not without the perk");
 ok(reconcileAutoXp({ xp: 0 }, fail(), []) === 1, "a state with no chem yet: works");
+// a roll of a session that has ended since (the panel stayed open): left as it was, counts nothing in the new one
+const s5 = { xp: 0, chem: { session: 1 } };
+L = fail();
+reconcileAutoXp(s5, L, ["Старанний учень"]);
+s5.chem.session = 2;
+ok(reconcileAutoXp(s5, L, ["Старанний учень"]) === 0 && s5.xp === 2 && !(s5.chem.studFails.sess === 2), "an ended session's roll: no extra ОД, no failure in the new session");
 
 console.log(`session-xp: ${checks - failures}/${checks} passed`);
 if (failures) process.exit(1);

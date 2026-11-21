@@ -2,8 +2,9 @@
    card for every character. Palette, cards and buttons are the system's (pust-ui.css); the ОД chips are the violet of
    the end card's «+N ОД». Narrowest width 460, like the check panel. */
 .application.pust-sessxp { min-width: 460px; }
-.pust-sessxp .window-content { padding: 0; overflow-y: auto; max-height: 82vh; }
-.pust-sx { display: flex; flex-direction: column; gap: 8px; padding: 8px 10px 10px; }
+.pust-sessxp .window-content { padding: 0; overflow: hidden; }
+.pust-sx { display: flex; flex-direction: column; gap: 8px; padding: 8px 10px 10px; max-height: 78vh; }
+.pust-sx-list { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; padding-right: 2px; } /* the list scrolls (its scroll kept through a tick); the buttons stay under it */
 .pust-sx .pust-block { display: flex; flex-direction: column; gap: 4px; margin: 0; }
 .pust-sx .pust-block > h3 { display: flex; align-items: center; gap: 8px; min-height: 28px; padding-bottom: 3px; margin: 0 0 2px; }
 .pust-sx .pust-block > h3 > img { flex: none; width: 24px; height: 24px; border: 1px solid var(--pu-ink-2); border-radius: 50%; object-fit: cover; }
@@ -20,7 +21,7 @@
 .pust-sx .pust-sx-char.off .pust-sx-q { opacity: .5; cursor: default; }
 .pust-sx .pust-sx-char.off .pust-sx-n { background: var(--pu-ink-3); }
 .pust-sx .pust-sx-none { margin: 4px 2px; color: var(--pu-ink-3); font-style: italic; }
-.pust-sx .pust-sx-btns { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; padding-top: 2px; }
+.pust-sx .pust-sx-btns { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; padding-top: 2px; }
 .pust-sx .pust-sx-btns > button { flex: none; height: 28px; }
 
 /* «Питання в чат»: the wiki's questions for the players */
