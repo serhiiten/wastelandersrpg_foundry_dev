@@ -15,7 +15,8 @@ export const POWER_DEFAULT = 1;
 /** Foundry's own weathers: the strength scales their shaders' opacity (0.6 / 1 / 1.4; the mesh's alpha capped at 1) */
 export const CORE_MULT = [0.6, 1, 1.4];
 
-export const SHADERS = ["FogShader", "RainShader", "SnowShader"];
+/** Foundry's three weather shaders and the system's own «PustDustShader» (the dust's grains, module/canvas/weather.mjs) */
+export const SHADERS = ["FogShader", "RainShader", "SnowShader", "PustDustShader"];
 export const BLENDS = ["SCREEN", "NORMAL", "ADD"];
 
 /** Names of «Чисто» and Foundry's six (core has no Ukrainian translation; ordinary words, not terms of the game) */
@@ -31,7 +32,13 @@ export const CORE = [
 
 const fog = (config, power, extra = {}) => ({ shader: "FogShader", blend: "SCREEN", config, power, ...extra });
 const rain = (config, power, extra = {}) => ({ shader: "RainShader", blend: "SCREEN", config, power, ...extra });
-const snow = (config, power, extra = {}) => ({ shader: "SnowShader", blend: "SCREEN", config, power, ...extra });
+/**
+ * The dust's grains (author, 2026-11-21, variant «А — дрібний пил»): small round dots that fly with the wind, not
+ * Foundry's snow, whose sideways shear stretched every grain into a streak of rain. In scene pixels: `cell` the size of
+ * a grain's cell, `grain` its radius, `density` the share of cells with a grain, `drift` the wind's speed (px per second
+ * at `speed` 1), `direction` the wind's angle (radians), `wobble` the sway across the wind (px), `stretch` length / width.
+ */
+const grains = (config, power, extra = {}) => ({ shader: "PustDustShader", blend: "SCREEN", config, power, ...extra });
 
 /**
  * The Пустка's weathers. Names from the wiki («Небезпеки Пустки»); «Ядучо-зелені блискавки» shortened by the author.
@@ -42,7 +49,7 @@ export const WASTES = [
     id: "dust", name: "Пилова буря", icon: "fa-wind",
     layers: [
       fog({ tint: [1, 0.75, 0.45], slope: 0.55, speed: 1.4, rotation: 0.35 }, { intensity: [0.26, 0.38, 0.49] }, { blend: "NORMAL" }),
-      snow({ tint: [0.56, 0.44, 0.26], direction: 2.2, scale: 1.75 }, { speed: [5.25, 8.25, 12] }, { perf: 2 }),
+      grains({ tint: [0.62, 0.5, 0.3], cell: 22, grain: 2, density: 0.85, drift: 260, direction: 0.35, wobble: 6, stretch: 1 }, { speed: [0.65, 1, 1.45] }, { perf: 2 }),
     ],
   },
   {

@@ -20,7 +20,56 @@ let lastFlash = null;
 
 /* ---------------- building ---------------- */
 
-const shaderClass = (name) => foundry.canvas.rendering.shaders[name];
+const shaderClass = (name) => (name === "PustDustShader" ? dustShaderClass() : foundry.canvas.rendering.shaders[name]);
+
+/**
+ * The dust's grains (author, 2026-11-21; rules/weather.mjs `grains`): six layers of cells in scene pixels moving with
+ * the wind; a cell holds at most one small round grain (a hash decides where, how large and how bright). Masked under
+ * roofs as Foundry's weather shaders are. `size` (the scene's width and height in px) is set when the weather is built.
+ */
+let DustShader = null;
+function dustShaderClass() {
+  if (DustShader) return DustShader;
+  const Base = foundry.canvas.rendering.shaders.AbstractWeatherShader;
+  DustShader = class PustDustShader extends Base {
+    static get defaultUniforms() {
+      return { ...super.defaultUniforms, size: [1000, 1000], direction: 0.35, cell: 22, grain: 2, density: 0.85, drift: 260, stretch: 1, wobble: 6 };
+    }
+    static _createFragmentShader() {
+      return `
+      ${this.FRAGMENT_HEADER}
+      uniform vec2 size;
+      uniform float direction, cell, grain, density, drift, stretch, wobble;
+      vec3 hash3(vec3 p) {
+        p = fract(p * vec3(0.1031, 0.1030, 0.0973));
+        p += dot(p, p.yxz + 33.33);
+        return fract((p.xxy + p.yxx) * p.zyx);
+      }
+      void main() {
+        ${this.COMPUTE_MASK}
+        vec2 w = vec2(cos(direction), sin(direction));
+        vec2 n = vec2(-w.y, w.x);
+        vec2 p0 = vStaticUvs * size;
+        float acc = 0.0;
+        for ( int i = 0; i < 6; i++ ) {
+          float f = float(i);
+          float c = cell * (0.7 + f * 0.17);
+          vec2 q = vec2(dot(p0, w), dot(p0, n));
+          q.x -= time * drift * (0.75 + f * 0.1);
+          q.y += sin(time * 0.9 + f * 1.7 + q.x * 0.004) * wobble;
+          vec3 r = hash3(vec3(floor(q / c), f * 17.0 + 3.0));
+          if ( r.z > density ) continue;
+          vec2 d = fract(q / c) * c - (0.15 + 0.7 * r.xy) * c;
+          d.x /= stretch;
+          float rad = grain * (0.6 + 0.8 * fract(r.z * 7.13));
+          acc += smoothstep(rad, rad * 0.35, length(d)) * (0.55 + 0.45 * fract(r.x * 5.7));
+        }
+        gl_FragColor = vec4(vec3(min(acc, 1.0)) * tint, 1.0) * mask * alpha;
+      }`;
+    }
+  };
+  return DustShader;
+}
 
 /** The weather config Foundry's WeatherEffects layer takes, built from the flag's id and strength (null: clear) */
 export function buildWeather(id, power) {
@@ -48,7 +97,7 @@ export function buildWeather(id, power) {
       shaderClass: shaderClass(l.shader),
       blendMode: PIXI.BLEND_MODES[l.blend],
       performanceLevel: l.perf,
-      config: { ...l.config },
+      config: l.shader === "PustDustShader" ? { ...l.config, size: [canvas.dimensions.sceneRect.width, canvas.dimensions.sceneRect.height] } : { ...l.config },
     })),
   };
 }
@@ -309,11 +358,25 @@ export async function setAutoWeather(on) {
   }
 }
 
+/**
+ * The black map (author's bug report 2026-11-19, caught 2026-11-21): Foundry 14's WeatherEffects turns its layer-wide
+ * occlusion filter ON for a weather that uses it (all six of Foundry's own) but never turns it OFF for the next weather
+ * that declares `filter: {enabled: false}` (all of ours). The stuck filter then renders the whole weather layer into a
+ * texture and lays it over the scene with NORMAL blend: our SCREEN layers give an opaque texture (the grains and Foundry's
+ * snow write alpha 1 everywhere), so the map turns black under the weather. Any switch «Foundry's weather → ours» did it.
+ * Runs on Foundry's hook between destroying the old effects and building the new ones, so it also covers weathers that
+ * are not ours (a module's or the scene field's).
+ */
+function fixStuckOcclusionFilter(layer, config) {
+  if (config?.filter?.enabled === false && layer?.occlusionFilter) layer.occlusionFilter.enabled = false;
+}
+
 export function initWeather() {
   Hooks.once("init", () => game.settings.register(SYS(), "autoWeather", {
     scope: "world", config: false, type: Boolean, default: true,
     onChange: () => import("../applications/battle-panel.mjs").then((m) => m.redrawBattlePanel()),
   }));
+  Hooks.on("initializeWeatherEffects", fixStuckOcclusionFilter);
   Hooks.on("canvasReady", () => { shown = null; applySceneWeather({ force: true }); });
   Hooks.on("updateScene", onUpdateScene);
 }
