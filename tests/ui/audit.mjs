@@ -145,22 +145,7 @@ class Audit {
 
   /** Readable: contrast ≥ 3:1 with the nearest opaque background, font ≥ 10 px */
   readable(root, sel = "button, label, span, b, small, p, li, h3, h4, input") {
-    const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
-    // «rgb(…)» / «rgba(…)», or «color(srgb r g b / a)» (what color-mix() computes to) with 0…1 channels
-    const rgba = (s) => {
-      const n = (String(s).match(/[\d.]+/g) || [0, 0, 0, 0]).map(Number);
-      if (/^color\(srgb/.test(s)) return [n[0] * 255, n[1] * 255, n[2] * 255, n[3] ?? 1];
-      return n;
-    };
-    const bgOf = (el) => {
-      for (let e = el; e; e = e.parentElement) {
-        const cs = getComputedStyle(e);
-        if (cs.backgroundImage && cs.backgroundImage !== "none") return null; // a gradient or texture: can't judge
-        const c = rgba(cs.backgroundColor);
-        if ((c[3] ?? 1) >= 0.9) return c;
-      }
-      return null;
-    };
+    this.access(root);
     const bad = [], small = [];
     for (const el of root.querySelectorAll(sel)) {
       if (!shown(el) || !(el.innerText || el.value || "").trim() || el.closest(".pust-audit-skip")) continue;
@@ -169,8 +154,7 @@ class Audit {
       if (parseFloat(cs.opacity) < 0.6) continue;
       const bg = bgOf(el);
       if (!bg) continue;
-      const fg = rgba(cs.color), a = lum(fg), b = lum(bg);
-      const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+      const ratio = contrast(rgba(cs.color), bg);
       if (ratio < 3) bad.push(`${name(el)} ${ratio.toFixed(1)}:1`);
     }
     this.ok("шрифт не менший за 10 px", !small.length, small.slice(0, 5).join("; "));
@@ -335,8 +319,94 @@ class Audit {
     return this.ok(label, !bad.length, bad.slice(0, 6).join("; "));
   }
 
+  /* ---------- V6 (2026-11-21): text ≥ 12 px, click targets ≥ 24 × 24 px, a visible keyboard focus ---------- */
+
+  /** The three V6 limits on everything under `root`. Each finding is collected once per element in `this.v6`
+   *  (window → rule → element → size). A rule fails only where `V6.enforce` says so; the exceptions the author kept are
+   *  `V6.exempt` (selector → why); until then the findings are warnings (`warn: true`, ok) so the audit doesn't fail. */
+  access(root, where = "") {
+    if (!root?.isConnected) return;
+    const win = where || winOf(root);
+    const seen = (this._v6seen ??= new WeakMap());
+    const found = { font: [], target: [], focus: [] };
+    const add = (rule, el, detail) => {
+      let s = seen.get(el); if (!s) seen.set(el, (s = new Set()));
+      if (s.has(rule)) return;
+      s.add(rule);
+      found[rule].push(`${name(el)} ${detail}`);
+      (this.v6 ??= []).push({ scenario: this.scenario, window: win, rule, el: name(el), sel: selOf(el), detail });
+    };
+    const exempt = (el, rule) => V6.exempt.find((x) => x.rules.includes(rule) && el.closest(x.sel));
+    const cs = styleCache();
+    // 1. text: every element with text of its own (and fields with a value)
+    for (const el of root.querySelectorAll("*")) {
+      if (el.closest(".pust-audit-skip, option, svg") || !shown(el)) continue;
+      const s = cs(el);
+      if (parseFloat(s.opacity) === 0) continue;
+      const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) || (el.matches("input:not([type=checkbox],[type=radio],[type=hidden],[type=range],[type=color]), textarea, select") && (el.value ?? "").trim());
+      if (!own) continue;
+      const fs = parseFloat(s.fontSize);
+      if (fs > 0 && fs < V6.font - 0.01 && !exempt(el, "font")) add("font", el, `${+fs.toFixed(2)} px`);
+    }
+    // 2. click targets: controls the hand presses (an inline link inside running text is exempt, as in WCAG 2.5.8)
+    const targets = [...root.querySelectorAll(TARGET)].filter((el) => shown(el) && !el.closest(".pust-audit-skip, .window-resizable-handle") && !el.parentElement?.closest(TARGET)
+      && !(el.matches("a") && el.parentElement?.closest("p, li") && cs(el).display.startsWith("inline")));
+    for (const el of targets) {
+      // a checkbox inside its <label> is pressed through the label
+      const hit = el.matches("input[type=checkbox], input[type=radio]") && el.closest("label") ? el.closest("label") : el;
+      const r = R(hit);
+      if ((r.width < V6.target - 0.5 || r.height < V6.target - 0.5) && !exempt(el, "target")) {
+        // WCAG's spacing exception: a 24 px circle round its centre touches no other target
+        const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+        const room = targets.every((o) => { if (o === el || o.contains(el) || el.contains(o)) return true; const q = R(o); const dx = Math.max(q.left - cx, 0, cx - q.right), dy = Math.max(q.top - cy, 0, cy - q.bottom); return dx * dx + dy * dy >= (V6.target / 2) ** 2; });
+        add("target", el, `${Math.round(r.width)}×${Math.round(r.height)}${room ? " (є простір довкола)" : ""}`);
+      }
+    }
+    // 3. keyboard focus: a control reached by Tab changes its look (outline, shadow, border, background or colour)
+    const before = document.activeElement;
+    const look = (s) => [s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0 ? `${s.outlineStyle} ${s.outlineWidth} ${s.outlineColor}` : "", s.boxShadow, s.borderTopColor, s.borderBottomColor, s.backgroundColor, s.backgroundImage, s.color, s.textDecorationLine].join("|");
+    for (const el of targets) {
+      if (!el.matches(FOCUSABLE) || el.disabled || exempt(el, "focus")) continue;
+      const hit = el.matches("input[type=checkbox], input[type=radio]") && el.closest("label") ? el.closest("label") : null;
+      // no transition while measuring: right after focus a transition still shows the old shadow (2026-11-21, enemy card)
+      const tr = el.style.getPropertyValue("transition"), trP = el.style.getPropertyPriority("transition");
+      el.style.setProperty("transition", "none", "important");
+      const own0 = look(getComputedStyle(el)), was = own0 + (hit ? look(getComputedStyle(hit)) : "");
+      try { el.focus({ preventScroll: true, focusVisible: true }); } catch { el.style.setProperty("transition", tr, trP); continue; }
+      if (document.activeElement !== el) { el.style.setProperty("transition", tr, trP); continue; }
+      const fv = el.matches(":focus-visible");
+      const fs = getComputedStyle(el), own1 = look(fs), now = own1 + (hit ? look(getComputedStyle(hit)) : "");
+      // only the outline changed: its colour has to show against the background
+      const b0 = own0.split("|"), b1 = own1.split("|");
+      const ring = b1[0] && b1.slice(1).join("|") === b0.slice(1).join("|") ? fs.outlineColor : null;
+      el.blur();
+      if (tr) el.style.setProperty("transition", tr, trP); else el.style.removeProperty("transition");
+      if (!fv) { add("focus", el, "браузер не дав :focus-visible (натисни клавішу в сторінці перед аудитом)"); continue; }
+      if (now === was) { add("focus", el, "фокус не видно"); continue; }
+      // the ring is seen only if it stands out from what lies round it (WCAG 1.4.11: 3:1)
+      if (ring) {
+        const bg = bgOf(el.parentElement);
+        const c = bg && contrast(rgba(ring), bg);
+        if (c && c < 3) add("focus", el, `рамка фокуса ледь видна (${c.toFixed(1)}:1 до тла)`);
+      }
+    }
+    // a control the mouse presses but Tab never reaches (a div / span with an action, no tabindex)
+    for (const el of targets) if (!el.matches(FOCUSABLE) && el.matches("[data-action], [role=button]") && !exempt(el, "focus")) add("focus", el, "клавіатура не досягає (немає tabindex)");
+    try { before?.focus?.({ preventScroll: true }); } catch { /* the old focus is gone */ }
+    const t = where ? ` (${where})` : "";
+    const res = (rule, label) => {
+      const list = found[rule], fail = V6.enforce[rule];
+      if (!list.length) return; // a pass says nothing: the same window is measured many times
+      this.results.push({ scenario: this.scenario, rule: `${label}${t}`, ok: !list.length || !fail, warn: !!list.length && !fail, detail: list.length ? `${list.length}: ${list.slice(0, 5).join("; ")}` : "" });
+    };
+    res("font", `V6: текст не дрібніший за ${V6.font} px`);
+    res("target", `V6: ціль кліку не менша за ${V6.target}×${V6.target} px`);
+    res("focus", "V6: видимий фокус клавіатури");
+  }
+
   /** The three layout rules and the text rule at once */
   layout(root, where = "") {
+    this.access(root, where);
     const t = where ? ` (${where})` : "";
     this.noSpill(root, `елементи не вилазять за свій блок${t}`);
     this.noOverlap(root, `елементи не налазять одне на одного${t}`);
@@ -346,6 +416,61 @@ class Audit {
     this.noCut(root, "button, label, span, b, small, h1, h2, h3, h4, a, .pust-chip, li");
   }
 }
+
+/* ---------- colours ---------- */
+const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+const contrast = (x, y) => { const a = lum(x), b = lum(y); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
+// «rgb(…)» / «rgba(…)», or «color(srgb r g b / a)» (what color-mix() computes to) with 0…1 channels
+const rgba = (s) => {
+  const n = (String(s).match(/[\d.]+/g) || [0, 0, 0, 0]).map(Number);
+  if (/^color\(srgb/.test(s)) return [n[0] * 255, n[1] * 255, n[2] * 255, n[3] ?? 1];
+  return n;
+};
+/** The nearest opaque background colour, or null under a gradient or texture (can't judge) */
+const bgOf = (el) => {
+  for (let e = el; e; e = e.parentElement) {
+    const cs = getComputedStyle(e);
+    if (cs.backgroundImage && cs.backgroundImage !== "none") return null;
+    const c = rgba(cs.backgroundColor);
+    if ((c[3] ?? 1) >= 0.9) return c;
+  }
+  return null;
+};
+
+/* ---------- V6 limits (2026-11-21) ---------- */
+/** The limits, whether each fails the audit yet (the author's decision decides), and the exceptions he kept */
+const V6 = {
+  font: 12, target: 24,
+  // the author's decision (Asking, 2026-11-21): all three limits fail the audit; the dense places keep their buttons
+  enforce: { font: true, target: true, focus: true },
+  exempt: [
+    // the dense places the author laid out to the pixel on 17–18.11: text 12 px there too, the buttons keep their size
+    { sel: ".pust-compact", rules: ["target"], why: "компактні аркуші 460 px: кнопки як є (author, 2026-11-21)" },
+    { sel: ".pust-qpips, .pust-pips", rules: ["target"], why: "набої й запас ходу: ряди крапок (author, 2026-11-21)" },
+    { sel: ".pust-imp-ctrl", rules: ["target"], why: "квадратики рівнів покращень каравану (author, 2026-11-21)" },
+    { sel: ".pust-sitchip, .pust-sinv, .pust-en-inv, .pust-en-chip, .pust-bz-inv, .pust-bz-chip, .pust-place-chip", rules: ["target"], why: "−/+ і × на чипах аспектів (author, 2026-11-21)" },
+    // Foundry's own controls, not the system's
+    { sel: ".window-header", rules: ["target", "focus"], why: "кнопки заголовка вікна Foundry" },
+    { sel: ".message-metadata", rules: ["target", "focus"], why: "× видалення повідомлення, Foundry" },
+    { sel: "menu, .editor-menu", rules: ["target", "focus"], why: "панель редактора тексту Foundry (ProseMirror)" },
+  ],
+};
+const TARGET = "button, a[href], summary, select, [role=button], [data-action], input[type=checkbox], input[type=radio], input[type=range], .pust-chip[data-action]";
+const FOCUSABLE = "button, a[href], summary, select, input, [tabindex]:not([tabindex='-1'])";
+/** The window an element is in: its title, or the panel's id / class */
+const winOf = (el) => {
+  const app = el.closest(".application, .app, .window-app, #pust-mapdock, #pust-check-dock, #chat, #sidebar, .pust-bz-edit");
+  if (!app) return el.id || String(el.className).split(" ")[0] || el.tagName.toLowerCase();
+  const title = app.querySelector(":scope > .window-header .window-title, :scope > header .window-title")?.innerText?.trim();
+  return title || app.id || String(app.className).split(" ").filter(Boolean).slice(0, 2).join(".");
+};
+/** A short CSS path to find the element in the code: tag.class of it and of two ancestors */
+const selOf = (el) => {
+  const one = (e) => e.tagName.toLowerCase() + [...e.classList].filter((c) => !/^(active|open|on|hover)$/.test(c)).slice(0, 2).map((c) => "." + c).join("");
+  const out = [];
+  for (let e = el, i = 0; e && i < 3 && e !== document.body; e = e.parentElement, i++) out.unshift(one(e));
+  return out.join(" > ");
+};
 
 /* ---------- layout helpers ---------- */
 /** The nearest ancestor that scrolls (overflow auto / scroll), or null */
@@ -536,6 +661,17 @@ const SCENARIOS = {
     }
     a.noRawKeys(el);
     if (!was) { await mod.toggleDockCheck(unit.getBoundingClientRect()); await sleep(400); }
+  },
+
+  /** Chat cards (V6, 2026-11-21): the last 30 messages of the chat tab, read only — text size, targets, focus */
+  async chatCards(a) {
+    if (ui.sidebar?.tabGroups?.primary !== "chat") { ui.sidebar?.changeTab?.("chat", "primary"); await sleep(400); }
+    const log = document.querySelector("#chat .chat-log, #chat-log");
+    if (!log || !shown(log)) return a.skip("картки чату", "чат не видно");
+    const msgs = [...log.querySelectorAll(".chat-message")].slice(-30);
+    if (!msgs.length) return a.skip("картки чату", "чат порожній");
+    for (const m of msgs) { m.scrollIntoView({ block: "nearest" }); a.access(m, "картки чату"); }
+    log.scrollTop = log.scrollHeight;
   },
 
   /** The Actors directory's header buttons */
@@ -1075,9 +1211,9 @@ export async function runAudit(only = null, { extra = {} } = {}) {
     try { await fn(a); } catch (err) { a.ok("сценарій без помилок", false, String(err?.stack || err).slice(0, 300)); }
   }
   const failures = a.results.filter((r) => !r.ok);
-  console.table(a.results.map((r) => ({ "": r.ok ? (r.skipped ? "–" : "✓") : "✗", сценарій: r.scenario, правило: r.rule, деталі: r.detail })));
-  return { failures: failures.length, report: a.results };
+  console.table(a.results.map((r) => ({ "": r.ok ? (r.skipped ? "–" : r.warn ? "⚠" : "✓") : "✗", сценарій: r.scenario, правило: r.rule, деталі: r.detail })));
+  return { failures: failures.length, warnings: a.results.filter((r) => r.warn).length, report: a.results, v6: a.v6 ?? [] };
 }
 
 /** For scenarios added by other modules of the audit (battle map, enemy sheet) */
-export { Audit, SCENARIOS, R, shown, sleep };
+export { Audit, SCENARIOS, R, shown, sleep, V6 };
