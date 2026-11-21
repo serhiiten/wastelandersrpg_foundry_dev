@@ -92,6 +92,7 @@ eq(dmg({ armor: 1, defense: { phys: "half" }, flags: { kamikaze: true } }, 8, "p
   x = t("4 (за часткового успіху в перевірці атаки отримує лише половину шкоди з округленням угору)"); ok(x.halfPartial && x.armor === 4, "partial half");
   x = t("3 (невразливий до радіації)"); ok(x.immuneRad && !x.healRad, "immune rad");
   x = t("0", "Радіація лікує гуля."); ok(x.healRad, "rad heals");
+  x = t("1 (шкода від радіації лікує на 1 ОЗ за кожну кістку, від отрут отримує лише половину шкоди з округленням угору)"); ok(x.healRad && x.halfPoison && x.armor === 1, "wiki ghoul: rad heals, poison half");
   x = t("2 (на відміну від інших роботів, вразливий до психічної шкоди)"); ok(x.psyVuln && !x.immunePsy, "psy vuln");
   x = t("2", "невразливий до психічної шкоди"); ok(!x.psyVuln && x.immunePsy, "«невразливий» is not vuln");
   x = t("6 (від енергетичної зброї отримує лише половину шкоди; не можна приголомшити, не можна обеззброїти)"); ok(x.halfEnergy && x.noStun && x.noDisarm, "energy half / no stun / no disarm");

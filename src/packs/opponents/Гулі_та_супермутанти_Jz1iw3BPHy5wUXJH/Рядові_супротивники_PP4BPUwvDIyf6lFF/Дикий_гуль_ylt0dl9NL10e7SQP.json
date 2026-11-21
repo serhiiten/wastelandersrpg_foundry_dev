@@ -18,7 +18,7 @@
       "phys": "normal",
       "energy": "normal",
       "fire": "normal",
-      "rad": "normal",
+      "rad": "heal",
       "poison": "half",
       "psy": "normal"
     },
@@ -65,7 +65,7 @@
         "phys": "normal",
         "energy": "normal",
         "fire": "normal",
-        "rad": "normal",
+        "rad": "heal",
         "poison": "half",
         "psy": "normal"
       },
