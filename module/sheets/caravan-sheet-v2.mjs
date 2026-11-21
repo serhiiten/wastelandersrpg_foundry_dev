@@ -17,6 +17,11 @@ import { typeClass, typeLabel, typeOptions } from "./enemy-view.mjs";
 import { diceLabel } from "../rules/battle.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { defibUsed, freeDefib, useDefib } from "../applications/caravan-defib.mjs";
+import { askSpend } from "../applications/spend-ask.mjs";
+import { postKarmaChange, postSaleCard } from "../applications/caravan-trade.mjs";
+import { caravanLuck, luckManual, partyLuck } from "../applications/party-luck.mjs";
+import { impCost } from "../rules/caravan-controller.mjs";
+import { rowCost } from "../rules/caravan-adapter.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -25,6 +30,8 @@ const CONFIRM_MS = 3000;
 const UNDO_MS = 7000;
 /** «Скасувати» shows only after the whole caravan is replaced at random or cleared (author, 2026-11-14; the HTML sheet offers it after more) */
 const UNDOABLE = new Set(["clear", "random"]);
+/** Karma changed by these is no deed (A14): the d6 of a new caravan, a caravan rolled or cleared — no karma card */
+const KARMA_QUIET = new Set(["rollKarma", "random", "clear", "rollFate"]);
 /** The compact caravan sheet (author, 2026-11-18; mockup Б1): the compact character sheet's width, remembered per user and caravan */
 const COMPACT_W = 460;
 const compactKey = (actor) => `pustelnyky-compact-${game.user.id}-${actor.id}`;
@@ -52,6 +59,9 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       compactToggle: WastelandersCaravanSheetV2.#onCompactToggle,
       cargoEdit: WastelandersCaravanSheetV2.#onCargoEdit,
       defib: WastelandersCaravanSheetV2.#onDefib,
+      cargoBuy: WastelandersCaravanSheetV2.#onCargoBuy,
+      cargoSell: WastelandersCaravanSheetV2.#onCargoSell,
+      luckAuto: WastelandersCaravanSheetV2.#onLuckAuto,
     },
   };
 
@@ -74,6 +84,14 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     const S = readCaravan(this.document);
     const { L } = caravanLogicFor(S, { quiet: true });
     context.v = buildCaravanView(S, L, this.ui);
+    // Удача партії (author, 2026-11-21; A14): from the УДЧ of the characters assigned to players, unless picked by hand
+    const auto = partyLuck(), manual = luckManual(this.document);
+    const luckNow = manual || !auto ? (parseInt(S.luck, 10) || 0) : auto.value;
+    context.v.luck = context.v.luck.map((o) => ({ ...o, sel: o.v === luckNow }));
+    context.luckInfo = {
+      auto: !!auto && !manual, manual: !!auto && manual,
+      tip: auto ? (manual ? `Вибрано вручну. З персонажів: ${auto.line}` : `З УДЧ персонажів гравців: ${auto.line}`) : "Персонажів гравцям не призначено: виберіть Удачу партії зі списку",
+    };
     context.tab = this.ui.tab;
     context.quickFold = !!this.ui.quickFold;
     context.ui = { sheetBarOpen: !!this.ui.sheetBarOpen };
@@ -188,10 +206,16 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     root.querySelectorAll("[data-k]").forEach((el) => el.addEventListener("change", (ev) => {
       const t = ev.currentTarget;
       this.dropUndo();
+      if (t.dataset.k === "luck" && partyLuck()) this.document.setFlag(game.system.id, "luckManual", true);
+      const karma0 = t.dataset.k === "karma" || t.dataset.k === "karmaAspect" ? this.#karmaSnap() : null;
       // a field whose value the rules changed back to what was stored («1e9» ОЗ at the maximum) gets no update, so no
       // redraw: the field would keep showing the typed text (stress test, 2026-11-17) — draw it again then
       return runCaravanAction(this.document, (C) => C.setField(t.dataset.k, t.type === "checkbox" ? t.checked : t.value))
-        .then((r) => { if (t.isConnected && t.type !== "checkbox" && this.rendered) this.render(); return r; });
+        .then(async (r) => {
+          if (karma0) await this.#postKarma(karma0);
+          if (t.isConnected && t.type !== "checkbox" && this.rendered) this.render();
+          return r;
+        });
     }));
   }
 
@@ -222,7 +246,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     }
     // «Удача партії» rolls «Кістка Долі» to chat (author, 2026-11-14), instead of the HTML sheet's toast
     if (act === "rollFate") {
-      const luck = parseInt(caravanToState(this.document.toObject()).luck, 10) || 0;
+      const luck = caravanLuck(this.document); // from the characters unless picked by hand (party-luck.mjs)
       const roll = await new Roll("1d10").evaluate();
       return postFateCard(this.document, { v: roll.total, mod: luck, party: true, roll });
     }
@@ -233,23 +257,78 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       this.ui.cgEdit = di === this.ui.cgEdit ? null : di < this.ui.cgEdit ? this.ui.cgEdit - 1 : this.ui.cgEdit;
     }
     if (act === "addCargo") this.ui.cgEdit = (this.document.system.engine?.raw?.cargo ?? caravanToState(this.document.toObject()).cargo ?? []).length;
+    // an improvement past the two starting ones (author, 2026-11-21; A13): «Списати 25(к) з бюджету?»
+    if (act === "imp" || act === "addCustomImp") {
+      const S = readCaravan(this.document);
+      const { L } = caravanLogicFor(S, { quiet: true });
+      const cost = impCost(S, L.derived().impCount, act === "imp" ? data.id : null, data.k);
+      if (cost > 0) {
+        const r = await askSpend({ title: "Покращення каравану", what: data.name ? `«${data.name}»` : "", cost, have: parseInt(S.budget, 10) || 0 });
+        if (!r) return;
+        data.pay = r === "pay" ? "1" : "0";
+      }
+    }
     const prev = UNDOABLE.has(act) ? caravanToState(this.document.toObject()) : null;
+    const karma0 = KARMA_QUIET.has(act) ? null : this.#karmaSnap();
     // any other action ends the offer: undoing would also throw away what was done after
     if (!prev) this.dropUndo();
     await runCaravanAction(this.document, (C) => C.act(act, data));
+    if (karma0) await this.#postKarma(karma0);
     if (prev) this.setUndo(prev);
+  }
+
+  /** The karma and its aspect before a change (A14: every change by hand writes a card) */
+  #karmaSnap() {
+    const S = caravanToState(this.document.toObject());
+    return { n: parseInt(S.karma, 10) || 0, asp: S.karmaAspect || "" };
+  }
+
+  async #postKarma(before) {
+    const after = this.#karmaSnap();
+    if (after.n !== before.n) await postKarmaChange(this.document, before.n, after.n, before.asp, after.asp);
+  }
+
+  /** «Купити за N(к)» on a cargo row (A3): «Списати N(к) з бюджету?» — pay, take it for free, or nothing */
+  static async #onCargoBuy(event, target) {
+    const S = readCaravan(this.document);
+    const r = S.cargo?.[Number(target.dataset.i)];
+    if (!r?.unpaid) return;
+    const q = parseInt(r.qty, 10) || 1;
+    const ans = await askSpend({ title: "Купити вантаж", what: `«${r.name || "без назви"}»${q > 1 ? ` ×${q}` : ""}`, cost: rowCost(r), have: parseInt(S.budget, 10) || 0 });
+    if (!ans) return;
+    this.dropUndo();
+    await runCaravanAction(this.document, (C) => C.act("cg-buy", { i: target.dataset.i, pay: ans === "pay" ? "1" : "0" }));
+  }
+
+  /** «Продати за N(к)» / «Плата за проїзд N(к)» on a row, «Продати все» on the list (A3): caps to the budget, rows away,
+   *  a card in chat; «Скасувати» for a while puts the rows and the budget back and takes the card away */
+  static async #onCargoSell(event, target) {
+    const prev = caravanToState(this.document.toObject());
+    this.dropUndo();
+    this.ui.cgEdit = null;
+    const plan = await runCaravanAction(this.document, (C) => C.act("cg-sell", target.dataset.all ? { all: "1" } : { i: target.dataset.i }));
+    if (!plan) return;
+    const msg = await postSaleCard(this.document, plan);
+    this.setUndo(prev, msg);
+  }
+
+  /** «↺» by Удача партії: back to the value from the characters */
+  static #onLuckAuto() {
+    return this.document.unsetFlag(game.system.id, "luckManual");
   }
 
   /** Hide «Скасувати» */
   dropUndo() {
     if (!this.undoState) return;
     this.undoState = null;
+    this.undoMsg = null;
     clearTimeout(this.#undoTimer);
   }
 
   /** Offer «Скасувати» for a while */
-  setUndo(prev) {
+  setUndo(prev, msg = null) {
     this.undoState = prev;
+    this.undoMsg = msg;
     clearTimeout(this.#undoTimer);
     this.#undoTimer = setTimeout(() => {
       this.undoState = null;
@@ -264,6 +343,9 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     this.undoState = null;
     clearTimeout(this.#undoTimer);
     await saveCaravan(this.document, prev);
+    // a sale undone: its card goes too (A3)
+    if (this.undoMsg?.isOwner) await this.undoMsg.delete().catch(() => {});
+    this.undoMsg = null;
     notify.info("Скасовано.");
   }
 

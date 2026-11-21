@@ -1,5 +1,6 @@
 {{!-- Електронний аркуш каравану (Foundry), laid out like the character sheet. Fields: data-k = field of the HTML caravan sheet; buttons: data-act. --}}
 <div class="pust-sheet-inner pust-caravan {{#unless editable}}readonly{{/unless}} {{#if compact}}pust-compact{{/if}}">
+{{#*inline "cargoDeal"}}{{#if buy}}<button type="button" class="pust-buy" data-action="cargoBuy" data-i="{{i}}" title="Купити: списати {{buy}}(к) з бюджету (або взяти без списання)">Купити за {{buy}}(к)</button>{{else if sell}}<button type="button" class="pust-sell" data-action="cargoSell" data-i="{{i}}" title="{{#if pass}}Отримати плату за проїзд: {{sell}}(к) у бюджет, рядок прибирається{{else}}Продати: {{sell}}(к) у бюджет, рядок прибирається{{/if}}">{{#if pass}}Плата за проїзд {{sell}}(к){{else}}Продати за {{sell}}(к){{/if}}</button>{{/if}}{{/inline}}
 
   {{#if compact}}
   {{!-- ===== Компактний аркуш каравану (author, 2026-11-18; mockup Б1 «Дзеркало персонажа»): what the table needs on the road —
@@ -80,7 +81,7 @@
   <section class="pust-block pust-ccmp-cargo">
     <h3><i class="fa-solid fa-boxes-stacked pust-qic" aria-hidden="true"></i>Вантаж <small class="pust-cmp-pkn {{#if v.cargoOver}}bad{{/if}}">{{v.cargoNow}}(к){{#if v.cargoOver}} · перевантаження{{/if}}</small>
       {{#if editable}}<button type="button" class="pust-go pust-cmp-add" data-action="cact" data-act="addCargo" title="Додати рядок вантажу чи пасажира"><i class="fa-solid fa-plus"></i> Рядок</button>{{/if}}</h3>
-    <div class="pust-ccmp-sum"><span title="За скільки можна продати весь вантаж">Сума продажу <b>{{#if v.repair.destroyed}}0{{else}}{{#if v.cargoSummary}}{{v.cargoSummary.sale}}{{else}}0{{/if}}{{/if}}(к)</b>{{#if v.cargoSummary.passengers}} · пасажирів: {{v.cargoSummary.passengers}}{{/if}}</span><span class="pust-meter {{#if v.cargoOver}}warn{{/if}}"><span style="width: {{v.cargoPct}}%"></span></span></div>
+    <div class="pust-ccmp-sum"><span title="За скільки можна продати весь вантаж">Сума продажу <b>{{#if v.repair.destroyed}}0{{else}}{{#if v.cargoSummary}}{{v.cargoSummary.sale}}{{else}}0{{/if}}{{/if}}(к)</b>{{#if v.cargoSummary.passengers}} · пасажирів: {{v.cargoSummary.passengers}}{{/if}}</span>{{#if editable}}{{#if v.sellAll}}<button type="button" class="pust-sell" data-action="cargoSell" data-all="1" title="Продати весь куплений вантаж за {{v.sellAll}}(к): кришки йдуть у бюджет, рядки прибираються (пасажири лишаються)"><i class="fa-solid fa-coins"></i> Продати все</button>{{/if}}{{/if}}{{#if undo}}<button type="button" class="pust-undo" data-action="undo" title="Повернути продаж: рядки й бюджет як були, картка з чату прибирається"><i class="fa-solid fa-rotate-left"></i> Скасувати</button>{{/if}}<span class="pust-meter {{#if v.cargoOver}}warn{{/if}}"><span style="width: {{v.cargoPct}}%"></span></span></div>
     <div class="pust-cmp-chips">
       {{#each ccmp.cargo}}
       {{#if edit}}
@@ -94,7 +95,7 @@
         <button type="button" class="pust-ccmp-ok" data-action="cargoEdit" data-i="-1" title="Готово" aria-label="Готово"><i class="fa-solid fa-check"></i></button>
       </div>
       {{else}}
-      <span class="pust-cmp-gc kind-{{#if pass}}gear{{else}}boom{{/if}} pust-ccmp-gc"><button type="button" class="pust-ccmp-gn" data-action="cargoEdit" data-i="{{i}}" title="{{#if note}}{{note}} · {{/if}}Змінити рядок"><b>{{#if pass}}Пасажир: {{/if}}{{#if name}}{{name}}{{else}}без назви{{/if}}</b></button>{{#unless pass}}{{#if price}}<span class="pust-cmp-gq">{{#if qty}}{{qty}}×{{/if}}{{price}}(к)</span>{{/if}}{{#if far}}<span class="pust-ccmp-far">далека</span>{{/if}}{{#if hurt}}<span class="pust-ccmp-hurt">пошк.</span>{{/if}}{{/unless}}{{#if sum}}<span class="pust-cmp-gp">{{sum}}</span>{{/if}}{{#if @root.editable}}<button type="button" class="pust-cmp-gx" data-action="cact" data-act="cg-del" data-i="{{i}}" data-confirm="1" title="Прибрати «{{#if name}}{{name}}{{else}}без назви{{/if}}» (натисніть двічі)" aria-label="Прибрати «{{#if name}}{{name}}{{else}}без назви{{/if}}»"><i class="fa-solid fa-xmark"></i></button>{{/if}}</span>
+      <span class="pust-cmp-gc kind-{{#if pass}}gear{{else}}boom{{/if}} pust-ccmp-gc"><button type="button" class="pust-ccmp-gn" data-action="cargoEdit" data-i="{{i}}" title="{{#if note}}{{note}} · {{/if}}Змінити рядок"><b>{{#if pass}}Пасажир: {{/if}}{{#if name}}{{name}}{{else}}без назви{{/if}}</b></button>{{#unless pass}}{{#if price}}<span class="pust-cmp-gq">{{#if qty}}{{qty}}×{{/if}}{{price}}(к)</span>{{/if}}{{#if far}}<span class="pust-ccmp-far">далека</span>{{/if}}{{#if hurt}}<span class="pust-ccmp-hurt">пошк.</span>{{/if}}{{/unless}}{{#if sum}}<span class="pust-cmp-gp">{{sum}}</span>{{/if}}{{#if @root.editable}}{{> cargoDeal}}<button type="button" class="pust-cmp-gx" data-action="cact" data-act="cg-del" data-i="{{i}}" data-confirm="1" title="Прибрати «{{#if name}}{{name}}{{else}}без назви{{/if}}» (натисніть двічі)" aria-label="Прибрати «{{#if name}}{{name}}{{else}}без назви{{/if}}»"><i class="fa-solid fa-xmark"></i></button>{{/if}}</span>
       {{/if}}
       {{else}}<span class="pust-sub">Порожньо. За замовчуванням у караван влазить добра на суму до 10 кришок.</span>{{/each}}
     </div>
@@ -133,7 +134,8 @@
       <div class="pust-row pust-vrow">
         <span class="pust-luck">
           <button type="button" class="pust-luck-roll" data-action="cact" data-act="rollFate" title="Удача партії: підсумуйте УДЧ усіх персонажів. −4 і нижче → −2; −3 або −2 → −1; від −1 до +1 → 0; +2 або +3 → +1; +4 і вище → +2.&#10;Клацніть, щоб кинути Кістку Долі: 1d10 + Удача партії, 6 і вище — на користь персонажів."><i class="fa-solid fa-dice-d10"></i> Удача партії</button>
-          <select data-k="luck" aria-label="Удача партії">{{#each v.luck}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
+          <select data-k="luck" aria-label="Удача партії" title="{{luckInfo.tip}}" class="{{#if luckInfo.auto}}pust-luck-auto{{/if}}">{{#each v.luck}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select>
+          {{#if luckInfo.manual}}{{#if editable}}<button type="button" class="pust-luck-reset" data-action="luckAuto" title="Повернути Удачу партії з УДЧ персонажів" aria-label="Повернути Удачу партії з УДЧ персонажів"><i class="fa-solid fa-rotate-left"></i></button>{{/if}}{{/if}}
         </span>
         <span class="pust-veh">
           <span class="pust-hlab">Транспорт</span>
@@ -232,7 +234,7 @@
         {{#if (eq id "defib")}}{{#if taken}}<span class="pust-imp-defib{{#if @root.defib.used}} used{{/if}}">{{#if @root.defib.used}}<span class="pust-pkuse-usedtag" title="Повернеться після «Кінця сцени» Доглядача">використано</span>{{#if @root.editable}}<button type="button" class="pust-pkuse-free" data-action="defib" data-v="0" title="Зняти позначку «використано»"><i class="fa-solid fa-rotate-left"></i></button>{{/if}}{{else if @root.editable}}<button type="button" class="pust-pkuse-go" data-action="defib" data-v="1" title="Застосувати: позначений ціллю (T) персонаж з 0 ОЗ повертається в сцену з 1 ОЗ; картка в чат і позначка до кінця сцени. Одиницю Припасів зніміть самі.">Застосувати</button>{{/if}}</span>{{/if}}{{/if}}
         <span class="pust-imp-ctrl">
           {{#if supPips}}<span class="pust-pips">{{#each supPips}}<button type="button" class="pip {{#if on}}on{{/if}}" data-action="cact" data-act="pip" data-pip="sup" data-i="{{k}}"></button>{{/each}}</span>{{/if}}
-          {{#each btns}}<button type="button" class="rbtn {{#if on}}on{{/if}}" data-action="cact" data-act="imp" data-id="{{../id}}" data-k="{{k}}" {{#if ../locked}}disabled{{/if}}></button>{{/each}}
+          {{#each btns}}<button type="button" class="rbtn {{#if on}}on{{/if}}" data-action="cact" data-act="imp" data-id="{{../id}}" data-name="{{../name}}" data-k="{{k}}" {{#if ../locked}}disabled{{/if}}></button>{{/each}}
         </span>
       </div>
       <div class="pust-text">{{desc}}</div>
@@ -257,10 +259,11 @@
     <div class="pust-tools pust-tools-top pust-cargo-bar">
       <span class="pust-hcount {{#if v.cargoOver}}bad{{/if}}" title="Вантаж на суму / місткість каравану"><span>Вантаж</span><b>{{v.cargoNow}}</b><small>(к)</small><span class="pust-meter {{#if v.cargoOver}}warn{{/if}}"><span style="width: {{v.cargoPct}}%"></span></span>{{#if v.cargoOver}}<small>перевантаження</small>{{/if}}</span>
       <span class="pust-hcount pust-hsale {{#if v.cargoSummary.hurt}}hurt{{/if}} {{#if v.repair.destroyed}}hurt{{/if}}" title="{{#if v.repair.destroyed}}ОЗ 0 — вантаж знищено: продавати нічого{{else}}За скільки можна продати весь вантаж: сума рядків, кожен зі своєю далекою доставкою й пошкодженням{{/if}}"><span>Сума продажу</span><b>{{#if v.repair.destroyed}}0{{else}}{{#if v.cargoSummary}}{{v.cargoSummary.sale}}{{else}}0{{/if}}{{/if}}</b><small>(к){{#if v.cargoSummary.passengers}} · пасажирів: {{v.cargoSummary.passengers}}{{/if}}</small></span>
+      {{#if editable}}{{#if v.sellAll}}<button type="button" class="pust-sell" data-action="cargoSell" data-all="1" title="Продати весь куплений вантаж за {{v.sellAll}}(к): кришки йдуть у бюджет, рядки прибираються (пасажири лишаються)"><i class="fa-solid fa-coins"></i> Продати все</button>{{/if}}{{/if}}
     </div>
     {{#if v.cargo.length}}
     <div class="pust-glist pust-glist-cargo">
-      <div class="pust-grow pust-ghead"><span>Назва</span><span>Примітка</span><span>Тип</span><span>Ціна</span><span>К-сть</span><span title="Далека доставка (понад 15 клітин): ×2 замість ×1,5">Далека</span><span title="Вантаж пошкоджено: ×1,25 (далека — ×1,5)">Пошк.</span><span title="За скільки продасться рядок">Сума</span><span><i class="fa-solid fa-xmark"></i></span></div>
+      <div class="pust-grow pust-ghead"><span>Назва</span><span>Примітка</span><span>Тип</span><span>Ціна</span><span>К-сть</span><span title="Далека доставка (понад 15 клітин): ×2 замість ×1,5">Далека</span><span title="Вантаж пошкоджено: ×1,25 (далека — ×1,5)">Пошк.</span><span title="За скільки продасться рядок">Сума</span><span class="pust-cact-h"></span><span><i class="fa-solid fa-xmark"></i></span></div>
       {{#each v.cargo}}
       <div class="pust-grow">
         <textarea class="pust-gname pust-gnote-in pust-cname" rows="1" data-k="cargo.{{i}}.name" placeholder="Що везете" aria-label="Назва">{{name}}</textarea>
@@ -271,6 +274,7 @@
         {{#if pass}}<span></span><span></span>{{else}}<label class="pust-ctick" title="Далека доставка (понад 15 клітин): продаж ×2 замість ×1,5"><input type="checkbox" data-k="cargo.{{i}}.far" {{#if far}}checked{{/if}} aria-label="Далека доставка"></label>
         <label class="pust-ctick" title="Вантаж пошкоджено: продаж ×1,25 (далека — ×1,5). Ставиться сам, коли караван отримує понад половину ОЗ шкоди"><input type="checkbox" data-k="cargo.{{i}}.hurt" {{#if hurt}}checked{{/if}} aria-label="Пошкоджено"></label>{{/if}}
         <b class="pust-csum {{#if hurt}}{{#unless pass}}hurt{{/unless}}{{/if}}" title="{{#if pass}}Плата за проїзд{{else}}Ціна продажу рядка{{/if}}">{{sum}}</b>
+        <span class="pust-cact">{{#if @root.editable}}{{> cargoDeal}}{{/if}}</span>
         <button type="button" class="pust-x" data-action="cact" data-act="cg-del" data-i="{{i}}" data-confirm="1" title="Видалити рядок"><i class="fa-solid fa-xmark"></i></button>
       </div>
       {{/each}}

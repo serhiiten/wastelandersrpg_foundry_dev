@@ -36,6 +36,8 @@ const MAPPED = new Set(["companyName", "luck", "karma", "karmaAspect", "reputati
 export function stateToCaravan(S0) {
   const L = createCaravanLogic({ S: null });
   const S = L.normalize(clone(S0));
+  // Foundry only (A3, 2026-11-21): «ще не куплено» of a cargo row; normalize() of the shared rules keeps only the HTML keys
+  (S0?.cargo || []).forEach((r, k) => { if (r?.unpaid && S.cargo[k]) S.cargo[k].unpaid = true; });
   const D = L.derived(S);
   const system = {
     karmicAspect: S.karmaAspect || "",
@@ -186,6 +188,24 @@ export function rowSale(r) {
   const v = Math.max(0, int(r.price)) * Math.max(0, int(r.qty, 1));
   if (r.kind === "pass") return v;
   return Math.ceil(v * (r.far ? (r.hurt ? 1.5 : 2) : r.hurt ? 1.25 : 1.5));
+}
+
+/** What a cargo row costs to buy: price × quantity (an empty quantity is 1) */
+export const rowCost = (r) => Math.max(0, int(r.price)) * Math.max(0, int(r.qty, 1));
+
+/**
+ * Foundry only (author, 2026-11-21; A3): what «Продати» sells. One row ({ i }) — a cargo row bought (not `unpaid`) or a
+ * passenger's fare; the whole list ({ all: true }) — every cargo row bought, no passengers. Rows worth 0 are left alone.
+ * @returns {{ rows: {i, name, pass, qty, price, far, hurt, sum}[], total: number }}
+ */
+export function salePlan(S, { i = -1, all = false } = {}) {
+  const rows = [];
+  (S.cargo || []).forEach((r, k) => {
+    if (all ? r.kind === "pass" || r.unpaid : k !== i || (r.kind !== "pass" && r.unpaid)) return;
+    const sum = rowSale(r);
+    if (sum > 0) rows.push({ i: k, name: r.name || "", pass: r.kind === "pass", qty: Math.max(0, int(r.qty, 1)), price: Math.max(0, int(r.price)), far: !!r.far, hurt: !!r.hurt, sum });
+  });
+  return { rows, total: rows.reduce((t, r) => t + r.sum, 0) };
 }
 
 /** Item types the caravan sheet manages */

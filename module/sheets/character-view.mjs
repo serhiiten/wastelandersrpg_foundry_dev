@@ -357,6 +357,12 @@ export function buildView(st, d, L, ui = {}) {
     const k = drugOf(o.n);
     return (k === "Адреналін" && !robotBody) || (k === "Ребут" && robotBody);
   });
+  // «Купити за N(к)» (author, 2026-11-21; A13): beside «Додати» for every catalogue thing with a price, off when the caps fall short
+  const capsNow = parseInt(st.caps, 10) || 0;
+  const buyOf = (price) => {
+    const n = parseInt(price, 10) || 0;
+    return n > 0 ? { buy: n, buyShort: n > capsNow, buyTip: n > capsNow ? `Не вистачає кришок: треба ${n}(к), є ${capsNow}(к)` : `Купити: −${n}(к) з Кришок (лишиться ${capsNow - n}) і додати в мотлох` } : {};
+  };
   // catalogue: the HTML sheet's search, sections and sorting (catalogView)
   const secs = [...new Set(catalogAll(gunsOn(st)).map((e) => e.sec))];
   const catSec = secs.includes(ui.catSec) ? ui.catSec : "all";
@@ -366,7 +372,7 @@ export function buildView(st, d, L, ui = {}) {
   const catalog = cv
     ? {
       total: cv.total, all: cv.all,
-      groups: cv.groups.map((g) => ({ g: g.g, items: g.items.map((e) => ({ id: e.id, n: e.n, d: e.d || "", price: e.price ?? "", desc: catDesc(e), addict: catAddict(e) })) })),
+      groups: cv.groups.map((g) => ({ g: g.g, items: g.items.map((e) => ({ id: e.id, n: e.n, d: e.d || "", price: e.price ?? "", desc: catDesc(e), addict: catAddict(e), ...buyOf(e.price) })) })),
     }
     : null;
   // «+ Зброя / + Броня / + Річ»: that list's catalogue at the bottom of its block (search and sorting as in the catalogue)
@@ -377,14 +383,14 @@ export function buildView(st, d, L, ui = {}) {
     const v = catalogView(ui.addQ || "", "all", catSort, gunsOn(st));
     const groups = v.groups
       .map((g) => ({ g: g.g, items: g.items.filter((e) => e.kind === ADD_KIND[addPick])
-        .map((e) => ({ id: e.id, n: e.n, d: e.d || "", price: e.price ?? "", desc: catDesc(e), addict: catAddict(e) })) }))
+        .map((e) => ({ id: e.id, n: e.n, d: e.d || "", price: e.price ?? "", desc: catDesc(e), addict: catAddict(e), ...buyOf(e.price) })) }))
       .filter((g) => g.items.length);
     addCat = { groups, total: groups.reduce((n, g) => n + g.items.length, 0) };
   }
   // «Дизайнерські» (author, 2026-11-15): the world's designer drugs with a valid recipe (ui.worldDrugs: [{ id, n, recipe }])
   const designer = (ui.worldDrugs || []).map((w) => ({ w, T: recipeTotals(w.recipe) }))
     .filter(({ T }) => !T.errors.length)
-    .map(({ w, T }) => ({ id: w.id, n: w.n, price: T.price, addict: T.ch, desc: w.desc || "" }));
+    .map(({ w, T }) => ({ id: w.id, n: w.n, price: T.price, addict: T.ch, desc: w.desc || "", ...buyOf(T.price) }));
   const dq = (s) => { const q = String(s || "").trim().toLowerCase(); return q ? designer.filter((e) => e.n.toLowerCase().includes(q)) : designer; };
   const designerBig = catSec === "all" ? dq(ui.catQ) : [];
   const designerAdd = addPick === "other" ? dq(ui.addQ) : [];

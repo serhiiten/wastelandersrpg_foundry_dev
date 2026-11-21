@@ -480,7 +480,19 @@ export function createController(st, L, { toast = () => {}, rng, cat } = {}) {
         st[data.l].splice(+data.i, 1);
         return true;
       }
-      case "cat-add": return addCatalog(data.id);
+      // Foundry only (author, 2026-11-21; A13): «Купити за N(к)» — the catalogue's price off the caps, then «Додати»
+      case "cat-add": {
+        if (String(data.pay) !== "1") return addCatalog(data.id);
+        const e = catalogAll(gunsOn(st)).find((x) => x.id === data.id);
+        const price = Math.max(0, parseInt(e?.price, 10) || 0);
+        const caps = parseInt(st.caps, 10) || 0;
+        if (!e || !price) return refuse("У цієї речі немає ціни.");
+        if (price > caps) return refuse(`Не вистачає кришок: треба ${price}(к), є ${caps}(к).`);
+        if (!addCatalog(data.id)) return false;
+        st.caps = caps - price;
+        toast(`Куплено за ${price}(к): ${e.n}. Кришок лишилося ${st.caps}.`);
+        return true;
+      }
       case "preset": {
         const p = PRESETS[+data.i];
         if (p) addPreset(p);

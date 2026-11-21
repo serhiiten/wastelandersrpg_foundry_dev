@@ -241,9 +241,11 @@
           <p class="pust-sub pust-cat-count">Знайдено {{v.catalog.total}} з {{v.catalog.all}}</p>
           {{#if v.designerBig.length}}<h4>Дизайнерські</h4>
           {{#each v.designerBig}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b> <small class="pust-cat-d">дизайнерський</small> <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span><small class="pust-cat-price">{{price}} к</small>
+            {{#if @root.editable}}{{#if buy}}<button type="button" class="pust-buy" data-action="drugAdd" data-id="{{id}}" data-pay="{{buy}}" title="{{buyTip}}" {{#if buyShort}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Купити за {{buy}}(к)</button>{{/if}}{{/if}}
             <button type="button" class="pust-pick-add" data-action="drugAdd" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}{{/if}}
           {{#each v.catalog.groups}}<h4>{{g}}</h4>
           {{#each items}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b>{{#if d}} <small class="pust-cat-d">{{d}}</small>{{/if}}{{#if addict}} <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{/if}}{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span>{{#if price}}<small class="pust-cat-price">{{price}} к</small>{{/if}}
+            {{#if @root.editable}}{{#if buy}}<button type="button" class="pust-buy" data-action="act" data-act="cat-add" data-id="{{id}}" data-pay="1" title="{{buyTip}}" {{#if buyShort}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Купити за {{buy}}(к)</button>{{/if}}{{/if}}
             <button type="button" class="pust-pick-add" data-action="act" data-act="cat-add" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}
           {{else}}<p class="pust-sub">Нічого не знайдено.</p>{{/each}}
         </div>
@@ -559,9 +561,11 @@
           <p class="pust-sub pust-cat-count">Знайдено {{v.catalog.total}} з {{v.catalog.all}}</p>
           {{#if v.designerBig.length}}<h4>Дизайнерські</h4>
           {{#each v.designerBig}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b> <small class="pust-cat-d">дизайнерський</small> <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span><small class="pust-cat-price">{{price}} к</small>
+            {{#if @root.editable}}{{#if buy}}<button type="button" class="pust-buy" data-action="drugAdd" data-id="{{id}}" data-pay="{{buy}}" title="{{buyTip}}" {{#if buyShort}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Купити за {{buy}}(к)</button>{{/if}}{{/if}}
             <button type="button" class="pust-pick-add" data-action="drugAdd" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}{{/if}}
           {{#each v.catalog.groups}}<h4>{{g}}</h4>
           {{#each items}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b>{{#if d}} <small class="pust-cat-d">{{d}}</small>{{/if}}{{#if addict}} <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{/if}}{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span>{{#if price}}<small class="pust-cat-price">{{price}} к</small>{{/if}}
+            {{#if @root.editable}}{{#if buy}}<button type="button" class="pust-buy" data-action="act" data-act="cat-add" data-id="{{id}}" data-pay="1" title="{{buyTip}}" {{#if buyShort}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Купити за {{buy}}(к)</button>{{/if}}{{/if}}
             <button type="button" class="pust-pick-add" data-action="act" data-act="cat-add" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}
           {{else}}<p class="pust-sub">Нічого не знайдено.</p>{{/each}}
         </div>
@@ -618,6 +622,7 @@
             <button type="button" class="pust-pick-add" data-action="act" data-act="row-add" data-l="weapons"><i class="fa-solid fa-plus"></i> Додати</button></div>
           {{#each v.addCat.groups}}<h4>{{g}}</h4>
           {{#each items}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b>{{#if d}} <small class="pust-cat-d">{{d}}</small>{{/if}}{{#if addict}} <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{/if}}{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span>{{#if price}}<small class="pust-cat-price">{{price}} к</small>{{/if}}
+            {{#if @root.editable}}{{#if buy}}<button type="button" class="pust-buy" data-action="act" data-act="cat-add" data-id="{{id}}" data-pay="1" title="{{buyTip}}" {{#if buyShort}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Купити за {{buy}}(к)</button>{{/if}}{{/if}}
             <button type="button" class="pust-pick-add" data-action="act" data-act="cat-add" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}
           {{else}}<p class="pust-sub">Нічого не знайдено.</p>{{/each}}
         </div>
@@ -657,6 +662,7 @@
             <button type="button" class="pust-pick-add" data-action="act" data-act="row-add" data-l="armor"><i class="fa-solid fa-plus"></i> Додати</button></div>
           {{#each v.addCat.groups}}<h4>{{g}}</h4>
           {{#each items}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b>{{#if d}} <small class="pust-cat-d">{{d}}</small>{{/if}}{{#if addict}} <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{/if}}{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span>{{#if price}}<small class="pust-cat-price">{{price}} к</small>{{/if}}
+            {{#if @root.editable}}{{#if buy}}<button type="button" class="pust-buy" data-action="act" data-act="cat-add" data-id="{{id}}" data-pay="1" title="{{buyTip}}" {{#if buyShort}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Купити за {{buy}}(к)</button>{{/if}}{{/if}}
             <button type="button" class="pust-pick-add" data-action="act" data-act="cat-add" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}
           {{else}}<p class="pust-sub">Нічого не знайдено.</p>{{/each}}
         </div>
@@ -705,9 +711,11 @@
             <button type="button" class="pust-pick-add" data-action="act" data-act="row-add" data-l="other"><i class="fa-solid fa-plus"></i> Додати</button></div>
           {{#if v.designerAdd.length}}<h4>Дизайнерські</h4>
           {{#each v.designerAdd}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b> <small class="pust-cat-d">дизайнерський</small> <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span><small class="pust-cat-price">{{price}} к</small>
+            {{#if @root.editable}}{{#if buy}}<button type="button" class="pust-buy" data-action="drugAdd" data-id="{{id}}" data-pay="{{buy}}" title="{{buyTip}}" {{#if buyShort}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Купити за {{buy}}(к)</button>{{/if}}{{/if}}
             <button type="button" class="pust-pick-add" data-action="drugAdd" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}{{/if}}
           {{#each v.addCat.groups}}<h4>{{g}}</h4>
           {{#each items}}<div class="pust-cat-row"><span class="pust-cat-name"><b>{{n}}</b>{{#if d}} <small class="pust-cat-d">{{d}}</small>{{/if}}{{#if addict}} <small class="pust-cat-addict" title="Кидок d10: {{addict}} або менше — залежність">залежність {{addict}}/10</small>{{/if}}{{#if desc}} <small class="pust-cat-desc">— {{desc}}</small>{{/if}}</span>{{#if price}}<small class="pust-cat-price">{{price}} к</small>{{/if}}
+            {{#if @root.editable}}{{#if buy}}<button type="button" class="pust-buy" data-action="act" data-act="cat-add" data-id="{{id}}" data-pay="1" title="{{buyTip}}" {{#if buyShort}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Купити за {{buy}}(к)</button>{{/if}}{{/if}}
             <button type="button" class="pust-pick-add" data-action="act" data-act="cat-add" data-id="{{id}}"><i class="fa-solid fa-plus"></i> Додати</button></div>{{/each}}
           {{else}}<p class="pust-sub">Нічого не знайдено.</p>{{/each}}
         </div>

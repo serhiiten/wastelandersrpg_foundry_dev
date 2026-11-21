@@ -387,7 +387,8 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   }
 
   /** A designer drug item → the character's own drug (st.customDrugs) and one dose in «Інший мотлох»; false when refused */
-  async #takeDrug(item) {
+  /** @param {number} [pay]  «Купити за N(к)» (A13, author 2026-11-21): the recipe's price off the caps */
+  async #takeDrug(item, pay = 0) {
     const recipe = item?.type === "drug" ? item.system.recipe : null;
     if (!recipe) return false;
     const err = recipeTotals(recipe).errors[0];
@@ -395,7 +396,13 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       notify.warn(`«${item.name}»: ${err}`);
       return false;
     }
-    return this.#run((C) => C.act("drug-add-custom", { n: item.name, def: recipeToDef(recipe) }));
+    return this.#run((C, st) => {
+      const caps = parseInt(st.caps, 10) || 0;
+      if (pay > caps) { notify.warn(`Не вистачає кришок: треба ${pay}(к), є ${caps}(к).`); return false; }
+      const ok = C.act("drug-add-custom", { n: item.name, def: recipeToDef(recipe) });
+      if (ok !== false && pay > 0) { st.caps = caps - pay; notify.info(`Куплено за ${pay}(к): ${item.name}. Кришок лишилося ${st.caps}.`); }
+      return ok;
+    });
   }
 
   #onSpecialChange(event) {
@@ -608,7 +615,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   /** «Дизайнерські» in the gear catalogue: a world drug with a recipe */
   static #onDrugAdd(event, target) {
     if (!this.isEditable) return undefined;
-    return this.#takeDrug(game.items.get(target.dataset.id));
+    return this.#takeDrug(game.items.get(target.dataset.id), parseInt(target.dataset.pay, 10) || 0);
   }
 
   /** «+ Зброя / + Броня / + Річ»: open (or close) that list's catalogue under it */
