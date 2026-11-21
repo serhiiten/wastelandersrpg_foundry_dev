@@ -691,6 +691,52 @@ const SCENARIOS = {
     } finally { if (!was) await app.close(); }
   },
 
+  /** «Кінець сцени» / «Новий день» / «Кінець сесії» in the GM's top dock (author, 2026-11-21, mockup В): a second row under
+   *  the plates, left-aligned with them, nothing cut or covered (the right panels, the sidebar), and each button keeps its size
+   *  when it turns red with «Точно?» (the class is set and taken off here; nothing is pressed or ended). Run it at 1366 px,
+   *  Foundry's minimum width, too */
+  async endRow(a) {
+    if (!game.user.isGM) return a.skip("ряд кінця сцени", "лише Доглядач");
+    const row = document.querySelector(".wastelanders-terminal-dock > .wastelanders-end-row");
+    if (!row || !shown(row.querySelector(".pust-end-box"))) return a.skip("ряд кінця сцени", "немає верхнього доку");
+    const btns = [...row.querySelectorAll(".pust-end-btn")];
+    const plate = document.querySelector(".wastelanders-terminal-open"), moves = document.querySelector(".wastelanders-moves-open");
+    a.ok("три кнопки", btns.length === 3, String(btns.length));
+    a.row(btns, { equalWidth: true, label: "кнопки кінця сцени" });
+    const box = R(row.querySelector(".pust-end-box"));
+    a.ok("ліворуч у лінію з «Термінал Доглядача»", Math.abs(box.left - R(plate).left) <= 1.5, `${Math.round(box.left)} / ${Math.round(R(plate).left)}`);
+    a.ok("під плашками", box.top >= Math.max(R(plate).bottom, R(moves).bottom) - PX, `${Math.round(box.top)} / ${Math.round(R(plate).bottom)}`);
+    const strip = R(row.querySelector(".pust-end-ft"));
+    a.ok("смужка на всю ширину кнопок", Math.abs(strip.left - R(btns[0]).left) <= PX && Math.abs(strip.right - R(btns[2]).right) <= PX, `${Math.round(strip.left)}–${Math.round(strip.right)}`);
+    a.onScreen([row.querySelector(".pust-end-box")]);
+    a.noCut(row, "button, label, span, b");
+    a.noRawKeys(row);
+    a.readable(row, "span, b, label");
+    a.noOverlap(row);
+    // nothing of Foundry's or ours on the right covers it (the «Битва» / «Сцена» panel, the sidebar)
+    const hit = (r) => [...document.querySelectorAll("#pust-mapdock .pust-md-unit, #pust-mapdock .pust-md-panel, #sidebar")].filter(shown)
+      .filter((p) => { const q = R(p); return q.left < r.right - PX && q.right > r.left + PX && q.top < r.bottom - PX && q.bottom > r.top + PX; }).map(name);
+    // from Foundry's minimum width, 1366 px; narrower the right panel may lie under it (author, 2026-11-21, Asking)
+    const covered = hit(box);
+    if (innerWidth < 1366) a.skip("не перетинається з панелями праворуч", `вікно ${innerWidth} px, вужче за 1366`);
+    else a.ok("не перетинається з панелями праворуч", !covered.length, covered.join("; "));
+    // both states of each button: one size, the red label fits
+    const was = btns.map((b) => b.classList.contains("armed"));
+    try {
+      for (const b of btns) {
+        b.classList.remove("armed");
+        const r0 = R(b);
+        b.classList.add("armed");
+        const r1 = R(b);
+        a.ok(`«${b.querySelector(".pust-end-l span").textContent}»: той самий розмір із «Точно?»`, Math.abs(r0.width - r1.width) <= 0.5 && Math.abs(r0.height - r1.height) <= 0.5 && Math.abs(r0.left - r1.left) <= 0.5 && Math.abs(r0.top - r1.top) <= 0.5,
+          `${r0.width.toFixed(1)}×${r0.height.toFixed(1)} → ${r1.width.toFixed(1)}×${r1.height.toFixed(1)}`);
+        a.ok(`«${b.querySelector(".pust-end-l span").textContent}»: «Точно?» видно й не обрізано`, shown(b.querySelector(".pust-end-w")) && b.querySelector(".pust-end-w").scrollWidth <= b.querySelector(".pust-end-w").clientWidth + 1, "");
+        a.ok(`«${b.querySelector(".pust-end-l span").textContent}»: напис і число вміщаються`, b.querySelector(".pust-end-l").scrollWidth <= b.querySelector(".pust-end-l").clientWidth + 1, `${b.querySelector(".pust-end-l").scrollWidth} / ${b.querySelector(".pust-end-l").clientWidth}`);
+        b.classList.remove("armed");
+      }
+    } finally { btns.forEach((b, i) => b.classList.toggle("armed", was[i])); }
+  },
+
   /** «Кінець сесії: ОД» (A10, author 2026-11-21; module/applications/session-xp.mjs): opened if it was closed, read at its
    *  narrowest (460) and usual width, closed again; nothing is ticked or ended */
   async sessionXp(a) {

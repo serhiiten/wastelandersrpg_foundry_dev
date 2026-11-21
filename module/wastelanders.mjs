@@ -48,6 +48,7 @@ import { BOOK } from "./rules/book.mjs";
 import { importCharactersFromFile } from "./applications/character-json.mjs";
 import { openTerminal, toggleTerminal } from "./applications/terminal.mjs";
 import { toggleGmMoves } from "./applications/gm-moves.mjs";
+import { mountEndRow } from "./applications/battle-panel.mjs";
 import { registerGmMoveAlert } from "./applications/gm-move-alert-ui.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
@@ -389,6 +390,12 @@ function dockTerminal() {
     moves.innerHTML = `<i class="fa-solid fa-fire"></i> Ходи Доглядача`;
     moves.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); toggleGmMoves(moves); });
     dock.append(moves);
+    // «Кінець сцени» / «Новий день» / «Кінець сесії» (author, 2026-11-21, mockup В): a second row under the plates, apart
+    // from «Ходи Доглядача» so it is not hit by a slip; battle-panel.mjs draws it
+    const end = document.createElement("div");
+    end.className = "wastelanders-end-row";
+    dock.append(end);
+    mountEndRow(end);
     col.append(dock);
   }
   const c = col.getBoundingClientRect();

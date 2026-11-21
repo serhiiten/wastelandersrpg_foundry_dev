@@ -160,7 +160,6 @@ async function bodyHtml(lite = false) {
   if (lite) return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place)}${row("hazard", "Небезпека", "fa-radiation", hazard)}</div>
     ${roundHtml(scene, true)}
     ${damageHtml(true)}
-    ${endHtml()}
     <button type="button" class="pust-md-bgoto" data-battle="goto" title="Відкрити й активувати бойову мапу: гравці перейдуть туди теж"><i class="fa-solid fa-crosshairs"></i><span>Перейти на бойову мапу</span></button>`;
   return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place, bgButton(scene))}${row("hazard", "Небезпека", "fa-radiation", hazard, await autoWeatherButton(scene))}
     <div class="pust-md-row pust-md-bbtns">
@@ -170,7 +169,6 @@ async function bodyHtml(lite = false) {
     ${roundHtml(scene)}
     ${damageHtml()}
     <p class="pust-md-bcount">${countLine(scene)}</p>
-    ${endHtml()}
     <button type="button" class="pust-md-bgoto" data-battle="goto" title="Відкрити й активувати «Мапу Пустки»: гравці перейдуть туди теж"><i class="fa-solid fa-map-location-dot"></i><span>Перейти на Мапу Пустки</span></button>`;
 }
 
@@ -285,23 +283,97 @@ function damageHtml(lite = false) {
 
 /**
  * «Кінець сцени» / «Новий день» / «Кінець сесії» for every character assigned to a player (author, 2026-11-17; group-end.mjs),
- * «Скинути ходи ворогів» clears every used move of the scene's enemies too
+ * «Скинути ходи ворогів» clears every used move of the scene's enemies too. Since 2026-11-21 (author, mockup В + варіант 2) they
+ * are the GM's second row of the top dock (wastelanders.mjs dockTerminal), under «Термінал Доглядача» / «Ходи Доглядача», on
+ * every scene; the «Битва» / «Сцена» panels no longer have them. A press asks twice: the first turns the same button red with
+ * «Точно?» for 3 s (its size never changes), the second runs it.
  */
-function endHtml() {
-  const who = "усіх персонажів, призначених гравцям";
+const ARM_MS = 3000;
+const END_KINDS = [
+  ["scene", "fa-flag-checkered", "Кінець сцени", "Завершити сцену для усіх персонажів, призначених гравцям: хімія й ефекти сцени, лють, бухло, кістки суперстимпака, пролікований легкий наслідок"],
+  ["day", "fa-sun", "Новий день", "Новий день для усіх персонажів, призначених гравцям: спершу кінець сцени, потім ліміти стимпаків і цілющого порошку, відпочинок, хімія на день"],
+  ["session", "fa-moon", "Кінець сесії", "Завершити сесію для усіх персонажів, призначених гравцям: спершу кінець сцени, потім Жетони Долі, модифікації, залежності, проліковані наслідки, штрафи до кінця сесії"],
+];
+/** the top rows (one per dock; normally one) and the armed button: { kind, timer } */
+const endRows = new Set();
+let armed = null;
+const disarm = () => { if (armed) clearTimeout(armed.timer); armed = null; };
+
+/** The row's HTML: the three buttons, then the strip with the enemies' tick, «Сесія N» and the reset ⟲ */
+export function endRowHtml() {
   const sess = groupSession();
-  return `<div class="pust-md-bend">
-      <div class="pust-md-row pust-md-bendbtns">
-        <button type="button" data-battle="end" data-kind="scene" title="Завершити сцену для ${who}: хімія й ефекти сцени, лють, бухло, кістки суперстимпака, пролікований легкий наслідок"><i class="fa-solid fa-flag-checkered"></i><span>Кінець сцени</span></button>
-        <button type="button" data-battle="end" data-kind="day" title="Новий день для ${who}: спершу кінець сцени, потім ліміти стимпаків і цілющого порошку, відпочинок, хімія на день"><i class="fa-solid fa-sun"></i><span>Новий день</span></button>
-        <button type="button" data-battle="end" data-kind="session" title="Завершити сесію для ${who}: спершу кінець сцени, потім Жетони Долі, модифікації, залежності, проліковані наслідки, штрафи до кінця сесії"><i class="fa-solid fa-moon"></i><span>Кінець сесії</span></button>
-      </div>
-      <div class="pust-md-bendft">
-        <label class="pust-md-bendmv" title="Разом із кінцем сцени зняти «використано» з усіх ходів ворогів на цій сцені (зокрема «раз за сцену» і «Психо»)"><input type="checkbox" data-battle-d="moves" ${ui_.moves ? "checked" : ""}> Скинути ходи ворогів сцени</label>
-        <span class="pust-md-bsess" title="${esc(sess.list.length ? `Номер сесії персонажів гравців: ${sess.list.join(", ")}` : "Жодного персонажа не призначено гравцям")}">Сесія <b>${esc(sess.label)}</b></span>
-        <button type="button" class="pust-md-bsreset" data-battle="sessreset" title="Скинути відлік усім персонажам гравців: сесія 1, день 1, сцена 1. Натисни двічі" aria-label="Скинути відлік сесій, днів і сцен"><i class="fa-solid fa-clock-rotate-left"></i></button>
+  const btn = ([kind, icon, text, title]) => {
+    const on = armed?.kind === kind;
+    const chip = kind === "session" ? `<b class="pust-end-sn">${esc(sess.label)}</b>` : "";
+    return `<button type="button" class="pust-end-btn${on ? " armed" : ""}" data-end="${kind}" title="${esc(title)}. Натисни двічі"><span class="pust-end-l"><i class="fa-solid ${icon}"></i><span>${text}</span>${chip}</span><span class="pust-end-w" aria-hidden="${on ? "false" : "true"}"><i class="fa-solid fa-triangle-exclamation"></i><span>Точно?</span></span></button>`;
+  };
+  return `<div class="pust-end-box">
+      <div class="pust-end-btns">${END_KINDS.map(btn).join("")}</div>
+      <div class="pust-end-ft">
+        <label class="pust-end-mv" title="Разом із кінцем сцени зняти «використано» з усіх ходів ворогів на цій сцені (зокрема «раз за сцену» і «Психо»)"><input type="checkbox" data-end-moves ${ui_.moves ? "checked" : ""}> Скинути ходи ворогів сцени</label>
+        <span class="pust-end-sess" title="${esc(sess.list.length ? `Номер сесії персонажів гравців: ${sess.list.join(", ")}` : "Жодного персонажа не призначено гравцям")}">Сесія <b>${esc(sess.label)}</b></span>
+        <button type="button" class="pust-end-reset" data-end="sessreset" title="Скинути відлік усім персонажам гравців: сесія 1, день 1, сцена 1. Натисни двічі" aria-label="Скинути відлік сесій, днів і сцен"><i class="fa-solid fa-clock-rotate-left"></i></button>
       </div>
     </div>`;
+}
+
+export function redrawEndRows() {
+  for (const el of endRows) {
+    if (!el.isConnected) { endRows.delete(el); continue; }
+    if (el.contains(document.activeElement) && document.activeElement.matches("input")) continue;
+    el.innerHTML = endRowHtml();
+  }
+}
+
+/** The GM's row in the top dock: drawn and listened to here */
+export function mountEndRow(el) {
+  endRows.add(el);
+  el.addEventListener("change", (ev) => { if (ev.target.matches("[data-end-moves]")) ui_.moves = ev.target.checked; });
+  el.addEventListener("click", (ev) => {
+    const b = ev.target.closest("button[data-end]");
+    if (!b || b.disabled) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    onEndClick(b);
+  });
+  el.innerHTML = endRowHtml();
+}
+
+async function onEndClick(b) {
+  const kind = b.dataset.end;
+  if (kind === "sessreset") {
+    // asks twice, as every destructive button (author, 2026-11-17)
+    if (!b.classList.contains("armed")) {
+      b.classList.add("armed");
+      notify.info("Натисни ще раз, щоб скинути відлік сесій, днів і сцен.");
+      setTimeout(() => b.classList.remove("armed"), ARM_MS);
+      return;
+    }
+    b.classList.remove("armed");
+    b.disabled = true;
+    try { await resetGroupCounters(); } finally { b.disabled = false; redrawEndRows(); }
+    return;
+  }
+  if (armed?.kind !== kind) {
+    disarm();
+    armed = { kind, timer: setTimeout(() => { armed = null; redrawEndRows(); }, ARM_MS) };
+    return redrawEndRows();
+  }
+  disarm();
+  redrawEndRows();
+  const lite = !isBattleScene(canvas?.scene);
+  for (const x of document.querySelectorAll(`.pust-end-btn[data-end="${kind}"]`)) x.disabled = true;
+  try {
+    // a new scene starts: round 1, the GM's Fate tokens as «За гравцями» of the «Битва» / «Сцена» panel (author, 2026-11-17)
+    const fateNow = () => (lite ? litePcCount() : pcCount(canvas.scene));
+    const after = () => { pend.battleRound = null; pend.battleFate = null; redrawBattlePanel(); };
+    // «Кінець сесії» asks its questions of ОД first (A10, author 2026-11-21); the window ends the session itself
+    // the window may stay open while the GM goes to another scene: the Fate tokens and «Скинути ходи» are read when
+    // «Завершити сесію» is pressed, from the scene viewed then (reviewer, author 2026-11-21)
+    if (kind === "session") return void (await openSessionXp({ moves: () => ui_.moves, fate: () => (isBattleScene(canvas?.scene) ? pcCount(canvas.scene) : litePcCount()), onDone: after }));
+    const done = await endForAll(kind, { moves: ui_.moves, fate: fateNow() });
+    if (done) after();
+  } finally { redrawEndRows(); }
 }
 
 /** The amount typed: a number, or dice rolled now; null when it can't be read */
@@ -321,6 +393,7 @@ async function amountOf(expr) {
 export const battleSectionHtml = (header) => `<section class="pust-md-panel pust-md-battle" hidden>${header("fa-crosshairs", "Битва")}<div class="pust-md-body"></div></section>`;
 
 export async function redrawBattlePanel() {
+  redrawEndRows();
   for (const [sec, lite] of sections) {
     if (!sec.isConnected || sec.hidden) continue;
     const body = sec.querySelector(".pust-md-body");
@@ -342,7 +415,6 @@ export function mountBattlePanel(sec, { lite = false } = {}) {
   body.addEventListener("input", (ev) => { if (ev.target.dataset.battleD === "expr") ui_.dmg.expr = ev.target.value; });
   body.addEventListener("change", (ev) => {
     const dk = ev.target.dataset.battleD;
-    if (dk === "moves") { ui_.moves = ev.target.checked; return; }
     if (dk) { ui_.dmg[dk] = ev.target.type === "checkbox" ? ev.target.checked : ev.target.value; return; }
     const f = ev.target.dataset.battleF;
     if (!f) return;
@@ -399,34 +471,6 @@ async function onClick(ev, lite = false, body = null) {
   if (act === "bgpick" && scene) return toggleBgPick(b, scene);
   if (act === "autoweather") { const W = await import("../canvas/weather.mjs"); return W.setAutoWeather(!W.autoWeatherOn()); }
   if (act === "goto") return gotoScene(lite);
-  if (act === "sessreset") {
-    // asks twice, as every destructive button (author, 2026-11-17)
-    if (!b.classList.contains("armed")) {
-      b.classList.add("armed");
-      notify.info("Натисни ще раз, щоб скинути відлік сесій, днів і сцен.");
-      setTimeout(() => b.classList.remove("armed"), 3000);
-      return;
-    }
-    b.classList.remove("armed");
-    b.disabled = true;
-    try { await resetGroupCounters(); } finally { b.disabled = false; redrawBattlePanel(); }
-    return;
-  }
-  if (act === "end") {
-    b.disabled = true;
-    try {
-      // a new scene starts: round 1, the GM's Fate tokens as «За гравцями» of this panel (author, 2026-11-17)
-      const fate = lite ? litePcCount() : pcCount(scene);
-      const after = () => { pend.battleRound = null; pend.battleFate = null; redrawBattlePanel(); };
-      // «Кінець сесії» asks its questions of ОД first (A10, author 2026-11-21); the window ends the session itself
-      // the window may stay open while the GM goes to another scene: the Fate tokens and «Скинути ходи» are read when
-      // «Завершити сесію» is pressed, from the scene viewed then (reviewer, author 2026-11-21)
-      if (b.dataset.kind === "session") return void (await openSessionXp({ moves: () => ui_.moves, fate: () => (lite ? litePcCount() : pcCount(canvas.scene)), onDone: after }));
-      const done = await endForAll(b.dataset.kind, { moves: ui_.moves, fate });
-      if (done) after();
-    } finally { b.disabled = false; }
-    return;
-  }
   if (act === "hit" || act === "heal") {
     const who = lite ? pickedUuids() : chosenTokens();
     if (!who.length) return lite ? notify.warn("Спершу познач цілі в списку «Вибрати цілі».") : warnNoTargets();
