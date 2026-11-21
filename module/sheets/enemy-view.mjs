@@ -159,7 +159,13 @@ const stable = (v) => JSON.stringify(v, (_, x) => (x && typeof x === "object" &&
 /** Does the card differ from the book (attacks, aspects, moves, notes, defence, max HP)? */
 export function differsFromBook(sys) {
   if (!sys.orig) return false;
-  const bare = (o) => ({ ...o, attacks: (o.attacks ?? []).map(({ ammo, ...a }) => a) }); // spent ammo is play, not an edit
+  // spent ammo is play, not an edit; an unset flag (null, e.g. «Неживий» added to the data model after the book's copy
+  // was made) is the same as a missing one, or every enemy reads «змінено»
+  const bare = (o) => ({
+    ...o,
+    flags: Object.fromEntries(Object.entries(o.flags ?? {}).filter(([, v]) => v != null)),
+    attacks: (o.attacks ?? []).map(({ ammo, ...a }) => a),
+  });
   return stable(bare(bookCopy(sys))) !== stable(bare(sys.orig));
 }
 

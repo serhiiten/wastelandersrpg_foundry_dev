@@ -139,5 +139,14 @@ ok(V.enemyView({ ...sys, hp: { value: 0, max: 12 } }).state.label === "Вибу�
   ok(!spent.button && spent.gone && /Кінця сцени/.test(spent.back), `a spent survive move is gone: ${JSON.stringify(spent)}`);
 }
 
+{ // «змінено»: an unset flag the book's copy lacks is no edit; a set one is
+  const flags = { noStun: false, psyVuln: false };
+  const base = { hp: { max: 6 }, armor: 2, psiArmor: 0, def: { rad: "normal" }, attacks: [], baseAspects: [], moves: [], notes: "" };
+  const orig = { hp: 6, armor: 2, psiArmor: 0, def: { rad: "normal" }, flags, attacks: [], baseAspects: [], moves: [], notes: "" };
+  ok(!V.differsFromBook({ ...base, flags: { ...flags, nonliving: null }, orig }), "a null flag missing from the book's copy is not «змінено»");
+  ok(V.differsFromBook({ ...base, flags: { ...flags, nonliving: true }, orig }), "a set «Неживий» is «змінено»");
+  ok(V.differsFromBook({ ...base, flags: { ...flags, noStun: true }, orig }), "a changed flag is «змінено»");
+}
+
 if (failures) { console.log(`${failures} failure(s)`); process.exit(1); }
 console.log("enemy-view: OK");
