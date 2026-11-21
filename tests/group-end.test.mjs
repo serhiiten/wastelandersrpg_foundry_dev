@@ -10,6 +10,8 @@ const ok = (c, m) => { checks++; if (!c) { failures++; console.log("FAIL " + m);
 const fresh = () => {
   const st = Rc.rollCharacter(null);
   st.species = "human"; st.feats = []; st.perks = []; st.other = [];
+  // a feat's addiction stays after the feats go («Найткін» → Стелс-бой, about 1 roll in 120: the flake of 2026-11-21)
+  st.chem.addictions = [];
   return st;
 };
 const run = (st, kind) => { const L = createLogic({ st, toast: () => {}, ui: {} }); L[GROUP_END[kind].fn](); return L.chem().last; };

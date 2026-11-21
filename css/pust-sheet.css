@@ -576,6 +576,10 @@
 .pust-addcat-list .pust-cat-row > .pust-cat-price, .pust-addcat-list .pust-cat-row > .pust-pick-add, .pust-addcat-list .pust-cat-row > .pust-buy { align-self: center; }
 /* «Купити за N(к)» (A13, author 2026-11-21) carries the price: the price column steps aside for it */
 .pust-cat-row:has(> .pust-buy) > .pust-cat-price { display: none; }
+/* «Купити» over «Додати», one width (author, 2026-11-21): the name and the description keep the row's width */
+.pust-cat-row:has(> .pust-buy) { display: grid; grid-template-columns: minmax(0, 1fr) max-content; column-gap: 6px; row-gap: 3px; align-items: center; }
+.pust-cat-row:has(> .pust-buy) > .pust-cat-name { grid-column: 1; grid-row: 1 / span 2; align-self: start; }
+.wastelanders .pust-cat-row:has(> .pust-buy) > button:is(.pust-buy, .pust-pick-add):not(.header-control) { grid-column: 2; width: 100%; justify-content: center; }
 /* a chem's addiction chance in the catalogues */
 .pust-cat-addict { display: inline-block; padding: 0 5px; border-radius: 3px; background: #f2cdc6; color: #8a2116; font-family: var(--pu-f-num); font-size: 11px; font-weight: 700; white-space: nowrap; }
 /* «зараз −2» (chems change an attribute): a small badge beside the abbreviation, the row keeps its height */
