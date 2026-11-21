@@ -22,6 +22,10 @@ import { checkPenalty, spendCheckStates } from "./states.mjs";
 import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, medOffer, medHtml, medPress, medBlocked } from "./battle-health.mjs";
 import { checkFlag } from "../rules/gm-move-alert.mjs";
 import { notify } from "../helpers/notify.mjs";
+
+/** The engine's messages in the panel (U7, author 2026-11-21): a refusal pops up; the rest is already said by the panel itself
+ *  («Додано в аркуш: 1 ОД»), the Fate card or the damage card, so it is dropped */
+const PANEL_TOAST = (msg, kind) => { if (kind === "bad") notify.warn(msg); };
 import { checkDiceGroups, damageDiceGroups, poisonSidesOf, rollFromDice, rollList, seriesGroups, waitDice } from "../helpers/dice-rolls.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -859,7 +863,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const after = dmgNow();
       out = { before, R: clone(L.R), dmgTotal: R.last?.dmg ? L.dmgTotal(R.last, compute(st)) : null, dmgType, dmgFx, dmgChoice, verdicts: L.VERDICTS, types: L.CHECK_TYPES,
         dmgChanged: !!(before.dmg && after && before.dmg !== after && before.last?.dmg?.time === R.last.dmg.time) };
-    });
+    }, { toast: PANEL_TOAST });
     await postFateIfChanged(this.actor, fdWas);
     await postSupIfChanged(this.actor, supWas);
     if (penUsed) await spendCheckStates(this.actor);

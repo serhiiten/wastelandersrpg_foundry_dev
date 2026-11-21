@@ -2004,3 +2004,9 @@
 .pust-notes-blk .pust-note-view blockquote { padding-left: 10px; border-left: 3px solid var(--pu-rust-4); }
 .pust-notes-blk .pust-note-view table { width: 100%; margin: .35em 0; }
 .pust-notes-blk .pust-note-empty { color: var(--pu-ink-3); font-style: italic; }
+
+/* U7 (author 2026-11-21, mockup А): what an action only explains, as a green line under the block that was pressed;
+   it goes after 6 s or with the next action (character-sheet-v2.mjs #showNote) */
+.pust-sheet .pust-inl-note { margin: 6px 0 0; padding: 3px 2px 0; border-top: 1px dashed var(--pu-good); color: var(--pu-good);
+  font-family: var(--pu-f-text); font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
+.pust-sheet .pust-inl-note > i { margin-right: 3px; }

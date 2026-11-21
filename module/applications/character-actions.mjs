@@ -25,9 +25,10 @@ export function readState(actor) {
   return st;
 }
 
-/** Rules logic bound to a state; toasts become notifications */
-export function logicFor(st, { ui = {}, quiet = false } = {}) {
-  const toast = (msg, kind) => {
+/** Rules logic bound to a state; toasts become notifications, unless the caller hands its own sink (U7: the sheet decides
+ *  where its messages go, sheet-channels.mjs) */
+export function logicFor(st, { ui = {}, quiet = false, toast: sink = null } = {}) {
+  const toast = sink ? (msg, kind) => { if (!quiet && msg) sink(msg, kind); } : (msg, kind) => {
     if (quiet || !msg) return;
     if (kind === "bad") ui_notify("warn", msg);
     else ui_notify("info", msg);
