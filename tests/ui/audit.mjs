@@ -6,6 +6,7 @@
  *   const { runAudit } = await import(`/systems/${game.system.id}/tests/ui/audit.mjs?${Date.now()}`);
  *   await runAudit();               // every scenario; returns { failures, report } and logs a table
  *   await runAudit(["dock"]);       // only some
+ *   A browser window below 1366×768 (SCREEN_FLOOR) is not checked: { failures: 0, tooSmall: "why" } (author, 2026-11-21).
  *
  * The rules come from the author's decisions on the UI (CLAUDE.md, memory «UI symmetry check», «Number field style»):
  *   – nothing is cut: no text runs out of its box (buttons, labels, chips, names); no raw i18n keys on screen;
@@ -830,7 +831,7 @@ const SCENARIOS = {
   /** «Кінець сцени» / «Новий день» / «Кінець сесії» in the GM's top dock (author, 2026-11-21, mockup В): a second row under
    *  the plates, left-aligned with them, nothing cut or covered (the right panels, the sidebar), and each button keeps its size
    *  when it turns red with «Точно?» (the class is set and taken off here; nothing is pressed or ended). Run it at 1366 px,
-   *  Foundry's minimum width, too */
+   *  the screen floor, too */
   async endRow(a) {
     if (!game.user.isGM) return a.skip("ряд кінця сцени", "лише Доглядач");
     const row = document.querySelector(".wastelanders-terminal-dock > .wastelanders-end-row");
@@ -852,10 +853,9 @@ const SCENARIOS = {
     // nothing of Foundry's or ours on the right covers it (the «Битва» / «Сцена» panel, the sidebar)
     const hit = (r) => [...document.querySelectorAll("#pust-mapdock .pust-md-unit, #pust-mapdock .pust-md-panel, #sidebar")].filter(shown)
       .filter((p) => { const q = R(p); return q.left < r.right - PX && q.right > r.left + PX && q.top < r.bottom - PX && q.bottom > r.top + PX; }).map(name);
-    // from Foundry's minimum width, 1366 px; narrower the right panel may lie under it (author, 2026-11-21, Asking)
+    // narrower than 1366 px the right panel may lie under it: runAudit checks nothing there (SCREEN_FLOOR)
     const covered = hit(box);
-    if (innerWidth < 1366) a.skip("не перетинається з панелями праворуч", `вікно ${innerWidth} px, вужче за 1366`);
-    else a.ok("не перетинається з панелями праворуч", !covered.length, covered.join("; "));
+    a.ok("не перетинається з панелями праворуч", !covered.length, covered.join("; "));
     // both states of each button: one size, the red label fits
     const was = btns.map((b) => b.classList.contains("armed"));
     try {
@@ -1217,8 +1217,26 @@ const SCENARIOS = {
   },
 };
 
-/** Run the scenarios (all, or the named ones); logs a table and returns { failures, report } */
-export async function runAudit(only = null, { extra = {} } = {}) {
+/**
+ * The screen floor (author, 2026-11-21; docs/ui-rules.md §4): Foundry's own minimum screen, 1366×768
+ * (`ClientIssues.#MIN_SCREEN_RESOLUTION`). A browser window below it is not checked: overlaps and cuts seen only there are
+ * not failures, so the audit runs nothing and says the window is too small.
+ */
+export const SCREEN_FLOOR = Object.freeze({ width: 1366, height: 768 });
+/** null when a window of w×h may be audited, else why not */
+export function belowFloor(w, h, floor = SCREEN_FLOOR) {
+  if (w >= floor.width && h >= floor.height) return null;
+  return `вікно ${w}×${h} замале: аудит перевіряє лише від ${floor.width}×${floor.height} (найменший екран Foundry); нічого не перевірено`;
+}
+
+/** Run the scenarios (all, or the named ones); logs a table and returns { failures, report }; below the screen floor
+ *  `{ failures: 0, tooSmall: "why", report: [] }` (`floor` only to try the rule on another size) */
+export async function runAudit(only = null, { extra = {}, floor = SCREEN_FLOOR } = {}) {
+  const small = belowFloor(innerWidth, innerHeight, floor);
+  if (small) {
+    console.warn(`Пустельники | аудит: ${small}`);
+    return { failures: 0, warnings: 0, tooSmall: small, checked: 0, report: [], v6: [] };
+  }
   const all = { ...SCENARIOS, ...extra };
   const a = new Audit();
   for (const [key, fn] of Object.entries(all)) {
@@ -1228,7 +1246,7 @@ export async function runAudit(only = null, { extra = {} } = {}) {
   }
   const failures = a.results.filter((r) => !r.ok);
   console.table(a.results.map((r) => ({ "": r.ok ? (r.skipped ? "–" : r.warn ? "⚠" : "✓") : "✗", сценарій: r.scenario, правило: r.rule, деталі: r.detail })));
-  return { failures: failures.length, warnings: a.results.filter((r) => r.warn).length, report: a.results, v6: a.v6 ?? [] };
+  return { failures: failures.length, warnings: a.results.filter((r) => r.warn).length, tooSmall: null, checked: a.results.length, report: a.results, v6: a.v6 ?? [] };
 }
 
 /** For scenarios added by other modules of the audit (battle map, enemy sheet) */
