@@ -644,6 +644,9 @@ const SCENARIOS = {
     a.onScreen([el]);
     a.noCut(el, "button, span, b");
     a.readable(el, "button, span, b");
+    // A8 (author, 2026-11-21): the split's rows under a damage roll that waits for them — the layout rules too
+    const box = el.querySelector(".pust-split-box");
+    if (box) { box.scrollIntoView({ block: "nearest" }); await sleep(200); a.layout(box); a.readable(box, "button, span, b, h5, p"); }
   },
 
   /** «Погода й час дня» (author, 2026-11-19; module/applications/weather-panel.mjs): the GM's popover opened beside its tool,

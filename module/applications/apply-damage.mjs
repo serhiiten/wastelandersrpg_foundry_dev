@@ -21,6 +21,7 @@ import { notify } from "../helpers/notify.mjs";
 import { rollDie } from "../helpers/dice.mjs";
 import { deferSuperDice } from "./caravan-superdice.mjs";
 import { cleanFx } from "../rules/attack-effects.mjs";
+import { splitError, splitHit } from "../rules/damage-split.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -154,9 +155,10 @@ function triggerMoves(actor, when) {
  * @param {object} [o] `source` — the attacker's token uuid («Розпад», «На прицілі»); `noLastHit` — a state's tick, not a hit
  *   undo may take back; `collect` — an array: the rows go there and no card is posted (the round's states card); `avoid` — a
  *   partial avoidance (10–14) of an enemy's hit, one more «½» (rules/dodge.mjs); `report` — an array: {uuid, hp0, hp, damage}
- *   a target
+ *   a target; `split` — a character's attack split between its targets (A8; rules/damage-split.mjs): `{shares: {uuid: n},
+ *   one, fxIgnore}`, each target its share, a share of 0 no hit at all (the effects still go to the named one)
  */
-export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, avoid = false, head = "", source = "", noLastHit = false, collect = null, report = null } = {}) {
+export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, avoid = false, head = "", source = "", noLastHit = false, collect = null, report = null, split = null } = {}) {
   const lines = [];
   const src = source ? await targetOf(source) : null;
   const killed = [], wounded = [], woundedHid = [];
@@ -166,9 +168,12 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     const { tok, actor } = await targetOf(uuid);
     const prof = stateProfile(actor);
     if (!prof) continue;
+    // A8: this target's share of a split hit; a share of 0 is no hit (Fable: a hit of 0 would clear an enemy's last hit)
+    const own = split ? splitHit(data, split, uuid) : data;
+    if (!own) continue;
     const hp0 = int(actor.system.hp?.value), max = int(actor.system.hp?.max, hp0);
     // one rule for every hit (module/rules/battle.mjs resolveHit): parts by type, Камікадзе once, nothing below 0
-    const hit = { ...data, type, parts: Array.isArray(data.parts) ? data.parts.map((x) => ({ ...x, type: battleType(x.type) })) : undefined };
+    const hit = { ...own, type, parts: Array.isArray(own.parts) ? own.parts.map((x) => ({ ...x, type: battleType(x.type) })) : undefined };
     // «На прицілі» (author, 2026-11-20): the one who aimed deals it +2
     const aimed = source && statesOf(actor).some((s) => s.key === "aimed" && s.by === source);
     if (aimed) { if (hit.parts) hit.parts.push({ total: 2, type, dice: 0 }); else hit.total = int(hit.total) + 2; }
@@ -234,7 +239,7 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
   const rolled = Number.isFinite(Number(data.total)) ? `<span class="pust-dmg-rolled" title="Скільки випало на кістках (з модифікаторами), до броні й стійкостей">випало <b>${Math.max(0, int(data.total))}</b></span>` : "";
   const card = (ls, gmNote = "", full = false) => applyCard({
     dt: chatType(type), icon: "fa-burst", title: `Шкода${head ? `: ${esc(head)}` : ""}`,
-    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (dodge ? `<span class="pust-da-chip">½ шкоди</span>` : "") + (avoid ? `<span class="pust-da-chip">уникнення: ½</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
+    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (dodge ? `<span class="pust-da-chip">½ шкоди</span>` : "") + (avoid ? `<span class="pust-da-chip">уникнення: ½</span>` : "") + (split ? `<span class="pust-da-chip" title="Шкоду атаки розподілено між цілями">розподілено</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
   });
   await postSplit("Шкода", lines, card);
   return lines.length;
@@ -317,10 +322,37 @@ export async function sendDamage(data, { partial = false, dodge = false, head = 
   return true;
 }
 
+/** Split hits already applied, by the request's id (A8; Fable: a double press or a lost answer must not hit twice) */
+const SPLIT_DONE = new Set();
+
+/**
+ * A character's attack split between its targets (A8; author, 2026-11-21): the targets fixed when the damage was rolled, not
+ * the current T. A bad split applies nothing (an error to the player, never full damage to all); the same `id` twice is
+ * applied once. @param {{shares: Record<string, number>, one?: string, fxIgnore?: boolean}} split
+ * @returns {Promise<boolean>} true when applied (for a player: when the GM answered that it was)
+ */
+export async function sendSplitDamage(data, { targets = [], split, id = "", partial = false, head = "", source = "" } = {}) {
+  const err = splitError(split?.shares, targets, data?.total);
+  if (err) { notify.warn(`Розподіл шкоди: ${err}. Нічого не застосовано.`); return false; }
+  if (game.user.isGM) { await applySplit(targets, data, { split, id, partial, head, source }); return true; }
+  if (!game.users.activeGM) { notify.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
+  return askGM({ op: "applySplit", targets, data, split, id, partial, head, source }, "Шкода");
+}
+
+/** The GM's side of a split hit: checked again, applied once an id */
+async function applySplit(targets, data, { split, id = "", partial = false, head = "", source = "" }) {
+  const err = splitError(split?.shares, targets, data?.total);
+  if (err) throw new Error(`Розподіл шкоди: ${err}. Нічого не застосовано.`);
+  if (id && SPLIT_DONE.has(id)) return;
+  if (id) SPLIT_DONE.add(id);
+  await applyDamage(targets, data, { partial, head, source, split: { shares: split.shares, one: String(split.one || ""), fxIgnore: !!split.fxIgnore } });
+}
+
 /** Wiring (wastelanders.mjs, ready): the GM's socket for the players' requests */
 export function readyApplyDamage() {
   game.socket.on(SOCKET(), (msg) => {
     if (!activeGmHere()) return;
+    if (msg?.op === "applySplit") return answerGM(msg, () => applySplit(msg.targets || [], msg.data || {}, { split: msg.split, id: String(msg.id || ""), partial: !!msg.partial, head: String(msg.head || ""), source: String(msg.source || "") }));
     if (msg?.op === "applyEffects") return answerGM(msg, () => applyEffects(msg.targets || [], msg.data || {}, { head: String(msg.head || ""), source: String(msg.source || "") }));
     if (msg?.op === "applyDamage") answerGM(msg, () => applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, dodge: !!msg.dodge, head: String(msg.head || ""), source: String(msg.source || "") }));
   });

@@ -13,7 +13,8 @@ import { isPublicMode, postChat } from "./chat.mjs";
 import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { attackMode, choiceEmpOnly, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
-import { sendDamage, sendEffects } from "./apply-damage.mjs";
+import { clearTargets, sendDamage, sendEffects, sendSplitDamage } from "./apply-damage.mjs";
+import { canSplit, clampShare, evenSplit, splitLeft } from "../rules/damage-split.mjs";
 import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx, coverActive } from "../rules/attack-effects.mjs";
 import { sharedGet } from "../helpers/scene-shared.mjs";
 import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
@@ -38,6 +39,12 @@ const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "nearasp", "dmg",
 /** What the blocks of A6 / A7 did for a roll: actor uuid → {time, text} (author, 2026-11-21; one press a roll) */
 const HX_DONE = new Map();
 const WHY_SAID = new Map();
+/**
+ * A8 (author, 2026-11-21): a rolled damage waiting to be split, by actor uuid — {time (the damage roll's), total, targets
+ * [{uuid, name}] fixed at the roll, shares, id, sent}. Kept through closing the panel, lost on F5 (then the GM deals it in
+ * «Битва»).
+ */
+const SPLIT = new Map();
 const hxDone = (uuid, last) => { const d = HX_DONE.get(uuid); return d && last && d.time === last.time ? d.text : ""; };
 
 /**
@@ -49,6 +56,9 @@ function syncDealButton(root) {
   // an attack with no targets says so already before its roll (author, 2026-11-18), until its damage is dealt
   const hint = root?.querySelector(".pust-tgthint");
   if (hint) hint.hidden = !!game.user.targets.size || root.querySelector("select#r-type")?.value !== "attack" || !!root.querySelector(".rdmg .rdres");
+  // A8: «Розподілити між цілями» only while two targets or more are chosen
+  const sp = root?.querySelector("details.pust-split");
+  if (sp) sp.hidden = game.user.targets.size < 2;
   const b = root?.querySelector('button[data-r="dmg"]');
   if (!b) return;
   const n = game.user.targets.size;
@@ -315,9 +325,18 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const limit = of.instead ? "Завдай шкоди або обери замість неї 1 звичайний ефект."
       : last.verdict === 3 ? (of.slots.length > 1 ? "Обери до двох ефектів." : "Обери 1 критичний або звичайний ефект.")
       : (of.slots.length > 1 ? "Обери до двох звичайних ефектів." : "Обери 1 звичайний ефект.");
-    const targets = [...(game.user.targets ?? [])].filter((t) => t?.document);
-    const needOne = picks.some((k) => { const e = effectOf(of, k); return e?.does === "state" && !e.all; }) && targets.length > 1;
-    const one = needOne ? `<label class="pust-fx-one">Ефект на: <select data-fx-one>${targets.map((t) => `<option value="${t.document.uuid}"${t.document.uuid === this.#fx.one ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>` : "";
+    // A8: a split waiting — its fixed targets; the effect's «ігноруєш броню» and the weapon's poison go to one of them too
+    // (author, 2026-11-21: «Обидва на ціль ефекту»)
+    const sp = this.#splitNow(last);
+    const targets = sp && !sp.sent ? sp.targets.map((t) => ({ uuid: t.uuid, name: t.name }))
+      : [...(game.user.targets ?? [])].filter((t) => t?.document).map((t) => ({ uuid: t.document.uuid, name: t.name }));
+    const stateOne = picks.some((k) => { const e = effectOf(of, k); return e?.does === "state" && !e.all; });
+    const ignoreOne = picks.some((k) => effectOf(of, k)?.does === "ignore");
+    const poisonOne = !!(last.poison && last.poisonRoll);
+    const splitOne = !!sp && !sp.sent && (ignoreOne || poisonOne);
+    const needOne = (stateOne || splitOne) && targets.length > 1;
+    const oneLabel = stateOne || (splitOne && ignoreOne) ? (splitOne && poisonOne ? "Ефект і отрута на:" : "Ефект на:") : "Отрута на:";
+    const one = needOne ? `<label class="pust-fx-one">${oneLabel} <select data-fx-one>${targets.map((t) => `<option value="${esc(t.uuid)}"${t.uuid === this.#fx.one ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>` : "";
     // «Прикриваєш спільника»: an ally of the scene (a character's token, not this one's)
     let ally = "";
     if (picks.includes("cover")) {
@@ -350,11 +369,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /** What the picks add to the hit: ignored armour, the states on the target(s), the text effects */
-  #fxData(effectOnly = false) {
+  #fxData(effectOnly = false, uuids = null) {
     const f = this.#fxOf;
     // 10–14 without the perk: damage or an effect — the damage carries none
     if (!f || !f.picks.length || (f.of.instead && !effectOnly)) return {};
-    const targets = [...(game.user.targets ?? [])].filter((t) => t?.document).map((t) => t.document.uuid);
+    // A8: a split hit's targets are the ones fixed at its roll, not the current T
+    const targets = uuids ?? [...(game.user.targets ?? [])].filter((t) => t?.document).map((t) => t.document.uuid);
     const h = hitFx(f.of, f.picks, targets, this.#fx.one, this.#fx.ally);
     const { L } = evaluate(this.actor);
     const said = h.said.map((k) => effectText(L.ATK_FX, f.mode, effectOf(f.of, k))).filter(Boolean);
@@ -475,6 +495,64 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     return { ...d, ...fx, ...(d.ignoreArmor ? { ignoreArmor: true, ignoreN: d.ignoreN } : {}) };
   }
 
+  /** A8: the fold «Розподілити між цілями» open (mockup Б: open by itself; the user's fold kept while the panel is open) */
+  #splitOpen = true;
+  /** A8: «Завдати шкоди» was pressed with the fold open and two targets or more: the roll waits for the split */
+  #splitPress = false;
+  /** A8: can this attack's damage be split — an attack, a weapon not of the whole zone, one damage type */
+  #splitFits(L, c, wt, last) {
+    if (!c || !last || last.type !== "attack") return false;
+    const zone = !!(c.expl || c.w?.zone) || attackMode(last.skillName, last.attr) === "explosive";
+    let types = 1;
+    try { const p = L.parseDmg?.(c.d); if (p) types = new Set(termTypes(c, p, wt)).size; } catch (_) { /* unreadable: the engine says so */ }
+    return canSplit({ targets: 2, zone, types });
+  }
+  /** A8: the split waiting for this damage roll, or null */
+  #splitNow(last) {
+    const s = SPLIT.get(this.actor.uuid);
+    return s && last?.dmg && s.time === last.dmg.time ? s : null;
+  }
+  /** A8: the roll is made, the split starts even (the remainder to the first), the targets fixed now */
+  #startSplit(dmg) {
+    const targets = [...(game.user.targets ?? [])].filter((t) => t?.document).map((t) => ({ uuid: t.document.uuid, name: t.name }));
+    const total = Math.max(0, Number(this.#apply?.data?.total) || 0);
+    SPLIT.set(this.actor.uuid, { time: dmg.time, total, targets, shares: evenSplit(total, targets.map((t) => t.uuid)), id: `${this.actor.uuid}:${dmg.time}`, sent: false });
+    if (this.#fx.one && !targets.some((t) => t.uuid === this.#fx.one)) this.#fx.one = "";
+  }
+  /** A8: the rows of the split (inserted into the damage block by _onRender) */
+  #splitRows(s) {
+    if (s.sent) return `<p class="rhint pust-split-done">Шкоду розподілено між цілями.</p>`;
+    const left = splitLeft(s.shares, s.total);
+    const any = Object.values(s.shares).some((v) => v > 0);
+    const rows = s.targets.map((t) => {
+      const v = s.shares[t.uuid] ?? 0;
+      return `<div class="pust-split-row"><span class="pust-split-name">${esc(t.name)}</span><span class="pust-split-inv">`
+        + `<button type="button" data-split-d="-1" data-d="-1" data-u="${esc(t.uuid)}" aria-label="Менше шкоди: ${esc(t.name)}"${v <= 0 ? " disabled" : ""}>−</button>`
+        + `<input type="text" class="pust-screen" data-split-v data-u="${esc(t.uuid)}" value="${v}" inputmode="numeric" aria-label="Шкода: ${esc(t.name)}">`
+        + `<button type="button" data-split-d="1" data-d="1" data-u="${esc(t.uuid)}" aria-label="Більше шкоди: ${esc(t.name)}"${left <= 0 ? " disabled" : ""}>+</button></span></div>`;
+    }).join("");
+    return `<div class="pust-split-box"><h5>Розподіл шкоди: ${s.total}</h5>${rows}`
+      + `<p class="pust-split-left${left < 0 ? " over" : ""}">${left < 0 ? `Розподілено більше, ніж випало: на ${-left}` : `Лишилося: ${left} із ${s.total}`}</p>`
+      + `<button type="button" class="btn rust" data-split-go${left < 0 || !any ? " disabled" : ""}><i class="fa-solid fa-burst"></i>Завдати розподілену шкоду</button></div>`;
+  }
+  /** A8: redraw the rows in place (no render: the panel keeps its scroll and the other fields) */
+  #splitRedraw(root, s) {
+    const box = root.querySelector(".pust-split-box");
+    if (box) box.outerHTML = this.#splitRows(s);
+  }
+  /** A8: send the split — each target its share; the weapon's poison and the effect's «ігноруєш броню» on the effect's target */
+  async #splitSend(root, go) {
+    const s = SPLIT.get(this.actor.uuid);
+    if (!s || s.sent || go.disabled || !this.#apply) return;
+    go.disabled = true;
+    const uuids = s.targets.map((t) => t.uuid);
+    const { ignoreArmor: fxIgnore, ignoreN: _n, ...fx } = this.#fxData(false, uuids);
+    const d = this.#apply.data;
+    const one = uuids.includes(this.#fx.one) ? this.#fx.one : uuids[0];
+    const ok = await sendSplitDamage({ ...d, ...fx }, { targets: uuids, split: { shares: { ...s.shares }, one, fxIgnore: !!fxIgnore }, id: s.id, partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() });
+    if (ok) { s.sent = true; clearTargets(); this.render(); } else go.disabled = false;
+  }
+
   #damageBlock(html, L, st) {
     const last = L.R.last;
     const D = last?.dmg;
@@ -496,6 +574,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // one press rolls the damage and deals it to the targets (author, 2026-11-17); just a roll lives on the gear card's crosshair
     html = html.replace(/(<button type="button" class="btn rust" data-r="dmg">[\s\S]*?)Кинути шкоду([^<]*)<\/button>/,
       (m, head, dice) => `${head}Завдати шкоди${dice}<span class="pust-tgtn"></span></button>`);
+    // A8 (author, 2026-11-21, mockup Б): «Розподілити між цілями» under the button, open by itself (the wiki's rule for an
+    // attack on several); folded, every target takes the full damage as before. Not for a weapon that hits the whole zone,
+    // nor for damage of several types (Fable's verdict)
+    if (!D && this.#splitFits(L, choices.find((x) => x.key === L.R.dmgKey), wt, last)) {
+      const fold = `<details class="pust-split"${this.#splitOpen ? " open" : ""}${game.user.targets.size < 2 ? " hidden" : ""}><summary>Розподілити між цілями</summary>`
+        + `<p class="rhint">Шкоду буде кинуто, але не завдано: розподіли її між цілями на власний розсуд. Згорни, щоб кожна ціль отримала повну шкоду.</p></details>`;
+      html = html.replace(/(<button type="button" class="btn rust" data-r="dmg">[\s\S]*?<\/button>)/, `$1${fold}`);
+    }
     // «Бойові рефлекси: перекинути» would reroll a damage already dealt: not offered here (the gear card's roll has it)
     html = html.replace(/<button type="button" class="btn sm" data-r="dmgre">[\s\S]*?<\/button>/, "");
     if (!D) return html;
@@ -638,6 +724,20 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         await answerPending(this.#pend.msg, this.#pend.row, { op: "apply" });
         return;
       }
+      // A8: the split's −/+ and «Завдати розподілену шкоду»
+      const sd = ev.target.closest("[data-split-d]");
+      if (sd) {
+        ev.preventDefault();
+        const s = SPLIT.get(this.actor.uuid);
+        if (!s || s.sent || sd.disabled) return;
+        const u = sd.dataset.u, step = Number(sd.dataset.splitD) || 0;
+        if (step > 0 && splitLeft(s.shares, s.total) <= 0) return;
+        s.shares[u] = clampShare((s.shares[u] ?? 0) + step, s.total);
+        this.#splitRedraw(root, s);
+        return;
+      }
+      const sg = ev.target.closest("[data-split-go]");
+      if (sg) { ev.preventDefault(); this.#splitSend(root, sg); return; }
       const ap = ev.target.closest("[data-apply]");
       if (ap) {
         ev.preventDefault();
@@ -655,6 +755,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       if (b.classList.contains("pust-stdb")) { this.#run("change", { tagName: "SELECT", dataset: { r: "type" }, value: b.classList.contains("on") ? "gen" : b.value }); return; }
       if (b.dataset.r === "roll") this.#setupOpen = false; // a new result: the set-up folds again
       if (b.dataset.r === "dmg" && !game.user.targets.size) return notify.warn(NO_TARGETS);
+      // A8: the fold open and two targets or more — this roll waits for the split
+      if (b.dataset.r === "dmg") this.#splitPress = !!root.querySelector("details.pust-split[open]:not([hidden])") && game.user.targets.size >= 2;
       this.#run("click", b);
     });
     this.#fastLayout(root);
@@ -664,7 +766,16 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.#fx.done) root.querySelectorAll('button[data-r="dmg"]').forEach((x) => { x.disabled = true; x.title = "Замість шкоди вже обрано ефект"; });
     // the damage is dealt with its roll: the options over it (Психо, the effect, the crit) are set before it, then locked
     // and so is the weapon (author, 2026-11-17)
-    if (root.querySelector(".rdmg .rdres")) root.querySelectorAll(".rdmg .rdopts input, .rdmg .rdopts select, .rdmg .pust-wchip").forEach((i) => { i.disabled = true; i.title = "Шкоду вже кинуто й завдано"; });
+    const { L: Ln } = evaluate(this.actor);
+    const lastNow = this.#load(Ln).last, spl = this.#splitNow(lastNow);
+    if (root.querySelector(".rdmg .rdres")) root.querySelectorAll(".rdmg .rdopts input, .rdmg .rdopts select, .rdmg .pust-wchip").forEach((i) => { i.disabled = true; i.title = spl && !spl.sent ? "Шкоду вже кинуто: розподіли її між цілями нижче" : "Шкоду вже кинуто й завдано"; });
+    // A8: the split's rows under the rolled damage; a split left behind by a new roll is said once, nothing dealt
+    if (spl) root.querySelector(".rdmg")?.insertAdjacentHTML("beforeend", this.#splitRows(spl));
+    else {
+      const old = SPLIT.get(this.actor.uuid);
+      if (old && !old.sent && lastNow?.dmg?.time !== old.time) { SPLIT.delete(this.actor.uuid); notify.warn("Розподілену шкоду не завдано: новий кидок скасував розподіл."); }
+    }
+    root.addEventListener("toggle", (ev) => { if (ev.target.matches?.("details.pust-split")) this.#splitOpen = ev.target.open; }, true);
     root.addEventListener("change", (ev) => {
       const fx = ev.target.closest("input[data-fx]");
       if (fx) { this.#fxPick(fx.dataset.fx, fx.checked); return; }
@@ -672,6 +783,13 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       if (al) { this.#fx.ally = al.value; return; }
       const one = ev.target.closest("select[data-fx-one]");
       if (one) { this.#fx.one = one.value; return; }
+      // A8: a share typed by hand
+      const sv = ev.target.closest("input[data-split-v]");
+      if (sv) {
+        const s = SPLIT.get(this.actor.uuid);
+        if (s && !s.sent) { s.shares[sv.dataset.u] = clampShare(sv.value, s.total); this.#splitRedraw(root, s); }
+        return;
+      }
       const t = ev.target.closest("[data-r]");
       if (t) this.#run("change", t);
     });
@@ -884,7 +1002,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       finally { this.#sending = false; if (this.rendered) this.render(); }
     }
     // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
-    if (deal && this.#apply && out.R.last?.dmg) await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() });
+    // A8: with the fold open the roll waits for the split (one type only: a hit of several types is dealt in full, as before)
+    if (deal && this.#apply && out.R.last?.dmg && this.#splitPress && !this.#apply.data.parts) { this.#splitPress = false; this.#startSplit(out.R.last.dmg); this.render(); }
+    else if (deal && this.#apply && out.R.last?.dmg) { this.#splitPress = false; await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() }); }
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
     else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice, out.before.last?.dmg?.extra ?? null);
   }

@@ -17,6 +17,7 @@ import { initCaravanMove } from "./canvas/caravan-move.mjs";
 import { initWeather } from "./canvas/weather.mjs";
 import { addWeatherTool } from "./applications/weather-panel.mjs";
 import { readyApplyDamage } from "./applications/apply-damage.mjs";
+import { initSfx, readySfx } from "./helpers/sfx.mjs";
 import { readyPending, renderPending } from "./applications/pending-attack.mjs";
 import { readyBattleHealth } from "./applications/battle-health.mjs";
 import { readyChemTarget } from "./applications/chem-target.mjs";
@@ -76,6 +77,7 @@ Hooks.once("init", async function () {
   initMapNotes();
   initBattleZones(); // after the stickers: the zones' Drawing class extends theirs
   initCaravanMove(); // a caravan moved on a map spends its range (asks, or by the caravan's switch)
+  initSfx(); // the client setting «Звуки подій» (V4)
   game.wastelanders = {
     WastelandersActor,
     WastelandersItem,
@@ -260,6 +262,7 @@ Hooks.once("ready", () => {
   readyMapNotes();
   readyBattleZones();
   readyApplyDamage();
+  readySfx(); // event sounds from the chat cards (V4; author, 2026-11-21)
   readyPending(); // «Уникнення шкоди» on an enemy's attack card (A1; author, 2026-11-20)
   readyChemTarget();
   readyBattleHealth(); // «Аспекти поруч», «Медична допомога» on someone else (author, 2026-11-21)
