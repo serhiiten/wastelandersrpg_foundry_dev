@@ -12,6 +12,7 @@
 import { ASPECTS, COMPANY, REPUTATIONS } from "./caravan.mjs";
 import { blankDefOv } from "./caravan-defence.mjs";
 import { refillPlan, repairPlan } from "./caravan-range.mjs";
+import { rowCost, salePlan } from "./caravan-adapter.mjs";
 
 const int = (v, def = 0) => {
   const n = parseInt(v, 10);
@@ -30,6 +31,16 @@ const BIG = 99999;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const d = (n) => Math.floor(Math.random() * n) + 1;
 const signed = (n) => (n > 0 ? "+" + n : n < 0 ? "−" + Math.abs(n) : "0");
+
+/** An improvement costs 25(к) (wiki «Покращення каравану»); the two chosen at the start are free («Створення каравану») */
+export const IMP_PRICE = 25;
+/** What a click on an improvement's level (or a new custom one: id null) costs: 25(к) for each one past the first two */
+export function impCost(S, impCount, id, k) {
+  const cur = id ? int(S.imp?.[id]) : 0;
+  const added = id ? (cur > int(k) ? int(k) : int(k) + 1) - cur : 1;
+  if (added <= 0) return 0;
+  return IMP_PRICE * (Math.max(0, impCount + added - 2) - Math.max(0, impCount - 2));
+}
 
 export function createCaravanController(L, { toast = () => {} } = {}) {
   const S = () => L.getS();
@@ -109,6 +120,17 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
     return false;
   }
 
+  /** The price of an improvement off the budget when `pay` is "1"; false (nothing changes) when the budget is short */
+  function payImp(cost, pay) {
+    if (String(pay) !== "1" || cost <= 0) return true;
+    const s = S();
+    if (cost > s.budget) { toast(`У бюджеті бракує кришок: треба ${cost}(к), є ${s.budget}(к)`); return false; }
+    s.budget -= cost;
+    s.manual.budget = true;
+    toast(`Списано ${cost}(к) з бюджету`);
+    return true;
+  }
+
   /* ---------- buttons ---------- */
   function act(a, data = {}) {
     const s = S();
@@ -162,6 +184,8 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         const id = data.id;
         const k = int(data.k);
         const p = L.derived();
+        // Foundry only (author, 2026-11-21; A13): pay "1" takes 25(к) a bought improvement off the budget
+        if (!payImp(impCost(s, p.impCount, id, k), data.pay)) return false;
         s.imp[id] = s.imp[id] > k ? k : k + 1;
         s.manual.imps = Object.values(s.imp).some((n) => n > 0);
         L.clampAfter(p);
@@ -185,9 +209,41 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
         s.longHaul = false;
         return true;
       }
-      case "addCustomImp": s.customImps.push({ name: "", desc: "" }); return true;
+      case "addCustomImp":
+        if (!payImp(impCost(s, L.derived().impCount, null, 0), data.pay)) return false;
+        s.customImps.push({ name: "", desc: "" });
+        return true;
       case "addCounter": s.counters.push({ name: "", size: 6, value: 0 }); return true;
-      case "addCargo": s.cargo.push({ name: "", kind: "cargo", price: "", qty: "1", note: "" }); return true;
+      // Foundry only (author, 2026-11-21; A3): a row added by hand is bought later with «Купити за N(к)» (row.unpaid)
+      case "addCargo": s.cargo.push({ name: "", kind: "cargo", price: "", qty: "1", note: "", unpaid: true }); return true;
+      // «Купити за N(к)»: pay "1" takes the row's price × quantity off the budget, "0" marks it bought for free
+      case "cg-buy": {
+        const r = s.cargo[int(data.i, -1)];
+        if (!r || !r.unpaid) return true;
+        if (String(data.pay) === "1") {
+          const cost = rowCost(r);
+          if (cost > s.budget) { toast(`У бюджеті бракує кришок: треба ${cost}(к), є ${s.budget}(к)`); return false; }
+          s.budget -= cost;
+          s.manual.budget = true;
+          toast(`Списано ${cost}(к) з бюджету`);
+        }
+        delete r.unpaid;
+        return true;
+      }
+      // «Продати за N(к)» / «Плата за проїзд N(к)» on a row, «Продати все» on the cargo list (data.all): the caps go to the
+      // budget, the rows go away; returns the plan (rows and total) for the chat card, false when there is nothing to sell
+      case "cg-sell": {
+        if (int(s.hpCurrent) === 0) { toast("ОЗ 0 — вантаж знищено: продавати нічого"); return false; }
+        const plan = salePlan(s, data.all ? { all: true } : { i: int(data.i, -1) });
+        if (!plan.rows.length) { toast("Продавати нічого"); return false; }
+        const gone = new Set(plan.rows.map((r) => r.i));
+        s.cargo = s.cargo.filter((_, i) => !gone.has(i));
+        plan.before = s.budget;
+        s.budget += plan.total;
+        s.manual.budget = true;
+        plan.after = s.budget;
+        return plan;
+      }
       case "rollRep": {
         if (L.isLocked("rep")) return true;
         let v;

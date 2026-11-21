@@ -14,6 +14,7 @@ import { concreteKinds, namePicks } from "../rules/enemy-kinds.mjs";
 import { postChat } from "./chat.mjs";
 import { postTerminalRoll } from "./check-panel.mjs";
 import { luckCaravan } from "./map-dice.mjs";
+import { caravanLuck } from "./party-luck.mjs";
 import {
   TABLE_CARDS, battleChat, battleJournal, blankTerminal, buildTerminalView, caseChat, caseJournal, runTable, specialRerollHtml, tableChat, travelChat,
 } from "./terminal-view.mjs";
@@ -382,7 +383,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const t = this.st.travel;
     let luckCar = null;
     if (car) {
-      const l = parseInt(car.system.luck, 10) || 0;
+      const l = caravanLuck(car);
       const v = Math.max(-2, Math.min(2, l));
       const from = `${car.id}:${l}`;
       if (t.luckFrom !== from) { t.luck = v; t.luckFrom = from; }

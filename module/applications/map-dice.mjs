@@ -7,6 +7,7 @@
  */
 import { postExprRoll, postFateCard } from "./check-panel.mjs";
 import { evaluate } from "./character-actions.mjs";
+import { caravanLuck } from "./party-luck.mjs";
 import { notify } from "../helpers/notify.mjs";
 
 const sgn = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0");
@@ -57,7 +58,7 @@ export function fatePickList() {
 
 /** The luck a Кістка Долі adds: a character's УДЧ (with chems), a caravan's Удача партії */
 function fateMod(actor) {
-  if (actor.type === "caravan") return parseInt(actor.system.luck, 10) || 0;
+  if (actor.type === "caravan") return caravanLuck(actor); // from the characters' УДЧ unless picked by hand (party-luck.mjs)
   try { return +evaluate(actor).d.eff.UDCH || 0; } catch (_) { return 0; }
 }
 

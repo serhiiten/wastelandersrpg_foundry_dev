@@ -654,6 +654,33 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
 .chat-message .pust-chat.pust-fdcard b { color: inherit; font-weight: 800; }
 .chat-message .pust-chat.pust-fdcard .pust-fdcard-n { flex: none; min-width: 26px; padding: 0 6px; border-radius: 3px; background: #241a0c; color: #f4d11a; font-family: "PT Mono", monospace; font-size: 16px; line-height: 24px; text-align: center; }
 .chat-message .pust-chat.pust-fdcard.pust-supcard.spend { background: linear-gradient(180deg, #b0582a, #8a3f1a); border-color: #5a2a10; color: #fbe9d6; }
+/* the caravan's sale and karma in chat (author, 2026-11-21; A3, A14; caravan-trade.mjs): the sale a green card with its rows,
+   the karma a bold strip — green up, red down — and the karmic aspect under it when it changes */
+.chat-message .pust-chat.pust-tradecard { padding: 0; overflow: hidden; border: 1px solid #1f4a1a; border-radius: 4px; background: #f1f6e8; color: #1f2a14; font-family: "Roboto Condensed", sans-serif; font-size: 13.5px; }
+.chat-message .pust-tradecard .pust-trade-hd { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: linear-gradient(180deg, #4b8a3f, #2f6b35); color: #e7ffd9; font-size: 14px; }
+.chat-message .pust-tradecard .pust-trade-hd > span:not(.pust-trade-n) { flex: 1 1 auto; }
+.chat-message .pust-tradecard .pust-trade-hd b { color: inherit; font-weight: 800; }
+.chat-message .pust-tradecard .pust-trade-n { flex: none; padding: 0 6px; border-radius: 3px; background: #142a10; color: #b6ffb9; font-family: "Ubuntu Mono", monospace; font-size: 16px; line-height: 24px; }
+.chat-message .pust-tradecard .pust-trade-rows { list-style: none; margin: 0; padding: 4px 8px; }
+.chat-message .pust-tradecard .pust-trade-rows > li { display: flex; gap: 8px; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #b9c7a6; }
+.chat-message .pust-tradecard .pust-trade-rows > li > b { flex: none; font-family: "Ubuntu Mono", monospace; }
+.chat-message .pust-tradecard .pust-trade-rows > li > span { flex: 1 1 auto; min-width: 0; }
+.chat-message .pust-tradecard .pust-trade-tag { display: inline-block; white-space: nowrap; margin-left: 4px; font-size: 11.5px; font-weight: 700; }
+.chat-message .pust-tradecard .pust-trade-tag.far { color: #2f5f97; } .chat-message .pust-tradecard .pust-trade-tag.hurt { color: #a8121a; }
+.chat-message .pust-tradecard .pust-trade-budget { margin: 0; padding: 4px 8px 6px; color: #3d4a2c; }
+.chat-message .pust-chat.pust-karmacard { --kc: #2f6b35; --kc2: #4b8a3f; --kfg: #e7ffd9; padding: 0; overflow: hidden; border: 2px solid color-mix(in srgb, var(--kc) 70%, #000); border-radius: 5px; background: #f4eedc; font-family: "Roboto Condensed", sans-serif; }
+.chat-message .pust-chat.pust-karmacard.loss { --kc: #7a1418; --kc2: #a8121a; --kfg: #ffe3e0; }
+.chat-message .pust-karmacard .pust-karma-hd { display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: linear-gradient(180deg, var(--kc2), var(--kc)); color: var(--kfg); font-size: 16px; font-weight: 700; }
+.chat-message .pust-karmacard .pust-karma-hd > i { font-size: 18px; }
+.chat-message .pust-karmacard .pust-karma-hd > span:not(.pust-karma-n) { flex: 1 1 auto; }
+.chat-message .pust-karmacard .pust-karma-hd b { color: inherit; font-weight: 800; }
+.chat-message .pust-karmacard .pust-karma-n { flex: none; min-width: 30px; padding: 0 6px; border-radius: 3px; background: rgba(0,0,0,.45); color: #f4d11a; font-family: "Ubuntu Mono", monospace; font-size: 18px; line-height: 26px; text-align: center; }
+.chat-message .pust-karmacard .pust-karma-asp { margin: 0; padding: 6px 9px; font-size: 14px; color: #2a261c; }
+.chat-message .pust-karmacard .pust-karma-asp > span { color: #5f5745; }
+.chat-message .pust-karmacard .pust-karma-asp > b { font-style: italic; font-weight: 800; }
+.chat-message .pust-karmacard .pust-karma-asp > s { color: #7a7060; }
+/* «Списати N(к) з бюджету?» (spend-ask.mjs) */
+.pust-spend-ask .pust-spend-short { color: var(--pu-red-ink, #a8121a); font-weight: 700; }
 /* an enemy's move in chat (author, 2026-11-15; enemy-sheet.mjs): a coloured head strip with the enemy's name, the result
    under it — a healing move green, Психо red while it acts, grey when it wears off */
 .chat-message .pust-chat.pust-encard { --ec: #2f6b35; --ec-ink: #e7ffd9; padding: 0; overflow: hidden; border: 2px solid color-mix(in srgb, var(--ec) 70%, #000); border-radius: 5px; background: #f4eedc; }

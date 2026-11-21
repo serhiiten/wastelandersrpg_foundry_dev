@@ -573,7 +573,9 @@
 .pust-cat-d { font-family: var(--pu-f-num); color: var(--pu-rust-2); font-weight: 700; }
 .pust-cat-desc { color: var(--pu-ink-3); font-size: 12px; }
 .pust-addcat-list .pust-cat-row { align-items: flex-start; }
-.pust-addcat-list .pust-cat-row > .pust-cat-price, .pust-addcat-list .pust-cat-row > .pust-pick-add { align-self: center; }
+.pust-addcat-list .pust-cat-row > .pust-cat-price, .pust-addcat-list .pust-cat-row > .pust-pick-add, .pust-addcat-list .pust-cat-row > .pust-buy { align-self: center; }
+/* «Купити за N(к)» (A13, author 2026-11-21) carries the price: the price column steps aside for it */
+.pust-cat-row:has(> .pust-buy) > .pust-cat-price { display: none; }
 /* a chem's addiction chance in the catalogues */
 .pust-cat-addict { display: inline-block; padding: 0 5px; border-radius: 3px; background: #f2cdc6; color: #8a2116; font-family: var(--pu-f-num); font-size: 11px; font-weight: 700; white-space: nowrap; }
 /* «зараз −2» (chems change an attribute): a small badge beside the abbreviation, the row keeps its height */
@@ -777,7 +779,29 @@
 .pust-caravan .pust-tools button.on { background: var(--pu-steel-1) !important; color: var(--pu-green) !important; }
 
 /* Вантаж і пасажири: a list with column headers, like the gear of the character sheet */
-.pust-caravan .pust-glist-cargo { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 108px 64px 56px 50px 44px 52px 28px; }
+.pust-caravan .pust-glist-cargo { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 108px 64px 56px 50px 44px 52px max-content 28px; }
+/* «Купити / Продати» (A3, author 2026-11-21): its own column; on a narrow sheet the note and the button take a second line */
+.pust-caravan .pust-glist-cargo .pust-cact { display: flex; justify-content: flex-end; min-width: 0; }
+@container (max-width: 700px) {
+  .pust-caravan .pust-glist-cargo { grid-template-columns: minmax(0, 1fr) 108px 64px 56px 50px 44px 52px 28px; }
+  .pust-caravan .pust-glist-cargo .pust-ghead > span:nth-child(2), .pust-caravan .pust-glist-cargo .pust-ghead > .pust-cact-h { display: none; }
+  .pust-caravan .pust-glist-cargo .pust-grow > .pust-cnote { grid-row: 2; grid-column: 1 / 5; }
+  .pust-caravan .pust-glist-cargo .pust-grow > .pust-cact { grid-row: 2; grid-column: 5 / -1; }
+  .pust-caravan .pust-glist-cargo .pust-grow > .pust-cact:empty { display: none; }
+}
+/* money buttons (A3, A13; author 2026-11-21): «Купити за N(к)» is a brass plate (spends), «Продати…» green (earns) */
+.wastelanders button.pust-buy:not(.header-control), .wastelanders button.pust-sell:not(.header-control) { flex: 0 0 auto; width: auto; height: 26px !important; min-height: 0;
+  line-height: 24px !important; padding: 0 9px !important; font-weight: 700; font-size: 12.5px; white-space: nowrap; text-transform: none; letter-spacing: 0; }
+.wastelanders button.pust-buy:not(.header-control) { background: #f1d98c !important; color: #5a3d06 !important; border-color: #a5801f !important; }
+.wastelanders button.pust-buy:not(.header-control):hover:not(:disabled) { background: #f6e3a4 !important; }
+.wastelanders button.pust-sell:not(.header-control) { background: #cfe6c2 !important; color: #2a5a1c !important; border-color: #5f8f4a !important; }
+.wastelanders button.pust-sell:not(.header-control):hover:not(:disabled) { background: #b9e0a6 !important; }
+.wastelanders button.pust-buy:disabled { background: var(--pu-paper-2) !important; color: var(--pu-ink-3) !important; border-color: var(--pu-paper-3) !important; opacity: 1; }
+.pust-ccmp-gc > button.pust-buy, .pust-ccmp-gc > button.pust-sell { height: 20px !important; line-height: 18px !important; padding: 0 6px !important; font-size: 12px; }
+.wastelanders .pust-ccmp-sum > button.pust-undo:not(.header-control) { flex: none; margin: 0 !important; text-transform: none; letter-spacing: 0; height: 22px !important; line-height: 20px !important; padding: 0 8px !important; font-size: 12px; }
+.pust-ccmp-sum > button.pust-sell { flex: none; height: 22px !important; line-height: 20px !important; font-size: 12px; }
+.pust-caravan .pust-cargo-bar > button.pust-sell { margin-left: auto; }
+.pust-caravan .pust-luck-reset { margin-left: 4px; width: 24px !important; height: 24px !important; min-height: 0; padding: 0 !important; flex: none; }
 .pust-caravan .pust-glist-cargo .pust-grow > select { width: 100%; min-width: 0; }
 .pust-caravan .pust-glist-cargo .pust-grow > .pust-cnote { width: 100%; min-width: 0; }
 .pust-caravan .pust-csum { text-align: center; font-family: var(--pu-f-num); font-size: 15px; line-height: 26px; min-height: 26px; }

@@ -32,6 +32,7 @@ import { isBattleScene } from "../helpers/default-scene.mjs";
 import { evaluate, runAction } from "./character-actions.mjs";
 import { compute } from "../rules/core.mjs";
 import { fdOf, postFateChange, postSupChange } from "./fate-card.mjs";
+import { caravanLuck } from "./party-luck.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { layerOn, toggleLayer } from "../helpers/faction-layer.mjs";
 
@@ -274,7 +275,7 @@ const tv = { open: false, type: "travel", luck: 0, luckFrom: "", main: "", addit
 function travelLuck() {
   const car = luckCaravan();
   if (!car) { tv.luckFrom = ""; return null; }
-  const l = parseInt(car.system.luck, 10) || 0;
+  const l = caravanLuck(car);
   const v = Math.max(-2, Math.min(2, l));
   const from = `${car.id}:${l}`;
   if (tv.luckFrom !== from) { tv.luck = v; tv.luckFrom = from; } // a hand-picked luck stays until the caravan changes
