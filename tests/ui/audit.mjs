@@ -839,9 +839,9 @@ const SCENARIOS = {
     const btns = [...row.querySelectorAll(".pust-end-btn")];
     const plate = document.querySelector(".wastelanders-terminal-open"), moves = document.querySelector(".wastelanders-moves-open");
     a.ok("три кнопки", btns.length === 3, String(btns.length));
-    a.row(btns, { equalWidth: true, label: "кнопки кінця сцени" });
+    a.row(btns, { label: "кнопки кінця сцени" }); // as wide as their text (author, 2026-11-21), one row and one height
     const box = R(row.querySelector(".pust-end-box"));
-    a.ok("ліворуч у лінію з «Термінал Доглядача»", Math.abs(box.left - R(plate).left) <= 1.5, `${Math.round(box.left)} / ${Math.round(R(plate).left)}`);
+    a.ok("ліворуч у лінію з «Термінал»", Math.abs(box.left - R(plate).left) <= 1.5, `${Math.round(box.left)} / ${Math.round(R(plate).left)}`);
     a.ok("під плашками", box.top >= Math.max(R(plate).bottom, R(moves).bottom) - PX, `${Math.round(box.top)} / ${Math.round(R(plate).bottom)}`);
     const strip = R(row.querySelector(".pust-end-ft"));
     a.ok("смужка на всю ширину кнопок", Math.abs(strip.left - R(btns[0]).left) <= PX && Math.abs(strip.right - R(btns[2]).right) <= PX, `${Math.round(strip.left)}–${Math.round(strip.right)}`);
@@ -856,6 +856,9 @@ const SCENARIOS = {
     // narrower than 1366 px the right panel may lie under it: runAudit checks nothing there (SCREEN_FLOOR)
     const covered = hit(box);
     a.ok("не перетинається з панелями праворуч", !covered.length, covered.join("; "));
+    // the plates above it too (2026-11-21: «Ходи Доглядача» ran over «Битва» at 1366 px with the sidebar open)
+    const platesHit = [plate, moves].filter(shown).flatMap((p) => hit(R(p)));
+    a.ok("плашки «Термінал» і «Ходи» не перетинаються з панелями праворуч", !platesHit.length, platesHit.join("; "));
     // both states of each button: one size, the red label fits
     const was = btns.map((b) => b.classList.contains("armed"));
     try {

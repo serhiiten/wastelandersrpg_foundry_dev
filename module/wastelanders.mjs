@@ -375,7 +375,7 @@ function dockTerminal() {
     dock = document.createElement("div");
     dock.className = "wastelanders-terminal-dock";
     dock.innerHTML = `<button type="button" class="wastelanders-terminal-open"
-      aria-label="Термінал Доглядача"><i class="fa-solid fa-terminal"></i> Термінал Доглядача</button>`;
+      aria-label="Термінал Доглядача"><i class="fa-solid fa-terminal"></i> Термінал</button>`;
     const btn = dock.firstElementChild;
     btn.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); clearTimeout(btn._tip); game.tooltip.deactivate(); toggleTerminal(); });
     // its hint comes later than Foundry's usual 0.5 s (author, 2026-11-14): 1.5 s of hovering
@@ -389,7 +389,10 @@ function dockTerminal() {
     moves.type = "button";
     moves.className = "wastelanders-moves-open";
     moves.setAttribute("aria-expanded", "false");
-    moves.innerHTML = `<i class="fa-solid fa-fire"></i> Ходи Доглядача`;
+    // the plates say «Термінал» / «Ходи» (author, 2026-11-21: «прибрати слово Доглядача»; at 1366 px with the sidebar open
+    // «Ходи Доглядача» and the end row ran over «Битва»); the full names stay for screen readers and in the windows' titles
+    moves.setAttribute("aria-label", "Ходи Доглядача");
+    moves.innerHTML = `<i class="fa-solid fa-fire"></i> Ходи`;
     moves.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); toggleGmMoves(moves); });
     dock.append(moves);
     // «Кінець сцени» / «Новий день» / «Кінець сесії» (author, 2026-11-21, mockup В): a second row under the plates, apart
