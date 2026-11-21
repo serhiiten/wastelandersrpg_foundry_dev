@@ -39,5 +39,11 @@ const ui = read("../css/pust-ui.css");
 ok(/:focus-visible[^{]*\{[^}]*outline:\s*2px solid #2a261c[^}]*box-shadow:\s*0 0 0 4px #e2ad3b/.test(ui), "the focus ring rule is in pust-ui.css");
 ok(/initKeyboardReach\(\)/.test(read("../module/wastelanders.mjs")), "the system starts the keyboard reach at init");
 
+// the chat verdict's ranges beside the sum, a row of their own only when they don't fit (author, 2026-11-21, after dev.49)
+const chk = read("../css/pust-check.css");
+const rr = [...chk.matchAll(/^\.pust-chat \.pust-cres \.rranges \{([^}]*)\}/gm)].map((m) => m[1]);
+ok(rr.length && !rr.some((d) => /flex:\s*1 0 100%/.test(d)), "the chat ranges are not forced to a row of their own");
+ok(/flex-wrap:\s*wrap/.test(rr.at(-1) ?? "") && /flex:\s*0 1 auto/.test(rr.at(-1) ?? ""), "the chat ranges wrap only when they don't fit");
+
 console.log(failures ? `${failures} of ${checks} failed` : `keyboard-reach: ${checks}/${checks} passed`);
 if (failures) process.exit(1);
