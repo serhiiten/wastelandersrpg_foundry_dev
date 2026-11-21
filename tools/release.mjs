@@ -13,6 +13,8 @@
 //   options: --version 1.1.0-dev.40   another version than the next dev number
 //            --timeout 15             minutes to wait for the build (default 15)
 //
+// With --go it first puts packs/ back to the committed state (git checkout + git clean of packs/ only):
+// Foundry rewrites those LevelDB files whenever a world opens them (author, 2026-11-21).
 // Never touches CHANGELOG.md or the stable repository. No dependencies; `gh` is not needed:
 // the build is watched through GitHub's public API, by the SHA taken from `git rev-parse`.
 import { execFileSync, execSync } from "node:child_process";
@@ -94,10 +96,18 @@ export function cloneFastForwardBlock(s) {
   return hit.length ? `the fast-forward would touch ${hit.length} file(s) changed there: ${hit.slice(0, 5).join(", ")}${hit.length > 5 ? ", …" : ""}` : "";
 }
 
+/** Foundry rewrites the compendium LevelDB files in packs/ whenever a world opens them, so a release
+ *  first puts packs/ back to the committed state (author, 2026-11-21). Only paths under packs/. */
+export const PACKS_RESTORE = [["checkout", "--", "packs/"], ["clean", "-fd", "--", "packs/"]];
+export const isPacksPath = (p) => /^packs(\/|$)/.test(p.replace(/\\/g, "/"));
+/** Changed paths that are not under packs/ (these still block a release). */
+export const dirtyBesidesPacks = (paths) => paths.filter((p) => !isPacksPath(p));
+
 /** The steps, in order, for a given state. Text only; doing them is below. */
 export function buildPlan(s) {
   const steps = [];
   if (s.refusal) steps.push(`✗ REFUSED — ${s.refusal}`);
+  steps.push(`git checkout -- packs/; git clean -fd -- packs/   (Foundry rewrites packs/${s.packsDirty ? `: ${s.packsDirty} file(s) changed now` : ""})`);
   steps.push(`Check: the working tree is clean${s.dirty ? "  ✗ NOT CLEAN — commit or put the changes aside first" : "  ✓"}`);
   steps.push(`git fetch origin; main must not differ from origin/main except by being behind`);
   if (s.mainAt) {
@@ -133,6 +143,8 @@ export function buildPlan(s) {
 // ---------- doing it ----------
 
 const git = (...args) => execFileSync("git", args, { encoding: "utf8" }).trim();
+// untrimmed: `git status --porcelain` lines start with a space that trim() would eat from the first one
+const gitRaw = (...args) => execFileSync("git", args, { encoding: "utf8" });
 const gitLoud = (...args) => { console.log(`$ git ${args.join(" ")}`); execFileSync("git", args, { stdio: "inherit" }); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -191,14 +203,16 @@ async function main() {
   const branch = git("rev-parse", "--abbrev-ref", "HEAD");
   if (branch === "HEAD") throw new Error("Detached HEAD: switch to a branch first");
   const slug = repoSlug(git("remote", "get-url", "origin"));
-  const dirty = git("status", "--porcelain") !== "";
+  const changedPaths = porcelainPaths(gitRaw("status", "--porcelain", "--untracked-files=all"));
+  const dirty = dirtyBesidesPacks(changedPaths).length > 0;
+  const packsDirty = changedPaths.length - dirtyBesidesPacks(changedPaths).length;
   const sysText = readFileSync("system.json", "utf8");
   const { version, id } = JSON.parse(sysText);
   const next = o.version || nextVersion(version);
   const mainAt = branch === "main" ? "" : mainWorktree(parseWorktrees(git("worktree", "list", "--porcelain")), root);
   const ahead = branch === "main" ? 0 : Number(git("rev-list", "--count", `${mainAt ? "origin/main" : "main"}..${branch}`));
   const behind = mainAt ? Number(git("rev-list", "--count", `${branch}..origin/main`)) : 0;
-  const state = { refusal: refusal(id), branch, dirty, version, next, message: o.message, ahead, behind, mainAt, slug, timeout: o.timeout };
+  const state = { refusal: refusal(id), branch, dirty, packsDirty, version, next, message: o.message, ahead, behind, mainAt, slug, timeout: o.timeout };
 
   console.log(`${o.go ? "RELEASE" : "DRY RUN (nothing changes; add --go -m \"what\" to release)"} — ${slug}, branch ${branch}\n`);
   buildPlan(state).forEach((s, i) => console.log(`${String(i + 1).padStart(2)}. ${s}`));
@@ -206,7 +220,12 @@ async function main() {
 
   console.log("");
   if (state.refusal) throw new Error(state.refusal);
-  if (dirty) throw new Error("The working tree is not clean");
+  if (dirty) throw new Error(`The working tree is not clean (besides packs/): ${dirtyBesidesPacks(changedPaths).slice(0, 5).join(", ")}`);
+  if (packsDirty) {
+    try { for (const args of PACKS_RESTORE) gitLoud(...args); }
+    catch { throw new Error("Could not restore packs/ (a running world may hold the files): close the world in Foundry and run again"); }
+    if (porcelainPaths(gitRaw("status", "--porcelain", "--untracked-files=all")).length) throw new Error("The working tree is still not clean after restoring packs/");
+  }
   if (!o.message) throw new Error('Say what is in the release: -m "…"');
 
   gitLoud("fetch", "origin", "--tags");

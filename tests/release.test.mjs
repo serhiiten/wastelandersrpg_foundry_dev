@@ -1,6 +1,6 @@
 // The release script's pure parts (tools/release.mjs; author's choice, 2026-11-18). Run: node tests/release.test.mjs
 import { readFileSync } from "node:fs";
-import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal, parseWorktrees, mainWorktree, porcelainPaths, cloneFastForwardBlock } from "../tools/release.mjs";
+import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal, parseWorktrees, mainWorktree, porcelainPaths, cloneFastForwardBlock, PACKS_RESTORE, isPacksPath, dirtyBesidesPacks } from "../tools/release.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
@@ -34,7 +34,7 @@ ok(at(/wait for/) > at(/push/), "the wait follows the push");
 ok(!plan.some((s) => /CHANGELOG/.test(s)), "no CHANGELOG step");
 const onMain = buildPlan({ branch: "main", dirty: true, version: "1", next: "2", message: "", ahead: 0, slug: "a/b", timeout: 5 });
 ok(!onMain.some((s) => /merge --no-edit/.test(s)), "from main: no branch merge");
-ok(onMain[0].includes("NOT CLEAN"), "a dirty tree is shown in the plan");
+ok(onMain.some((s) => s.includes("NOT CLEAN")), "a dirty tree is shown in the plan");
 
 // The stable repository gets this script too: only the DEV id may be released (author, 2026-11-18)
 ok(refusal("wastelanders-dev") === "", "the DEV id is allowed");
@@ -73,6 +73,19 @@ ok(wat(/merge --ff-only origin\/main.*Auto update/) > wat(/wait for/), "worktree
 ok(wat(/^F:\/clone: git merge --ff-only origin\/main/) === wplan.length - 1, "worktree: the clone's main is last, only when safe");
 const behindPlan = buildPlan({ branch: "feature/x", dirty: false, version: "1", next: "2", message: "", ahead: 1, behind: 2, mainAt: "F:/clone", slug: "a/b", timeout: 5 });
 ok(behindPlan.some((s) => /✗ 2 commit\(s\) of origin\/main missing/.test(s)), "worktree: a branch behind origin/main is shown");
+
+// Foundry rewrites packs/: the release restores them itself, only them (author, 2026-11-21)
+ok(isPacksPath("packs/armors/LOG") && isPacksPath("packs\\feats\\CURRENT") && isPacksPath("packs/"), "packs paths recognised (either slash)");
+ok(!isPacksPath("src/packs/armors/x.json") && !isPacksPath("packsx/a") && !isPacksPath("module/packs.mjs"), "src/packs and look-alikes are not packs/");
+ok(JSON.stringify(dirtyBesidesPacks(porcelainPaths(" M packs/armors/LOG\n D packs/feats/000004.log\n?? packs/feats/000009.log\n"))) === "[]", "only packs/ changed: not dirty");
+ok(JSON.stringify(dirtyBesidesPacks(["packs/a","system.json", "src/packs/a.json"])) === JSON.stringify(["system.json", "src/packs/a.json"]), "other changes still block");
+ok(PACKS_RESTORE.length === 2 && PACKS_RESTORE.every((a) => a.at(-1) === "packs/"), "restore commands touch only packs/");
+ok(PACKS_RESTORE[0].join(" ") === "checkout -- packs/" && PACKS_RESTORE[1].join(" ") === "clean -fd -- packs/", "git checkout -- packs/ and git clean -fd -- packs/");
+for (const p of [plan, wplan]) {
+  const r = p.findIndex((x) => /git checkout -- packs\/; git clean -fd -- packs\//.test(x));
+  ok(r >= 0 && r < p.findIndex((x) => /^Check: the working tree is clean/.test(x)), "the plan restores packs/ before the cleanliness check");
+}
+ok(buildPlan({ branch: "main", dirty: false, packsDirty: 7, version: "1", next: "2", message: "", ahead: 0, slug: "a/b", timeout: 5 }).some((x) => /7 file\(s\) changed now/.test(x)), "the plan says how many packs files changed");
 
 console.log(`release: ${checks - failures}/${checks} checks passed`);
 if (failures) process.exit(1);
