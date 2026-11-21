@@ -368,15 +368,19 @@ class Audit {
     for (const el of targets) {
       if (!el.matches(FOCUSABLE) || el.disabled || exempt(el, "focus")) continue;
       const hit = el.matches("input[type=checkbox], input[type=radio]") && el.closest("label") ? el.closest("label") : null;
+      // no transition while measuring: right after focus a transition still shows the old shadow (2026-11-21, enemy card)
+      const tr = el.style.getPropertyValue("transition"), trP = el.style.getPropertyPriority("transition");
+      el.style.setProperty("transition", "none", "important");
       const own0 = look(getComputedStyle(el)), was = own0 + (hit ? look(getComputedStyle(hit)) : "");
-      try { el.focus({ preventScroll: true, focusVisible: true }); } catch { continue; }
-      if (document.activeElement !== el) continue;
+      try { el.focus({ preventScroll: true, focusVisible: true }); } catch { el.style.setProperty("transition", tr, trP); continue; }
+      if (document.activeElement !== el) { el.style.setProperty("transition", tr, trP); continue; }
       const fv = el.matches(":focus-visible");
       const fs = getComputedStyle(el), own1 = look(fs), now = own1 + (hit ? look(getComputedStyle(hit)) : "");
       // only the outline changed: its colour has to show against the background
       const b0 = own0.split("|"), b1 = own1.split("|");
       const ring = b1[0] && b1.slice(1).join("|") === b0.slice(1).join("|") ? fs.outlineColor : null;
       el.blur();
+      if (tr) el.style.setProperty("transition", tr, trP); else el.style.removeProperty("transition");
       if (!fv) { add("focus", el, "браузер не дав :focus-visible (натисни клавішу в сторінці перед аудитом)"); continue; }
       if (now === was) { add("focus", el, "фокус не видно"); continue; }
       // the ring is seen only if it stands out from what lies round it (WCAG 1.4.11: 3:1)
@@ -437,8 +441,19 @@ const bgOf = (el) => {
 /** The limits, whether each fails the audit yet (the author's decision decides), and the exceptions he kept */
 const V6 = {
   font: 12, target: 24,
-  enforce: { font: false, target: false, focus: false },
-  exempt: [ /* { sel, rules: ["font" | "target" | "focus"], why } */ ],
+  // the author's decision (Asking, 2026-11-21): all three limits fail the audit; the dense places keep their buttons
+  enforce: { font: true, target: true, focus: true },
+  exempt: [
+    // the dense places the author laid out to the pixel on 17–18.11: text 12 px there too, the buttons keep their size
+    { sel: ".pust-compact", rules: ["target"], why: "компактні аркуші 460 px: кнопки як є (author, 2026-11-21)" },
+    { sel: ".pust-qpips, .pust-pips", rules: ["target"], why: "набої й запас ходу: ряди крапок (author, 2026-11-21)" },
+    { sel: ".pust-imp-ctrl", rules: ["target"], why: "квадратики рівнів покращень каравану (author, 2026-11-21)" },
+    { sel: ".pust-sitchip, .pust-sinv, .pust-en-inv, .pust-en-chip, .pust-bz-inv, .pust-bz-chip, .pust-place-chip", rules: ["target"], why: "−/+ і × на чипах аспектів (author, 2026-11-21)" },
+    // Foundry's own controls, not the system's
+    { sel: ".window-header", rules: ["target", "focus"], why: "кнопки заголовка вікна Foundry" },
+    { sel: ".message-metadata", rules: ["target", "focus"], why: "× видалення повідомлення, Foundry" },
+    { sel: "menu, .editor-menu", rules: ["target", "focus"], why: "панель редактора тексту Foundry (ProseMirror)" },
+  ],
 };
 const TARGET = "button, a[href], summary, select, [role=button], [data-action], input[type=checkbox], input[type=radio], input[type=range], .pust-chip[data-action]";
 const FOCUSABLE = "button, a[href], summary, select, input, [tabindex]:not([tabindex='-1'])";

@@ -1,6 +1,7 @@
 import { activeGmHere, mine, readyMainWindow } from "./helpers/main-window.mjs";
 import * as models from "./data/_module.mjs";
 import { registerHotkeys } from "./helpers/hotkeys.mjs";
+import { initKeyboardReach } from "./helpers/keyboard-reach.mjs";
 import { registerPerfCheck, runPerfCheck } from "./applications/perf-check.mjs";
 import { initQuickstartWorld } from "./helpers/quickstart-world.mjs";
 import { readyMacros, runMacro } from "./helpers/macros.mjs";
@@ -77,6 +78,7 @@ Hooks.once("init", async function () {
   // «Примітки» of «Мапа Пустки»: stickers drawn by the system (module/canvas/map-notes.mjs)
   initMapNotes();
   initBattleZones(); // after the stickers: the zones' Drawing class extends theirs
+  initKeyboardReach(); // V6: Tab reaches the tabs and rolls of the system's windows, Enter clicks them
   initCaravanMove(); // a caravan moved on a map spends its range (asks, or by the caravan's switch)
   initSfx(); // the client setting «Звуки подій» (V4)
   game.wastelanders = {

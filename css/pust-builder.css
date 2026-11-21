@@ -4,18 +4,18 @@
 .pust-builder-sheet .window-content { padding: 0; overflow: hidden !important; }
 .pust-bld.pust-sheet-inner { padding: 0; gap: 0; height: auto; min-height: 0; max-height: calc(100vh - 80px); }
 .pust-bld-hd { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: linear-gradient(180deg, var(--pu-rust-3), var(--pu-rust-2)); color: var(--pu-yellow); font-family: var(--pu-f-label); font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 3px solid var(--pu-rust-1); }
-.pust-bld-hd small { margin-left: auto; font-size: 11px; font-weight: 400; color: #f1e4c0; text-transform: none; letter-spacing: 0; }
+.pust-bld-hd small { margin-left: auto; font-size: 12px; font-weight: 400; color: #f1e4c0; text-transform: none; letter-spacing: 0; }
 .pust-bld-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; }
 .pust-bld-card { background: rgba(255,252,240,.78); border: 1.5px solid var(--pu-ink-2); border-radius: 3px; box-shadow: 3px 3px 0 rgba(35,27,17,.22); padding: 6px 8px 8px; margin: 0; flex: none; }
 .pust-bld h3 { margin: 0 0 6px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
 .pust-bld h3 i { color: var(--pu-rust-3); }
-.pust-bld label { display: flex; flex-direction: column; gap: 2px; margin: 0; font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-bld label { display: flex; flex-direction: column; gap: 2px; margin: 0; font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
 .pust-bld :is(input[type="text"], select) { height: 28px; font-size: 14px; min-width: 0; }
 .pust-bld textarea { width: 100%; min-height: 30px; resize: none; line-height: 1.35; font-size: 14px; overflow: hidden; }
 .pust-bld-hint { margin: 6px 2px 0; font-size: 12px; color: var(--pu-ink-2); }
 .pust-bld-hint i { color: var(--pu-rust-3); margin-right: 4px; }
 .pust-bld-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.pust-bld-lbl { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-bld-lbl { font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
 .pust-bld-lbl i { width: 1.2em; color: var(--pu-rust-3); }
 
 /* −/+ counters */
@@ -32,7 +32,7 @@
 .pust-bld-attrs { display: flex; flex-direction: column; gap: 3px; }
 .pust-bld-attr { display: grid; grid-template-columns: 44px repeat(3, 1fr) 112px; align-items: center; gap: 6px; padding: 2px 4px; border-radius: 3px; }
 .pust-bld-attr.changed { background: rgba(239,157,98,.22); }
-.pust-bld-head { font-family: var(--pu-f-label); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
+.pust-bld-head { font-family: var(--pu-f-label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--pu-ink-2); }
 .pust-bld-head span { text-align: center; }
 .pust-bld-attr > .pust-bld-num { justify-self: center; }
 .pust-bld-an b { font-family: var(--pu-f-label); font-size: 14px; color: var(--pu-ink); }
@@ -73,7 +73,7 @@
 .pust-bld-entry > select { flex: 1 1 160px; max-width: 260px; }
 .pust-bld-entry > .pust-bld-perk { flex: 1 1 200px; max-width: none; }
 .pust-bld-pc { display: inline-flex; align-items: center; gap: 4px; }
-.pust-bld-pc small { font-size: 11px; color: var(--pu-ink-3); white-space: nowrap; }
+.pust-bld-pc small { font-size: 12px; color: var(--pu-ink-3); white-space: nowrap; }
 
 /* footer screen */
 .pust-bld-screen { flex: none; margin: 0; padding: 8px 12px; background: var(--pu-scan), linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1) 60%, #262a29); color: var(--pu-green); border-top: 3px solid var(--pu-steel-0); box-shadow: inset 0 0 18px rgba(0,0,0,.45); font-family: var(--pu-f-num); font-size: 14px; }
