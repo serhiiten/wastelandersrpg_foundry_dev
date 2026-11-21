@@ -669,7 +669,8 @@ export function createController(st, L, { toast = () => {}, rng, cat } = {}) {
       }
       case "perk-free": return freePerk(st, data.id);
       // «Скинути лічильники»: the perks' marks and «Друге дихання» go too (author, 2026-11-18)
-      case "chem-reset": delete st.medDay; return chemReset(st, L) ? true : false; // the day's help mark too (A7)
+      // the session's failures of «Старанний учень» too (A10): session 1 again must not bring old ones back
+      case "chem-reset": delete st.medDay; if (st.chem && "studFails" in st.chem) delete st.chem.studFails; return chemReset(st, L) ? true : false; // the day's help mark too (A7)
       case "addiction-add": {
         // chem-add-new with the substance name passed in
         const v = String(data.name || "").trim();

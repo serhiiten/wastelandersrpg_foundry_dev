@@ -22,6 +22,10 @@ import { checkPenalty, spendCheckStates } from "./states.mjs";
 import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, medOffer, medHtml, medPress, medBlocked } from "./battle-health.mjs";
 import { checkFlag } from "../rules/gm-move-alert.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { reconcileAutoXp } from "../rules/session-xp.mjs";
+
+/** The world's «ОД за невдачу нараховується само» (A10; on by default) */
+const autoXpOn = () => { try { return game.settings.get(game.system.id, "autoXp") !== false; } catch (_) { return true; } };
 
 /** The engine's messages in the panel (U7, author 2026-11-21): a refusal pops up; the rest is already said by the panel itself
  *  («Додано в аркуш: 1 ОД»), the Fate card or the damage card, so it is dropped */
@@ -833,9 +837,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       // «Мастак-ремонтник»: +1 to «Ремонт» (wiki «Перки»), named among the automatic conditions as the roar's −2 is
       const fixer = kind === "click" && key === "roll" && R.type === "repair" && compute(st).allPerks.includes("Мастак-ремонтник");
       if (fixer) R.mod = (+R.mod || 0) + 1;
+      // A10: with «ОД за невдачу» on, the result's ОД buttons do nothing (the ОД is added below; «Савант» too)
+      const xpBtn = kind === "click" && key === "xp" && autoXpOn();
       if (kind === "click" && key === "nearasp") L.invokeAspect(el.src); // «Аспекти поруч»: the invoke already spent
+      else if (xpBtn) { /* already added */ }
       else if (kind === "click") L.rollerClick(node);
       else L.rollerChange(node);
+      // the ОД this roll gives, again after every action (an aspect that turns a failure takes it back; tours never)
+      if (autoXpOn() && !this.actor.pustTourDemo) reconcileAutoXp(st, R.last, compute(st).allPerks);
       if (fixer) {
         R.mod = (+R.mod || 0) - 1;
         if (R.last && R.last.time !== t0) { R.last.mod -= 1; R.last.autoFlat = (R.last.autoFlat || 0) + 1; R.last.autoList = [...(R.last.autoList || []), "Мастак-ремонтник +1"]; }
@@ -937,7 +946,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       + `<b class="rvhead">${esc(verdicts[v])}</b>`
       + `<div class="rverd"><b class="rtot">${last.total}</b><span class="rranges">${lit}</span></div>`
       + `<p class="pust-cbreak">${dice}${skill}${asp}${boost} · ${mods}</p>`
-      + (T?.d?.[v] ? `<p class="rdesc">${esc(T.d[v])}</p>` : "") + `</div>`,
+      + (T?.d?.[v] ? `<p class="rdesc">${esc(T.d[v])}</p>` : "")
+      // A10: the ОД the panel added by itself («ОД за невдачу»)
+      + ((last.xpAuto?.fail || 0) + (last.xpAuto?.sav || 0) ? `<p class="pust-cxp"><i class="fa-solid fa-medal"></i> +${(last.xpAuto.fail || 0) + (last.xpAuto.sav || 0)} ОД в аркуш</p>` : "") + `</div>`,
       rollList(rollFromDice(aspect ? checkDiceGroups(last, before) : checkDiceGroups(last))),
       // U4 (author, 2026-11-21): the GM's side reads it — «Зроби хід проти X» when the result asks for a move
       { check: checkFlag({ actor: this.actor.uuid, name: this.actor.name, type: last.type, typeName: T?.n || "Перевірка", verdict: v, verdictName: verdicts[v], total: last.total, time: last.time, text: T?.d?.[v] ?? "" }) },

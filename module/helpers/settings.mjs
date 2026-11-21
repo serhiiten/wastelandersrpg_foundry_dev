@@ -44,6 +44,18 @@ export function registerSystemSettings() {
     onChange: () => syncCombatTab(),
   });
 
+  // ОД for a failed check (A10, author 2026-11-21; on by default): the panel «Зробити перевірку» adds it to the sheet itself
+  // (module/rules/session-xp.mjs reconcileAutoXp), «Старанний учень» and «Савант» too; an aspect that turns the roll takes
+  // it back. Off: the result's buttons «+1 ОД в аркуш», as in the HTML sheet
+  game.settings.register(game.system.id, "autoXp", {
+    name: "ОД за невдачу нараховується само",
+    hint: "Провалена перевірка одразу додає персонажеві 1 ОД в аркуш (зі «Старанним учнем» — 2 ОД за перші три невдачі сесії, із «Савантом» — 1 ОД за критичний успіх без навички). Якщо викликати аспект і кидок стане вдалим, ОД забирається назад. Зніми позначку, щоб ОД додавали кнопкою в результаті.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   // «Лічильники гри» (module/applications/game-counters.mjs): the world's global counters; only the Gamemaster writes
   game.settings.register(game.system.id, "gameCounters", {
     scope: "world",

@@ -671,6 +671,26 @@ const SCENARIOS = {
     } finally { if (!was) await app.close(); }
   },
 
+  /** «Кінець сесії: ОД» (A10, author 2026-11-21; module/applications/session-xp.mjs): opened if it was closed, read at its
+   *  narrowest (460) and usual width, closed again; nothing is ticked or ended */
+  async sessionXp(a) {
+    if (!game.user.isGM) return a.skip("кінець сесії: ОД", "лише Доглядач");
+    const P = await import(`/systems/${game.system.id}/module/applications/session-xp.mjs`);
+    const was = !!foundry.applications.instances.get("pust-session-xp")?.rendered;
+    if (!was) { await P.openSessionXp({}); await sleep(700); }
+    const app = foundry.applications.instances.get("pust-session-xp");
+    try {
+      const el = app.element;
+      a.onScreen([el]);
+      a.noCut(el, "button, label, h3, span, b, i, p");
+      a.noRawKeys(el);
+      a.readable(el, "button, label, h3, span, b, i, p");
+      const btns = [...el.querySelectorAll(".pust-sx-btns > button")].map((b) => Math.round(R(b).height));
+      a.ok("кнопки внизу однакової висоти", new Set(btns).size === 1, btns.join("/"));
+      await layoutAt(a, app, "кінець сесії: ОД");
+    } finally { if (!was) await app.close(); }
+  },
+
   /** «Новий супротивник» (Create Actor → Супротивник, module/applications/enemy-create.mjs), when it is open */
   async enemyCreate(a) {
     const el = document.getElementById("pust-enemy-create");

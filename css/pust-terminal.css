@@ -747,6 +747,8 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 .pust-chat.pust-endcard .pust-end-hp { flex: none; padding: 1px 6px; border-radius: 4px; font-family: "PT Mono", monospace; font-size: 16px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
 .pust-chat.pust-endcard .pust-end-hp.lost { background: #a8121a; color: #fff0ec; }
 .pust-chat.pust-endcard .pust-end-hp.gain { background: #2f6b35; color: #e7ffd9; }
+/* A10 (author 2026-11-21): the session's ОД beside the ОЗ and the Fate tokens */
+.pust-chat.pust-endcard .pust-end-xp { flex: none; padding: 1px 6px; border-radius: 4px; background: #3a2f6b; color: #efe9ff; font-family: "Ubuntu Mono", Consolas, monospace; font-size: 16px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
 .pust-chat.pust-endcard .pust-end-fd { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: 4px; background: #13231a; color: #3dff47; font-family: "PT Mono", monospace; font-size: 16px; font-weight: 700; line-height: 1.2; }
 .pust-chat.pust-endcard .pust-end-fd > i { font-size: 12px; }
 .pust-chat.pust-endcard .pust-end-row ul { margin: 0; padding: 0 0 0 33px; list-style: none; display: flex; flex-direction: column; gap: 2px; }

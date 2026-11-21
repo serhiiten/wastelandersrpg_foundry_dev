@@ -821,8 +821,8 @@ function renderRoller(){
     const ranges = '≤9 · 10–14 · 15–'+(L.ci.cursed?'…':(L.ci.t-1))+(L.ci.cursed?'':' · '+L.ci.t+'+');
     const studious=d.allPerks.includes('Старанний учень');
     const xpBtn = L.verdict===0 ? '<div class="rxp"><b>Отримай 1 ОД.</b>'+(studious?' Старанний учень: за перші три невдачі на сесії — 2 ОД.':'')+
-        (L.xpGiven ? '<small>Додано в аркуш: '+L.xpGiven+' ОД.</small>' : '<span class="rxpb"><button type="button" class="btn sm" data-r="xp" data-v="1">+1 ОД в аркуш</button>'+(studious?'<button type="button" class="btn sm" data-r="xp" data-v="2">+2 ОД</button>':'')+'</span>')+'</div>' : '';
-    const savant = L.verdict===3 && !L.lvl && d.allPerks.includes('Савант') ? '<div class="rxp good"><b>Савант: отримай 1 ОД</b> за критичний успіх без навички.'+(L.savGiven?'<small>Додано в аркуш.</small>':'<span class="rxpb"><button type="button" class="btn sm" data-r="xp" data-v="1" data-k="sav">+1 ОД в аркуш</button></span>')+'</div>' : '';
+        (L.xpAuto&&L.xpAuto.fail ? '<small>Додано в аркуш: '+L.xpAuto.fail+' ОД.</small>' : L.xpGiven ? '<small>Додано в аркуш: '+L.xpGiven+' ОД.</small>' : '<span class="rxpb"><button type="button" class="btn sm" data-r="xp" data-v="1">+1 ОД в аркуш</button>'+(studious?'<button type="button" class="btn sm" data-r="xp" data-v="2">+2 ОД</button>':'')+'</span>')+'</div>' : '';
+    const savant = L.verdict===3 && !L.lvl && d.allPerks.includes('Савант') ? '<div class="rxp good"><b>Савант: отримай 1 ОД</b> за критичний успіх без навички.'+(L.savGiven||(L.xpAuto&&L.xpAuto.sav)?'<small>Додано в аркуш.</small>':'<span class="rxpb"><button type="button" class="btn sm" data-r="xp" data-v="1" data-k="sav">+1 ОД в аркуш</button></span>')+'</div>' : '';
     const cursedNote = L.ci.cursed && L.total>=19 ? '<p class="rnote">Проклятий: критичних успіхів не буває, 19+ — просто успіх.</p>' : '';
     const canAsp = !L.aspect && L.B<2 && L.verdict<3 && !L.dmgDone && !L.xpGiven && !L.savGiven;
     res = '<div class="rres v'+L.verdict+'" aria-live="polite">'+
