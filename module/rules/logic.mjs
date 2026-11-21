@@ -645,6 +645,8 @@ function autoMods(d){
   const out=[]; const has=p=>d.allPerks.includes(p);
   if(R.type==='attack' && typeof chemEffects==='function' && chemEffects().some(e=>e.rage)) out.push({k:'rage', l:'Лють ботана', v:1, def:true});
   if(R.skill) perkSkillNotes('Спеціалізація').filter(x=>x.skill===R.skill).forEach(x=>out.push({k:'spec'+x.i, l:'Спеціалізація ('+x.skill+(x.sphere?': '+x.sphere:'')+') — якщо перевірка стосується цієї сфери', v:1, def:false}));
+  // «Улюблений ворог»: +1 до бойових перевірок у сутичках з улюбленими ворогами (вікі); ціль перевірка не знає, тож галочка на кожну категорію
+  if(['attack','dodge','advantage'].includes(R.type)) st.perks.forEach((p,i)=>{ if(p.n==='Улюблений ворог' && String(p.note||'').trim()) out.push({k:'foe'+i, l:'Улюблений ворог ('+String(p.note).trim()+') — якщо сутичка з цими ворогами', v:1, def:false}); });
   if(R.type==='dodge' && has('Борис-Кулю-минає')) out.push({k:'boris', l:'Борис-Кулю-минає', v:1, def:true});
   const w=rollWeapon(); const mode = R.type==='attack' ? attackMode(R.skill, R.attr) : null;
   if(mode && d.has('Однорукий')){
