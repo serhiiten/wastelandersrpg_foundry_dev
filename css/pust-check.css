@@ -236,11 +236,11 @@
 .pust-chat .pust-cres .rranges > .hit.v3 { background: #9ff6ff; }
 .pust-chat .pust-cres .rdesc { font-size: 12.5px; line-height: 1.4; color: #cfe9d2; }
 .pust-chat .pust-cbreak { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 4px 0; } /* dice, skill, aspect, modifiers: one line */
-/* narrow chat: the verdict in one row, its ranges at 12 px in a row of their own under it (V6, author 2026-11-21) */
+/* the verdict's ranges at 12 px beside the sum, in a row of their own under it only when they don't fit (author, 2026-11-21, after dev.49) */
 .pust-chat .pust-cres { padding: 6px 8px; gap: 4px; }
 .pust-chat .pust-cres .rverd { gap: 4px 6px; padding: 3px 6px; white-space: nowrap; flex-wrap: wrap; }
 .chat-message .pust-chat .pust-cres .rverd > b:not(.rtot) { font-size: 12.5px; letter-spacing: .02em; }
-.pust-chat .pust-cres .rranges { gap: 3px; flex: 1 0 100%; margin-left: 0; }
+.pust-chat .pust-cres .rranges { gap: 3px; flex: 0 1 auto; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
 .pust-chat .pust-cres .rranges > span { font-size: 12px; padding: 0 4px; line-height: 16px; }
 .pust-chat .pust-cbreak { gap: 3px; font-size: 12px; }
 .pust-chat .pust-cbreak .die { min-width: 0; padding: 0 4px; line-height: 18px; }
