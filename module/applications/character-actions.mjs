@@ -8,6 +8,7 @@
  * `L` is createLogic() bound to the state: drugs, rest, defenses, checks and damage from the HTML sheet.
  * Messages the HTML sheet shows as toasts go to Foundry notifications.
  */
+import { addRepair, pruneConsRed } from "../rules/battle-health.mjs";
 import { actorToState, mergeSystem, planSync } from "../rules/character-adapter.mjs";
 import { compute, syncAuto } from "../rules/core.mjs";
 import { createLogic } from "../rules/logic.mjs";
@@ -31,7 +32,7 @@ export function logicFor(st, { ui = {}, quiet = false } = {}) {
     if (kind === "bad") ui_notify("warn", msg);
     else ui_notify("info", msg);
   };
-  return createLogic({ st, toast, ui });
+  return addRepair(createLogic({ st, toast, ui })); // «Ремонт» beside «Медична допомога» (author, 2026-11-21)
 }
 
 function ui_notify(level, msg) {
@@ -82,6 +83,7 @@ export function normalize(st, L) {
   syncFavNotes(st); // «особлива, улюблена» follows the favourite weapon
   syncSharpNotes(st); // «гостра» lives in the weapon's note (Guns; author, 2026-11-15)
   syncAddictionNotes(st); // a chem's addiction chance is always in its note
+  pruneConsRed(st); // a consequence gone takes its loss of max HP with it (A7; rules/battle-health.mjs)
   if (!st.set?.free) adoptGrants(st, compute(st)); // a skill-granting perk / feat names the skill it raised
 }
 

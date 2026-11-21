@@ -16,7 +16,7 @@
  *    openDockCheck: their Player Character, or a list of the characters they own).
  */
 import { overviewSectionHtml, mountOverview, redrawOverview } from "./battle-overview.mjs";
-import { travelToScene } from "../helpers/scene-shared.mjs";
+import { travelToScene, sharedGet, playerBattleStripHtml } from "../helpers/scene-shared.mjs";
 import { addPlace } from "./map-tools.mjs";
 import { fateActors, fateInfo, fatePickList, luckCaravan, rollDice, rollFate } from "./map-dice.mjs";
 import { mountCounters } from "./game-counters.mjs";
@@ -658,7 +658,7 @@ export function renderMapDock() {
       </div>
       <div class="pust-md-unit${fold.dice ? " folded" : ""}" data-unit="dice">
         <section class="pust-md-panel pust-md-dice">${header("fa-dice", "Кістки", gm ? "gm-map:dice" : "pl-panels:dice")}<div class="pust-md-body">${diceHtml()}</div></section>
-        ${gm ? "" : `<div class="pust-md-fdrow" hidden><button type="button" class="pust-md-fdspend" data-mapdock="fd-spend"><i class="fa-solid fa-clover"></i><span>Витратити ЖД</span><b class="pust-md-fdn">0</b></button><button type="button" class="pust-md-fdgain" data-mapdock="fd-gain"><i class="fa-solid fa-plus"></i><span>Отримати ЖД</span></button></div>
+        ${gm ? "" : `<div class="pust-md-pstrip" hidden></div><div class="pust-md-fdrow" hidden><button type="button" class="pust-md-fdspend" data-mapdock="fd-spend"><i class="fa-solid fa-clover"></i><span>Витратити ЖД</span><b class="pust-md-fdn">0</b></button><button type="button" class="pust-md-fdgain" data-mapdock="fd-gain"><i class="fa-solid fa-plus"></i><span>Отримати ЖД</span></button></div>
         <div class="pust-md-fdrow pust-md-suprow" hidden><button type="button" class="pust-md-fdspend pust-md-supspend" data-mapdock="sup-spend"><i class="fa-solid fa-backpack"></i><span>Витратити Припас</span><b class="pust-md-fdn pust-md-supn">0</b></button><button type="button" class="pust-md-fdgain pust-md-supgain" data-mapdock="sup-gain"><i class="fa-solid fa-plus"></i><span>Отримати Припас</span></button></div>
         <div class="pust-md-fdrow pust-md-carrow" hidden><button type="button" class="pust-md-car" aria-haspopup="true"><i class="fa-solid fa-truck"></i><span>Караван</span></button></div><section class="pust-md-panel pust-md-carpick" hidden></section><section class="pust-md-panel pust-md-ctr pust-md-ctr-pl" hidden></section>`}
       </div>
@@ -707,6 +707,7 @@ export function renderMapDock() {
     dock.querySelector(".pust-md-car")?.addEventListener("click", onCaravanButton);
     dock.querySelector(".pust-md-carpick")?.addEventListener("click", onCaravanPick);
     syncFdRow();
+    redrawPlayerStrip();
     const chk = ctrUnit.querySelector(".pust-md-check");
     if (chk) {
       syncCheckButton();
@@ -749,6 +750,25 @@ export function renderMapDock() {
     side?.addEventListener("transitionend", () => requestAnimationFrame(placeAll));
   }
   requestAnimationFrame(placeAll);
+}
+
+/* ---------------- players' battle strip (U3, author, 2026-11-21) ---------------- */
+/**
+ * On the battle map, over the players' Fate rows: «Коло дій N» and, while the GM opened them in «Битва», the place and the
+ * hazard (helpers/scene-shared.mjs playerBattleStripHtml); read-only, always opaque. Off the battle map: none. Redrawn when
+ * the shared values change (scene-shared.mjs onChange) and when the scene does (syncSceneKind).
+ */
+export function redrawPlayerStrip() {
+  if (game.user.isGM) return;
+  const el = document.querySelector(`#${DOCK} .pust-md-pstrip`);
+  if (!el) return;
+  const battle = isBattleScene(canvas?.scene);
+  el.hidden = !battle;
+  el.innerHTML = battle ? playerBattleStripHtml({
+    round: sharedGet("round"), place: sharedGet("place"), hazard: sharedGet("hazard"),
+    placeOpen: sharedGet("placeOpen"), hazardOpen: sharedGet("hazardOpen"),
+  }) : "";
+  requestAnimationFrame(fitCounters);
 }
 
 /* ---------------- players' Fate tokens (author, 2026-11-15) ---------------- */
@@ -978,6 +998,7 @@ Hooks.on("canvasReady", () => { redrawCounters(); syncSceneKind(); });
  */
 function syncSceneKind() {
   syncPlayerTargets();
+  redrawPlayerStrip();
   const unit = document.querySelector(`#${DOCK} [data-unit="map"]`);
   if (!game.user.isGM) requestAnimationFrame(placeAll); // players' row: «Примітка» or the targets
   if (!unit || !game.user.isGM) return;

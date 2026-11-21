@@ -248,6 +248,8 @@ export function buildView(st, d, L, ui = {}) {
   const fd = st.fdCur === "" || st.fdCur == null ? d.fd : parseInt(st.fdCur, 10) || 0;
   const cons = CONS.filter(([k]) => k !== "m2" || d.medSlots > 1).map(([k, label]) => ({
     k, label, v: st.cons?.[k] || "", treated: !!st.consT?.[k],
+    // the max HP a failed «Лікування наслідків» took while this consequence lasts (A7, author 2026-11-21)
+    red: String(st.cons?.[k] || "").trim() ? parseInt(st.consRed?.[k], 10) || 0 : 0,
     // «Вилікувати за N(к)» (author, 2026-11-15): at a qualified medic, light 2 / moderate 5 / heavy 8 caps
     buy: (() => {
       const p = consPlan(k, st.cons?.[k], st.consT?.[k], st.caps);
@@ -418,6 +420,8 @@ export function buildView(st, d, L, ui = {}) {
     pick: ui.pick || "", q: ui.q || "", showAll: !!ui.showAll, perkPicker, featPicker,
     imps, xp: st.xp || 0, xpSpent: d.xpSpent, xpLeft: d.xpLeft, modelBonus: st.exp,
     hasModel: d.has("Експериментальна модель"),
+    // «Отримання наслідків» (A6): doomed, or back with 1 HP at the scene's end
+    ko: { doomed: !!st.ko?.doomed, wake: !st.ko?.doomed && !!st.ko?.wake },
     hp: L.curHp(d), hpMax, hpRed: d.hpRed, fd, fdMax: d.fd, hpBar: hpBar(L.curHp(d), hpMax),
     armor: d.armorTotal + L.chemArmor(), psi: d.psiTotal + L.chemPsi(),
     cons, buy, sit, quickAspects, defenses, restBlock,

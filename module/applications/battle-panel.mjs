@@ -120,13 +120,21 @@ function countLine(scene) {
   return `У строю <b>${up}</b> з <b>${enemies.length}</b> · Гравців <b>${pcs}</b>`;
 }
 
+/** U3 (author, 2026-11-21): «Місце» / «Небезпека» shown to the players' battle strip (map-dock.mjs) or hidden; a new text
+ *  closes it again (scene-shared.mjs withOpenReset) */
+function eyeButton(kind) {
+  const open = sharedGet(`${kind}Open`) === true;
+  const tip = open ? "Видно гравцям: клік ховає" : "Гравці не бачать: клік показує";
+  return `<button type="button" class="pust-md-beye${open ? " on" : ""}" data-battle="eye" data-kind="${kind}" aria-pressed="${open}" title="${tip}" aria-label="${tip}"><i class="fa-solid ${open ? "fa-eye" : "fa-eye-slash"}"></i></button>`;
+}
+
 async function bodyHtml(lite = false) {
   const scene = canvas.scene;
   const place = sharedGet("place") ?? "", hazard = sharedGet("hazard") ?? "";
   const row = (kind, label, icon, val, extra = "") => `<div class="pust-md-bscene" data-kind="${kind}">
       <span class="pust-md-blabel"><i class="fa-solid ${icon}"></i>${label}</span>
       <span class="pust-md-bval${val ? "" : " muted"}" title="${esc(val)}">${esc(val || "—")}</span>
-      <button type="button" class="pust-md-bdie" data-battle="roll" data-kind="${kind}" title="Перекинути: ${label.toLowerCase()} з таблиць генератора натхнення" aria-label="Перекинути"><i class="fa-solid fa-dice"></i></button>${extra}
+      <button type="button" class="pust-md-bdie" data-battle="roll" data-kind="${kind}" title="Перекинути: ${label.toLowerCase()} з таблиць генератора натхнення" aria-label="Перекинути"><i class="fa-solid fa-dice"></i></button>${eyeButton(kind)}${extra}
     </div>`;
   let form = "";
   if (ui_.open && !lite) {
@@ -428,6 +436,10 @@ async function onClick(ev, lite = false, body = null) {
       if (lite) { picks.clear(); closePick(); redrawBattlePanel(); } else clearTargets();
     } finally { b.disabled = false; }
     return;
+  }
+  if (act === "eye" && ["place", "hazard"].includes(b.dataset.kind)) {
+    const k = `${b.dataset.kind}Open`;
+    return sharedSet({ [k]: sharedGet(k) !== true });
   }
   if (act === "roll" && scene) {
     const kind = b.dataset.kind;

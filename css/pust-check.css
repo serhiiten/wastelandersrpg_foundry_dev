@@ -520,3 +520,22 @@
 .pust-roller .rfx.pust-fx .pust-fx-one { display: flex; align-items: center; gap: 6px; margin-top: 4px; color: #cfe9d2; font-size: 12.5px; }
 .pust-roller .rfx.pust-fx .pust-fx-one select { flex: 1 1 auto; min-width: 0; }
 .pust-roller .rfx.pust-fx .pust-fx-apply { align-self: flex-start; margin-top: 5px; display: inline-flex; align-items: center; gap: 6px; }
+
+/* Battle and health (author, 2026-11-21; applications/battle-health.mjs) */
+/* A5 «Аспекти поруч»: a row of chips under the panel's invoke button, as the character's own ones */
+.pust-roller .rasp .pust-near { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; flex-basis: 100%; min-width: 0; }
+.pust-roller .rasp .pust-near > .rl { font-family: var(--pu-f-label); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #cfe9d2; }
+.pust-roller .rasp .pust-near > button { display: inline-flex !important; align-items: center; gap: 6px; flex-wrap: wrap; height: auto !important; min-height: 28px; line-height: 1.2 !important; padding: 3px 8px !important; max-width: 100%; white-space: normal; text-align: left; }
+.pust-roller .rasp .pust-near-w { font-size: 12px; opacity: .85; overflow-wrap: anywhere; }
+/* A6 / A7: the block of the result's action */
+.pust-roller .pust-hx { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin: 6px 0; padding: 7px 9px; border: 1px solid var(--pu-steel-3); border-left: 4px solid #9a4a20; border-radius: 3px; background: #0c151080; }
+.pust-roller .pust-hx.done { border-left-color: #2f6b35; }
+.pust-roller .pust-hx h4 { margin: 0; font-family: var(--pu-f-label); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--pu-green); }
+.pust-roller .pust-hx .rhint { margin: 0; }
+.pust-roller .pust-hx-name { display: flex; align-items: center; gap: 6px; width: 100%; flex-wrap: wrap; font-family: var(--pu-f-label); font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: #cfe9d2; }
+.pust-roller .pust-hx-name input, .pust-roller .pust-hx-name select { flex: 1 1 180px; min-width: 0; }
+.pust-roller .pust-hx > button { height: auto !important; min-height: 28px; line-height: 1.2 !important; padding: 4px 10px !important; white-space: normal; text-align: left; }
+.pust-roller .pust-hx > button i { margin-right: 6px; }
+/* the cards in chat */
+.pust-chat.pust-hxcard h4 { margin: 0 0 4px; }
+.pust-chat.pust-hxcard p { margin: 0; }

@@ -475,11 +475,12 @@
     {{/if}}
     <div class="pust-cols">
       <section class="pust-block">
-          <h3>Наслідки</h3>
+          <h3>Наслідки{{#if v.ko.doomed}} <span class="pust-ko-mark doomed" title="Вільних слотів наслідків немає: наприкінці сцени персонаж помре">Приречений</span>{{/if}}{{#if v.ko.wake}} <span class="pust-ko-mark" title="19+ на отриманні наслідків: наприкінці сцени персонаж опритомніє з 1 ОЗ">1 ОЗ у кінці сцени</span>{{/if}}</h3>
           {{#each v.cons}}
           <div class="pust-row pust-cons cons-{{k}} {{#if v}}filled{{/if}} {{#if treated}}treated{{/if}}">
             <label>{{label}}</label>
             <input type="text" data-k="cons.{{k}}" value="{{v}}">
+            {{#if red}}<span class="pust-cons-red" title="Мінус до максимуму ОЗ від невдалого лікування: зникне разом із наслідком">−{{red}} макс. ОЗ</span>{{/if}}
             {{#if v}}{{#unless treated}}<button type="button" class="pust-buy-btn pust-buy-paper" data-action="act" data-act="buy-cons" data-k="{{k}}" title="{{buy.title}}" {{#if buy.off}}disabled{{/if}}><i class="fa-solid fa-kit-medical"></i> Вилікувати за {{buy.price}}(к)</button>{{/unless}}{{/if}}
             <label class="pust-tog" title="Лікування почалося"><input type="checkbox" data-k="consT.{{k}}" {{#if treated}}checked{{/if}} {{#unless v}}disabled{{/unless}}> проліковано</label>
           </div>

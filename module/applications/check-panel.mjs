@@ -19,6 +19,8 @@ import { sharedGet } from "../helpers/scene-shared.mjs";
 import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
 import { rowTotal, rowDeal, rowClosed, rowText, ATTR_SHORT } from "../rules/dodge.mjs";
 import { checkPenalty, spendCheckStates } from "./states.mjs";
+import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, medOffer, medHtml, medPress, medBlocked } from "./battle-health.mjs";
+import { checkFlag } from "../rules/gm-move-alert.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { checkDiceGroups, damageDiceGroups, poisonSidesOf, rollFromDice, rollList, seriesGroups, waitDice } from "../helpers/dice-rolls.mjs";
 
@@ -32,7 +34,11 @@ const STATES = new Map();
 const OPEN = new Map();
 
 /** Buttons whose result goes to chat */
-const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "dmg", "dmgre"]);
+const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "nearasp", "dmg", "dmgre"]);
+/** What the blocks of A6 / A7 did for a roll: actor uuid → {time, text} (author, 2026-11-21; one press a roll) */
+const HX_DONE = new Map();
+const WHY_SAID = new Map();
+const hxDone = (uuid, last) => { const d = HX_DONE.get(uuid); return d && last && d.time === last.time ? d.text : ""; };
 
 /**
  * The damage is rolled and dealt in one press (author, 2026-11-17): «Завдати шкоди» with the targets' count; with no
@@ -407,8 +413,54 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const penHtml = pen ? `<div class="ramods pust-ramods-state"><span class="rl">Стан</span><label class="tog" title="Аспект «${pen.aspect}»: −2 до цього кидка, після нього аспект зникне"><input type="checkbox" data-r="am" data-k="state-check" checked disabled> <span>«${pen.aspect}»: <b>−${-pen.n}</b></span></label></div>` : "";
     const cov = R.type === "dodge" ? this.#cover() : null;
     const covHtml = cov ? `<div class="ramods pust-ramods-state"><span class="rl">Прикриття</span><label class="tog" title="Спільник прикриває тебе: Посилення до наступного уникнення шкоди в цьому колі дій"><input type="checkbox" checked disabled> <span>${esc(cov.byName || "Спільник")} прикриває: <b>Посилення</b></span></label></div>` : "";
-    const withPen = penHtml || covHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}${covHtml}<button type="button" class="btn rust rgo"`) : html;
+    let withPen = penHtml || covHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}${covHtml}<button type="button" class="btn rust rgo"`) : html;
+    withPen = await this.#healthBlocks(withPen, L);
     return { html: this.#pendBar(R) + this.#damageBlock(this.#effectsBlock(withPen, L, st), L, st) };
+  }
+
+  /**
+   * Battle and health (author, 2026-11-21; applications/battle-health.mjs): «Аспекти поруч» in the invoke row (A5), and under
+   * the verdict «Записати наслідок» (A6), «Медична допомога» / «Ремонт» / «Лікування наслідків» on the target (A7)
+   */
+  #near = [];
+  async #healthBlocks(html, L) {
+    const last = L.R.last;
+    this.#near = [];
+    if (!last) return html;
+    if (!this.actor.pustTourDemo) {
+      try { this.#near = await nearbyFor(this.actor); } catch (e) { console.warn(e); }
+    }
+    const can = !last.aspect && (last.B || 0) < 2 && last.verdict < 3 && !last.dmgDone && !last.xpGiven && !last.savGiven;
+    const chips = nearbyHtml(this.#near, can);
+    if (chips) html = html.replace(/(<div class="rasp">[\s\S]*?)(<label class="tog"><input type="checkbox" id="r-spend")/, (m, a, b) => `${a}${chips}${b}`);
+    const done = hxDone(this.actor.uuid, last);
+    let block = "";
+    if (last.type === "consq") block = consqHtml(consqOffer(this.actor, last), done);
+    else if (["med", "repair", "treat"].includes(last.type)) {
+      const o = await medOffer(this.actor, last);
+      block = medHtml(o, done);
+      // a refusal said once a roll in the notifications too (author, 2026-11-21: a robot treated with «Медицина»)
+      if (o?.why && o.patient && !done && WHY_SAID.get(this.actor.uuid) !== last.time) { WHY_SAID.set(this.actor.uuid, last.time); notify.warn(o.why); }
+    }
+    if (block) html = html.replace('<div class="rasp">', () => `${block}<div class="rasp">`);
+    return html;
+  }
+
+  /** A press in those blocks */
+  async #healthPress(el) {
+    const { L } = evaluate(this.actor);
+    const last = this.#load(L).last;
+    if (!last || hxDone(this.actor.uuid, last)) return;
+    const kind = el.dataset.hx;
+    const box = el.closest(".pust-hx");
+    const name = box?.querySelector("[data-hx-name]")?.value ?? "";
+    const slot = box?.querySelector("[data-hx-slot]")?.value ?? "";
+    el.disabled = true;
+    let text = "";
+    try {
+      text = last.type === "consq" ? await consqWrite(this.actor, last, kind, name) : await medPress(this.actor, last, kind, { slot, name });
+    } finally { el.disabled = false; }
+    if (text) { HX_DONE.set(this.actor.uuid, { time: last.time, text }); this.render(); }
   }
 
   /**
@@ -563,6 +615,19 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         const v = this.#load(L).last?.verdict;
         if (Number.isInteger(v)) await answerPending(this.#sent.msg, this.#sent.row, { op: "rolled", verdict: v });
         ps.disabled = false;
+        return;
+      }
+      const hx = ev.target.closest("[data-hx]");
+      if (hx) { ev.preventDefault(); if (!hx.disabled) this.#healthPress(hx); return; }
+      const nb = ev.target.closest("[data-near]");
+      if (nb) {
+        ev.preventDefault();
+        const item = this.#near[+nb.dataset.near];
+        if (!item || nb.disabled) return;
+        nb.disabled = true;
+        // the free invoke is spent first (the GM writes what the user doesn't own); only then the die (Fable, 2026-11-21)
+        if (await spendNearby(item)) this.#run("click", { tagName: "BUTTON", dataset: { r: "nearasp" }, src: { label: `аспекту «${item.name}» (${item.where})`, use: () => {}, msg: `Аспект «${item.name}» (${item.where}): безкоштовне Посилення використано.` } });
+        else nb.disabled = false;
         return;
       }
       const pa = ev.target.closest("[data-pend-apply]");
@@ -733,6 +798,15 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const key = el.dataset.r;
     // a plain copy of what the handlers read from the element
     const node = { tagName: el.tagName, dataset: { ...el.dataset }, value: el.value, checked: el.checked };
+    // «Медична допомога» / «Ремонт» cost a Припас to make (author, 2026-11-21; wiki «Відновлення ОЗ…»): none, no roll
+    if (kind === "click" && key === "roll") {
+      const { st, L } = evaluate(this.actor);
+      const t = this.#load(L).type;
+      if (["med", "repair"].includes(t) && (parseInt(st.supplies, 10) || 0) <= 0) return notify.warn(`${L.CHECK_TYPES[t]?.n}: потрібна одиниця Припасів, а їх немає.`);
+      // the target can't be helped now (a machine, the day's limit): no roll, no Припас (author, 2026-11-21)
+      const why = await medBlocked(this.actor, t);
+      if (why) return notify.warn(`${L.CHECK_TYPES[t]?.n}: ${why}`);
+    }
     let out;
     const fdWas = fateSnap(this.actor); // an aspect invoked with a Fate token posts a card (author, 2026-11-15)
     const supWas = supSnap(this.actor); // a Припас spent by a check («Автоматний псих»…) too
@@ -752,8 +826,18 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       // the damage as it stands (to post the new result when an option changes it: Психо, effect, crit…)
       const dmgNow = () => (R.last?.dmg && R.last.dmg.key === R.dmgKey ? JSON.stringify(L.dmgTotal(R.last, compute(st))) : null);
       const before = { last: clone(R.last), dmg: dmgNow() };
-      if (kind === "click") L.rollerClick(node);
+      // «Мастак-ремонтник»: +1 to «Ремонт» (wiki «Перки»), named among the automatic conditions as the roar's −2 is
+      const fixer = kind === "click" && key === "roll" && R.type === "repair" && compute(st).allPerks.includes("Мастак-ремонтник");
+      if (fixer) R.mod = (+R.mod || 0) + 1;
+      if (kind === "click" && key === "nearasp") L.invokeAspect(el.src); // «Аспекти поруч»: the invoke already spent
+      else if (kind === "click") L.rollerClick(node);
       else L.rollerChange(node);
+      if (fixer) {
+        R.mod = (+R.mod || 0) - 1;
+        if (R.last && R.last.time !== t0) { R.last.mod -= 1; R.last.autoFlat = (R.last.autoFlat || 0) + 1; R.last.autoList = [...(R.last.autoList || []), "Мастак-ремонтник +1"]; }
+      }
+      // the Припас of «Медична допомога» / «Ремонт» goes with the roll (a new roll, not an aspect on it)
+      if (kind === "click" && key === "roll" && R.last && R.last.time !== t0 && ["med", "repair"].includes(R.last.type)) st.supplies = Math.max(0, (parseInt(st.supplies, 10) || 0) - 1);
       if (coverOn) {
         R.boost = (+R.boost || 0) - 1;
         if (R.last && R.last.time !== t0) { R.last.autoList = [...(R.last.autoList || []), `Посилення: прикриває ${cover.byName || "спільник"}`]; coverUsed = true; }
@@ -807,7 +891,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async #post(key, { before, R, dmgTotal, dmgType, dmgFx, dmgChoice, verdicts, types }) {
     const L = R.last;
-    if (["roll", "aspect", "modasp", "sitasp"].includes(key) && L) {
+    if (["roll", "aspect", "modasp", "sitasp", "nearasp"].includes(key) && L) {
       if (key !== "roll" && JSON.stringify(L) === JSON.stringify(before.last)) return; // nothing invoked
       return this.#chatCheck(L, verdicts, types, key !== "roll", before.last);
     }
@@ -816,10 +900,11 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /* ---------- chat ---------- */
 
-  #chat(content, rolls = null) {
+  #chat(content, rolls = null, flags = null) {
     return postChat({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: `<div class="pust-chat">${content}</div>`,
+      ...(flags ? { flags: { [game.system.id]: flags } } : {}),
     }, { dice: true, rolls });
   }
 
@@ -850,6 +935,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       + `<p class="pust-cbreak">${dice}${skill}${asp}${boost} · ${mods}</p>`
       + (T?.d?.[v] ? `<p class="rdesc">${esc(T.d[v])}</p>` : "") + `</div>`,
       rollList(rollFromDice(aspect ? checkDiceGroups(last, before) : checkDiceGroups(last))),
+      // U4 (author, 2026-11-21): the GM's side reads it — «Зроби хід проти X» when the result asks for a move
+      { check: checkFlag({ actor: this.actor.uuid, name: this.actor.name, type: last.type, typeName: T?.n || "Перевірка", verdict: v, verdictName: verdicts[v], total: last.total, time: last.time, text: T?.d?.[v] ?? "" }) },
     );
   }
 
