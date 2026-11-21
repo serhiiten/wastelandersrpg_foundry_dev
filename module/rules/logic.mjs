@@ -720,6 +720,7 @@ function finishRoll(d){
   L.sum = L.slots.reduce((s,x)=>s+x.v,0);
   L.total = L.sum + L.attrVal + L.mod + (L.addFlat||0) + (L.autoFlat||0);
   L.ci = ci; L.verdict = verdictOf(L.total, ci);
+  if(L.luckUp) L.verdict=Math.min(ci.cursed?2:3, L.verdict+1);
   const h={kind:'check', total:L.total, verdict:L.verdict, label:ASHORT[L.attr]+(L.skillName?' + '+L.skillName:''), aspect:!!L.aspect, type:L.type};
   const hi = L.aspect ? R.hist.findIndex(x=>x.kind==='check' && x.time===L.time) : -1;
   if(hi>=0) R.hist[hi]=Object.assign(h,{time:L.time});
@@ -895,6 +896,7 @@ function rollerClick(b){ if(!b) return;
     case 'modasp': { const x=rollMods()[+b.dataset.v]; if(x && x.m.inv>0){ const n=x.m.n.trim(); invokeAspect({label:'модифікації «'+n+'»', use:()=>{ x.m.inv=Math.max(0,x.m.inv-1); x.m.u=x.m.inv<=0; }, msg:'Модифікація «'+n+'»: безкоштовне Посилення використано, лишилося '+Math.max(0,x.m.inv-1)+'.'}); } render(); return; }
     case 'sitasp': { const a=(st.sit||[])[+b.dataset.v]; if(a && a.inv>0){ invokeAspect({label:'аспекту «'+a.t+'»', use:()=>{ a.inv=Math.max(0,a.inv-1); }, msg:'Аспект «'+a.t+'»: безкоштовне Посилення використано, лишилося '+Math.max(0,a.inv-1)+'.'}); } render(); return; }
     case 'xp': giveXp(+b.dataset.v, b.dataset.k); return;
+    case 'luck': { const L=R.last; if(L && !L.luckUp){ L.luckUp=1; finishRoll(compute(st)); } render(); return; }
     case 'fmode': R.fateMode=b.dataset.v; break;
     case 'fate': rollFate(); break;
     default: return;

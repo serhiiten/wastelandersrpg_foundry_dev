@@ -24,6 +24,9 @@ import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, 
 import { checkFlag } from "../rules/gm-move-alert.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { reconcileAutoXp, xpAutoGiven } from "../rules/session-xp.mjs";
+import { dropRollXp, kickOffer, luckOffer } from "../rules/check-perks.mjs";
+import { PER, USE_BY_ID, isUsed, usePerk } from "../rules/perk-uses.mjs";
+import { perkCardHtml } from "./perk-card.mjs";
 
 /** The world's «ОД за невдачу нараховується само» (A10; on by default) */
 const autoXpOn = () => { try { return game.settings.get(game.system.id, "autoXp") !== false; } catch (_) { return true; } };
@@ -43,7 +46,7 @@ const STATES = new Map();
 const OPEN = new Map();
 
 /** Buttons whose result goes to chat */
-const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "nearasp", "dmg", "dmgre"]);
+const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "nearasp", "dmg", "dmgre", "luck"]);
 /** What the blocks of A6 / A7 did for a roll: actor uuid → {time, text} (author, 2026-11-21; one press a roll) */
 const HX_DONE = new Map();
 const WHY_SAID = new Map();
@@ -759,6 +762,16 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         await answerPending(this.#pend.msg, this.#pend.row, { op: "apply" });
         return;
       }
+      // «Щасливець: +1 ступінь», «Бісова штуковина!: перекинути»
+      const pk = ev.target.closest("[data-perkre]");
+      if (pk) {
+        ev.preventDefault();
+        if (pk.disabled) return;
+        pk.disabled = true;
+        const id = pk.dataset.perkre;
+        await this.#run("click", { tagName: "BUTTON", dataset: id === "kick" ? { r: "roll", perkre: "kick" } : { r: "luck", perkre: "lucky" } });
+        return;
+      }
       // A8: the split's −/+ and «Завдати розподілену шкоду»
       const sd = ev.target.closest("[data-split-d]");
       if (sd) {
@@ -897,6 +910,15 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         const txt = [...go.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && /Кинути перевірку/.test(n.textContent));
         if (txt) txt.textContent = "Повторити перевірку";
         go.title = "Кинути ту саму перевірку ще раз, з тими самими Посиленнями, Послабленнями й модифікатором";
+        // «Щасливець» and «Бісова штуковина!» (author, 2026-11-21, mockup 3): small buttons left of it, while the perk is unused
+        const { st: pst, L: pL } = evaluate(this.actor);
+        const plast = this.#load(pL).last, perks = compute(pst).allPerks || [], pc = pst.chem || {};
+        const btn = (id, html, tip) => `<button type="button" class="btn sm pust-perkre" data-perkre="${id}" title="${esc(tip)}">${html}</button>`;
+        const perkBtns = (luckOffer(plast, perks, isUsed(USE_BY_ID.lucky, pc))
+          ? btn("lucky", "Щасливець<br>+1 ступінь", "Щасливець, раз за сесію: підвищити результат цієї перевірки на один ступінь. ОД за невдачу тоді не буде.") : "")
+          + (kickOffer(plast, perks, isUsed(USE_BY_ID.kick, pc))
+            ? btn("kick", "Бісова штуковина!<br>перекинути", "Бісова штуковина!, раз за сцену: повністю перекинути цю перевірку зламу замка чи комп'ютера (гучно). Рахується лише новий кидок: ОД за цей забирається.") : "");
+        if (perkBtns) go.insertAdjacentHTML("beforebegin", perkBtns);
       }
       // the fold line: the check type as its own plate, then what is rolled, then «Інша перевірка» as a button
       // (playtest 2026-11-18, item 3: the type more visible, «змінити» → «Інша перевірка», set apart)
@@ -976,9 +998,18 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // «Прикриваєш спільника» (A2): +1 Посилення on this character's next avoidance in the round it was given, then it goes
     const cover = kind === "click" && key === "roll" ? this.#cover() : null;
     let coverUsed = false;
+    // «Щасливець» / «Бісова штуковина!»: the perk's mark and card (perk-uses.mjs), the replaced roll's ОД gone
+    const perkId = kind === "click" ? el.dataset?.perkre || "" : "";
+    let perkRes = null;
     await runAction(this.actor, (st, L) => {
       const R = this.#load(L);
       const t0 = R.last?.time;
+      if (perkId) {
+        const ok = perkId === "kick" ? kickOffer(R.last, compute(st).allPerks) : luckOffer(R.last, compute(st).allPerks);
+        perkRes = ok ? usePerk(st, L, perkId) : { ok: false, msg: "Цей перк тут не діє." };
+        if (!perkRes.ok) { notify.warn(perkRes.msg); out = null; return; }
+        if (perkId === "kick") dropRollXp(st, R.last); // only the new roll's ОД count (author, 2026-11-21)
+      }
       if (pen) R.mod = (+R.mod || 0) + pen.n;
       const coverOn = cover && R.type === "dodge";
       if (coverOn) R.boost = (+R.boost || 0) + 1;
@@ -997,7 +1028,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       else L.rollerChange(node);
       // the ОД this roll gives, again after every action (an aspect that turns a failure takes it back; tours never)
       // only a new roll or one that already got its ОД (an old roll from before the setting was on stays as it was)
-      if (autoXpOn() && !this.actor.pustTourDemo && R.last && (R.last.time !== t0 || R.last.xpAuto)) reconcileAutoXp(st, R.last, compute(st).allPerks);
+      if (autoXpOn() && !this.actor.pustTourDemo && R.last && (R.last.time !== t0 || R.last.xpAuto || perkId === "lucky")) reconcileAutoXp(st, R.last, compute(st).allPerks);
+      if (perkId === "lucky" && R.last?.luckUp) R.last.autoList = [...(R.last.autoList || []), "Щасливець: +1 ступінь"];
       if (fixer) {
         R.mod = (+R.mod || 0) - 1;
         if (R.last && R.last.time !== t0) { R.last.mod -= 1; R.last.autoFlat = (R.last.autoFlat || 0) + 1; R.last.autoList = [...(R.last.autoList || []), "Мастак-ремонтник +1"]; }
@@ -1026,6 +1058,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       out = { before, R: clone(L.R), dmgTotal: R.last?.dmg ? L.dmgTotal(R.last, compute(st)) : null, dmgType, dmgFx, dmgChoice, verdicts: L.VERDICTS, types: L.CHECK_TYPES,
         dmgChanged: !!(before.dmg && after && before.dmg !== after && before.last?.dmg?.time === R.last.dmg.time) };
     }, { toast: PANEL_TOAST });
+    if (perkId && !perkRes?.ok) return this.render();
+    if (perkRes?.ok) await postChat({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), content: perkCardHtml(this.actor.name, perkRes, PER[USE_BY_ID[perkId]?.per]?.cls || "free") });
     await postFateIfChanged(this.actor, fdWas);
     await postSupIfChanged(this.actor, supWas);
     if (penUsed) await spendCheckStates(this.actor);
@@ -1062,6 +1096,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async #post(key, { before, R, dmgTotal, dmgType, dmgFx, dmgChoice, verdicts, types }) {
     const L = R.last;
+    if (key === "luck" && L) return this.#chatCheck(L, verdicts, types, false, before.last, "Щасливець");
     if (["roll", "aspect", "modasp", "sitasp", "nearasp"].includes(key) && L) {
       if (key !== "roll" && JSON.stringify(L) === JSON.stringify(before.last)) return; // nothing invoked
       return this.#chatCheck(L, verdicts, types, key !== "roll", before.last);
@@ -1080,7 +1115,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /** `before`: R.last before the press (an aspect: only its new die is thrown in 3D) */
-  #chatCheck(last, verdicts, types, aspect, before = null) {
+  #chatCheck(last, verdicts, types, aspect, before = null, why = "") {
     const T = types[last.type];
     // as in the panel: counted — lit, replaced by the skill or aspect die — dimmed, dropped by Посилення / Послаблення — crossed out
     const chosen = new Set((last.slots || []).filter((s) => s.src === "base").map((s) => s.i));
@@ -1099,7 +1134,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const ranges = ["≤9", "10–14", `15–${ci.cursed ? "…" : ci.t - 1}`, ...(ci.cursed ? [] : [`${ci.t}+`])];
     const lit = ranges.map((r, i) => `<span class="${i === v ? `hit v${v}` : ""}">${r}</span>`).join("");
     return this.#chat(
-      `<h4>${esc(T?.n || "Перевірка")}: ${esc(ASHORT[last.attr])}${last.skillName ? ` + ${esc(last.skillName)}` : ""}${aspect ? " — виклик аспекту" : ""}</h4>`
+      `<h4>${esc(T?.n || "Перевірка")}: ${esc(ASHORT[last.attr])}${last.skillName ? ` + ${esc(last.skillName)}` : ""}${aspect ? " — виклик аспекту" : why ? ` — ${esc(why)}` : ""}</h4>`
       + `<div class="pust-cres v${v}">`
       + `<b class="rvhead">${esc(verdicts[v])}</b>`
       + `<div class="rverd"><b class="rtot">${last.total}</b><span class="rranges">${lit}</span></div>`
@@ -1107,7 +1142,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       + (T?.d?.[v] ? `<p class="rdesc">${esc(T.d[v])}</p>` : "")
       // A10: the ОД the panel added by itself («ОД за невдачу»)
       + ((last.xpAuto?.fail || 0) + (last.xpAuto?.sav || 0) ? `<p class="pust-cxp"><i class="fa-solid fa-medal"></i> +${(last.xpAuto.fail || 0) + (last.xpAuto.sav || 0)} ОД в аркуш</p>` : "") + `</div>`,
-      rollList(rollFromDice(aspect ? checkDiceGroups(last, before) : checkDiceGroups(last))),
+      why ? null : rollList(rollFromDice(aspect ? checkDiceGroups(last, before) : checkDiceGroups(last))),
       // U4 (author, 2026-11-21): the GM's side reads it — «Зроби хід проти X» when the result asks for a move
       { check: checkFlag({ actor: this.actor.uuid, name: this.actor.name, type: last.type, typeName: T?.n || "Перевірка", verdict: v, verdictName: verdicts[v], total: last.total, time: last.time, text: T?.d?.[v] ?? "" }) },
     );
