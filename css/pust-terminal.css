@@ -216,7 +216,7 @@
 #ui-left-column-2 { position: relative; }
 #ui-left-column-2 > .wastelanders-terminal-dock { position: absolute; z-index: 5; pointer-events: none; }
 /* the plates side by side, the end row (2026-11-21) under both: a grid as wide as its content (the column itself is 200 px) */
-#ui-left-column-2 > .wastelanders-terminal-dock { display: grid; grid-template-columns: max-content 1fr; justify-content: start; gap: 6px 8px; width: max-content; }
+#ui-left-column-2 > .wastelanders-terminal-dock { display: grid; grid-template-columns: max-content max-content 1fr; justify-content: start; gap: 6px 8px; width: max-content; }
 /* the end row is wider than the two plates: the room goes to the second column, «Ходи» stays 8 px right of «Термінал» */
 #ui-left-column-2 > .wastelanders-terminal-dock > .wastelanders-moves-open { justify-self: start; }
 #ui-left-column-2 > .wastelanders-terminal-dock > button { pointer-events: auto; }
@@ -226,15 +226,24 @@
   font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
 .wastelanders-terminal-dock :is(.wastelanders-terminal-open, .wastelanders-moves-open):hover { background: linear-gradient(180deg, rgba(255,215,195,.25), rgba(0,0,0,.1)), #c22e1e; color: #fff; }
 .wastelanders-terminal-dock :is(.wastelanders-terminal-open, .wastelanders-moves-open) > i { font-size: 13px; }
-.wastelanders-terminal-dock .wastelanders-terminal-open.on { background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)); color: var(--pu-green);
-  border-color: var(--pu-green-dim); text-shadow: 0 0 6px rgba(61,255,71,.5); box-shadow: 0 2px 6px rgba(0,0,0,.5), inset 0 0 10px rgba(61,255,71,.15); }
+/* both plates (author, 2026-11-21): red while their window is closed, black while it is open */
+.wastelanders-terminal-dock :is(.wastelanders-terminal-open, .wastelanders-moves-open).on { background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.2)), #111312; color: #fbeee4; }
+.wastelanders-terminal-dock :is(.wastelanders-terminal-open, .wastelanders-moves-open).on:hover { background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(0,0,0,.15)), #1d201f; color: #fff; }
 
 /* «Кінець сцени» / «Новий день» / «Кінець сесії» (author, 2026-11-21, mockup В + варіант 2): the GM's second row under the
    plates, left-aligned with them; three steel buttons as wide as their own text (author, 2026-11-21: «зменшити кнопки за
    шириною»; they were 124 px each and ran over «Битва» at 1366 px with the sidebar open), each one box for both its states
    (the red «Точно?» of the first press takes the same box: both labels share one grid cell), the session number a yellow chip in «Кінець сесії»; under them a dark strip: the enemies' tick, «Сесія N», ⟲ */
 .wastelanders-terminal-dock > .wastelanders-end-row { grid-column: 1 / -1; pointer-events: none; }
-.wastelanders-end-row .pust-end-box { display: grid; gap: 4px; width: max-content; }
+/* in the top row right of «Ходи» when it fits there (wastelanders.mjs placeEndRow; author, 2026-11-21) */
+.wastelanders-terminal-dock.pust-end-top > .wastelanders-end-row { grid-column: 3; grid-row: 1; align-self: center; }
+.wastelanders-end-row .pust-end-box { position: relative; display: grid; width: max-content; }
+/* the strip shows only while the pointer is over the buttons or the strip, or the keyboard is in them (author, 2026-11-21:
+   «завжди їй висіти не треба»); it floats over the map, nothing moves; ::before bridges the 4 px gap for the pointer.
+   `body.pust-end-show`: the tour's step shows it */
+.wastelanders-end-row .pust-end-ft { position: absolute; left: 0; top: calc(100% + 4px); z-index: 2; min-width: 100%; box-sizing: border-box; width: max-content; visibility: hidden; }
+.wastelanders-end-row .pust-end-ft::before { content: ""; position: absolute; left: 0; right: 0; top: -5px; height: 5px; }
+.wastelanders-end-row .pust-end-box:is(:hover, :focus-within) > .pust-end-ft, body.pust-end-show .wastelanders-end-row .pust-end-ft { visibility: visible; }
 .wastelanders-end-row .pust-end-btns { display: flex; gap: 4px; }
 .wastelanders-end-row :is(.pust-end-btn, .pust-end-ft) { pointer-events: auto; }
 .wastelanders-end-row button.pust-end-btn { flex: none; display: grid; box-sizing: border-box; width: max-content; min-width: 0; max-width: none; height: 28px; min-height: 28px; max-height: 28px; margin: 0; padding: 0 5px;
@@ -870,10 +879,8 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 #pust-mapdock .pust-ov-empty { margin: 0; padding: 10px; color: #b6c4b8; font-size: 12.5px; }
 #pust-mapdock .pust-md-unit.folded .pust-ov { display: none; }
 
-/* «Ходи Доглядача» (author, 2026-11-18): the plate right of the terminal's, darker so the terminal stays the main one;
-   lit while its card is open. The card: paper under the plate, red bars like the plates, scrolls inside on low screens. */
-.wastelanders-terminal-dock .wastelanders-moves-open { background: linear-gradient(180deg, rgba(255,215,195,.12), rgba(0,0,0,.2)), #3a2a20; }
-.wastelanders-terminal-dock .wastelanders-moves-open.on { background: linear-gradient(180deg, rgba(255,215,195,.25), rgba(0,0,0,.1)), #c22e1e; color: #fff; }
+/* «Ходи Доглядача» (author, 2026-11-18): the plate right of the terminal's, coloured as it (red closed, black open: above).
+   The card: paper under the plate, red bars like the plates, scrolls inside on low screens. */
 .pust-gm-moves { position: fixed; z-index: 100; width: 460px; max-width: calc(100vw - 16px); overflow-y: auto; box-sizing: border-box;
   padding: 0 16px 12px; background: var(--pu-grain, none), #efe4cc; color: #231b11; border: 1px solid #8a6a3c; border-radius: 4px;
   box-shadow: 0 6px 18px rgba(0,0,0,.55); font-family: "Ubuntu Mono", "PT Mono", Consolas, monospace; font-size: 14px; line-height: 1.4; }

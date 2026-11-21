@@ -166,7 +166,7 @@ function setIssuesDemo(on) {
     + ISSUES_DEMO.map(([lvl, msg]) => `<div class="pust-issue ${lvl}">${msg}</div>`).join("");
   nav.before(box);
 }
-const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false, compact: null, weather: false };
+const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false, compact: null, weather: false, endStrip: false };
 /**
  * «Компактний режим» (author, 2026-11-18): the step switches the sheet on show to compact by its own switch, and the view it
  * had comes back when the step is left or the tour ends, so the demonstration never changes the user's remembered choice
@@ -218,6 +218,7 @@ async function restoreFull() {
 }
 async function closeTransient(keep = new Set()) {
   if (opened.compact && !keep.has("compactDemo")) await restoreCompact();
+  if (opened.endStrip && !keep.has("endStrip")) { document.body.classList.remove("pust-end-show"); opened.endStrip = false; }
   if (opened.issues && !keep.has("issuesDemo")) { setIssuesDemo(false); opened.issues = false; }
   if (opened.tok && !keep.has("tokenDemo") && !keep.has("caravanToken")) { await (await import("../canvas/token-demo.mjs")).setTokenDemo(false); opened.tok = false; }
   if (opened.zframe && !keep.has("zoneFrame")) { await (await import("../canvas/battle-zones.mjs")).setZoneFrame(null); opened.zframe = false; }
@@ -466,6 +467,8 @@ export const PREPARE = {
     if (app?.rendered) app.setPosition({ left: 110, top: 40 });
     await sleep(200);
   },
+  /** the strip under the end buttons, shown only on hover (author, 2026-11-21), held open for the step */
+  endStrip: async () => { document.body.classList.add("pust-end-show"); opened.endStrip = true; await sleep(100); },
   issuesDemo: async () => { setIssuesDemo(true); opened.issues = true; await sleep(150); },
   /** «Статуси й відпочинок» folded by default (author, 2026-11-20; U1): opened in the page for the step, so its buttons show */
   statusOpen: async () => {

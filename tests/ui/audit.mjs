@@ -840,25 +840,48 @@ const SCENARIOS = {
     const plate = document.querySelector(".wastelanders-terminal-open"), moves = document.querySelector(".wastelanders-moves-open");
     a.ok("три кнопки", btns.length === 3, String(btns.length));
     a.row(btns, { label: "кнопки кінця сцени" }); // as wide as their text (author, 2026-11-21), one row and one height
-    const box = R(row.querySelector(".pust-end-box"));
-    a.ok("ліворуч у лінію з «Термінал»", Math.abs(box.left - R(plate).left) <= 1.5, `${Math.round(box.left)} / ${Math.round(R(plate).left)}`);
-    a.ok("під плашками", box.top >= Math.max(R(plate).bottom, R(moves).bottom) - PX, `${Math.round(box.top)} / ${Math.round(R(plate).bottom)}`);
-    const strip = R(row.querySelector(".pust-end-ft"));
-    a.ok("смужка на всю ширину кнопок", Math.abs(strip.left - R(btns[0]).left) <= PX && Math.abs(strip.right - R(btns[2]).right) <= PX, `${Math.round(strip.left)}–${Math.round(strip.right)}`);
-    a.onScreen([row.querySelector(".pust-end-box")]);
-    a.noCut(row, "button, label, span, b");
-    a.noRawKeys(row);
-    a.readable(row, "span, b, label");
-    a.noOverlap(row);
-    // nothing of Foundry's or ours on the right covers it (the «Битва» / «Сцена» panel, the sidebar)
-    const hit = (r) => [...document.querySelectorAll("#pust-mapdock .pust-md-unit, #pust-mapdock .pust-md-panel, #sidebar")].filter(shown)
-      .filter((p) => { const q = R(p); return q.left < r.right - PX && q.right > r.left + PX && q.top < r.bottom - PX && q.bottom > r.top + PX; }).map(name);
-    // narrower than 1366 px the right panel may lie under it: runAudit checks nothing there (SCREEN_FLOOR)
-    const covered = hit(box);
-    a.ok("не перетинається з панелями праворуч", !covered.length, covered.join("; "));
+    const dock = row.closest(".wastelanders-terminal-dock"), top = dock.classList.contains("pust-end-top");
+    const ftEl = row.querySelector(".pust-end-ft");
+    // the strip shows only on hover / keyboard focus (author, 2026-11-21): hidden now (the audit's pointer is elsewhere)
+    const forced = document.body.classList.contains("pust-end-show");
+    if (!forced && !row.matches(":hover") && !row.contains(document.activeElement)) a.ok("смужка схована без курсора", getComputedStyle(ftEl).visibility === "hidden", getComputedStyle(ftEl).visibility);
+    document.body.classList.add("pust-end-show"); // measured shown
+    try {
+      const box = R(row.querySelector(".pust-end-box")), strip = R(ftEl);
+      const all = { left: box.left, top: box.top, right: Math.max(box.right, strip.right), bottom: strip.bottom };
+      // in the top row right of «Ходи» when it fits there, else under the plates (author, 2026-11-21)
+      if (top) {
+        a.ok("угорі: праворуч від «Ходи», 8 px", Math.abs(box.left - R(moves).right - 8) <= 1.5, `${Math.round(box.left)} / ${Math.round(R(moves).right)}`);
+        a.ok("угорі: посередині ряду плашок", Math.abs((box.top + box.bottom) / 2 - (R(plate).top + R(plate).bottom) / 2) <= 1.5, `${Math.round(box.top)}–${Math.round(box.bottom)} / ${Math.round(R(plate).top)}–${Math.round(R(plate).bottom)}`);
+      } else {
+        a.ok("знизу: ліворуч у лінію з «Термінал»", Math.abs(box.left - R(plate).left) <= 1.5, `${Math.round(box.left)} / ${Math.round(R(plate).left)}`);
+        a.ok("знизу: під плашками", box.top >= Math.max(R(plate).bottom, R(moves).bottom) - PX, `${Math.round(box.top)} / ${Math.round(R(plate).bottom)}`);
+      }
+      // the right place: below only when the top row would run over a panel
+      const { endRowPlace } = await import(`/systems/${game.system.id}/module/helpers/end-row-place.mjs`);
+      const panelsR = [...document.querySelectorAll("#pust-mapdock .pust-md-unit, #sidebar")].filter(shown).map(R);
+      const bb = R(row.querySelector(".pust-end-btns"));
+      const want = endRowPlace({ right: R(moves).right, top: R(plate).top, bottom: R(plate).bottom }, { width: all.right - all.left, btnHeight: bb.height, height: all.bottom - all.top }, panelsR);
+      a.ok("ряд угорі, коли там є місце; знизу лише коли угорі налазить на панель", want === (top ? "top" : "below"), `${top ? "угорі" : "знизу"}, мало б ${want === "top" ? "угорі" : "знизу"}`);
+      a.ok("смужка під кнопками, не вужча за них", Math.abs(strip.left - R(btns[0]).left) <= PX && strip.right >= R(btns[2]).right - PX && strip.top >= bb.bottom - PX, `${Math.round(strip.left)}–${Math.round(strip.right)}, ${Math.round(strip.top)}`);
+      a.onScreen([row.querySelector(".pust-end-box"), ftEl]);
+      a.noCut(row, "button, label, span, b");
+      a.noRawKeys(row);
+      a.readable(row, "span, b, label");
+      a.noOverlap(row);
+      // nothing of Foundry's or ours on the right covers it, the strip included (the «Битва» / «Сцена» panel, the sidebar)
+      var hit = (r) => [...document.querySelectorAll("#pust-mapdock .pust-md-unit, #pust-mapdock .pust-md-panel, #sidebar")].filter(shown)
+        .filter((p) => { const q = R(p); return q.left < r.right - PX && q.right > r.left + PX && q.top < r.bottom - PX && q.bottom > r.top + PX; }).map(name);
+      // narrower than 1366 px the right panel may lie under it: runAudit checks nothing there (SCREEN_FLOOR)
+      const covered = hit(all);
+      a.ok("не перетинається з панелями праворуч", !covered.length, covered.join("; "));
+    } finally { if (!forced) document.body.classList.remove("pust-end-show"); }
     // the plates above it too (2026-11-21: «Ходи Доглядача» ran over «Битва» at 1366 px with the sidebar open)
     const platesHit = [plate, moves].filter(shown).flatMap((p) => hit(R(p)));
     a.ok("плашки «Термінал» і «Ходи» не перетинаються з панелями праворуч", !platesHit.length, platesHit.join("; "));
+    // one colour rule for both plates (author, 2026-11-21): red while closed, black while open (the class `.on`)
+    const tone = (p) => { const c = (getComputedStyle(p).backgroundColor.match(/\d+/g) ?? []).map(Number); return c[0] > 120 && c[0] > 2 * c[1] ? "red" : c[0] < 40 && c[1] < 40 && c[2] < 40 ? "black" : `rgb(${c.slice(0, 3)})`; };
+    for (const p of [plate, moves].filter(shown)) a.ok(`«${p.innerText.trim()}»: ${p.classList.contains("on") ? "відкрито — чорна" : "закрито — червона"}`, tone(p) === (p.classList.contains("on") ? "black" : "red"), tone(p));
     // both states of each button: one size, the red label fits
     const was = btns.map((b) => b.classList.contains("armed"));
     try {
