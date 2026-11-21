@@ -24,6 +24,7 @@
     "module/wastelanders.mjs"
   ],
   "styles": [
+    "css/pust-fonts.css",
     "css/wastelanders.css",
     "css/pust-ui.css",
     "css/pust-sheet.css",

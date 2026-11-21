@@ -1,5 +1,5 @@
 /* «Термінал Доглядача» (Foundry): the HTML terminal's generators. Colours after the HTML tools;
-   the full restyle comes later. Also listed in system.json (and imported by pust-sheet.css). */
+   the full restyle comes later. Listed in system.json. */
 .pust-terminal-app, #pust-mapdock {
   /* the terminal's names for the shared tokens of pust-ui.css */
   --pt-paper: var(--pu-paper); --pt-ink: var(--pu-ink); --pt-rust: var(--pu-rust-2); --pt-rust-2: var(--pu-rust-3);
@@ -23,7 +23,7 @@
 .pust-term-hd > b { font-family: var(--pu-f-label); font-weight: 800; font-size: 16px; text-transform: uppercase; letter-spacing: .04em; color: var(--pu-ink); }
 .pust-term-hd .pust-term-chat { margin-left: auto; }
 .pust-term-stamp { border: 2px solid var(--pu-red-ink); color: var(--pu-red-ink); padding: 0 6px; font-family: var(--pu-f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; transform: rotate(-3deg); }
-.pust-term-note { font-family: var(--pu-f-hand); font-size: 16px; color: var(--pu-red-ink); }
+.pust-term-note { font-family: var(--pu-f-text); font-size: 13.5px; color: var(--pu-red-ink); }
 
 .pust-case-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
 .pust-case-sub { grid-column: 1 / -1; font-family: var(--pu-f-label); font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--pu-ink-2); border-bottom: 2px dashed var(--pu-ink-3); margin-top: 6px; }
@@ -34,7 +34,7 @@
 .pust-case-f.wide { grid-column: 1 / -1; }
 .pust-case-fh { display: flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; letter-spacing: .05em; color: var(--pu-rust-2); font-family: var(--pu-f-label); text-transform: uppercase; }
 .pust-case-fh .pust-term-reroll { margin-left: auto; }
-.pust-case-ft small { display: block; font-family: var(--pu-f-hand); font-size: 15px; color: var(--pu-red-ink); }
+.pust-case-ft small { display: block; font-family: var(--pu-f-text); font-size: 13px; color: var(--pu-red-ink); }
 
 .pust-travel-html .result-section { background: var(--pu-sheet); border: 1px solid var(--pu-ink-3); border-left: 5px solid var(--pu-ink-3); border-radius: 2px; padding: 4px 8px; margin: 6px 0; }
 .pust-travel-html .danger-encounter { border-color: var(--pt-bad); }
@@ -712,8 +712,8 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
   color: #fff3b0; background: #2a241c; box-shadow: 0 0 8px rgba(244,209,26,.6); }
 
 /* a travel event's damage just put into «Шкода й лікування» (author, 2026-11-16): the fields glow amber for a moment */
-@keyframes pust-flash { 0%, 60% { box-shadow: 0 0 0 2px #f4d11a, 0 0 12px 2px rgba(244,209,26,.75); } 100% { box-shadow: none; } }
-#pust-mapdock .pust-flash { animation: pust-flash 2.4s ease-out 1; }
+@keyframes pust-flash-dock { 0%, 60% { box-shadow: 0 0 0 2px #f4d11a, 0 0 12px 2px rgba(244,209,26,.75); } 100% { box-shadow: none; } }
+#pust-mapdock .pust-flash { animation: pust-flash-dock 2.4s ease-out 1; }
 #pust-mapdock .pust-md-panel.pust-md-lit { opacity: 1 !important; }
 
 /* «Створити битву» under the case's «Супротивники» (author, 2026-11-17) */

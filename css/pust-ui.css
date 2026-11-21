@@ -8,12 +8,11 @@
      • buttons — embossed plates: rust with yellow letters (main action), paper (ordinary),
                  screen-green when switched on, red when a second click is needed;
      • notes   — the GM's handwriting in red ink.
-   Fonts: Roboto Condensed (labels, buttons, headings), Ubuntu Mono (text and fields),
-   Handjet (screens and big numbers), Marck Script (notes). Loaded from Google Fonts, like
-   the system's other fonts; without internet the browser falls back to similar ones.
+   Fonts: Roboto Condensed (labels, buttons, headings), Ubuntu Mono (text, fields, numbers),
+   Handjet (screens). Shipped in assets/fonts and declared in css/pust-fonts.css (V7, author 2026-11-21):
+   no Google Fonts, the look is the same offline. No handwritten font (V5, author 2026-11-21).
    Every class here starts with .pust- or sits under .wastelanders; tokens are --pu-*.
    ===================================================================================== */
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;800&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&family=Handjet:wght@500;700&family=Marck+Script&display=swap");
 
 .wastelanders, .pust-chat, .chat-message .pust-card, #pust-mapdock, .pust-journal {
   /* colours */
@@ -27,7 +26,6 @@
   --pu-f-label: "Roboto Condensed", "PT Sans Narrow", "Arial Narrow", sans-serif;
   --pu-f-text: "Ubuntu Mono", "PT Mono", Consolas, monospace;
   --pu-f-screen: "Handjet", "Ubuntu Mono", monospace;
-  --pu-f-hand: "Marck Script", "Caveat", cursive;
   --pu-f-num: "Ubuntu Mono", "PT Mono", Consolas, monospace; /* numbers: Handjet draws 0 almost like 8 */
   /* textures (tiny inline SVG noise, as in the HTML terminal) */
   --pu-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
