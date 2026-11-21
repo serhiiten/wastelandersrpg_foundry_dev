@@ -9,7 +9,7 @@ import { CARAVAN_DEF_LABEL, CARAVAN_DEF_OPTIONS, CARAVAN_DEF_TYPES, caravanDefAu
 
 /** Short damage-type names for the defence chips next to the armour */
 const DEF_SHORT = { phys: "фізична", energy: "енергетична", fire: "вогонь", rad: "радіація", poison: "отрути", psy: "психічна" };
-import { cargoHurtAt, rowCost, rowSale, salePlan } from "../rules/caravan-adapter.mjs";
+import { cargoHurtAt, rowCost, rowKey, rowSale, salePlan } from "../rules/caravan-adapter.mjs";
 import { refillPlan, repairPlan } from "../rules/caravan-range.mjs";
 
 const int = (v, def = 0) => {
@@ -151,7 +151,7 @@ export function buildCaravanView(S, L, ui = {}) {
 
     cargo: (S.cargo || []).map((r, i) => ({
       i, name: r.name || "", pass: r.kind === "pass", price: r.price ?? "", qty: r.qty ?? "", note: r.note || "",
-      far: !!r.far, hurt: !!r.hurt, sum: rowSale(r) || "",
+      far: !!r.far, hurt: !!r.hurt, sum: rowSale(r) || "", key: rowKey(r),
       // A3 (author, 2026-11-21): «Купити за N(к)» while a row added by hand is not bought yet, then «Продати за N(к)»
       // (passengers: «Плата за проїзд N(к)»); nothing while the row is worth 0 or the cargo is destroyed (ОЗ 0)
       buy: r.kind !== "pass" && !!r.unpaid && rowCost(r) > 0 ? rowCost(r) : 0,

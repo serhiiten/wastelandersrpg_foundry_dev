@@ -1,6 +1,6 @@
 {{!-- Електронний аркуш каравану (Foundry), laid out like the character sheet. Fields: data-k = field of the HTML caravan sheet; buttons: data-act. --}}
 <div class="pust-sheet-inner pust-caravan {{#unless editable}}readonly{{/unless}} {{#if compact}}pust-compact{{/if}}">
-{{#*inline "cargoDeal"}}{{#if buy}}<button type="button" class="pust-buy" data-action="cargoBuy" data-i="{{i}}" title="Купити: списати {{buy}}(к) з бюджету (або взяти без списання)">Купити за {{buy}}(к)</button>{{else if sell}}<button type="button" class="pust-sell" data-action="cargoSell" data-i="{{i}}" title="{{#if pass}}Отримати плату за проїзд: {{sell}}(к) у бюджет, рядок прибирається{{else}}Продати: {{sell}}(к) у бюджет, рядок прибирається{{/if}}">{{#if pass}}Плата за проїзд {{sell}}(к){{else}}Продати за {{sell}}(к){{/if}}</button>{{/if}}{{/inline}}
+{{#*inline "cargoDeal"}}{{#if buy}}<button type="button" class="pust-buy" data-action="cargoBuy" data-i="{{i}}" title="Купити: списати {{buy}}(к) з бюджету (або взяти без списання)">Купити за {{buy}}(к)</button>{{else if sell}}<button type="button" class="pust-sell" data-action="cargoSell" data-i="{{i}}" data-key="{{key}}" title="{{#if pass}}Отримати плату за проїзд: {{sell}}(к) у бюджет, рядок прибирається{{else}}Продати: {{sell}}(к) у бюджет, рядок прибирається{{/if}}">{{#if pass}}Плата за проїзд {{sell}}(к){{else}}Продати за {{sell}}(к){{/if}}</button>{{/if}}{{/inline}}
 
   {{#if compact}}
   {{!-- ===== Компактний аркуш каравану (author, 2026-11-18; mockup Б1 «Дзеркало персонажа»): what the table needs on the road —

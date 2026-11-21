@@ -207,12 +207,12 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       const t = ev.currentTarget;
       this.dropUndo();
       if (t.dataset.k === "luck" && partyLuck()) this.document.setFlag(game.system.id, "luckManual", true);
-      const karma0 = t.dataset.k === "karma" || t.dataset.k === "karmaAspect" ? this.#karmaSnap() : null;
+      const karma = t.dataset.k === "karma" || t.dataset.k === "karmaAspect" ? {} : null;
       // a field whose value the rules changed back to what was stored («1e9» ОЗ at the maximum) gets no update, so no
       // redraw: the field would keep showing the typed text (stress test, 2026-11-17) — draw it again then
-      return runCaravanAction(this.document, (C) => C.setField(t.dataset.k, t.type === "checkbox" ? t.checked : t.value))
+      return runCaravanAction(this.document, this.#karmaWatch(karma, (C) => C.setField(t.dataset.k, t.type === "checkbox" ? t.checked : t.value)))
         .then(async (r) => {
-          if (karma0) await this.#postKarma(karma0);
+          if (karma) await this.#postKarma(karma);
           if (t.isConnected && t.type !== "checkbox" && this.rendered) this.render();
           return r;
         });
@@ -269,23 +269,29 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       }
     }
     const prev = UNDOABLE.has(act) ? caravanToState(this.document.toObject()) : null;
-    const karma0 = KARMA_QUIET.has(act) ? null : this.#karmaSnap();
+    const karma = KARMA_QUIET.has(act) ? null : {};
     // any other action ends the offer: undoing would also throw away what was done after
     if (!prev) this.dropUndo();
-    await runCaravanAction(this.document, (C) => C.act(act, data));
-    if (karma0) await this.#postKarma(karma0);
+    await runCaravanAction(this.document, this.#karmaWatch(karma, (C) => C.act(act, data)));
+    if (karma) await this.#postKarma(karma);
     if (prev) this.setUndo(prev);
   }
 
-  /** The karma and its aspect before a change (A14: every change by hand writes a card) */
-  #karmaSnap() {
-    const S = caravanToState(this.document.toObject());
-    return { n: parseInt(S.karma, 10) || 0, asp: S.karmaAspect || "" };
+  /** The karma and its aspect before and after a change, read inside the actor's queue (A14: every change by hand writes a
+   *  card; quick «+ +» no longer read a «before» the previous press hasn't written yet — the reviewer, 2026-11-21) */
+  #karmaWatch(box, fn) {
+    if (!box) return fn;
+    const snap = (s) => ({ n: parseInt(s.karma, 10) || 0, asp: s.karmaAspect || "" });
+    return async (C, L) => {
+      box.before = snap(L.getS());
+      const r = await fn(C, L);
+      box.after = snap(L.getS());
+      return r;
+    };
   }
 
-  async #postKarma(before) {
-    const after = this.#karmaSnap();
-    if (after.n !== before.n) await postKarmaChange(this.document, before.n, after.n, before.asp, after.asp);
+  async #postKarma({ before, after }) {
+    if (before && after && after.n !== before.n) await postKarmaChange(this.document, before.n, after.n, before.asp, after.asp);
   }
 
   /** «Купити за N(к)» on a cargo row (A3): «Списати N(к) з бюджету?» — pay, take it for free, or nothing */
@@ -303,10 +309,12 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
   /** «Продати за N(к)» / «Плата за проїзд N(к)» on a row, «Продати все» on the list (A3): caps to the budget, rows away,
    *  a card in chat; «Скасувати» for a while puts the rows and the budget back and takes the card away */
   static async #onCargoSell(event, target) {
+    if (target.disabled) return; // one sale a button (a double click; the sheet draws a new one)
+    target.disabled = true;
     const prev = caravanToState(this.document.toObject());
     this.dropUndo();
     this.ui.cgEdit = null;
-    const plan = await runCaravanAction(this.document, (C) => C.act("cg-sell", target.dataset.all ? { all: "1" } : { i: target.dataset.i }));
+    const plan = await runCaravanAction(this.document, (C) => C.act("cg-sell", target.dataset.all ? { all: "1" } : { i: target.dataset.i, key: target.dataset.key }));
     if (!plan) return;
     const msg = await postSaleCard(this.document, plan);
     this.setUndo(prev, msg);

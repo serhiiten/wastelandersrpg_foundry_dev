@@ -91,6 +91,20 @@ const caravan = (budget = 12) => {
   ok(saleCardHtml("К", fare).includes(": плата за проїзд") && saleCardHtml("К", fare).includes("Пасажир: Док"), "the fare's card");
 }
 {
+  // a double click on «Продати» (or the GM and a player at once): the second press is for a row already gone, and the row
+  // that moved up into its place is not sold (the reviewer's finding, 2026-11-21)
+  const { L, C, S } = caravan(0);
+  S().cargo = [
+    { name: "Вода", kind: "cargo", price: "4", qty: "1", note: "" },
+    { name: "Сталь", kind: "cargo", price: "10", qty: "1", note: "" },
+    { name: "Док", kind: "pass", price: "6", qty: "1", note: "" },
+  ];
+  const key = buildCaravanView(S(), L).cargo[0].key;
+  ok(C.act("cg-sell", { i: "0", key }), "the first press sells «Вода»");
+  eq(C.act("cg-sell", { i: "0", key }), false, "the second press of the same button sells nothing");
+  eq([S().cargo.map((r) => r.name), S().budget], [["Сталь", "Док"], 6], "«Сталь» and «Док» stay, the budget only from «Вода»");
+}
+{
   // ОЗ 0: the cargo is destroyed, nothing to sell (players remove it themselves: author's decision on F3)
   const { L, C, S } = caravan(0);
   S().cargo = [{ name: "Вода", kind: "cargo", price: "8", qty: "1", note: "" }];

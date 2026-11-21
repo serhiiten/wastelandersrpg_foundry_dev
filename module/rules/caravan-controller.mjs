@@ -12,7 +12,7 @@
 import { ASPECTS, COMPANY, REPUTATIONS } from "./caravan.mjs";
 import { blankDefOv } from "./caravan-defence.mjs";
 import { refillPlan, repairPlan } from "./caravan-range.mjs";
-import { rowCost, salePlan } from "./caravan-adapter.mjs";
+import { rowCost, rowKey, salePlan } from "./caravan-adapter.mjs";
 
 const int = (v, def = 0) => {
   const n = parseInt(v, 10);
@@ -234,6 +234,8 @@ export function createCaravanController(L, { toast = () => {} } = {}) {
       // budget, the rows go away; returns the plan (rows and total) for the chat card, false when there is nothing to sell
       case "cg-sell": {
         if (int(s.hpCurrent) === 0) { toast("ОЗ 0 — вантаж знищено: продавати нічого"); return false; }
+        // the row the button was drawn for (data.key): gone or moved → nothing is sold in its place
+        if (!data.all && data.key != null && (!s.cargo[int(data.i, -1)] || rowKey(s.cargo[int(data.i, -1)]) !== String(data.key))) return false;
         const plan = salePlan(s, data.all ? { all: true } : { i: int(data.i, -1) });
         if (!plan.rows.length) { toast("Продавати нічого"); return false; }
         const gone = new Set(plan.rows.map((r) => r.i));

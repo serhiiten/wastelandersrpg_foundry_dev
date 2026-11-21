@@ -190,6 +190,10 @@ export function rowSale(r) {
   return Math.ceil(v * (r.far ? (r.hurt ? 1.5 : 2) : r.hurt ? 1.25 : 1.5));
 }
 
+/** What a row is, for «Продати» (A3): the button carries it, and a row that no longer matches (sold by a double click or by
+ *  another user, the rows moved up) is not sold in its place */
+export const rowKey = (r) => [r.kind || "cargo", r.name || "", int(r.price), int(r.qty, 1), r.far ? 1 : 0, r.hurt ? 1 : 0].join("|");
+
 /** What a cargo row costs to buy: price × quantity (an empty quantity is 1) */
 export const rowCost = (r) => Math.max(0, int(r.price)) * Math.max(0, int(r.qty, 1));
 
