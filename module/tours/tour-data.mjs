@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 115;
+export const HELP_VERSION = 117;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -30,7 +30,7 @@ export const TOURS = [
       S("users", "Нові гравці: Settings → User Management → Create Additional User (ім'я, роль, пароль), Save and Return; адреса для гравців — Invitation Links.", { selector: '#settings [data-app="players"]', prepare: ["closeAll", "sidebar:settings"], tooltipDirection: "LEFT" }),
       S("players", "Гравці внизу ліворуч: персонажа призначають гравцю через його налаштування (User Configuration → Character). Тоді «Кістки», «Зробити перевірку» й ЖД працюють за нього.", { selector: "#players-active", tooltipDirection: "UP",  }),
       S("chat", "Режими чату: усі картки системи (перевірки, шкода, Доля) йдуть у вибраному режимі — публічно, лише Доглядачу, таємно.", { selector: '[data-action="messageMode"][data-mode="public"]', prepare: "sidebar:chat", tooltipDirection: "LEFT",  }),
-      S("terminal", "Кнопка «Термінал Доглядача»: генератори справ, подорожей, натхнення, битв. Окремий тур далі.", { selector: ".wastelanders-terminal-open", tooltipDirection: "DOWN",  }),
+      S("terminal", "Кнопка «Термінал»: генератори справ, подорожей, натхнення, битв. Окремий тур далі.", { selector: ".wastelanders-terminal-open", tooltipDirection: "DOWN",  }),
       S("next", "Що далі: тури «Мапа Пустки», «Термінал», «Битва», «Персонажі й караван»; у журналі «Довідка Foundry» усе текстом, кнопка «Пройти тур».", {  }),
     ],
   },
@@ -79,7 +79,7 @@ export const TOURS = [
       S("targets", "Цілі: шкода й лікування йдуть лише на цілі (трикутні мітки навколо токена). Угорі «Огляду битви»: лічильник, «Вибрати цілі», «Зняти вибір»; у рядку мішень; на зоні «Обрати всіх».", { selector: "#pust-mapdock .pust-ov-tgts", prepare: "unfold:ovw", tooltipDirection: "LEFT" }),
       S("targetlook", "Як виглядає ціль: токен сцени (ворог) тимчасово обрано ціллю, трикутні мітки навколо; клавіша T над токеном теж обирає; попередні цілі повертаються.", { selector: ".pust-tgt-demo", prepare: "targetDemo", tooltipDirection: "RIGHT" }),
       S("damage", "«Шкода й лікування»: число чи кістки, тип, «Ігнорує броню», «½ шкоди» → «Завдати шкоди» / «Лікувати». Броня, захисти й половинки рахуються самі; картка в чаті.", { selector: ".pust-md-battle .pust-md-bhit", tooltipDirection: "LEFT",  }),
-      S("end", "Угорі, під «Термінал Доглядача», на обох мапах: «Кінець сцени» / «Новий день» / «Кінець сесії» для всіх персонажів, призначених гравцям, без відкриття аркушів. Перший клік робить кнопку червоною «Точно?», другий виконує; за 3 с без кліку вона повертається. «Скинути ходи ворогів сцени»; коло дій знову 1, жетони Долі Доглядача «за гравцями»; одна картка в чаті; сесія питає ОД; номер сесії групи й кнопка скидання відліку (двічі).", { selector: ".wastelanders-end-row .pust-end-box", tooltipDirection: "DOWN" }),
+      S("end", "Угорі, праворуч від «Термінал» і «Ходи» (під ними, коли праворуч бракує місця), на обох мапах: «Кінець сцени» / «Новий день» / «Кінець сесії» для всіх персонажів, призначених гравцям, без відкриття аркушів. Перший клік робить кнопку червоною «Точно?», другий виконує; за 3 с без кліку вона повертається. Коло дій знову 1, жетони Долі Доглядача «за гравцями»; одна картка в чаті; сесія питає ОД. Під кнопками, поки на них курсор: «Скинути ходи ворогів сцени», номер сесії групи й кнопка скидання відліку (двічі).", { selector: ".wastelanders-end-row .pust-end-btns, .wastelanders-end-row .pust-end-ft", union: true, prepare: "endStrip", tooltipDirection: "DOWN" }),
     ],
   },
   {

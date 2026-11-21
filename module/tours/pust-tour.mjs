@@ -9,6 +9,7 @@
  */
 import { findBattleScene, findMapScene, isBattleScene } from "../helpers/default-scene.mjs";
 import { notify } from "../helpers/notify.mjs";
+import { serialQueue } from "./tour-queue.mjs";
 
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -165,7 +166,7 @@ function setIssuesDemo(on) {
     + ISSUES_DEMO.map(([lvl, msg]) => `<div class="pust-issue ${lvl}">${msg}</div>`).join("");
   nav.before(box);
 }
-const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false, compact: null, weather: false };
+const opened = { issues: false, travel: false, form: false, demo: false, note: false, move: false, zone: false, eform: false, tgt: false, newen: false, cargo: null, gear: null, check: false, dock: false, dockDemo: false, zframe: false, round: false, tok: false, compact: null, weather: false, endStrip: false };
 /**
  * «Компактний режим» (author, 2026-11-18): the step switches the sheet on show to compact by its own switch, and the view it
  * had comes back when the step is left or the tour ends, so the demonstration never changes the user's remembered choice
@@ -217,6 +218,7 @@ async function restoreFull() {
 }
 async function closeTransient(keep = new Set()) {
   if (opened.compact && !keep.has("compactDemo")) await restoreCompact();
+  if (opened.endStrip && !keep.has("endStrip")) { document.body.classList.remove("pust-end-show"); opened.endStrip = false; }
   if (opened.issues && !keep.has("issuesDemo")) { setIssuesDemo(false); opened.issues = false; }
   if (opened.tok && !keep.has("tokenDemo") && !keep.has("caravanToken")) { await (await import("../canvas/token-demo.mjs")).setTokenDemo(false); opened.tok = false; }
   if (opened.zframe && !keep.has("zoneFrame")) { await (await import("../canvas/battle-zones.mjs")).setZoneFrame(null); opened.zframe = false; }
@@ -465,6 +467,8 @@ export const PREPARE = {
     if (app?.rendered) app.setPosition({ left: 110, top: 40 });
     await sleep(200);
   },
+  /** the strip under the end buttons, shown only on hover (author, 2026-11-21), held open for the step */
+  endStrip: async () => { document.body.classList.add("pust-end-show"); opened.endStrip = true; await sleep(100); },
   issuesDemo: async () => { setIssuesDemo(true); opened.issues = true; await sleep(150); },
   /** «Статуси й відпочинок» folded by default (author, 2026-11-20; U1): opened in the page for the step, so its buttons show */
   statusOpen: async () => {
@@ -589,6 +593,28 @@ export class PustTour extends foundry.nue.Tour {
     return super.start();
   }
 
+  /**
+   * One step change at a time, the newest wins (2026-11-21, the reviewer: quick `progress(i)` calls, a resize, `exit()`, and
+   * an overlay stayed, blocking every click). Foundry's `progress` ran side by side: each call drew its own highlight and
+   * overlay, the tour kept only the last one, and `exit()` took down only that. Now a call waits until the one before has
+   * wholly finished; a waiting call a newer one overtook is skipped; a call overtaken (or left by `exit()`) while it runs
+   * draws nothing.
+   */
+  #queue = serialQueue();
+  progress(stepIndex) {
+    // a step shown again after the tour ended (the audit walks tours by `progress`, without `start`): drawing allowed again;
+    // a step change still running from before the end is stale all the same (this call overtakes it)
+    if (stepIndex >= 0 && stepIndex < this.steps.length) this.#done = false;
+    return this.#queue.run(() => super.progress(stepIndex));
+  }
+
+  /** everything this tour put over the page (highlight, overlay, its own cards): none may outlive its step */
+  #films = new Set();
+  #film(el) { if (el) this.#films.add(el); return el; }
+  #sweep() { for (const el of this.#films) el.remove(); this.#films.clear(); }
+  /** may this tour draw now: running, not ending, and its step change not overtaken */
+  get #live() { return !this.#done && this.#queue.current && foundry.nue.Tour.activeTour === this; }
+
   /** the step whose element was missing: its selector is put back after it */
   #hidden = null;
 
@@ -649,7 +675,8 @@ export class PustTour extends foundry.nue.Tour {
     };
     this.#watchRect = key();
     this.#watchTimer = setInterval(() => {
-      if (foundry.nue.Tour.activeTour !== this) return this.#unwatch();
+      if (!this.#live) return this.#unwatch();
+      if (this.#queue.busy) return; // a step change is under way: it draws the step itself
       // Foundry's tooltip manager hides the card when the pointer «leaves» its element (author, 2026-11-16: the zone
       // editor's step lost its card after «Далі»): drawn again
       if (this.#onTooltip && !game.tooltip.tooltip.classList.contains("active")) { this.#watchRect = key(); return this.#redraw(); }
@@ -677,11 +704,12 @@ export class PustTour extends foundry.nue.Tour {
   /** the same step drawn again where its element is now */
   async #redraw() {
     this.#unwatch();
+    if (!this.#live || this.#queue.busy) return;
     const step = this.currentStep;
     await this._postStep();
     // the tour may have moved on, ended or been left while the old card was taken down (author, 2026-11-17: the last
     // step's card came back over «Тур завершено» — a redraw raced with «Готово» while the view still panned)
-    if (this.#done || foundry.nue.Tour.activeTour !== this || this.currentStep !== step) return;
+    if (!this.#live || this.#queue.busy || this.currentStep !== step) return;
     this.targetElement = step?.selector ? this._getTargetElement(step.selector) : null;
     if (step) await this._renderStep();
   }
@@ -695,6 +723,7 @@ export class PustTour extends foundry.nue.Tour {
     this.#proxy?.remove();
     this.#proxy = null;
     await super._postStep();
+    this.#sweep();
     if (this.#hidden) { this.#hidden.step.selector = this.#hidden.selector; this.#hidden = null; }
   }
 
@@ -719,6 +748,9 @@ export class PustTour extends foundry.nue.Tour {
   }
 
   async _renderStep() {
+    // a step change overtaken by a newer one, or by the tour's end, while it prepared: nothing is drawn
+    if (!this.#live) return;
+    this.#sweep(); // the step before took its own down; anything left of it goes now
     const step = this.currentStep;
     const missing = !!step.selector && !this.targetElement;
     if (missing) { this.#hidden = { step, selector: step.selector }; step.selector = undefined; }
@@ -745,16 +777,17 @@ export class PustTour extends foundry.nue.Tour {
       card.innerHTML = html;
       card.classList.add("tour-center-step", "tour", "themed", "theme-dark", "pust-tour");
       document.body.appendChild(card);
+      this.#film(card);
       if (lit) { this.#centerCard = card; card.classList.add("pust-tour-aside"); placeAside(card, lit); }
       else this.targetElement = card;
     }
     const pad = step.selector && !this.#hidden ? foundry.nue.Tour.HIGHLIGHT_PADDING : 0;
-    this.fadeElement = foundry.nue.Tour.highlightElement(this.targetElement, { padding: pad });
+    this.fadeElement = this.#film(foundry.nue.Tour.highlightElement(this.targetElement, { padding: pad }));
     // only the part its window shows: a fold taller than the sheet's content is lit down to the sheet's edge, not past the screen
     if (this.targetElement !== card) {
       const fade = this.fadeElement, sel = step.selector;
       const clip = () => {
-        if (!fade.isConnected) return;
+        if (!fade.isConnected || this.fadeElement !== fade || !this.#live) return;
         // found again: a sheet re-rendered for the step (a fold remembered) has replaced the element it was measured on
         const el = (sel && this._getTargetElement(sel)) || this.targetElement;
         if (!el?.isConnected) return;
@@ -764,7 +797,7 @@ export class PustTour extends foundry.nue.Tour {
       // again once the window has settled its height (a sheet opened for the step cuts its content a moment later)
       clip(); setTimeout(clip, 60); setTimeout(clip, 150);
     }
-    this.overlayElement = document.createElement("div");
+    this.overlayElement = this.#film(document.createElement("div"));
     this.overlayElement.classList.add("tour-overlay");
     document.body.appendChild(this.overlayElement);
 
@@ -790,11 +823,19 @@ export class PustTour extends foundry.nue.Tour {
 
   exit() {
     this.#done = true;
+    const late = this.#queue.busy; // a step change still preparing (opening windows): it is let finish, then cleaned up
+    this.#queue.cancel();
     this.#unwatch();
     document.body.classList.remove("pust-touring");
     super.exit();
+    this.#sweep();
     // the sheet's own view first, then the windows the tour opened go with it
-    restoreCompact().then(restoreFull).finally(() => { closeAll(); closeTransient(); });
+    const clean = () => restoreCompact().then(restoreFull).finally(() => { closeAll(); closeTransient(); });
+    clean();
+    if (late) this.#queue.settled().then(() => {
+      this.#sweep();
+      if (!foundry.nue.Tour.activeTour) clean(); // another tour started meanwhile keeps its windows
+    });
   }
 
   /** The last step: the tour is done, the next one of the chain is offered (our words, not Foundry's) */

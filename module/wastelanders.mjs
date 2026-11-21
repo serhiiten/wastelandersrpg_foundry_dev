@@ -28,6 +28,7 @@ import { WastelandersCaravanSheetV2 } from "./sheets/caravan-sheet-v2.mjs";
 import { WastelandersEnemySheet } from "./sheets/enemy-sheet.mjs";
 import { WastelandersPlaceSheet } from "./sheets/place-sheet.mjs";
 import { renderMapDock } from "./applications/map-dock.mjs";
+import { endRowPlace } from "./helpers/end-row-place.mjs";
 import { WastelandersItemSheet } from "./sheets/item-sheet.mjs";
 import { WastelandersSpeciesBuilder } from "./sheets/species-builder.mjs";
 import { WastelandersDrugBuilder } from "./sheets/drug-builder.mjs";
@@ -375,7 +376,7 @@ function dockTerminal() {
     dock = document.createElement("div");
     dock.className = "wastelanders-terminal-dock";
     dock.innerHTML = `<button type="button" class="wastelanders-terminal-open"
-      aria-label="Термінал Доглядача"><i class="fa-solid fa-terminal"></i> Термінал Доглядача</button>`;
+      aria-label="Термінал Доглядача"><i class="fa-solid fa-terminal"></i> Термінал</button>`;
     const btn = dock.firstElementChild;
     btn.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); clearTimeout(btn._tip); game.tooltip.deactivate(); toggleTerminal(); });
     // its hint comes later than Foundry's usual 0.5 s (author, 2026-11-14): 1.5 s of hovering
@@ -389,7 +390,10 @@ function dockTerminal() {
     moves.type = "button";
     moves.className = "wastelanders-moves-open";
     moves.setAttribute("aria-expanded", "false");
-    moves.innerHTML = `<i class="fa-solid fa-fire"></i> Ходи Доглядача`;
+    // the plates say «Термінал» / «Ходи» (author, 2026-11-21: «прибрати слово Доглядача»; at 1366 px with the sidebar open
+    // «Ходи Доглядача» and the end row ran over «Битва»); the full names stay for screen readers and in the windows' titles
+    moves.setAttribute("aria-label", "Ходи Доглядача");
+    moves.innerHTML = `<i class="fa-solid fa-fire"></i> Ходи`;
     moves.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); toggleGmMoves(moves); });
     dock.append(moves);
     // «Кінець сцени» / «Новий день» / «Кінець сесії» (author, 2026-11-21, mockup В): a second row under the plates, apart
@@ -407,7 +411,43 @@ function dockTerminal() {
   const edge = Math.max(r.right, expand?.width ? expand.right : 0);
   dock.style.left = `${Math.round(edge - c.left + 8)}px`;
   dock.style.top = `${Math.round(r.top - c.top)}px`;
+  placeEndRow();
 }
+
+/**
+ * The end buttons in the top row, right of «Ходи», when they fit there; under the plates only when there they would run over
+ * «Сцена» / «Битва» or the sidebar (author, 2026-11-21). Measured again when the panels move (resize, sidebar, a drag, the
+ * scene's kind) and when the row redraws (the session number widens it).
+ */
+function placeEndRow() {
+  const dock = document.querySelector("#ui-left-column-2 > .wastelanders-terminal-dock");
+  const btns = dock?.querySelector(".wastelanders-end-row .pust-end-btns");
+  if (!dock || !btns) return;
+  const p1 = dock.querySelector(".wastelanders-terminal-open")?.getBoundingClientRect();
+  const p2 = dock.querySelector(".wastelanders-moves-open")?.getBoundingClientRect();
+  if (!p1?.width || !p2?.width) return;
+  const ft = dock.querySelector(".wastelanders-end-row .pust-end-ft");
+  const b = btns.getBoundingClientRect();
+  const row = { width: Math.max(b.width, ft?.offsetWidth ?? 0), btnHeight: b.height, height: b.height + 4 + (ft?.offsetHeight ?? 0) };
+  const panels = [...document.querySelectorAll("#pust-mapdock .pust-md-unit, #sidebar")]
+    .filter((el) => el.offsetParent || el.id === "sidebar").map((el) => el.getBoundingClientRect());
+  const where = endRowPlace({ right: p2.right, top: Math.min(p1.top, p2.top), bottom: Math.max(p1.bottom, p2.bottom) }, row, panels);
+  dock.classList.toggle("pust-end-top", where === "top");
+}
+const placeEndRowSoon = foundry.utils.debounce(placeEndRow, 60);
+Hooks.on("collapseSidebar", () => setTimeout(placeEndRow, 450)); // after the sidebar's slide
+window.addEventListener("resize", placeEndRowSoon);
+document.addEventListener("pust-end-row", placeEndRowSoon);
+Hooks.once("ready", () => {
+  if (!game.user.isGM) return;
+  // the right panels move by their style (map-dock.mjs place / drag); the row redraws with the session number
+  const watch = () => {
+    const dockEl = document.getElementById("pust-mapdock");
+    if (!dockEl) return setTimeout(watch, 500);
+    new MutationObserver(placeEndRowSoon).observe(dockEl, { subtree: true, attributes: true, attributeFilter: ["style", "class", "hidden"] });
+  };
+  watch();
+});
 Hooks.on("renderSceneNavigation", () => requestAnimationFrame(dockTerminal));
 Hooks.once("ready", () => requestAnimationFrame(dockTerminal));
 // U4 (author, 2026-11-21): a check that asks for the GM's move whispers «Зроби хід проти …» and lights «Ходи Доглядача»

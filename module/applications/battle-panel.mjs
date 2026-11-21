@@ -323,6 +323,7 @@ export function redrawEndRows() {
     if (el.contains(document.activeElement) && document.activeElement.matches("input")) continue;
     el.innerHTML = endRowHtml();
   }
+  document.dispatchEvent(new Event("pust-end-row")); // its width may change: wastelanders.mjs places it again
 }
 
 /** The GM's row in the top dock: drawn and listened to here */
