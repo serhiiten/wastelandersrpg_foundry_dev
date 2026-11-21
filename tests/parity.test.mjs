@@ -11,6 +11,8 @@ import { readFileSync } from "node:fs";
 import * as R from "../module/rules/core.mjs";
 import { createLogic } from "../module/rules/logic.mjs";
 import { createController } from "../module/rules/controller.mjs";
+import { usesFor } from "../module/rules/perk-uses.mjs";
+import { adoptGrants, grantOptions, impSkillOptions } from "../module/rules/skill-sources.mjs";
 import { actorToState, mergeSystem, planSync, stateToActor } from "../module/rules/character-adapter.mjs";
 import { loadHtmlSheet } from "./html-sandbox.mjs";
 
@@ -102,7 +104,7 @@ const SAME = {
   "k:bio": "note:bio", // «Біографія» / «Інші» in Foundry's editor (prose-mirror data-note; author, 2026-11-15)
   "k:others": "note:others",
   "k:weapons.N.en": "change:dtype", // «Тип»: the energy version plus fire / psi / poison / radiation (Foundry only, author 2026-11-14)
-  "act:rage": "act:perk-use", // «Лють ботана» is used by «Застосувати» of its perk card (perk-uses.mjs; author, 2026-11-18)
+  "act:rage": "act:perk-use", // «Лють ботана»: chem.js keeps the action, both sheets press it through «Застосувати» (perk-uses / perks.js)
   "act:dismiss": "SKIP",
   "ui:restN": "ui:restMedic",
   "ui:restQr": "ui:restQr",
@@ -196,7 +198,7 @@ function onHtml(st0, step, s) {
   sheet.run("chemSeq = 0;");
   seed = s;
   step.html(sheet);
-  sheet.run("syncAuto(st); if(typeof chemKO==='function') chemKO();"); // what the page's render() does
+  sheet.run("syncAuto(st); adoptSources(); if(typeof chemKO==='function') chemKO();"); // what the page's render() does
   return { st: fromHtml(sheet.getState()), toasts: sheet.toasts.map((t) => fromHtml(t[1])) };
 }
 
@@ -208,10 +210,12 @@ function onFoundry(st0, step, s) {
   const toasts = [];
   const toast = (m) => toasts.push(String(m));
   const L = createLogic({ st, toast, ui: step.ui || {} });
-  const C = createController(st, L, { toast });
+  // the perks' dice as the HTML sheet's rnd() draws them from the shared stream (crypto), so both roll the same
+  const C = createController(st, L, { toast, rng: (n) => 1 + (Math.floor(stream() * 2 ** 32) % n) });
   seed = s;
   step.foundry(C, L, st);
   R.syncAuto(st);
+  if (!st.set?.free) adoptGrants(st, R.compute(st)); // what character-actions.mjs does on save
   L.chemKO();
   const plan = planSync(actor, st);
   const a = clone(actor);
@@ -247,11 +251,63 @@ const inFree = (step) => ({
   foundry: (C) => { C.setField("set.free", true, FREE); return step.foundry(C); },
 });
 
+/**
+ * Skills out of free mode (row 3.3 of the backport, 2026-11-19): the list picks the starting skills, an improvement's
+ * target gets the level, «Ерудит» / «Добра душа» / «Переконаний дикун» raise the skill chosen in their card, and taking
+ * any of them away takes the level back; manual bonuses are refused out of free mode.
+ */
+function skillSteps(st) {
+  const n = st.name.length;
+  const sk = R.SKILLS[n % R.SKILLS.length];
+  const at = (l) => R.SKILLS.find((s) => (st.skills[s] || 0) === l);
+  const both = (name, fn) => ({ name, html: (S) => fn(S, "html"), foundry: (C, L, s) => fn(C, "foundry", s) });
+  // an improvement slot: on, then its target (the first one that fits), optionally off again
+  const imp = (k, off) => {
+    const t = impSkillOptions(st, k, 0, "")[n % Math.max(1, impSkillOptions(st, k, 0, "").length)];
+    return t ? [both(`imp ${k} → ${t}${off ? " і назад" : ""}`, (X, side) => {
+      if (side === "html") { X.act("imp", { k, i: "0" }); X.change(`imp.${k}.0.t`, t); if (off) X.act("imp", { k, i: "0" }); }
+      else { X.act("imp", { k, i: "0" }); X.setField(`imp.${k}.0.t`, t); if (off) X.act("imp", { k, i: "0" }); }
+    })] : [];
+  };
+  // a grant: the feat / perk is there, its skill chosen, then moved, then the source removed
+  const grant = (src) => {
+    const d = R.compute(st);
+    const opts = grantOptions(st, d, src, "").filter((s) => (R.SKILLS.includes(s)));
+    const [a, b] = [opts[n % Math.max(1, opts.length)], opts[(n + 1) % Math.max(1, opts.length)]];
+    if (!a) return [];
+    const add = (X, side, s) => {
+      if (src === "Ерудит") { if (side === "html") X.run("st.perks.push({n:'Ерудит', note:''})"); else s.perks.push({ n: "Ерудит", note: "" }); }
+      else if (side === "html") X.run(`if(!st.feats.includes('${src}')) st.feats.push('${src}')`); else if (!s.feats.includes(src)) s.feats.push(src);
+    };
+    const pick = (X, side, v) => {
+      if (src === "Ерудит") { if (side === "html") X.actChange("erudit", v, { i: String(st.perks.length) }); else X.setErudite(String(st.perks.length), v); }
+      else if (side === "html") X.actChange("grant", v, { n: src }); else X.setGrantSkill(src, v);
+    };
+    const del = (X, side) => {
+      if (src === "Ерудит") X.act("perk-del", { i: String(st.perks.length) });
+      else X.act("feat-del", { i: String(st.feats.includes(src) ? st.feats.indexOf(src) : st.feats.length) });
+    };
+    return [
+      both(`${src} → ${a}`, (X, side, s) => { add(X, side, s); pick(X, side, a); }),
+      both(`${src} → ${a} → ${b}`, (X, side, s) => { add(X, side, s); pick(X, side, a); pick(X, side, b); }),
+      // removal asks twice on the HTML page (confirmStep); the sandbox's button has no state, so press it twice there too
+      both(`${src} → ${a}, прибрано`, (X, side, s) => { add(X, side, s); pick(X, side, a); del(X, side); if (side === "html") del(X, side); }),
+    ];
+  };
+  return [
+    act("skill", { s: sk, l: "1" }), act("skill", { s: sk, l: "2" }), act("skill", { s: sk, l: "3" }),
+    ...(at(1) ? [act("skill", { s: at(1), l: "1" })] : []),
+    ...imp("skill"), ...imp("skill", true), ...imp("skill2"), ...imp("skill2", true), ...imp("skill3"),
+    ...grant("Ерудит"), ...grant("Добра душа"), ...grant("Переконаний дикун"),
+    field("hpMaxOv", "3"), act("ov-reset", { k: "hpMaxOv" }), act("def-reset"), field("defOv.rad", "immune"), field("supMax", "8"),
+  ];
+}
+
 function stepsFor(st) {
   const steps = [
     act("gender", { v: "f" }), act("roll-name"), act("roll-asp", { i: "1" }), act("roll-detail"), act("roll-species"),
     act("roll-perks"), act("roll-feats"), act("roll-gear"), act("apply-arch"),
-    act("attr", { k: "SL", d: "1" }), act("attr", { k: "VTR", d: "-1" }), { ...act("skill", { s: "Атлетика", l: "1" }), skipToasts: true }, // Foundry's refusal says where new skills come from
+    act("attr", { k: "SL", d: "1" }), act("attr", { k: "VTR", d: "-1" }), act("skill", { s: "Атлетика", l: "1" }), // both sheets: the list only picks the starting skills (row 3.3)
     act("perk-add", { n: R.PERKS[st.name.length % R.PERKS.length].n }), act("perk-del", { i: "0" }),
     act("feat-add", { n: R.FEATS[st.name.length % R.FEATS.length].n }), act("feat-del", { i: "0" }),
     act("imp", { k: "perk", i: "0" }), act("imp", { k: "skill2", i: "0" }),
@@ -273,6 +329,10 @@ function stepsFor(st) {
     },
   ];
   st.other.forEach((o, i) => { if (R.drugOf(o.n)) steps.push(act("chem-use", { i: String(i) })); });
+  steps.push(...skillSteps(st));
+  // «Застосувати» of every perk use the character has (row 3.2): the state and the mark; the HTML sheet's toast and the
+  // result on its card stand for Foundry's chat card, so the messages aren't compared
+  for (const u of usesFor(st)) if (!u.show) steps.push({ ...act("perk-use", { id: u.id }), skipToasts: true }, act("perk-free", { id: u.id }));
   st.weapons.forEach((w, i) => {
     steps.push(field(`weapons.${i}.hand`, !w.hand), field(`weapons.${i}.h`, !w.h, { type: "checkbox" }), field(`weapons.${i}.n`, "Труба"));
   });
@@ -305,9 +365,9 @@ for (let c = 0; c < 60; c++) {
     }
     compared++;
     // the chem effects' «half» marker, which the HTML sheet doesn't write (Рад-Ікс / Отрута-Ікс go through it in Foundry:
-    // the constructors, row 5.2); perkUse: the perks' marks; «Скинути лічильники» clears swSession too (Foundry only,
-    // author 2026-11-18)
-    const lesser = (o) => { const r = clone(o); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; if (r.chem) { delete r.chem.perkUse; if (!r.chem.swSession) delete r.chem.swSession; } return r; };
+    // the constructors, row 5.2). The perks' marks (perkUse) and swSession are compared: both sheets have «Застосувати»
+    // since row 3.2 of the backport (2026-11-19)
+    const lesser = (o) => { const r = clone(o); for (const e of [...(r.chem?.scene || []), ...(r.chem?.day || [])]) delete e.half; return r; };
     const A = lesser(canon(h.st));
     const B = lesser(canon(f.st));
     if (step.fix) { step.fix(A); step.fix(B); }

@@ -35,13 +35,33 @@ eq(hurt(12), false, "25 ОЗ, damage 13 (= half rounded up): not yet");
 eq(hurt(11), true, "25 ОЗ, damage 14: suffered");
 eq(hurt(0), false, "ОЗ 0: destroyed, not «suffered»");
 
-// the HTML caravan sheet counts the same
+// the HTML caravan sheet counts the same. Since stage 3 of the backport (2026-11-19) it has the rows' ticks too: its own
+// copies of rowSale / cargoHurtAt (read from the page's script) must give Foundry's numbers; the old whole-caravan
+// salePrices of the shared rules stays the same on the same (read) state
 const H = loadHtmlCaravan();
 for (const [val, lh] of [[10, false], [10, true], [7, false], [7, true]]) {
-  const S = caravan(val, lh);
+  const S = L.normalize(caravan(val, lh));
   H.setState(S);
   const got = H.api.salePrices(H.api.derived(H.api.getS()), H.api.getS());
   eq(got, L.salePrices(L.derived(S), S), `HTML sheet, ${val}(к)${lh ? ", long" : ""}`);
+}
+{
+  const intJs = (v, d = 0) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : d; };
+  const fn = H.html.match(/\n  function rowSale\(r\) \{[\s\S]*?\n  \}\n/);
+  const arrow = H.html.match(/\n  const cargoHurtAt = [^\n]*\n/);
+  eq([!!fn, !!arrow], [true, true], "the HTML sheet has rowSale and cargoHurtAt");
+  const htmlRowSale = new Function("int", fn[0] + "return rowSale;")(intJs);
+  const htmlHurtAt = new Function("int", arrow[0] + "return cargoHurtAt;")(intJs);
+  const { rowSale: fRowSale, cargoHurtAt: fHurtAt } = await import("../module/rules/caravan-adapter.mjs");
+  let n = 0;
+  for (const kind of ["cargo", "pass"]) for (const price of ["", "0", "3", "7", "10", "-4", "abc"]) for (const qty of ["", "0", "1", "3"])
+    for (const far of [false, true]) for (const hurt of [false, true]) {
+      const r = { kind, price, qty, far, hurt };
+      if (htmlRowSale(r) !== fRowSale(r)) eq(htmlRowSale(r), fRowSale(r), `HTML rowSale ${JSON.stringify(r)}`);
+      n++;
+    }
+  for (const max of [1, 2, 25, 35, 64]) for (let hp = -1; hp <= max + 1; hp++) if (htmlHurtAt(hp, max) !== fHurtAt(hp, max)) eq(htmlHurtAt(hp, max), fHurtAt(hp, max), `HTML cargoHurtAt(${hp}, ${max})`);
+  eq(n, 224, "rows compared");
 }
 
 // Foundry (author, 2026-11-14): «далека» and «пошкоджено» are ticks of each cargo row; «Сума продажу» adds the rows up

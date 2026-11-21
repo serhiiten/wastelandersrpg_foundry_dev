@@ -29,6 +29,13 @@ ok(!fileStateOk({ base: null, skills: null, species: null }, "character"), "null
 ok(!fileStateOk({ ...blankState(), perks: { a: 1 }, name: "x" }, "character"), "perks that are no list refused");
 ok(!fileStateOk({ ...blankState(), feats: "так", name: "x" }, "character"), "feats that are no list refused");
 ok(!fileStateOk({ ...clone(QUICK_START), counters: [null, 5] }, "caravan"), "broken caravan counters refused");
+// the caravan's bonuses and defences (stage 3 of the backport, 2026-11-19): numbers and an object
+ok(fileStateOk({ ...clone(QUICK_START), hpBonus: -3, armorBonus: "2", psiArmor: 1, defOv: { rad: "half" } }, "caravan"), "a caravan with bonuses and defences opens");
+ok(!fileStateOk({ ...clone(QUICK_START), hpBonus: "багато" }, "caravan"), "a max HP bonus that is no number refused");
+ok(!fileStateOk({ ...clone(QUICK_START), armorBonus: true }, "caravan"), "an armour bonus that is no number refused");
+ok(!fileStateOk({ ...clone(QUICK_START), psiArmor: "x" }, "caravan"), "psychic armour that is no number refused");
+ok(!fileStateOk({ ...clone(QUICK_START), defOv: "half" }, "caravan"), "defences that are no object refused");
+ok(!fileStateOk({ ...clone(QUICK_START), defOv: ["half"] }, "caravan"), "defences as a list refused");
 
 console.log(failures ? `${failures} of ${checks} checks FAILED` : `file-check OK (${checks} checks)`);
 if (failures) process.exit(1);

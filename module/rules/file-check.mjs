@@ -46,12 +46,14 @@ const optList = (v) => v === undefined || Array.isArray(v);
 
 const CHAR_NUMS = ["hpCur", "fdCur", "hpRed", "hpMaxOv", "fdOv", "armorOv", "psiArmorOv", "supMax", "xp", "supplies", "caps"];
 const CHAR_LISTS = ["perks", "feats", "customFeats", "sit", "weapons", "armor", "other"];
-const CAR_NUMS = ["luck", "karma", "budget", "hpCurrent", "moveCurrent", "supplies", "hpMaxOverride", "armorOverride"];
+const CAR_NUMS = ["luck", "karma", "budget", "hpCurrent", "moveCurrent", "supplies", "hpMaxOverride", "armorOverride", "hpBonus", "armorBonus", "psiArmor"];
 const CAR_LISTS = ["cargo", "counters", "customImps"];
 
 /** The file's numbers are numbers and its lists are lists */
 export function shapeOk(st, kind) {
-  if (kind === "caravan") return CAR_NUMS.every((k) => optNum(st[k])) && numMap(st.imp) && CAR_LISTS.every((k) => optList(st[k]));
+  // the caravan's defences by damage type (`defOv`, stage 3 of the backport): an object, when present
+  if (kind === "caravan") return CAR_NUMS.every((k) => optNum(st[k])) && numMap(st.imp) && CAR_LISTS.every((k) => optList(st[k]))
+    && (st.defOv === undefined || st.defOv === null || (typeof st.defOv === "object" && !Array.isArray(st.defOv)));
   return numMap(st.base) && numMap(st.skills) && CHAR_NUMS.every((k) => optNum(st[k])) && CHAR_LISTS.every((k) => optList(st[k]));
 }
 

@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 const SRC = new URL("../../pustelnyky-character-generator/src/", import.meta.url);
-const FILES = ["gamedata.js", "engine.js", "sheet.js", "pdfform.js", "roller.js", "chem.js", "app.js"];
+const FILES = ["gamedata.js", "engine.js", "sheet.js", "pdfform.js", "roller.js", "chem.js", "perks.js", "skills.js", "app.js"];
 
 /** An object that accepts any property access / call (for DOM pieces the logic never really needs) */
 function stub() {

@@ -98,5 +98,27 @@ function fresh(species = "ghoul") {
   ok(startPicks(st, Rc.compute(st)).left === 0, "after adoption the starting picks add up");
 }
 
+{ // an older HTML sheet: skill improvements counted as slots, no target chosen (author, 2026-11-19: they adopt the target)
+  const st = Rc.blankState(); st.species = "ghoul";
+  Object.assign(st.skills, { "Стрільба": 3, "Крадіж": 2, "Атлетика": 1 });
+  st.imp.skill3[0].on = true; st.imp.skill2[0].on = true; st.imp.skill2[1].on = true; st.imp.skill[0].on = true;
+  const before = JSON.stringify(st.skills);
+  adoptGrants(st, Rc.compute(st));
+  ok(JSON.stringify(st.skills) === before, "adoption changed the levels");
+  ok(st.imp.skill3[0].t === "Стрільба", "майстер not adopted: " + st.imp.skill3[0].t);
+  ok([st.imp.skill2[0].t, st.imp.skill2[1].t].sort().join() === "Крадіж,Стрільба", "підмайстер not adopted: " + st.imp.skill2.map((x) => x.t));
+  ok(["Атлетика", "Крадіж", "Стрільба"].includes(st.imp.skill[0].t), "+ навичка not adopted: " + st.imp.skill[0].t);
+  ok(startPicks(st, Rc.compute(st)).left === 0, "after adoption the starting picks add up: " + startPicks(st, Rc.compute(st)).left);
+  // nothing to explain: an improvement without a target stays without one (the player is about to choose)
+  const f = fresh(); f.C.act("skill", { s: "Крадіж", l: "1" }); f.C.act("imp", { k: "skill2", i: "0" });
+  adoptGrants(f.st, Rc.compute(f.st));
+  ok(f.st.imp.skill2[0].t === "", "a fresh improvement got a target by itself: " + f.st.imp.skill2[0].t);
+  // the improvement took over the starting pick, so the list is open again for a new one
+  const g = fresh(); g.C.act("skill", { s: "Крадіж", l: "1" }); g.C.act("skill", { s: "Атлетика", l: "1" });
+  g.C.act("imp", { k: "skill", i: "0" });
+  adoptGrants(g.st, Rc.compute(g.st));
+  ok(g.st.imp.skill[0].t === "", "+ навичка adopted a skill with the starting picks in order: " + g.st.imp.skill[0].t);
+}
+
 console.log(failures ? `FAIL (${failures})` : "OK");
 if (failures) process.exit(1);
