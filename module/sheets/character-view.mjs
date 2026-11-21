@@ -297,7 +297,19 @@ export function buildView(st, d, L, ui = {}) {
     return [...energyOptions(cur), ...EXTRA_TYPES.map((k) => ({ v: k, n: DMG_TYPES[k], sel: cur === k }))];
   };
   const opts = (map, cur) => Object.entries(map).map(([v, n]) => ({ v, n, sel: (cur || "") === v }));
+  // «Вид» (author, 2026-11-20): Стрілецька / Ближній бій; shown as the rules guess it (the Guns data, the name) until chosen by
+  // hand (`w.wk`); «Не вказано» only while the guess fails; none for psychic powers, claws and built-in weapons
+  const WK = { ranged: "Стрілецька", melee: "Ближній бій" };
+  const wkOptions = (w, i) => {
+    if (w.auto || w.claw) return null;
+    const guess = L.weaponKind({ key: `w${i}`, w: { ...w, wk: "" } });
+    const cur = WK[w.wk] ? w.wk : WK[guess] ? guess : "";
+    return [...(cur ? [] : [{ v: "", n: "Не вказано", sel: true }]), ...Object.entries(WK).map(([v, n]) => ({ v, n, sel: cur === v }))];
+  };
+  // grenades and explosives of «Інший мотлох» the attack can throw (the rules' damage choices «o<i>»; author, 2026-11-20)
+  const expl = new Map((L.dmgChoices(d) || []).filter((c) => c.expl && /^o\d+$/.test(c.key)).map((c) => [+c.key.slice(1), c.d]));
   const weapons = st.weapons.map((w, i) => ({
+    wkOptions: wkOptions(w, i),
     i, n: w.n || "", d: w.d || "", h: !!w.h,
     // cryo: the damage one step down (as the damage roll counts it); the field shows it, editing shows the base damage
     dEff: weaponDmg(w) !== (w.d || "").trim() ? weaponDmg(w) : "",
@@ -333,6 +345,7 @@ export function buildView(st, d, L, ui = {}) {
         : null,
       treat: !!(D && (D.heal || D.superHeal) && consL && !st.consT?.l),
       desc: D?.d || "", // the drug's description (the compact sheet shows it; author, 2026-11-17)
+      atk: expl.has(i), atkD: expl.get(i) || "", // a grenade / explosive: «Атака» with it (СПР + Техніка)
     };
     row.hasActs = row.usable || row.power || !!row.booster || row.treat; // «Вжити» and the rest take the end of the note's column
     // the card's stripe by the kind of thing (author, 2026-11-15): chems, explosives, power cells, everything else

@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 112;
+export const HELP_VERSION = 113;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -105,7 +105,7 @@ export const TOURS = [
       S("bar", "Аркуш персонажа: Create Actor → «Персонаж», «Швидкий старт»; згортка «Аркуш»: .json, «Випадковий персонаж», «Очистити аркуш», «Як створити персонажа».", { selector: `${CHAR} .pust-sheetbar-btns`, prepare: ["closeAll", "sheet:character", `open:${CHAR} details.pust-sheetbar`], tooltipDirection: "DOWN" }),
       S("head", "Шапка: портрет, ім'я, архетип, вид, стать; Концепція / Проблема / Ціль / Деталь з кістками; вписане вручну кістки не перекидають.", { selector: `${CHAR} .pust-head`, tooltipDirection: "RIGHT" }),
       S("quick", "«Швидкий доступ»: ОЗ, броня, жетони Долі, Припаси, кришки, ОД, ситуативні аспекти; «Вилікувати / Поповнити за N(к)»; «Зробити перевірку».", { selector: `${CHAR} .pust-qgrid`, tooltipDirection: "DOWN" }),
-      S("status", "«Статуси й відпочинок»: статуси; «Відпочити», «Кінець сцени», «Новий день», «Кінець сесії».", { selector: `${CHAR} .pust-qstat`, tooltipDirection: "DOWN" }),
+      S("status", "«Статуси й відпочинок»: статуси; «Відпочити», «Кінець сцени», «Новий день», «Кінець сесії».", { prepare: "statusOpen", selector: `${CHAR} .pust-qstat`, tooltipDirection: "DOWN" }),
       S("build", "«Атрибути й навички»: вільні пункти, стартові навички, «Заповнити за архетипом»; «Сповіщення й попередження».", { prepare: `click:${CHAR} [data-tab="build"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("perks", "«Перки й особливості»: вибір, «Кинути» за архетипом, видові властивості.", { prepare: `click:${CHAR} [data-tab="perks"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("gear", "«Мотлох»: «+ Річ з довідника», «Кинути стартове спорядження»; «У руках» / «Вдягнена»; хімія «Вжити» / «На ціль».", { prepare: `click:${CHAR} [data-tab="gear"]`, selector: `${CHAR} .pust-body > .pust-tools-top`, tooltipDirection: "RIGHT" }),
@@ -113,7 +113,7 @@ export const TOURS = [
       S("notes", "«Записи»: «Біографія», «Інші», редактор, зберігається само.", { prepare: `click:${CHAR} [data-tab="notes"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("xp", "«Покращення»: ОД, квадрат бере покращення; «Як заробляти ОД».", { prepare: `click:${CHAR} [data-tab="xp"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("settings", "Налаштування: «Правила й доповнення» (Пазурі, псионіки, силова броня, Guns, «Вільний режим»), трофеї; «Ручні надбавки», «Захист вручну» лише у вільному режимі.", { prepare: `click:${CHAR} [data-tab="settings"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
-      S("compact", "Компактний режим (крок сам перемикає аркуш і повертає його вигляд): перемикач «Повний / Компактний»; для гри за столом — швидкий доступ, «Перки та особливості» з «Застосувати», хімія, мотлох; створення й налаштування в повному аркуші.", { prepare: ["sheet:character", "compactDemo:character"], selector: `${CHAR}:has(.pust-compact)`, tooltipDirection: "RIGHT" }),
+      S("compact", "Компактний режим (крок сам перемикає аркуш і повертає його вигляд): перемикач «Повний / Компактний»; для гри за столом — швидкий доступ, «Перки та особливості» з «Застосувати», зброя, хімія, мотлох; створення й налаштування в повному аркуші.", { prepare: ["sheet:character", "compactDemo:character"], selector: `${CHAR}:has(.pust-compact)`, tooltipDirection: "RIGHT" }),
       S("builders", "Create Item: конструктори «Вид» і «Наркотик».", { selector: '#items .create-entry', prepare: ["closeAll", "sidebar:items"], tooltipDirection: "LEFT" }),
     ],
   },
@@ -148,7 +148,7 @@ export const TOURS = [
       S("goods", "Припаси (лампочки, «Поповнити за N(к)») і кришки; що покривають Припаси, ціни.", { selector: `${CHAR} .q-goods`, tooltipDirection: "DOWN" }),
       S("xpq", "«Зароблено ОД»: −/+ і «лишилося»; за що дають ОД.", { selector: `${CHAR} .q-xp`, tooltipDirection: "DOWN" }),
       S("situ", "Ситуативні аспекти: додати, швидкі аспекти, безкоштовні Посилення −/+, ×; звідки беруться.", { selector: `${CHAR} .pust-qsit`, tooltipDirection: "DOWN" }),
-      S("rest", "«Статуси й відпочинок»: статуси від виду, перків, особливостей і речей; «Відпочити», кінець сцени, дня, сесії.", { selector: `${CHAR} .pust-qstat`, tooltipDirection: "UP" }),
+      S("rest", "«Статуси й відпочинок»: статуси від виду, перків, особливостей і речей; «Відпочити», кінець сцени, дня, сесії.", { prepare: "statusOpen", selector: `${CHAR} .pust-qstat`, tooltipDirection: "UP" }),
     ],
   },
   {
@@ -163,7 +163,7 @@ export const TOURS = [
       S("notes", "«Записи»: «Біографія» і «Інші», редактор, зберігається само.", { prepare: `click:${CHAR} [data-tab="notes"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("xp", "«Покращення»: ОД, квадрати, лише наприкінці сесії; «Як заробляти ОД».", { prepare: `click:${CHAR} [data-tab="xp"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
       S("settings", "Налаштування: правила, які дозволяє Доглядач, доповнення, вільний режим, трофеї.", { prepare: `click:${CHAR} [data-tab="settings"]`, selector: `${CHAR} .pust-body`, tooltipDirection: "RIGHT" }),
-      S("compact", "Компактний режим (крок сам перемикає аркуш і повертає його вигляд): перемикач «Повний / Компактний»; для гри за столом — швидкий доступ, «Перки та особливості» з «Застосувати», хімія, мотлох; створення й налаштування в повному аркуші.", { prepare: ["sheet:pc", "compactDemo:character"], selector: `${CHAR}:has(.pust-compact)`, tooltipDirection: "RIGHT" }),
+      S("compact", "Компактний режим (крок сам перемикає аркуш і повертає його вигляд): перемикач «Повний / Компактний»; для гри за столом — швидкий доступ, «Перки та особливості» з «Застосувати», зброя, хімія, мотлох; створення й налаштування в повному аркуші.", { prepare: ["sheet:pc", "compactDemo:character"], selector: `${CHAR}:has(.pust-compact)`, tooltipDirection: "RIGHT" }),
     ],
   },
   {

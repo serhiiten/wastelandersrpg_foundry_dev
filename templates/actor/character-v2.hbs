@@ -178,6 +178,27 @@
     {{#if cmp.perks.passive.length}}<dl class="pust-cmp-prows">{{#each cmp.perks.passive}}<dt title="{{tip}}">{{n}}</dt><dd>{{#each parts}}{{#unless @first}}; {{/unless}}<span class="{{#if bad}}bad{{/if}}">{{t}}</span>{{/each}}</dd>{{/each}}</dl>{{/if}}
   </section>
   {{/if}}
+  {{!-- «Зброя» above «Хімія» (author, 2026-11-20; Fable's analysis U2, variant Б): each weapon with the full sheet's two actions,
+       the attack with it and its damage roll; no price, no × (those are the full sheet's) --}}
+  {{#if (or cmp.weapons.length cmp.grenades.length)}}
+  <section class="pust-block pust-cmp-weapons">
+    <h3><i class="fa-solid fa-gun pust-qic" aria-hidden="true"></i>Зброя</h3>
+    {{#each cmp.weapons}}
+    <div class="pust-cmp-wpn kind-{{kind}}">
+      <span class="pust-cmp-cn">{{n}}</span>
+      <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-weapon="{{i}}" data-name="{{n}}" title="Атака цією зброєю: «Зробити перевірку». Перетягни на панель макросів, щоб атакувати звідти"><i class="fa-solid fa-dice-d20"></i> Атака</button>
+      {{#if stat}}<button type="button" class="pust-use-btn pust-cmp-dmg {{statCls}}" data-action="weaponDamage" data-weapon="{{i}}" data-name="{{n}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i> {{stat}}</button>{{/if}}
+    </div>
+    {{/each}}
+    {{#each cmp.grenades}}
+    <div class="pust-cmp-wpn kind-boom">
+      <span class="pust-cmp-cn">{{n}}{{#if q}} <small>×{{q}}</small>{{/if}}</span>
+      <button type="button" class="pust-use-btn pust-cmp-atk" data-action="checkPanel" data-other="{{i}}" data-name="{{n}}" title="Атака цією гранатою чи вибухівкою: «Зробити перевірку» (СПР + Техніка). Перетягни на панель макросів, щоб атакувати звідти"><i class="fa-solid fa-dice-d20"></i> Атака</button>
+      {{#if d}}<span class="pust-cmp-gs pust-cmp-gd">{{d}}</span>{{/if}}
+    </div>
+    {{/each}}
+  </section>
+  {{/if}}
   {{!-- the chems of «Інший мотлох» with their description: «Вжити», «На ціль» and the rest, as on its cards --}}
   {{#if cmp.chems.length}}
   <section class="pust-block pust-cmp-chems">
@@ -200,12 +221,13 @@
     {{/each}}
   </section>
   {{/if}}
-  {{!-- the rest of «Мотлох» as chips «назва · шкода / броня · кількість · вартість ×», and «+ Річ» for the catalogue --}}
+  {{!-- the rest of «Мотлох» as chips «назва · броня · кількість» (price and × only in the full sheet: author, 2026-11-20, U2),
+       and «+ Річ» for the catalogue --}}
   <section class="pust-block pust-cmp-gear">
     <h3><i class="fa-solid fa-box-open pust-qic" aria-hidden="true"></i>Мотлох
       <button type="button" class="pust-go pust-cmp-add" data-action="uiToggle" data-key="cat" title="Додати зброю, броню чи іншу річ із довідника спорядження">{{#if v.cat}}<i class="fa-solid fa-xmark"></i> Сховати довідник{{else}}<i class="fa-solid fa-plus"></i> Річ{{/if}}</button></h3>
     <div class="pust-cmp-chips">
-      {{#each cmp.gear}}<span class="pust-cmp-gc kind-{{kind}}"><b>{{n}}</b>{{#if stat}}<span class="pust-cmp-gs {{statCls}}">{{stat}}</span>{{/if}}{{#if q}}<span class="pust-cmp-gq">×{{q}}</span>{{/if}}{{#if price}}<span class="pust-cmp-gp">{{price}}</span>{{/if}}{{#unless locked}}<button type="button" class="pust-cmp-gx" data-action="act" data-act="row-del" data-l="{{l}}" data-i="{{i}}" data-confirm="1" title="Прибрати «{{n}}» (натисни двічі)" aria-label="Прибрати «{{n}}»"><i class="fa-solid fa-xmark"></i></button>{{/unless}}</span>
+      {{#each cmp.gear}}<span class="pust-cmp-gc kind-{{kind}}"><b>{{n}}</b>{{#if stat}}<span class="pust-cmp-gs {{statCls}}">{{stat}}</span>{{/if}}{{#if q}}<span class="pust-cmp-gq">×{{q}}</span>{{/if}}</span>
       {{else}}<span class="pust-sub">Порожньо.</span>{{/each}}
     </div>
     {{#if v.cat}}
@@ -230,8 +252,9 @@
   </section>
   {{else}}
   {{#if v.issues.length}}
-  <section class="pust-issues">
-    <div class="pust-issues-hd"><i class="fa-solid fa-triangle-exclamation"></i> Сповіщення й попередження <small>{{v.issues.length}}</small></div>
+  {{!-- folded by default to its header with the counter (author, 2026-11-20; Fable's analysis U1) --}}
+  <section class="pust-issues {{#if issuesFold}}folded{{/if}}">
+    <button type="button" class="pust-issues-hd" data-action="uiToggle" data-key="issuesFold" title="{{#if issuesFold}}Розгорнути сповіщення й попередження{{else}}Згорнути сповіщення й попередження{{/if}}"><i class="fa-solid {{#if issuesFold}}fa-chevron-right{{else}}fa-chevron-down{{/if}} pust-fold-ico"></i><i class="fa-solid fa-triangle-exclamation"></i> Сповіщення й попередження <small>{{v.issues.length}}</small></button>
     {{#each v.issues}}<div class="pust-issue {{lvl}}">{{msg}}</div>{{/each}}
   </section>
   {{/if}}
@@ -567,6 +590,7 @@
             <textarea rows="1" data-k="weapons.{{i}}.d" placeholder="—" aria-label="Шкода" class="pust-dmg pust-dmg-in pust-dtin dt-{{dt}} {{#if dEff}}pust-cryo{{/if}}" {{#if dEff}}data-base="{{d}}" data-eff="{{dEff}}" title="Кріо: шкода на ступінь нижча — {{dEff}} (базова {{d}}). Клацни, щоб змінити базову"{{else}}title="Шкода. Кілька типів — у квадратних дужках: 1d10[отрута]+2d6[пси]"{{/if}}>{{#if dEff}}{{dEff}}{{else}}{{d}}{{/if}}</textarea>
             <a class="pust-roll" data-action="weaponDamage" data-weapon="{{i}}" title="Кинути шкоду цієї зброї (без перевірки) — результат у чат"><i class="fa-solid fa-crosshairs"></i></a></div>
           <label class="pust-gf2"><span class="pust-fchip">Вартість</span><input type="text" data-k="weapons.{{i}}.price" value="{{price}}" placeholder="—" class="pust-price" aria-label="Вартість"></label>
+          {{#if wkOptions}}<label class="pust-gf2"><span class="pust-fchip">Вид</span><select data-k="weapons.{{i}}.wk" title="Вид зброї: від нього «Атака» бере СПР + Стрільба чи СЛ + Герць. Система визначає вид сама (за доповненням чи назвою), тут його можна змінити" aria-label="Вид зброї">{{#each wkOptions}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>{{/if}}
           {{#if builtin}}<label class="pust-gf2 pust-gc-full"><span class="pust-fchip">Вбудована</span><select data-k="weapons.{{i}}.cat" title="Вбудована зброя">{{#each builtin}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{n}}</option>{{/each}}</select></label>{{/if}}
           {{#if guns}}
           {{!-- the Guns add-on (author, 2026-11-15): the same glued chip + field pairs as the rest of the card --}}
@@ -657,6 +681,7 @@
           </div>{{/if}}
           <div class="pust-gc-head">
             <div class="pust-gf2"><span class="pust-fchip">Назва</span><input type="text" data-k="other.{{i}}.n" value="{{n}}" placeholder="Назва" class="pust-gname" aria-label="Назва" {{#if auto}}readonly{{/if}}></div>
+            {{#if atk}}<a class="pust-roll pust-gc-atk" data-action="checkPanel" data-other="{{i}}" title="Атака цією гранатою чи вибухівкою: «Зробити перевірку» (СПР + Техніка). Перетягни на панель макросів, щоб атакувати звідти" aria-label="Атака цією гранатою чи вибухівкою"><i class="fa-solid fa-dice-d20"></i></a>{{/if}}
             <label class="pust-fchip pust-fchip-tog pust-heavy {{#if h}}on{{/if}}" title="Важка річ: рахується у важких речах"><input type="checkbox" data-k="other.{{i}}.h" {{#if h}}checked{{/if}} aria-label="Важка"> Важка</label>
             <button type="button" class="pust-x" data-action="act" data-act="row-del" data-l="other" data-i="{{i}}" data-confirm="1" title="Прибрати"><i class="fa-solid fa-xmark"></i></button>
           </div>

@@ -36,17 +36,18 @@ const compactKey = (actor) => `pustelnyky-compact-${game.user.id}-${actor.id}`;
 function compactStored(actor) { try { return localStorage.getItem(compactKey(actor)) === "1"; } catch (_) { return false; } }
 function compactStore(actor, on) { try { if (on) localStorage.setItem(compactKey(actor), "1"); else localStorage.removeItem(compactKey(actor)); } catch (_) { /* not kept */ } }
 
-/** «2» → «2(к)», «безкоштовна» / empty → nothing */
-const priceTag = (p) => { const t = String(p ?? "").trim(); return !t || /^0$|безкоштов/i.test(t) ? "" : /^\d+$/.test(t) ? `${t}(к)` : t; };
 /**
- * The compact sheet's gear chips (author, 2026-11-17): every weapon, armour and thing of «Інший мотлох» but the chems — the
- * name, the damage (weapons) or the armour, the quantity (things), the price; a × for whatever the full sheet lets remove
+ * The compact sheet (author, 2026-11-17; «Зброя» apart since 2026-11-20, Fable's analysis U2): the weapons with their damage,
+ * for the attack and damage buttons; the chips of the armour and of «Інший мотлох» but the chems — the name, the armour, the
+ * quantity; price and × only in the full sheet
  */
+function compactWeapons(v) {
+  return (v.weapons ?? []).map((x) => ({ i: x.i, n: x.n || "без назви", kind: x.kind, stat: String(x.dEff || x.d || "").trim(), statCls: `pust-dtin dt-${x.dt}` }));
+}
 function compactGear(v) {
-  const w = (v.weapons ?? []).map((x) => ({ l: "weapons", i: x.i, n: x.n || "без назви", kind: x.kind, stat: x.dEff || x.d, statCls: `pust-dtin dt-${x.dt}`, price: priceTag(x.price), locked: x.locked }));
-  const a = (v.armorList ?? []).map((x) => ({ l: "armor", i: x.i, n: x.n || "без назви", kind: x.kind, stat: String(x.v ?? "").trim() ? `броня ${x.v}` : "", statCls: "arm", price: priceTag(x.price) }));
-  const o = (v.other ?? []).filter((x) => !x.hasActs).map((x) => ({ l: "other", i: x.i, n: x.n || "без назви", kind: x.kind, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "", price: priceTag(x.price) }));
-  return [...w, ...a, ...o];
+  const a = (v.armorList ?? []).map((x) => ({ l: "armor", i: x.i, n: x.n || "без назви", kind: x.kind, stat: String(x.v ?? "").trim() ? `броня ${x.v}` : "", statCls: "arm" }));
+  const o = (v.other ?? []).filter((x) => !x.hasActs && !x.atk).map((x) => ({ l: "other", i: x.i, n: x.n || "без назви", kind: x.kind, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "" }));
+  return [...a, ...o];
 }
 
 /** Actions that make the character anew: their Fate count is no token spent or gained */
@@ -128,6 +129,9 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         species: [...(v.species ?? []), ...(v.speciesX ?? [])].find((o) => o.sel)?.n ?? "",
         aspects: (v.aspects ?? []).filter((a) => String(a.v).trim()),
         chems: (v.other ?? []).filter((o) => o.hasActs).map((o) => ({ ...o, more: !!o.treat })),
+        weapons: compactWeapons(v),
+        // the grenades and explosives the attack can throw: in «Зброя» with «Атака» (author, 2026-11-20), not among the chips
+        grenades: (v.other ?? []).filter((x) => x.atk && !x.hasActs).map((x) => ({ i: x.i, n: x.n || "без назви", d: x.atkD, q: String(x.q ?? "").trim() && String(x.q).trim() !== "1" ? x.q : "" })),
         gear: compactGear(v),
         perks: pk,
         catSecName: (v.catSecs ?? []).find((o) => o.sel)?.n ?? "", catSecAll: !!(v.catSecs ?? [])[0]?.sel,
@@ -135,7 +139,11 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
       };
     }
     context.quickFold = !context.compact && !!this.ui.quickFold; // the compact sheet has no fold for «Швидкий доступ»
-    context.statusFold = !!this.ui.statusFold;
+    // «Статуси й відпочинок» and «Сповіщення й попередження» folded by default in the full sheet, to their headers with the
+    // counters: the tabs come into the first screen (author, 2026-11-20; Fable's analysis U1, variant Б); the compact sheet
+    // keeps its statuses open
+    context.statusFold = this.ui.statusFold ?? !context.compact;
+    context.issuesFold = this.ui.issuesFold ?? true;
     context.ui = { ovOpen: !!this.ui.ovOpen, defOpen: !!this.ui.defOpen, xpHelpOpen: !!this.ui.xpHelpOpen, sheetBarOpen: !!this.ui.sheetBarOpen }; // folded blocks in «Налаштування» (closed by default)
     context.restUi = this.ui.rest;
     context.customKind = this.customKind;
@@ -155,6 +163,17 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   async _preRender(context, options) {
     await super._preRender(context, options);
     rememberScroll(this);
+    if (this.#tabTop) {
+      this.#tabTop = false;
+      const wc = this.element?.querySelector?.(".window-content"), nav = wc?.querySelector("nav.pust-tabs");
+      if (nav && this._pustScroll != null) {
+        // the bar's own place in the content, measured unstuck
+        nav.style.position = "static";
+        const at = nav.getBoundingClientRect().top - wc.getBoundingClientRect().top + wc.scrollTop;
+        nav.style.position = "";
+        this._pustScroll = Math.min(this._pustScroll, Math.max(0, Math.floor(at)));
+      }
+    }
   }
 
   _onRender(context, options) {
@@ -164,6 +183,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     // the compact chips show only their icons: the names go to the tooltips
     // the compact chips (author, 2026-11-17): short names (ОЗ, Броня, ЖД, Припаси, (к), ОД), the full one in the tooltip;
     // the caps' field takes a smaller font past two digits
+    this.#compactSticky();
     if (this.ui.compact) {
       const SHORT = { "fa-heart-pulse": "ОЗ", "fa-shield-halved": "Броня", "fa-clover": "ЖД", "fa-backpack": "Припаси", "fa-coins": "(к)", "fa-medal": "ОД" };
       this.element.querySelectorAll(".pust-qgrid .pust-qi > span:first-child").forEach((s) => {
@@ -179,7 +199,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     // to the hotbar (helpers/macros.mjs; author, 2026-11-17): attributes, skills, a weapon's attack and its damage
     if (!this.document.pustTourDemo) {
       const uuid = this.document.uuid;
-      const name = (el) => el.closest(".pust-gcard")?.querySelector("input.pust-gname")?.value?.trim() || "";
+      const name = (el) => el.closest(".pust-gcard")?.querySelector("input.pust-gname")?.value?.trim() || el.dataset.name?.trim() || "";
       this.element.querySelectorAll('[data-action="checkPanel"][data-attr]').forEach((el) =>
         hotbarDraggable(el, { kind: "attr", actor: uuid, attr: el.dataset.attr, label: el.querySelector(".pust-attr-full")?.textContent.trim() || el.dataset.attr }));
       this.element.querySelectorAll('[data-action="checkPanel"][data-skill]').forEach((el) =>
@@ -188,6 +208,9 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
         hotbarDraggable(el, () => (name(el) ? { kind: "attack", actor: uuid, label: name(el) } : null)));
       this.element.querySelectorAll('[data-action="weaponDamage"][data-weapon]').forEach((el) =>
         hotbarDraggable(el, () => (name(el) ? { kind: "damage", actor: uuid, label: name(el) } : null)));
+      // a grenade's / explosive's «Атака» (author, 2026-11-20)
+      this.element.querySelectorAll('[data-action="checkPanel"][data-other]').forEach((el) =>
+        hotbarDraggable(el, () => (name(el) ? { kind: "throw", actor: uuid, label: name(el) } : null)));
     }
     const root = this.element;
     const fits = []; // every wrapping field's fit, run again when the window's width changes (refitOnResize)
@@ -456,12 +479,33 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   static #onTab(event, target) {
     const { tab, go } = target.dataset;
     if (tab) this.ui.tab = tab;
+    // a tab picked from the stuck bar (U1, author 2026-11-20) opens from its start, not from the old tab's scroll
+    if (tab && target.closest("nav.pust-tabs")) this.#tabTop = true;
     if (go) {
       this.#goTo = go;
       if (go.startsWith(".q-")) this.ui.quickFold = false; // «Швидкий доступ» unfolds to show ОЗ / жетони Долі
     }
     this.render();
   }
+
+  /**
+   * The compact sheet's «Швидкий доступ» sticks to the window's top (author, 2026-11-20) while it takes at most 60 % of the
+   * window's height: a taller block would cover the sheet and its own end could not be scrolled to
+   */
+  #compactSticky() {
+    this._pustStickyRO?.disconnect();
+    const wc = this.element.querySelector(".window-content");
+    const q = this.element.querySelector(".pust-compact > .pust-quickbar");
+    if (!wc || !q) return;
+    const fit = () => q.classList.toggle("pust-qsticky", q.offsetHeight <= wc.clientHeight * 0.6);
+    fit();
+    this._pustStickyRO = new ResizeObserver(fit);
+    this._pustStickyRO.observe(wc);
+    this._pustStickyRO.observe(q);
+  }
+
+  /** A tab was picked from the tab bar: the re-render scrolls back no lower than the bar's place (it stays stuck on top) */
+  #tabTop = false;
 
   /** The block a guide link asked for: scrolled into view and flashed after the render */
   #goTo = null;
@@ -527,7 +571,8 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
 
   static #onUiToggle(event, target) {
     const key = target.dataset.key;
-    this.ui[key] = !this.ui[key];
+    const def = { statusFold: !this.ui.compact, issuesFold: true }; // folded by default (U1)
+    this.ui[key] = !(this.ui[key] ?? def[key] ?? false);
     this.render();
   }
 
