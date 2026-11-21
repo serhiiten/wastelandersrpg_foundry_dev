@@ -543,3 +543,21 @@
 /* the cards in chat */
 .pust-chat.pust-hxcard h4 { margin: 0 0 4px; }
 .pust-chat.pust-hxcard p { margin: 0; }
+
+/* ===== A8: «Розподілити між цілями» under «Завдати шкоди» (author, 2026-11-21, mockup Б): the fold, then the split's rows ===== */
+.pust-roller .rdmg .pust-split { margin: 0; }
+.pust-roller .rdmg .pust-split > summary { cursor: pointer; font-family: var(--pu-f-label); font-weight: 700; font-size: 13.5px; color: #f0a070; }
+.pust-roller .rdmg .pust-split > .rhint { margin: 3px 0 0; font-size: 12.5px; }
+.pust-roller .rdmg .pust-split-box { display: flex; flex-direction: column; gap: 4px; padding-top: 6px; border-top: 1px dashed rgba(240,160,112,.35); }
+.pust-roller .rdmg .pust-split-box > h5 { margin: 0 0 2px; font-family: var(--pu-f-label); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: #f0a070; border: 0; }
+.pust-roller .rdmg .pust-split-row { display: flex; align-items: center; gap: 8px; min-height: 34px; }
+.pust-roller .rdmg .pust-split-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font-family: var(--pu-f-label); font-size: 14px; color: #f1dccb; }
+.pust-roller .rdmg .pust-split-inv { flex: none; display: flex; align-items: center; gap: 4px; }
+.pust-roller .rdmg .pust-split-inv > input.pust-screen { width: 52px !important; height: 32px !important; flex: none; margin: 0; padding: 0 !important; text-align: center; font-family: var(--pu-f-num); font-size: 17px; }
+.pust-roller .rdmg .pust-split-inv > button { flex: none; width: 24px; height: 24px; min-width: 0; min-height: 0; margin: 0; padding: 0; line-height: 22px; border: 1px solid rgba(0,0,0,.35); border-radius: 3px; box-shadow: none; font: 800 15px/22px var(--pu-f-num); cursor: pointer; }
+.pust-roller .rdmg .pust-split-inv > button[data-d="-1"] { background: #f2cdc6; color: #8a2116; }
+.pust-roller .rdmg .pust-split-inv > button[data-d="1"] { background: #cfe6c2; color: #2a5a1c; }
+.pust-roller .rdmg .pust-split-inv > button:disabled { opacity: .45; cursor: default; }
+.pust-roller .rdmg .pust-split-left { margin: 0; font-family: var(--pu-f-num); font-size: 13px; color: #e3c7b0; }
+.pust-roller .rdmg .pust-split-left.over { color: #ff9a8a; font-weight: 700; }
+.pust-roller .rdmg .pust-split-box > button[data-split-go] { align-self: flex-start; }
