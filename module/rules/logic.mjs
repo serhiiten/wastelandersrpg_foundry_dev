@@ -722,7 +722,7 @@ function finishRoll(d){
   L.ci = ci; L.verdict = verdictOf(L.total, ci);
   if(L.luckUp) L.verdict=Math.min(ci.cursed?2:3, L.verdict+1);
   const h={kind:'check', total:L.total, verdict:L.verdict, label:ASHORT[L.attr]+(L.skillName?' + '+L.skillName:''), aspect:!!L.aspect, type:L.type};
-  const hi = L.aspect ? R.hist.findIndex(x=>x.kind==='check' && x.time===L.time) : -1;
+  const hi = (L.aspect||L.luckUp) ? R.hist.findIndex(x=>x.kind==='check' && x.time===L.time) : -1;
   if(hi>=0) R.hist[hi]=Object.assign(h,{time:L.time});
   else R.hist.unshift(Object.assign(h,{time:L.time}));
   R.hist=R.hist.slice(0,12);

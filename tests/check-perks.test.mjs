@@ -51,5 +51,18 @@ ok(!luckOffer({ ...roll(1), dmg: {} }, ["Щасливець"]) && !luckOffer({ .
 const logic = fs.readFileSync(path.join(ROOT, "module/rules/logic.mjs"), "utf8");
 ok(/if\(L\.luckUp\) L\.verdict=Math\.min\(ci\.cursed\?2:3, L\.verdict\+1\);/.test(logic) && /case 'luck':/.test(logic), "logic.mjs has the «Щасливець» raise");
 
+// «Щасливець» replaces the roll's line in the history, never adds a second one (reviewer, 2026-11-21)
+{
+  const R = await import("../module/rules/core.mjs");
+  const { createLogic } = await import("../module/rules/logic.mjs");
+  R.setRandom(R.mulberry32(7));
+  const L = createLogic({ st: R.rollCharacter(null), ui: {} });
+  L.R.type = "gen";
+  L.rollerClick({ tagName: "BUTTON", dataset: { r: "roll" } });
+  const v = L.R.last.verdict;
+  L.rollerClick({ tagName: "BUTTON", dataset: { r: "luck" } });
+  ok(L.R.hist.length === 1 && L.R.hist[0].verdict === Math.min(3, v + 1), `luck: one history line with the raised verdict (${JSON.stringify(L.R.hist.map((h) => h.verdict))})`);
+}
+
 console.log(`check-perks: ${checks - failures}/${checks} passed`);
 if (failures) process.exit(1);
