@@ -103,11 +103,18 @@ export function createCaravanLogic(env = {}) {
     ["luck", "karma", "budget", "hpCurrent", "moveCurrent", "supplies"].forEach(k => st[k] = int(st[k]));
     st.luck = Math.max(-2, Math.min(2, st.luck));
     st.tachka = !!st.tachka;
-    st.longHaul = !!o.longHaul;
+    // «Далека доставка» старого файлу (на весь караван) стає позначкою кожного рядка вантажу, лише якщо жоден рядок не має своєї
+    if (o.longHaul && !st.cargo.some(r => r.far)) st.cargo.forEach(r => { if (r.kind !== "pass") r.far = true; });
+    st.longHaul = false;
+    // Максимум ОЗ і броня = правила + надбавка. Файл пише й старі абсолютні hpMaxOverride / armorOverride (null — без надбавки):
+    // якщо старий ключ не збігається з правилами + надбавкою (файл змінив старий аркуш), надбавка рахується з нього (вердикт Fable)
+    const baseHP = (st.tachka ? 35 : 25) + 10 * st.imp.structure, baseAr = (st.tachka ? 2 : 1) + 2 * st.imp.armor;
     const ov = parseInt(o.hpMaxOverride, 10);
     const ar = parseInt(o.armorOverride, 10);
-    st.hpBonus = o.hpBonus !== undefined ? int(o.hpBonus) : Number.isFinite(ov) && ov >= 1 ? ov - ((st.tachka ? 35 : 25) + 10 * st.imp.structure) : 0;
-    st.armorBonus = o.armorBonus !== undefined ? int(o.armorBonus) : Number.isFinite(ar) && ar >= 0 ? ar - ((st.tachka ? 2 : 1) + 2 * st.imp.armor) : 0;
+    st.hpBonus = int(o.hpBonus);
+    if ("hpMaxOverride" in o) { const was = Number.isFinite(ov) && ov >= 1 ? ov : baseHP; if (was !== Math.max(1, baseHP + st.hpBonus)) st.hpBonus = was - baseHP; }
+    st.armorBonus = int(o.armorBonus);
+    if ("armorOverride" in o) { const was = Number.isFinite(ar) && ar >= 0 ? ar : baseAr; if (was !== Math.max(0, baseAr + st.armorBonus)) st.armorBonus = was - baseAr; }
     delete st.hpMaxOverride; delete st.armorOverride;
     st.defOv = cleanDefOv(o.defOv);
     st.psiArmor = Math.max(0, int(o.psiArmor));
