@@ -637,8 +637,25 @@ const SCENARIOS = {
 
   /** «Зробити перевірку» open after a hit: the weapon chips and «Кинути й завдати» (author, 2026-11-17; nothing is rolled here) */
   async checkPanel(a) {
+    // the row under a result: «Щасливець» / «Бісова штуковина!» left of «Повторити перевірку» (author, 2026-11-21, mockup 3;
+    // at 460 px it overflowed once: the paper button rule overrode their size)
+    const bar = document.querySelector(".pust-roller.pust-folded .pust-rgo-bar");
+    if (bar) {
+      const btns = [...bar.querySelectorAll("button")];
+      a.onScreen(btns);
+      a.noCut(bar, "button");
+      a.readable(bar, "button");
+      a.layout(bar);
+      const hs = btns.map((b) => Math.round(R(b).height));
+      a.ok("кнопки під результатом однієї висоти", new Set(hs).size === 1, hs.join("/"));
+      const br = R(bar);
+      a.ok("кнопки під результатом у межах ряду", btns.every((b) => R(b).left >= br.left - 1 && R(b).right <= br.right + 1), `${Math.round(br.width)} px`);
+      const perks = [...bar.querySelectorAll(".pust-perkre")];
+      if (perks.length) a.ok("текст кнопок перків уміщається", perks.every((b) => b.scrollHeight <= b.clientHeight + 2 && b.scrollWidth <= b.clientWidth + 1),
+        perks.map((b) => `${b.scrollWidth}×${b.scrollHeight} у ${b.clientWidth}×${b.clientHeight}`).join(", "));
+    }
     const el = document.querySelector(".pust-roller .rdmg");
-    if (!el) return a.skip("блок «Шкода» у перевірці", "відкрий «Зробити перевірку» й влуч атакою");
+    if (!el) return bar ? undefined : a.skip("блок «Шкода» у перевірці", "відкрий «Зробити перевірку» й влуч атакою");
     el.scrollIntoView({ block: "nearest" }); // the panel scrolls inside: bring the block into view first
     await sleep(200);
     a.onScreen([el]);
