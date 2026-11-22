@@ -1095,6 +1095,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await postSupIfChanged(this.actor, supWas);
     if (penUsed) await spendCheckStates(this.actor);
     if (coverUsed) await this.actor.unsetFlag(game.system.id, "cover");
+    // the targets go once the result no longer needs them (author, 2026-11-22, П1 1.4, answer А): a plain check or an avoidance
+    // at once, an attack on a failure (its damage or effect clears them as before); healing and repair keep theirs (П2)
+    if (kind === "click" && ["roll", "aspect", "modasp", "sitasp", "nearasp", "luck"].includes(key) && out?.R?.last
+      && !keepTargets(out.R.last, this.#fx.time === out.R.last.time && !!this.#fx.done)) clearTargets();
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
     // an avoidance answering an enemy's attack (A1): the row is chosen now, before the render shows the new roll
     const nl = out.R.last, ol = out.before.last;
