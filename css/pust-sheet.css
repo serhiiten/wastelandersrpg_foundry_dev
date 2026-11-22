@@ -423,10 +423,10 @@
 .wastelanders .pust-sitq button:not(.header-control) { background: #e2ad3b !important; color: #241a0c !important; font-style: italic; font-family: var(--pu-f-text) !important; font-weight: 400 !important; font-size: 13px !important; letter-spacing: 0 !important; border-color: #8a6414 !important; box-shadow: 0 2px 0 #8a6414 !important; border-radius: 1px !important; }
 /* immunity (П3 3.5): a state's aspect its bearer is immune to is red, not yellow */
 .wastelanders .pust-sitq button.imm:not(.header-control) { background: #a8121a !important; color: #fff3e8 !important; }
-.pust-sitchip.imm { border-color: var(--pu-red-ink) !important; background: rgba(168,18,26,.12) !important; }
-.pust-sitchip.imm > span:first-child { color: var(--pu-red-ink); }
-.pust-en .pust-en-chip.imm { border-color: var(--pu-red-ink); background: rgba(168,18,26,.12); }
-.pust-en .pust-en-chip.imm > span:first-child { color: var(--pu-red-ink); }
+/* the chip as the token's (module/canvas/token.mjs): solid red, light text; !important over the shared aspect look of pust-ui.css
+   (w3 check, 2026-11-22: the tinted frame never showed, the sheet's and the enemy card's chips stayed yellow) */
+:is(.pust-sitchip, .pust-en-chip).imm { background: #a8121a !important; color: #fff3e8 !important; }
+:is(.pust-sitchip, .pust-en-chip).imm > span:first-child { background: transparent !important; color: #fff3e8 !important; }
 .wastelanders .pust-sitq button:disabled { opacity: .45; }
 
 /* ===== Навички: rows like the attributes'; learned skills stand out ===== */

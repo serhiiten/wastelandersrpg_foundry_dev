@@ -54,5 +54,15 @@ eq([p.chips.length, p.more], [5, 38], "the stress test of 2026-11-17");
   markImmune([{ t: "Мокрий", inv: 1 }], prof);
   ok(asked === 1, "no state's aspect: no profile");
 }
+// П3 3.5 on the sheets (w3 check, 2026-11-22): the character sheet's and the enemy card's chip of an immune aspect is the token's
+// red (#a8121a, text #fff3e8), with !important over the shared yellow aspect look of pust-ui.css; its inner text has no yellow
+{
+  const { readFileSync } = await import("node:fs");
+  const css = readFileSync(new URL("../css/pust-sheet.css", import.meta.url), "utf8");
+  const tok = readFileSync(new URL("../module/canvas/token.mjs", import.meta.url), "utf8");
+  ok(/0xa8121a/.test(tok) && /0xfff3e8/.test(tok), "the token's red chip colours");
+  ok(/:is\(\.pust-sitchip, \.pust-en-chip\)\.imm \{[^}]*background: #a8121a !important;[^}]*color: #fff3e8 !important;/.test(css), "sheet / enemy card chip red with !important");
+  ok(/:is\(\.pust-sitchip, \.pust-en-chip\)\.imm > span:first-child \{[^}]*background: transparent !important;[^}]*color: #fff3e8 !important;/.test(css), "its text without the yellow highlight");
+}
 console.log(`${checks - failures}/${checks} token-chips checks passed`);
 if (failures) process.exit(1);
