@@ -692,7 +692,7 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
 .pust-spend-ask .pust-rcpt-tot { font-weight: 700; font-size: 15px; }
 .pust-spend-ask .pust-spend-left { color: #2f8a32; }
 .pust-spend-ask .pust-spend-q { margin: 10px 0 0; }
-.wastelanders.pust-spend-ask .form-footer button.pust-buy:not(.header-control) { flex: 1 1 0; height: 32px !important; line-height: 30px !important; font-size: 14px; }
+.wastelanders.pust-spend-ask .form-footer button.pust-buy:not(.header-control) { flex: 1 1 0; height: 40px !important; line-height: 38px !important; font-size: 14px; } /* the height of Foundry's own footer button beside it */
 .wastelanders.pust-spend-ask .form-footer button.pust-buy:disabled { background: #e4dabf !important; color: #7a6f5a !important; border-color: #b9ab88 !important; }
 /* an enemy's move in chat (author, 2026-11-15; enemy-sheet.mjs): a coloured head strip with the enemy's name, the result
    under it — a healing move green, Психо red while it acts, grey when it wears off */

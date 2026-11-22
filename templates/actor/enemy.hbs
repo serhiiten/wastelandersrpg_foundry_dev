@@ -91,10 +91,10 @@
         {{else}}<span class="pust-en-muted">Ситуативних аспектів немає</span>{{/each}}
       </div>
       {{#if editable}}<input class="pust-en-aspin" type="text" maxlength="100" name="aspin" placeholder="+ ситуативний аспект, Enter" autocomplete="off" aria-label="Новий ситуативний аспект">{{/if}}
-      {{!-- quick aspects as in the character sheet (author, 2026-11-22; 4.2): under the chips, the ochre buttons «Швидкі аспекти:»,
+      {{!-- quick aspects as in the character sheet (author, 2026-11-22; 4.2): under the chips, the ochre buttons (label «Швидкі:», short so the three fit one row at 460 px),
            for whoever may edit the enemy; the others see the chips only --}}
       {{#if editable}}{{#if v.quick.length}}
-      <div class="pust-en-quick pust-sitq"><span class="pust-en-sub">Швидкі аспекти:</span>
+      <div class="pust-en-quick pust-sitq"><span class="pust-en-sub">Швидкі:</span>
         {{#each v.quick}}<button type="button" class="pust-en-q" data-action="quickAsp" data-k="{{key}}" {{#if locked}}disabled{{/if}} title="{{help}}">+ {{label}}</button>{{/each}}
       </div>{{/if}}{{/if}}
     </section>
