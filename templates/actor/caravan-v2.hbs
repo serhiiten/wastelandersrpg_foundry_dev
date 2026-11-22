@@ -262,20 +262,27 @@
       {{#if editable}}{{#if v.sellAll}}<button type="button" class="pust-sell" data-action="cargoSell" data-all="1" title="Продати весь куплений вантаж за {{v.sellAll}}(к): кришки йдуть у бюджет, рядки прибираються (пасажири лишаються)"><i class="fa-solid fa-coins"></i> Продати все</button>{{/if}}{{/if}}
     </div>
     {{#if v.cargo.length}}
-    <div class="pust-glist pust-glist-cargo">
-      <div class="pust-grow pust-ghead"><span>Назва</span><span>Примітка</span><span>Тип</span><span>Ціна</span><span>К-сть</span><span title="Далека доставка (понад 15 клітин): ×2 замість ×1,5">Далека</span><span title="Вантаж пошкоджено: ×1,25 (далека — ×1,5)">Пошк.</span><span title="За скільки продасться рядок">Сума</span><span class="pust-cact-h"></span><span><i class="fa-solid fa-xmark"></i></span></div>
+    {{!-- cargo and passengers as cards of «Мотлох», two in a row (author, 2026-11-22; 4.8, mockup А): the name with its type and ✕,
+         the note, price and quantity, «Далека» / «Пошк.» as tick chips (not for a passenger), the row's sum and «Купити / Продати» --}}
+    <div class="pust-gcards pust-cargo-cards">
       {{#each v.cargo}}
-      <div class="pust-grow">
-        <textarea class="pust-gname pust-gnote-in pust-cname" rows="1" data-k="cargo.{{i}}.name" placeholder="Що везете" aria-label="Назва">{{name}}</textarea>
-        <textarea class="pust-gnote-in pust-cnote" rows="1" data-k="cargo.{{i}}.note" placeholder="Куди, кому, умови" aria-label="Куди, кому, умови">{{note}}</textarea>
-        <select data-k="cargo.{{i}}.kind" aria-label="Тип"><option value="cargo" {{#unless pass}}selected{{/unless}}>Вантаж</option><option value="pass" {{#if pass}}selected{{/if}}>Пасажир</option></select>
-        <input type="text" class="pust-price" data-k="cargo.{{i}}.price" value="{{price}}" placeholder="Ціна" aria-label="Ціна">
-        <input type="text" class="pust-qty" data-k="cargo.{{i}}.qty" value="{{qty}}" placeholder="К-сть" aria-label="Кількість">
-        {{#if pass}}<span></span><span></span>{{else}}<label class="pust-ctick" title="Далека доставка (понад 15 клітин): продаж ×2 замість ×1,5"><input type="checkbox" data-k="cargo.{{i}}.far" {{#if far}}checked{{/if}} aria-label="Далека доставка"></label>
-        <label class="pust-ctick" title="Вантаж пошкоджено: продаж ×1,25 (далека — ×1,5). Ставиться сам, коли караван отримує понад половину ОЗ шкоди"><input type="checkbox" data-k="cargo.{{i}}.hurt" {{#if hurt}}checked{{/if}} aria-label="Пошкоджено"></label>{{/if}}
-        <b class="pust-csum {{#if hurt}}{{#unless pass}}hurt{{/unless}}{{/if}}" title="{{#if pass}}Плата за проїзд{{else}}Ціна продажу рядка{{/if}}">{{sum}}</b>
-        <span class="pust-cact">{{#if @root.editable}}{{> cargoDeal}}{{/if}}</span>
-        <button type="button" class="pust-x" data-action="cact" data-act="cg-del" data-i="{{i}}" data-confirm="1" title="Видалити рядок"><i class="fa-solid fa-xmark"></i></button>
+      <div class="pust-gcard pust-gc pust-cgc kind-{{#if pass}}gear{{else}}boom{{/if}}">
+        <div class="pust-gc-head">
+          <div class="pust-gf2"><span class="pust-fchip">Назва</span><textarea class="pust-gname pust-gnote-in pust-cname" rows="1" data-k="cargo.{{i}}.name" placeholder="Що везете" aria-label="Назва">{{name}}</textarea></div>
+          <select class="pust-ckind" data-k="cargo.{{i}}.kind" aria-label="Тип"><option value="cargo" {{#unless pass}}selected{{/unless}}>Вантаж</option><option value="pass" {{#if pass}}selected{{/if}}>Пасажир</option></select>
+          <button type="button" class="pust-x" data-action="cact" data-act="cg-del" data-i="{{i}}" data-confirm="1" title="Видалити рядок"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <label class="pust-gf2 pust-gc-full"><span class="pust-fchip">Примітка</span><textarea class="pust-gnote-in pust-cnote" rows="1" data-k="cargo.{{i}}.note" placeholder="Куди, кому, умови" aria-label="Куди, кому, умови">{{note}}</textarea></label>
+        <label class="pust-gf2"><span class="pust-fchip">Ціна</span><input type="text" class="pust-price" data-k="cargo.{{i}}.price" value="{{price}}" placeholder="—" aria-label="Ціна"></label>
+        <label class="pust-gf2"><span class="pust-fchip">К-сть</span><input type="text" class="pust-qty" data-k="cargo.{{i}}.qty" value="{{qty}}" placeholder="—" aria-label="Кількість"></label>
+        {{#unless pass}}<div class="pust-gc-full pust-cticks">
+          <label class="pust-fchip pust-fchip-tog pust-ctick" title="Далека доставка (понад 15 клітин): продаж ×2 замість ×1,5"><input type="checkbox" data-k="cargo.{{i}}.far" {{#if far}}checked{{/if}} aria-label="Далека доставка"> Далека</label>
+          <label class="pust-fchip pust-fchip-tog pust-ctick hurt" title="Вантаж пошкоджено: продаж ×1,25 (далека — ×1,5). Ставиться сам, коли караван отримує понад половину ОЗ шкоди"><input type="checkbox" data-k="cargo.{{i}}.hurt" {{#if hurt}}checked{{/if}} aria-label="Пошкоджено"> Пошк.</label>
+        </div>{{/unless}}
+        <div class="pust-gc-full pust-cfoot">
+          <span class="pust-csum-l" title="{{#if pass}}Плата за проїзд{{else}}За скільки продасться рядок{{/if}}">Сума <b class="pust-csum {{#if hurt}}{{#unless pass}}hurt{{/unless}}{{/if}}">{{sum}}</b></span>
+          <span class="pust-cact">{{#if @root.editable}}{{> cargoDeal}}{{/if}}</span>
+        </div>
       </div>
       {{/each}}
     </div>
