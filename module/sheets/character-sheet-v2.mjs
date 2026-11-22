@@ -330,22 +330,30 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
     // and wraps there (the field grows with its text; Enter leaves the field)
     // (the text is measured on a canvas in the field's own font: a field's scrollWidth doesn't tell the text width reliably)
     const ctx = (WastelandersCharacterSheetV2.#measure ||= document.createElement("canvas").getContext("2d"));
+    // the weapon card of «Мотлох» (author, 2026-11-22; 4.6): the «Шкода» pair (`.pust-gf2`) takes the card's whole width first,
+    // in one line; only a text that doesn't fit even there wraps and grows the field
     const fitDmg = (el) => {
-      const row = el.closest(".pust-grow");
+      const row = el.closest(".pust-gf2, .pust-grow");
       row?.classList.remove("dmg-wide");
       el.style.fontSize = "";
       el.style.height = "";
       const cs = getComputedStyle(el);
-      const room = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 3;
       const base = parseFloat(cs.fontSize) || 13;
       let px = base;
+      const room = () => el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 3;
       const width = () => { ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${px}px ${cs.fontFamily}`; return ctx.measureText(el.value).width; };
-      while (width() > room && px > 10) px -= 0.5;
-      if (width() <= room) {
+      while (width() > room() && px > 10) px -= 0.5;
+      if (width() <= room()) {
         if (px !== base) el.style.fontSize = `${px}px`;
         return;
       }
       row?.classList.add("dmg-wide");
+      if (row?.classList.contains("pust-gf2")) { // a row of its own in the card: try the base size again at the new width
+        px = base;
+        while (width() > room() && px > 10) px -= 0.5;
+        if (px !== base) el.style.fontSize = `${px}px`;
+        if (width() <= room()) return;
+      }
       if (el.scrollHeight > el.clientHeight + 1) {
         el.style.height = "auto";
         el.style.height = `${el.scrollHeight + 2}px`;
