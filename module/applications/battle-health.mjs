@@ -13,7 +13,7 @@ import { askGM, answerGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { compute, drugOf } from "../rules/core.mjs";
 import { chatType } from "../rules/battle.mjs";
-import { consqPlan, writeConsq, medLimit, medFormula, nextMark, nearbyInvokes, spendOne, zeroInvokes, SLOT_NAME, healCost, payHeal, treatPlan, treatSlots, applyTreat } from "../rules/battle-health.mjs";
+import { consqPlan, writeConsq, medLimit, medFormula, nextMark, nearbyInvokes, spendOne, zeroInvokes, SLOT_NAME, healCost, payHeal, treatPlan, treatSlots, applyTreat, healLanded } from "../rules/battle-health.mjs";
 import { waitDice } from "../helpers/dice-rolls.mjs";
 import { postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { readState, runAction } from "./character-actions.mjs";
@@ -424,11 +424,14 @@ export async function medPress(actor, last, kind, { slot = "", name = "", pay = 
     const m = await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${head}: ${what}` });
     await waitDice(m);
   }
+  // what lands, not what was rolled: a heal is cut to the patient's maximum (author, 2026-11-22)
+  const hpP = patientActor?.system?.hp;
+  const landed = hpP && Number.isFinite(Number(hpP.max)) ? healLanded(hpP.value, hpP.max, amount) : amount;
   if (!(await patientSide(patientActor, { ...msg, amount }, title))) return "";
-  const line = kind === "heal" ? `${o.patient.name}: +${amount} ОЗ (${f}).`
+  const line = kind === "heal" ? `${o.patient.name}: +${landed} ОЗ (${f}).`
     : kind === "hurt" ? `${o.patient.name}: ${amount} шкоди, що ігнорує броню.`
       : kind === "light" ? `${o.patient.name}: легкий наслідок.`
-        : `${o.patient.name}: ${plan.treated ? "проліковано" : "не проліковано"}${plan.red ? `, максимум ОЗ −${amount}` : ""}${plan.heal ? `, +${amount} ОЗ` : ""}.`;
+        : `${o.patient.name}: ${plan.treated ? "проліковано" : "не проліковано"}${plan.red ? `, максимум ОЗ −${amount}` : ""}${plan.heal ? `, +${landed} ОЗ` : ""}.`;
   applied(line);
   if (!cost) return line;
   const supWas = supSnap(actor);

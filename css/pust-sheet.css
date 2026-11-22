@@ -1072,6 +1072,7 @@
 
 /* ===== Картка супротивника (author, 2026-11-14): the battle tracker's card as an actor sheet. Strip colour --kc by category ===== */
 .pust-en-sheet .window-content { padding: 0; }
+.application.pust-en-sheet { max-height: calc(100vh - 34px); } /* the window sits 16 px from the top: its Foundry maximum (the whole viewport) ran 16 px off the bottom with both blocks open (author, 2026-11-22) */
 .pust-en.pust-sheet-inner { padding: 0; gap: 0; height: auto; min-height: 100%; }
 .pust-en .pust-en-hd { display: flex; align-items: stretch; gap: 10px; padding: 8px 12px; background: var(--kc); color: #fff; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
 .pust-en .pust-en-pic { width: 64px; height: 64px; flex: none; object-fit: cover; border: 2px solid rgba(255,255,255,.85); border-radius: 4px; background: var(--pu-steel-1); box-shadow: 0 2px 0 rgba(0,0,0,.3); }

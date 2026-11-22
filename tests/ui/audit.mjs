@@ -551,8 +551,9 @@ const SCENARIOS = {
     a.noRawKeys(dock);
     if (map && !map.classList.contains("folded")) {
       a.column([...map.querySelectorAll(":scope > .pust-md-panel")], { gap: 6, label: "панелі «Мапа Пустки»" });
-      const btns = [...map.querySelectorAll(".pust-md-map [data-mapdock]")];
+      const btns = [...map.querySelectorAll(".pust-md-map [data-mapdock]:not(.pust-md-layer)")]; // the layer pills are a row of their own below (author, 2026-11-22)
       if (btns.length) a.row(btns, { equalWidth: true, label: "кнопки «Мапи Пустки» в один ряд" });
+      a.row([...map.querySelectorAll(".pust-md-map .pust-md-layer")], { equalWidth: true, label: "шари «Мапи Пустки»: «Фракції» і «Шляхи» одної ширини" });
     }
     // default places (author, 2026-11-14): «Мапа Пустки» on the left, «Лічильники» under it, «Кістки» under them (6 px);
     // «Битва» top right next to the sidebar, «Лічильники» and «Кістки» then on the left by themselves
