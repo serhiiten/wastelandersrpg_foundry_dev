@@ -301,9 +301,19 @@
       <div class="pust-row pust-aspect asp-problem"><label>Що пішло не так</label><textarea class="pust-asp-ta" rows="1" data-k="story.wentWrong" aria-label="Що пішло не так">{{v.story.wentWrong}}</textarea>
         <button type="button" class="pust-die {{#if v.locks.wentWrong}}locked{{/if}}" data-action="cact" data-act="roll" data-roll="wentWrong" title="{{#if v.locks.wentWrong}}Заповнено вручну. Очистіть поле, щоб знову кидати{{else}}Кинути кістки{{/if}}"><i class="fa-solid {{#if v.locks.wentWrong}}fa-lock{{else}}fa-dice{{/if}}"></i></button></div>
     </div>
-    <h4>Примітки</h4>
-    {{!-- Foundry's own editor with its formatting tools, as the character sheet's «Записи» (author, 2026-11-15) --}}
-    <prose-mirror class="pust-notes-ed" data-note="notes" value="{{v.notes}}"></prose-mirror>
+    {{!-- «Примітки» as the character's «Записи» (author, 2026-11-22; 4.3): the text on paper, the pencil opens Foundry's editor
+         (saving as you write, author 2026-11-15), «Готово» closes it --}}
+    <div class="pust-notes-blk">
+    <h3 class="pust-note-hd">Примітки
+      {{#if editable}}
+      {{#if note.editing}}<button type="button" class="pust-note-pen on" data-action="noteEdit" title="Закрити редактор: запис збережено"><i class="fa-solid fa-check"></i> Готово</button>
+      {{else}}<button type="button" class="pust-note-pen" data-action="noteEdit" title="Редагувати: Примітки" aria-label="Редагувати: Примітки"><i class="fa-solid fa-pen"></i></button>{{/if}}
+      {{/if}}
+    </h3>
+    {{#if note.editing}}<prose-mirror class="pust-notes-ed" data-note="notes" value="{{v.notes}}"></prose-mirror>
+    {{else if note.empty}}<p class="pust-note-view pust-note-empty">Поки порожньо.</p>
+    {{else}}<div class="pust-note-view" data-note-view="notes">{{{note.html}}}</div>{{/if}}
+    </div>
   {{/if}}
 
   {{!-- ===== Налаштування: Захист (Foundry only, author 2026-11-14; like the character sheet's «Ручні надбавки» + «Захист вручну») ===== --}}
