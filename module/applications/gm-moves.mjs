@@ -52,7 +52,7 @@ let card = null;
 // Esc closes only the card, not Foundry's main menu too
 const onKey = (ev) => { if (ev.key === "Escape") { ev.preventDefault(); ev.stopImmediatePropagation(); closeGmMoves(); } };
 const onDown = (ev) => {
-  if (card?.contains(ev.target) || ev.target.closest?.(".wastelanders-moves-open")) return;
+  if (card?.contains(ev.target) || ev.target.closest?.(".wastelanders-moves-open, [data-pust-gmmoves]")) return;
   closeGmMoves();
 };
 
@@ -67,6 +67,12 @@ export function closeGmMoves() {
 /** Open under the plate `btn`, or close if open */
 export function toggleGmMoves(btn) {
   if (card) return closeGmMoves();
+  openGmMoves(btn);
+}
+
+/** Open under the plate `btn`; already open — left as it is (the chat card's «Твої ходи», author 2026-11-22) */
+export function openGmMoves(btn) {
+  if (card) return quietGmMoveAlert();
   quietGmMoveAlert(); // U4: opening the moves puts out the plate's glow (gm-move-alert-ui.mjs)
   card = document.createElement("section");
   card.className = "pust-gm-moves";

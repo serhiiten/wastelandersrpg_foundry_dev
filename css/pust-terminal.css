@@ -522,6 +522,9 @@
 :is(.pust-terminal, #pust-mapdock) .pust-travel-html .result-content p:last-child { margin-bottom: 0; }
 :is(.pust-terminal, #pust-mapdock) .pust-travel-html .result-content .tv-opt { margin-right: .2em; color: var(--pu-rust-2); font-weight: 800; }
 :is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .result-title:first-child { font-size: 12px; letter-spacing: .1em; color: #5f8a2c; }
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .result-title.pust-sp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
+/* «Перекинути» in the header (author, 2026-11-22, П5 5.3): one place whatever the encounter's length */
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .pust-sp-head > button.pust-sp-reroll { flex: none; width: auto; height: 24px; margin: 0; padding: 0 8px; font-size: 12px; letter-spacing: .03em; line-height: 1; }
 :is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .result-title + .result-title { margin: 1px 0 4px; font-size: 16px; letter-spacing: .03em; color: var(--pu-ink); }
 
 /* the unit with the travel window is drawn over «Кістки» */
@@ -896,16 +899,24 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 .pust-gm-moves .pust-gm-hd + .pust-gm-group { margin-top: 2px; }
 .pust-gm-moves .pust-gm-note { margin: 10px 0 0; padding-top: 6px; border-top: 1px dashed #b89a6a; color: #6b5a40; font-style: italic; font-size: 13px; }
 /* U4 (author, 2026-11-21): a check asked for the GM's move (gm-move-alert-ui.mjs) — the plate pulses for 10 s; a still
-   glow for those who turn motion off */
-@keyframes pust-moves-pulse { 0%, 100% { box-shadow: 0 2px 6px rgba(0,0,0,.5), 0 0 0 0 rgba(255,138,60,0); }
-  50% { box-shadow: 0 2px 6px rgba(0,0,0,.5), 0 0 0 3px rgba(255,138,60,.6), 0 0 16px rgba(255,110,40,.85); } }
-.wastelanders-terminal-dock .wastelanders-moves-open.pust-alert { border-color: #ff8a3c; animation: pust-moves-pulse 1.6s ease-in-out infinite; }
+   glow for those who turn motion off. Stronger (author, 2026-11-22, П5 5.2, mockup А less 25 %): the plate itself flares
+   orange, a 4 px ring and a 22 px glow, every 1.1 s */
+@keyframes pust-moves-pulse { 0%, 100% { background-color: #a3261a; box-shadow: 0 2px 6px rgba(0,0,0,.5), 0 0 0 0 rgba(255,170,60,0), 0 0 0 0 rgba(255,120,40,0); }
+  50% { background-color: #d1471d; box-shadow: 0 2px 6px rgba(0,0,0,.5), 0 0 0 4px rgba(255,170,60,.64), 0 0 22px 4px rgba(255,120,40,.71); } }
+.wastelanders-terminal-dock .wastelanders-moves-open.pust-alert { border-color: #ffb050; animation: pust-moves-pulse 1.1s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
-  .wastelanders-terminal-dock .wastelanders-moves-open.pust-alert { animation: none; box-shadow: 0 2px 6px rgba(0,0,0,.5), 0 0 0 3px rgba(255,138,60,.6), 0 0 12px rgba(255,110,40,.75); }
+  .wastelanders-terminal-dock .wastelanders-moves-open.pust-alert { animation: none; background-color: #c23e1c; box-shadow: 0 2px 6px rgba(0,0,0,.5), 0 0 0 4px rgba(255,170,60,.64), 0 0 22px 4px rgba(255,120,40,.71); }
 }
 /* the whispered card «Зроби хід проти …»; once the result improved, its old lines struck through and dimmed */
 .pust-chat.pust-gmmove.done .pust-gmmove-was { opacity: .55; text-decoration: line-through; }
 .pust-chat.pust-gmmove.done .pust-da-hd { opacity: .6; }
+/* «Твої ходи» (author, 2026-11-22, П5 5.2): the whole width under the card, the system's rust button; it opens the moves
+   under the plate (gm-move-alert-ui.mjs); a done card has none */
+.pust-chat.pust-gmmove .pust-gmmove-foot { padding: 6px 9px 8px; border-top: 1px solid #d9cfb2; }
+.pust-chat.pust-gmmove button.pust-gmmove-open { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 28px; margin: 0; padding: 0 12px;
+  background: linear-gradient(180deg, #c06a35, #9a4a20); color: #f4d11a; border: 1px solid #5a2a10; border-radius: 4px;
+  font-family: "Roboto Condensed", "Arial Narrow", sans-serif; font-weight: 800; font-size: 12.5px; letter-spacing: .05em; text-transform: uppercase; line-height: 1; cursor: pointer; }
+.pust-chat.pust-gmmove button.pust-gmmove-open:hover { background: linear-gradient(180deg, #d07a42, #a8552a); color: #ffe15a; }
 
 /* «Битва» (author, 2026-11-20; Fable's analysis V1, variant Б): the header, «Коло дій» and «Жетони Долі» stay opaque; the
    tools fade as before while the pointer is off the panel — the panel itself stays at full opacity (a child can't be more

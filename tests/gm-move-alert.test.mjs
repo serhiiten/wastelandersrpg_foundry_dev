@@ -40,9 +40,13 @@ ok(h.includes("fa-fire") && h.includes("Зроби хід проти Ліза"),
 ok(h.includes("Навичка: Частковий успіх (12)"), "the verdict line");
 ok(h.includes("Доглядач може зробити проти тебе хід."), "the result's text");
 ok(h.includes("<chip>") && !h.includes(" done"), "the chip; not done");
+// «Твої ходи» (author, 2026-11-22, П5 5.2): under an open card, the whole width; a done card has none
+ok(h.includes('data-pust-gmmoves="1"') && h.includes("Твої ходи") && h.indexOf("pust-gmmove-foot") > h.indexOf("pust-da-list"), "«Твої ходи» under the card");
+ok((h.match(/<div/g) || []).length === (h.match(/<\/div>/g) || []).length, "open card: the divs are closed");
 h = gmMoveCardHtml({ ...rec, done: { verdictName: "Успіх" } });
 ok(h.includes("pust-gmmove done") && h.includes("Ліза покращує результат: Успіх. Хід не потрібен."), "done: the improved line");
 ok(h.includes("Навичка: Частковий успіх (12)"), "done: the old line stays (struck through by CSS)");
+ok(!h.includes("data-pust-gmmoves") && (h.match(/<div/g) || []).length === (h.match(/<\/div>/g) || []).length, "done: no «Твої ходи», the divs closed");
 h = gmMoveCardHtml(moveRecord({ ...base, name: "<i>X</i>", text: "a & b" }));
 ok(h.includes("&lt;i&gt;X&lt;/i&gt;") && h.includes("a &amp; b"), "escaped");
 

@@ -16,7 +16,7 @@ import { postTerminalRoll } from "./check-panel.mjs";
 import { luckCaravan } from "./map-dice.mjs";
 import { caravanLuck } from "./party-luck.mjs";
 import {
-  TABLE_CARDS, battleChat, battleJournal, blankTerminal, buildTerminalView, caseChat, caseJournal, runTable, specialRerollHtml, tableChat, travelChat,
+  TABLE_CARDS, battleChat, battleJournal, blankTerminal, buildTerminalView, caseChat, caseJournal, placeSpecialReroll, runTable, tableChat, travelChat,
 } from "./terminal-view.mjs";
 import { rerollSpecial, specialLeft } from "../rules/travel-special.mjs";
 import { notify } from "../helpers/notify.mjs";
@@ -427,7 +427,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     });
     // «Особлива зустріч»: «Перекинути» (F5, author 2026-11-20)
     root.querySelectorAll(".pust-travel .special-encounter").forEach((sec) => {
-      sec.insertAdjacentHTML("beforeend", specialRerollHtml(specialLeft(this.st.travel.main, this.T.travel.specials()), 'data-action="travelSpecial"'));
+      placeSpecialReroll(sec, specialLeft(this.st.travel.main, this.T.travel.specials()), 'data-action="travelSpecial"');
     });
     // selects and checkboxes of the tabs
     root.querySelectorAll("[data-k]").forEach((el) => el.addEventListener("change", () => {

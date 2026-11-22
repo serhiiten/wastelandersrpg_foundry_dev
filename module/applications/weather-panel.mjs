@@ -14,12 +14,15 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const SYS = () => game.system.id;
 /** How long the darkness moves to a time of day (ms) */
 export const TIME_ANIMATION_MS = 4000;
+/** The popover's width (author, 2026-11-22: wider, so the longest names fit) */
+const PANEL_W = 330;
 
 export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
+  // 330 px (author, 2026-11-22, П5 5.4; 266 before): «Психоактивний газ», «Ядучо-зелені блискавки» and «Очистити» fit
   static DEFAULT_OPTIONS = {
     id: "pust-weather",
     classes: ["pust-weather"],
-    position: { width: 266, height: "auto" },
+    position: { width: PANEL_W, height: "auto" },
     window: { frame: false, positioned: true },
     actions: {
       wxPick: WeatherPanel.#pick,
@@ -85,7 +88,7 @@ export class WeatherPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   #place() {
     const btn = document.querySelector('#scene-controls-tools [data-tool="pustWeather"]');
     const r = btn?.getBoundingClientRect();
-    const w = this.element.offsetWidth || 266, h = this.element.offsetHeight || 300;
+    const w = this.element.offsetWidth || PANEL_W, h = this.element.offsetHeight || 300;
     const left = r ? r.right + 8 : 110, top = r ? r.top : 90;
     this.setPosition({ left: Math.max(4, Math.min(window.innerWidth - w - 4, left)), top: Math.max(4, Math.min(window.innerHeight - h - 4, top)) });
   }

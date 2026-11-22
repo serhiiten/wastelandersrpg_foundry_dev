@@ -3,11 +3,13 @@
  *  - the active GM whispers the GMs a card «Зроби хід проти {name}» (`flags.<system>.gmMove`);
  *  - every GM's «Ходи Доглядача» plate (wastelanders.mjs) glows for 10 s; it goes out when the GM opens the moves' card
  *    (gm-moves.mjs toggleGmMoves), when a later card of the same roll needs no move (an aspect invoked), or after 10 s;
- *  - a later card of the same roll that needs no move: the active GM marks the whispered card done (struck through).
+ *  - a later card of the same roll that needs no move: the active GM marks the whispered card done (struck through);
+ *  - the card's «Твої ходи» (author, 2026-11-22) opens the moves' card under the plate, as a click on the plate does.
  * Nothing is kept beyond the whispered card itself (no list of debts). The hooks: registerGmMoveAlert, called in wastelanders.mjs.
  */
 import { rollKey } from "../rules/gm-move-alert.mjs";
 import { activeGmHere } from "../helpers/main-window.mjs";
+import { openGmMoves } from "./gm-moves.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const GLOW_MS = 10000;
@@ -38,7 +40,10 @@ export function gmMoveCardHtml(rec, chips = "") {
     : "";
   return `<div class="pust-chat pust-dmgapply pust-gmmove${rec.done ? " done" : ""}"><div class="pust-da-hd"><i class="fa-solid fa-fire"></i><span class="pust-da-title">${esc(`Зроби хід проти ${rec.name}`)}</span>${chips}</div>`
     + `<div class="pust-da-list"><div class="pust-da-row pust-gmmove-was"><div class="pust-da-main"><span class="pust-da-name">${esc(`${rec.typeName}: ${rec.verdictName} (${rec.total})`)}</span></div>`
-    + (rec.text ? `<div class="pust-da-note">${esc(rec.text)}</div>` : "") + `</div>${done}</div></div>`;
+    + (rec.text ? `<div class="pust-da-note">${esc(rec.text)}</div>` : "") + `</div>${done}</div>`
+    // «Твої ходи» (author, 2026-11-22, П5 5.2): opens the moves under the plate; a done card has none
+    + (rec.done ? "" : `<div class="pust-gmmove-foot"><button type="button" class="pust-gmmove-open" data-pust-gmmoves="1" title="Відкрити ходи Доглядача під плашкою «Ходи»"><i class="fa-solid fa-fire"></i> Твої ходи</button></div>`)
+    + `</div>`;
 }
 
 /* ---------------- the plate's glow (each GM's window) ---------------- */
@@ -101,7 +106,21 @@ async function onCheck(message) {
   await card.update({ content: gmMoveCardHtml(rec, GM_CHIP), [`flags.${sys()}.gmMove`]: rec });
 }
 
+/** «Твої ходи» on a whispered card (renderChatMessageHTML): the moves' card under the first plate; left open if it is */
+function wireOpenButton(message, html) {
+  const btn = html?.querySelector?.("[data-pust-gmmoves]");
+  if (!btn || !recOf(message)) return;
+  btn.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const plate = document.querySelector(".wastelanders-moves-open");
+    if (!plate) return ui.notifications.warn("Плашки «Ходи» зараз немає на екрані: ходи відкриваються з неї над сценою.");
+    openGmMoves(plate);
+  });
+}
+
 export function registerGmMoveAlert() {
+  Hooks.on("renderChatMessageHTML", wireOpenButton);
   Hooks.on("createChatMessage", (message) => {
     const rec = recOf(message);
     if (rec?.key && !rec.done) return glow(rec.key);
