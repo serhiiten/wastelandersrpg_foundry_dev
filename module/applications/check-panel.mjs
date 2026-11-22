@@ -55,6 +55,8 @@ const HEAL_TYPES = ["med", "repair", "treat"];
 const HEAL_FREE = new Set();
 /** A press of the A6 / A7 blocks on its way, by actor uuid (Fable П-2: one application a roll) */
 const HX_BUSY = new Set();
+/** The block's choices (consequence, payment, name) of the current roll, by actor uuid (Fable П-6) */
+const HX_SEL = new Map();
 /** Rebuild the healing blocks of the open panels when the targets change (debounced: medOffer reads the target) */
 let hxRebuild = null;
 /**
@@ -570,7 +572,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // the choices in the block survive its rebuild on a new target (Fable П-6)
     const box = this.element?.querySelector?.(".pust-hx");
-    const sel = { slot: box?.querySelector("[data-hx-slot]")?.value, pay: box?.querySelector("[data-hx-pay]")?.value, name: box?.querySelector("[data-hx-name]")?.value };
+    // kept by the roll, so a target without the field in between (none, a robot) doesn't lose them
+    const was = HX_SEL.get(this.actor.uuid);
+    const prev = was?.time === last.time ? was : {};
+    const pick = (q) => box?.querySelector(q)?.value ?? prev[q];
+    const sel = { slot: pick("[data-hx-slot]"), pay: pick("[data-hx-pay]"), name: pick("[data-hx-name]") };
+    HX_SEL.set(this.actor.uuid, { time: last.time, "[data-hx-slot]": sel.slot, "[data-hx-pay]": sel.pay, "[data-hx-name]": sel.name });
     let block = "";
     if (last.type === "consq") block = consqHtml(consqOffer(this.actor, last), done);
     else if (["med", "repair", "treat"].includes(last.type)) {
