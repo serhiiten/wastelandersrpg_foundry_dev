@@ -131,6 +131,9 @@ export function medFormula(verdict, { perks = [], repair = false } = {}) {
   return perks.includes("Медик") ? `${base} + 2` : base;
 }
 
+/** What a heal really adds: the roll cut to the room left up to the maximum («+7» rolled on 4 missing HP lands as +4; П2 tail, author 2026-11-22) */
+export const healLanded = (hp, max, amount) => Math.max(0, Math.min(int(amount), int(max) - int(hp)));
+
 /** The patient's next mark after one help */
 export const nextMark = ({ day, mark }) => ({ day: int(day), n: (mark && int(mark.day) === int(day) ? int(mark.n) : 0) + 1 });
 

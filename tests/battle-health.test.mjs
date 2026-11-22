@@ -210,5 +210,19 @@ const logic = (st) => H.addRepair(createLogic({ st, toast: () => {}, ui: {} }));
   eq([r0.doomed, st.ko, st.consT.h, L.curHp(d) <= Math.max(0, L.hpMaxNow(d))], [true, { wake: true, doomed: true }, false, true], "applyTreat 9−: max 0 → doomed, wake kept");
 }
 
+/* П2 tail (author, 2026-11-22): the line shows what landed; «Камікадзе» adds +2 to the medicine's 1d6 damage, never to a max-HP cut */
+eq([H.healLanded(6, 10, 7), H.healLanded(10, 10, 5), H.healLanded(3, 10, 2), H.healLanded(12, 10, 4), H.healLanded(0, 10, 0)], [4, 0, 2, 0, 0], "healLanded: cut to the room up to the maximum");
+{
+  const B = await import("../module/rules/battle.mjs");
+  const kami = { armor: 3, psyArmor: 0, phys: "normal", energy: "normal", fire: "normal", rad: "normal", poison: "normal", psy: "normal", kamikaze: true };
+  const hit = B.resolveHit(kami, 20, 20, { total: 4, type: "phys", dice: 1, ignoreArmor: true, ignoreN: 0 }, { rollD6: () => 3 });
+  eq(20 - hit.hp, 6, "medicine's 1d6 (4) ignoring armour on a Камікадзе: 4 +2");
+  const st = fresh(); st.feats = ["Камікадзе"]; st.cons.m = "Рана";
+  const L = logic(st);
+  const max0 = L.hpMaxNow(Rc.compute(st));
+  H.applyTreat(st, L, "m", H.treatPlan(1), 3, { compute: Rc.compute });
+  eq(L.hpMaxNow(Rc.compute(st)), max0 - 3, "Камікадзе patient: «Лікування наслідків» cuts max HP by exactly the roll, no +2");
+}
+
 console.log(failures ? `battle-health: ${failures} of ${checks} FAILED` : `battle-health: OK (${checks} checks)`);
 process.exit(failures ? 1 : 0);
