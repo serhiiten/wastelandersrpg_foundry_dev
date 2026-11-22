@@ -522,6 +522,9 @@
 :is(.pust-terminal, #pust-mapdock) .pust-travel-html .result-content p:last-child { margin-bottom: 0; }
 :is(.pust-terminal, #pust-mapdock) .pust-travel-html .result-content .tv-opt { margin-right: .2em; color: var(--pu-rust-2); font-weight: 800; }
 :is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .result-title:first-child { font-size: 12px; letter-spacing: .1em; color: #5f8a2c; }
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .result-title.pust-sp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
+/* «Перекинути» in the header (author, 2026-11-22, П5 5.3): one place whatever the encounter's length */
+:is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .pust-sp-head > button.pust-sp-reroll { flex: none; width: auto; height: 24px; margin: 0; padding: 0 8px; font-size: 12px; letter-spacing: .03em; line-height: 1; }
 :is(.pust-terminal, #pust-mapdock) .pust-travel-html .special-encounter .result-title + .result-title { margin: 1px 0 4px; font-size: 16px; letter-spacing: .03em; color: var(--pu-ink); }
 
 /* the unit with the travel window is drawn over «Кістки» */

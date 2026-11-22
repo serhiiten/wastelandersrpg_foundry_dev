@@ -109,12 +109,24 @@ function travelView(st) {
 }
 
 /**
- * «Перекинути» under «Особлива зустріч» (F5 of Fable's analysis, author 2026-11-20): another encounter, not one this result has
+ * «Перекинути» of «Особлива зустріч» (F5 of Fable's analysis, author 2026-11-20): another encounter, not one this result has
  * shown (module/rules/travel-special.mjs); off once all of them were. `attr` is the window's own way to call it.
  */
 export function specialRerollHtml(left, attr) {
   const tip = left ? "Інша особлива зустріч, якої ще не було в цьому результаті" : "Усі особливі зустрічі вже були в цьому результаті";
-  return `<div class="pust-tvb-actions"><button type="button" ${attr} title="${tip}"${left ? "" : " disabled"}><i class="fa-solid fa-rotate"></i> Перекинути</button></div>`;
+  return `<button type="button" class="pust-sp-reroll" ${attr} title="${tip}"${left ? "" : " disabled"}><i class="fa-solid fa-rotate"></i> Перекинути</button>`;
+}
+
+/**
+ * Put «Перекинути» into the section's header «Особлива зустріч», at its right (author, 2026-11-22, П5 5.3: under the text it
+ * jumped with the encounter's length). The same in the terminal and in «Подорож» over «Мапа Пустки»; only the DOM, never the
+ * stored HTML.
+ */
+export function placeSpecialReroll(sec, left, attr) {
+  const head = sec.querySelector(":scope > .result-title");
+  if (!head) return sec.insertAdjacentHTML("beforeend", specialRerollHtml(left, attr));
+  head.classList.add("pust-sp-head");
+  head.insertAdjacentHTML("beforeend", specialRerollHtml(left, attr));
 }
 
 /** The travel event as chat HTML: the generator's own HTML without the window's buttons */
