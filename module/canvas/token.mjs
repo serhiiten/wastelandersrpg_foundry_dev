@@ -9,30 +9,25 @@
  *     change itself («+3», «−4») floats up over it for those who may see its HP (author, 2026-11-14);
  *   – situational aspects as small chips under the token, for everyone (author, 2026-11-14): a character's situational
  *     aspects, an enemy's situational ones (not the book's), a place's aspects — the yellow italic chip of the sheets, free
- *     invokes as a green «+N».
+ *     invokes as a green «+N»; before them a character's consequences (author, 2026-11-22), the same chip with the sheet's
+ *     severity stripe, a treated one struck through; six chips at most for both (module/rules/token-chips.mjs).
  *   – an enemy's category as a round badge in the top right corner of the token, for everyone (author, 2026-11-15:
  *     статист one chevron, рядовий two, елітний three, бос a skull (author, 2026-11-15), in the card's category colours); a boss standing
  *     (HP above 0) glows soft red, pulsing — Foundry's GlowOverlayFilter on the picture (steady in photosensitive mode).
  */
 import { CAT_COLOR } from "../sheets/enemy-view.mjs";
 import { normCat } from "../rules/enemy-model.mjs";
+import { CHIPS_MAX, chipPlan, tokenAspects, tokenConsequences } from "../rules/token-chips.mjs";
 
 const LABELS = { hp: "ОЗ", range: "Запас ходу" };
 /** The categories' marks: chevrons drawn (статист 1, рядовий 2, елітний 3), the boss a Font Awesome skull */
 const CAT_MARK = { statists: 1, regular: 2, elite: 3, boss: "\uf54c" };
 const CAT_NAME = { statists: "статист", regular: "рядовий", elite: "елітний", boss: "бос" };
 
-/** Chips under a token at most, the last one «+N» when there are more (stress test, 2026-11-17) */
-const CHIPS_MAX = 6;
-
-/** The aspects shown under a token: [{t, inv}] */
-export function tokenAspects(actor) {
-  if (!actor) return [];
-  let list = [];
-  if (actor.type === "enemy" || actor.type === "place") list = actor.system?.aspects ?? [];
-  else if (actor.type === "character") list = (actor.system?.situational ?? []).map((a) => ({ t: a.name, inv: a.invoked }));
-  return list.filter((a) => String(a?.t ?? "").trim()).map((a) => ({ t: String(a.t).trim(), inv: Math.max(0, Number(a.inv) || 0) }));
-}
+// the chips' sources and their limit (pure, tests/token-chips.test.mjs); re-exported for battle-overview.mjs
+export { tokenAspects } from "../rules/token-chips.mjs";
+/** A consequence chip's stripe: the sheet's «Наслідки» colours (css/pust-sheet.css .pust-cons.cons-*) */
+const CONS_STRIPE = { l: 0xd9b93a, m: 0xd9832e, h: 0xa8121a };
 
 export class WastelandersToken extends foundry.canvas.placeables.Token {
   /** A short flash over the token: green when it healed, red when it was hurt */
@@ -89,12 +84,13 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
   /** The chips of the situational aspects under the name (built anew only when the aspects or the size change) */
   refreshAspectChips() {
     if (this.destroyed || !this.nameplate) return;
-    const list = tokenAspects(this.actor);
+    const plan = chipPlan(tokenAspects(this.actor), tokenConsequences(this.actor), CHIPS_MAX);
+    const list = plan.chips;
     let box = this.children.find((c) => c.name === "pust-asp-chips");
     if (!list.length) { if (box) box.visible = false; return; }
     const { width, height } = this.document.getSize();
     const s = canvas.dimensions.uiScale;
-    const key = JSON.stringify([list, width, s]);
+    const key = JSON.stringify([list, plan.more, width, s]);
     if (!box) {
       box = new PIXI.Container();
       box.name = "pust-asp-chips";
@@ -106,24 +102,38 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
       box.removeChildren().forEach((c) => c.destroy({ children: true }));
       const fs = 11 * s, chipH = 17 * s, padX = 6 * s, gapX = 4 * s, gapY = 3 * s, lean = 3 * s;
       const maxW = Math.max(width * 1.6, 130 * s);
-      // at most CHIPS_MAX chips, then «+N» (stress test, 2026-11-17: 43 aspects made a column the screen's height)
-      const shown = list.length > CHIPS_MAX ? list.slice(0, CHIPS_MAX - 1) : list;
-      const chips = shown.map((a) => {
+      // at most CHIPS_MAX chips, then «+N» (stress test, 2026-11-17: 43 aspects made a column the screen's height);
+      // consequences first (author, 2026-11-22): the sheet's severity stripe on the left, a treated one struck through
+      const stripe = 4 * s;
+      const chips = list.map((a) => {
         const c = new PIXI.Container();
-        const text = new PIXI.Text(a.t, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fontStyle: "italic", fill: 0x241a0c, padding: Math.ceil(lean) }));
+        const left = a.cons ? stripe + 4 * s : padX;
+        const text = new PIXI.Text(a.t, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fontStyle: "italic", fill: a.treated ? 0x5a4a2c : 0x241a0c, padding: Math.ceil(lean) }));
         const inv = a.inv > 0 ? new PIXI.Text(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs * 0.95, fontWeight: "800", fill: 0xe7ffd9 })) : null;
-        const tw = Math.min(text.width, maxW - 2 * padX - (inv ? inv.width + 8 * s : 0));
+        const tw = Math.min(text.width, maxW - left - padX - (inv ? inv.width + 8 * s : 0));
         const iw = inv ? inv.width + 6 * s : 0;
-        const w = padX + tw + lean + (inv ? 4 * s + iw : 0) + (inv ? 2 * s : padX);
+        const w = left + tw + lean + (inv ? 4 * s + iw : 0) + (inv ? 2 * s : padX);
         const bg = new PIXI.Graphics();
         bg.beginFill(0x000000, 0.35).drawRoundedRect(0, s, w, chipH, 3 * s).endFill(); // a soft shadow
         bg.beginFill(0xe2ad3b, 0.97).drawRoundedRect(0, 0, w, chipH, 3 * s).endFill();
+        if (a.cons) {
+          // the severity stripe, rounded on the left only, with a dark seam so the light one shows on the yellow
+          bg.beginFill(CONS_STRIPE[a.sev] ?? CONS_STRIPE.l, 1).drawRoundedRect(0, 0, stripe * 2, chipH, 3 * s).endFill();
+          bg.beginFill(0xe2ad3b, 1).drawRect(stripe, 0, stripe, chipH).endFill();
+          bg.beginFill(0x241a0c, 0.6).drawRect(stripe, 0, Math.max(1, s), chipH).endFill();
+        }
         c.addChild(bg);
         const m = new PIXI.Graphics();
-        m.beginFill(0xffffff).drawRect(0, 0, padX + tw + lean, chipH).endFill();
-        text.position.set(padX, (chipH - text.height) / 2);
+        m.beginFill(0xffffff).drawRect(0, 0, left + tw + lean, chipH).endFill();
+        text.position.set(left, (chipH - text.height) / 2);
         text.mask = m;
         c.addChild(m, text);
+        if (a.treated) {
+          // «проліковано»: struck through, as the sheet's field
+          const line = new PIXI.Graphics();
+          line.beginFill(0x241a0c, 0.9).drawRect(left, chipH / 2 + 0.5 * s, tw + lean * 0.5, Math.max(1, 1.5 * s)).endFill();
+          c.addChild(line);
+        }
         if (inv) {
           const ib = new PIXI.Graphics();
           ib.beginFill(0x2f6b35, 1).drawRoundedRect(w - iw - 2 * s, 2 * s, iw, chipH - 4 * s, 2 * s).endFill();
@@ -133,9 +143,9 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
         c._w = w;
         return c;
       });
-      if (shown.length < list.length) {
+      if (plan.more) {
         const c = new PIXI.Container();
-        const text = new PIXI.Text(`+${list.length - shown.length}`, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fill: 0xe2ad3b }));
+        const text = new PIXI.Text(`+${plan.more}`, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fill: 0xe2ad3b }));
         const w = text.width + 2 * padX;
         const bg = new PIXI.Graphics();
         bg.beginFill(0x000000, 0.35).drawRoundedRect(0, s, w, chipH, 3 * s).endFill();
