@@ -14,9 +14,11 @@ const waiting = new Map(); // req → { timer, what }
  * @param {object} msg   the request ({op, …}); `req` and `from` are added
  * @param {string} what  what is waited for, for the warning: «Шкода», «Доза на ціль»…
  * @param {string} [lost] what the failure means for the player (default: nothing was applied)
+ * @param {{refusal?: boolean}} [opts] refusal: the GM's side throws a rule's reason (П2: the patient can't be helped), said as
+ *   a warning with that reason, not as an error
  * @returns {Promise<boolean>} settles when the answer comes (true: applied) or the wait ends (false); never rejects
  */
-export function askGM(msg, what, lost = "Нічого не застосовано.") {
+export function askGM(msg, what, lost = "Нічого не застосовано.", { refusal = false } = {}) {
   const req = foundry.utils.randomID();
   return new Promise((done) => {
     const timer = setTimeout(() => {
@@ -24,7 +26,7 @@ export function askGM(msg, what, lost = "Нічого не застосован�
       notify.warn(`${what}: Доглядач не відповів. Можливо, його вкладка з грою заснула або зникло з'єднання. ${lost} Попроси Доглядача перевірити гру.`, { permanent: true });
       done(false);
     }, ACK_MS);
-    waiting.set(req, { timer, what, lost, done });
+    waiting.set(req, { timer, what, lost, done, refusal });
     game.socket.emit(SOCKET(), { ...msg, req, from: game.user.id });
   });
 }
@@ -48,7 +50,8 @@ export function readyGmRequests() {
     if (!w) return;
     clearTimeout(w.timer);
     waiting.delete(msg.req);
-    if (!msg.ok) notify.error(`${w.what}: у Доглядача сталася помилка. ${w.lost}${msg.err ? ` (${msg.err})` : ""}`);
+    if (!msg.ok && w.refusal && msg.err) notify.warn(`${w.what}: ${msg.err}`);
+    else if (!msg.ok) notify.error(`${w.what}: у Доглядача сталася помилка. ${w.lost}${msg.err ? ` (${msg.err})` : ""}`);
     w.done?.(!!msg.ok);
   });
 }

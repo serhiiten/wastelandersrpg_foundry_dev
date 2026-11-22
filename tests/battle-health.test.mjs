@@ -171,5 +171,44 @@ const logic = (st) => H.addRepair(createLogic({ st, toast: () => {}, ui: {} }));
   ok(!L2.CHECK_TYPES.repair, "repair: each engine its own (the HTML one untouched)");
 }
 
+/* ---------- П2: paid when applied, «Лікування наслідків» on every verdict ---------- */
+{
+  const st = fresh(); st.supplies = 1;
+  eq(H.healCost("med", st).map((c) => c.k), ["sup"], "cost: med 1 Припас");
+  eq(H.healCost("treat", st, { drugOf: Rc.drugOf }), [], "cost: treat needs 2 Припаси");
+  st.supplies = 2; st.other = [{ n: "Стимпак", q: "1" }, { n: "Хотфікс", q: "2" }, { n: "Суперстимпак", q: "0" }];
+  eq(H.healCost("treat", st, { drugOf: Rc.drugOf }).map((c) => c.k), ["sup", "Стимпак", "Хотфікс"], "cost: body unknown, any means");
+  eq(H.healCost("treat", st, { machine: false, drugOf: Rc.drugOf }).map((c) => c.k), ["sup", "Стимпак"], "cost: living — stimpaks");
+  eq(H.healCost("treat", st, { machine: true, drugOf: Rc.drugOf }).map((c) => c.k), ["sup", "Хотфікс"], "cost: machine — Хотфікс");
+  st.supplies = 0;
+  eq(H.healCost("repair", st), [], "cost: no Припас, nothing");
+  st.supplies = 3;
+  eq([H.payHeal("treat", st, "sup"), st.supplies], ["2 Припаси", 1], "pay: treat takes 2");
+  eq([H.payHeal("treat", st, "sup"), st.supplies], ["1 Припас", 0], "pay: what is left (П-7)");
+  eq([H.payHeal("med", st, "sup"), st.supplies], ["", 0], "pay: nothing left, no error");
+  eq([H.payHeal("treat", st, "Стимпак", { drugOf: Rc.drugOf }), st.other.length], ["Стимпак", 2], "pay: the last stimpak goes with its row");
+  eq([H.payHeal("treat", st, "Хотфікс", { drugOf: Rc.drugOf }), st.other[0].q], ["Хотфікс", "1"], "pay: one off");
+}
+{
+  eq([0, 1, 2, 3].map((v) => H.treatPlan(v)), [
+    { red: true, treated: false, heal: false }, { red: true, treated: true, heal: false },
+    { red: false, treated: true, heal: false }, { red: false, treated: true, heal: true }], "treatPlan: the wiki's four");
+  const st = fresh(); st.cons = { l: "Синець", m: "Рана", m2: "", h: "Перелом" }; st.consT = { l: false, m: true, m2: false, h: false };
+  eq(H.treatSlots(st).map((s) => s.k), ["h"], "treatSlots: untreated medium / heavy only, no light");
+}
+{
+  const st = fresh(); st.cons.m = "Рана"; st.ko = { wake: true };
+  const L = logic(st);
+  const max0 = L.hpMaxNow(Rc.compute(st));
+  const r1 = H.applyTreat(st, L, "m", H.treatPlan(1), 2, { compute: Rc.compute });
+  eq([r1.ok, st.consT.m, st.consRed.m, L.hpMaxNow(Rc.compute(st))], [true, true, 2, max0 - 2], "applyTreat 10–14: treated, −2");
+  eq(H.applyTreat(st, L, "m", H.treatPlan(2), 0, { compute: Rc.compute }).ok, false, "applyTreat: already treated → refused");
+  eq(H.applyTreat(st, L, "h", H.treatPlan(2), 0, { compute: Rc.compute }).ok, false, "applyTreat: no such consequence → refused");
+  st.cons.h = "Перелом";
+  const r0 = H.applyTreat(st, L, "h", H.treatPlan(0), 99, { compute: Rc.compute });
+  const d = Rc.compute(st);
+  eq([r0.doomed, st.ko, st.consT.h, L.curHp(d) <= Math.max(0, L.hpMaxNow(d))], [true, { wake: true, doomed: true }, false, true], "applyTreat 9−: max 0 → doomed, wake kept");
+}
+
 console.log(failures ? `battle-health: ${failures} of ${checks} FAILED` : `battle-health: OK (${checks} checks)`);
 process.exit(failures ? 1 : 0);

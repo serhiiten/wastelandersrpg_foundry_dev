@@ -64,5 +64,8 @@ ok(/if\(L\.luckUp\) L\.verdict=Math\.min\(ci\.cursed\?2:3, L\.verdict\+1\);/.tes
   ok(L.R.hist.length === 1 && L.R.hist[0].verdict === Math.min(3, v + 1), `luck: one history line with the raised verdict (${JSON.stringify(L.R.hist.map((h) => h.verdict))})`);
 }
 
+// П2: a healing result applied (last.hx) is frozen — no «Щасливець», no «Бісова штуковина!»
+ok(!luckOffer({ type: "med", verdict: 1, hx: "Волті: +3 ОЗ." }, ["Щасливець"]), "luck: not on an applied healing");
+ok(!kickOffer({ type: "gen", verdict: 0, hx: "x" }, ["Бісова штуковина!"]), "kick: not on an applied result");
 console.log(`check-perks: ${checks - failures}/${checks} passed`);
 if (failures) process.exit(1);

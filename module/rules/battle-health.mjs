@@ -173,3 +173,73 @@ export function addRepair(L) {
   }
   return L;
 }
+
+/* ---------------- П2: the patient chosen after the roll, paid at the moment of applying (author, 2026-11-22) ---------------- */
+
+/** The means that pay for «Лікування наслідків» besides 2 Припаси (wiki: «один стимпак чи суперстимпак»; a machine — their analogues) */
+export const TREAT_MEANS = { living: ["Стимпак", "Суперстимпак"], machine: ["Хотфікс", "Критфікс"] };
+
+/**
+ * What the healer can pay with (wiki «Відновлення ОЗ…»): «Медична допомога» / «Ремонт» — 1 Припас; «Лікування наслідків» — 2 Припаси
+ * or one of the means in «Мотлох» (`st.other`, names through `drugOf`). `machine`: the patient's body (null = not known yet: any
+ * means counts). @returns {{k:string, label:string, i?:number}[]} k: "sup" or the means' name; i: its row in st.other
+ */
+export function healCost(type, st, { machine = null, drugOf = (n) => n } = {}) {
+  const sup = int(st?.supplies);
+  if (type === "med" || type === "repair") return sup >= 1 ? [{ k: "sup", label: "1 Припас", n: 1 }] : [];
+  if (type !== "treat") return [];
+  const out = sup >= 2 ? [{ k: "sup", label: "2 Припаси", n: 2 }] : [];
+  const fit = machine == null ? [...TREAT_MEANS.living, ...TREAT_MEANS.machine] : TREAT_MEANS[machine ? "machine" : "living"];
+  for (const name of fit) {
+    const i = (st?.other || []).findIndex((o) => drugOf(o?.n) === name && (isNaN(parseInt(o.q, 10)) || int(o.q) > 0));
+    if (i >= 0) out.push({ k: name, label: name, i });
+  }
+  return out;
+}
+
+/**
+ * Pay with `k` ("sup" or a means' name), taking what is there now (П-7: whatever vanished between the check and the payment is
+ * not an error). @returns {string} what was spent, "" when nothing was there
+ */
+export function payHeal(type, st, k, { drugOf = (n) => n } = {}) {
+  if (k === "sup") {
+    const want = type === "treat" ? 2 : 1, had = int(st.supplies), n = Math.min(want, Math.max(0, had));
+    st.supplies = had - n;
+    return n ? `${n} ${n === 1 ? "Припас" : "Припаси"}` : "";
+  }
+  const i = (st.other || []).findIndex((o) => drugOf(o?.n) === k);
+  if (i < 0) return "";
+  const o = st.other[i], q = parseInt(o.q, 10);
+  if (!isNaN(q)) { if (q <= 0) return ""; if (q - 1 <= 0) st.other.splice(i, 1); else o.q = String(q - 1); }
+  return k;
+}
+
+/** «Лікування наслідків» by the verdict (wiki): 9− max HP −1d6; 10–14 treated and −1d6; 15–18 treated; 19+ treated and +1d6 HP */
+export function treatPlan(verdict) {
+  const v = int(verdict);
+  return { red: v <= 1, treated: v >= 1, heal: v >= 3 };
+}
+
+/** The consequences the check treats: the untreated medium and heavy ones (a light one is treated with a medicament, no check) */
+export function treatSlots(st) {
+  return ["m", "m2", "h"].filter((k) => String(st?.cons?.[k] ?? "").trim() && !st?.consT?.[k])
+    .map((k) => ({ k, label: SLOT_NAME[k], t: String(st.cons[k]).trim() }));
+}
+
+/**
+ * The patient's side of «Лікування наслідків» on its state: treated mark, max HP −n, the current HP cut to the new maximum, a
+ * maximum at 0 → doomed (A6's mark, `wake` kept). `L`: the patient's engine. @returns {{ok:boolean, msg?:string, doomed?:boolean}}
+ */
+export function applyTreat(st, L, slot, plan, n = 0, { compute } = {}) {
+  if (!String(st.cons?.[slot] ?? "").trim()) return { ok: false, msg: "Цього наслідку в пацієнта вже немає." };
+  if (plan.treated && st.consT?.[slot]) return { ok: false, msg: "Цей наслідок уже проліковано." };
+  if (plan.treated) st.consT = { ...(st.consT || {}), [slot]: true };
+  let doomed = false;
+  if (plan.red && n > 0) {
+    addConsRed(st, slot, n);
+    const d = compute(st), max = L.hpMaxNow(d);
+    if (L.curHp(d) > max) st.hpCur = String(Math.max(0, max));
+    if (max <= 0) { st.ko = { ...(st.ko || {}), doomed: true }; doomed = true; }
+  }
+  return { ok: true, doomed };
+}

@@ -21,7 +21,7 @@ import { sharedGet } from "../helpers/scene-shared.mjs";
 import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
 import { rowTotal, rowDeal, rowClosed, rowText, ATTR_SHORT } from "../rules/dodge.mjs";
 import { checkPenalty, spendCheckStates } from "./states.mjs";
-import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, medOffer, medHtml, medPress, medBlocked } from "./battle-health.mjs";
+import { nearbyFor, nearbyHtml, spendNearby, consqOffer, consqHtml, consqWrite, medOffer, medHtml, medPress, healGate } from "./battle-health.mjs";
 import { checkFlag } from "../rules/gm-move-alert.mjs";
 import { notify } from "../helpers/notify.mjs";
 import { reconcileAutoXp, xpAutoGiven } from "../rules/session-xp.mjs";
@@ -48,16 +48,30 @@ const OPEN = new Map();
 
 /** Buttons whose result goes to chat */
 const CHAT_ON = new Set(["roll", "aspect", "modasp", "sitasp", "nearasp", "dmg", "dmgre", "luck"]);
-/** What the blocks of A6 / A7 did for a roll: actor uuid → {time, text} (author, 2026-11-21; one press a roll) */
-const HX_DONE = new Map();
 const WHY_SAID = new Map();
+/** П2 (author, 2026-11-22): the healing / repair checks, their patient chosen after the roll */
+const HEAL_TYPES = ["med", "repair", "treat"];
+/** «Без Припасів» ticked before the roll, by actor uuid (one roll; П2, answer 1: all three checks) */
+const HEAL_FREE = new Set();
+/** A press of the A6 / A7 blocks on its way, by actor uuid (Fable П-2: one application a roll) */
+const HX_BUSY = new Set();
+/** The block's choices (consequence, payment, name) of the current roll, by actor uuid (Fable П-6) */
+const HX_SEL = new Map();
+/** Rebuild the healing blocks of the open panels when the targets change (debounced: medOffer reads the target) */
+let hxRebuild = null;
 /**
  * A8 (author, 2026-11-21): a rolled damage waiting to be split, by actor uuid — {time (the damage roll's), total, targets
  * [{uuid, name}] fixed at the roll, shares, id, sent}. Kept through closing the panel, lost on F5 (then the GM deals it in
  * «Битва»).
  */
 const SPLIT = new Map();
-const hxDone = (uuid, last) => { const d = HX_DONE.get(uuid); return d && last && d.time === last.time ? d.text : ""; };
+/** What the blocks of A6 / A7 did for this roll (П2: kept on the roll itself, `last.hx`; one press a roll) */
+const hxDone = (uuid, last) => String(last?.hx || "");
+/** Mark the saved roll at once, before anything is awaited (Fable П-1) */
+function markHx(uuid, last, text) {
+  const R = STATES.get(uuid);
+  if (R?.last && R.last.time === last.time) R.last.hx = text;
+}
 
 /**
  * The damage is rolled and dealt in one press (author, 2026-11-17): «Завдати шкоди» with the targets' count; with no
@@ -83,7 +97,16 @@ function syncDealButton(root) {
   if (c) c.textContent = n ? ` · цілей: ${n}` : "";
 }
 Hooks.on("targetToken", (user) => {
-  if (user === game.user) document.querySelectorAll(".pust-roller").forEach(syncDealButton);
+  if (user !== game.user) return;
+  document.querySelectorAll(".pust-roller").forEach(syncDealButton);
+  // П2: the patient is chosen after the roll — its block follows the targets
+  clearTimeout(hxRebuild);
+  hxRebuild = setTimeout(() => {
+    for (const app of [...OPEN.values(), DOCKED]) {
+      const last = app?.rendered ? STATES.get(app.actor?.uuid)?.last : null;
+      if (last && HEAL_TYPES.includes(last.type) && !last.hx && !HX_BUSY.has(app.actor.uuid)) app.render();
+    }
+  }, 150);
 });
 
 /**
@@ -520,7 +543,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const penHtml = pen ? `<div class="ramods pust-ramods-state"><span class="rl">Стан</span><label class="tog" title="Аспект «${pen.aspect}»: −2 до цього кидка, після нього аспект зникне"><input type="checkbox" data-r="am" data-k="state-check" checked disabled> <span>«${pen.aspect}»: <b>−${-pen.n}</b></span></label></div>` : "";
     const cov = R.type === "dodge" ? this.#cover() : null;
     const covHtml = cov ? `<div class="ramods pust-ramods-state"><span class="rl">Прикриття</span><label class="tog" title="Спільник прикриває тебе: Посилення до наступного уникнення шкоди в цьому колі дій"><input type="checkbox" checked disabled> <span>${esc(cov.byName || "Спільник")} прикриває: <b>Посилення</b></span></label></div>` : "";
-    let withPen = penHtml || covHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}${covHtml}<button type="button" class="btn rust rgo"`) : html;
+    // «Без Припасів» (П2, answer 1): the table lets this healing / repair go without paying; one roll
+    const freeHtml = HEAL_TYPES.includes(R.type) && !this.actor.pustTourDemo ? `<div class="ramods pust-ramods-state"><span class="rl">Плата</span><label class="tog" title="Доглядач дозволив без плати: кидок можливий без Припасів, після застосування нічого не списується"><input type="checkbox" data-hxfree${HEAL_FREE.has(this.actor.uuid) ? " checked" : ""}> <span>Без Припасів</span></label></div>` : "";
+    let withPen = penHtml || covHtml || freeHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}${covHtml}${freeHtml}<button type="button" class="btn rust rgo"`) : html;
     withPen = await this.#healthBlocks(withPen, L);
     return { html: this.#pendBar(R) + this.#damageBlock(this.#effectsBlock(withPen, L, st), L, st) };
   }
@@ -537,17 +562,30 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!this.actor.pustTourDemo) {
       try { this.#near = await nearbyFor(this.actor); } catch (e) { console.warn(e); }
     }
-    const can = !last.aspect && (last.B || 0) < 2 && last.verdict < 3 && !last.dmgDone && !last.xpGiven && !last.savGiven;
+    const can = !last.aspect && (last.B || 0) < 2 && last.verdict < 3 && !last.dmgDone && !last.xpGiven && !last.savGiven && !last.hx;
     const chips = nearbyHtml(this.#near, can);
     if (chips) html = html.replace(/(<div class="rasp">[\s\S]*?)(<label class="tog"><input type="checkbox" id="r-spend")/, (m, a, b) => `${a}${chips}${b}`);
     const done = hxDone(this.actor.uuid, last);
+    // the result applied (П2, Fable П-4): the roll is frozen — no aspect invoked on it any more
+    if (done) {
+      html = html.replace(/(<div class="rasp">[\s\S]*?<\/label>)/, (m) => `${m.replace(/<button /g, "<button disabled ").replace(/<input /g, "<input disabled ")}<small>Результат уже застосовано: аспект викликати не можна.</small>`);
+    }
+    // the choices in the block survive its rebuild on a new target (Fable П-6)
+    const box = this.element?.querySelector?.(".pust-hx");
+    // kept by the roll, so a target without the field in between (none, a robot) doesn't lose them
+    const was = HX_SEL.get(this.actor.uuid);
+    const prev = was?.time === last.time ? was : {};
+    const pick = (q) => box?.querySelector(q)?.value ?? prev[q];
+    const sel = { slot: pick("[data-hx-slot]"), pay: pick("[data-hx-pay]"), name: pick("[data-hx-name]") };
+    HX_SEL.set(this.actor.uuid, { time: last.time, "[data-hx-slot]": sel.slot, "[data-hx-pay]": sel.pay, "[data-hx-name]": sel.name });
     let block = "";
     if (last.type === "consq") block = consqHtml(consqOffer(this.actor, last), done);
     else if (["med", "repair", "treat"].includes(last.type)) {
       const o = await medOffer(this.actor, last);
-      block = medHtml(o, done);
+      block = medHtml(o, done, { busy: HX_BUSY.has(this.actor.uuid), sel });
       // a refusal said once a roll in the notifications too (author, 2026-11-21: a robot treated with «Медицина»)
-      if (o?.why && o.patient && !done && WHY_SAID.get(this.actor.uuid) !== last.time) { WHY_SAID.set(this.actor.uuid, last.time); notify.warn(o.why); }
+      const said = `${last.time}|${o?.patient?.uuid}`;
+      if (o?.why && o.patient && !done && WHY_SAID.get(this.actor.uuid) !== said) { WHY_SAID.set(this.actor.uuid, said); notify.warn(o.why); }
     }
     if (block) html = html.replace('<div class="rasp">', () => `${block}<div class="rasp">`);
     return html;
@@ -557,17 +595,23 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   async #healthPress(el) {
     const { L } = evaluate(this.actor);
     const last = this.#load(L).last;
-    if (!last || hxDone(this.actor.uuid, last)) return;
+    const uuid = this.actor.uuid;
+    if (!last || hxDone(uuid, last) || HX_BUSY.has(uuid)) return;
     const kind = el.dataset.hx;
     const box = el.closest(".pust-hx");
     const name = box?.querySelector("[data-hx-name]")?.value ?? "";
     const slot = box?.querySelector("[data-hx-slot]")?.value ?? "";
+    const pay = box?.querySelector("[data-hx-pay]")?.value ?? "";
+    HX_BUSY.add(uuid);
     el.disabled = true;
     let text = "";
     try {
-      text = last.type === "consq" ? await consqWrite(this.actor, last, kind, name) : await medPress(this.actor, last, kind, { slot, name });
-    } finally { el.disabled = false; }
-    if (text) { HX_DONE.set(this.actor.uuid, { time: last.time, text }); this.render(); }
+      if (last.type === "consq") { text = await consqWrite(this.actor, last, kind, name); if (text) markHx(uuid, last, text); }
+      else text = await medPress(this.actor, last, kind, { slot, name, pay, applied: (t) => markHx(uuid, last, t) });
+    } finally { HX_BUSY.delete(uuid); el.disabled = false; }
+    // healing and repair: the targets go once the result is applied (П1 1.4 left them to П2)
+    if (text && HEAL_TYPES.includes(last.type)) clearTargets();
+    this.render();
   }
 
   /**
@@ -793,6 +837,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (asp && after) after.after(asp);
     const inv = asp?.querySelector(':scope > button[data-r="aspect"]');
     if (inv && !inv.querySelector("i")) inv.insertAdjacentHTML("afterbegin", '<i class="fa-solid fa-wand-magic-sparkles"></i>');
+    // «Без Припасів» (П2): kept for the next roll of this character's panel
+    root.addEventListener("change", (ev) => {
+      const t = ev.target.closest?.("[data-hxfree]");
+      if (!t) return;
+      if (t.checked) HEAL_FREE.add(this.actor.uuid); else HEAL_FREE.delete(this.actor.uuid);
+    });
     root.addEventListener("click", async (ev) => {
       const fa = ev.target.closest("[data-fx-apply]");
       if (fa) {
@@ -1072,14 +1122,13 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const key = el.dataset.r;
     // a plain copy of what the handlers read from the element
     const node = { tagName: el.tagName, dataset: { ...el.dataset }, value: el.value, checked: el.checked };
-    // «Медична допомога» / «Ремонт» cost a Припас to make (author, 2026-11-21; wiki «Відновлення ОЗ…»): none, no roll
+    // healing and repair need something to pay with before the roll (wiki «Відновлення ОЗ…»); the patient is chosen and the
+    // payment taken only when the result is applied (П2, author 2026-11-22); «Без Припасів» lets it go without
+    const healFree = HEAL_FREE.has(this.actor.uuid);
     if (kind === "click" && key === "roll") {
-      const { st, L } = evaluate(this.actor);
-      const t = this.#load(L).type;
-      if (["med", "repair"].includes(t) && (parseInt(st.supplies, 10) || 0) <= 0) return notify.warn(`${L.CHECK_TYPES[t]?.n}: потрібна одиниця Припасів, а їх немає.`);
-      // the target can't be helped now (a machine, the day's limit): no roll, no Припас (author, 2026-11-21)
-      const why = await medBlocked(this.actor, t);
-      if (why) return notify.warn(`${L.CHECK_TYPES[t]?.n}: ${why}`);
+      const { L } = evaluate(this.actor);
+      const why = healGate(this.actor, this.#load(L).type, healFree);
+      if (why) return notify.warn(why);
     }
     let out;
     const fdWas = fateSnap(this.actor); // an aspect invoked with a Fate token posts a card (author, 2026-11-15)
@@ -1094,6 +1143,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // «Щасливець» / «Бісова штуковина!»: the perk's mark and card (perk-uses.mjs), the replaced roll's ОД gone
     const perkId = kind === "click" ? el.dataset?.perkre || "" : "";
     let perkRes = null;
+    if (kind === "click" && ["aspect", "modasp", "sitasp", "nearasp", "luck"].includes(key) || perkId) {
+      const { L } = evaluate(this.actor);
+      if (this.#load(L).last?.hx) { notify.warn("Результат уже застосовано: змінити його не можна."); return this.render(); }
+    }
     await runAction(this.actor, (st, L) => {
       const R = this.#load(L);
       const t0 = R.last?.time;
@@ -1127,8 +1180,11 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         R.mod = (+R.mod || 0) - 1;
         if (R.last && R.last.time !== t0) { R.last.mod -= 1; R.last.autoFlat = (R.last.autoFlat || 0) + 1; R.last.autoList = [...(R.last.autoList || []), "Мастак-ремонтник +1"]; }
       }
-      // the Припас of «Медична допомога» / «Ремонт» goes with the roll (a new roll, not an aspect on it)
-      if (kind === "click" && key === "roll" && R.last && R.last.time !== t0 && ["med", "repair"].includes(R.last.type)) st.supplies = Math.max(0, (parseInt(st.supplies, 10) || 0) - 1);
+      // П2: nothing is paid with the roll; «Без Припасів» rides on the new roll (one roll)
+      if (kind === "click" && key === "roll" && R.last && R.last.time !== t0 && HEAL_TYPES.includes(R.last.type)) {
+        if (healFree) R.last.free = true;
+        HEAL_FREE.delete(this.actor.uuid);
+      }
       if (coverOn) {
         R.boost = (+R.boost || 0) - 1;
         if (R.last && R.last.time !== t0) { R.last.autoList = [...(R.last.autoList || []), `Посилення: прикриває ${cover.byName || "спільник"}`]; coverUsed = true; }
