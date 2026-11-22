@@ -22,6 +22,7 @@ import { rollDie } from "../helpers/dice.mjs";
 import { deferSuperDice } from "./caravan-superdice.mjs";
 import { cleanFx } from "../rules/attack-effects.mjs";
 import { splitError, splitHit } from "../rules/damage-split.mjs";
+import { blastPlan, directedHalf, DIRECTED } from "../rules/grenade-fail.mjs";
 
 const SOCKET = () => `system.${game.system.id}`;
 const esc = (s) => foundry.utils.escapeHTML(String(s ?? ""));
@@ -158,8 +159,9 @@ function triggerMoves(actor, when) {
  *   a target; `split` — a character's attack split between its targets (A8; rules/damage-split.mjs): `{shares: {uuid: n},
  *   one, fxIgnore}`, each target its share, a share of 0 no hit at all (the effects still go to the named one)
  */
-export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, avoid = false, head = "", source = "", noLastHit = false, collect = null, report = null, split = null } = {}) {
+export async function applyDamage(tokenUuids, data, { partial = false, dodge = false, avoid = false, head = "", source = "", noLastHit = false, collect = null, report = null, split = null, half = [], halfWhy = "", notes = [] } = {}) {
   const lines = [];
+  const halfSet = new Set(Array.isArray(half) ? half : []);
   const src = source ? await targetOf(source) : null;
   const killed = [], wounded = [], woundedHid = [];
   const type = battleType(data.type);
@@ -180,7 +182,8 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     // «Улюблений ворог» (author, 2026-11-20): the attacker deals a mutant +N
     const fav = src?.actor?.type === "enemy" && prof.mutant ? favFoeBonus(src.actor.system) : 0;
     if (fav) { if (hit.parts) hit.parts.push({ total: fav, type, dice: 0 }); else hit.total = int(hit.total) + fav; }
-    const r = resolveHit(prof, hp0, max, hit, { partial, dodge, avoid, rollD6 });
+    // «Спрямована дія» (П3 3.4, author 2026-11-22): the thrower and the allies take one more «½» named by the perk
+    const r = resolveHit(prof, hp0, max, hit, { partial, dodge, avoid, rollD6, half: halfSet.has(uuid) ? halfWhy : "" });
     let hp = r.hp, moveNote = "";
     const steps = r.steps;
     if (actor.type === "enemy") {
@@ -233,13 +236,14 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
     }
   }
   // the attack's chosen effects (A2; author, 2026-11-20): states on their target(s), whatever the armour let through; said lines
+  for (const n of notes) { const h = `<div class="pust-da-note">${esc(n)}</div>`; lines.push({ full: h, short: h }); }
   lines.push(...await effectLines(tokenUuids, data, source));
   if (collect) { collect.push(...lines); return lines.length; }
   // the full card's header also says what the dice gave, before armour and defences (author, 2026-11-15)
   const rolled = Number.isFinite(Number(data.total)) ? `<span class="pust-dmg-rolled" title="Скільки випало на кістках (з модифікаторами), до броні й стійкостей">випало <b>${Math.max(0, int(data.total))}</b></span>` : "";
   const card = (ls, gmNote = "", full = false) => applyCard({
     dt: chatType(type), icon: "fa-burst", title: `Шкода${head ? `: ${esc(head)}` : ""}`,
-    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (dodge ? `<span class="pust-da-chip">½ шкоди</span>` : "") + (avoid ? `<span class="pust-da-chip">уникнення: ½</span>` : "") + (split ? `<span class="pust-da-chip" title="Шкоду атаки розподілено між цілями">розподілено</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
+    chips: (partial ? `<span class="pust-da-chip">частковий успіх</span>` : "") + (dodge ? `<span class="pust-da-chip">½ шкоди</span>` : "") + (avoid ? `<span class="pust-da-chip">уникнення: ½</span>` : "") + (split ? `<span class="pust-da-chip" title="Шкоду атаки розподілено між цілями">розподілено</span>` : "") + (halfSet.size && halfWhy ? `<span class="pust-da-chip" title="Тобі й союзникам лише половина шкоди, з округленням угору">${esc(halfWhy)}: ½ своїм</span>` : "") + (full ? rolled : "") + gmNote, rows: ls,
   });
   await postSplit("Шкода", lines, card);
   return lines.length;
@@ -312,15 +316,18 @@ export async function sendEffects(data, { head = "", source = "" } = {}) {
  * @param {{total:number, type:string, ignoreArmor?:boolean, ignoreN?:number, poison?:number}} data
  * @returns {Promise<boolean>} false when there was nobody to hit
  */
-export async function sendDamage(data, { partial = false, dodge = false, head = "", source = "" } = {}) {
+export async function sendDamage(data, { partial = false, dodge = false, head = "", source = "", half = null } = {}) {
   const targets = chosenTokens();
   if (!targets.length) {
     warnNoTargets();
     return false;
   }
-  if (game.user.isGM) { await applyDamage(targets, data, { partial, dodge, head, source }); clearTargets(); return true; }
+  // «Спрямована дія» (П3 3.4): `half(targets)` → the targets that take ½ (the thrower and the allies among them)
+  const halves = typeof half === "function" ? half(targets) : [];
+  const hw = halves.length ? DIRECTED : "";
+  if (game.user.isGM) { await applyDamage(targets, data, { partial, dodge, head, source, half: halves, halfWhy: hw }); clearTargets(); return true; }
   if (!game.users.activeGM) { notify.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
-  askGM({ op: "applyDamage", targets, data, partial, dodge, head, source }, "Шкода");
+  askGM({ op: "applyDamage", targets, data, partial, dodge, head, source, half: halves, halfWhy: hw }, "Шкода");
   // no «Запит надіслано Доглядачеві» notice (author, 2026-11-15): the chat card shows the result
   clearTargets();
   return true;
@@ -355,12 +362,58 @@ async function applySplit(targets, data, { split, id = "", partial = false, head
   await applyDamage(targets, data, { partial, head, source, split: { shares: split.shares, one: String(split.one || ""), fxIgnore: !!split.fxIgnore } });
 }
 
+/**
+ * A grenade or explosive on a failure (П3 3.4, author 2026-11-22): it goes off in the thrower's zone — everyone with HP there
+ * takes the damage at once, no avoidance (the author: one's own blast). No token on the viewed scene or no zone under it
+ * (answer 1 а): only the thrower, and the card says the rest is the GM's. «Спрямована дія»: the thrower and the characters ½.
+ * @param {object} data the rolled damage, as sendDamage's
+ * @param {{actor:string, source?:string, head?:string, directed?:boolean}} o `actor` the thrower's uuid, `source` its token
+ */
+export async function sendBlast(data, { actor, source = "", head = "", directed = false } = {}) {
+  const msg = { data, actor, source, head, directed };
+  if (game.user.isGM) { await applyBlast({ ...msg, from: game.user.id }); return true; }
+  if (!game.users.activeGM) { notify.warn("Шкоду застосовує Доглядач, а його зараз немає в грі."); return false; }
+  return askGM({ op: "applyBlast", ...msg }, "Вибух");
+}
+
+/** The GM's side of sendBlast: the sender must own the thrower; the zone is the token's own scene's */
+async function applyBlast(msg) {
+  const actor = await fromUuid(String(msg.actor || ""));
+  if (!actor || actor.documentName !== "Actor") throw new Error("Немає персонажа, чия граната вибухнула.");
+  const user = game.users.get(msg.from);
+  if (!user || !actor.testUserPermission(user, "OWNER")) throw new Error("Вибух може завдати лише власник персонажа.");
+  const tok = msg.source ? await fromUuid(String(msg.source)) : null;
+  const own = tok?.documentName === "Token" && tok.actor?.id === actor.id ? tok : null;
+  const scene = own?.parent ?? null;
+  let zone = null, zoneName = "", tokens = [];
+  if (own && scene) {
+    const Z = await import("../canvas/battle-zones.mjs");
+    const zones = Z.sceneZones(scene);
+    const z = Z.zoneOfToken(own, zones);
+    zone = z?.id ?? null;
+    zoneName = z?.doc ? Z.zoneOf(z.doc)?.name ?? "" : "";
+    tokens = [...scene.tokens].map((t) => ({ uuid: t.uuid, key: t.actorLink && t.actor ? t.actor.uuid : t.uuid, type: t.actor?.type ?? "",
+      zone: Z.zoneOfToken(t, zones)?.id ?? null, hp: t.actor?.system?.hp?.value !== undefined }));
+  }
+  const plan = blastPlan(tokens, { selfToken: own?.uuid ?? "", selfActor: actor.uuid, zone });
+  const types = new Map(tokens.map((t) => [t.uuid, t.type]));
+  const hit = plan.targets.map((u) => ({ uuid: u, type: u === actor.uuid ? actor.type : types.get(u) ?? "" }));
+  const half = directedHalf(hit, plan.self, !!msg.directed);
+  const who = own?.name || actor.name;
+  const notes = [plan.alone
+    ? `${who}: граната вибухнула у своїй зоні, але токена на бойовій мапі (чи зони під ним) немає, тож шкоди зазнає лише сам персонаж. Решті в зоні Доглядач завдає шкоду вручну.`
+    : `Граната вибухнула в зоні${zoneName ? ` «${zoneName}»` : ""}: шкоди зазнали всі, хто в ній, без уникнення.`];
+  await applyDamage(plan.targets, msg.data || {}, { head: String(msg.head || ""), source: own?.uuid ?? "", half, halfWhy: half.length ? DIRECTED : "", notes });
+}
+
 /** Wiring (wastelanders.mjs, ready): the GM's socket for the players' requests */
 export function readyApplyDamage() {
   game.socket.on(SOCKET(), (msg) => {
     if (!activeGmHere()) return;
     if (msg?.op === "applySplit") return answerGM(msg, () => applySplit(msg.targets || [], msg.data || {}, { split: msg.split, id: String(msg.id || ""), partial: !!msg.partial, head: String(msg.head || ""), source: String(msg.source || "") }));
     if (msg?.op === "applyEffects") return answerGM(msg, () => applyEffects(msg.targets || [], msg.data || {}, { head: String(msg.head || ""), source: String(msg.source || "") }));
-    if (msg?.op === "applyDamage") answerGM(msg, () => applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, dodge: !!msg.dodge, head: String(msg.head || ""), source: String(msg.source || "") }));
+    if (msg?.op === "applyBlast") return answerGM(msg, () => applyBlast(msg));
+    if (msg?.op === "applyDamage") answerGM(msg, () => applyDamage(msg.targets || [], msg.data || {}, { partial: !!msg.partial, dodge: !!msg.dodge, head: String(msg.head || ""), source: String(msg.source || ""),
+      half: Array.isArray(msg.half) ? msg.half.map(String) : [], halfWhy: msg.halfWhy ? DIRECTED : "" }));
   });
 }

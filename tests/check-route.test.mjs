@@ -38,5 +38,11 @@ ok(!keepTargets(atk(1), true), "attack effect applied → cleared");
 ok(keepTargets({ type: "med", verdict: 2 }) && keepTargets({ type: "treat", verdict: 1 }) && keepTargets({ type: "repair", verdict: 0 }), "healing and repair keep theirs (П2)");
 ok(keepTargets(null), "no roll → kept");
 
+// П3 3.4: a grenade's failure — unfinished until thrown or written off by «Фух»; its targets are never needed
+ok(unfinished(atk(0), false, true), "grenade failure, nothing thrown → unfinished");
+ok(!unfinished(atk(0, { dmg: { key: "o0" } }), false, true), "grenade failure thrown → finished");
+ok(!unfinished(atk(0, { fuh: "Витрачено: Граната." }), false, true), "grenade failure written off by «Фух» → finished");
+ok(!keepTargets(atk(0), false, true), "grenade failure → targets cleared (its zone, not the targets)");
+
 console.log(failures ? `check-route: ${failures} of ${checks} FAILED` : `check-route: all ${checks} passed`);
 process.exit(failures ? 1 : 0);

@@ -13,7 +13,8 @@ import { isPublicMode, postChat } from "./chat.mjs";
 import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { attackMode, choiceEmpOnly, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
-import { clearTargets, sendDamage, sendEffects, sendSplitDamage } from "./apply-damage.mjs";
+import { clearTargets, sendBlast, sendDamage, sendEffects, sendSplitDamage } from "./apply-damage.mjs";
+import { chipsLeft, directedHalf, isBlast, spendOne, DIRECTED } from "../rules/grenade-fail.mjs";
 import { keepTargets, presetKey, presetOfWeapon, routeOf, unfinished } from "../rules/check-route.mjs";
 import { clampShare, effectTargetIdle, evenSplit, splitBlock, splitLeft } from "../rules/damage-split.mjs";
 import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx } from "../rules/attack-effects.mjs";
@@ -294,7 +295,20 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   hasUnfinished() {
     const { L } = evaluate(this.actor);
     const last = this.#load(L).last;
-    return unfinished(last, !!last && this.#fx.time === last.time && !!this.#fx.done);
+    return unfinished(last, !!last && this.#fx.time === last.time && !!this.#fx.done, this.#blast(last));
+  }
+  /** П3 3.4: the result is a grenade's failure — it goes off in this character's zone */
+  #blast(last) { return isBlast(last, last ? attackMode(last.skillName, last.attr) : ""); }
+  /** «Спрямована дія»: this character's grenades deal it and its allies ½ */
+  #directed(st) { return compute(st).allPerks.includes(DIRECTED); }
+  /**
+   * «Спрямована дія» on an ordinary throw (author, 2026-11-22): the targets that are this character or a character (an ally, as
+   * «Кого прикриваєш» counts them) take ½; null when the attack is no grenade or there is no perk
+   */
+  #halfOf(last) {
+    if (!last || attackMode(last.skillName, last.attr) !== "explosive" || !this.#directed(evaluate(this.actor).st)) return null;
+    const self = this.#ownToken();
+    return (uuids) => directedHalf(uuids.map((u) => ({ uuid: u, type: fromUuidSync(u)?.actor?.type ?? "" })), self, true);
   }
   /** The line over «Інша перевірка» for 3 s: the check was opened over an unfinished result (a macro, a link) */
   #replaceUntil = 0;
@@ -709,24 +723,47 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (ok) { s.sent = true; clearTargets(); this.render(); } else go.disabled = false;
   }
 
+  /** П3 3.4: the damage block of a grenade's failure before the throw (or after «Фух» wrote one off) */
+  #blastBlock(html, last, st, n) {
+    const fuh = compute(st).allPerks.includes("Фух");
+    const dir = this.#directed(st);
+    let say;
+    if (last.fuh) say = `<p class="rnote pust-blast">«Фух»: граната не вибухнула. ${esc(last.fuh)}</p>`;
+    else if (!n) say = `<p class="rhint pust-blast">Невдача: граната мала б вибухнути у твоїй зоні, але в мотлосі гранат не лишилося.</p>`;
+    else if (fuh) say = `<p class="rhint pust-blast">Невдача, але «Фух»: заряд не вибухає. Натисни на гранату, якою скористався, щоб списати її.</p>`;
+    else say = `<p class="rhint pust-blast">Невдача: граната вибухає у твоїй зоні. Натисни на гранату, якою скористався: шкоди зазнають усі в зоні, ти теж, без уникнення.${dir ? " «Спрямована дія»: тобі й союзникам лише половина." : ""}</p>`;
+    if (last.fuh || !n) html = html.replace(/<div class="rdmgsel[\s\S]*?<\/div>/, "");
+    // «Фух» throws nothing: no options of the damage
+    if (fuh || last.fuh) html = html.replace(/<div class="rdopts">[\s\S]*?<\/div>(?=<button)/, "");
+    return html
+      .replace(/<button type="button" class="btn rust" data-r="dmg">[\s\S]*?<\/button>(<p class="rhint pust-split-no"[\s\S]*?<\/p>|<details class="pust-split"[\s\S]*?<\/details>)?/, "")
+      .replace("<h4>Шкода</h4>", `<h4>Шкода</h4>${say}`);
+  }
+
   #damageBlock(html, L, st) {
     const last = L.R.last;
     const D = last?.dmg;
     this.#apply = null;
     const choices = L.dmgChoices(compute(st));
+    // П3 3.4 (author, 2026-11-22): a grenade's failure — counted on every render, so an aspect or «Щасливець» that lifts the
+    // result brings the ordinary block back; before the throw only the grenades left, a press throws (or, with «Фух», writes off)
+    const blast = !D && this.#blast(last);
+    const left = blast ? new Set(chipsLeft(choices).map((c) => c.key)) : null;
     const wt = weaponDmgType(choices.find((x) => x.key === (D ? D.key : L.R.dmgKey)));
     html = html.replace('<div class="rdmg">', `<div class="rdmg dt-${wt}">`);
     // the weapon for the damage as chips «name · damage» in their damage type's colours, not a list (author, 2026-11-17);
     // the chosen one (by default the weapon in hand, the sheet's defaultDmgKey) lit; a click works as the list's change
     html = html.replace(/<div class="rdmgsel"><select id="r-dmgw"[^>]*>([\s\S]*?)<\/select><\/div>/, (m, opts) => {
-      const chips = [...opts.matchAll(/<option value="([^"]*)"( selected)?>([\s\S]*?)<\/option>/g)].map(([, key, sel, label]) => {
+      const chips = [...opts.matchAll(/<option value="([^"]*)"( selected)?>([\s\S]*?)<\/option>/g)].filter(([, key]) => !left || left.has(key)).map(([, key, sel, label]) => {
+        if (left) sel = ""; // nothing lit: the press says which one was used
         const at = label.lastIndexOf(" · ");
         const name = at >= 0 ? label.slice(0, at) : label, dmg = at >= 0 ? label.slice(at + 3) : "";
         const dt = weaponDmgType(choices.find((x) => x.key === key));
-        return `<button type="button" class="pust-wchip dt-${dt}${sel ? " pust-pick" : ""}" data-r="dmgw" value="${key}" aria-pressed="${sel ? "true" : "false"}"><span>${name}</span>${dmg ? `<b>${dmg}</b>` : ""}</button>`;
+        return `<button type="button" class="pust-wchip dt-${dt}${sel ? " pust-pick" : ""}" ${left ? `data-blast="${key}"` : 'data-r="dmgw"'} value="${key}" aria-pressed="${sel ? "true" : "false"}"><span>${name}</span>${dmg ? `<b>${dmg}</b>` : ""}</button>`;
       });
-      return `<div class="rdmgsel pust-wchips" role="group" aria-label="Зброя для кидка шкоди">${chips.join("")}</div>`;
+      return chips.length ? `<div class="rdmgsel pust-wchips" role="group" aria-label="${left ? "Граната, якою скористався" : "Зброя для кидка шкоди"}">${chips.join("")}</div>` : "";
     });
+    if (blast) return this.#blastBlock(html, last, st, left.size);
     // one press rolls the damage and deals it to the targets (author, 2026-11-17); just a roll lives on the gear card's crosshair
     html = html.replace(/(<button type="button" class="btn rust" data-r="dmg">[\s\S]*?)Кинути шкоду([^<]*)<\/button>/,
       (m, head, dice) => `${head}Завдати шкоди${dice}<span class="pust-tgtn"></span></button>`);
@@ -922,6 +959,16 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         if (!this.#apply || ap.disabled) return;
         ap.disabled = true;
         try { await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() }); } finally { ap.disabled = false; }
+        return;
+      }
+      // П3 3.4: a grenade's failure — the chip used is thrown in this character's zone (no targets needed), or with «Фух» only
+      // written off
+      const bl = ev.target.closest("[data-blast]");
+      if (bl) {
+        ev.preventDefault();
+        if (bl.disabled) return;
+        root.querySelectorAll("[data-blast]").forEach((x) => { x.disabled = true; });
+        await this.#blastPress(bl.dataset.blast);
         return;
       }
       const b = ev.target.closest("[data-r]");
@@ -1226,7 +1273,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // the targets go once the result no longer needs them (author, 2026-11-22, П1 1.4, answer А): a plain check or an avoidance
     // at once, an attack on a failure (its damage or effect clears them as before); healing and repair keep theirs (П2)
     if (kind === "click" && ["roll", "aspect", "modasp", "sitasp", "nearasp", "luck"].includes(key) && out?.R?.last
-      && !keepTargets(out.R.last, this.#fx.time === out.R.last.time && !!this.#fx.done)) clearTargets();
+      && !keepTargets(out.R.last, this.#fx.time === out.R.last.time && !!this.#fx.done, this.#blast(out.R.last))) clearTargets();
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
     // an avoidance answering an enemy's attack (A1): the row is chosen now, before the render shows the new roll
     const nl = out.R.last, ol = out.before.last;
@@ -1259,13 +1306,43 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
     // A8: with the fold open the roll waits for the split (one type only: a hit of several types is dealt in full, as before)
-    if (deal && this.#apply && out.R.last?.dmg && this.#splitPress && !this.#apply.data.parts) { this.#splitPress = false; this.#startSplit(out.R.last.dmg); this.render(); }
+    // П3 3.4: a grenade's failure goes off in this character's zone (the GM finds who is there), not on the targets
+    if (deal && this.#apply && out.R.last?.dmg && this.#blast(out.R.last)) {
+      const { st: s2 } = evaluate(this.actor);
+      await sendBlast(this.#apply.data, { actor: this.actor.uuid, source: this.#ownToken(), head: this.#apply.head, directed: this.#directed(s2) });
+    } else if (deal && this.#apply && out.R.last?.dmg && this.#splitPress && !this.#apply.data.parts) { this.#splitPress = false; this.#startSplit(out.R.last.dmg); this.render(); }
     else if (deal && this.#apply && out.R.last?.dmg) {
       // the fold was open, but the rolled damage came out of several types: dealt in full, and said so (reviewer, 2026-11-21)
       if (this.#splitPress) notify.warn("Шкода вийшла кількох типів, тож розподілити її не вийде: кожна ціль отримує її повністю.");
-      this.#splitPress = false; await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken() }); }
+      this.#splitPress = false; await sendDamage(this.#hitData(), { partial: this.#apply.partial, head: this.#apply.head, source: this.#ownToken(), half: this.#halfOf(out.R.last) }); }
     // an option changed the damage already rolled (Психо, effect, crit, robot…): the new result goes to chat too
     else if (out.dmgChanged) await this.#chatDamage(out.R.last, out.dmgTotal, false, out.dmgType, true, out.dmgFx, out.dmgChoice, out.before.last?.dmg?.extra ?? null);
+  }
+
+  /** П3 3.4: the grenade `key` used on a failure: «Фух» writes it off; otherwise the engine throws it (roll, written off) */
+  async #blastPress(key) {
+    const { st, L } = evaluate(this.actor);
+    const last = this.#load(L).last;
+    if (!this.#blast(last) || last.dmg || last.fuh) return this.render();
+    if (compute(st).allPerks.includes("Фух")) {
+      let said = "";
+      await runAction(this.actor, (st2, L2) => {
+        const R = this.#load(L2);
+        if (!R.last || R.last.dmg || R.last.fuh) return;
+        const c = L2.dmgChoices(compute(st2)).find((x) => x.key === key);
+        if (!c?.o) return;
+        const r = spendOne(c.o);
+        if (!r.ok) { notify.warn(r.msg); return; }
+        if (r.remove) { const i = st2.other.indexOf(c.o); if (i >= 0) st2.other.splice(i, 1); } else c.o.q = r.q;
+        R.last.fuh = r.msg; R.last.dmgDone = true; said = r.msg;
+        this.#save(L2);
+      });
+      if (said) await this.#chat(`<h4><i class="fa-solid fa-bomb"></i> «Фух»: граната не вибухнула</h4><p>${esc(said)}</p>`);
+      return this.render();
+    }
+    this.#splitPress = false;
+    await this.#run("change", { tagName: "BUTTON", dataset: { r: "dmgw" }, value: key });
+    await this.#run("click", { tagName: "BUTTON", dataset: { r: "dmg" } });
   }
 
   async #post(key, { before, R, dmgTotal, dmgType, dmgFx, dmgChoice, verdicts, types }) {
