@@ -246,7 +246,7 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
 }
 
 /**
- * The chosen effects of a character's attack (A2; rules/attack-effects.mjs): `data.fx` — states (only «Збитий з ніг»,
+ * The chosen effects of a character's attack (A2; rules/attack-effects.mjs): `data.fx` — states (only «Збитий з ніг», «Притиснутий вогнем»,
  * «Приголомшений», «Без зброї», only on the request's own targets: cleanFx), `data.said` — the effects done by hand, one line
  * each. A hidden one's state line is the GM's only. @returns {Promise<{full:string, short:string}[]>}
  */
