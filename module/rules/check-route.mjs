@@ -27,8 +27,12 @@ export function presetOfWeapon(kind) {
 /** The check types whose targets are the healing's or repair's (their own flow, package П2): kept as they are */
 export const TARGET_TYPES = ["med", "treat", "repair"];
 
-/** An attack rolled to a partial success or better whose damage was not rolled and no effect applied instead */
-export function unfinished(last, fxDone = false) {
+/**
+ * An attack rolled to a partial success or better whose damage was not rolled and no effect applied instead; a grenade's
+ * failure (`blast`, П3 3.4) whose blast was not thrown nor the grenade written off by «Фух»
+ */
+export function unfinished(last, fxDone = false, blast = false) {
+  if (blast) return !!last && !last.dmg && !last.fuh;
   return !!last && last.type === "attack" && Number(last.verdict) >= 1 && !last.dmg && !fxDone;
 }
 
@@ -36,8 +40,9 @@ export function unfinished(last, fxDone = false) {
  * Does the result still need the targets (author, 2026-11-22, answer А)? A plain check and an avoidance — no; an attack — while
  * its damage or effect is to come (a failure gives none); healing and repair — yes, their own flow clears them.
  */
-export function keepTargets(last, fxDone = false) {
+export function keepTargets(last, fxDone = false, blast = false) {
   if (!last) return true;
+  if (blast) return false; // a grenade's failure hits the thrower's zone, not the targets
   if (TARGET_TYPES.includes(last.type)) return true;
   return unfinished(last, fxDone);
 }

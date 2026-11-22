@@ -6,9 +6,9 @@
  * What an effect does (`does`):
  *   plus2 / plus1d6 — the engine's own «+2» / «+1d6» (R.dmgOpt.norm2 / crit), counted in the damage it rolls;
  *   ignore          — the hit ignores armour (`ignoreArmor`);
- *   state           — a state on the target (rules/states.mjs: down, stunned, disarmed), on one target, a blast's on all;
- *   cover           — «прикриваєш спільника»: an ally the player picks gets Посилення on its next avoidance this round
- *                     (`flags.<system>.cover = {round, by, byName}` on its actor; check-panel.mjs counts and spends it);
+ *   state           — a state on the target (rules/states.mjs: down, stunned, disarmed, pin), on one target, a blast's on all;
+ *   cover           — «прикриваєш спільника»: an ally the player picks gets the aspect «Прикритий: <who>» with 1 Посилення
+ *                     for its next avoidance this round (rules/cover.mjs; check-panel.mjs counts and spends it);
  *   text            — said on the card, done by hand (moving tokens, aspects; a blast's halves are A12).
  * How many (wiki): 15–18 one ordinary; 19+ one critical or ordinary; 10–14 damage or one ordinary (a blast: none), with
  * «Прицільний постріл» / «Точний удар» one ordinary on top of the damage; «Покращені критичні удари» one more critical,
@@ -18,7 +18,7 @@
 /** Every effect: key → {n (the engine's text index), tier, does, state?} by attack mode */
 export const EFFECTS = {
   ranged: {
-    normal: [{ key: "plus2", does: "plus2" }, { key: "pin", does: "text" }, { key: "cover", does: "cover" }],
+    normal: [{ key: "plus2", does: "plus2" }, { key: "pin", does: "state", state: "pin" }, { key: "cover", does: "cover" }],
     crit: [{ key: "plus1d6", does: "plus1d6" }, { key: "ignore", does: "ignore" }, { key: "stunned", does: "state", state: "stunned" }, { key: "disarmed", does: "state", state: "disarmed" }],
   },
   melee: {
@@ -48,7 +48,7 @@ export function effectText(ATK_FX, mode, e) {
 export const LEGS = { key: "down", does: "state", state: "down" };
 
 /** The states an effect may put (the GM accepts only these from a player's request) */
-export const EFFECT_STATES = ["down", "stunned", "disarmed"];
+export const EFFECT_STATES = ["down", "stunned", "disarmed", "pin"];
 
 /**
  * The effects on offer and the slots to fill.
@@ -149,5 +149,3 @@ export function cleanFx(fx, targets) {
     .filter((x) => x.on.length);
 }
 
-/** «Прикриваєш спільника» is in force: put on in this round (wiki: «до наступної перевірки на уникнення шкоди в цьому колі») */
-export const coverActive = (flag, round) => !!flag && Number(flag.round) === Number(round);

@@ -359,7 +359,7 @@ function computeDamageCore(p, base, typeKey, opts) {
   };
   // «½ шкоди» (author, 2026-11-16): half of the damage, rounded up, for any target — a partial avoidance (10–14), one's own
   // blast, «Погонич»…; one more «½» of the hit, so it adds up with the others (the wiki's glossary: halves add up)
-  const partial = () => { if (opts.partial && p.halfPartial) halves.push("частковий успіх"); if (opts.dodge) halves.push("½ шкоди"); if (opts.avoid) halves.push("уникнення 10–14"); };
+  const partial = () => { if (opts.partial && p.halfPartial) halves.push("частковий успіх"); if (opts.dodge) halves.push("½ шкоди"); if (opts.avoid) halves.push("уникнення 10–14"); if (opts.half) halves.push(String(opts.half)); };
   if (type.special === "rad") {
     if (p.rad === "immune") return { final: 0, steps: ["невразливий до радіації"] };
     if (p.rad === "heal") { const h = Math.max(0, opts.dice || 0); return { final: 0, heal: h, steps: [`радіація лікує: +1 ОЗ за кожну кістку (${h})`] }; }
@@ -433,6 +433,7 @@ const SPECIAL = new Set(["rad", "poison", "psychic"]);
  *   parts?:{total:number, type:string, dice?:number}[]}} hit  types are keys of DMG_TYPES
  * @param {{partial?:boolean, dodge?:boolean, avoid?:boolean, rollD6?:()=>number, rnd?:()=>number}} [opts] `avoid`: a partial
  *   avoidance (10–14) of an enemy's hit (rules/dodge.mjs) — one more «½», adding up with «½ шкоди» of the menu (two take all)
+ *   `half`: one more «½» named by its reason («Спрямована дія», П3 3.4: the perk's own blast or grenade on the thrower and allies)
  * @returns {{hp:number, damage:number, heal:number, steps:string[], out:boolean}}
  */
 export function resolveHit(target, hp0, max, hit, opts = {}) {
@@ -463,7 +464,7 @@ export function resolveHit(target, hp0, max, hit, opts = {}) {
   let damage = 0, heal = 0;
   const steps = [];
   for (const g of groups) {
-    const r = computeDamage(noKami, g.total, g.type, { ignoreArmor: !!hit.ignoreArmor, ignoreN: n0(hit.ignoreN), partial: !!opts.partial, dodge: !!opts.dodge, avoid: !!opts.avoid, dice: g.dice, rollD6: opts.rollD6, rnd: opts.rnd, noElectric: !!hit.empOnly });
+    const r = computeDamage(noKami, g.total, g.type, { ignoreArmor: !!hit.ignoreArmor, ignoreN: n0(hit.ignoreN), partial: !!opts.partial, dodge: !!opts.dodge, avoid: !!opts.avoid, half: opts.half ? String(opts.half) : "", dice: g.dice, rollD6: opts.rollD6, rnd: opts.rnd, noElectric: !!hit.empOnly });
     const h = n0(r.heal), f = n0(r.final);
     heal += h;
     if (!r.heal) damage += f;

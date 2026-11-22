@@ -33,7 +33,7 @@ export function attackTip(a) {
   return [ex ? `+${ex.label}` : "", attackNote(a)].filter(Boolean).join(" · ");
 }
 import { moveSpec, moveMarks, limitLabel, canUndo, attackMenu } from "../rules/move-spec.mjs";
-import { enemyNonliving } from "../rules/states.mjs";
+import { enemyNonliving, aspectImmune } from "../rules/states.mjs";
 import { profileOf, attackDice, bonusFrom, andList, normCat, bookCopy } from "../rules/enemy-model.mjs";
 
 const escH = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -91,11 +91,6 @@ const TAG_ICON = {
 };
 
 /** Quick aspects locked by a flag: [aspect key] → [flag, tooltip] */
-const QUICK_LOCK = {
-  down: ["noKnockdown", "Не можна збити з ніг"],
-  stunned: ["noStun", "Не можна приголомшити"],
-  disarmed: ["noDisarm", "Не можна обеззброїти"],
-};
 
 /** The HP bar class: dead (0), low (≤ 33 %), mid (≤ 66 %), ok */
 export function hpLevel(value, max) {
@@ -203,10 +198,11 @@ export function enemyView(sys, o = {}) {
   const state = hpState(hp.value, hp.max);
   const tags = profileTags(profile).map(([icon, text]) => ({ icon: TAG_ICON[icon] ?? "fa-circle", text, help: tagHelp(text) }));
   const aspects = sys.aspects ?? [];
+  // immunities (author, 2026-11-22, П3 3.5): a quick aspect is never locked; one its bearer is immune to is red, with the reason
+  const immProf = { ...profile, nonliving: enemyNonliving(sys.flags?.nonliving ?? null, o.names ?? [], sys) };
   const quick = QUICK_ASPECTS.filter(([, label]) => !aspects.some((a) => a.t === label)).map(([key, label]) => {
-    const lock = QUICK_LOCK[key];
-    const locked = !!(lock && profile[lock[0]]);
-    return { key, label, locked, help: locked ? lock[1] : `Накласти аспект «${label}»` };
+    const imm = aspectImmune(label, immProf);
+    return { key, label, imm, help: imm ? `Імунітет: ${imm}` : `Накласти аспект «${label}»` };
   });
   const psyIdx = psyMoveIdx(sys);
   const psycho = !!profile.psycho;
@@ -228,7 +224,7 @@ export function enemyView(sys, o = {}) {
   return {
     cat, catLabel: CAT_LABEL[cat] ?? "", catColor: CAT_COLOR[cat] ?? CAT_COLOR.regular, catIcon: catIconHtml(cat),
     hp, state, armor: sys.armor ?? 0, psiArmor: sys.psiArmor ?? 0, armorText: sys.armorText ?? "",
-    tags, quick, aspects: aspects.map((a, i) => ({ i, t: a.t, inv: a.inv })),
+    tags, quick, aspects: aspects.map((a, i) => ({ i, t: a.t, inv: a.inv, imm: aspectImmune(a.t, immProf) })),
     baseAspects: (sys.baseAspects ?? []).map((a, i) => ({ i, t: a.t, inv: a.inv, len: Math.max(6, String(a.t ?? "").length + 1) })),
     attacks, moves, psycho, psyIdx, psyMove: psyIdx >= 0 ? moves[psyIdx] : null,
     changed: !!sys.orig && JSON.stringify(sys.orig.attacks ?? null) !== JSON.stringify(sys.attacks) ? true : false,

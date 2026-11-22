@@ -92,6 +92,17 @@ for (let i = 0; i < 300; i++) {
   }
 }
 R.setRandom(null);
+{ // «Прикритий: …» (П3 3.2): its one invoke can't be changed on the sheet; the whole aspect can be removed
+  R.setRandom(R.mulberry32(7));
+  const st = actorToState(clone(stateToActor(R.rollCharacter(null))), { withIds: true });
+  st.sit = [{ t: "Прикритий: Волті", inv: 1 }, { t: "Мокрий", inv: 0 }];
+  const C = createController(st, createLogic({ st }), {});
+  C.act("sit-inv", { i: "0", d: "1" }); C.act("sit-inv", { i: "0", d: "-1" }); C.act("sit-inv", { i: "1", d: "1" });
+  if (st.sit[0].inv !== 1 || st.sit[1].inv !== 1) { errors++; console.log("FAIL cover's invoke changed", JSON.stringify(st.sit)); }
+  C.act("sit-del", { i: "0" });
+  if (st.sit.length !== 1 || st.sit[0].t !== "Мокрий") { errors++; console.log("FAIL cover not removed", JSON.stringify(st.sit)); }
+  R.setRandom(null);
+}
 console.log(`characters 300, actions ${actions} (refused by the rules: ${refused}), errors ${errors}, save mismatches ${mismatches}`);
 console.log(errors || mismatches ? "FAIL" : "OK");
 process.exit(errors || mismatches ? 1 : 0);

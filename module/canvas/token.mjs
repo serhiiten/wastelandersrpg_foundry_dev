@@ -17,7 +17,8 @@
  */
 import { CAT_COLOR } from "../sheets/enemy-view.mjs";
 import { normCat } from "../rules/enemy-model.mjs";
-import { CHIPS_MAX, chipPlan, tokenAspects, tokenConsequences } from "../rules/token-chips.mjs";
+import { CHIPS_MAX, chipPlan, markImmune, tokenAspects, tokenConsequences } from "../rules/token-chips.mjs";
+import { targetProfile } from "../rules/target-profile.mjs";
 
 const LABELS = { hp: "ОЗ", range: "Запас ходу" };
 /** The categories' marks: chevrons drawn (статист 1, рядовий 2, елітний 3), the boss a Font Awesome skull */
@@ -84,7 +85,8 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
   /** The chips of the situational aspects under the name (built anew only when the aspects or the size change) */
   refreshAspectChips() {
     if (this.destroyed || !this.nameplate) return;
-    const plan = chipPlan(tokenAspects(this.actor), tokenConsequences(this.actor), CHIPS_MAX);
+    // an aspect its bearer is immune to is red (П3 3.5); the profile only when a state's aspect is there
+    const plan = chipPlan(markImmune(tokenAspects(this.actor), () => targetProfile(this.actor)), tokenConsequences(this.actor), CHIPS_MAX);
     const list = plan.chips;
     let box = this.children.find((c) => c.name === "pust-asp-chips");
     if (!list.length) { if (box) box.visible = false; return; }
@@ -108,14 +110,14 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
       const chips = list.map((a) => {
         const c = new PIXI.Container();
         const left = a.cons ? stripe + 4 * s : padX;
-        const text = new PIXI.Text(a.t, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fontStyle: "italic", fill: a.treated ? 0x5a4a2c : 0x241a0c, padding: Math.ceil(lean) }));
+        const text = new PIXI.Text(a.t, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs, fontWeight: "700", fontStyle: "italic", fill: a.imm ? 0xfff3e8 : a.treated ? 0x5a4a2c : 0x241a0c, padding: Math.ceil(lean) }));
         const inv = a.inv > 0 ? new PIXI.Text(`+${a.inv}`, new PIXI.TextStyle({ fontFamily: "Roboto Condensed", fontSize: fs * 0.95, fontWeight: "800", fill: 0xe7ffd9 })) : null;
         const tw = Math.min(text.width, maxW - left - padX - (inv ? inv.width + 8 * s : 0));
         const iw = inv ? inv.width + 6 * s : 0;
         const w = left + tw + lean + (inv ? 4 * s + iw : 0) + (inv ? 2 * s : padX);
         const bg = new PIXI.Graphics();
         bg.beginFill(0x000000, 0.35).drawRoundedRect(0, s, w, chipH, 3 * s).endFill(); // a soft shadow
-        bg.beginFill(0xe2ad3b, 0.97).drawRoundedRect(0, 0, w, chipH, 3 * s).endFill();
+        bg.beginFill(a.imm ? 0xa8121a : 0xe2ad3b, 0.97).drawRoundedRect(0, 0, w, chipH, 3 * s).endFill();
         if (a.cons) {
           // the severity stripe, rounded on the left only, with a dark seam so the light one shows on the yellow
           bg.beginFill(CONS_STRIPE[a.sev] ?? CONS_STRIPE.l, 1).drawRoundedRect(0, 0, stripe * 2, chipH, 3 * s).endFill();

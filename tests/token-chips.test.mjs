@@ -1,7 +1,7 @@
 // What the chips under a token show (module/rules/token-chips.mjs): situational aspects, a character's consequences
 // first (author, 2026-11-22, П5 5.1), one limit of six with «+N».
 // Run: node tests/token-chips.test.mjs
-import { CHIPS_MAX, chipPlan, tokenAspects, tokenConsequences } from "../module/rules/token-chips.mjs";
+import { CHIPS_MAX, chipPlan, markImmune, tokenAspects, tokenConsequences } from "../module/rules/token-chips.mjs";
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; console.log("FAIL " + m); } };
@@ -45,5 +45,14 @@ eq([p.chips.map((c) => c.t), p.more], [["c0", "c1"], 2], "the limit cuts consequ
 p = chipPlan(asp(43), []);
 eq([p.chips.length, p.more], [5, 38], "the stress test of 2026-11-17");
 
+// П3 3.5: an aspect its bearer is immune to is marked red; no state's aspect → the profile isn't even asked for
+{
+  let asked = 0;
+  const prof = () => { asked++; return { noDisarm: true }; };
+  const m = markImmune([{ t: "Без зброї", inv: 0 }, { t: "Збитий з ніг", inv: 0 }, { t: "Мокрий", inv: 1 }], prof);
+  ok(m[0].imm === true && !m[1].imm && !m[2].imm && asked === 1, `immune marked: ${JSON.stringify(m)}`);
+  markImmune([{ t: "Мокрий", inv: 1 }], prof);
+  ok(asked === 1, "no state's aspect: no profile");
+}
 console.log(`${checks - failures}/${checks} token-chips checks passed`);
 if (failures) process.exit(1);

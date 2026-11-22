@@ -91,6 +91,24 @@ for (let i = 0; i < 200; i++) {
   if (JSON.stringify(sel) !== JSON.stringify(["electric", "cryo", "electric", ""])) { errors++; console.log("FAIL F9: «Тип» shows", JSON.stringify(sel)); }
   if (v.weapons[1].dEff) { errors++; console.log("FAIL F9: a catalogue cryo weapon's damage is cut a step:", v.weapons[1].dEff); }
 }
+// П3 3.5 (author, 2026-11-22): an aspect its bearer is immune to — Доктор Шредер («Вбудована зброя» in hand) and «Без зброї»
+{
+  const { QUICK_CHARS } = await import("../module/rules/quickstart.mjs");
+  const { actorToState, stateToActor } = await import("../module/rules/character-adapter.mjs");
+  const raw = JSON.parse(JSON.stringify(QUICK_CHARS.find((c) => /Шредер/.test(c.name))));
+  const data = stateToActor(raw);
+  const st = actorToState(JSON.parse(JSON.stringify({ name: data.name, type: "character", img: data.img, system: data.system, items: data.items })));
+  st.sit = [{ t: "Без зброї", inv: 0 }, { t: "Збитий з ніг", inv: 0 }];
+  const v = buildView(st, R.compute(st), createLogic({ st }), {});
+  const imm = v.sit.map((a) => a.imm);
+  const bad = v.issues.filter((i) => i.lvl === "bad").map((i) => i.msg);
+  if (imm[0] !== "не можна обеззброїти" || imm[1] !== "" || !bad.includes("Аспект «Без зброї»: імунітет, не можна обеззброїти.")) { errors++; console.log("FAIL Шредер's immunity: " + JSON.stringify({ imm, bad })); }
+  st.sit = [];
+  const q = buildView(st, R.compute(st), createLogic({ st }), {}).quickAspects;
+  if (q.find((x) => x.t === "Без зброї")?.imm !== "не можна обеззброїти" || q.find((x) => x.t === "Приголомшений")?.imm !== "") { errors++; console.log("FAIL Шредер's quick aspects: " + JSON.stringify(q)); }
+  else console.log("immune aspects (Доктор Шредер): OK");
+}
+
 R.setRandom(null);
 console.log(`views ${views}, errors ${errors}`);
 console.log(errors ? "FAIL" : "OK");

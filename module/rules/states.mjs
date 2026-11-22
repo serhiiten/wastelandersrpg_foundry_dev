@@ -13,6 +13,7 @@
  *   rounds — burning, poisoned, bleeding: damage at every tick, `left` ticks
  *   holder — grabbed: damage at every tick while its holder stands on the scene with HP above 0
  *   check  — the roar's −2: «Зробити перевірку» counts it in the next check, then takes the aspect off (check-panel.mjs)
+ *   round  — pinned by fire (П3 3.1; wiki «Стандартні дії»: «В цьому колі дій…»): gone at the next ▶ «Коло дій»
  * Every state ends at «Кінець сцени».
  */
 
@@ -32,6 +33,8 @@ export const STATES = {
   acid:     { aspect: "−2 до фізичної броні", until: "scene", armor: -2 },
   // «Приголомшливий рев» (stage 3, author 2026-11-20): «живі вороги» get −2 to their next check; it goes with that roll
   roar:     { aspect: "−2 до наступної перевірки", until: "check", check: -2, immune: "nonliving" },
+  // «Притиснутий вогнем» (author, 2026-11-22, П3 3.1): a character's ranged attack's ordinary effect, until the round ends
+  pin:      { aspect: "Притиснутий вогнем", until: "round" },
 };
 
 /**
@@ -102,6 +105,26 @@ export const immuneTo = (key, profile) => {
   return !!(d && ((d.immune && profile?.[d.immune]) || (d.immuneDef && profile?.[d.immuneDef] === "immune")));
 };
 
+/** The state whose aspect is this text, or null («Без зброї» → "disarmed") */
+export const stateKeyOf = (text) => Object.keys(STATES).find((k) => STATES[k].aspect === String(text ?? "").trim()) ?? null;
+
+/** Why the target is immune to a state, in words for a tooltip / a sheet's line («не можна обеззброїти»), or "" */
+const IMMUNE_WORDS = { noKnockdown: "не можна збити з ніг", noStun: "не можна приголомшити", noDisarm: "не можна обеззброїти", nonliving: "неживий" };
+const IMMUNE_DEF_WORDS = { fire: "невразливий до вогню", poison: "невразливий до отрут" };
+export function immuneWhy(key, profile) {
+  const d = STATES[key];
+  if (!d) return "";
+  if (d.immune && profile?.[d.immune]) return IMMUNE_WORDS[d.immune] ?? "";
+  if (d.immuneDef && profile?.[d.immuneDef] === "immune") return IMMUNE_DEF_WORDS[d.immuneDef] ?? "";
+  return "";
+}
+
+/**
+ * An aspect taken by hand that its bearer is immune to (author, 2026-11-22, П3 3.5: taking it is allowed, its chip is red and
+ * the sheet says so): the words of the immunity, or "" (not a state's aspect, or no immunity)
+ */
+export const aspectImmune = (text, profile) => { const k = stateKeyOf(text); return k ? immuneWhy(k, profile) : ""; };
+
 /**
  * Put a state on (the active list → the new list). The same state again refreshes (author, 2026-11-20): the longer `left`,
  * the bigger die, the newer holder; it never stacks.
@@ -126,6 +149,8 @@ export function putState(states, key, o = {}) {
     ignoreArmor: old.ignoreArmor || fresh.ignoreArmor,
     // a stun put on again before it was spent stays one skip; once spent, a new one counts from now
     ...(key === "stunned" && old.ticked ? { since: fresh.since, ticked: 0 } : {}),
+    // pinned again in a later round: it lasts through the new round
+    ...(def.until === "round" ? { since: Math.max(num(old.since), fresh.since) } : {}),
   };
   return list;
 }
@@ -161,6 +186,7 @@ export function tickStates(states, round, { holderOk = () => true } = {}) {
       next.push({ ...s, ticked: r });
       continue;
     }
+    if (def.until === "round") { gone.push(s.key); continue; } // put on in an earlier round: that round is over
     if (def.until === "rounds") {
       if (s.dice) hits.push({ key: s.key, dice: s.dice, type: s.type || def.type || "phys", ignoreArmor: !!s.ignoreArmor });
       const left = num(s.left, 1) - 1;
@@ -203,5 +229,6 @@ export function stateWords(s) {
   if (def.until === "skip") bits.push("пропускає наступну дію");
   if (def.until === "scene") bits.push("до кінця сцени");
   if (def.until === "check") bits.push("зникне після кидка");
+  if (def.until === "round") bits.push("до кінця кола дій");
   return `«${def.aspect}»${bits.length ? ` (${bits.join(", ")})` : ""}`;
 }

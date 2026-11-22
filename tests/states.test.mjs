@@ -9,7 +9,22 @@ const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b), `${m}: got $
 
 // the aspects are the quick aspects' words for the three of them (battle.mjs QUICK_ASPECTS), masculine
 eq([S.STATES.down.aspect, S.STATES.stunned.aspect, S.STATES.disarmed.aspect], ["Збитий з ніг", "Приголомшений", "Без зброї"], "quick aspects' texts");
-eq(S.STATE_ASPECTS.length, 11, "eleven states (the roar's of stage 3)");
+eq(S.STATE_ASPECTS.length, 12, "twelve states (the roar's of stage 3, «Притиснутий вогнем» of П3)");
+{ // П3 3.5: the words of an immunity to a state's aspect
+  eq([S.aspectImmune("Без зброї", { noDisarm: true }), S.aspectImmune("Збитий з ніг", { noKnockdown: true }), S.aspectImmune("Приголомшений", { noStun: true }),
+    S.aspectImmune("Палає", { fire: "immune" }), S.aspectImmune("Палає", { fire: "half" }), S.aspectImmune("Отруєний", { poison: "immune" }),
+    S.aspectImmune("Кровотеча", { nonliving: true }), S.aspectImmune("Мокрий", { noDisarm: true }), S.aspectImmune("Без зброї", {})],
+  ["не можна обеззброїти", "не можна збити з ніг", "не можна приголомшити", "невразливий до вогню", "", "невразливий до отрут", "неживий", "", ""], "aspectImmune");
+}
+{ // «Притиснутий вогнем» (П3 3.1): put on in round 2, gone at ▶ to 3, kept at a second ▶ to 2
+  const p = S.putState([], "pin", { round: 2 });
+  ok(S.tickStates(p, 2).next.length === 1, "pin: the same round keeps it");
+  const t = S.tickStates(p, 3);
+  ok(!t.next.length && t.gone.join() === "pin" && !t.hits.length, "pin: gone at the next round, no damage");
+  ok(S.putState(p, "pin", { round: 3 })[0].since === 3, "pinned again later: it counts from the new round");
+  eq(S.stateWords({ key: "pin" }), "«Притиснутий вогнем» (до кінця кола дій)", "pin's words");
+  ok(!S.immuneTo("pin", { noKnockdown: true, noStun: true, noDisarm: true, nonliving: true }), "no immunity to pin");
+}
 
 // in force only while the aspect is on
 let list = S.putState([], "poisoned", { dice: "1d6", left: 3, round: 2, by: "T1" });

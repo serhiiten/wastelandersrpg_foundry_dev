@@ -31,6 +31,12 @@ eq(dmg(P({ armor: 0 }), { total: 7, type: "phys" }, { dodge: true }), 4, "dodge 
 eq(dmg(P({ armor: 0 }), { total: 7, type: "rad" }, { dodge: true }), 4, "dodge on radiation: 7 → 4");
 eq(dmg(P({ armor: 0, rad: "half" }), { total: 7, type: "rad" }, { dodge: true }), 0, "dodge + radiation ½: two halves → 0");
 eq(dmg(P({ armor: 0, halfPartial: true }), { total: 8, type: "phys" }, { dodge: true }), 4, "dodge without «partial» leaves halfPartial alone");
+// «Спрямована дія» (П3 3.4, author 2026-11-22): one more «½» named by its reason, rounded up, adding up with the others
+eq(dmg(P({ armor: 0 }), { total: 7, type: "phys" }, { half: "Спрямована дія" }), 4, "Спрямована дія: 7 → 4");
+eq(dmg(plain, { total: 9, type: "phys" }, { half: "Спрямована дія" }), 3, "Спрямована дія then armour: 9 → 5, −2 → 3");
+eq(dmg(P({ armor: 0, fire: "half" }), { total: 8, type: "fire" }, { half: "Спрямована дія" }), 0, "Спрямована дія + fire ½: two halves → 0");
+ok(B.resolveHit(P({ armor: 0 }), 50, 50, { total: 7, type: "phys" }, { half: "Спрямована дія" }).steps.some((t) => t.includes("Спрямована дія")), "the half's reason is in the steps");
+eq(dmg(P({ armor: 0 }), { total: 7, type: "phys", parts: [{ total: 5, type: "phys" }, { total: 3, type: "rad" }] }, { half: "Спрямована дія" }), 5, "Спрямована дія on each part: 5 → 3, rad 3 → 2");
 // a partial avoidance (10–14) of an enemy's hit (A1, rules/dodge.mjs): one more «½», before the armour; with the menu's «½» → 0
 eq(dmg(plain, { total: 7, type: "phys" }, { avoid: true }), 2, "avoid: 7 → 4, armour 2 → 2");
 eq(dmg(P({ armor: 0 }), { total: 9, type: "psi" }, { avoid: true }), 5, "avoid on psychic: 9 → 5");

@@ -130,12 +130,12 @@
     <div class="pust-qsit">
       <span class="pust-qlbl"><i class="fa-solid fa-tags pust-qic" aria-hidden="true"></i>Ситуативні аспекти</span>
       <div class="pust-sitrow">
-        {{#each v.sit}}<span class="pust-sitchip"><span>{{t}}</span>
-          <span class="pust-sinv" title="Безкоштовні Посилення"><button type="button" data-action="act" data-act="sit-inv" data-i="{{i}}" data-d="-1" {{#unless inv}}disabled{{/unless}} aria-label="Мінус 1 безкоштовне Посилення">−</button><b>+{{inv}}</b><button type="button" data-action="act" data-act="sit-inv" data-i="{{i}}" data-d="1" aria-label="Плюс 1 безкоштовне Посилення">+</button></span>
+        {{#each v.sit}}<span class="pust-sitchip{{#if imm}} imm{{/if}}"{{#if imm}} title="Імунітет: {{imm}}"{{/if}}><span>{{t}}</span>
+          <span class="pust-sinv" title="{{#if lock}}Прикриття: 1 Посилення до наступного уникнення шкоди в цьому колі дій. Змінити не можна, прибрати можна{{else}}Безкоштовні Посилення{{/if}}"><button type="button" data-action="act" data-act="sit-inv" data-i="{{i}}" data-d="-1" {{#if lock}}disabled{{else}}{{#unless inv}}disabled{{/unless}}{{/if}} aria-label="Мінус 1 безкоштовне Посилення">−</button><b>+{{inv}}</b><button type="button" data-action="act" data-act="sit-inv" data-i="{{i}}" data-d="1" {{#if lock}}disabled{{/if}} aria-label="Плюс 1 безкоштовне Посилення">+</button></span>
           <button type="button" class="pust-x" data-action="act" data-act="sit-del" data-i="{{i}}" title="Прибрати аспект «{{t}}»"><i class="fa-solid fa-xmark"></i></button></span>{{/each}}
         <span class="pust-sitadd"><input type="text" class="pust-sit-new" maxlength="100" placeholder="Новий аспект…" data-ui="sitNew" aria-label="Новий ситуативний аспект"><button type="button" data-action="sitAdd" title="Додати ситуативний аспект: тимчасову обставину, яку можна викликати або нав'язати, як і будь-який інший аспект."><i class="fa-solid fa-plus"></i></button></span>
       </div>
-      {{#if v.quickAspects.length}}<div class="pust-sitq"><span class="pust-qlbl">Швидкі аспекти:</span>{{#each v.quickAspects}}<button type="button" data-action="act" data-act="sit-quick" data-t="{{t}}" {{#if off}}disabled title="{{why}}"{{/if}}>+ {{t}}</button>{{/each}}</div>{{/if}}
+      {{#if v.quickAspects.length}}<div class="pust-sitq"><span class="pust-qlbl">Швидкі аспекти:</span>{{#each v.quickAspects}}<button type="button" data-action="act" data-act="sit-quick" data-t="{{t}}"{{#if imm}} class="imm" title="Імунітет: {{imm}}"{{/if}}>+ {{t}}</button>{{/each}}</div>{{/if}}
     </div>
 
     <div class="pust-qstat {{#if statusFold}}folded{{/if}}">

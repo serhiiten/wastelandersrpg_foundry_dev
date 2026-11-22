@@ -53,7 +53,7 @@
     <section class="pust-en-card">
       <h3><i class="fa-solid fa-tags pust-qic" aria-hidden="true"></i>Ситуативні аспекти</h3>
       <div class="pust-en-chips">
-        {{#each v.aspects}}<span class="pust-en-chip"><span>{{t}}</span>{{#if inv}}<b class="pust-asp-n" title="Безкоштовні Посилення">+{{inv}}</b>{{/if}}</span>
+        {{#each v.aspects}}<span class="pust-en-chip{{#if imm}} imm{{/if}}"{{#if imm}} title="Імунітет: {{imm}}"{{/if}}><span>{{t}}</span>{{#if inv}}<b class="pust-asp-n" title="Безкоштовні Посилення">+{{inv}}</b>{{/if}}</span>
         {{else}}<span class="pust-en-muted">Ситуативних аспектів немає</span>{{/each}}
       </div>
     </section>
@@ -85,7 +85,7 @@
     <section class="pust-en-card">
       <h3><i class="fa-solid fa-tags pust-qic" aria-hidden="true"></i>Ситуативні аспекти</h3>
       <div class="pust-en-chips">
-        {{#each v.aspects}}<span class="pust-en-chip"><span>{{t}}</span>
+        {{#each v.aspects}}<span class="pust-en-chip{{#if imm}} imm{{/if}}"{{#if imm}} title="Імунітет: {{imm}}"{{/if}}><span>{{t}}</span>
           {{#if ../editable}}<span class="pust-en-inv" title="Безкоштовні посилення цього аспекту"><button type="button" data-action="inv" data-s="s" data-i="{{i}}" data-d="-1" aria-label="Мінус посилення">−</button><b>+{{inv}}</b><button type="button" data-action="inv" data-s="s" data-i="{{i}}" data-d="1" aria-label="Плюс посилення">+</button></span>{{else}}{{#if inv}}<b class="pust-asp-n" title="Безкоштовні Посилення">+{{inv}}</b>{{/if}}{{/if}}
           {{#if ../editable}}<button type="button" class="pust-en-x" data-action="aspRm" data-s="s" data-i="{{i}}" aria-label="Прибрати аспект">×</button>{{/if}}</span>
         {{else}}<span class="pust-en-muted">Ситуативних аспектів немає</span>{{/each}}
@@ -95,7 +95,7 @@
            for whoever may edit the enemy; the others see the chips only --}}
       {{#if editable}}{{#if v.quick.length}}
       <div class="pust-en-quick pust-sitq"><span class="pust-en-sub">Швидкі:</span>
-        {{#each v.quick}}<button type="button" class="pust-en-q" data-action="quickAsp" data-k="{{key}}" {{#if locked}}disabled{{/if}} title="{{help}}">+ {{label}}</button>{{/each}}
+        {{#each v.quick}}<button type="button" class="pust-en-q{{#if imm}} imm{{/if}}" data-action="quickAsp" data-k="{{key}}" title="{{help}}">+ {{label}}</button>{{/each}}
       </div>{{/if}}{{/if}}
     </section>
 

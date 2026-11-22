@@ -39,8 +39,8 @@ ok(V.hpLevel(3, 0).pct === 0, "no max, no percent");
 // quick aspects and their locks
 ok(v.quick.length === 3, "three quick aspects");
 const down = v.quick.find((q) => q.key === "down");
-ok(down.locked && down.help === "Не можна збити з ніг", `knockdown locked: ${JSON.stringify(down)}`);
-ok(!v.quick.find((q) => q.key === "stunned").locked && !v.quick.find((q) => q.key === "disarmed").locked, "others open");
+ok(down.imm === "не можна збити з ніг" && down.help === "Імунітет: не можна збити з ніг" && !("locked" in down), `knockdown: immune, red, not locked (П3 3.5): ${JSON.stringify(down)}`);
+ok(!v.quick.find((q) => q.key === "stunned").imm && !v.quick.find((q) => q.key === "disarmed").imm, "others plain");
 const sys2 = { ...sys, aspects: [{ t: "Збитий з ніг", inv: 0 }] };
 ok(!V.enemyView(sys2).quick.some((q) => q.key === "down"), "a quick aspect already on the card is not offered again");
 

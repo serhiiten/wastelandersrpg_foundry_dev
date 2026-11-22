@@ -520,6 +520,7 @@
 .pust-roller .rfx.pust-fx label.tog.pust-fxt { color: #cfe9d2; padding: 2px 4px 2px 28px; border-radius: 3px; cursor: pointer; }
 .pust-roller .rfx.pust-fx label.tog.pust-fxt.on { background: rgba(61,255,71,.13); color: #eaffea; }
 .pust-roller .rfx.pust-fx label.tog.pust-fxt:has(input:disabled) { cursor: default; opacity: .75; }
+.pust-roller .rfx.pust-fx label.tog.pust-fxt.struck span { text-decoration: line-through; }
 .pust-roller .rfx.pust-fx .pust-fx-tag { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 3px; background: rgba(255,216,74,.18); color: var(--pu-amber); font-size: 12px; text-indent: 0; }
 .pust-roller .rfx.pust-fx .pust-fx-tag.hand { background: rgba(255,255,255,.08); color: #b9cdbd; }
 .pust-roller .rfx.pust-fx .pust-fx-one { display: flex; align-items: center; gap: 6px; margin-top: 4px; color: #cfe9d2; font-size: 12.5px; white-space: nowrap; } /* «Ефект на:» in one line: the select shrinks (reviewer, 2026-11-21) */

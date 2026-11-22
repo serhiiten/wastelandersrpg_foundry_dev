@@ -15,6 +15,7 @@ import { compute, drugOf } from "../rules/core.mjs";
 import { chatType } from "../rules/battle.mjs";
 import { consqPlan, writeConsq, medLimit, medFormula, nextMark, nearbyInvokes, spendOne, zeroInvokes, SLOT_NAME, healCost, payHeal, treatPlan, treatSlots, applyTreat, healLanded } from "../rules/battle-health.mjs";
 import { waitDice } from "../helpers/dice-rolls.mjs";
+import { isCoverText } from "../rules/cover.mjs";
 import { postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { readState, runAction } from "./character-actions.mjs";
 import { applyDamage, applyHeal } from "./apply-damage.mjs";
@@ -62,7 +63,7 @@ export async function nearbyFor(actor) {
       sources.push({ uuid: d.uuid, list: "enemyBase", where, aspects: a.system.baseAspects ?? [] });
       sources.push({ uuid: d.uuid, list: "enemy", where, aspects: a.system.aspects ?? [] });
     } else if (a.type === "character") {
-      sources.push({ uuid: d.uuid, list: "character", where, aspects: (a.system.situational ?? []).map((x) => ({ t: x.name, inv: x.invoked })) });
+      sources.push({ uuid: d.uuid, list: "character", where, aspects: (a.system.situational ?? []).map((x) => ({ t: x.name, inv: isCoverText(x.name) ? 0 : x.invoked })) }); // «Прикритий: …» is the ally's avoidance only (П3 3.2; no chip, the indexes stay)
     } else if (a.type === "place") sources.push({ uuid: d.uuid, list: "place", where, aspects: a.system.aspects ?? [] });
   }
   return nearbyInvokes(sources);
@@ -72,6 +73,7 @@ export async function nearbyFor(actor) {
 async function spendHere({ uuid, list, i, name }) {
   const doc = await fromUuid(uuid);
   if (!doc) throw new Error("Аспекту вже немає на сцені.");
+  if (isCoverText(name)) throw new Error("Прикриття діє лише на уникнення шкоди.");
   return queued(uuid, async () => {
     if (list === "zone") {
       const Z = await zonesApi();
