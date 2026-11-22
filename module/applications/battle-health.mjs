@@ -11,9 +11,11 @@
 import { activeGmHere } from "../helpers/main-window.mjs";
 import { askGM, answerGM } from "../helpers/gm-request.mjs";
 import { notify } from "../helpers/notify.mjs";
-import { compute } from "../rules/core.mjs";
+import { compute, drugOf } from "../rules/core.mjs";
 import { chatType } from "../rules/battle.mjs";
-import { consqPlan, writeConsq, medLimit, medFormula, nextMark, addConsRed, nearbyInvokes, spendOne, zeroInvokes, SLOT_NAME } from "../rules/battle-health.mjs";
+import { consqPlan, writeConsq, medLimit, medFormula, nextMark, nearbyInvokes, spendOne, zeroInvokes, SLOT_NAME, healCost, payHeal, treatPlan, treatSlots, applyTreat } from "../rules/battle-health.mjs";
+import { waitDice } from "../helpers/dice-rolls.mjs";
+import { postSupIfChanged, supSnap } from "./fate-card.mjs";
 import { readState, runAction } from "./character-actions.mjs";
 import { applyDamage, applyHeal } from "./apply-damage.mjs";
 import { postChat } from "./chat.mjs";
@@ -212,18 +214,27 @@ async function isMachine(actor) {
   return actor.type === "caravan";
 }
 
-/** What the result offers: the patient, the formula, today's count (null for another check) */
+/** The healer's state, readable (the user's own character) */
+const healerOf = (actor) => { try { return readState(actor); } catch (_) { return null; } };
+const TITLE = (type) => (type === "treat" ? "Лікування наслідків" : type === "repair" ? "Ремонт" : "Медична допомога");
+
+/**
+ * What the result offers for the target chosen now (П2, author 2026-11-22: the patient is chosen after the roll): the patient,
+ * the formula, today's count, the consequences, what the healer can pay with; `why` — why the button stays locked
+ * (null for another check)
+ */
 export async function medOffer(actor, last) {
   if (!last || !["med", "repair", "treat"].includes(last.type)) return null;
-  const healer = readState(actor);
-  const perks = compute(healer).allPerks;
+  const healer = healerOf(actor);
+  const perks = healer ? compute(healer).allPerks : [];
   const p = patientOf();
   const repair = last.type === "repair";
-  const o = { type: last.type, verdict: last.verdict, repair, perks, patient: null, why: "" };
+  const o = { type: last.type, verdict: last.verdict, repair, perks, patient: null, why: "", free: !!last.free, cost: [] };
   if (!p) { o.why = "Познач ціллю (T) пацієнта: одного (себе теж — свій токен)."; return o; }
   o.patient = { uuid: p.tok.uuid, name: p.tok.name || p.actor.name, hp: int(p.actor.system?.hp?.value), max: int(p.actor.system?.hp?.max), type: p.actor.type };
+  const machine = await isMachine(p.actor);
+  o.machine = machine;
   if (last.type !== "treat") {
-    const machine = await isMachine(p.actor);
     if (machine && !repair) o.why = "Пацієнт — механізм: медицина на нього не діє. Потрібен ремонт (ІН + Техніка).";
     if (!machine && repair) o.why = "Ремонт лише для роботів і механізмів. Живих лікують медичною допомогою.";
     if (p.actor.type === "character") {
@@ -232,100 +243,142 @@ export async function medOffer(actor, last) {
         o.limit = medLimit({ day: pst.chem?.dayNo || 1, mark: pst.medDay, perks, repair });
       } catch (_) { /* someone else's character the user can't read: the GM checks */ }
     }
+    if (!o.why && o.limit && o.limit.left <= 0) o.why = `Сьогодні пацієнтові (${o.patient.name}) уже допомагали: більше не можна до нового дня.`;
     o.formula = medFormula(last.verdict, { perks, repair });
-  } else if (p.actor.type === "character") {
+  } else {
+    if (p.actor.type !== "character") o.why = "Слоти наслідків є лише в персонажів.";
     // a robot's consequences are repaired by the same check, not with «Медицина» (author, 2026-11-21): refused, a hint
-    if (last.skillName === "Медицина" && await isMachine(p.actor)) o.why = "Пацієнт — механізм: медицина на нього не діє. Обери ІН + Техніка й кинь перевірку ще раз.";
-    try {
-      const pst = readState(p.actor);
-      o.slots = ["l", "m", "m2", "h"].filter((k) => String(pst.cons?.[k] ?? "").trim()).map((k) => ({ k, label: SLOT_NAME[k], t: String(pst.cons[k]).trim() }));
-    } catch (_) { o.slots = null; }
+    else if (last.skillName === "Медицина" && machine) o.why = "Пацієнт — механізм: медицина на нього не діє. Обери ІН + Техніка й кинь перевірку ще раз.";
+    if (p.actor.type === "character") {
+      try {
+        const pst = readState(p.actor);
+        o.slots = treatSlots(pst);
+        o.light = !!String(pst.cons?.l ?? "").trim() && !pst.consT?.l;
+      } catch (_) { o.slots = null; }
+      if (!o.why && o.slots && !o.slots.length) {
+        o.why = o.light
+          ? "Легкий наслідок лікують медикаментом: «Мотлох» в аркуші пацієнта. Перевірка лише для середніх і тяжких."
+          : "У пацієнта немає непролікованих середніх чи тяжких наслідків.";
+      }
+    }
+  }
+  if (!o.free) {
+    o.cost = healer ? healCost(last.type, healer, { machine, drugOf }) : [];
+    if (!o.why && !o.cost.length) {
+      o.why = last.type === "treat"
+        ? `Нема чим платити: потрібні 2 Припаси або ${machine ? "Хотфікс чи Критфікс" : "стимпак чи суперстимпак"}.`
+        : "Нема чим платити: потрібна одиниця Припасів.";
+    }
   }
   return o;
 }
 
 /**
- * Before «Медична допомога» / «Ремонт» is rolled (its Припас goes with the roll): the reason it can't help the one target
- * now — a machine and «Медицина» or the other way round, the day's limit used up — or "" (none or several targets: the
- * block says so after the roll)
+ * Before the roll (П2): only the healer — something to pay with (the patient isn't known yet: any means counts); "" = may roll.
+ * `free`: «Без Припасів» ticked.
  */
-export async function medBlocked(actor, type) {
-  if (!["med", "repair"].includes(type)) return "";
-  const o = await medOffer(actor, { type, verdict: 1 });
-  if (!o?.patient) return "";
-  if (o.why) return o.why;
-  return o.limit && o.limit.left <= 0 ? `Сьогодні пацієнтові (${o.patient.name}) уже допомагали: більше не можна до нового дня.` : "";
+export function healGate(actor, type, free = false) {
+  if (!["med", "repair", "treat"].includes(type) || free) return "";
+  const st = healerOf(actor);
+  if (!st || healCost(type, st, { drugOf }).length) return "";
+  return type === "treat"
+    ? "Лікування наслідків: потрібні 2 Припаси, стимпак чи суперстимпак (роботу — Хотфікс чи Критфікс). Якщо Доглядач дозволив без них, постав «Без Припасів»."
+    : `${TITLE(type)}: потрібна одиниця Припасів, а їх немає. Якщо Доглядач дозволив без них, постав «Без Припасів».`;
 }
 
-/** The block under the verdict (mockup А). `done`: what was done for this roll */
-export function medHtml(o, done = "") {
-  if (!o) return "";
-  const title = o.type === "treat" ? "Лікування наслідків" : o.repair ? "Ремонт" : "Медична допомога";
-  if (done) return `<div class="pust-hx done"><h4>${title}</h4><p class="rhint">${esc(done)}</p></div>`;
-  if (o.type === "treat") {
-    if (o.verdict >= 2) return "";
-    const who = o.patient ? `<p class="rhint">Пацієнт (T): <b>${esc(o.patient.name)}</b></p>` : `<p class="rhint">${esc(o.why)}</p>`;
-    if (!o.patient) return `<div class="pust-hx"><h4>${title}</h4>${who}</div>`;
-    if (o.patient.type !== "character") return `<div class="pust-hx"><h4>${title}</h4>${who}<p class="rhint">Слоти наслідків є лише в персонажів.</p></div>`;
-    if (o.why) return `<div class="pust-hx"><h4>${title}</h4>${who}<p class="rhint">${esc(o.why)}</p></div>`;
-    const opts = o.slots === null ? `<p class="rhint">Наслідки пацієнта бачить лише Доглядач і власник.</p>`
-      : !o.slots.length ? `<p class="rhint">У пацієнта немає наслідків.</p>`
-        : `<label class="pust-hx-name">Наслідок <select data-hx-slot>${o.slots.map((s) => `<option value="${s.k}">${esc(s.label)}: «${esc(s.t)}»</option>`).join("")}</select></label>`
-          + `<button type="button" class="btn rust" data-hx="red"><i class="fa-solid fa-heart-crack"></i>Максимум ОЗ −1d6</button>`;
-    return `<div class="pust-hx"><h4>${title}</h4>${who}${opts}</div>`;
-  }
-  const who = o.patient
-    ? `<p class="rhint">Пацієнт (T): <b>${esc(o.patient.name)}</b> · ${o.patient.hp}/${o.patient.max} ОЗ${o.limit ? ` · сьогодні ${o.limit.used} з ${o.limit.max}` : ""}</p>`
-    : `<p class="rhint">${esc(o.why)}</p>`;
-  if (!o.patient || o.why) return `<div class="pust-hx"><h4>${title}</h4>${who}${o.patient ? `<p class="rhint">${esc(o.why)}</p>` : ""}</div>`;
-  if (o.limit && o.limit.left <= 0) return `<div class="pust-hx"><h4>${title}</h4>${who}<p class="rhint">Сьогодні цьому пацієнтові вже допомагали: більше не можна до нового дня.</p></div>`;
-  if (o.verdict >= 1) return `<div class="pust-hx"><h4>${title}</h4>${who}<button type="button" class="btn rust" data-hx="heal"><i class="fa-solid fa-kit-medical"></i>${o.repair ? "Ремонтувати" : "Лікувати"}: ${esc(o.formula)}</button></div>`;
-  const hurt = o.patient.hp >= 1 ? `<button type="button" class="btn" data-hx="hurt"><i class="fa-solid fa-droplet"></i>1d6 шкоди, що ігнорує броню</button>` : "";
-  const light = o.patient.type === "character" ? `<label class="pust-hx-name">Назва <input type="text" data-hx-name placeholder="легкий наслідок"></label><button type="button" class="btn" data-hx="light"><i class="fa-solid fa-heart-crack"></i>Легкий наслідок</button>` : "";
-  return `<div class="pust-hx"><h4>${title}</h4>${who}<p class="rhint">Ти зробив тільки гірше. Пацієнт на свій вибір:</p>${light}${hurt}</div>`;
+/** The button's label for the verdict */
+function treatLabel(v) {
+  return v >= 3 ? "Пролікувати й +1d6 ОЗ" : v === 2 ? "Пролікувати" : v === 1 ? "Пролікувати, максимум ОЗ −1d6" : "Максимум ОЗ −1d6";
 }
 
 /**
- * The patient's side (the user who owns it, or the active GM): the day's limit, the mark, then the heal / damage /
- * consequence / max HP. Throws with the reason when refused (the player then sees it in the GM's answer).
+ * The block under the verdict (mockup А). `done`: what was done for this roll; `busy`: a press is on its way; `sel`: the
+ * choices kept through a rebuild ({slot, pay, name})
  */
-async function onPatient({ uuid, kind, amount = 0, head = "", repair = false, perks = [], slot = "", name = "" }) {
+export function medHtml(o, done = "", { busy = false, sel = {} } = {}) {
+  if (!o) return "";
+  const title = TITLE(o.type);
+  if (done) return `<div class="pust-hx done"><h4>${title}</h4><p class="rhint">${esc(done)}</p></div>`;
+  const lock = busy || !!o.why;
+  const tip = esc(busy ? "Застосовується…" : o.why);
+  const btn = (cls, k, icon, label) => `<button type="button" class="${cls}${lock ? " pust-locked" : ""}" data-hx="${k}"${lock ? ` aria-disabled="true" title="${tip}"` : ""}><i class="fa-solid ${icon}"></i>${label}</button>`;
+  const who = o.patient
+    ? `<p class="rhint">Пацієнт (T): <b>${esc(o.patient.name)}</b> · ${o.patient.hp}/${o.patient.max} ОЗ${o.limit ? ` · сьогодні ${o.limit.used} з ${o.limit.max}` : ""}</p>`
+    : "";
+  const why = o.why ? `<p class="rhint">${esc(o.why)}</p>` : "";
+  const pay = o.free ? `<p class="rhint">Без Припасів: нічого не списується.</p>`
+    : o.cost.length > 1 ? `<label class="pust-hx-name">Плата <select data-hx-pay>${o.cost.map((c) => `<option value="${esc(c.k)}" ${sel.pay === c.k ? "selected" : ""}>${esc(c.label)}</option>`).join("")}</select></label>`
+      : o.cost.length ? `<p class="rhint">Плата: ${esc(o.cost[0].label)}.</p>` : "";
+  if (o.type === "treat") {
+    const slots = o.slots === null ? `<p class="rhint">Наслідки пацієнта бачить лише Доглядач і власник.</p>`
+      : o.slots?.length ? `<label class="pust-hx-name">Наслідок <select data-hx-slot>${o.slots.map((s) => `<option value="${s.k}" ${sel.slot === s.k ? "selected" : ""}>${esc(s.label)}: «${esc(s.t)}»</option>`).join("")}</select></label>` : "";
+    return `<div class="pust-hx"><h4>${title}</h4>${who}${why}${slots}${pay}${btn("btn rust", "treat", "fa-kit-medical", treatLabel(o.verdict))}</div>`;
+  }
+  if (o.verdict >= 1) return `<div class="pust-hx"><h4>${title}</h4>${who}${why}${pay}${btn("btn rust", "heal", "fa-kit-medical", `${o.repair ? "Ремонтувати" : "Лікувати"}: ${esc(o.formula)}`)}</div>`;
+  const hurt = !o.patient || o.patient.hp >= 1 ? btn("btn", "hurt", "fa-droplet", "1d6 шкоди, що ігнорує броню") : "";
+  const light = !o.patient || o.patient.type === "character"
+    ? `<label class="pust-hx-name">Назва <input type="text" data-hx-name placeholder="легкий наслідок" value="${esc(sel.name || "")}"></label>${btn("btn", "light", "fa-heart-crack", "Легкий наслідок")}` : "";
+  return `<div class="pust-hx"><h4>${title}</h4>${who}${why}<p class="rhint">Ти зробив тільки гірше. Пацієнт на свій вибір:</p>${light}${hurt}${pay}</div>`;
+}
+
+/** Requests the GM already applied (one request once, as A8's SPLIT_DONE) */
+const MED_DONE = new Set();
+
+/**
+ * The patient's side (the user who owns it, or the active GM): checks, then (unless `dry`) the mark, the heal / damage /
+ * consequence / max HP. Throws with the reason when refused. `dry` (П2, Fable): only the checks, before any dice are shown.
+ */
+async function onPatient({ uuid, kind, verdict = 0, amount = 0, head = "", repair = false, perks = [], slot = "", name = "", dry = false, id = "" }) {
   const doc = await fromUuid(uuid);
   const actor = doc?.documentName === "Actor" ? doc : doc?.actor;
   if (!actor) throw new Error("Пацієнта вже немає на сцені.");
+  if (!dry && id && MED_DONE.has(id)) return true;
+  const tokUuid = doc.documentName === "Actor" ? uuid : doc.uuid;
   return queued(actor.uuid, async () => {
-    if (kind === "red") {
+    if (kind === "treat") {
       if (actor.type !== "character") throw new Error("Слоти наслідків є лише в персонажів.");
-      const ok = await runAction(actor, (st, L) => {
-        if (!String(st.cons?.[slot] ?? "").trim()) return false;
-        addConsRed(st, slot, amount);
-        // the current HP no higher than the new maximum
-        const d = compute(st), max = L.hpMaxNow(d);
-        if (L.curHp(d) > max) st.hpCur = String(Math.max(0, max));
+      const plan = treatPlan(verdict);
+      if (dry) {
+        const st = readState(actor);
+        if (!String(st.cons?.[slot] ?? "").trim()) throw new Error("Цього наслідку в пацієнта вже немає.");
+        if (plan.treated && st.consT?.[slot]) throw new Error("Цей наслідок уже проліковано.");
         return true;
+      }
+      let cons = "";
+      const res = await runAction(actor, (st, L) => {
+        cons = String(st.cons?.[slot] ?? "").trim();
+        return applyTreat(st, L, slot, plan, plan.red ? amount : 0, { compute });
       }, { quiet: true });
-      if (!ok) throw new Error("Цього наслідку в пацієнта вже немає.");
-      await postChat({ speaker: { alias: head || "Лікування наслідків" }, content: `<div class="pust-chat pust-hxcard"><h4><i class="fa-solid fa-heart-crack"></i> ${esc(head || "Лікування наслідків")}</h4><p>${esc(actor.name)}: максимум ОЗ −${amount}, поки ${SLOT_NAME[slot]} наслідок не зникне.</p></div>` });
+      if (!res?.ok) throw new Error(res?.msg || "Наслідок не проліковано.");
+      if (id) MED_DONE.add(id);
+      const slotName = SLOT_NAME[slot][0].toUpperCase() + SLOT_NAME[slot].slice(1);
+      const parts = [`${slotName} наслідок «${cons}» ${plan.treated ? "проліковано" : "не проліковано"}`];
+      if (plan.red) parts.push(`максимум ОЗ −${amount}, поки наслідок не зникне`);
+      if (res.doomed) parts.push("максимум ОЗ 0: приречений, наприкінці сцени персонаж помирає");
+      await postChat({ speaker: { alias: head }, content: `<div class="pust-chat pust-hxcard"><h4><i class="fa-solid fa-kit-medical"></i> ${esc(head)}</h4><p>${esc(actor.name)}: ${esc(parts.join("; "))}.</p></div>` });
+      if (plan.heal && amount > 0) await applyHeal([tokUuid], amount, { head });
       return true;
     }
     // the day's limit and the mark (characters only: an enemy's or a caravan's day isn't kept)
     if (actor.type === "character") {
-      const ok = await runAction(actor, (st) => {
-        const day = st.chem?.dayNo || 1;
-        const lim = medLimit({ day, mark: st.medDay, perks, repair });
-        if (lim.left <= 0) return false;
-        st.medDay = nextMark({ day, mark: st.medDay });
-        if (kind === "light") {
-          const plan = consqPlan(2, st.cons, compute(st).medSlots);
-          if (plan.kind === "slot" && !String(name).trim()) return "noname";
-          writeConsq(st, plan, name);
-        }
-        return true;
+      const check = (st) => {
+        const lim = medLimit({ day: st.chem?.dayNo || 1, mark: st.medDay, perks, repair });
+        if (lim.left <= 0) return "limit";
+        if (kind === "light" && consqPlan(2, st.cons, compute(st).medSlots).kind === "slot" && !String(name).trim()) return "noname";
+        return "";
+      };
+      const no = dry ? check(readState(actor)) : await runAction(actor, (st) => {
+        const why = check(st);
+        if (why) return why;
+        st.medDay = nextMark({ day: st.chem?.dayNo || 1, mark: st.medDay });
+        if (kind === "light") writeConsq(st, consqPlan(2, st.cons, compute(st).medSlots), name);
+        return "";
       }, { quiet: true });
-      if (ok === "noname") throw new Error("Впиши назву наслідку.");
-      if (!ok) throw new Error(`Сьогодні пацієнтові (${actor.name}) уже допомагали: більше не можна до нового дня.`);
+      if (no === "noname") throw new Error("Впиши назву наслідку.");
+      if (no === "limit") throw new Error(`Сьогодні пацієнтові (${actor.name}) уже допомагали: більше не можна до нового дня.`);
     }
-    const tokUuid = doc.documentName === "Actor" ? uuid : doc.uuid;
+    if (dry) return true;
+    if (id) MED_DONE.add(id);
     if (kind === "heal") await applyHeal([tokUuid], amount, { head });
     else if (kind === "hurt") await applyDamage([tokUuid], { total: amount, dice: 1, type: chatType("phys"), ignoreArmor: true, ignoreN: 0 }, { head });
     else if (kind === "light") await postChat({ speaker: { alias: head }, content: `<div class="pust-chat pust-hxcard"><h4><i class="fa-solid fa-heart-crack"></i> ${esc(head)}</h4><p>${esc(actor.name)} отримує легкий наслідок${String(name).trim() ? ` «${esc(String(name).trim())}»` : ""}.</p></div>` });
@@ -333,34 +386,58 @@ async function onPatient({ uuid, kind, amount = 0, head = "", repair = false, pe
   });
 }
 
+/** The patient's side run here or by the GM. @returns {Promise<boolean>} */
+async function patientSide(patientActor, msg, title) {
+  if (canWrite(patientActor)) {
+    try { return await onPatient(msg); } catch (e) { notify.warn(e.message); return false; }
+  }
+  if (!game.users.activeGM) { notify.warn("Пацієнта лікує Доглядач, а його зараз немає в грі."); return false; }
+  return askGM({ op: "medAid", ...msg }, title, "Нічого не витрачено.", { refusal: true });
+}
+
 /**
- * A press in the block: rolls what is to roll (the healer sees the dice), then the patient's side.
+ * A press in the block (П2, Fable's order): the checks here → the patient's side checks dry → the dice to chat (after they
+ * land) → the patient's side for real → `applied(line)` (the panel marks the roll at once) → the healer pays. Nothing is spent
+ * and no dice are shown when refused.
  * @returns {Promise<string>} the line for the panel, "" when nothing was done
  */
-export async function medPress(actor, last, kind, { slot = "", name = "" } = {}) {
+export async function medPress(actor, last, kind, { slot = "", name = "", pay = "", applied = () => {} } = {}) {
   const o = await medOffer(actor, last);
   if (!o?.patient) { notify.warn("Познач ціллю (T) пацієнта: одного."); return ""; }
-  if (o.why && kind !== "red") { notify.warn(o.why); return ""; }
+  if (o.why) { notify.warn(o.why); return ""; }
+  if (o.type === "treat" && !slot) { notify.warn("Обери наслідок."); return ""; }
+  const cost = o.free ? null : o.cost.find((c) => c.k === pay) || o.cost[0];
   const doc = await fromUuid(o.patient.uuid);
   const patientActor = doc?.actor ?? doc;
-  const title = o.type === "treat" ? "Лікування наслідків" : o.repair ? "Ремонт" : "Медична допомога";
+  const title = TITLE(o.type);
   const head = `${title} (${actor.name})`;
-  let amount = 0, line = "";
-  if (kind === "heal" || kind === "hurt" || kind === "red") {
-    const f = kind === "heal" ? o.formula : "1d6";
+  const msg = { uuid: o.patient.uuid, kind, verdict: o.verdict, head, repair: o.repair, perks: o.perks, slot, name, id: foundry.utils.randomID() };
+  if (!(await patientSide(patientActor, { ...msg, dry: true }, title))) return "";
+  const plan = o.type === "treat" ? treatPlan(o.verdict) : null;
+  const f = kind === "heal" ? o.formula : kind === "hurt" || (plan && (plan.red || plan.heal)) ? "1d6" : "";
+  let amount = 0;
+  if (f) {
     const roll = await new Roll(f).evaluate({ allowInteractive: false });
     amount = Math.max(0, roll.total);
-    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${head}: ${kind === "heal" ? `${o.patient.name} відновлює` : kind === "hurt" ? `${o.patient.name} отримує шкоди, що ігнорує броню` : `максимум ОЗ ${o.patient.name} зменшується на`}` });
-    line = kind === "heal" ? `${o.patient.name}: +${amount} ОЗ (${f}).` : kind === "hurt" ? `${o.patient.name}: ${amount} шкоди, що ігнорує броню.` : `${o.patient.name}: максимум ОЗ −${amount}.`;
-  } else if (kind === "light") line = `${o.patient.name}: легкий наслідок.`;
-  const msg = { uuid: o.patient.uuid, kind, amount, head, repair: o.repair, perks: o.perks, slot, name };
-  if (canWrite(patientActor)) {
-    try { await onPatient(msg); } catch (e) { notify.warn(e.message); return ""; }
-    return line;
+    const what = kind === "heal" ? `${o.patient.name} відновлює` : kind === "hurt" ? `${o.patient.name} отримує шкоди, що ігнорує броню`
+      : plan.red ? `максимум ОЗ ${o.patient.name} зменшується на` : `${o.patient.name} відновлює`;
+    const m = await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${head}: ${what}` });
+    await waitDice(m);
   }
-  if (!game.users.activeGM) { notify.warn("Пацієнта лікує Доглядач, а його зараз немає в грі."); return ""; }
-  const ok = await askGM({ op: "medAid", ...msg }, title, "Пацієнта не лікувано.");
-  return ok ? line : "";
+  if (!(await patientSide(patientActor, { ...msg, amount }, title))) return "";
+  const line = kind === "heal" ? `${o.patient.name}: +${amount} ОЗ (${f}).`
+    : kind === "hurt" ? `${o.patient.name}: ${amount} шкоди, що ігнорує броню.`
+      : kind === "light" ? `${o.patient.name}: легкий наслідок.`
+        : `${o.patient.name}: ${plan.treated ? "проліковано" : "не проліковано"}${plan.red ? `, максимум ОЗ −${amount}` : ""}${plan.heal ? `, +${amount} ОЗ` : ""}.`;
+  applied(line);
+  if (!cost) return line;
+  const supWas = supSnap(actor);
+  let paid = "";
+  await runAction(actor, (st) => { paid = payHeal(o.type, st, cost.k, { drugOf }); }, { quiet: true });
+  await postSupIfChanged(actor, supWas);
+  if (cost.k !== "sup" && paid) await postChat({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="pust-chat pust-hxcard"><h4><i class="fa-solid fa-kit-medical"></i> ${esc(title)}</h4><p>${esc(actor.name)} витрачає: ${esc(paid)}.</p></div>` });
+  if (!paid) notify.warn(`${title}: плати вже не було, нічого не списано.`);
+  return line;
 }
 
 /* ======================== the GM's socket ======================== */

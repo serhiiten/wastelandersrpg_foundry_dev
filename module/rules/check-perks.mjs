@@ -14,7 +14,7 @@ export const KICK_TYPES = ["gen", "overcome", "advantage", "learn"];
 
 /** Is «Бісова штуковина!: перекинути» offered for this roll? `used` — its mark is on */
 export function kickOffer(last, perks = [], used = false) {
-  return !!last && !used && perks.includes("Бісова штуковина!") && KICK_TYPES.includes(last.type);
+  return !!last && !used && !last.hx && perks.includes("Бісова штуковина!") && KICK_TYPES.includes(last.type);
 }
 
 /**
@@ -22,7 +22,7 @@ export function kickOffer(last, perks = [], used = false) {
  * damage is rolled, not when the roll's ОД were taken by the buttons (as an aspect: the ОД are for this result).
  */
 export function luckOffer(last, perks = [], used = false) {
-  if (!last || used || !perks.includes("Щасливець") || last.luckUp) return false;
+  if (!last || used || last.hx || !perks.includes("Щасливець") || last.luckUp) return false; // П2: an applied result is frozen
   const top = last.ci?.cursed ? 2 : 3;
   return last.verdict < top && !last.dmg && !last.dmgDone && !last.xpGiven && !last.savGiven;
 }
