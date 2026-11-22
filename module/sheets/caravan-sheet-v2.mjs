@@ -323,7 +323,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     const r = S.cargo?.[Number(target.dataset.i)];
     if (!r?.unpaid) return;
     const q = parseInt(r.qty, 10) || 1;
-    const ans = await askSpend({ title: "Купити вантаж", what: `«${r.name || "без назви"}»${q > 1 ? ` ×${q}` : ""}`, cost: rowCost(r), have: parseInt(S.budget, 10) || 0 });
+    const ans = await askSpend({ title: "Купити вантаж", what: `«${r.name || "без назви"}»${q > 1 ? ` ×${q}` : ""}`, cost: rowCost(r), have: parseInt(S.budget, 10) || 0, unit: Math.max(0, parseInt(r.price, 10) || 0), qty: q });
     if (!ans) return;
     this.dropUndo();
     await runCaravanAction(this.document, (C) => C.act("cg-buy", { i: target.dataset.i, pay: ans === "pay" ? "1" : "0" }));
