@@ -994,7 +994,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // after a roll: the set-up folds (not in the tour's example, whose steps show the set-up)
     const res = root.querySelector(":scope > .rres");
-    if (res && !this.actor.pustTourDemo && !this.element.classList.contains("pust-demo-check")) {
+    // the tour's example folds too (author, 2026-11-22, П1 1.6: it showed the old look); its set-up steps use the stage «setup»
+    if (res && !this.actor.pustTourDemo) {
       root.classList.toggle("pust-folded", !this.#setupOpen);
       // folded (author, 2026-11-22, П1 1.1): no rolling the same check again — the strip has «Інша перевірка» in place of
       // «Кинути перевірку» (narrow, rust): it opens the set-up with Посилення / Послаблення / Модифікатор from 0; only
@@ -1521,7 +1522,7 @@ class DemoCheckPanel extends CheckPanel {
 let DEMO = null;
 const DEMO_STATES = {};
 
-/** Open (or bring to "roll" / "dmg") the example panel for `actor`; null closes it */
+/** Open (or bring to "setup" / "roll" / "dmg") the example panel for `actor`; null closes it */
 export async function setCheckDemo(actor, stage = "roll") {
   if (!actor) { await DEMO?.close({ animate: false }); DEMO = null; return null; }
   if (!DEMO_STATES.roll || DEMO_STATES.src !== actor) {
@@ -1540,6 +1541,8 @@ export async function setCheckDemo(actor, stage = "roll") {
       if (/class="rres v2"/.test(L.renderRoller())) break;
     }
     DEMO_STATES.roll = clone(L.R);
+    DEMO_STATES.setup = { ...clone(L.R), last: null }; // the same attack before its roll (П1 1.6)
+    PICKED.set(DEMO_STATES.actor.uuid, pickedKey(L, "preset", 0)); // its ready check pressed (П1 1.3)
     L.rollerClick({ tagName: "BUTTON", dataset: { r: "dmg" } });
     DEMO_STATES.dmg = clone(L.R);
   }
