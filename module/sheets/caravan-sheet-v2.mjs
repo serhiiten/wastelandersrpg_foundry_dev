@@ -62,6 +62,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       cargoBuy: WastelandersCaravanSheetV2.#onCargoBuy,
       cargoSell: WastelandersCaravanSheetV2.#onCargoSell,
       luckAuto: WastelandersCaravanSheetV2.#onLuckAuto,
+      noteEdit: WastelandersCaravanSheetV2.#onNoteEdit,
     },
   };
 
@@ -151,7 +152,29 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
       });
       context.ccmp.impQuiet = taken.filter((i) => !ACT[i.id]);
     }
+    // «Примітки» as text with a pencil, as the character's «Записи» (author, 2026-11-22; 4.3): the editor opens on the pencil,
+    // «Готово» saves and closes it; whoever may not edit the caravan sees the text only
+    if (this.ui.tab === "story") {
+      const raw = String(this.document.system?.notes ?? "");
+      const editing = this.isEditable && this.#noteOpen;
+      const html = editing || !raw.trim() ? "" : await foundry.applications.ux.TextEditor.implementation.enrichHTML(textToHtml(raw), { secrets: this.document.isOwner, relativeTo: this.document });
+      context.note = { raw: editing ? textToHtml(raw) : raw, editing, html, empty: !raw.replace(/<[^>]*>/g, "").trim() && !/<(img|table|iframe|video|audio|hr)/i.test(raw) };
+    }
     return context;
+  }
+
+  /** «Примітки»' editor is open (4.3); closed by default */
+  #noteOpen = false;
+
+  /** The pencil / «Готово» of «Примітки»: opens the editor, or saves it and shows the text again */
+  static async #onNoteEdit() {
+    if (!this.isEditable) return;
+    if (this.#noteOpen) {
+      const el = this.element?.querySelector('prose-mirror[data-note="notes"]');
+      if (el) await this.#saveNote(el);
+    }
+    this.#noteOpen = !this.#noteOpen;
+    this.render();
   }
 
   /** @override — remember the scroll, so a re-render keeps it (refit.mjs) */
@@ -300,7 +323,7 @@ export class WastelandersCaravanSheetV2 extends HandlebarsApplicationMixin(Actor
     const r = S.cargo?.[Number(target.dataset.i)];
     if (!r?.unpaid) return;
     const q = parseInt(r.qty, 10) || 1;
-    const ans = await askSpend({ title: "Купити вантаж", what: `«${r.name || "без назви"}»${q > 1 ? ` ×${q}` : ""}`, cost: rowCost(r), have: parseInt(S.budget, 10) || 0 });
+    const ans = await askSpend({ title: "Купити вантаж", what: `«${r.name || "без назви"}»${q > 1 ? ` ×${q}` : ""}`, cost: rowCost(r), have: parseInt(S.budget, 10) || 0, unit: Math.max(0, parseInt(r.price, 10) || 0), qty: q });
     if (!ans) return;
     this.dropUndo();
     await runCaravanAction(this.document, (C) => C.act("cg-buy", { i: target.dataset.i, pay: ans === "pay" ? "1" : "0" }));

@@ -10,11 +10,21 @@
  */
 import * as B from "./battle.mjs";
 import { toSystem, bookCopy, normCat, CATS } from "./enemy-model.mjs";
+import { enemyNonliving } from "./states.mjs";
 
 export const DEF_SELECTS = ["phys", "energy", "fire", "rad", "poison", "psy"];
 /** The tick boxes of the defence block: [key, label] (the tracker's, plus «вразливий до пси») */
 export const FLAG_LIST = [...B.DEF_FIELDS.filter((f) => f[2] === "chk").map((f) => [f[0], f[1]]), ["psyVuln", "Вразливий до психічної шкоди"]];
 const FLAG_KEYS = FLAG_LIST.map((f) => f[0]);
+
+/**
+ * «Неживий» in the form (author, 2026-11-22; 4.1): the data keeps null for «by the book's name» (states.mjs enemyNonliving), so the
+ * form keeps three states too — `flags.nonliving` is null until the GM touches the tick, then true / false. The tick shows the
+ * value the enemy will have: the GM's, else the one read from the base's book name and the form's name.
+ */
+export function nonlivingShown(form, baseName = "") {
+  return enemyNonliving(form.flags?.nonliving ?? null, [str(baseName), str(form.name).trim()].filter(Boolean), { def: form.def });
+}
 
 const int = (v, d = 0) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? n : d; };
 const str = (v) => String(v ?? "");
@@ -44,7 +54,7 @@ export function blankForm(name = "") {
   return {
     name: str(name), img: "", cat: "regular", hp: 6, armor: 1, psiArmor: 0, armorText: "", armor0: null,
     def: Object.fromEntries(DEF_SELECTS.map((k) => [k, "normal"])),
-    flags: Object.fromEntries(FLAG_KEYS.map((k) => [k, false])),
+    flags: { ...Object.fromEntries(FLAG_KEYS.map((k) => [k, false])), nonliving: null },
     attacks: [attackRow({ n: "Легка зброя ближнього бою", d: "1d6" })], moves: [], aspects: [], notes: "",
   };
 }
@@ -60,6 +70,7 @@ export function formFromSystem(sys, { name = "", img = "" } = {}) {
   f.armorText = str(sys.armorText); f.armor0 = f.armor;
   DEF_SELECTS.forEach((k) => { f.def[k] = sys.def?.[k] || "normal"; });
   FLAG_KEYS.forEach((k) => { f.flags[k] = !!sys.flags?.[k]; });
+  f.flags.nonliving = typeof sys.flags?.nonliving === "boolean" ? sys.flags.nonliving : null; // never `!!`: null is «by the book»
   f.attacks = (sys.attacks ?? []).map((a) => attackRow({
     n: a.name, note: a.note, d: B.diceLabel(a.dice), type: a.type, ammo: a.ammoMax, ignoreN0: a.ignoreN, ignoreArmor0: a.ignoreArmor, note0: str(a.note),
   }));
@@ -78,9 +89,10 @@ export function diceOk(text) {
 
 /**
  * Check the form and build what the actor is made from.
+ * @param {string} [baseName] the name of the enemy the form was filled from («за основу»), for «Неживий» by the book
  * @returns {{err:string}|{name:string, img:string, system:object}}
  */
-export function buildEnemy(form) {
+export function buildEnemy(form, { baseName = "" } = {}) {
   const name = str(form.name).trim();
   if (!name) return { err: "Дай супротивникові назву" };
   const rows = (form.attacks ?? []).filter((a) => str(a.n).trim() || str(a.d).trim());
@@ -109,6 +121,11 @@ export function buildEnemy(form) {
   system.armor = armor; system.psiArmor = Math.max(0, int(form.psiArmor)); system.armorText = armorText;
   DEF_SELECTS.forEach((k) => { system.def[k] = form.def?.[k] || "normal"; });
   FLAG_KEYS.forEach((k) => { system.flags[k] = !!form.flags?.[k]; });
+  // «Неживий»: the GM's tick as it is; untouched, null when the new name alone gives the same, else the shown value written down
+  // (a robot taken «за основу» and renamed would lose its book name)
+  const shown = nonlivingShown(form, baseName);
+  const own = form.flags?.nonliving;
+  system.flags.nonliving = typeof own === "boolean" ? own : (enemyNonliving(null, [name], system) === shown ? null : shown);
   system.baseAspects = aspects;
   system.orig = bookCopy(system);
   return { name, img: str(form.img), system };

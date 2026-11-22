@@ -679,6 +679,21 @@ a.pust-counter-btn .pust-counter-btn-die { padding: 0 5px; border-radius: 2px; b
 .chat-message .pust-karmacard .pust-karma-asp > s { color: #7a7060; }
 /* «Списати N(к) з бюджету?» (spend-ask.mjs) */
 .pust-spend-ask .pust-spend-short { color: var(--pu-red-ink, #a8121a); font-weight: 700; }
+/* the receipt (author, 2026-11-22; 4.7, mockup А «Квитанція»): the thing and its price, «Разом», the budget before → after on
+   a dashed paper slip; «Так, списати» is the sheet's brass «Купити» plate, «Ні, без списання» a plain button */
+.pust-spend-ask .pust-rcpt { margin: 2px 0 0; padding: 9px 11px; border: 1px dashed #b9ab88; border-radius: 3px; background: #f7f1e1; color: #2a261c;
+  font-family: "Ubuntu Mono", monospace; font-size: 14px; line-height: 1.35; font-variant-numeric: tabular-nums; }
+.pust-spend-ask .pust-rcpt-ln { display: flex; align-items: baseline; gap: 6px; }
+.pust-spend-ask .pust-rcpt-ln + .pust-rcpt-ln { margin-top: 3px; }
+.pust-spend-ask .pust-rcpt-ln > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.pust-spend-ask .pust-rcpt-ln > i { flex: 1 1 auto; min-width: 12px; border-bottom: 1px dotted #7a6f5a; transform: translateY(-4px); }
+.pust-spend-ask .pust-rcpt-ln > span:last-child { flex: none; white-space: nowrap; }
+.pust-spend-ask .pust-rcpt hr { margin: 7px 0; border: 0; border-top: 1px solid #7a6f5a; }
+.pust-spend-ask .pust-rcpt-tot { font-weight: 700; font-size: 15px; }
+.pust-spend-ask .pust-spend-left { color: #2f8a32; }
+.pust-spend-ask .pust-spend-q { margin: 10px 0 0; }
+.wastelanders.pust-spend-ask .form-footer button.pust-buy:not(.header-control) { flex: 1 1 0; height: 40px !important; line-height: 38px !important; font-size: 14px; } /* the height of Foundry's own footer button beside it */
+.wastelanders.pust-spend-ask .form-footer button.pust-buy:disabled { background: #e4dabf !important; color: #7a6f5a !important; border-color: #b9ab88 !important; }
 /* an enemy's move in chat (author, 2026-11-15; enemy-sheet.mjs): a coloured head strip with the enemy's name, the result
    under it — a healing move green, Психо red while it acts, grey when it wears off */
 .chat-message .pust-chat.pust-encard { --ec: #2f6b35; --ec-ink: #e7ffd9; padding: 0; overflow: hidden; border: 2px solid color-mix(in srgb, var(--ec) 70%, #000); border-radius: 5px; background: #f4eedc; }

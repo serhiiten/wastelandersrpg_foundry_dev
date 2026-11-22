@@ -128,7 +128,8 @@ export class EnemyCreateApp extends HandlebarsApplicationMixin(ApplicationV2) {
       hpQuick: guide.hp.map((v) => ({ v, on: v === f.hp })),
       armorQuick: guide.armor.map((v) => ({ v, on: v === f.armor })),
       defs: C.DEF_SELECTS.map((k) => ({ f: k, l: defLabel(k), opts: Object.entries(k === "rad" ? R4 : R3).map(([v, l]) => ({ v, l, sel: v === f.def[k] })) })),
-      flags: C.FLAG_LIST.map(([k, l]) => ({ f: k, l, on: !!f.flags[k] })),
+      // «Неживий» (author, 2026-11-22): ticked by the book until the GM touches it (rules/enemy-create.mjs nonlivingShown)
+      flags: [...C.FLAG_LIST.map(([k, l]) => ({ f: k, l, on: !!f.flags[k] })), { f: "nonliving", l: "Неживий", on: C.nonlivingShown(f, this.#baseName) }],
       attacks: f.attacks.map((a, i) => ({
         ...a, i, bad: !C.diceOk(a.d),
         types: [{ k: "", n: `Авто: ${DMG_TYPES[atkType(`${a.n} ${a.note}`)].n}`, sel: !a.type }, ...Object.entries(DMG_TYPES).map(([k, t]) => ({ k, n: t.n, sel: k === a.type }))],
@@ -275,7 +276,7 @@ export class EnemyCreateApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #onCreate() {
     if (this.#busy) return;
-    const r = C.buildEnemy(this.#f);
+    const r = C.buildEnemy(this.#f, { baseName: this.#baseVal ? this.#baseName : "" });
     if (r.err) return notify.warn(r.err);
     this.#busy = true;
     try {

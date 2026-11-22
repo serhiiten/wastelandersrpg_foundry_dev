@@ -780,16 +780,6 @@
 .pust-caravan .pust-tools button.on { background: var(--pu-steel-1) !important; color: var(--pu-green) !important; }
 
 /* Вантаж і пасажири: a list with column headers, like the gear of the character sheet */
-.pust-caravan .pust-glist-cargo { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 108px 64px 56px 50px 44px 52px max-content 28px; }
-/* «Купити / Продати» (A3, author 2026-11-21): its own column; on a narrow sheet the note and the button take a second line */
-.pust-caravan .pust-glist-cargo .pust-cact { display: flex; justify-content: flex-end; min-width: 0; }
-@container (max-width: 700px) {
-  .pust-caravan .pust-glist-cargo { grid-template-columns: minmax(0, 1fr) 108px 64px 56px 50px 44px 52px 28px; }
-  .pust-caravan .pust-glist-cargo .pust-ghead > span:nth-child(2), .pust-caravan .pust-glist-cargo .pust-ghead > .pust-cact-h { display: none; }
-  .pust-caravan .pust-glist-cargo .pust-grow > .pust-cnote { grid-row: 2; grid-column: 1 / 5; }
-  .pust-caravan .pust-glist-cargo .pust-grow > .pust-cact { grid-row: 2; grid-column: 5 / -1; }
-  .pust-caravan .pust-glist-cargo .pust-grow > .pust-cact:empty { display: none; }
-}
 /* money buttons (A3, A13; author 2026-11-21): «Купити за N(к)» is a brass plate (spends), «Продати…» green (earns) */
 .wastelanders button.pust-buy:not(.header-control), .wastelanders button.pust-sell:not(.header-control) { flex: 0 0 auto; width: auto; height: 26px !important; min-height: 0;
   line-height: 24px !important; padding: 0 9px !important; font-weight: 700; font-size: 12.5px; white-space: nowrap; text-transform: none; letter-spacing: 0; }
@@ -803,11 +793,7 @@
 .pust-ccmp-sum > button.pust-sell { flex: none; height: 22px !important; line-height: 20px !important; font-size: 12px; }
 .pust-caravan .pust-cargo-bar > button.pust-sell { margin-left: auto; }
 .pust-caravan .pust-luck-reset { margin-left: 4px; width: 24px !important; height: 24px !important; min-height: 0; padding: 0 !important; flex: none; }
-.pust-caravan .pust-glist-cargo .pust-grow > select { width: 100%; min-width: 0; }
-.pust-caravan .pust-glist-cargo .pust-grow > .pust-cnote { width: 100%; min-width: 0; }
 .pust-caravan .pust-csum { text-align: center; font-family: var(--pu-f-num); font-size: 15px; line-height: 26px; min-height: 26px; }
-.pust-caravan .pust-glist-cargo .pust-grow { padding: 5px 0; }
-.pust-caravan .pust-glist-cargo .pust-grow > .pust-x { align-self: center; }
 .pust-caravan .pust-log { margin: 6px 0 0; font-size: 13px; padding: 5px 8px; }
 
 /* Історія: four coloured aspect rows, then the notes */
@@ -2023,3 +2009,33 @@
 .pust-mn-sw { width: 24px; height: 24px; }
 .wastelanders .pust-en .pust-en-edrow > button.pust-en-x:not(.header-control) { width: 24px !important; height: 24px !important; flex: 0 0 24px; }
 .wastelanders .pust-gf2 > a.pust-roll, .wastelanders .pust-gc-head > a.pust-roll { min-width: 24px; min-height: 24px; display: inline-flex; align-items: center; justify-content: center; }
+/* «Купити» and «Додати» one size (author, 2026-11-22; 4.5): one height, font and padding; in every catalogue row the button
+   column has one width, with a price or without, so «Додати» lines up under «Купити» down the whole list */
+.wastelanders .pust-cat-row > button:is(.pust-buy, .pust-pick-add):not(.header-control) { height: 26px !important; line-height: 24px !important;
+  padding: 0 9px !important; font-size: 12.5px; font-weight: 700; min-width: 134px; justify-content: center; box-sizing: border-box; } /* 134: «Купити за 100(к)», the widest of the book */
+/* «Шкода» too long for half a weapon card (author, 2026-11-22; 4.6; fitDmg): the pair takes a row of its own, the whole card wide */
+.pust-gc > .pust-gf2.dmg-wide { grid-column: 1 / -1; }
+.wastelanders .pust-gc .pust-gf2.dmg-wide textarea.pust-dmg-in { text-align: left; padding-left: 6px !important; }
+/* the enemy card's quick aspects (author, 2026-11-22; 4.2): the character sheet's ochre buttons (.pust-sitq), under the chips */
+.pust-en .pust-en-quick.pust-sitq { margin: 6px 0 0; gap: 4px; }
+.wastelanders .pust-en .pust-en-card .pust-sitq button.pust-en-q:not(.header-control) { height: 24px !important; line-height: 22px !important; padding: 0 8px !important; }
+/* cargo as cards of «Мотлох» (author, 2026-11-22; 4.8, mockup А): two in a row from 620 px of body, one below; the stripe orange
+   for cargo, brown for a passenger (as the compact caravan's chips); «Далека» / «Пошк.» tick chips like «Важка» */
+.pust-caravan .pust-cargo-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: start; }
+@container (min-width: 620px) { .pust-caravan .pust-cargo-cards { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.pust-cargo-cards > .pust-gc.kind-boom { --gc: #e07b25; }
+.pust-cargo-cards > .pust-gc.kind-gear { --gc: #8a6a3e; }
+.pust-cgc .pust-gc-head > .pust-ckind { flex: 0 0 auto; width: 104px; min-width: 0; align-self: stretch; height: auto; min-height: 26px; }
+.pust-cgc .pust-gf2 > textarea.pust-gnote-in { flex: 1 1 0; width: 0; min-width: 0; min-height: 26px; resize: none; }
+.pust-cgc .pust-gf2 > input { flex: 1 1 0; width: 0; min-width: 0; }
+.pust-cgc .pust-cticks { display: flex; flex-wrap: wrap; gap: 6px; }
+.pust-cgc .pust-ctick { min-height: 26px; height: auto; border-radius: 3px; }
+.pust-cgc .pust-ctick:has(> input:checked) { background: var(--pu-rust-2); border-color: var(--pu-rust-1); color: #fbe9e6; }
+.pust-cgc .pust-ctick.hurt > input { accent-color: #a8121a; }
+.pust-cgc .pust-ctick.hurt:has(> input:checked) { background: #a8121a; border-color: #8a0f15; color: #fbe9e6; }
+.pust-cgc .pust-cfoot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding-top: 6px; border-top: 1px dashed var(--pu-paper-3); }
+.pust-cgc .pust-csum-l { font: 700 12px/1 var(--pu-f-label); letter-spacing: .06em; text-transform: uppercase; color: var(--pu-ink-3); }
+.pust-caravan .pust-cgc .pust-csum { display: inline-block; min-height: 0; margin-left: 4px; font-size: 17px; line-height: 1; letter-spacing: 0; color: var(--pu-ink); }
+.pust-caravan .pust-cgc .pust-csum.hurt { color: var(--pu-red); }
+.pust-cgc .pust-cact { display: flex; margin-left: auto; min-width: 0; }
+.pust-cgc .pust-cact:empty { display: none; }

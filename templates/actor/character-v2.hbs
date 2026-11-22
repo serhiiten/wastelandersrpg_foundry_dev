@@ -322,6 +322,8 @@
         <button type="button" data-action="act" data-act="roll-perks" data-confirm="1" {{#unless v.arch}}disabled{{/unless}} title="Кинути перки за архетипом"><i class="fa-solid fa-dice"></i> Кинути</button>
         <button type="button" data-action="customForm" data-kind="perk" title="Свій перк (не з книги)">+ Свій</button>
       </div>
+      {{!-- the list opens right under the tools (author, 2026-11-22), above the taken cards --}}
+      {{#if (eq v.pick "perk")}}{{> pustPicker list=v.perkPicker kind="perk" q=v.q showAll=v.showAll}}{{/if}}
       {{#each v.perks}}
       <div class="pust-item pust-card perk {{#unless ok}}bad{{/unless}}">
         <div class="pust-item-head">
@@ -358,7 +360,6 @@
       </div>
       {{/each}}
       {{#each freeUses}}{{> pustPerkUse u=this}}{{/each}}
-      {{#if (eq v.pick "perk")}}{{> pustPicker list=v.perkPicker kind="perk" q=v.q showAll=v.showAll}}{{/if}}
     </section>
 
     <div class="pust-col">
@@ -369,6 +370,7 @@
         <button type="button" data-action="act" data-act="roll-feats" data-confirm="1" {{#unless v.arch}}disabled{{/unless}} title="Кинути особливості за архетипом"><i class="fa-solid fa-dice"></i> Кинути</button>
         <button type="button" data-action="customForm" data-kind="feat" title="Своя особливість (не з книги)">+ Своя</button>
       </div>
+      {{#if (eq v.pick "feat")}}{{> pustPicker list=v.featPicker kind="feat" q=v.q showAll=v.showAll}}{{/if}}
       {{#if v.hasModel}}
       <div class="pust-row"><label>Експериментальна модель дає</label>
         <select data-k="exp"><option value="perk" {{#if (eq v.modelBonus 'perk')}}selected{{/if}}>перк</option><option value="skill" {{#if (eq v.modelBonus 'skill')}}selected{{/if}}>навичку</option><option value="point" {{#if (eq v.modelBonus 'point')}}selected{{/if}}>пункт атрибута</option></select>
@@ -390,7 +392,6 @@
         {{else}}<div class="pust-text pust-desc">{{text}}</div>{{/if}}
       </div>
       {{/each}}
-      {{#if (eq v.pick "feat")}}{{> pustPicker list=v.featPicker kind="feat" q=v.q showAll=v.showAll}}{{/if}}
     </section>
     {{#if v.speciesProps.length}}
     <details class="pust-block pust-props" {{#if v.propsOpen}}open{{/if}}>

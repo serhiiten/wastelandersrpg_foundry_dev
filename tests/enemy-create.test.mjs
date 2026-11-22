@@ -66,7 +66,7 @@ for (const fk of Object.keys(DB)) for (const c of ["boss", "elite", "regular", "
   const a = out.system;
   ok(a.hp.max === sys.hp.max && a.armor === sys.armor && a.psiArmor === sys.psiArmor && a.cat === sys.cat, `${rec.name}: stats`);
   eq(a.def, sys.def, `${rec.name}: def`);
-  eq(a.flags, sys.flags, `${rec.name}: flags`);
+  eq(a.flags, { ...sys.flags, nonliving: sys.flags.nonliving ?? null }, `${rec.name}: flags`); // the generator leaves «Неживий» unset: null, by the book
   eq(a.attacks, sys.attacks, `${rec.name}: attacks`);
   eq(a.moves, sys.moves, `${rec.name}: moves`);
   eq(a.baseAspects, sys.baseAspects, `${rec.name}: aspects`);
@@ -86,6 +86,23 @@ const pierce = C.formFromSystem(M.toSystem(B.enemyFromRecord({ name: "Т", cat: 
 ok(C.buildEnemy(pierce).system.attacks[0].ignoreN === 2, "piercing loaded");
 pierce.attacks[0].note = "звичайний постріл";
 ok(C.buildEnemy(pierce).system.attacks[0].ignoreN === 0, "piercing gone with the words");
+
+// «Неживий» (author, 2026-11-22; 4.1): three states, null («by the book's name») is never turned into false
+{
+  const blank = C.blankForm("Хтось");
+  ok(blank.flags.nonliving === null && C.nonlivingShown(blank) === false, "blank: null, shown off");
+  ok(C.buildEnemy(blank).system.flags.nonliving === null, "blank untouched → null");
+  const robot = C.formFromSystem({ cat: "regular", hp: { max: 10 }, flags: { nonliving: null } }, { name: "Робот-вартовий" });
+  ok(robot.flags.nonliving === null && C.nonlivingShown(robot) === true, "book robot: null, shown on");
+  ok(C.buildEnemy(robot).system.flags.nonliving === null, "book robot untouched → null (still by the book)");
+  robot.name = "Мій бляшанка";
+  ok(C.nonlivingShown(robot, "Робот-вартовий") === true, "renamed robot: shown on by the base's name");
+  ok(C.buildEnemy(robot, { baseName: "Робот-вартовий" }).system.flags.nonliving === true, "renamed robot untouched → true written down");
+  robot.flags.nonliving = false;
+  ok(C.nonlivingShown(robot, "Робот-вартовий") === false && C.buildEnemy(robot, { baseName: "Робот-вартовий" }).system.flags.nonliving === false, "GM's untick wins");
+  const beast = C.formFromSystem({ cat: "regular", hp: { max: 10 }, flags: { nonliving: true } }, { name: "Яо-ґай" });
+  ok(beast.flags.nonliving === true && C.buildEnemy(beast).system.flags.nonliving === true, "GM's tick kept through «за основу»");
+}
 
 if (failures) { console.log(`${failures} failures`); process.exit(1); }
 console.log("enemy-create: ok");
