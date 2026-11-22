@@ -424,12 +424,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     html = html.replace(/<label class="tog"><input type="checkbox" id="dm-(?:norm2|crit)"[^>]*>[^<]*<\/label>/g, "");
     if (!of.normal.length && !of.crit.length) return html.replace(/<details class="rfx"[^>]*>[\s\S]*?<\/details>/, "");
     const done = !!last.dmg || !!this.#fx.done;
+    // 10–14 without the perk, the damage dealt: the damage was chosen, the effects never land (П3 3.2)
+    const struck = of.instead && !!last.dmg && !this.#fx.done;
     const row = (e, tier) => {
-      const x = { ...e, tier }, on = picks.includes(e.key);
+      const x = { ...e, tier }, on = !struck && picks.includes(e.key);
       const tag = e.does === "cover" ? `<small class="pust-fx-tag">Посилення спільнику</small>` : e.does === "state" ? `<small class="pust-fx-tag">${e.all ? "застосується до всіх" : "застосується до цілі"}</small>`
         : e.does === "ignore" ? `<small class="pust-fx-tag">з шкодою</small>`
         : e.does === "text" ? `<small class="pust-fx-tag hand">руками</small>` : "";
-      return `<label class="tog pust-fxt${on ? " on" : ""}"><input type="checkbox" data-fx="${e.key}"${on ? " checked" : ""}${done ? " disabled" : ""}> <span>${esc(effectText(L.ATK_FX, mode, x))}</span>${tag}</label>`;
+      return `<label class="tog pust-fxt${on ? " on" : ""}${struck ? " struck" : ""}"><input type="checkbox" data-fx="${e.key}"${on ? " checked" : ""}${done ? " disabled" : ""}> <span>${esc(effectText(L.ATK_FX, mode, x))}</span>${tag}</label>`;
     };
     const perkNotes = /<ul class="rperk">[\s\S]*?<\/ul>/.exec(html)?.[0] ?? "";
     const limit = of.instead ? "Завдай шкоди або обери замість неї 1 звичайний ефект."
@@ -446,18 +448,18 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const splitOne = !!sp && !sp.sent && (ignoreOne || poisonOne);
     const needOne = (stateOne || splitOne) && targets.length > 1;
     const oneLabel = stateOne || (splitOne && ignoreOne) ? (splitOne && poisonOne ? "Ефект і отрута на:" : "Ефект на:") : "Отрута на:";
-    const one = needOne ? `<label class="pust-fx-one">${oneLabel} <select data-fx-one>${targets.map((t) => `<option value="${esc(t.uuid)}"${t.uuid === this.#fx.one ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>` : "";
+    const one = needOne && !struck ? `<label class="pust-fx-one">${oneLabel} <select data-fx-one${done ? " disabled" : ""}>${targets.map((t) => `<option value="${esc(t.uuid)}"${t.uuid === this.#fx.one ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>` : "";
     // «Прикриваєш спільника»: an ally of the scene (a character's token, not this one's)
     let ally = "";
-    if (picks.includes("cover")) {
+    if (picks.includes("cover") && !struck) {
       const own = new Set((canvas?.scene?.tokens ?? []).filter((t) => t.actor?.id === this.actor.id).map((t) => t.uuid));
       const allies = (canvas?.scene?.tokens ?? []).filter((t) => t.actor?.type === "character" && !own.has(t.uuid) && !t.hidden);
       if (!allies.some((t) => t.uuid === this.#fx.ally)) this.#fx.ally = allies[0]?.uuid ?? "";
-      ally = allies.length ? `<label class="pust-fx-one">Кого прикриваєш: <select data-fx-ally>${allies.map((t) => `<option value="${t.uuid}"${t.uuid === this.#fx.ally ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>`
+      ally = allies.length ? `<label class="pust-fx-one">Кого прикриваєш: <select data-fx-ally${done ? " disabled" : ""}>${allies.map((t) => `<option value="${t.uuid}"${t.uuid === this.#fx.ally ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>`
         : `<p class="rhint">На сцені немає спільників: ефект буде лише рядком на картці.</p>`;
     }
     const applyFx = of.instead && picks.length && !done ? `<button type="button" class="btn rust pust-fx-apply" data-fx-apply><i class="fa-solid fa-bolt"></i>Застосувати ефект без шкоди</button>` : "";
-    const block = `<div class="rfx pust-fx"><h4>Ефекти: ${esc(L.ATK_FX[mode]?.n?.toLowerCase() ?? "")}</h4>${perkNotes}<p class="rhint">${esc(limit)}${done ? " Уже застосовано." : ""}</p>`
+    const block = `<div class="rfx pust-fx"><h4>Ефекти: ${esc(L.ATK_FX[mode]?.n?.toLowerCase() ?? "")}</h4>${perkNotes}<p class="rhint">${esc(limit)}${struck ? " Обрано шкоду: ефект не діє." : done ? " Уже застосовано." : ""}</p>`
       + (of.crit.length ? `<h5>Критичні</h5>${of.crit.map((e) => row(e, "crit")).join("")}` : "")
       + (of.normal.length ? `<h5>Звичайні</h5>${of.normal.map((e) => row(e, "normal")).join("")}` : "")
       + one + ally + applyFx + `</div>`;
