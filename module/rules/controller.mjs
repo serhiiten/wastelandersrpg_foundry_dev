@@ -15,6 +15,7 @@ import { usePowerCell } from "./power-cell.mjs";
 import { CONS_PRICE, consPlan, healPlan, supPlan } from "./char-services.mjs";
 import { chemReset, freePerk, usePerk } from "./perk-uses.mjs";
 import { sceneEndHealth } from "./battle-health.mjs";
+import { isCoverText } from "./cover.mjs";
 import { GRANTS, GRANT_FEATS, SKILL_IMPS, grantTarget, lastingCaps, startPicks, stepSkill } from "./skill-sources.mjs";
 import {
   AKEYS, BUILTIN_CAT, CLAW_WEAPON_MSG, FEAT, LVL, PERK, PRESETS, SKILLS, SPECIES,
@@ -626,6 +627,7 @@ export function createController(st, L, { toast = () => {}, rng, cat } = {}) {
       }
       case "sit-inv": {
         const x = (st.sit || [])[+data.i];
+        if (x && isCoverText(x.t)) return false; // «Прикритий: …» keeps its one invoke (П3 3.2)
         if (x) x.inv = Math.max(0, (x.inv || 0) + +data.d);
         return true;
       }

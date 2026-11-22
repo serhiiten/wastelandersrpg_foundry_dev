@@ -253,15 +253,19 @@ export async function applyDamage(tokenUuids, data, { partial = false, dodge = f
 async function effectLines(uuids, data, source = "") {
   const out = [];
   for (const t of (Array.isArray(data.said) ? data.said : []).slice(0, 4)) { const h = `<div class="pust-da-note">${esc(`Ефект: ${t}`)}</div>`; out.push({ full: h, short: h }); }
-  // «Прикриваєш спільника» (A2): the ally (a character) gets Посилення on its next avoidance in this round
+  // «Прикриваєш спільника» (A2; П3 3.2, author 2026-11-22): the ally (a character) gets the aspect «Прикритий: <who>» with 1
+  // free invoke for its next avoidance in this round (rules/cover.mjs); the same one covering again adds nothing
   if (data.cover) {
     const { tok, actor } = await targetOf(String(data.cover));
     if (actor?.type === "character") {
-      const { sharedGet } = await import("../helpers/scene-shared.mjs");
+      const { addCover } = await import("../rules/cover.mjs");
       const src = source ? await targetOf(source) : null;
       const byName = src?.tok?.name || src?.actor?.name || "";
-      await actor.setFlag(game.system.id, "cover", { round: Math.max(1, Number(sharedGet("round")) || 1), by: source, byName });
-      const h = `<div class="pust-da-note">${esc(`${tok?.name || actor.name}: Посилення до наступного уникнення шкоди в цьому колі дій${byName ? ` (прикриває ${byName})` : ""}.`)}</div>`;
+      const c = addCover(actor.system.situational, byName);
+      if (c.added) await actor.update({ "system.situational": c.list });
+      const who = tok?.name || actor.name;
+      const h = `<div class="pust-da-note">${esc(c.added ? `${who}: аспект «${c.text}», Посилення до наступного уникнення шкоди в цьому колі дій.`
+        : `${who}: «${c.text}» уже є, друге прикриття в цьому колі не додається.`)}</div>`;
       out.push({ full: h, short: tok?.hidden ? "" : h });
     }
   }

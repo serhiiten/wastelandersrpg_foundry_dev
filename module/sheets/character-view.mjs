@@ -4,6 +4,7 @@
  * st: HTML sheet state, d: compute(st), L: createLogic(st), ui: sheet UI state (open pickers, search…)
  */
 import { textToHtml } from "../rules/rich-text.mjs";
+import { isCoverText } from "../rules/cover.mjs";
 import { attrTip, skillTip } from "../rules/book-desc.mjs";
 import {
   ARCH_ORDER, ATTRS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
@@ -266,7 +267,8 @@ export function buildView(st, d, L, ui = {}) {
     sup: buyButton(d.supMax - supNow, st.caps, SUP_PER_CAP, { verb: "Поповнити", unit: "од. Припасів", full: "Припасів повно", rate: "1(к) за 3 Припаси" }),
   };
   const ovDef = st.defOv || {};
-  const sit = (st.sit || []).map((a, i) => ({ i, t: a.t, inv: a.inv || 0 }));
+  // «Прикритий: …» (П3 3.2): its one invoke can't be changed here, only the whole aspect removed
+  const sit = (st.sit || []).map((a, i) => ({ i, t: a.t, inv: a.inv || 0, lock: isCoverText(a.t) }));
   const quickAspects = L.QUICK_ASPECTS.filter((x) => !sit.some((a) => a.t === x[1]))
     .map(([k, t, why]) => ({ t, off: ovDef[k] === "yes", why }));
   const defenses = L.defenses(d).map(([cls, t]) => ({ cls, t }));

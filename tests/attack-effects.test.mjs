@@ -68,7 +68,6 @@ eq(A.hitFx(of, ["cover"], ["T1"], "", "A1").cover, "A1", "cover goes to the ally
 eq(A.hitFx(of, ["cover"], ["T1"]).said, ["cover"], "no ally: said only");
 eq(A.hitFx(A.offer({ mode: "ranged", verdict: 2 }), ["pin"], ["T1", "T2"], "T2"), { ignoreArmor: false, fx: [{ key: "pin", on: ["T2"] }], said: [] }, "pin is a state on the chosen target (П3 3.1)");
 eq(A.cleanFx([{ key: "pin", on: ["T1"] }], ["T1"]), [{ key: "pin", on: ["T1"] }], "the GM accepts pin from a player");
-eq([A.coverActive({ round: 3 }, 3), A.coverActive({ round: 2 }, 3), A.coverActive(null, 3)], [true, false, false], "cover lasts its round");
 
 // the GM accepts only the three states, only on the request's targets
 eq(A.cleanFx([{ key: "down", on: ["T1", "X"] }, { key: "burning", on: ["T1"] }, { key: "stunned", on: ["X"] }, null], ["T1"]), [{ key: "down", on: ["T1"] }], "cleanFx");

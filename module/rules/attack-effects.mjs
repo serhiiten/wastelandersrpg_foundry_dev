@@ -7,8 +7,8 @@
  *   plus2 / plus1d6 — the engine's own «+2» / «+1d6» (R.dmgOpt.norm2 / crit), counted in the damage it rolls;
  *   ignore          — the hit ignores armour (`ignoreArmor`);
  *   state           — a state on the target (rules/states.mjs: down, stunned, disarmed, pin), on one target, a blast's on all;
- *   cover           — «прикриваєш спільника»: an ally the player picks gets Посилення on its next avoidance this round
- *                     (`flags.<system>.cover = {round, by, byName}` on its actor; check-panel.mjs counts and spends it);
+ *   cover           — «прикриваєш спільника»: an ally the player picks gets the aspect «Прикритий: <who>» with 1 Посилення
+ *                     for its next avoidance this round (rules/cover.mjs; check-panel.mjs counts and spends it);
  *   text            — said on the card, done by hand (moving tokens, aspects; a blast's halves are A12).
  * How many (wiki): 15–18 one ordinary; 19+ one critical or ordinary; 10–14 damage or one ordinary (a blast: none), with
  * «Прицільний постріл» / «Точний удар» one ordinary on top of the damage; «Покращені критичні удари» one more critical,
@@ -149,5 +149,3 @@ export function cleanFx(fx, targets) {
     .filter((x) => x.on.length);
 }
 
-/** «Прикриваєш спільника» is in force: put on in this round (wiki: «до наступної перевірки на уникнення шкоди в цьому колі») */
-export const coverActive = (flag, round) => !!flag && Number(flag.round) === Number(round);

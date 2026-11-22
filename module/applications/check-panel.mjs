@@ -16,8 +16,8 @@ import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { clearTargets, sendDamage, sendEffects, sendSplitDamage } from "./apply-damage.mjs";
 import { keepTargets, presetKey, presetOfWeapon, routeOf, unfinished } from "../rules/check-route.mjs";
 import { clampShare, effectTargetIdle, evenSplit, splitBlock, splitLeft } from "../rules/damage-split.mjs";
-import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx, coverActive } from "../rules/attack-effects.mjs";
-import { sharedGet } from "../helpers/scene-shared.mjs";
+import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx } from "../rules/attack-effects.mjs";
+import { activeCover, isCoverText } from "../rules/cover.mjs";
 import { pendOf, answerPending, openRowOf } from "./pending-attack.mjs";
 import { rowTotal, rowDeal, rowClosed, rowText, ATTR_SHORT } from "../rules/dodge.mjs";
 import { checkPenalty, spendCheckStates } from "./states.mjs";
@@ -493,10 +493,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     return { ...(h.ignoreArmor ? { ignoreArmor: true, ignoreN: 0 } : {}), ...(h.fx.length ? { fx: h.fx } : {}), ...(said.length ? { said } : {}), ...(h.cover ? { cover: h.cover } : {}) };
   }
 
-  /** «Прикриваєш спільника» on this character, in force this round, or null */
+  /** «Прикритий: …» on this character (П3 3.2, rules/cover.mjs): the oldest cover with its invoke, or null */
   #cover() {
-    const f = this.actor.getFlag?.(game.system.id, "cover");
-    return coverActive(f, Math.max(1, Number(sharedGet("round")) || 1)) ? f : null;
+    const c = activeCover(this.actor.system?.situational);
+    return c ? { ...c, byName: c.by } : null;
   }
 
   /** This character's token on the viewed scene (the effect's source), or "" */
@@ -528,6 +528,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       .replace(/<details class="rfx">/g, '<details class="rfx" open>')
       // every die knows its type, so CSS can draw its shape (d6 square, d8 diamond, d10 kite, d12 pentagon)
       .replace(/<span class="die([^"]*)"([^>]*)><b>([^<]*)<\/b><i>d(\d+)<\/i>/g, '<span class="die d$4$1"$2><b>$3</b><i>d$4</i>')
+      // «Прикритий: …» (П3 3.2) is spent only by an avoidance, never invoked as an ordinary aspect
+      .replace(/<button type="button" class="btn sm modasp" data-r="sitasp"[^>]*>«Прикритий: [^»]*»[\s\S]*?<\/button>/g, "")
       // invoking a situational aspect: «name», its free invokes as a green «+2» (as on the sheet), then «+1d10»
       .replace(/(data-r="sitasp"[^>]*>)«([^»]*)»\s*<svg class="xcross"[\s\S]*?<\/svg>(\d+): \+1d10/g,
         '$1<span class="rasp-name">$2</span><span class="rinv" title="Безкоштовних Посилень">+$3</span><span>+1d10</span>')
@@ -544,7 +546,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const pen = checkPenalty(this.actor);
     const penHtml = pen ? `<div class="ramods pust-ramods-state"><span class="rl">Стан</span><label class="tog" title="Аспект «${pen.aspect}»: −2 до цього кидка, після нього аспект зникне"><input type="checkbox" data-r="am" data-k="state-check" checked disabled> <span>«${pen.aspect}»: <b>−${-pen.n}</b></span></label></div>` : "";
     const cov = R.type === "dodge" ? this.#cover() : null;
-    const covHtml = cov ? `<div class="ramods pust-ramods-state"><span class="rl">Прикриття</span><label class="tog" title="Спільник прикриває тебе: Посилення до наступного уникнення шкоди в цьому колі дій"><input type="checkbox" checked disabled> <span>${esc(cov.byName || "Спільник")} прикриває: <b>Посилення</b></span></label></div>` : "";
+    const covHtml = cov ? `<div class="ramods pust-ramods-state"><span class="rl">Прикриття</span><label class="tog" title="Аспект «${esc(cov.t)}»: Посилення до цього уникнення шкоди, після кидка аспект зникне"><input type="checkbox" checked disabled> <span>${esc(cov.byName || "Спільник")} прикриває: <b>Посилення</b></span></label></div>` : "";
     // «Без Припасів» (П2, answer 1): the table lets this healing / repair go without paying; one roll
     const freeHtml = HEAL_TYPES.includes(R.type) && !this.actor.pustTourDemo ? `<div class="ramods pust-ramods-state"><span class="rl">Плата</span><label class="tog" title="Доглядач дозволив без плати: кидок можливий без Припасів, після застосування нічого не списується"><input type="checkbox" data-hxfree${HEAL_FREE.has(this.actor.uuid) ? " checked" : ""}> <span>Без Припасів</span></label></div>` : "";
     let withPen = penHtml || covHtml || freeHtml ? html.replace('<button type="button" class="btn rust rgo"', `${penHtml}${covHtml}${freeHtml}<button type="button" class="btn rust rgo"`) : html;
@@ -1141,13 +1143,13 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     let penUsed = false;
     // «Прикриваєш спільника» (A2): +1 Посилення on this character's next avoidance in the round it was given, then it goes
     const cover = kind === "click" && key === "roll" ? this.#cover() : null;
-    let coverUsed = false;
     // «Щасливець» / «Бісова штуковина!»: the perk's mark and card (perk-uses.mjs), the replaced roll's ОД gone
     const perkId = kind === "click" ? el.dataset?.perkre || "" : "";
     let perkRes = null;
     if (kind === "click" && ["aspect", "modasp", "sitasp", "nearasp", "luck"].includes(key) || perkId) {
       const { L } = evaluate(this.actor);
       if (this.#load(L).last?.hx) { notify.warn("Результат уже застосовано: змінити його не можна."); return this.render(); }
+      if (key === "sitasp" && isCoverText(this.actor.system?.situational?.[+el.dataset?.v]?.name)) { notify.warn("Прикриття діє лише на уникнення шкоди."); return this.render(); }
     }
     await runAction(this.actor, (st, L) => {
       const R = this.#load(L);
@@ -1189,7 +1191,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       if (coverOn) {
         R.boost = (+R.boost || 0) - 1;
-        if (R.last && R.last.time !== t0) { R.last.autoList = [...(R.last.autoList || []), `Посилення: прикриває ${cover.byName || "спільник"}`]; coverUsed = true; }
+        if (R.last && R.last.time !== t0) {
+          // the cover's one invoke is spent: its aspect goes with this roll (the oldest, as #cover showed it)
+          const c = activeCover(st.sit);
+          if (c) st.sit.splice(c.i, 1);
+          R.last.autoList = [...(R.last.autoList || []), `Посилення: «${cover.t}», аспект знято`];
+        }
       }
       if (pen) {
         R.mod = (+R.mod || 0) - pen.n;
@@ -1214,7 +1221,6 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await postFateIfChanged(this.actor, fdWas);
     await postSupIfChanged(this.actor, supWas);
     if (penUsed) await spendCheckStates(this.actor);
-    if (coverUsed) await this.actor.unsetFlag(game.system.id, "cover");
     // the targets go once the result no longer needs them (author, 2026-11-22, П1 1.4, answer А): a plain check or an avoidance
     // at once, an attack on a failure (its damage or effect clears them as before); healing and repair keep theirs (П2)
     if (kind === "click" && ["roll", "aspect", "modasp", "sitasp", "nearasp", "luck"].includes(key) && out?.R?.last

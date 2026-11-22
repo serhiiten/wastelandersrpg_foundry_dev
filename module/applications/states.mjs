@@ -5,6 +5,7 @@
  */
 import { STATES, putState, tickStates, immuneTo, stunnedBefore, markStunned, stateWords } from "../rules/states.mjs";
 import { targetProfile } from "../rules/target-profile.mjs";
+import { dropCovers, isCoverText } from "../rules/cover.mjs";
 import { applyDamage, statesOf, postSplit, applyCard } from "./apply-damage.mjs";
 import { isPublicMode } from "./chat.mjs";
 import { chatType } from "../rules/battle.mjs";
@@ -123,6 +124,14 @@ export async function tickRound(r) {
   const open = { rows: [], said: [] }, hid = { rows: [], said: [] };
   for (const { uuid, tok, actor } of carriers(scene)) {
     const { rows, said } = hiddenRow(tok, pub) ? hid : open;
+    // «Прикритий: …» (П3 3.2) lasts its round: every cover goes at ▶ (one given now is the next round's only after it)
+    if (actor.type === "character") {
+      const c = dropCovers(actor.system.situational);
+      if (c.gone.length) {
+        await actor.update({ "system.situational": c.list });
+        for (const t of c.gone) said.push(`${tok?.name || actor.name}: аспект «${t}» зник.`);
+      }
+    }
     const flag = actor.getFlag(sys(), "states");
     if (!Array.isArray(flag) || !flag.length) continue;
     const active = statesOf(actor);
@@ -169,11 +178,14 @@ export async function clearAllStates(scene = canvas?.scene) {
     // the other situational aspects stay (author, 2026-11-20)
     const texts = actor.type === "character" ? (actor.system.situational ?? []).map((x) => x.name) : (actor.system.aspects ?? []).map((x) => x.t);
     const drop = Object.keys(STATES).filter((k) => texts.includes(STATES[k].aspect));
-    if (!states.length && !drop.length && !f.statesOnce && !f.lastKill && !f.buffs && !f.cover) continue;
+    // «Прикритий: …» (П3 3.2) goes too
+    const covers = actor.type === "character" ? texts.filter(isCoverText) : [];
+    if (!states.length && !drop.length && !covers.length && !f.statesOnce && !f.lastKill && !f.buffs && !f.cover) continue;
     const upd = { ...(drop.length ? aspectUpdate(actor, [], drop) : {}) };
+    if (covers.length) upd["system.situational"] = dropCovers(upd["system.situational"] ?? actor.system.situational).list;
     for (const k of ["states", "statesOnce", "lastKill", "buffs", "cover"]) if (f[k] !== undefined) upd[`flags.${sys()}.${k}`] = _del; // not «-=» (deprecated since Foundry 14)
     await actor.update(upd);
-    if (drop.length) out.push({ actor, name: tok?.name || actor.name, img: tok?.texture?.src || actor.img, gone: drop.map((k) => STATES[k].aspect), hidden: !!tok?.hidden });
+    if (drop.length || covers.length) out.push({ actor, name: tok?.name || actor.name, img: tok?.texture?.src || actor.img, gone: [...drop.map((k) => STATES[k].aspect), ...covers], hidden: !!tok?.hidden });
   }
   return out; // [{actor, name, img, gone: [aspect texts], hidden: a hidden token's}]
 }
