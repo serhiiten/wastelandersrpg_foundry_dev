@@ -2030,3 +2030,6 @@
 /* «Шкода» too long for half a weapon card (author, 2026-11-22; 4.6; fitDmg): the pair takes a row of its own, the whole card wide */
 .pust-gc > .pust-gf2.dmg-wide { grid-column: 1 / -1; }
 .wastelanders .pust-gc .pust-gf2.dmg-wide textarea.pust-dmg-in { text-align: left; padding-left: 6px !important; }
+/* the enemy card's quick aspects (author, 2026-11-22; 4.2): the character sheet's ochre buttons (.pust-sitq), under the chips */
+.pust-en .pust-en-quick.pust-sitq { margin: 6px 0 0; gap: 4px; }
+.wastelanders .pust-en .pust-en-card .pust-sitq button.pust-en-q:not(.header-control) { height: 24px !important; line-height: 22px !important; padding: 0 8px !important; }
