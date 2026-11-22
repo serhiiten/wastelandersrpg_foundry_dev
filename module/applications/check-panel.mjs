@@ -285,6 +285,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    *  bound at the roll, never by comparing the player's clock with the card's) */
   #sent = null;
   #sending = false;
+  /** the verdict on its way to the GM (A1), for an ОД press that must wait for it (П3 3.3) */
+  #sendP = null;
   bindPend(b) { this.#pend = b?.msg && b?.row ? { msg: b.msg, row: b.row } : null; return this; }
   get pendMsgId() { return this.#pend?.msg ?? null; }
 
@@ -1241,8 +1243,19 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // after it sends the new one (15+ closes the row by itself, author 2026-11-20)
     if (this.#sending && this.#sent) {
       const to = this.#sent;
-      try { await waitDice(msg); await answerPending(to.msg, to.row, { op: "rolled", verdict: nl.verdict }); }
-      finally { this.#sending = false; if (this.rendered) this.render(); }
+      this.#sendP = (async () => {
+        try { await waitDice(msg); await answerPending(to.msg, to.row, { op: "rolled", verdict: nl.verdict }); }
+        finally { this.#sending = false; if (this.rendered) this.render(); }
+      })();
+      await this.#sendP;
+    }
+    // П3 3.3 (author, 2026-11-22): with «ОД за невдачу нараховується само» off, the ОД button of a failed avoidance accepts
+    // the failure — the waiting attack's full damage lands, as «Отримати повну шкоду» would
+    if (kind === "click" && key === "xp" && !autoXpOn() && node?.dataset?.k !== "sav" && nl?.type === "dodge" && nl.verdict === 0 && this.#sent) {
+      const to = this.#sent;
+      if (this.#sendP) await this.#sendP.catch(() => {});
+      await answerPending(to.msg, to.row, { op: "apply" });
+      if (this.rendered) this.render();
     }
     // «Завдати шкоди»: the rolled damage goes to the targets at once (author, 2026-11-17)
     // A8: with the fold open the roll waits for the split (one type only: a hit of several types is dealt in full, as before)
