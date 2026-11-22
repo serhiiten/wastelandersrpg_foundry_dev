@@ -591,3 +591,10 @@
   background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)) !important; color: var(--pu-amber, #ffd84a) !important;
   border-color: var(--pu-steel-0) !important; box-shadow: 0 2px 0 var(--pu-steel-0) !important; }
 .wastelanders .pust-roller .travelb.on svg { color: var(--pu-amber, #ffd84a); }
+/* «Замінити?» (author, 2026-11-22, П1 1.5): the pressed button over an unfinished result, its own size kept (as «Точно?»), for 3 s */
+button.pust-replace.pust-replace { display: inline-flex !important; align-items: center; justify-content: center; gap: 5px; overflow: hidden; white-space: nowrap;
+  background: linear-gradient(180deg, #c8301f, #8a2419) !important; border-color: #ff7a6b !important; color: #fff !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,.5), 0 0 8px rgba(255,90,60,.55) !important; }
+button.pust-replace > span { overflow: hidden; text-overflow: ellipsis; }
+/* opened without a button (a macro, a link): the line over the strip's button */
+.pust-roller .pust-intent > small.pust-replace-note { color: var(--pu-red-ink); font-weight: 700; overflow-wrap: anywhere; }

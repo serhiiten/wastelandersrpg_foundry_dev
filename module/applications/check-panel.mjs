@@ -159,15 +159,61 @@ function pickedKey(L, r, v) {
   return presetKey(r, list?.[+v]?.l);
 }
 
-export function openCheckPanel(actor, preset = {}) {
-  let app = OPEN.get(actor.uuid);
-  if (!app) {
-    app = new CheckPanel({ actor });
-    OPEN.set(actor.uuid, app);
+/**
+ * Open «Зробити перевірку» (author, 2026-11-22, П1 1.5): a player's own character in the docked panel on the left (the map
+ * dock's «Зробити перевірку»), the GM and anyone else in the window. `btn` — the button pressed (the sheet's, the attack
+ * card's «Уникнути»): over an unfinished result (an attack's damage or effect not dealt) it turns into «Замінити?» of its own
+ * size for 3 s, and the second press replaces; opened without a button (a macro, a link) the panel says so in a line, and the
+ * same opening again within 3 s replaces. Returns the panel (the attack card binds its avoidance to it).
+ */
+export function openCheckPanel(actor, preset = {}, { btn = null } = {}) {
+  const dockBtn = document.querySelector("#pust-mapdock .pust-md-check");
+  const route = routeOf({ isGM: game.user.isGM, owned: ownCharacters().includes(actor), dockReady: !!dockBtn && !dockBtn.hidden });
+  let app;
+  if (route === "dock") {
+    dockActorId = actor.id;
+    if (!DOCKED?.rendered) { DOCKED = new DockedCheckPanel({ actor }); DOCKED.anchor = dockBtn.getBoundingClientRect(); }
+    else DOCKED.actor = actor;
+    app = DOCKED;
+  } else {
+    app = OPEN.get(actor.uuid);
+    if (!app) {
+      app = new CheckPanel({ actor });
+      OPEN.set(actor.uuid, app);
+    }
+  }
+  // anything chosen (the sheet's plain button too: its preset starts a new check) over an unfinished result asks first
+  if (Object.keys(preset).length && app.hasUnfinished() && !askReplace(btn, actor, preset)) {
+    if (btn?.tagName !== "BUTTON") app.replaceNote();
+    app.render({ force: true }).then(() => dockBtn?.classList.toggle("on", dockCheckOpen()));
+    return app;
   }
   app.preset(preset);
-  app.render({ force: true });
+  app.render({ force: true }).then(() => dockBtn?.classList.toggle("on", dockCheckOpen()));
   return app;
+}
+
+/** «Замінити?» (П1 1.5): false on the first press (the button turns, or the panel's line shows), true on the second within 3 s */
+const REPLACE_MS = 3000;
+let REPLACE = null;
+function askReplace(btn, actor, preset) {
+  const key = `${actor.uuid}|${JSON.stringify(preset)}`;
+  if (REPLACE && REPLACE.key === key && Date.now() - REPLACE.at < REPLACE_MS) { REPLACE.undo?.(); REPLACE = null; return true; }
+  REPLACE?.undo?.();
+  REPLACE = { key, at: Date.now(), undo: null };
+  // only a real button turns into «Замінити?» of its own size; a small link or icon has no room for the word
+  if (btn?.tagName === "BUTTON" && btn.isConnected) {
+    const r = btn.getBoundingClientRect(), html = btn.innerHTML, w = btn.style.width, h = btn.style.height;
+    btn.style.width = `${r.width}px`;
+    btn.style.height = `${r.height}px`;
+    btn.classList.add("pust-replace");
+    btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>Замінити?</span>`;
+    btn.title = "У перевірці є незавершений результат (шкоду чи ефект не застосовано). Натисни ще раз, щоб замінити його";
+    const undo = () => { clearTimeout(t); btn.classList.remove("pust-replace"); btn.innerHTML = html; btn.style.width = w; btn.style.height = h; btn.removeAttribute("title"); };
+    const t = setTimeout(() => { undo(); if (REPLACE?.key === key) REPLACE = null; }, REPLACE_MS);
+    REPLACE.undo = undo;
+  }
+  return false;
 }
 
 /**
@@ -218,6 +264,19 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   #sending = false;
   bindPend(b) { this.#pend = b?.msg && b?.row ? { msg: b.msg, row: b.row } : null; return this; }
   get pendMsgId() { return this.#pend?.msg ?? null; }
+
+  /** An attack's result whose damage or effect is still to be dealt (П1 1.5: a new check asks «Замінити?» first) */
+  hasUnfinished() {
+    const { L } = evaluate(this.actor);
+    const last = this.#load(L).last;
+    return unfinished(last, !!last && this.#fx.time === last.time && !!this.#fx.done);
+  }
+  /** The line over «Інша перевірка» for 3 s: the check was opened over an unfinished result (a macro, a link) */
+  #replaceUntil = 0;
+  replaceNote() {
+    this.#replaceUntil = Date.now() + REPLACE_MS;
+    setTimeout(() => { if (this.rendered) this.render(); }, REPLACE_MS + 50);
+  }
 
   /** The bound attack's record and row, while «Уникнення шкоди» is the check's type */
   #pendNow(R, rebind = false) {
@@ -928,7 +987,9 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const bar = document.createElement("div");
       bar.className = "pust-rgo-bar";
       go.before(bar);
-      bar.innerHTML = `<div class="pust-intent"><b>${esc(this.#intent(root))}</b><small class="pust-tgthint" hidden>${esc(NO_TARGETS)}</small></div>`;
+      const note = Date.now() < this.#replaceUntil
+        ? `<small class="pust-replace-note" role="status"><i class="fa-solid fa-triangle-exclamation"></i> Шкоду чи ефект атаки ще не застосовано. Відкрий цю перевірку ще раз протягом 3 секунд, щоб замінити результат.</small>` : "";
+      bar.innerHTML = `<div class="pust-intent"><b>${esc(this.#intent(root))}</b><small class="pust-tgthint" hidden>${esc(NO_TARGETS)}</small>${note}</div>`;
       bar.append(go);
     }
     // after a roll: the set-up folds (not in the tour's example, whose steps show the set-up)
