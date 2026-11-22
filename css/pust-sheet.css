@@ -2023,3 +2023,7 @@
 .pust-mn-sw { width: 24px; height: 24px; }
 .wastelanders .pust-en .pust-en-edrow > button.pust-en-x:not(.header-control) { width: 24px !important; height: 24px !important; flex: 0 0 24px; }
 .wastelanders .pust-gf2 > a.pust-roll, .wastelanders .pust-gc-head > a.pust-roll { min-width: 24px; min-height: 24px; display: inline-flex; align-items: center; justify-content: center; }
+/* «Купити» and «Додати» one size (author, 2026-11-22; 4.5): one height, font and padding; in every catalogue row the button
+   column has one width, with a price or without, so «Додати» lines up under «Купити» down the whole list */
+.wastelanders .pust-cat-row > button:is(.pust-buy, .pust-pick-add):not(.header-control) { height: 26px !important; line-height: 24px !important;
+  padding: 0 9px !important; font-size: 12.5px; font-weight: 700; min-width: 9.5em; justify-content: center; box-sizing: border-box; }
