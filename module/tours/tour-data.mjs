@@ -8,7 +8,7 @@
  */
 import { TOUR_DESCRIPTIONS, TOUR_TEXTS } from "./tour-texts.mjs";
 
-export const HELP_VERSION = 117;
+export const HELP_VERSION = 118;
 
 const CHAR = ".pust-sheet:not(.pust-caravan-sheet):not(.pust-en-sheet):not(.pust-place-sheet)";
 const CAR = ".pust-caravan-sheet";
@@ -170,12 +170,12 @@ export const TOURS = [
     id: "pl-check", next: ["pl-panels"], title: "Зробити перевірку", description: "",
     steps: [
       S("button", "«Зробити перевірку» на аркуші й панелі; коли кидати за правилами.", { selector: `${CHAR} .pust-check-btn`, prepare: ["closeAll", "sheet:pc"], tooltipDirection: "LEFT" }),
-      S("attr", "Атрибут і навичка; кістка навички замінює меншу.", { selector: ".pust-demo-check .rgrp:has(.rats), .pust-demo-check .rgrp:has(#r-skill)", union: true, prepare: ["closeAll", "checkDemo:roll"], tooltipDirection: "RIGHT" }),
-      S("type", "«Стандартні дії»: як читається результат (атрибут і навичка не змінюються); повторний клік — звичайна перевірка.", { selector: ".pust-demo-check .rpre.pust-std", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
-      S("presets", "Готові перевірки й «Перевірка подорожі».", { selector: ".pust-demo-check .rpre.rgr:not(.pust-std), .pust-demo-check .travelb", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
-      S("perks", "Перки з власною перевіркою.", { selector: ".pust-demo-check .rpre.psi", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
-      S("mods", "Посилення, Послаблення, Модифікатор за правилами.", { selector: ".pust-demo-check .rmods", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
-      S("roll", "«Кинути перевірку»: картка в чаті.", { selector: ".pust-demo-check .rgo", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
+      S("attr", "Атрибут і навичка; кістка навички замінює меншу.", { selector: ".pust-demo-check .rgrp:has(.rats), .pust-demo-check .rgrp:has(#r-skill)", union: true, prepare: ["closeAll", "checkDemo:setup"], tooltipDirection: "RIGHT" }),
+      S("type", "«Стандартні дії»: як читається результат (атрибут і навичка не змінюються); повторний клік — звичайна перевірка.", { selector: ".pust-demo-check .rpre.pust-std", prepare: "checkDemo:setup", tooltipDirection: "RIGHT" }),
+      S("presets", "Готові перевірки й «Перевірка подорожі»; обрана лишається натиснутою.", { selector: ".pust-demo-check .rpre.rgr:not(.pust-std), .pust-demo-check .travelb", union: true, prepare: "checkDemo:setup", tooltipDirection: "RIGHT" }),
+      S("perks", "Перки з власною перевіркою.", { selector: ".pust-demo-check .rpre.psi", prepare: "checkDemo:setup", tooltipDirection: "RIGHT" }),
+      S("mods", "Посилення, Послаблення, Модифікатор за правилами.", { selector: ".pust-demo-check .rmods", prepare: "checkDemo:setup", tooltipDirection: "RIGHT" }),
+      S("roll", "«Кинути перевірку»: картка в чаті; після кидка згортка й «Інша перевірка», без повтору.", { selector: ".pust-demo-check .rgo", prepare: "checkDemo:setup", tooltipDirection: "RIGHT" }),
       S("result", "Результат: вердикт, сума з діапазонами, кістки, що означає для виду; діапазони за правилами, ОД за невдачу.", { selector: ".pust-demo-check .rres > :is(.rdice, .rvhead, .rverd, .rdesc)", union: true, prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("aspects", "Виклик аспекту після кидка: +1d10, чим платиться, коли не можна.", { selector: ".pust-demo-check .rasp", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
       S("effects", "Ефекти атаки: що дає кожен результат.", { selector: ".pust-demo-check .rfx", prepare: "checkDemo:roll", tooltipDirection: "RIGHT" }),
@@ -186,7 +186,7 @@ export const TOURS = [
   {
     id: "pl-panels", next: ["pl-battle"], title: "Твої панелі", description: "",
     steps: [
-      S("check", "«Зробити перевірку» на панелі: те саме вікно під кнопкою, за твого персонажа.", { selector: `${DOCK} .pust-md-check, #pust-check-dock`, union: true, prepare: ["closeAll", "scene:map", "dockDemo", "dockCheck"], tooltipDirection: "RIGHT" }),
+      S("check", "«Зробити перевірку» на панелі: перевірка під кнопкою, за твого персонажа; сюди ж аркуш, макроси, «Уникнути»; «Замінити?».", { selector: `${DOCK} .pust-md-check, #pust-check-dock`, union: true, prepare: ["closeAll", "scene:map", "dockDemo", "dockCheck"], tooltipDirection: "RIGHT" }),
       S("dice", "«Кістки»: N×d6/d8/d10/dN у чат.", { selector: `${DOCK} [data-unit="dice"]`, prepare: "unfold:dice", tooltipDirection: "LEFT",  }),
       S("fate", "«Доля»: кістка Долі за свого персонажа; за іншого — познач його ціллю (T).", { selector: `${DOCK} [data-mapdice="fate"]`, tooltipDirection: "LEFT",  }),
       S("fd", "«Витратити ЖД» / «Отримати ЖД»: лічильник персонажа й картка в чаті.", { selector: `${DOCK} .pust-md-fdspend:not(.pust-md-supspend)`, prepare: "dockDemo", tooltipDirection: "LEFT",  }),

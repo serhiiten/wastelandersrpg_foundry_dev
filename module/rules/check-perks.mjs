@@ -1,5 +1,5 @@
 /**
- * The perks that change a check already rolled, as buttons left of «Повторити перевірку» (author, 2026-11-21, mockup 3;
+ * The perks that change a check already rolled, as buttons left of «Інша перевірка» (П1, 2026-11-22: once «Повторити перевірку») (author, 2026-11-21, mockup 3;
  * wiki «Перки»). Pure: no Foundry (tests/check-perks.test.mjs). The panel is check-panel.mjs.
  *   «Бісова штуковина!» — «Раз за сцену ти можеш повністю перекинути будь-яку перевірку, пов'язану зі зламом замків чи
  *     взаємодією з комп'ютерами…»: offered on «Звичайна перевірка», «Подолання труднощів», «Створення переваги» and

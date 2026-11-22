@@ -774,11 +774,15 @@ const SCENARIOS = {
 
   /** «Зробити перевірку» open after a hit: the weapon chips and «Кинути й завдати» (author, 2026-11-17; nothing is rolled here) */
   async checkPanel(a) {
-    // the row under a result: «Щасливець» / «Бісова штуковина!» left of «Повторити перевірку» (author, 2026-11-21, mockup 3;
-    // at 460 px it overflowed once: the paper button rule overrode their size)
+    // the row under a result: «Щасливець» / «Бісова штуковина!» left of «Інша перевірка» (author, 2026-11-21, mockup 3;
+    // at 460 px it overflowed once: the paper button rule overrode their size); П1 2026-11-22: the roll button hidden there
     const bar = document.querySelector(".pust-roller.pust-folded .pust-rgo-bar");
     if (bar) {
-      const btns = [...bar.querySelectorAll("button")];
+      const btns = [...bar.querySelectorAll("button")].filter((b) => !b.hidden);
+      a.ok("під результатом «Інша перевірка», а не «Кинути перевірку»", !!bar.querySelector(".pust-other") && !btns.some((b) => b.matches(".rgo")));
+      // П1 1.2: the hint on the left stays left of the buttons
+      const hint = bar.querySelector(".pust-intent"), first = btns[0];
+      if (hint && first && R(hint).width) a.ok("текст ліворуч не заходить під кнопки", R(hint).right <= R(first).left + 1 && hint.scrollWidth <= hint.clientWidth + 1, `${Math.round(R(hint).right)} / ${Math.round(R(first).left)}`);
       a.onScreen(btns);
       a.noCut(bar, "button");
       a.readable(bar, "button");

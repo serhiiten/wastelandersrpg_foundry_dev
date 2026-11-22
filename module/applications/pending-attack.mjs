@@ -215,7 +215,7 @@ async function onClick(ev, message, pend) {
     const actor = row.actor ? await fromUuid(row.actor) : null;
     if (!actor) return;
     const { openCheckPanel } = await import("./check-panel.mjs");
-    openCheckPanel(actor, { type: "dodge", attr: pend.attr }).bindPend({ msg: message.id, row: id });
+    openCheckPanel(actor, { type: "dodge", attr: pend.attr }, { btn: b }).bindPend({ msg: message.id, row: id });
     return;
   }
   b.disabled = true;

@@ -14,6 +14,7 @@ import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-c
 import { attackMode, choiceEmpOnly, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { clearTargets, sendDamage, sendEffects, sendSplitDamage } from "./apply-damage.mjs";
+import { keepTargets, presetKey, presetOfWeapon, routeOf, unfinished } from "../rules/check-route.mjs";
 import { clampShare, effectTargetIdle, evenSplit, splitBlock, splitLeft } from "../rules/damage-split.mjs";
 import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx, coverActive } from "../rules/attack-effects.mjs";
 import { sharedGet } from "../helpers/scene-shared.mjs";
@@ -150,15 +151,69 @@ for (const h of ["updateChatMessage", "createChatMessage"]) Hooks.on(h, (m) => {
 });
 for (const h of ["createItem", "updateItem", "deleteItem"]) Hooks.on(h, (item) => redrawPanels(item?.parent));
 
-export function openCheckPanel(actor, preset = {}) {
-  let app = OPEN.get(actor.uuid);
-  if (!app) {
-    app = new CheckPanel({ actor });
-    OPEN.set(actor.uuid, app);
+/** The pressed ready check of each character's panel (author, 2026-11-22, П1 1.3): «preset:<name>» / «xpreset:<name>» */
+const PICKED = new Map();
+/** The key of the ready check `r` / `v` (an index into the engine's list) */
+function pickedKey(L, r, v) {
+  const list = r === "preset" ? L.ROLL_PRESETS : r === "xpreset" ? L.extraPresets() : null;
+  return presetKey(r, list?.[+v]?.l);
+}
+
+/**
+ * Open «Зробити перевірку» (author, 2026-11-22, П1 1.5): a player's own character in the docked panel on the left (the map
+ * dock's «Зробити перевірку»), the GM and anyone else in the window. `btn` — the button pressed (the sheet's, the attack
+ * card's «Уникнути»): over an unfinished result (an attack's damage or effect not dealt) it turns into «Замінити?» of its own
+ * size for 3 s, and the second press replaces; opened without a button (a macro, a link) the panel says so in a line, and the
+ * same opening again within 3 s replaces. Returns the panel (the attack card binds its avoidance to it).
+ */
+export function openCheckPanel(actor, preset = {}, { btn = null } = {}) {
+  const dockBtn = document.querySelector("#pust-mapdock .pust-md-check");
+  const route = routeOf({ isGM: game.user.isGM, owned: ownCharacters().includes(actor), dockReady: !!dockBtn && !dockBtn.hidden });
+  let app;
+  if (route === "dock") {
+    dockActorId = actor.id;
+    if (!DOCKED?.rendered) { DOCKED = new DockedCheckPanel({ actor }); DOCKED.anchor = dockBtn.getBoundingClientRect(); }
+    else DOCKED.actor = actor;
+    app = DOCKED;
+  } else {
+    app = OPEN.get(actor.uuid);
+    if (!app) {
+      app = new CheckPanel({ actor });
+      OPEN.set(actor.uuid, app);
+    }
+  }
+  // anything chosen (the sheet's plain button too: its preset starts a new check) over an unfinished result asks first
+  if (Object.keys(preset).length && app.hasUnfinished() && !askReplace(btn, actor, preset)) {
+    if (btn?.tagName !== "BUTTON") app.replaceNote();
+    app.render({ force: true }).then(() => dockBtn?.classList.toggle("on", dockCheckOpen()));
+    return app;
   }
   app.preset(preset);
-  app.render({ force: true });
+  app.render({ force: true }).then(() => dockBtn?.classList.toggle("on", dockCheckOpen()));
   return app;
+}
+
+/** «Замінити?» (П1 1.5): false on the first press (the button turns, or the panel's line shows), true on the second within 3 s */
+const REPLACE_MS = 3000;
+let REPLACE = null;
+function askReplace(btn, actor, preset) {
+  const key = `${actor.uuid}|${JSON.stringify(preset)}`;
+  if (REPLACE && REPLACE.key === key && Date.now() - REPLACE.at < REPLACE_MS) { REPLACE.undo?.(); REPLACE = null; return true; }
+  REPLACE?.undo?.();
+  REPLACE = { key, at: Date.now(), undo: null };
+  // only a real button turns into «Замінити?» of its own size; a small link or icon has no room for the word
+  if (btn?.tagName === "BUTTON" && btn.isConnected) {
+    const r = btn.getBoundingClientRect(), html = btn.innerHTML, w = btn.style.width, h = btn.style.height;
+    btn.style.width = `${r.width}px`;
+    btn.style.height = `${r.height}px`;
+    btn.classList.add("pust-replace");
+    btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>Замінити?</span>`;
+    btn.title = "У перевірці є незавершений результат (шкоду чи ефект не застосовано). Натисни ще раз, щоб замінити його";
+    const undo = () => { clearTimeout(t); btn.classList.remove("pust-replace"); btn.innerHTML = html; btn.style.width = w; btn.style.height = h; btn.removeAttribute("title"); };
+    const t = setTimeout(() => { undo(); if (REPLACE?.key === key) REPLACE = null; }, REPLACE_MS);
+    REPLACE.undo = undo;
+  }
+  return false;
 }
 
 /**
@@ -209,6 +264,19 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   #sending = false;
   bindPend(b) { this.#pend = b?.msg && b?.row ? { msg: b.msg, row: b.row } : null; return this; }
   get pendMsgId() { return this.#pend?.msg ?? null; }
+
+  /** An attack's result whose damage or effect is still to be dealt (П1 1.5: a new check asks «Замінити?» first) */
+  hasUnfinished() {
+    const { L } = evaluate(this.actor);
+    const last = this.#load(L).last;
+    return unfinished(last, !!last && this.#fx.time === last.time && !!this.#fx.done);
+  }
+  /** The line over «Інша перевірка» for 3 s: the check was opened over an unfinished result (a macro, a link) */
+  #replaceUntil = 0;
+  replaceNote() {
+    this.#replaceUntil = Date.now() + REPLACE_MS;
+    setTimeout(() => { if (this.rendered) this.render(); }, REPLACE_MS + 50);
+  }
 
   /** The bound attack's record and row, while «Уникнення шкоди» is the check's type */
   #pendNow(R, rebind = false) {
@@ -288,6 +356,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // a ready check (a hotbar macro; author, 2026-11-17): as a press of its button
     if (p.r) L.rollerClick({ tagName: "BUTTON", dataset: { r: p.r, v: String(p.v) } });
+    // the pressed ready check (П1 1.3): a ready check by itself, a weapon / grenade by its kind; an attribute or skill — none
+    if (Object.keys(p).length) {
+      const wi = p.weapon != null && st.weapons[+p.weapon] ? presetOfWeapon(L.weaponKind({ key: `w${p.weapon}`, w: st.weapons[+p.weapon] })) : null;
+      const k = p.r ? pickedKey(L, p.r, p.v) : wi != null ? pickedKey(L, "preset", wi) : p.other != null && st.other[+p.other] ? pickedKey(L, "preset", presetOfWeapon("grenade")) : null;
+      PICKED.set(this.actor.uuid, k);
+    }
     if (Object.keys(p).length) {
       R.last = null;
       R.am = {};
@@ -797,10 +871,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const b = ev.target.closest("[data-r]");
       if (!b || b.tagName === "SELECT" || b.tagName === "INPUT" || b.disabled) return;
       ev.preventDefault();
+      if (b.classList.contains("pust-skchip") || b.classList.contains("pust-stdb")) PICKED.delete(this.actor.uuid);
       if (b.classList.contains("pust-wchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the weapon chips stand for the list
       if (b.classList.contains("pust-skchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the skill chips too
       // «Стандартні дії» stand for the list «Вид перевірки»: the same change; the pressed one again → «Звичайна перевірка»
       if (b.classList.contains("pust-stdb")) { this.#run("change", { tagName: "SELECT", dataset: { r: "type" }, value: b.classList.contains("on") ? "gen" : b.value }); return; }
+      // the pressed ready check (П1 1.3): a ready check presses itself; a hand-picked attribute, skill or type lets it go
+      if (["preset", "xpreset"].includes(b.dataset.r)) PICKED.set(this.actor.uuid, pickedKey(evaluate(this.actor).L, b.dataset.r, b.dataset.v));
+      else if (["attr", "skill", "type"].includes(b.dataset.r)) PICKED.delete(this.actor.uuid);
       if (b.dataset.r === "roll") this.#setupOpen = false; // a new result: the set-up folds again
       if (b.dataset.r === "dmg" && !game.user.targets.size) return notify.warn(NO_TARGETS);
       // A8: the fold open and two targets or more — this roll waits for the split
@@ -845,6 +923,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         return;
       }
       const t = ev.target.closest("[data-r]");
+      if (t && ["attr", "skill", "type"].includes(t.dataset.r)) PICKED.delete(this.actor.uuid);
       if (t) this.#run("change", t);
     });
   }
@@ -876,6 +955,16 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       if (first) first.insertAdjacentHTML("beforebegin", row);
       else typeGrp.insertAdjacentHTML("beforebegin", row);
     }
+    // the pressed ready check (author, 2026-11-22, П1 1.3): a steel plate with amber text, as in «Стандартні дії»
+    const pk = PICKED.get(this.actor.uuid);
+    if (pk) {
+      const { L: kL } = evaluate(this.actor);
+      root.querySelectorAll('button[data-r="preset"], button[data-r="xpreset"]').forEach((b) => {
+        const on = pickedKey(kL, b.dataset.r, b.dataset.v) === pk;
+        b.classList.toggle("on", on);
+        b.setAttribute("aria-pressed", String(on));
+      });
+    }
     // the ready check's hint (R.hint, right before the attributes) goes with «Вид перевірки»; the other notes (.rhint of
     // poison, chems, «Воно саме виходить») stay with the automatic conditions
     const th = root.querySelector(":scope > .rgrp:has(.rats)")?.previousElementSibling;
@@ -898,18 +987,21 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const bar = document.createElement("div");
       bar.className = "pust-rgo-bar";
       go.before(bar);
-      bar.innerHTML = `<div class="pust-intent"><b>${esc(this.#intent(root))}</b><small class="pust-tgthint" hidden>${esc(NO_TARGETS)}</small></div>`;
+      const note = Date.now() < this.#replaceUntil
+        ? `<small class="pust-replace-note" role="status"><i class="fa-solid fa-triangle-exclamation"></i> Шкоду чи ефект атаки ще не застосовано. Відкрий цю перевірку ще раз протягом 3 секунд, щоб замінити результат.</small>` : "";
+      bar.innerHTML = `<div class="pust-intent"><b>${esc(this.#intent(root))}</b><small class="pust-tgthint" hidden>${esc(NO_TARGETS)}</small>${note}</div>`;
       bar.append(go);
     }
     // after a roll: the set-up folds (not in the tour's example, whose steps show the set-up)
     const res = root.querySelector(":scope > .rres");
-    if (res && !this.actor.pustTourDemo && !this.element.classList.contains("pust-demo-check")) {
+    // the tour's example folds too (author, 2026-11-22, П1 1.6: it showed the old look); its set-up steps use the stage «setup»
+    if (res && !this.actor.pustTourDemo) {
       root.classList.toggle("pust-folded", !this.#setupOpen);
-      // folded, the button rolls the same check again, with the same Посилення / Послаблення / modifier (author, 2026-11-18)
+      // folded (author, 2026-11-22, П1 1.1): no rolling the same check again — the strip has «Інша перевірка» in place of
+      // «Кинути перевірку» (narrow, rust): it opens the set-up with Посилення / Послаблення / Модифікатор from 0; only
+      // «Бісова штуковина!» rerolls («перекинути»). The fold line keeps only what was rolled
       if (!this.#setupOpen && go) {
-        const txt = [...go.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && /Кинути перевірку/.test(n.textContent));
-        if (txt) txt.textContent = "Повторити перевірку";
-        go.title = "Кинути ту саму перевірку ще раз, з тими самими Посиленнями, Послабленнями й модифікатором";
+        go.hidden = true;
         // «Щасливець» and «Бісова штуковина!» (author, 2026-11-21, mockup 3): small buttons left of it, while the perk is unused
         const { st: pst, L: pL } = evaluate(this.actor);
         const plast = this.#load(pL).last, perks = compute(pst).allPerks || [], pc = pst.chem || {};
@@ -918,27 +1010,28 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
           ? btn("lucky", "Щасливець<br>+1 ступінь", "Щасливець, раз за сесію: підвищити результат цієї перевірки на один ступінь. ОД за невдачу тоді не буде.") : "")
           + (kickOffer(plast, perks, isUsed(USE_BY_ID.kick, pc))
             ? btn("kick", "Бісова штуковина!<br>перекинути", "Бісова штуковина!, раз за сцену: повністю перекинути цю перевірку зламу замка чи комп'ютера (гучно). Рахується лише новий кидок: ОД за цей забирається.") : "");
-        if (perkBtns) go.insertAdjacentHTML("beforebegin", perkBtns);
-      }
-      // the fold line: the check type as its own plate, then what is rolled, then «Інша перевірка» as a button
-      // (playtest 2026-11-18, item 3: the type more visible, «змінити» → «Інша перевірка», set apart)
-      const { type, rest } = this.#intentParts(root);
-      const f = document.createElement("button");
-      f.type = "button";
-      f.className = "pust-fold";
-      f.setAttribute("aria-expanded", String(this.#setupOpen));
-      f.innerHTML = `<span>${type ? `<em class="pust-fold-type">${esc(type)}</em>` : ""}${esc(rest)}</span>`
-        + `<b>${this.#setupOpen ? "сховати" : "Інша перевірка"} <i class="fa-solid fa-chevron-${this.#setupOpen ? "up" : "down"}"></i></b>`;
-      f.title = this.#setupOpen ? "Сховати налаштування перевірки" : "Інша перевірка: атрибут, навичка, вид перевірки; Посилення, Послаблення й модифікатор знову з нуля";
-      f.addEventListener("click", () => {
-        this.#setupOpen = !this.#setupOpen;
-        // «Інша перевірка» starts the counters from 0; «Повторити перевірку» keeps them (author, 2026-11-18)
-        if (this.#setupOpen) {
+        const other = `<button type="button" class="btn sm pust-other" title="Інша перевірка: атрибут, навичка, вид перевірки; Посилення, Послаблення й модифікатор знову з нуля"><i class="fa-solid fa-rotate"></i>Інша перевірка</button>`;
+        go.insertAdjacentHTML("beforebegin", perkBtns + other);
+        go.parentElement.querySelector(".pust-other").addEventListener("click", () => {
+          this.#setupOpen = true;
           const R = STATES.get(this.actor.uuid);
           if (R) Object.assign(R, { boost: 0, pen: 0, mod: 0 });
-        }
-        this.render();
-      });
+          this.render();
+        });
+      }
+      // the fold line: the check type as its own plate, then what is rolled; «сховати» only while the set-up is open
+      // (author, 2026-11-22, П1 answer 4: back to the result without a roll)
+      const { type, rest } = this.#intentParts(root);
+      const f = document.createElement(this.#setupOpen ? "button" : "div");
+      f.className = "pust-fold";
+      f.innerHTML = `<span>${type ? `<em class="pust-fold-type">${esc(type)}</em>` : ""}${esc(rest)}</span>`
+        + (this.#setupOpen ? `<b>сховати <i class="fa-solid fa-chevron-up"></i></b>` : "");
+      if (this.#setupOpen) {
+        f.type = "button";
+        f.setAttribute("aria-expanded", "true");
+        f.title = "Сховати налаштування перевірки й повернутися до результату";
+        f.addEventListener("click", () => { this.#setupOpen = false; this.render(); });
+      }
       root.querySelector(":scope > .rwho")?.after(f);
     }
   }
@@ -1064,6 +1157,10 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await postSupIfChanged(this.actor, supWas);
     if (penUsed) await spendCheckStates(this.actor);
     if (coverUsed) await this.actor.unsetFlag(game.system.id, "cover");
+    // the targets go once the result no longer needs them (author, 2026-11-22, П1 1.4, answer А): a plain check or an avoidance
+    // at once, an attack on a failure (its damage or effect clears them as before); healing and repair keep theirs (П2)
+    if (kind === "click" && ["roll", "aspect", "modasp", "sitasp", "nearasp", "luck"].includes(key) && out?.R?.last
+      && !keepTargets(out.R.last, this.#fx.time === out.R.last.time && !!this.#fx.done)) clearTargets();
     this.#toResult = kind === "click" && key === "roll"; // «Кинути перевірку»: the result comes into view
     // an avoidance answering an enemy's attack (A1): the row is chosen now, before the render shows the new roll
     const nl = out.R.last, ol = out.before.last;
@@ -1425,7 +1522,7 @@ class DemoCheckPanel extends CheckPanel {
 let DEMO = null;
 const DEMO_STATES = {};
 
-/** Open (or bring to "roll" / "dmg") the example panel for `actor`; null closes it */
+/** Open (or bring to "setup" / "roll" / "dmg") the example panel for `actor`; null closes it */
 export async function setCheckDemo(actor, stage = "roll") {
   if (!actor) { await DEMO?.close({ animate: false }); DEMO = null; return null; }
   if (!DEMO_STATES.roll || DEMO_STATES.src !== actor) {
@@ -1444,6 +1541,8 @@ export async function setCheckDemo(actor, stage = "roll") {
       if (/class="rres v2"/.test(L.renderRoller())) break;
     }
     DEMO_STATES.roll = clone(L.R);
+    DEMO_STATES.setup = { ...clone(L.R), last: null }; // the same attack before its roll (П1 1.6)
+    PICKED.set(DEMO_STATES.actor.uuid, pickedKey(L, "preset", 0)); // its ready check pressed (П1 1.3)
     L.rollerClick({ tagName: "BUTTON", dataset: { r: "dmg" } });
     DEMO_STATES.dmg = clone(L.R);
   }

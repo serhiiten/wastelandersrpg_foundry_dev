@@ -741,7 +741,7 @@ export class WastelandersCharacterSheetV2 extends HandlebarsApplicationMixin(Act
   }
 
   static #onCheckPanel(event, target) {
-    openCheckPanel(this.document, { ...target.dataset });
+    openCheckPanel(this.document, { ...target.dataset }, { btn: target }); // П1 1.5: «Замінити?» on this button
   }
 
   /** Two-click confirmation; true on the second click */
