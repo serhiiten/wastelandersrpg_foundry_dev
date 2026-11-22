@@ -120,7 +120,7 @@ export class WastelandersToken extends foundry.canvas.placeables.Token {
           // the severity stripe, rounded on the left only, with a dark seam so the light one shows on the yellow
           bg.beginFill(CONS_STRIPE[a.sev] ?? CONS_STRIPE.l, 1).drawRoundedRect(0, 0, stripe * 2, chipH, 3 * s).endFill();
           bg.beginFill(0xe2ad3b, 1).drawRect(stripe, 0, stripe, chipH).endFill();
-          bg.beginFill(0x241a0c, 0.6).drawRect(stripe, 0, Math.max(1, s), chipH).endFill();
+          bg.beginFill(0x241a0c, 0.85).drawRect(stripe, 0, Math.max(1.5, 1.5 * s), chipH).endFill();
         }
         c.addChild(bg);
         const m = new PIXI.Graphics();
