@@ -14,6 +14,7 @@ import { fateSnap, postFateIfChanged, postSupIfChanged, supSnap } from "./fate-c
 import { attackMode, choiceEmpOnly, damageEffects, dieSides, dieTypes, isDamageEffect, partType, splitDiceParts, termTypes, typeChips, weaponDmgType, TYPE_EFFECTS } from "../rules/damage-types.mjs";
 import { atkIgnores, atkIgnoreN, applyParts } from "../rules/battle.mjs";
 import { clearTargets, sendDamage, sendEffects, sendSplitDamage } from "./apply-damage.mjs";
+import { keepTargets, presetKey, presetOfWeapon, routeOf, unfinished } from "../rules/check-route.mjs";
 import { clampShare, effectTargetIdle, evenSplit, splitBlock, splitLeft } from "../rules/damage-split.mjs";
 import { offer as fxOffer, effectOf, effectText, toggle as fxToggle, keep as fxKeep, hitFx, coverActive } from "../rules/attack-effects.mjs";
 import { sharedGet } from "../helpers/scene-shared.mjs";
@@ -149,6 +150,14 @@ for (const h of ["updateChatMessage", "createChatMessage"]) Hooks.on(h, (m) => {
   for (const app of [...OPEN.values(), DOCKED]) if (app?.rendered && app.actor?.isOwner) app.render();
 });
 for (const h of ["createItem", "updateItem", "deleteItem"]) Hooks.on(h, (item) => redrawPanels(item?.parent));
+
+/** The pressed ready check of each character's panel (author, 2026-11-22, П1 1.3): «preset:<name>» / «xpreset:<name>» */
+const PICKED = new Map();
+/** The key of the ready check `r` / `v` (an index into the engine's list) */
+function pickedKey(L, r, v) {
+  const list = r === "preset" ? L.ROLL_PRESETS : r === "xpreset" ? L.extraPresets() : null;
+  return presetKey(r, list?.[+v]?.l);
+}
 
 export function openCheckPanel(actor, preset = {}) {
   let app = OPEN.get(actor.uuid);
@@ -288,6 +297,12 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // a ready check (a hotbar macro; author, 2026-11-17): as a press of its button
     if (p.r) L.rollerClick({ tagName: "BUTTON", dataset: { r: p.r, v: String(p.v) } });
+    // the pressed ready check (П1 1.3): a ready check by itself, a weapon / grenade by its kind; an attribute or skill — none
+    if (Object.keys(p).length) {
+      const wi = p.weapon != null && st.weapons[+p.weapon] ? presetOfWeapon(L.weaponKind({ key: `w${p.weapon}`, w: st.weapons[+p.weapon] })) : null;
+      const k = p.r ? pickedKey(L, p.r, p.v) : wi != null ? pickedKey(L, "preset", wi) : p.other != null && st.other[+p.other] ? pickedKey(L, "preset", presetOfWeapon("grenade")) : null;
+      PICKED.set(this.actor.uuid, k);
+    }
     if (Object.keys(p).length) {
       R.last = null;
       R.am = {};
@@ -797,10 +812,14 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const b = ev.target.closest("[data-r]");
       if (!b || b.tagName === "SELECT" || b.tagName === "INPUT" || b.disabled) return;
       ev.preventDefault();
+      if (b.classList.contains("pust-skchip") || b.classList.contains("pust-stdb")) PICKED.delete(this.actor.uuid);
       if (b.classList.contains("pust-wchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the weapon chips stand for the list
       if (b.classList.contains("pust-skchip")) { if (!b.classList.contains("pust-pick")) this.#run("change", b); return; } // the skill chips too
       // «Стандартні дії» stand for the list «Вид перевірки»: the same change; the pressed one again → «Звичайна перевірка»
       if (b.classList.contains("pust-stdb")) { this.#run("change", { tagName: "SELECT", dataset: { r: "type" }, value: b.classList.contains("on") ? "gen" : b.value }); return; }
+      // the pressed ready check (П1 1.3): a ready check presses itself; a hand-picked attribute, skill or type lets it go
+      if (["preset", "xpreset"].includes(b.dataset.r)) PICKED.set(this.actor.uuid, pickedKey(evaluate(this.actor).L, b.dataset.r, b.dataset.v));
+      else if (["attr", "skill", "type"].includes(b.dataset.r)) PICKED.delete(this.actor.uuid);
       if (b.dataset.r === "roll") this.#setupOpen = false; // a new result: the set-up folds again
       if (b.dataset.r === "dmg" && !game.user.targets.size) return notify.warn(NO_TARGETS);
       // A8: the fold open and two targets or more — this roll waits for the split
@@ -845,6 +864,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         return;
       }
       const t = ev.target.closest("[data-r]");
+      if (t && ["attr", "skill", "type"].includes(t.dataset.r)) PICKED.delete(this.actor.uuid);
       if (t) this.#run("change", t);
     });
   }
@@ -875,6 +895,16 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       const first = root.querySelector(":scope > .rpre.rgr");
       if (first) first.insertAdjacentHTML("beforebegin", row);
       else typeGrp.insertAdjacentHTML("beforebegin", row);
+    }
+    // the pressed ready check (author, 2026-11-22, П1 1.3): a steel plate with amber text, as in «Стандартні дії»
+    const pk = PICKED.get(this.actor.uuid);
+    if (pk) {
+      const { L: kL } = evaluate(this.actor);
+      root.querySelectorAll('button[data-r="preset"], button[data-r="xpreset"]').forEach((b) => {
+        const on = pickedKey(kL, b.dataset.r, b.dataset.v) === pk;
+        b.classList.toggle("on", on);
+        b.setAttribute("aria-pressed", String(on));
+      });
     }
     // the ready check's hint (R.hint, right before the attributes) goes with «Вид перевірки»; the other notes (.rhint of
     // poison, chems, «Воно саме виходить») stay with the automatic conditions

@@ -16,7 +16,7 @@ ok(routeOf() === "window", "nothing known → window");
 ok(presetKey("preset", "СПР + Стрільба (бій на відстані)") === "preset:СПР + Стрільба (бій на відстані)", "preset key by name");
 ok(presetKey("xpreset", " Псионік ") === "xpreset:Псионік", "perk key trimmed");
 ok(presetKey("roll", "x") === null && presetKey("preset", "") === null, "not a ready check → null");
-ok(presetOfWeapon("ranged") === 0 && presetOfWeapon("melee") === 1 && presetOfWeapon("grenade") === 2, "weapon kinds → presets");
+ok(presetOfWeapon("ranged") === 0 && presetOfWeapon("melee") === 1 && presetOfWeapon("grenade") === 2 && presetOfWeapon("explosive") === 2, "weapon kinds → presets");
 ok(presetOfWeapon("psi") === null && presetOfWeapon(undefined) === null, "unknown kind → none pressed");
 
 // 1.5 «Замінити?»: an attack with damage still to come

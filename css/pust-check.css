@@ -585,3 +585,9 @@
 .pust-roller .pust-intent > small { overflow-wrap: anywhere; }
 /* the fold line while folded is no button: no hover, no pointer */
 .pust-roller .pust-fold:not(button) { cursor: default; }
+/* the pressed ready check (author, 2026-11-22, П1 1.3): as the pressed «Стандартна дія», a steel plate with amber text, for the
+   attacks, avoidances, «Інші перевірки», perks, «Доповнення» and «Перевірка подорожі» alike */
+.wastelanders .pust-roller .rpre > button.chipb.on, .wastelanders .pust-roller .travelb.on {
+  background: linear-gradient(180deg, var(--pu-steel-2), var(--pu-steel-1)) !important; color: var(--pu-amber, #ffd84a) !important;
+  border-color: var(--pu-steel-0) !important; box-shadow: 0 2px 0 var(--pu-steel-0) !important; }
+.wastelanders .pust-roller .travelb.on svg { color: var(--pu-amber, #ffd84a); }

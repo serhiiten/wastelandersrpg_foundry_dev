@@ -19,9 +19,9 @@ export function presetKey(r, label) {
   return `${r}:${String(label).trim()}`;
 }
 
-/** The ROLL_PRESETS index a weapon / grenade from the sheet stands for: ranged 0, melee 1, grenade 2; else null */
+/** The ROLL_PRESETS index a weapon / grenade from the sheet stands for: ranged 0, melee 1, grenade / explosive 2; else null */
 export function presetOfWeapon(kind) {
-  return kind === "ranged" ? 0 : kind === "melee" ? 1 : kind === "grenade" ? 2 : null;
+  return kind === "ranged" ? 0 : kind === "melee" ? 1 : kind === "grenade" || kind === "explosive" ? 2 : null;
 }
 
 /** The check types whose targets are the healing's or repair's (their own flow, package П2): kept as they are */
