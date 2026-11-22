@@ -905,11 +905,11 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const res = root.querySelector(":scope > .rres");
     if (res && !this.actor.pustTourDemo && !this.element.classList.contains("pust-demo-check")) {
       root.classList.toggle("pust-folded", !this.#setupOpen);
-      // folded, the button rolls the same check again, with the same Посилення / Послаблення / modifier (author, 2026-11-18)
+      // folded (author, 2026-11-22, П1 1.1): no rolling the same check again — the strip has «Інша перевірка» in place of
+      // «Кинути перевірку» (narrow, rust): it opens the set-up with Посилення / Послаблення / Модифікатор from 0; only
+      // «Бісова штуковина!» rerolls («перекинути»). The fold line keeps only what was rolled
       if (!this.#setupOpen && go) {
-        const txt = [...go.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && /Кинути перевірку/.test(n.textContent));
-        if (txt) txt.textContent = "Повторити перевірку";
-        go.title = "Кинути ту саму перевірку ще раз, з тими самими Посиленнями, Послабленнями й модифікатором";
+        go.hidden = true;
         // «Щасливець» and «Бісова штуковина!» (author, 2026-11-21, mockup 3): small buttons left of it, while the perk is unused
         const { st: pst, L: pL } = evaluate(this.actor);
         const plast = this.#load(pL).last, perks = compute(pst).allPerks || [], pc = pst.chem || {};
@@ -918,27 +918,28 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
           ? btn("lucky", "Щасливець<br>+1 ступінь", "Щасливець, раз за сесію: підвищити результат цієї перевірки на один ступінь. ОД за невдачу тоді не буде.") : "")
           + (kickOffer(plast, perks, isUsed(USE_BY_ID.kick, pc))
             ? btn("kick", "Бісова штуковина!<br>перекинути", "Бісова штуковина!, раз за сцену: повністю перекинути цю перевірку зламу замка чи комп'ютера (гучно). Рахується лише новий кидок: ОД за цей забирається.") : "");
-        if (perkBtns) go.insertAdjacentHTML("beforebegin", perkBtns);
-      }
-      // the fold line: the check type as its own plate, then what is rolled, then «Інша перевірка» as a button
-      // (playtest 2026-11-18, item 3: the type more visible, «змінити» → «Інша перевірка», set apart)
-      const { type, rest } = this.#intentParts(root);
-      const f = document.createElement("button");
-      f.type = "button";
-      f.className = "pust-fold";
-      f.setAttribute("aria-expanded", String(this.#setupOpen));
-      f.innerHTML = `<span>${type ? `<em class="pust-fold-type">${esc(type)}</em>` : ""}${esc(rest)}</span>`
-        + `<b>${this.#setupOpen ? "сховати" : "Інша перевірка"} <i class="fa-solid fa-chevron-${this.#setupOpen ? "up" : "down"}"></i></b>`;
-      f.title = this.#setupOpen ? "Сховати налаштування перевірки" : "Інша перевірка: атрибут, навичка, вид перевірки; Посилення, Послаблення й модифікатор знову з нуля";
-      f.addEventListener("click", () => {
-        this.#setupOpen = !this.#setupOpen;
-        // «Інша перевірка» starts the counters from 0; «Повторити перевірку» keeps them (author, 2026-11-18)
-        if (this.#setupOpen) {
+        const other = `<button type="button" class="btn sm pust-other" title="Інша перевірка: атрибут, навичка, вид перевірки; Посилення, Послаблення й модифікатор знову з нуля"><i class="fa-solid fa-rotate"></i>Інша перевірка</button>`;
+        go.insertAdjacentHTML("beforebegin", perkBtns + other);
+        go.parentElement.querySelector(".pust-other").addEventListener("click", () => {
+          this.#setupOpen = true;
           const R = STATES.get(this.actor.uuid);
           if (R) Object.assign(R, { boost: 0, pen: 0, mod: 0 });
-        }
-        this.render();
-      });
+          this.render();
+        });
+      }
+      // the fold line: the check type as its own plate, then what is rolled; «сховати» only while the set-up is open
+      // (author, 2026-11-22, П1 answer 4: back to the result without a roll)
+      const { type, rest } = this.#intentParts(root);
+      const f = document.createElement(this.#setupOpen ? "button" : "div");
+      f.className = "pust-fold";
+      f.innerHTML = `<span>${type ? `<em class="pust-fold-type">${esc(type)}</em>` : ""}${esc(rest)}</span>`
+        + (this.#setupOpen ? `<b>сховати <i class="fa-solid fa-chevron-up"></i></b>` : "");
+      if (this.#setupOpen) {
+        f.type = "button";
+        f.setAttribute("aria-expanded", "true");
+        f.title = "Сховати налаштування перевірки й повернутися до результату";
+        f.addEventListener("click", () => { this.#setupOpen = false; this.render(); });
+      }
       root.querySelector(":scope > .rwho")?.after(f);
     }
   }

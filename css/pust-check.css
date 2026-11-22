@@ -441,7 +441,7 @@
 .pust-roller.pust-folded > .pust-fold { position: sticky; top: 0; z-index: 3; }
 .pust-check-docked > .pust-roller.pust-folded > .pust-fold { top: -8px; } /* the docked panel scrolls itself: over its top padding, no gap */
 .pust-roller.pust-folded > .pust-rgo-bar { order: 9; }
-.wastelanders .pust-roller.pust-folded > button.pust-fold { background: linear-gradient(rgba(255,252,240,.6), rgba(255,252,240,.6)), var(--pu-paper-2) !important; }
+.wastelanders .pust-roller.pust-folded > .pust-fold { background: linear-gradient(rgba(255,252,240,.6), rgba(255,252,240,.6)), var(--pu-paper-2) !important; }
 /* the panel's bottom padding moves to the result, so the strip can sit flush with the bottom while it sticks there */
 .pust-check .pust-roller { padding-bottom: 0; }
 .pust-check .pust-roller > .rres { margin-bottom: 14px; }
@@ -468,23 +468,23 @@
 
 /* after a roll the set-up is one line «змінити» */
 .pust-roller.pust-folded > :not(.rwho, .pust-fold, .pust-rgo-bar, .rres, .pust-pendbar) { display: none !important; }
-.wastelanders .pust-roller button.pust-fold { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; height: auto; min-height: 30px;
+.wastelanders .pust-roller .pust-fold { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; height: auto; min-height: 30px;
   margin: 0; padding: 4px 8px; background: rgba(255,252,240,.6) !important; border: 1px dashed var(--pu-ink-3) !important; box-shadow: none !important;
   font-family: var(--pu-f-label); font-size: 13px; color: var(--pu-ink) !important; text-align: left; line-height: 1.25; }
-.wastelanders .pust-roller button.pust-fold > span { min-width: 0; font-family: var(--pu-f-num); font-weight: 700; }
-.wastelanders .pust-roller button.pust-fold > b { flex: none; color: var(--pu-rust-2, #9a4a20); text-transform: uppercase; letter-spacing: .04em; font-size: 12px; }
+.wastelanders .pust-roller .pust-fold > span { min-width: 0; font-family: var(--pu-f-num); font-weight: 700; }
+.wastelanders .pust-roller .pust-fold > b { flex: none; color: var(--pu-rust-2, #9a4a20); text-transform: uppercase; letter-spacing: .04em; font-size: 12px; }
 /* the fold line (playtest 2026-11-18, item 3): the check type as a dark plate, «Інша перевірка» as a rust button */
-.wastelanders .pust-roller button.pust-fold .pust-fold-type { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: 3px;
+.wastelanders .pust-roller .pust-fold .pust-fold-type { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: 3px;
   background: var(--pu-ink); color: var(--pu-paper); font-style: normal; font-family: var(--pu-f-label); font-size: 12px;
   text-transform: uppercase; letter-spacing: .05em; vertical-align: 1px; }
-.wastelanders .pust-roller.pust-folded > button.pust-fold > b { padding: 3px 9px; border-radius: 3px; background: linear-gradient(180deg, var(--pu-rust-3), var(--pu-rust-2));
+.wastelanders .pust-roller.pust-folded > .pust-fold > b { padding: 3px 9px; border-radius: 3px; background: linear-gradient(180deg, var(--pu-rust-3), var(--pu-rust-2));
   color: var(--pu-sheet) !important; box-shadow: 0 2px 0 var(--pu-rust-1); }
-.wastelanders .pust-roller.pust-folded > button.pust-fold:hover > b { filter: brightness(1.1); }
+.wastelanders .pust-roller.pust-folded > .pust-fold:hover > b { filter: brightness(1.1); }
 /* «Інша перевірка» inside the fold line, clear of its dashed frame (review 2026-11-18): Foundry's button padding 0 and line-height
    22 px made the plate as tall as the line, so it touched and crossed the frame; the text on the left shrinks first */
-.wastelanders .pust-roller button.pust-fold { box-sizing: border-box; max-width: 100%; padding: 4px 5px 4px 8px !important; line-height: 1.25 !important; }
-.wastelanders .pust-roller button.pust-fold > span { flex: 1 1 auto; overflow-wrap: anywhere; }
-.wastelanders .pust-roller.pust-folded > button.pust-fold > b { flex: 0 0 auto; margin-left: auto; line-height: 18px !important; padding: 2px 9px; white-space: nowrap; }
+.wastelanders .pust-roller .pust-fold { box-sizing: border-box; max-width: 100%; padding: 4px 5px 4px 8px !important; line-height: 1.25 !important; }
+.wastelanders .pust-roller .pust-fold > span { flex: 1 1 auto; overflow-wrap: anywhere; }
+.wastelanders .pust-roller.pust-folded > .pust-fold > b { flex: 0 0 auto; margin-left: auto; line-height: 18px !important; padding: 2px 9px; white-space: nowrap; }
 /* scrolled into view after a roll: clear of the sticky fold line on top and the roll strip at the bottom (item 4) */
 .pust-roller .rres { scroll-margin-top: 44px; }
 .pust-roller .rres button[data-r="dmg"] { scroll-margin-bottom: 72px; }
@@ -564,8 +564,24 @@
 /* the effect's target gets no damage (the split waits), and why a split is not offered (reviewer, author 2026-11-21) */
 .pust-roller .rdmg .pust-split-warn { margin: 0; font-family: var(--pu-f-num); font-size: 13px; line-height: 1.3; color: #ff9a8a; font-weight: 700; }
 .pust-roller .rdmg .pust-split-no { margin: 3px 0 0; font-size: 12.5px; }
-/* «Щасливець» / «Бісова штуковина!» left of «Повторити перевірку»: small, two lines, its height (author, 2026-11-21, mockup 3) */
+/* «Щасливець» / «Бісова штуковина!» left of «Інша перевірка»: small, two lines, its height (author, 2026-11-21, mockup 3) */
 .pust-roller .pust-rgo-bar:has(.pust-perkre) { gap: 6px; }
-/* !important: the paper button rule of pust-ui.css is more specific; 11 px: both fit beside «Повторити перевірку» at 460 (audit) */
+/* !important: the paper button rule of pust-ui.css is more specific; 11 px: both fit beside «Інша перевірка» at 460 (audit) */
 .pust-roller .pust-rgo-bar > .pust-perkre { flex: 0 1 auto; min-width: 0; align-self: center; height: 40px; max-width: 115px; margin: 0 !important; padding: 3px 4px !important;
   font-size: 12px !important; line-height: 1.15 !important; white-space: normal; text-align: center; }
+
+/* ===== «Інша перевірка» in place of «Кинути перевірку» on a folded result (author, 2026-11-22, П1 1.1) ===== */
+/* no rolling the same check again: the roll button hides, a narrow rust plate opens the set-up (counters from 0); as tall as
+   the perks' two-line buttons beside it, but not the big uppercase roll button */
+.pust-roller .pust-rgo-bar > .rgo[hidden] { display: none !important; }
+.wastelanders .pust-roller .pust-rgo-bar > button.pust-other { flex: 0 0 auto; width: auto; height: 40px; margin: 0 0 0 auto !important; padding: 0 12px !important;
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  background: linear-gradient(180deg, var(--pu-rust-3), var(--pu-rust-2)) !important; color: var(--pu-sheet) !important;
+  border: 1px solid var(--pu-rust-1) !important; border-radius: 3px; box-shadow: 0 2px 0 var(--pu-rust-1) !important;
+  font-family: var(--pu-f-label); font-weight: 700; font-size: 13.5px !important; line-height: 1.2 !important; text-transform: none; letter-spacing: .02em; }
+.wastelanders .pust-roller .pust-rgo-bar > button.pust-other:hover { filter: brightness(1.1); }
+.wastelanders .pust-roller .pust-rgo-bar > button.pust-other > i { margin: 0; font-size: 12px; }
+/* П1 1.2: the hint on the left wraps inside its room, never under the perk buttons */
+.pust-roller .pust-intent > small { overflow-wrap: anywhere; }
+/* the fold line while folded is no button: no hover, no pointer */
+.pust-roller .pust-fold:not(button) { cursor: default; }
