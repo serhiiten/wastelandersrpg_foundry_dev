@@ -5,6 +5,8 @@
  */
 import { textToHtml } from "../rules/rich-text.mjs";
 import { isCoverText } from "../rules/cover.mjs";
+import { aspectImmune } from "../rules/states.mjs";
+import { characterProfileFromState } from "../rules/target-profile.mjs";
 import { attrTip, skillTip } from "../rules/book-desc.mjs";
 import {
   ARCH_ORDER, ATTRS, BUILTIN_CAT, DEF_LABEL, DEF_TYPES, ENERGY, ENERGY_ORDER, FEAT, FEATS, GUN_CLS, GUN_RANGE, GUN_ROF,
@@ -267,10 +269,13 @@ export function buildView(st, d, L, ui = {}) {
     sup: buyButton(d.supMax - supNow, st.caps, SUP_PER_CAP, { verb: "Поповнити", unit: "од. Припасів", full: "Припасів повно", rate: "1(к) за 3 Припаси" }),
   };
   const ovDef = st.defOv || {};
+  // immunities (author, 2026-11-22, П3 3.5): a state's aspect may be taken by hand, its chip is red and «Сповіщення» says so
+  const prof = characterProfileFromState(st, { d, L });
   // «Прикритий: …» (П3 3.2): its one invoke can't be changed here, only the whole aspect removed
-  const sit = (st.sit || []).map((a, i) => ({ i, t: a.t, inv: a.inv || 0, lock: isCoverText(a.t) }));
+  const sit = (st.sit || []).map((a, i) => ({ i, t: a.t, inv: a.inv || 0, lock: isCoverText(a.t), imm: aspectImmune(a.t, prof) }));
   const quickAspects = L.QUICK_ASPECTS.filter((x) => !sit.some((a) => a.t === x[1]))
-    .map(([k, t, why]) => ({ t, off: ovDef[k] === "yes", why }));
+    .map(([, t]) => ({ t, imm: aspectImmune(t, prof) }));
+  const immIssues = sit.filter((a) => a.imm).map((a) => ({ lvl: "bad", msg: `Аспект «${a.t}»: імунітет, ${a.imm}.` }));
   const defenses = L.defenses(d).map(([cls, t]) => ({ cls, t }));
 
   /* ---------- chems & rest ---------- */
@@ -412,7 +417,7 @@ export function buildView(st, d, L, ui = {}) {
     }), archetypes, arch: st.arch || "",
     aspects: ASPECTS.map(([f, label], i) => ({ f, label, v: st[f] || "", i, locked: !!st.manual?.[f] })), detail: st.detail || "",
     locks: { name: !!st.manual?.name, detail: !!st.manual?.detail }, // typed by hand: the die is locked
-    issues: d.issues.map(([lvl, msg]) => ({ lvl, msg })).concat(freeModeIssues(st, d)),
+    issues: d.issues.map(([lvl, msg]) => ({ lvl, msg })).concat(freeModeIssues(st, d), immIssues),
     // `src`: the perk / feat a chip comes from ('p:…' / 'f:…'; the compact sheet leaves those out, author 2026-11-18, item 8)
     chips, chipsGood: chips.filter((c) => c.cls !== "bad"), chipsBad: chips.filter((c) => c.cls === "bad"),
     free,

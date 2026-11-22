@@ -27,10 +27,8 @@ export function combineDefence(a, m) {
   return "half";
 }
 
-/** A character's profile from its rules state (the sheet's «Захист») */
-export function characterProfileFromState(st) {
-  const d = compute(st);
-  const L = logicFor(st, { quiet: true });
+/** A character's profile from its rules state (the sheet's «Захист»); the sheet passes its own `d` / `L` */
+export function characterProfileFromState(st, { d = compute(st), L = logicFor(st, { quiet: true }) } = {}) {
   const prof = {
     armor: int(d.armorTotal + (L.chemArmor?.() ?? 0)), psyArmor: int(d.psiTotal + (L.chemPsi?.() ?? 0)),
     phys: "normal", energy: "normal", fire: "normal", rad: "normal", poison: "normal", psy: "normal",
