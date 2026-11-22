@@ -82,7 +82,8 @@ const NO_TARGETS = "Цілей не обрано. Познач ціль: T на�
 function syncDealButton(root) {
   // an attack with no targets says so already before its roll (author, 2026-11-18), until its damage is dealt
   const hint = root?.querySelector(".pust-tgthint");
-  if (hint) hint.hidden = !!game.user.targets.size || root.querySelector("select#r-type")?.value !== "attack" || !!root.querySelector(".rdmg .rdres");
+  if (hint) hint.hidden = !!game.user.targets.size || root.querySelector("select#r-type")?.value !== "attack" || !!root.querySelector(".rdmg .rdres")
+    || !!root.querySelector(".rdmg .pust-blast"); // П3 3.4: a grenade's failure needs no targets
   // A8: «Розподілити між цілями» only while two targets or more are chosen
   const sp = root?.querySelector("details.pust-split");
   if (sp) sp.hidden = game.user.targets.size < 2;
@@ -289,6 +290,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   /** the verdict on its way to the GM (A1), for an ОД press that must wait for it (П3 3.3) */
   #sendP = null;
   bindPend(b) { this.#pend = b?.msg && b?.row ? { msg: b.msg, row: b.row } : null; return this; }
+  /** The bound attack and the verdict sent belong to the character shown: both go when the dock shows another one */
+  dropPend() { this.#pend = null; this.#sent = null; }
   get pendMsgId() { return this.#pend?.msg ?? null; }
 
   /** An attack's result whose damage or effect is still to be dealt (П1 1.5: a new check asks «Замінити?» first) */
@@ -324,6 +327,8 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // none bound, or the bound one closed: the character's newest waiting attack — at a new roll always, on screen only when
     // its card is newer than the closed one's (both cards' times come from the same place, unlike the player's roll time)
     let b = bound();
+    // a row of another character (the dock switched characters) is never this one's (П3 live check, 2026-11-22)
+    if (b.row && b.row.actor !== this.actor.uuid) { this.#pend = null; b = bound(); }
     const o = openRowOf(this.actor.uuid);
     if (o && (!b.row || (rowClosed(b.row) && (rebind || (game.messages.get(o.msg)?.timestamp ?? 0) > (b.msg?.timestamp ?? 0))))) {
       this.#pend = o; b = bound();
@@ -734,7 +739,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     else say = `<p class="rhint pust-blast">Невдача: граната вибухає у твоїй зоні. Натисни на гранату, якою скористався: шкоди зазнають усі в зоні, ти теж, без уникнення.${dir ? " «Спрямована дія»: тобі й союзникам лише половина." : ""}</p>`;
     if (last.fuh || !n) html = html.replace(/<div class="rdmgsel[\s\S]*?<\/div>/, "");
     // «Фух» throws nothing: no options of the damage
-    if (fuh || last.fuh) html = html.replace(/<div class="rdopts">[\s\S]*?<\/div>(?=<button)/, "");
+    if (fuh || last.fuh) html = html.replace(/<div class="rdopts">[\s\S]*?<\/div>(?=<button)/, "").replace(/<ul class="rtraits">[\s\S]*?<\/ul>/, "");
     return html
       .replace(/<button type="button" class="btn rust" data-r="dmg">[\s\S]*?<\/button>(<p class="rhint pust-split-no"[\s\S]*?<\/p>|<details class="pust-split"[\s\S]*?<\/details>)?/, "")
       .replace("<h4>Шкода</h4>", `<h4>Шкода</h4>${say}`);
@@ -1280,7 +1285,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const dodged = nl?.type === "dodge" && (nl.time !== ol?.time || nl.verdict !== ol?.verdict);
     const fresh = dodged && nl.time !== ol?.time; // a new roll (not an aspect invoked on the last one) may answer a newer attack
     const target = dodged ? this.#pendNow(out.R, fresh) : null;
-    if (target?.row && !rowClosed(target.row)) { this.#sent = { ...this.#pend }; this.#sending = true; }
+    if (target?.row && !rowClosed(target.row)) { this.#sent = { ...this.#pend, time: nl.time }; this.#sending = true; }
     const deal = kind === "click" && key === "dmg";
     if (deal) await this.render(); // the damage to deal (#apply) is made by the render
     else this.render();
@@ -1298,7 +1303,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // П3 3.3 (author, 2026-11-22): with «ОД за невдачу нараховується само» off, the ОД button of a failed avoidance accepts
     // the failure — the waiting attack's full damage lands, as «Отримати повну шкоду» would
-    if (kind === "click" && key === "xp" && !autoXpOn() && node?.dataset?.k !== "sav" && nl?.type === "dodge" && nl.verdict === 0 && this.#sent) {
+    if (kind === "click" && key === "xp" && !autoXpOn() && node?.dataset?.k !== "sav" && nl?.type === "dodge" && nl.verdict === 0 && this.#sent?.time === nl.time) {
       const to = this.#sent;
       if (this.#sendP) await this.#sendP.catch(() => {});
       await answerPending(to.msg, to.row, { op: "apply" });
@@ -1499,6 +1504,7 @@ class DockedCheckPanel extends CheckPanel {
       if (!a) return;
       dockActorId = a.id;
       this.actor = a;
+      this.dropPend(); // the other character's waiting attack is not this one's (П3 live check, 2026-11-22)
       this.render();
     });
     requestAnimationFrame(() => this.stick());
