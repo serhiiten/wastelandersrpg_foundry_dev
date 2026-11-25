@@ -1,0 +1,18 @@
+#!/bin/sh
+# The whole fast suite runs before every push; a red test refuses the push (author, 2026-11-25; GitHub's «Tests» workflow runs the same).
+# Switch the hooks on once per clone: npm run hooks   (sets core.hooksPath to .githooks)
+# Skipped for deleting a branch or tag, where nothing is sent. A deliberate bypass: git push --no-verify (the Action still runs).
+all_deletes=1
+while read -r _local_ref local_sha _remote_ref _remote_sha; do
+  case "$local_sha" in
+    0000000000000000000000000000000000000000) ;;
+    *) all_deletes=0 ;;
+  esac
+done
+[ "$all_deletes" = "1" ] && exit 0
+echo "pre-push: npm test (the push goes only when it is green)…" >&2
+if ! npm test; then
+  echo "" >&2
+  echo "pre-push: a test is red, the push is refused. Fix it and push again (bypass only on purpose: git push --no-verify)." >&2
+  exit 1
+fi

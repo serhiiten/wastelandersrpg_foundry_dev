@@ -1,6 +1,6 @@
 // The release script's pure parts (tools/release.mjs; author's choice, 2026-11-18). Run: node tests/release.test.mjs
 import { readFileSync } from "node:fs";
-import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal, parseWorktrees, mainWorktree, porcelainPaths, cloneFastForwardBlock, PACKS_RESTORE, isPacksPath, dirtyBesidesPacks } from "../tools/release.mjs";
+import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal, parseWorktrees, mainWorktree, porcelainPaths, cloneFastForwardBlock, PACKS_RESTORE, hooksWarning, isPacksPath, dirtyBesidesPacks } from "../tools/release.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
@@ -86,6 +86,11 @@ for (const p of [plan, wplan]) {
   ok(r >= 0 && r < p.findIndex((x) => /^Check: the working tree is clean/.test(x)), "the plan restores packs/ before the cleanliness check");
 }
 ok(buildPlan({ branch: "main", dirty: false, packsDirty: 7, version: "1", next: "2", message: "", ahead: 0, slug: "a/b", timeout: 5 }).some((x) => /7 file\(s\) changed now/.test(x)), "the plan says how many packs files changed");
+
+ok(hooksWarning(".githooks") === "", "hooks on: no warning");
+ok(hooksWarning(".githooks/") === "" && hooksWarning(" .githooks\n") === "", "hooks path: a slash or a newline around it is fine");
+ok(/npm run hooks/.test(hooksWarning("")) && /not set/.test(hooksWarning("")), "hooks off: warns and names the command");
+ok(/«\.git\/hooks»/.test(hooksWarning(".git/hooks")), "hooks pointing elsewhere: warns with the value");
 
 console.log(`release: ${checks - failures}/${checks} checks passed`);
 if (failures) process.exit(1);

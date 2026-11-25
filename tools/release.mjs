@@ -140,6 +140,14 @@ export function buildPlan(s) {
   return steps;
 }
 
+/** The git hooks (.githooks: pre-push runs the whole suite, pre-commit guards packs/) work only when core.hooksPath points at them
+ *  (`npm run hooks`, author 2026-11-25). Returns the warning, or "" when they are on. Only a warning: a release runs `npm test` itself. */
+export const HOOKS_DIR = ".githooks";
+export function hooksWarning(hooksPath) {
+  return (hooksPath || "").trim().replace(/\\/g, "/").replace(/\/+$/, "") === HOOKS_DIR ? ""
+    : `⚠ The git hooks are off here (core.hooksPath is ${hooksPath ? `«${hooksPath.trim()}»` : "not set"}): pushes are not tested and packs/ is not guarded. Run once: npm run hooks`;
+}
+
 // ---------- doing it ----------
 
 const git = (...args) => execFileSync("git", args, { encoding: "utf8" }).trim();
@@ -216,6 +224,10 @@ async function main() {
 
   console.log(`${o.go ? "RELEASE" : "DRY RUN (nothing changes; add --go -m \"what\" to release)"} — ${slug}, branch ${branch}\n`);
   buildPlan(state).forEach((s, i) => console.log(`${String(i + 1).padStart(2)}. ${s}`));
+  let hooksPath = "";
+  try { hooksPath = git("config", "--get", "core.hooksPath"); } catch { /* not set */ }
+  const hw = hooksWarning(hooksPath);
+  if (hw) console.log(`\n${hw}`);
   if (!o.go) return;
 
   console.log("");

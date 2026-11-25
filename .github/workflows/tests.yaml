@@ -1,0 +1,60 @@
+name: Tests
+
+# The whole fast suite (`npm test`) on every push to any branch and on every pull request (author, 2026-11-25).
+# The local twin is .githooks/pre-push (`npm run hooks` switches it on).
+# The HTML tools' sources (pustelnyky-character-generator, pustelnyky-caravan, pustelnyky_src) are not in this
+# repository, so the tests that read them print «SKIP …» here (tests/sibling.mjs, only when CI is set) and the
+# summary below lists them. On the author's machine such a test still fails when its source is missing.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  npm-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tests/stable-precheck.test.mjs and release.test.mjs read git history and tags
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26 # the version the tests are run with locally
+
+      # No `npm ci`: the tests import nothing from node_modules (the Foundry CLI and prettier are only for packs and formatting).
+      - name: npm test
+        shell: bash # bash with pipefail: a red test fails the step even through tee
+        run: npm test 2>&1 | tee test.log
+
+      - name: What was skipped
+        if: always()
+        shell: bash
+        run: |
+          skipped=$(grep -E '(^SKIP |: SKIP)' test.log || true)
+          partial=$(grep -E '^\(no |only Foundry was checked|skipped\)' test.log || true)
+          count=$(printf '%s' "$skipped" | grep -c . || true)
+          {
+            echo "### Skipped tests: ${count}"
+            echo "Sources outside the repository (the HTML tools); on the author's machine these tests run."
+            echo '```'
+            printf '%s\n' "$skipped" | cut -c1-200
+            echo '```'
+            if [ -n "$partial" ]; then
+              echo "Checks that ran only in part:"
+              echo '```'
+              printf '%s\n' "$partial" | cut -c1-200
+              echo '```'
+            fi
+          } | tee -a "$GITHUB_STEP_SUMMARY"

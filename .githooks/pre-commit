@@ -1,0 +1,12 @@
+#!/bin/sh
+# Refuse commits that touch packs/ (LevelDB) unless allowed on purpose (author, 2026-11-22).
+# A running Foundry world rewrites packs/ in whatever checkout the junction serves; `git add -A` then sweeps the churn in.
+# Real pack changes (after `npm run packs:pack`): PUST_PACKS=1 git commit ...
+[ "$PUST_PACKS" = "1" ] && exit 0
+files=$(git diff --cached --name-only -- packs | head -5)
+[ -z "$files" ] && exit 0
+echo "pre-commit: staged changes in packs/ (probably a running world's LevelDB churn):" >&2
+echo "$files" | sed 's/^/  /' >&2
+echo "Unstage them: git restore --staged packs   (then: git restore packs, only with Foundry stopped)" >&2
+echo "Real pack changes after npm run packs:pack: PUST_PACKS=1 git commit ..." >&2
+exit 1
