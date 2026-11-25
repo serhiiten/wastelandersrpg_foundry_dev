@@ -1,6 +1,6 @@
 // The release script's pure parts (tools/release.mjs; author's choice, 2026-11-18). Run: node tests/release.test.mjs
 import { readFileSync } from "node:fs";
-import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal, parseWorktrees, mainWorktree, porcelainPaths, cloneFastForwardBlock, PACKS_RESTORE, hooksWarning, isPacksPath, dirtyBesidesPacks } from "../tools/release.mjs";
+import { nextVersion, bumpSystemJson, repoSlug, buildPlan, refusal, parseWorktrees, mainWorktree, porcelainPaths, cloneFastForwardBlock, PACKS_RESTORE, hooksWarning, isPacksPath, dirtyBesidesPacks, seamsLine } from "../tools/release.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
@@ -91,6 +91,18 @@ ok(hooksWarning(".githooks") === "", "hooks on: no warning");
 ok(hooksWarning(".githooks/") === "" && hooksWarning(" .githooks\n") === "", "hooks path: a slash or a newline around it is fine");
 ok(/npm run hooks/.test(hooksWarning("")) && /not set/.test(hooksWarning("")), "hooks off: warns and names the command");
 ok(/«\.git\/hooks»/.test(hooksWarning(".git/hooks")), "hooks pointing elsewhere: warns with the value");
+
+// the seams test's reminder (practice 4, author 2026-11-25): a line, never a block
+const SHA = "0123456789abcdef0123456789abcdef01234567";
+ok(/^⚠ Стики не запускали для 01234567: .*seams\.py/.test(seamsLine(null, SHA)), "no seams-last.json: «не запускали» with the command");
+ok(/не запускали/.test(seamsLine({ sha: "ffff", ok: true }, SHA)), "a run of another commit does not count");
+ok(/не запускали/.test(seamsLine({ sha: SHA, dirty: true, ok: true }, SHA)), "a run with uncommitted changes does not count");
+ok(seamsLine({ sha: SHA, ok: true, when: "2026-11-25T16:00:05" }, SHA) === "Стики: зелено для 01234567 (2026-11-25 16:00)", "a green run of this commit: green");
+const redOld = seamsLine({ sha: SHA, ok: false, failed: ["1a", "10"], known: ["tour-collision"], newFailures: [] }, SHA);
+ok(/^⚠ Стики: червоно/.test(redOld) && /старі помилки: tour-collision/.test(redOld) && !/нові провали/.test(redOld), `red by old bugs only: named as such (${redOld})`);
+const redNew = seamsLine({ sha: SHA, ok: false, failed: ["6"], known: [], newFailures: ["6"] }, SHA);
+ok(/нові провали: 6/.test(redNew), "a new failure is named");
+ok(/провалено: broken/.test(seamsLine({ sha: SHA, ok: false, failed: [], error: "broken" }, SHA)), "a broken run says why");
 
 console.log(`release: ${checks - failures}/${checks} checks passed`);
 if (failures) process.exit(1);

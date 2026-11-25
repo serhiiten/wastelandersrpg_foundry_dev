@@ -19,6 +19,7 @@
 // the build is watched through GitHub's public API, by the SHA taken from `git rev-parse`.
 import { execFileSync, execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 // ---------- pure parts (tests/release.test.mjs) ----------
@@ -153,7 +154,22 @@ export function hooksWarning(hooksPath) {
 const git = (...args) => execFileSync("git", args, { encoding: "utf8" }).trim();
 // untrimmed: `git status --porcelain` lines start with a space that trim() would eat from the first one
 const gitRaw = (...args) => execFileSync("git", args, { encoding: "utf8" });
-const gitLoud = (...args) => { console.log(`$ git ${args.join(" ")}`); execFileSync("git", args, { stdio: "inherit" }); };
+/** The seams test's reminder (practice 4, author 2026-11-25; docs/decisions/ui-look-and-audit.md, «Seams test»): the last run
+ *  of the workspace's tools/foundry-live/seams.py, from its `.claude/seams-last.json`, against the commit being released.
+ *  Only a reminder, never a block: the run needs the shared Foundry free, and the release is the author's command. */
+export const SEAMS_RUN = "F:\\Claude\\pustelnyky-venv\\Scripts\\python.exe tools/foundry-live/seams.py";
+export function seamsLine(last, sha) {
+  const short = String(sha || "").slice(0, 8);
+  const notRun = `⚠ Стики не запускали для ${short}: ${SEAMS_RUN} (у робочій теці; потрібен вільний Foundry)`;
+  if (!last || !last.sha || last.sha !== sha || last.dirty) return notRun;
+  const when = last.when ? ` (${String(last.when).replace("T", " ").slice(0, 16)})` : "";
+  if (last.ok) return `Стики: зелено для ${short}${when}`;
+  const known = (last.known || []).length ? `; старі помилки: ${last.known.join(", ")}` : "";
+  const fresh = (last.newFailures || []).length ? `; нові провали: ${last.newFailures.join(", ")}` : "";
+  return `⚠ Стики: червоно для ${short}${when}${fresh}${known || (fresh ? "" : `; провалено: ${(last.failed || []).join(", ") || last.error || "?"}`)}`;
+}
+
+const gitLoud =(...args) => { console.log(`$ git ${args.join(" ")}`); execFileSync("git", args, { stdio: "inherit" }); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function parseArgs(argv) {
@@ -228,6 +244,9 @@ async function main() {
   try { hooksPath = git("config", "--get", "core.hooksPath"); } catch { /* not set */ }
   const hw = hooksWarning(hooksPath);
   if (hw) console.log(`\n${hw}`);
+  let seamsLast = null;
+  try { seamsLast = JSON.parse(readFileSync(join(dirname(root), ".claude", "seams-last.json"), "utf8")); } catch { /* never run here */ }
+  console.log(`\n${seamsLine(seamsLast, git("rev-parse", "HEAD"))}`);
   if (!o.go) return;
 
   console.log("");
