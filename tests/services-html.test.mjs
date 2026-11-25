@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { buyPlan, UNITS_PER_CAP, HP_PER_CAP as CAR_HP } from "../module/rules/caravan-range.mjs";
 import { HP_PER_CAP, SUP_PER_CAP, CONS_PRICE } from "../module/rules/char-services.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 let failures = 0;
 let checks = 0;
@@ -23,6 +24,7 @@ function extract(file, constRe) {
   return m[0] + "\n" + src.slice(a, i + 1);
 }
 
+needSiblings(["pustelnyky-character-generator/src/app.js", "pustelnyky-caravan/src/caravan.src.html"]);
 const sheets = {
   character: { code: extract("../../pustelnyky-character-generator/src/app.js", /const HP_PER_CAP=\d+, SUP_PER_CAP=\d+, CONS_PRICE=\{[^}]*\};/), read: "({ buyPlan, HP_PER_CAP, SUP_PER_CAP, CONS_PRICE })" },
   caravan: { code: extract("../../pustelnyky-caravan/src/caravan.src.html", /const UNITS_PER_CAP = \d+, HP_PER_CAP = \d+;/), read: "({ buyPlan, UNITS_PER_CAP, HP_PER_CAP })" },

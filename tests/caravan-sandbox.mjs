@@ -3,7 +3,9 @@
 // can press its buttons and type into its fields. Used by tests/caravan-parity.test.mjs.
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { needSiblings } from "./sibling.mjs";
 
+needSiblings(["pustelnyky-caravan/src/caravan.src.html"]);
 const SRC = new URL("../../pustelnyky-caravan/src/caravan.src.html", import.meta.url);
 
 /** The page's main inline script (the IIFE), with S exposed for the test */

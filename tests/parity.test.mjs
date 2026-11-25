@@ -18,6 +18,7 @@ import { loadHtmlSheet } from "./html-sandbox.mjs";
 import { pruneConsRed } from "../module/rules/battle-health.mjs";
 import { STATES } from "../module/rules/states.mjs";
 import { isCoverText, dropCovers } from "../module/rules/cover.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 const VERBOSE = process.argv.includes("--verbose");
 const failures = [];
@@ -27,6 +28,7 @@ const fail = (msg) => failures.push(msg);
 /*  1. Перелік функцій                                                 */
 /* ================================================================== */
 
+needSiblings(["pustelnyky-character-generator/src/app.js", "pustelnyky-character-generator/src/chem.js", "pustelnyky-character-generator/src/roller.js", "pustelnyky-character-generator/src/gamedata.js", "pustelnyky-character-generator/src/template.html"]);
 const HTML_SRC = new URL("../../pustelnyky-character-generator/src/", import.meta.url);
 const html = ["app.js", "chem.js", "roller.js", "gamedata.js", "template.html"].map((f) => readFileSync(new URL(f, HTML_SRC), "utf8")).join("\n");
 const foundry = [

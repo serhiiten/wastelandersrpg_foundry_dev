@@ -13,7 +13,9 @@ import {
   BATTLE_DIFFS, CASE_DIFFS, CASE_FIELDS, LUCKS, TABLE_CARDS, battleChat, blankTerminal, buildTerminalView, caseChat,
   runTable, tableChat, travelChat, caseJournal, battleJournal,
 } from "../module/applications/terminal-view.mjs";
+import { needSiblings } from "./sibling.mjs";
 
+needSiblings(["pustelnyky_src (1)/pustelnyky_src/template.html"]);
 const HTML = readFileSync(new URL("../../pustelnyky_src (1)/pustelnyky_src/template.html", import.meta.url), "utf8");
 const HBS = readFileSync(new URL("../templates/apps/terminal.hbs", import.meta.url), "utf8");
 const APP = readFileSync(new URL("../module/applications/terminal.mjs", import.meta.url), "utf8");

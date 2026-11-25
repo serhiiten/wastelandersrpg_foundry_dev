@@ -5,11 +5,13 @@
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { DMG_TYPES } from "../module/rules/battle.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
 const J = (x) => JSON.stringify(x);
 
+needSiblings(["pustelnyky-caravan/src/caravan.src.html"]);
 const html = readFileSync(new URL("../../pustelnyky-caravan/src/caravan.src.html", import.meta.url), "utf8");
 const lit = (name) => {
   const m = new RegExp(`const ${name} = (\\{[\\s\\S]*?\\});`).exec(html);

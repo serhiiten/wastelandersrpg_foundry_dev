@@ -8,12 +8,14 @@ import vm from "node:vm";
 import * as FX from "../module/rules/attack-effects.mjs";
 import * as GF from "../module/rules/grenade-fail.mjs";
 import * as CV from "../module/rules/cover.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; if (failures <= 15) console.log("FAIL", m); } };
 const J = (v) => JSON.stringify(v);
 const clone = (o) => (o === undefined ? undefined : JSON.parse(J(o)));
 
+needSiblings(["pustelnyky-character-generator/src/app.js"]);
 const src = readFileSync(new URL("../../pustelnyky-character-generator/src/app.js", import.meta.url), "utf8");
 const block = (name) => {
   const a = src.indexOf(`/* == ${name}: копія == */`), b = src.indexOf(`/* == ${name}: кінець копії == */`);

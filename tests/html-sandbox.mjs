@@ -3,7 +3,9 @@
 // Used by tests/parity.test.mjs to compare the HTML sheet with the Foundry sheet.
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { needSiblings } from "./sibling.mjs";
 
+needSiblings(["pustelnyky-character-generator/src/gamedata.js", "pustelnyky-character-generator/src/engine.js", "pustelnyky-character-generator/src/sheet.js", "pustelnyky-character-generator/src/pdfform.js", "pustelnyky-character-generator/src/roller.js", "pustelnyky-character-generator/src/chem.js", "pustelnyky-character-generator/src/perks.js", "pustelnyky-character-generator/src/skills.js", "pustelnyky-character-generator/src/app.js", "pustelnyky-character-generator/src/data.json"]);
 const SRC = new URL("../../pustelnyky-character-generator/src/", import.meta.url);
 const FILES = ["gamedata.js", "engine.js", "sheet.js", "pdfform.js", "roller.js", "chem.js", "perks.js", "skills.js", "app.js"];
 

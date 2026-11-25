@@ -13,12 +13,14 @@ import { blankState, compute as computeF } from "../module/rules/core.mjs";
 import { actorToState, stateToActor } from "../module/rules/character-adapter.mjs";
 import { joinPrices, splitPrices } from "../module/rules/prices.mjs";
 import { loadHtmlSheet } from "./html-sandbox.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; if (failures <= 15) console.log("FAIL", m); } };
 const J = (v) => JSON.stringify(v);
 const clone = (o) => (o === undefined ? undefined : JSON.parse(J(o)));
 
+needSiblings(["pustelnyky-character-generator/src/app.js"]);
 const src = readFileSync(new URL("../../pustelnyky-character-generator/src/app.js", import.meta.url), "utf8");
 const A = src.indexOf("/* == battle-health: копія == */"), B = src.indexOf("/* == battle-health: кінець копії == */");
 if (A < 0 || B < A) throw new Error("app.js: the marks «battle-health» not found");

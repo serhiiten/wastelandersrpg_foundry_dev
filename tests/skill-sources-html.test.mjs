@@ -11,12 +11,14 @@ import { readFileSync } from "node:fs";
 import * as R from "../module/rules/core.mjs";
 import { adoptGrants, impSkillOptions, startPicks } from "../module/rules/skill-sources.mjs";
 import { loadHtmlSheet } from "./html-sandbox.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; if (failures < 25) console.log("FAIL " + msg); } };
 const J = (x) => JSON.stringify(x);
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
+needSiblings(["pustelnyky-character-generator/src/skills.js", "pustelnyky-character-generator/src/app.js", "pustelnyky-character-generator/src/quickstart.json"]);
 /* 1. the generated module */
 {
   const SRC = new URL("../../pustelnyky-character-generator/src/", import.meta.url);

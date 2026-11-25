@@ -6,12 +6,14 @@
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import * as CK from "../module/rules/check-perks.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; if (failures <= 15) console.log("FAIL", m); } };
 const J = (v) => JSON.stringify(v);
 const clone = (o) => (o === undefined ? undefined : JSON.parse(J(o)));
 
+needSiblings(["pustelnyky-character-generator/src/app.js"]);
 const src = readFileSync(new URL("../../pustelnyky-character-generator/src/app.js", import.meta.url), "utf8");
 const a = src.indexOf("/* == check-perks: копія == */"), b = src.indexOf("/* == check-perks: кінець копії == */");
 if (a < 0 || b < a) throw new Error("app.js: the marks «check-perks» not found");

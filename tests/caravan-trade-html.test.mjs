@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { rowCost, rowKey, rowSale, salePlan } from "../module/rules/caravan-adapter.mjs";
 import { IMP_PRICE, impCost } from "../module/rules/caravan-controller.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 // spend-ask.mjs escapes with Foundry's helper; the same five characters as the sheet's esc()
 globalThis.foundry = { utils: { escapeHTML: (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]) } };
@@ -13,6 +14,7 @@ const { spendText } = await import("../module/applications/spend-ask.mjs");
 
 let failures = 0;
 let checks = 0;
+needSiblings(["pustelnyky-caravan/src/caravan.src.html"]);
 const ok = (c, m) => { checks++; if (!c) { failures++; if (failures <= 12) console.log("FAIL", m); } };
 
 /** The sheet's helpers (int, esc), its rowSale and the block of the copies, run on their own */

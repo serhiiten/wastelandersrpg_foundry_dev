@@ -7,11 +7,13 @@ import vm from "node:vm";
 import { ENEMY_KINDS, kindsOf, concreteKinds, pickKind, NAME_KINDS, kindOfName, namePicks } from "../module/rules/enemy-kinds.mjs";
 import { OPPONENT_ALIASES } from "../module/applications/terminal-battle.mjs";
 import { createTerminal } from "../module/rules/terminal.mjs";
+import { needSiblings } from "./sibling.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
 const J = (x) => JSON.stringify(x);
 
+needSiblings(["pustelnyky_src (1)/pustelnyky_src/kinds.js"]);
 const SRC = new URL("../../pustelnyky_src (1)/pustelnyky_src/kinds.js", import.meta.url);
 const H = JSON.parse(vm.runInNewContext(readFileSync(SRC, "utf8") + "\n;JSON.stringify({ PUST_KINDS, PUST_CROWDS, PUST_NAME_KINDS })", {}));
 const run = vm.runInNewContext(readFileSync(SRC, "utf8") + "\n;({ pustConcreteKinds, pustKindsOf, pustKindOfName, pustNamePicks, pustPickKind })", {});

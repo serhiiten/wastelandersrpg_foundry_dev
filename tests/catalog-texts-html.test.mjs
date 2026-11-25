@@ -8,6 +8,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { needSiblings } from "./sibling.mjs";
 
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»", mdash: "—", ndash: "–", hellip: "…", rsquo: "’" };
 /** What a browser's element.textContent gives for an innerHTML (tags dropped, entities decoded) */
@@ -65,6 +66,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const ok = (c, m) => { checks++; if (!c) { failures++; if (failures <= 12) console.log("FAIL", m); } };
   const here = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   const want = await catalogTexts(here);
+  needSiblings(["pustelnyky-character-generator/src/catalog_texts.js", "pustelnyky-character-generator/src/app.js", "pustelnyky-character-generator/src/build.py"]);
   const file = new URL("../../pustelnyky-character-generator/src/catalog_texts.js", import.meta.url);
   const src = readFileSync(file, "utf8");
   const got = vm.runInNewContext(src + "\nCATALOG_TEXTS", {});
