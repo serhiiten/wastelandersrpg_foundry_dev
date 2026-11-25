@@ -122,6 +122,11 @@ const SAME = {
   "act:ufold": "action:uiToggle",
   // «Інша перевірка» під результатом (П1 1.1; HTML backport 3.4): Foundry's narrow rust button .pust-other of check-panel.mjs
   "r:fast-other": "class:pust-other",
+  // «Повний / Компактний» (HTML backport 5.1, 2026-11-25): only the view, kept in ui and the device's storage, as Foundry's compactToggle
+  "act:compact": "action:compactToggle",
+  // «Атака» by a weapon or a grenade of the compact sheet (5.1): a shortcut into «Зробити перевірку» with it, as Foundry's
+  // checkPanel with data-weapon / data-other (check-panel.mjs preset)
+  "act:cmp-atk": "action:checkPanel",
 };
 const SKIP = {
   "act:pdf": "PDF не потрібен у Foundry (рішення автора)",

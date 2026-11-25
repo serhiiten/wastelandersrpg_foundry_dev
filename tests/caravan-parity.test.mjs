@@ -61,6 +61,9 @@ const SAME = {
   // «Списати N(к) з бюджету?» (A3, A13): its three ways out, in spend-ask.mjs
   spendPay: { in: SPEND, text: 'action: "pay", label: "Так, списати"' }, spendFree: { in: SPEND, text: 'action: "free", label: "Ні, без списання"' },
   spendClose: { in: SPEND, text: "rejectClose: false" },
+  // HTML backport 5.1 (2026-11-25): «Повний / Компактний» (only the view: a variable and the device's storage, not S), and the
+  // compact sheet's service icons, which press the full sheet's «Відремонтувати» / «Поповнити» (btnRepair / btnRefill above)
+  "data-cmp-view": 'data-action="compactToggle"', "data-cmp-svc": 'data-act="repair"',
 };
 /** HTML controls Foundry leaves out on purpose */
 const SKIP = {
