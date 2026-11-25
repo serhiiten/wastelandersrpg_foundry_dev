@@ -137,5 +137,19 @@ for (const f of files) {
   for (const [, t] of QUICK_ASPECTS) ok(STATE_ASPECTS.includes(t), `quick aspect «${t}» is a state's aspect`);
 }
 
+/* ---------- the settlements' background names (author, 2026-11-25): the wiki's names of the towns ---------- */
+{
+  const { TOWN_BACKGROUNDS } = await import("../module/rules/battle-backgrounds.mjs");
+  // the shared cards' group names were the author's (decision sheet 2026-11-23); «Військова база Сієрра» is not in the wiki,
+  // it reads so on «Мапа Пустки» (docs/decisions/map-and-panels.md, batch 4); the wiki has the dam only declined («дамбу /
+  // дамби Гувера»), checked by its stem
+  const NOT_WIKI = new Set(["Міста гулів", "Сховища", "Фермерські містечка", "Руїни військових баз", "Військова база Сієрра"]);
+  const STEM = { "Дамба Гувера": "дамб" };
+  if (fs.existsSync(WIKI)) {
+    const text = fs.readdirSync(WIKI).filter((n) => n.endsWith(".md")).map((n) => fs.readFileSync(path.join(WIKI, n), "utf8")).join(" ").toLowerCase();
+    for (const b of TOWN_BACKGROUNDS) if (!NOT_WIKI.has(b.name)) ok(STEM[b.name] ? new RegExp(`${STEM[b.name]}[а-яії]* гувера`).test(text) : text.includes(b.name.toLowerCase()), `settlement «${b.name}» is in the wiki`);
+  }
+}
+
 console.log(failures ? `FAIL (${failures})` : `OK (${checks} checks, ${files.length} files)`);
 if (failures) process.exitCode = 1;

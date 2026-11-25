@@ -27,8 +27,8 @@ import { applyDamage, applyHeal, chosenTokens, warnNoTargets, clearTargets } fro
 import { fatePickList } from "./map-dice.mjs";
 import { sharedGet, sharedSet } from "../helpers/scene-shared.mjs";
 import { findBattleScene, findMapScene, isBattleScene } from "../helpers/default-scene.mjs";
-import { AUTO, SAND, SAND_NAME, BATTLE_BACKGROUNDS, wantedBg, bgThumb, bgName, bgKeyOfSrc } from "../rules/battle-backgrounds.mjs";
-import { bgChoice, bgNow, setBgChoice } from "../helpers/battle-background.mjs";
+import { AUTO, OWN, OWN_NAME, SAND, SAND_NAME, BG_GROUPS, wantedBg, bgThumb, bgName, bgKeyOfSrc, bgGroup } from "../rules/battle-backgrounds.mjs";
+import { bgChoice, bgNow, bgSceneKind, hasOwnPicture, setBgChoice } from "../helpers/battle-background.mjs";
 import { DMG_TYPES, bumpExpr } from "../rules/battle.mjs";
 import { chatType } from "./enemy-attack.mjs";
 import { postChat } from "./chat.mjs";
@@ -157,7 +157,7 @@ async function bodyHtml(lite = false) {
     </div>`;
   }
   // the place, the hazard and the zone / enemy buttons in one block (the tour lights them together; author, 2026-11-16)
-  if (lite) return `<div class="pust-md-bsetup">${row("place", "Місце", "fa-location-dot", place)}${row("hazard", "Небезпека", "fa-radiation", hazard)}</div>
+  if (lite) return `<div class="pust-md-bsetup">${mapBgRow(scene)}${row("place", "Місце", "fa-location-dot", place)}${row("hazard", "Небезпека", "fa-radiation", hazard)}</div>
     ${roundHtml(scene, true)}
     ${damageHtml(true)}
     <button type="button" class="pust-md-bgoto" data-battle="goto" title="Відкрити й активувати бойову мапу: гравці перейдуть туди теж"><i class="fa-solid fa-crosshairs"></i><span>Перейти на бойову мапу</span></button>`;
@@ -618,37 +618,73 @@ function bgButton(scene) {
   const key = bgKeyOfSrc(now) ?? (now ? null : SAND);
   const img = key ? bgThumb(sys(), key) : now;
   const what = !key ? "власна картинка сцени" : choice === AUTO ? `авто за місцем: ${bgName(key)}` : bgName(key);
-  return `<button type="button" class="pust-md-bbg" data-battle="bgpick" title="Фон сцени (${esc(what)}). Вибрати інший" aria-label="Фон сцени" aria-haspopup="listbox"><img src="${esc(img)}" alt=""></button>`;
+  return `<button type="button" class="pust-md-bbg" data-battle="bgpick" title="Фон сцени (${esc(what)}). Вибрати інший" aria-label="Фон сцени" aria-haspopup="dialog"><img src="${esc(img)}" alt=""></button>`;
 }
 
-/** The list: «Авто за місцем», «Стандартний (пісок)», the 36 places — a row of a thumbnail and a name; the current one lit */
+/**
+ * A «Мапа» scene (author, 2026-11-25, mockup Б): the first row of the panel «Сцена» — «Фон сцени», the picture's thumbnail
+ * and name; a click opens the same list. None on «Мапа Пустки» or a battle scene.
+ */
+function mapBgRow(scene) {
+  if (bgSceneKind(scene) !== "map") return "";
+  const now = bgNow(scene), key = bgKeyOfSrc(now);
+  const name = key ? bgName(key) : now ? OWN_NAME : "Без фону";
+  const img = key ? `<img src="${esc(bgThumb(sys(), key))}" alt="">` : now ? `<img src="${esc(now)}" alt="">` : `<span class="pust-md-bgnone"><i class="fa-solid fa-image"></i></span>`;
+  return `<div class="pust-md-bscene" data-kind="bg">
+      <span class="pust-md-blabel"><i class="fa-solid fa-image"></i>Фон сцени</span>
+      <button type="button" class="pust-md-bgwide" data-battle="bgpick" title="Фон сцени: ${esc(name)}. Вибрати інший" aria-haspopup="dialog">${img}<span>${esc(name)}</span><i class="fa-solid fa-caret-down"></i></button>
+    </div>`;
+}
+
+/**
+ * The list (author, 2026-11-25, mockup Б): fixed rows on top — battle «Авто за місцем» and «Стандартний (пісок)», «Мапа»
+ * «Власна картинка» and the sand — then the tabs «Місця», «Поселення», «Інтер'єри», one group shown; opens on the current
+ * background's tab. A row: a thumbnail and a name, the current one lit.
+ */
 function toggleBgPick(btn, scene) {
   if (pickEl) return closePick();
+  const kind = bgSceneKind(scene);
+  if (!kind) return;
   const el = document.createElement("div");
   el.className = "pust-fatepick pust-bgpick";
   el.setAttribute("role", "dialog");
   el.setAttribute("aria-label", "Фон сцени");
   const choice = bgChoice(scene);
   const auto = wantedBg(AUTO, sharedGet("place"));
-  const item = (val, name, thumb, note = "") => `<li><button type="button" class="pust-bg-row${val === choice ? " on" : ""}" data-bg="${val}" role="option" aria-selected="${val === choice}">
-      ${thumb ? `<img src="${esc(thumb)}" alt="" loading="lazy">` : `<span class="pust-bg-auto"><i class="fa-solid fa-wand-magic-sparkles"></i></span>`}
+  const item = (val, name, thumb, note = "") => `<li><button type="button" class="pust-bg-row${val === choice ? " on" : ""}" data-bg="${val}" aria-pressed="${val === choice}">
+      ${thumb ? `<img src="${esc(thumb)}" alt="" loading="lazy">` : `<span class="pust-bg-auto"><i class="fa-solid ${kind === "map" ? "fa-image" : "fa-wand-magic-sparkles"}"></i></span>`}
       <span>${esc(name)}</span>${note ? `<small>${esc(note)}</small>` : ""}</button></li>`;
+  const top = kind === "battle" ? item(AUTO, "Авто за місцем", "", bgName(auto)) : item(OWN, OWN_NAME, "");
+  const g0 = BG_GROUPS.find((g) => g.id === bgGroup(choice))?.id ?? "places";
   el.innerHTML = `<header><span>Фон сцени</span><button type="button" class="pust-fp-x" data-pk-close title="Закрити" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button></header>
-    <div class="pust-fp-list"><ul role="listbox">
-      ${item(AUTO, "Авто за місцем", "", bgName(auto))}
-      ${item(SAND, SAND_NAME, bgThumb(sys(), SAND))}
-      ${BATTLE_BACKGROUNDS.map((b) => item(b.key, b.name, bgThumb(sys(), b.key))).join("")}
-    </ul></div>`;
+    <ul class="pust-bg-top">${top}${item(SAND, SAND_NAME, bgThumb(sys(), SAND))}</ul>
+    <nav class="pust-bg-tabs" role="tablist">${BG_GROUPS.map((g) => `<button type="button" role="tab" data-bg-tab="${g.id}" aria-selected="${g.id === g0}" class="${g.id === g0 ? "on" : ""}">${esc(g.name)}</button>`).join("")}</nav>
+    <div class="pust-fp-list">${BG_GROUPS.map((g) => `<ul role="tabpanel" data-bg-group="${g.id}" aria-label="${esc(g.name)}"${g.id === g0 ? "" : " hidden"}>${g.list.map((b) => item(b.key, b.name, bgThumb(sys(), b.key))).join("")}</ul>`).join("")}</div>`;
   document.body.append(el);
   placePop(el, btn);
-  el.querySelector(".pust-bg-row.on")?.scrollIntoView({ block: "center" });
+  el.querySelector(".pust-fp-list .pust-bg-row.on")?.scrollIntoView({ block: "center" });
   el.addEventListener("click", async (ev) => {
     const t = ev.target.closest("button");
     if (!t) return;
     if (t.dataset.pkClose !== undefined) return closePick();
+    const tab = t.dataset.bgTab;
+    if (tab) {
+      for (const b of el.querySelectorAll("[data-bg-tab]")) { const on = b.dataset.bgTab === tab; b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on)); }
+      for (const u of el.querySelectorAll("[data-bg-group]")) u.hidden = u.dataset.bgGroup !== tab;
+      el.querySelector(".pust-fp-list").scrollTop = 0;
+      return;
+    }
     const v = t.dataset.bg;
     if (!v) return;
     closePick();
+    // a «Мапа» scene with a picture of the GM's own: asked once, it is not kept (author, 2026-11-25)
+    if (kind === "map" && v !== OWN && hasOwnPicture(scene)) {
+      const yes = await foundry.applications.api.DialogV2.confirm({
+        window: { title: "Фон сцени" },
+        content: `<p>Замінити власну картинку сцени на «${esc(bgName(v))}»?</p><p>Картинка й розмір сцени не збережуться: повернути їх можна лише в налаштуваннях сцени.</p>`,
+      });
+      if (!yes) return;
+    }
     await setBgChoice(scene, v);
     redrawBattlePanel();
   });

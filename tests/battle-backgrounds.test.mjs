@@ -50,5 +50,46 @@ if (existsSync(dir)) for (const k of keys) {
 }
 ok(existsSync(new URL("assets/maps/battle-sand-thumb.webp", root)), "sand thumb");
 
+// settlement cards and interiors (author, 2026-11-25)
+const towns = B.TOWN_BACKGROUNDS, ints = B.INTERIOR_BACKGROUNDS;
+ok(towns.length === 20 && ints.length === 4, `20 cards, 4 interiors: ${towns.length}, ${ints.length}`);
+const allKeys = [...keys, ...towns.map((b) => b.key), ...ints.map((b) => b.key), B.SAND, B.AUTO, B.OWN];
+ok(new Set(allKeys).size === allKeys.length, "every key unique, also against sand / auto / own");
+ok(towns.every((b) => b.key === `town:${b.slug}` && /^[a-z0-9-]+$/.test(b.slug)) && ints.every((b) => b.key === `interior:${b.slug}`), "keys town:<slug> / interior:<slug>");
+ok([...towns, ...ints].every((b) => /^#[0-9a-f]{6}$/i.test(b.color)), "every card / interior has an edge colour");
+ok(B.BG_GROUPS.map((g) => g.name).join("|") === "Місця|Поселення|Інтер'єри" && B.BG_GROUPS[0].list.length === 36, "three groups in order");
+ok(B.bgSrc("x", "town:new-reno") === "systems/x/assets/maps/towns/new-reno.webp" && B.bgThumb("x", "interior:bar") === "systems/x/assets/maps/interiors/bar-thumb.webp", "card / interior files");
+ok(B.bgKeyOfSrc("systems/wastelanders/assets/maps/towns/glow.webp?v=2") === "town:glow" && B.bgKeyOfSrc("systems/x/assets/maps/interiors/casino.webp") === "interior:casino", "key of a card / interior picture");
+ok(B.bgKeyOfSrc("systems/x/assets/maps/towns/atlantis.webp") === null && !B.isOwnBackground("systems/x/assets/maps/towns/atlantis.webp"), "an unknown card isn't ours");
+ok(B.isOwnBackground("systems/x/assets/maps/towns/den.webp") && B.isOwnBackground("systems/x/assets/maps/interiors/clinic.webp"), "cards / interiors are ours (auto may replace them)");
+ok(B.bgName("town:fort") === "Форт" && B.bgName("interior:shop") === "Крамниця" && B.bgName("own") === "Власна картинка", "names");
+ok(B.bgGroup("town:hub") === "towns" && B.bgGroup("interior:bar") === "interiors" && B.bgGroup("54") === "places" && B.bgGroup("sand") === "sand" && B.bgGroup("auto") === null, "groups");
+// auto never picks a card or an interior, a manual choice keeps it
+for (const p of ["Нью-Рино", "Бар", "Казино", "Хаб", "Ден"]) ok(B.wantedBg("auto", p) === B.SAND, "auto, no card: " + p);
+ok(B.wantedBg("town:hub", "Ферма") === "town:hub" && B.wantedBg("interior:bar", "") === "interior:bar", "a chosen card / interior stays");
+// the choices of a scene kind: a «Мапа» scene has no auto, a battle scene no «own»
+ok(B.isBgChoiceFor("battle", "auto") && !B.isBgChoiceFor("battle", "own") && B.isBgChoiceFor("battle", "town:den"), "battle choices");
+ok(B.isBgChoiceFor("map", "own") && !B.isBgChoiceFor("map", "auto") && B.isBgChoiceFor("map", "11") && B.isBgChoiceFor("map", "sand") && B.isBgChoiceFor("map", "interior:bar") && !B.isBgChoiceFor("map", "town:x"), "map choices");
+// a «Мапа» scene's size: a card 2000 × 1500 / 50, a pixel map 4000 × 3000 / 100
+ok(JSON.stringify(B.bgMapSize("town:vaults")) === '{"width":2000,"height":1500,"grid":50}', "card size");
+for (const k of ["interior:bar", "23", "sand"]) ok(JSON.stringify(B.bgMapSize(k)) === '{"width":4000,"height":3000,"grid":100}', "pixel map size: " + k);
+
+// the names and slugs are the generators' (workspace tools/, outside the repo: checked when it is there)
+const cardsPy = new URL("../tools/town_bg/cards.py", root), intPy = new URL("../tools/interior_bg/interiors.py", root);
+if (existsSync(cardsPy)) {
+  const gen = [...readFileSync(cardsPy, "utf8").matchAll(/slug="([^"]+)"[\s\S]*?title="([^"]+)"/g)].map((x) => `${x[1]}=${x[2]}`);
+  ok(JSON.stringify(gen) === JSON.stringify(towns.map((b) => `${b.slug}=${b.name}`)), "cards = tools/town_bg/cards.py: " + gen.join(", "));
+}
+if (existsSync(intPy)) {
+  const m2 = /INTERIORS = \[([^\n]+)\]/.exec(readFileSync(intPy, "utf8"));
+  const gen = m2 ? [...m2[1].matchAll(/\("([a-z]+)", "([^"]+)"/g)].map((x) => `${x[1]}=${x[2]}`) : [];
+  ok(JSON.stringify(gen) === JSON.stringify(ints.map((b) => `${b.slug}=${b.name}`)), "interiors = tools/interior_bg/interiors.py: " + gen.join(", "));
+}
+// shipped: always (the files are in the repo)
+for (const [dir, list] of [["towns", towns], ["interiors", ints]]) for (const b of list) {
+  ok(existsSync(new URL(`assets/maps/${dir}/${b.slug}.webp`, root)), `file ${dir}/${b.slug}.webp`);
+  ok(existsSync(new URL(`assets/maps/${dir}/${b.slug}-thumb.webp`, root)), `file ${dir}/${b.slug}-thumb.webp`);
+}
+
 console.log(failures ? `${failures} FAILED` : "battle-backgrounds: all ok");
 process.exit(failures ? 1 : 0);

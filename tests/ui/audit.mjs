@@ -833,6 +833,43 @@ const SCENARIOS = {
     } finally { if (!was) await app.close(); }
   },
 
+  /** «Фон сцени» (author, 2026-11-25, mockups Б): the list with the tabs «Місця» / «Поселення» / «Інтер'єри» opened from the
+   *  «Битва» panel (battle scene) or from the row «Фон сцени» of the panel «Сцена» (a «Мапа» scene); every tab shown in turn,
+   *  nothing is chosen. None on «Мапа Пустки» */
+  async bgPick(a) {
+    if (!game.user.isGM) return a.skip("фон сцени", "лише Доглядач");
+    const btn = [...document.querySelectorAll('#pust-mapdock [data-battle="bgpick"]')].find((b) => b.offsetParent);
+    const isMapPustky = !!canvas?.scene?.getFlag(game.system.id, "mapScene");
+    if (isMapPustky) { a.ok("на «Мапі Пустки» немає вибору фону", !btn); return; }
+    if (!btn) return a.skip("фон сцени", "немає кнопки фону (панель згорнута?)");
+    const row = btn.closest(".pust-md-bscene");
+    if (row?.dataset.kind === "bg") { a.noCut(row, "button, span"); a.readable(row, "button, span"); }
+    if (!document.querySelector(".pust-bgpick")) { btn.click(); await sleep(300); }
+    const el = document.querySelector(".pust-bgpick");
+    if (!el) return a.ok("список «Фон сцени» відкрився", false);
+    try {
+      a.scenario = `фон сцени, ${Math.round(R(el).width)} px`;
+      a.onScreen([el]);
+      a.noRawKeys(el);
+      const tabs = [...el.querySelectorAll("[data-bg-tab]")];
+      a.ok("три вкладки: Місця, Поселення, Інтер'єри", tabs.map((t) => t.textContent.trim()).join("|") === "Місця|Поселення|Інтер'єри", tabs.map((t) => t.textContent.trim()).join("|"));
+      a.row(tabs, { equalWidth: true, label: "вкладки однієї ширини" });
+      const want = { places: 36, towns: 20, interiors: 4 };
+      for (const t of tabs) {
+        t.click(); await sleep(150);
+        const list = el.querySelector(`[data-bg-group="${t.dataset.bgTab}"]`);
+        const rows = [...list.querySelectorAll(".pust-bg-row")];
+        a.ok(`«${t.textContent.trim()}»: ${want[t.dataset.bgTab]} рядків, видно лише цю групу`, rows.length === want[t.dataset.bgTab] && !list.hidden
+          && [...el.querySelectorAll("[data-bg-group]")].filter((u) => !u.hidden).length === 1, `${rows.length}`);
+        const hs = new Set(rows.slice(0, 8).map((r) => Math.round(R(r).height)));
+        a.ok(`«${t.textContent.trim()}»: рядки однієї висоти`, hs.size === 1, [...hs].join("/"));
+        a.noCut(el, "button, span, small");
+        a.readable(el, "button, span, small");
+        a.layout(el, t.textContent.trim());
+      }
+    } finally { el.querySelector("[data-pk-close]")?.click(); }
+  },
+
   /** «Кінець сцени» / «Новий день» / «Кінець сесії» in the GM's top dock (author, 2026-11-21, mockup В): a second row under
    *  the plates, left-aligned with them, nothing cut or covered (the right panels, the sidebar), and each button keeps its size
    *  when it turns red with «Точно?» (the class is set and taken off here; nothing is pressed or ended). Run it at 1366 px,

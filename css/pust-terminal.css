@@ -621,6 +621,25 @@ body.pust-touring #pust-mapdock .pust-md-panel { opacity: 1 !important; transiti
 .pust-bgpick .pust-bg-auto { display: inline-flex; align-items: center; justify-content: center; background: #0f1412; color: #e2ad3b; }
 .pust-bgpick .pust-bg-row > span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pust-bgpick .pust-bg-row > small { flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #8fcf95; font-weight: 400; font-size: 12px; }
+/* the groups as tabs (author, 2026-11-25, mockup Б): fixed rows on top, three tabs, one group's list of a steady height */
+.pust-bgpick > .pust-bg-top { flex: none; margin: 0; padding: 6px 6px 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.pust-bgpick > .pust-bg-tabs { flex: none; display: flex; gap: 4px; padding: 6px 6px 6px; }
+.pust-bgpick > .pust-bg-tabs > button { flex: 1 1 0; min-width: 0; height: 28px; padding: 0 4px; border: 1px solid #0d0f0e; border-radius: 4px;
+  background: linear-gradient(180deg, #3a403e, #2a2e2d); color: #c9f5cc; font-weight: 700; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pust-bgpick > .pust-bg-tabs > button:hover { border-color: #3dff47; color: #fff; }
+.pust-bgpick > .pust-bg-tabs > button.on { background: linear-gradient(180deg, #e2ad3b, #b98a22); border-color: #6e5608; color: #241a0c; }
+.pust-bgpick > .pust-fp-list { flex: 0 1 300px; height: 300px; max-height: 300px; }
+/* a long name takes a second line in its row instead of being cut («Закинутий науково-дослідницький центр»; audit bgPick) */
+.pust-bgpick .pust-bg-row > span { white-space: normal; line-height: 1.12; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.pust-bgpick > header > .pust-fp-x { width: 24px; height: 24px; }  /* V6: a target of 24 × 24 */
+.pust-bgpick .pust-bg-row > span.pust-bg-auto { flex: none; display: inline-flex; width: 40px; }  /* the icon of «Авто» / «Власна картинка» is no name */
+.pust-bgpick .pust-fp-list > ul[hidden] { display: none; }
+/* a «Мапа» scene's row «Фон сцени» in the panel «Сцена» (author, 2026-11-25, mockup Б): the thumbnail and the name */
+#pust-mapdock button.pust-md-bgwide { flex: 1 1 auto; min-width: 0; justify-content: flex-start; gap: 8px; padding: 0 8px 0 0; overflow: hidden; font-size: 13px; color: #e8f5e9; }
+#pust-mapdock button.pust-md-bgwide > img, #pust-mapdock .pust-md-bgnone { flex: none; width: 40px; height: 28px; border: 0; object-fit: cover; pointer-events: none; }
+#pust-mapdock .pust-md-bgnone { display: inline-flex; align-items: center; justify-content: center; background: #0f1412; color: #8fcf95; }
+#pust-mapdock button.pust-md-bgwide > span { flex: 1 1 auto; min-width: 0; text-align: left; }
+#pust-mapdock button.pust-md-bgwide > i { flex: none; color: #8fcf95; }
 #pust-mapdock .pust-md-battle .pust-md-bbtns > button { flex: 1 1 0; }
 #pust-mapdock .pust-md-bform { display: flex; flex-direction: column; gap: 6px; padding: 6px 8px 8px; border: 1px dashed rgba(61,255,71,.35); border-radius: 4px; }
 #pust-mapdock .pust-md-bform label { display: flex; flex-direction: column; gap: 2px; font-family: "Roboto Condensed", "PT Sans Narrow", sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #8fcf95; }

@@ -5,8 +5,8 @@
  * The choice is a field added to Foundry's own dialog; `create` reads it (marker `pustSceneKind`) and drops it.
  */
 import { battleSceneData } from "../helpers/default-scene.mjs";
-import { AUTO, SAND, SAND_NAME, BATTLE_BACKGROUNDS } from "../rules/battle-backgrounds.mjs";
-import { bgChoice } from "../helpers/battle-background.mjs";
+import { AUTO, OWN, OWN_NAME, SAND, SAND_NAME, BG_GROUPS } from "../rules/battle-backgrounds.mjs";
+import { bgChoice, bgSceneKind } from "../helpers/battle-background.mjs";
 
 const KIND_FIELD = "pustSceneKind";
 
@@ -64,15 +64,22 @@ export function addSceneKindField(app, element) {
       <option value="" ${on ? "" : "selected"}>Мапа</option>
     </select></div>
     <p class="hint">Битва: панель «Битва» із зонами. Мапа: панелі «Мапи Пустки». Тло й сітка сцени не змінюються.</p></div>`);
-  // the battle scene's background (author, 2026-11-18): the same choice as beside «Місце» in the «Битва» panel
-  if (!on) return;
+  // the scene's background (author, 2026-11-18): the same choice as beside «Місце» in the «Битва» panel, the groups as
+  // optgroups (author, 2026-11-23 / 25); a «Мапа» scene (not «Мапа Пустки») has it too, without auto
+  const kind = bgSceneKind(doc);
+  if (!kind) return;
   const bgPath = `flags.${game.system.id}.battleBg`;
   const cur = bgChoice(doc);
   const opt = (v, l) => `<option value="${v}" ${v === cur ? "selected" : ""}>${foundry.utils.escapeHTML(l)}</option>`;
+  const groups = BG_GROUPS.map((g) => `<optgroup label="${foundry.utils.escapeHTML(g.name)}">${g.list.map((b) => opt(b.key, b.name)).join("")}</optgroup>`).join("");
+  const first = kind === "battle" ? opt(AUTO, "Авто за місцем") : opt(OWN, OWN_NAME);
+  const hint = kind === "battle"
+    ? "Авто: фон за «Місцем» панелі «Битва», власну картинку сцени не змінює. Інший пункт ставить вибраний фон."
+    : "Власна картинка: тло сцени не змінюється. Фотокартка поселення ставить сцені 2000 × 1500 із сіткою 50, інший фон 4000 × 3000 із сіткою 100; токени й малюнки зсуваються разом із тлом.";
   root.querySelector("[data-pust-scene-kind]").insertAdjacentHTML("afterend", `<div class="form-group" data-pust-scene-bg>
     <label>Фон сцени</label>
     <div class="form-fields"><select name="${bgPath}">
-      ${opt(AUTO, "Авто за місцем")}${opt(SAND, SAND_NAME)}${BATTLE_BACKGROUNDS.map((b) => opt(b.key, b.name)).join("")}
+      ${first}${opt(SAND, SAND_NAME)}${groups}
     </select></div>
-    <p class="hint">Авто: фон за «Місцем» панелі «Битва», власну картинку сцени не змінює. Інший пункт ставить вибраний фон.</p></div>`);
+    <p class="hint">${hint}</p></div>`);
 }
