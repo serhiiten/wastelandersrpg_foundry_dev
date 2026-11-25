@@ -48,6 +48,14 @@ if (existsSync(HIT)) {
     const b = T.computeDamage(v.target, v.hit.total, v.hit.type, { ...o, rollD6: () => (q2.length ? q2.shift() : 1) });
     ok(JSON.stringify(a) === JSON.stringify(b), `computeDamage ${v.id}: foundry ${JSON.stringify(a)}, terminal ${JSON.stringify(b)}`);
   }
+  // «Неживий» for «Електромагнітна граната» (row 6.15, 2026-11-25): the tracker's copies of states.mjs NONLIVING_BOOK and
+  // chem-target.mjs MACHINE_WORDS (tracker.js enemyNonliving) must hold the same names
+  const TRK = readFileSync(HIT.replace(/hit\.js$/, "tracker.js"), "utf8");
+  const list = (name) => { const m = new RegExp(`const ${name} = (\\[[\\s\\S]*?\\])\\n`).exec(TRK); return m ? vm.runInNewContext(m[1]) : null; };
+  const { NONLIVING_BOOK } = await import("../module/rules/states.mjs");
+  const { MACHINE_WORDS } = await import("../module/rules/chem-target.mjs");
+  ok(JSON.stringify(list("NONLIVING_BOOK")) === JSON.stringify(NONLIVING_BOOK), "terminal NONLIVING_BOOK = Foundry's");
+  ok(JSON.stringify(list("MACHINE_WORDS")) === JSON.stringify(MACHINE_WORDS), "terminal MACHINE_WORDS = Foundry's");
 } else console.log("note: the HTML terminal's hit.js is not next to this clone, only Foundry was checked");
 
 if (failures) { console.log(`FAILS: ${failures} of ${checks}`); process.exit(1); }
