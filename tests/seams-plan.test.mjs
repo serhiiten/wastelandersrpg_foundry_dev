@@ -1,7 +1,7 @@
 // The seams test's pure part (tests/live/seams.mjs): the route's order, the choice of steps, the counters rule,
 // the console noise and the verdict. The live part needs Foundry (workspace tools/foundry-live/seams.py).
 // Run: node tests/seams-plan.test.mjs
-import { ROUTE, selectSteps, countsDiff, isNoise, redLines, verdict, NOISE, KNOWN, knownOf, doubleThumbs } from "./live/seams.mjs";
+import { ROUTE, selectSteps, countsDiff, isNoise, redLines, verdict, NOISE, KNOWN, knownOf, doubleThumbs, TOLERATED, splitTolerated } from "./live/seams.mjs";
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; console.log("FAIL " + m); } };
@@ -48,6 +48,17 @@ const thumbs = doubleThumbs([
   "Something else",
 ]);
 ok(thumbs.join() === "thumb-b.webp ×2", `a thumbnail written twice is found (${thumbs})`);
+
+// tolerated findings (author, 2026-11-25: 1b's first-entry race is not fixed; named, not red)
+ok(TOLERATED.every((t) => t.id && t.title && t.why && t.re instanceof RegExp && t.steps.length), "every tolerated finding says what and why");
+ok(!TOLERATED.some((t) => KNOWN.some((k) => k.id === t.id)), "a tolerated finding is not an old bug to fix");
+const race = ["журналів «Довідка Foundry»: 2", "журнал Довідка Foundry ×2", "сцена Мапа Пустки ×2", "кілька активних сцен"];
+let sp = splitTolerated("1b", race);
+ok(sp.problems.length === 0 && sp.tolerated.join() === "first-entry-race", "1b's race lines are tolerated, named once");
+sp = splitTolerated("1a", race);
+ok(sp.problems.length === race.length && !sp.tolerated.length, "the same lines in 1a (one window after the other) stay failures");
+sp = splitTolerated("1b", [...race, "журналів «Довідка Foundry»: 3", "сцена Бойова мапа ×2", "тека Actor:x ×2"]);
+ok(sp.problems.join("|") === "журналів «Довідка Foundry»: 3|сцена Бойова мапа ×2|тека Actor:x ×2", `anything beyond the race stays a failure (${sp.problems})`);
 
 // verdict
 ok(verdict([{ step: "1a", ok: true }, { step: "2", ok: true }]).ok, "all green: green");

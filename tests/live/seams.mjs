@@ -73,6 +73,27 @@ export const KNOWN = [
     title: "мініатюру сцени записано двічі на першому вході (журнал сервера)" },
 ];
 
+/**
+ * Findings the author decided to tolerate (not fixed): the test names them but does not turn red on them. `steps`: where a
+ * problem line counts as one; `re`: the whole problem line as the step reports it — anything else stays a failure.
+ */
+export const TOLERATED = [
+  { id: "first-entry-race", steps: ["1b"],
+    re: /^(журналів «Довідка Foundry»: 2|журнал Довідка Foundry ×2|сцена Мапа Пустки ×2|кілька активних сцен)$/,
+    title: "два вікна Доглядача одночасно в чистому світі: дві «Довідки Foundry» і дві «Мапи Пустки» (буває й дві активні сцени)",
+    why: "автор, 2026-11-25: терпима, не виправляємо" },
+];
+
+/** A step's problems split into failures and tolerated findings: { problems, tolerated: [ids] } */
+export function splitTolerated(step, problems = [], list = TOLERATED) {
+  const out = { problems: [], tolerated: [] };
+  for (const p of problems) {
+    const t = list.find((x) => x.steps.includes(String(step)) && x.re.test(String(p)));
+    if (t) { if (!out.tolerated.includes(t.id)) out.tolerated.push(t.id); } else out.problems.push(p);
+  }
+  return out;
+}
+
 /** The old bug a red console line is, or null */
 export const knownOf = (c, known = KNOWN) => known.find((k) => k.re && k.re.test(String(c?.text ?? "")))?.id ?? null;
 
