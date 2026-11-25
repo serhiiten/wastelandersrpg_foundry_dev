@@ -119,11 +119,14 @@ for (const f of files) {
   }
   // «кубик» in what Foundry shows (author, 2026-11-20, F8 of Fable's analysis): the wiki says «кістка». The system's own
   // files and, since 2026-11-25 (author: «у HTML теж»), the HTML character sheet's sources, which Foundry's rules are made
-  // from; not comments. The caravan sheet and the terminal are not checked for it yet.
-  if ((!rel.startsWith("..") || rel.startsWith("../pustelnyky-character-generator/")) && !rel.startsWith("tests/")) {
+  // from, and the terminal's own sources; not comments. The terminal's embedded sheets (cg_src.html → cg_embed.js, still
+  // with 8 «кубик») are skipped above until stage 0.8 replaces them; build.py (its patches search for the old «кубик»)
+  // isn't walked. The caravan sheet is not checked for it yet.
+  const kubik = !rel.startsWith("..") || rel.startsWith("../pustelnyky-character-generator/") || rel.startsWith("../pustelnyky_src (1)/");
+  if (kubik && !rel.startsWith("tests/")) {
     text.split("\n").forEach((line, i) => {
       if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;
-      const code = line.replace(/\s\/\/\s.*$/, "");
+      const code = line.replace(/\/\*.*?\*\//g, "").replace(/\s\/\/\s.*$/, "").replace(/\s\/\*.*$/, "");
       for (const m of code.matchAll(word("[Кк]убик[а-яіїєґ]*"))) ok(false, `${rel}:${i + 1}: «${m[0]}» — write «кістка»`);
     });
   }
