@@ -35,5 +35,11 @@ for (const [k, s] of Object.entries(HP_STATES)) ok(ENS_ICON && ENS_ICON[s.icon] 
 ok(modSrc("templates/actor/enemy.hbs").includes('title="Стан ворога"') && src.includes('title="Стан ворога"'), "the chip's tooltip «Стан ворога»");
 ok(modSrc("module/sheets/enemy-sheet.mjs").includes("/^Спостережливість/") && termSrc("sync.js").includes("/^Спостережливість/"), "«Спостережливість» found by the same pattern");
 
+// The log online (4.3 in the log, 2026-11-25): the GM's full entry carries Foundry's chip «Доглядачу» («Бачить лише Доглядач»,
+// apply-damage.mjs postSplit); players get the short one with the state's word (trLogSplit)
+const ad = modSrc("module/applications/apply-damage.mjs");
+ok(ad.includes('title="Бачить лише Доглядач"') && ad.includes("Доглядачу</span>") && src.includes('<span title="Бачить лише Доглядач">') && src.includes("<i>Доглядачу</i>"), "the GM's entry: the chip «Доглядачу» of postSplit");
+ok(src.includes("ENS.hpState(u.hp, u.maxHp).label"), "the short entry: the state's word from the copy of hpState");
+
 if (failures) { console.log(`FAILS: ${failures} of ${checks}`); process.exit(1); }
 console.log(`enemy-state-html: OK (${checks} checks)`);

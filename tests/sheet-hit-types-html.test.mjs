@@ -65,5 +65,16 @@ const TR = ["phys", "laser", "plasma", "gauss", "electric", "cryo", "fire", "rad
 // (DMG_TYPES[t]) would keep the word — a sheet never sends one, so the grid leaves it out
 for (const t of [...Object.keys(DT.DMG_TYPES), "x", "", "Фізична"]) ok((t === "psi" ? "psychic" : TR.includes(t) ? t : "phys") === battleType(t), `battleType(${t})`);
 
+// The tracker's damage field reads labelled terms («2d6[фізична]+1d6[радіація]», a weapon of the sheet; HTML backport stage 4,
+// part 2, 2026-11-25): build.py puts cg_hit_types.js into the terminal too, the tracker reads a label with CG_DT.labelType;
+// several types are not split (check-panel.mjs: the same words)
+for (const l of ["фізична", "радіація", "Радіація", "кріо", "електрика", "пси", "психічна", "отрута", "вогонь", "лазерна", "плазмова", "гаус", "x", ""])
+  ok(H.labelType(l) === DT.labelType(l), `labelType(${l})`);
+const tr = termSrc("tracker.js");
+ok(termSrc("build.py").includes("(SP / 'cg_hit_types.js').read_text(encoding='utf-8')"), "build.py puts cg_hit_types.js into the terminal (TRK)");
+ok(tr.includes("CG_DT.labelType(l)") && tr.includes("t === 'psi' ? 'psychic' : t"), "tracker.js: a label → the tracker's type as labelType + battleType");
+const SPLIT_TYPES = "Шкода вийшла кількох типів, тож розподілити її не вийде: кожна ціль отримує її повністю.";
+ok(cpm.includes(SPLIT_TYPES) && tr.includes(SPLIT_TYPES), "the toast of a split of several types: check-panel.mjs's words");
+
 if (failures) { console.log(`FAILS: ${failures} of ${checks}`); process.exit(1); }
 console.log(`sheet-hit-types-html: OK (${checks} checks)`);
