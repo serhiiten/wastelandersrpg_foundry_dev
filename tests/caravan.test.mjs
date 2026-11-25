@@ -8,12 +8,10 @@ import { caravanHtmlState, caravanToState, planCaravanSync, stateToCaravan } fro
 import { buildCaravanView } from "../module/sheets/caravan-view.mjs";
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
-// «unpaid» (a cargo row not bought yet, A3 2026-11-21) is Foundry's own: the HTML sheet has no such key; kept through the actor
-// is checked in tests/caravan-trade.test.mjs
-const FOUNDRY_ONLY = new Set(["unpaid"]);
+// «unpaid» (a cargo row not bought yet, A3) is in the shared normalize() since stage 6в (2026-11-25): compared like any key
 const canon = (v) =>
   Array.isArray(v) ? v.map(canon)
-    : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).filter((k) => !k.startsWith("_") && !FOUNDRY_ONLY.has(k)).sort().map((k) => [k, canon(v[k])]))
+    : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).filter((k) => !k.startsWith("_")).sort().map((k) => [k, canon(v[k])]))
       : v;
 const same = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
 const firstDiff = (a, b) => {

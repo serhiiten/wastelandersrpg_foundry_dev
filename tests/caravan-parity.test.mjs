@@ -10,9 +10,11 @@ import { loadHtmlCaravan } from "./caravan-sandbox.mjs";
 import { storeSystem } from "./schema-mock.mjs";
 import { createCaravanLogic } from "../module/rules/caravan-logic.mjs";
 import { createCaravanController } from "../module/rules/caravan-controller.mjs";
-import { cargoHurtAt, caravanToState, planCaravanSync, stateToCaravan } from "../module/rules/caravan-adapter.mjs";
+import { cargoHurtAt, caravanToState, planCaravanSync, rowKey, stateToCaravan } from "../module/rules/caravan-adapter.mjs";
 
 const HBS = readFileSync(new URL("../templates/actor/caravan-v2.hbs", import.meta.url), "utf8");
+/** «Списати N(к) з бюджету?» is Foundry's DialogV2, not the template */
+const SPEND = readFileSync(new URL("../module/applications/spend-ask.mjs", import.meta.url), "utf8");
 let failures = 0;
 const fail = (m) => {
   failures++;
@@ -53,6 +55,12 @@ const SAME = {
   "data-cnt-del": 'data-act="cnt-del"', "data-cg-del": 'data-act="cg-del"', "data-roll": 'data-act="roll"',
   "data-cimp-del": 'data-act="cimp-del"', cntName: 'data-k="counters.{{i}}.name"', cntSize: 'data-k="counters.{{i}}.size"',
   cg: 'data-k="cargo.{{i}}.', cimpF: 'data-k="customImps.{{i}}.',
+  // stage 6в of the backport (2026-11-25): «Купити / Продати / Плата за проїзд» of a cargo row, «Продати все» (A3)
+  "data-cg-buy": 'data-action="cargoBuy" data-i="{{i}}"', "data-cg-sell": 'data-action="cargoSell" data-i="{{i}}" data-key="{{key}}"',
+  cargoSellAll: 'data-action="cargoSell" data-all="1"',
+  // «Списати N(к) з бюджету?» (A3, A13): its three ways out, in spend-ask.mjs
+  spendPay: { in: SPEND, text: 'action: "pay", label: "Так, списати"' }, spendFree: { in: SPEND, text: 'action: "free", label: "Ні, без списання"' },
+  spendClose: { in: SPEND, text: "rejectClose: false" },
 };
 /** HTML controls Foundry leaves out on purpose */
 const SKIP = {
@@ -81,7 +89,7 @@ for (const c of controls) {
   if (SKIP[c]) continue;
   const want = SAME[c];
   if (!want) fail(`inventory: HTML control «${c}» has no Foundry counterpart (add it to SAME or SKIP)`);
-  else if (!HBS.includes(want)) fail(`inventory: «${c}» → template lacks ${want}`);
+  else if (typeof want === "object" ? !want.in.includes(want.text) : !HBS.includes(want)) fail(`inventory: «${c}» → Foundry lacks ${want.text ?? want}`);
 }
 
 /* ------------------------------------------------------------------ */
@@ -89,12 +97,10 @@ for (const c of controls) {
 /* ------------------------------------------------------------------ */
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
-// «unpaid» (a cargo row not bought yet, A3 2026-11-21) is Foundry's own: the HTML sheet has no such key; kept through the actor
-// is checked in tests/caravan-trade.test.mjs
-const FOUNDRY_ONLY = new Set(["unpaid"]);
+// «unpaid» (a cargo row not bought yet, A3) is in the shared normalize() since stage 6в (2026-11-25): compared like any key
 const canon = (v) =>
   Array.isArray(v) ? v.map(canon)
-    : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).filter((k) => !k.startsWith("_") && !FOUNDRY_ONLY.has(k)).sort().map((k) => [k, canon(v[k])]))
+    : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).filter((k) => !k.startsWith("_")).sort().map((k) => [k, canon(v[k])]))
       : v;
 const same = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
 const firstDiff = (a, b) => {
@@ -127,11 +133,20 @@ const foundryStore = (data) => {
   return a;
 };
 
+/** The HTML sheet's «Списати N(к) з бюджету?» answered: pay "1" «Так, списати» (off when the budget is short), "0" «Ні, без
+ *  списання»; then × (a no-op once it is closed). Foundry's sheet asks the same and passes pay to the controller */
+function answer(h, press, pay) {
+  press();
+  h.click(pay === "1" ? "spendPay" : "spendFree");
+  h.click("spendClose");
+}
 /** One step for both sheets: [html(h), foundry(C)] */
 const STEPS = {
   vehTachka: [(h) => h.click("vehTachka"), (C) => C.act("veh", { veh: "1" })],
   vehBrahmin: [(h) => h.click("vehBrahmin"), (C) => C.act("veh", { veh: "0" })],
-  addCustomImp: [(h) => h.click("addCustomImp"), (C) => C.act("addCustomImp")],
+  // past the two starting improvements the sheets ask «Списати 25(к) з бюджету?» (A13): free here, paid in impPay / cimpPay
+  addCustomImp: [(h) => answer(h, () => h.click("addCustomImp"), "0"), (C) => C.act("addCustomImp", { pay: "0" })],
+  cimpPay: [(h) => answer(h, () => h.click("addCustomImp"), "1"), (C) => C.act("addCustomImp", { pay: "1" })],
   addCounter: [(h) => h.click("addCounter"), (C) => C.act("addCounter")],
   addCargo: [(h) => h.click("addCargo"), (C) => C.act("addCargo")],
   rollRep: [(h) => h.click("rollRep"), (C) => C.act("rollRep")],
@@ -147,6 +162,9 @@ const STEPS = {
   random: [(h) => { const st = h.getState(); Object.keys(st.manual || {}).forEach((k) => { st.manual[k] = false; }); st.customImps = []; h.setState(st); h.click("btnRandom", 2); }, (C) => C.act("random")],
 };
 const field = (id, k, v) => [(h) => h.type(id, v), (C) => C.setField(k, v)];
+/** an improvement's level, answering the question when the sheet asks one (free by default) */
+const imp = (id, k, pay = "0") => [(h) => answer(h, () => h.clickData({ impBtn: id, k }), pay), (C) => C.act("imp", { id, k, pay })];
+let sellKey = "-";
 const data = (ds, act, d, times = 1) => [(h) => h.clickData(ds, times), (C) => C.act(act, d)];
 const rowField = (ds, k, v, tag) => [(h) => h.typeData(ds, v, tag), (C) => C.setField(k, v)];
 /** a delegated element of the page with its own properties (checkboxes, the defence selects) */
@@ -171,9 +189,14 @@ Object.assign(STEPS, {
   budgetDown: data({ step: "budget", d: "-1" }, "step", { step: "budget", d: "-1" }),
   move3: data({ pip: "move", i: "3" }, "pip", { pip: "move", i: "3" }), move0: data({ pip: "move", i: "0" }, "pip", { pip: "move", i: "0" }),
   sup1: data({ pip: "sup", i: "1" }, "pip", { pip: "sup", i: "1" }),
-  impStruct: data({ impBtn: "structure", k: "1" }, "imp", { id: "structure", k: "1" }), impChest: data({ impBtn: "chest", k: "0" }, "imp", { id: "chest", k: "0" }),
-  impTrunk: data({ impBtn: "trunk", k: "0" }, "imp", { id: "trunk", k: "0" }), impBed: data({ impBtn: "bed", k: "0" }, "imp", { id: "bed", k: "0" }),
-  impDefib: data({ impBtn: "defib", k: "0" }, "imp", { id: "defib", k: "0" }), impFeed: data({ impBtn: "feed", k: "1" }, "imp", { id: "feed", k: "1" }),
+  impStruct: imp("structure", "1"), impChest: imp("chest", "0"), impTrunk: imp("trunk", "0"), impBed: imp("bed", "0"),
+  impDefib: imp("defib", "0"), impFeed: imp("feed", "1"), impArmorPay: imp("armor", "0", "1"), impCabinPay: imp("cabin", "0", "1"),
+  // stage 6в (A3): «Купити за N(к)» paid or free, «Продати» of row 0 (the key the button carries), «Продати все»
+  cgBuyPay: [(h) => answer(h, () => h.clickData({ cgBuy: "0" }), "1"), (C) => C.act("cg-buy", { i: "0", pay: "1" })],
+  cgBuyFree: [(h) => answer(h, () => h.clickData({ cgBuy: "0" }), "0"), (C) => C.act("cg-buy", { i: "0", pay: "0" })],
+  cgSell: [(h) => { const r = h.getState().cargo[0]; sellKey = r ? rowKey(r) : "-"; h.clickData({ cgSell: "0", key: sellKey }); }, (C) => C.act("cg-sell", { i: "0", key: sellKey })],
+  cgSellStale: [(h) => h.clickData({ cgSell: "0", key: "cargo|нема|1|1|0|0" }), (C) => C.act("cg-sell", { i: "0", key: "cargo|нема|1|1|0|0" })],
+  cgSellAll: [(h) => h.click("cargoSellAll"), (C) => C.act("cg-sell", { all: "1" })],
   seg: data({ seg: "0", k: "2" }, "seg", { seg: "0", k: "2" }),
   cntDel: data({ cntDel: "0" }, "cnt-del", { i: "0" }, 2), cgDel: data({ cgDel: "0" }, "cg-del", { i: "0" }, 2), cimpDel: data({ cimpDel: "0" }, "cimp-del", { i: "0" }, 2),
   rollMeeting: data({ roll: "meeting" }, "roll", { roll: "meeting" }), rollLastJob: data({ roll: "lastJob" }, "roll", { roll: "lastJob" }),
@@ -198,17 +221,18 @@ Object.assign(STEPS, {
 /** steps that need a row to exist first */
 const NEEDS = {
   seg: "addCounter", cntDel: "addCounter", cntName: "addCounter", cntSize: "addCounter",
-  cgDel: "addCargo", cgFar: "addCargo", cgFarOff: "addCargo", cgHurt: "addCargo", cgHurtOff: "addCargo", cgName: "addCargo", cgKind: "addCargo", cgPrice: "addCargo", cgQty: "addCargo", cgNote: "addCargo",
+  cgDel: "addCargo", cgBuyPay: "cgPrice", cgBuyFree: "cgPrice", cgSell: "addCargo", cgFar: "addCargo", cgFarOff: "addCargo", cgHurt: "addCargo", cgHurtOff: "addCargo", cgName: "addCargo", cgKind: "addCargo", cgPrice: "addCargo", cgQty: "addCargo", cgNote: "addCargo",
   cimpDel: "addCustomImp", cimpName: "addCustomImp", cimpDesc: "addCustomImp",
 };
 
 /** Foundry: one step on a caravan actor, saved the way saveCaravan does and read back */
+let lastResult; // what the Foundry action returned (cg-sell: the plan for the chat card)
 function foundryStep(actor, fn, toasts) {
   const wasHurt = cargoHurtAt(actor.system.hp?.value, actor.system.hp?.max);
   const S = caravanToState(actor, { withIds: true });
   const toast = (m) => toasts.push(String(m));
   const L = createCaravanLogic({ S, toast });
-  fn(createCaravanController(L, { toast }));
+  lastResult = fn(createCaravanController(L, { toast }));
   const plan = planCaravanSync(actor, L.getS());
   actor.name = plan.name;
   Object.assign(actor.system, clone(plan.system));
@@ -232,6 +256,8 @@ function foundryStep(actor, fn, toasts) {
 }
 
 const names = Object.keys(STEPS);
+const KARMA_QUIET = new Set(["rollKarma", "random", "clear", "rollFate"]);
+const int = (v) => parseInt(v, 10) || 0;
 const realRandom = Math.random;
 let compared = 0;
 const CASES = 120;
@@ -248,16 +274,18 @@ for (let c = 0; c < CASES; c++) {
   const path = [];
   for (let s = 0; s < 25; s++) {
     const n = names[Math.floor(pick() * names.length)];
-    if (NEEDS[n]) path.push(NEEDS[n]);
-    path.push(n);
+    const withNeeds = (x) => { if (NEEDS[x]) withNeeds(NEEDS[x]); path.push(x); }; // «Купити» needs a price, a price a row
+    withNeeds(n);
   }
   for (const [s, n] of path.entries()) {
     const seed = c * 1000 + s;
     const [html, fnd] = STEPS[n];
     H.setRandom(rng(seed));
     const before = H.lastToast();
+    H.clearToast();
+    const kWas = caravanToState(actor);
     html(H);
-    const htmlToast = H.lastToast() !== before ? H.lastToast() : "";
+    const htmlToast = H.lastToast();
     const toasts = [];
     Math.random = rng(seed);
     try {
@@ -275,8 +303,17 @@ for (let c = 0; c < CASES; c++) {
       fail(`case ${c}, step ${s} «${n}»: ${firstDiff(want, got)}`);
       H.setState(got); // carry on from the same caravan
     }
-    const fToast = toasts.at(-1) || "";
-    if (htmlToast && htmlToast !== fToast) fail(`case ${c}, step ${s} «${n}»: message «${htmlToast}» / Foundry «${fToast}»`);
+    // where Foundry posts a chat card the HTML sheet shows a message (stage 6в): a sale (cg-sell's plan) and every change of the
+    // karma by hand (A14; not the d6, «Випадковий караван», «Очистити» — KARMA_QUIET of caravan-sheet-v2.mjs)
+    let fToast = toasts.at(-1) || "";
+    let card = false;
+    if (lastResult && lastResult.rows) { fToast = H.api.saleToast(lastResult); card = true; }
+    else if (!KARMA_QUIET.has(n) && int(kWas.karma) !== int(got.karma)) {
+      fToast = H.api.karmaToast(want.companyName, int(kWas.karma), int(got.karma), kWas.karmaAspect || "", got.karmaAspect || "");
+      card = true;
+    }
+    if ((htmlToast || card) && htmlToast !== fToast) fail(`case ${c}, step ${s} «${n}»: message «${htmlToast}» / Foundry «${fToast}»`);
+    void before;
   }
 }
 

@@ -36,8 +36,6 @@ const MAPPED = new Set(["companyName", "luck", "karma", "karmaAspect", "reputati
 export function stateToCaravan(S0) {
   const L = createCaravanLogic({ S: null });
   const S = L.normalize(clone(S0));
-  // Foundry only (A3, 2026-11-21): «ще не куплено» of a cargo row; normalize() of the shared rules keeps only the HTML keys
-  (S0?.cargo || []).forEach((r, k) => { if (r?.unpaid && S.cargo[k]) S.cargo[k].unpaid = true; });
   const D = L.derived(S);
   const system = {
     karmicAspect: S.karmaAspect || "",

@@ -98,7 +98,7 @@ export function createCaravanLogic(env = {}) {
     st.imp = Object.assign(blankImps(), o.imp || {});
     IMPS.forEach(i => { st.imp[i.id] = Math.max(0, Math.min(i.max, int(st.imp[i.id]))); });
     st.story = Object.assign(blankState().story, o.story || {});
-    st.cargo = Array.isArray(o.cargo) ? o.cargo.map(r => ({ name: String(r.name || ""), kind: r.kind === "pass" ? "pass" : "cargo", price: String(r.price ?? ""), qty: String(r.qty ?? ""), note: String(r.note || ""), ...(r.far ? { far: true } : {}), ...(r.hurt ? { hurt: true } : {}) })) : [];
+    st.cargo = Array.isArray(o.cargo) ? o.cargo.map(r => ({ name: String(r.name || ""), kind: r.kind === "pass" ? "pass" : "cargo", price: String(r.price ?? ""), qty: String(r.qty ?? ""), note: String(r.note || ""), ...(r.far ? { far: true } : {}), ...(r.hurt ? { hurt: true } : {}), ...(r.unpaid ? { unpaid: true } : {}) })) : [];
     st.counters = Array.isArray(o.counters) ? o.counters.map(c => ({ name: String(c.name || ""), size: [4, 6, 8, 10, 12].includes(int(c.size)) ? int(c.size) : 6, value: Math.max(0, int(c.value)) })) : [];
     ["luck", "karma", "budget", "hpCurrent", "moveCurrent", "supplies"].forEach(k => st[k] = int(st[k]));
     st.luck = Math.max(-2, Math.min(2, st.luck));
