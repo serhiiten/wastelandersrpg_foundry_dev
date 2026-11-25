@@ -1121,6 +1121,68 @@ const SCENARIOS = {
   },
 
   /**
+   * The item catalogue of the character sheet (defect cb73671, author 2026-11-25: «нерівні кнопки і текст мають ловитися
+   * аудитом»): in every row with «Купити за N(к)» the two buttons stand in one column, «Купити» over «Додати», one width
+   * (shared left and right edges, author 2026-11-21), and the name and description keep the rest of the row; the catalogue's
+   * layout rules (`layout`: nothing spills, overlaps or is cut). The full sheet's «Мотлох» at its narrowest and usual width,
+   * the compact sheet at 460 px; the «Мотлох» pickers (weapons, armour, other) with `layout`. Only the sheet's own UI state (tab, compact, catalogue open) is changed and put back.
+   */
+  async catalog(a) {
+    const actor = auditActor("character") ?? game.actors.find((x) => x.type === "character" && x.isOwner);
+    if (!actor) { a.scenario = "каталог речей"; a.skip("каталог речей", "немає власного персонажа"); return; }
+    const app = actor.sheet, was = app.rendered, pos = { ...app.position };
+    const keep = { tab: app.ui.tab, compact: app.ui.compact, cat: app.ui.cat, catQ: app.ui.catQ, addPick: app.ui.addPick };
+    const check = (label) => {
+      a.scenario = `${label}, ${Math.round(R(app.element).width)} px`;
+      const cat = app.element.querySelector(".pust-catalog-big");
+      if (!shown(cat)) { a.ok("каталог речей відкрито", false, "немає .pust-catalog-big"); return; }
+      const rows = [...cat.querySelectorAll(".pust-cat-row")].filter((r) => shown(r.querySelector(":scope > .pust-buy")));
+      if (!rows.length) { a.skip("«Купити за N(к)» і «Додати»", "немає рядків із «Купити»"); }
+      else {
+        const bad = [];
+        for (const row of rows) {
+          const b = R(row.querySelector(":scope > .pust-buy")), d = R(row.querySelector(":scope > .pust-pick-add"));
+          const n = R(row.querySelector(":scope > .pust-cat-name"));
+          const why = [];
+          if (Math.abs(b.left - d.left) > PX || Math.abs(b.right - d.right) > PX) why.push(`кнопки ${Math.round(b.width)} і ${Math.round(d.width)} px, краї ${Math.round(b.left)}–${Math.round(b.right)} / ${Math.round(d.left)}–${Math.round(d.right)}`);
+          if (b.top >= d.top - PX) why.push("«Купити» не над «Додати»");
+          if (n.right > Math.min(b.left, d.left) + PX) why.push("назва заходить під кнопки");
+          if (why.length) bad.push(`«${row.querySelector(".pust-cat-name b")?.innerText ?? "?"}»: ${why.join(", ")}`);
+        }
+        a.ok(`«Купити за N(к)» над «Додати», рівна ширина (${rows.length} рядків)`, !bad.length, `${bad.length} з ${rows.length}: ${bad.slice(0, 3).join("; ")}`);
+      }
+      a.layout(cat, "каталог речей");
+    };
+    try {
+      app.ui.compact = false; app.ui.tab = "gear"; app.ui.cat = true; app.ui.catQ = "";
+      await app.render({ force: true }); await sleep(1100);
+      for (const w of [100, app.options?.position?.width ?? 900]) { // 100: the sheet's CSS minimum (580) takes over
+        app.setPosition({ width: w }); await sleep(400);
+        check(`каталог речей «${actor.name}», «Мотлох»`);
+      }
+      // the «Мотлох» pickers (weapons, armour, other) share the rows; their first heading once lay on «Інше»'s line (2026-11-25)
+      app.ui.cat = false;
+      for (const [p, label] of [["weapons", "зброя"], ["armor", "броня"], ["other", "інше"]]) {
+        app.ui.addPick = p;
+        await app.render({ force: true }); await sleep(900);
+        for (const w of [100, app.options?.position?.width ?? 900]) {
+          app.setPosition({ width: w }); await sleep(350);
+          a.scenario = `вибірка «${label}» «${actor.name}», ${Math.round(R(app.element).width)} px`;
+          const box = [...app.element.querySelectorAll(".pust-addcat:not(.pust-catalog-big)")].find(shown);
+          if (box) a.layout(box, `вибірка «${label}»`); else a.ok("вибірку відкрито", false, `немає .pust-addcat для ${p}`);
+        }
+      }
+      app.ui.compact = true; app.ui.cat = true;
+      await app.render({ force: true }); await sleep(1100);
+      app.setPosition({ width: 100 }); await sleep(400);
+      check(`каталог речей «${actor.name}», компактний аркуш`);
+    } finally {
+      Object.assign(app.ui, keep);
+      if (was) { await app.render({ force: true }); app.setPosition({ width: pos.width, height: pos.height, left: pos.left, top: pos.top }); } else await app.close();
+    }
+  },
+
+  /**
    * The tours (author, 2026-11-16): every tour this user may take is walked step by step: a step that names an element finds
    * it on screen after its preparation (else the step falls back to the middle — reported), and the step card stays wholly
    * on screen with no text cut. The tour is left and its windows closed at the end.

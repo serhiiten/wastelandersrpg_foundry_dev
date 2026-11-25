@@ -560,8 +560,10 @@
   font-family: var(--pu-f-label); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
 .pust-addcat-list .pust-cat-row { padding: 3px 0; }
 .pust-addcat-list .pust-cat-row > span { flex: 1; min-width: 0; }
-.pust-cat-price { flex: 0 0 64px; text-align: right; font-family: var(--pu-f-num); color: var(--pu-ink-2); }
+.pust-cat-price { flex: 0 0 64px; text-align: right; font-family: var(--pu-f-num); font-size: 12px; color: var(--pu-ink-2); }
 .pust-cat-blank { border-top: 0 !important; border-bottom: 1px solid var(--pu-paper-3); padding: 5px 0 !important; }
+/* the first group heading keeps clear of «Інше»'s line (buttonsClear; author, 2026-11-25) */
+.wastelanders .pust-addcat-list > .pust-cat-blank + h4 { margin-top: 4px; }
 .wastelanders .pust-addcat-list button.pust-pick-add:not(.header-control) { flex: 0 0 auto; }
 /* «+ Зброя / + Броня / + Річ»: one size, the primary rust look; lit while its catalogue is open */
 .wastelanders button.pust-addbtn:not(.header-control) { width: 120px !important; height: 30px !important; line-height: 28px !important; padding: 0 10px !important; justify-content: center; }
@@ -573,7 +575,7 @@
 /* catalogue rows: name, damage / armour, then the description beside them (it wraps under when long) */
 .pust-cat-name { line-height: 1.3; }
 .pust-cat-name > b { font-weight: 700; }
-.pust-cat-d { font-family: var(--pu-f-num); color: var(--pu-rust-2); font-weight: 700; }
+.pust-cat-d { font-family: var(--pu-f-num); font-size: 12px; color: var(--pu-rust-2); font-weight: 700; }
 .pust-cat-desc { color: var(--pu-ink-3); font-size: 12px; }
 .pust-addcat-list .pust-cat-row { align-items: flex-start; }
 .pust-addcat-list .pust-cat-row > .pust-cat-price, .pust-addcat-list .pust-cat-row > .pust-pick-add, .pust-addcat-list .pust-cat-row > .pust-buy { align-self: center; }
