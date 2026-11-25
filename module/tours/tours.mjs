@@ -34,6 +34,27 @@ export function startTour(id) {
   return tour.reset().then(() => tour.start());
 }
 
+/**
+ * «ready», a GM in a new world (2026-11-25, seams test «tour-collision»): Foundry's own welcome tour does not start by itself.
+ * Right after «ready» Foundry starts it in a world with no documents (`NewUserExperienceManager#showNewWorldTour`: it makes
+ * and activates its starter scene, waits, then starts the tour) and throws «You cannot begin the Welcome to Foundry Virtual
+ * Tabletop Tour because the Початок Tour is already in progress». The system gives a new world its own scenes and its own
+ * first tour «Початок», so for the GM Foundry's tour is marked done in this browser (its progress is a client setting) before
+ * Foundry looks. It stays in Foundry's Tours list and can be taken by hand; players are not touched.
+ * @returns {boolean} whether it was marked
+ */
+export function skipFoundryWelcome() {
+  if (!game.user.isGM) return false;
+  if (game.actors.size + game.scenes.size + game.items.size + game.journal.size) return false; // Foundry's own «new world» test
+  const tour = game.tours.get("core.welcome");
+  if (!tour || tour.status !== foundry.nue.Tour.STATUS.UNSTARTED) return false;
+  const progress = foundry.utils.deepClone(game.settings.get("core", "tourProgress") ?? {});
+  progress.core = { ...(progress.core ?? {}), welcome: tour.steps.length };
+  game.settings.set("core", "tourProgress", progress); // a client setting: stored at once, before the first await
+  tour._reloadProgress();
+  return true;
+}
+
 /** The first entry: one tour starts by itself, once per user */
 export async function autoStartTour() {
   const seen = game.user.getFlag(sys(), "toursSeen") ?? {};

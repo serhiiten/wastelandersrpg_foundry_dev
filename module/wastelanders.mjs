@@ -54,7 +54,7 @@ import { mountEndRow } from "./applications/battle-panel.mjs";
 import { registerGmMoveAlert } from "./applications/gm-move-alert-ui.mjs";
 import { loadCatalogDescriptions } from "./applications/catalog-descriptions.mjs";
 import { ensureMapScene, ensureBattleScene } from "./helpers/default-scene.mjs";
-import { autoStartTour, ensureHelpJournal, registerSystemTours, registerTourEnricher } from "./tours/tours.mjs";
+import { autoStartTour, ensureHelpJournal, registerSystemTours, registerTourEnricher, skipFoundryWelcome } from "./tours/tours.mjs";
 
 /* The book's descriptions over attribute and skill names (`data-pust-tip`): left-aligned, after 1 s of hovering — Foundry's
    own delay (0.5 s) is one for all tooltips (author, 2026-11-16). Never during a tour: its card is Foundry's tooltip too. */
@@ -281,6 +281,7 @@ Hooks.once("ready", () => {
   readyTokenVariants();
   // the tours (author, 2026-11-16): registered, «Довідка Foundry» kept current, the first one started on a first entry
   registerSystemTours();
+  skipFoundryWelcome(); // a new world: Foundry's welcome tour would collide with «Початок» (seams test, 2026-11-25)
   ensureHelpJournal().catch((err) => console.warn("Пустельники | «Довідка Foundry» not made", err));
   autoStartTour();
 });

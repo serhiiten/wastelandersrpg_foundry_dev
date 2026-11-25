@@ -48,6 +48,14 @@ const thumbs = doubleThumbs([
   "Something else",
 ]);
 ok(thumbs.join() === "thumb-b.webp ×2", `a thumbnail written twice is found (${thumbs})`);
+const twoScenes = [
+  'Persisted base64 image to "C:\\W\\pustelnyky-seams\\assets\\scenes\\thumb-m.webp"',
+  'Persisted base64 image to "C:\\W\\pustelnyky-seams\\assets\\scenes\\thumb-m.webp"',
+];
+const used = (n) => Array(n).fill("worlds/pustelnyky-seams/assets/scenes/thumb-m.webp?1795618110250");
+ok(doubleThumbs(twoScenes, used(2)).length === 0, "two scenes with one picture share its file: one write each is not a double");
+ok(doubleThumbs(twoScenes, [...used(1), null]).join() === "thumb-m.webp ×2", "one scene's thumbnail written twice is still found");
+ok(doubleThumbs([...twoScenes, twoScenes[0]], used(2)).join() === "thumb-m.webp ×3", "more writes than scenes using the file are found");
 
 // tolerated findings (author, 2026-11-25: 1b's first-entry race is not fixed; named, not red)
 ok(TOLERATED.every((t) => t.id && t.title && t.why && t.re instanceof RegExp && t.steps.length), "every tolerated finding says what and why");

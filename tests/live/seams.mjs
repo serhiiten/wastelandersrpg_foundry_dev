@@ -107,14 +107,22 @@ export function redLines(consoles = {}, noise = NOISE, known = KNOWN) {
   return out;
 }
 
-/** Server log lines «Persisted base64 image to "...thumb-X.webp"»: the files written more than once */
-export function doubleThumbs(messages = []) {
+/**
+ * Server log lines «Persisted base64 image to "...thumb-X.webp"»: the files written more often than scenes use them.
+ * The file is named after the picture's content, so two scenes with the same picture share one file and each writes it
+ * once (2026-11-25: 1b's two «Мапа Пустки» are the tolerated race, not a thumbnail written twice). `sceneThumbs`: every
+ * scene's `thumb`; a file no scene uses still counts as used once.
+ */
+export function doubleThumbs(messages = [], sceneThumbs = []) {
+  const base = (f) => String(f ?? "").split("?")[0].split(/[\\/]/).pop(); // a scene's thumb ends in «?<time>»
+  const uses = new Map();
+  for (const t of sceneThumbs) if (t) uses.set(base(t), (uses.get(base(t)) ?? 0) + 1);
   const n = new Map();
   for (const m of messages) {
     const f = String(m ?? "").match(/Persisted base64 image to "([^"]*thumb-[^"]*)"/)?.[1];
-    if (f) n.set(f, (n.get(f) ?? 0) + 1);
+    if (f) n.set(base(f), (n.get(base(f)) ?? 0) + 1);
   }
-  return [...n].filter(([, k]) => k > 1).map(([f, k]) => `${f.split(/[\\/]/).pop()} ×${k}`);
+  return [...n].filter(([f, k]) => k > Math.max(1, uses.get(f) ?? 0)).map(([f, k]) => `${f} ×${k}`);
 }
 
 /** The run's verdict from its step results ({ step, ok, details }) */

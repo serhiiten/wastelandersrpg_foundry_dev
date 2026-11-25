@@ -58,7 +58,11 @@ export function mapSceneData(systemId) {
 /** The world's «Мапа Пустки», if it has one */
 export const findMapScene = () => game.scenes.find((s) => s.getFlag(game.system.id, "mapScene"));
 
-async function thumbnail(scene) {
+/** The scene's thumbnail. `ifMissing`: a scene just created may have one already — Foundry makes it while creating a scene
+ * when the canvas is drawn (`Scene#_preCreate`); making it again wrote the same file twice (seams test «double-thumb»,
+ * 2026-11-25) */
+async function thumbnail(scene, { ifMissing = false } = {}) {
+  if (ifMissing && scene?.thumb) return;
   try {
     const { thumb } = await scene.createThumbnail();
     if (thumb) await scene.update({ thumb });
@@ -87,7 +91,7 @@ export async function ensureMapScene() {
   let scene = findMapScene();
   if (!scene) {
     scene = await Scene.implementation.create(mapSceneData(sys));
-    await thumbnail(scene);
+    await thumbnail(scene, { ifMissing: true });
   }
   await scene.activate();
   // Foundry's starter scene goes, unless something was put on it
@@ -150,7 +154,7 @@ export async function ensureBattleScene() {
     // (author, 2026-11-15: a fresh world opened on «Бойова мапа»); the map stays the active one
     const map = findMapScene();
     if (made.active && map) await map.activate();
-    await thumbnail(made);
+    await thumbnail(made, { ifMissing: true });
   }
   await game.settings.set(sys, "battleSceneVersion", BATTLE_SCENE_VERSION);
 }
