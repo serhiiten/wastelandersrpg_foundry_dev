@@ -15,6 +15,9 @@ import { usesFor } from "../module/rules/perk-uses.mjs";
 import { adoptGrants, grantOptions, impSkillOptions } from "../module/rules/skill-sources.mjs";
 import { actorToState, mergeSystem, planSync, stateToActor } from "../module/rules/character-adapter.mjs";
 import { loadHtmlSheet } from "./html-sandbox.mjs";
+import { pruneConsRed } from "../module/rules/battle-health.mjs";
+import { STATES } from "../module/rules/states.mjs";
+import { isCoverText, dropCovers } from "../module/rules/cover.mjs";
 
 const VERBOSE = process.argv.includes("--verbose");
 const failures = [];
@@ -113,13 +116,18 @@ const SAME = {
   "k:N.N.mods.N.n": "k:armor.N.mods.N.n",
   // «гостра» is a word of the weapon's note in Foundry (prices.mjs syncSharpNotes; author, 2026-11-15)
   "k:weapons.N.sharp": "k:weapons.N.note",
+  // «Купити за N(к)» of the catalogue: Foundry's cat-add with data-pay="1" (A13; HTML backport 6.9)
+  "act:cat-buy": "act:cat-add",
+  // «Статуси» and the notices folded by default (U1; HTML backport 6.11): Foundry's uiToggle statusFold / issuesFold
+  "act:ufold": "action:uiToggle",
+  // «Інша перевірка» під результатом (П1 1.1; HTML backport 3.4): Foundry's narrow rust button .pust-other of check-panel.mjs
+  "r:fast-other": "class:pust-other",
 };
 const SKIP = {
   "act:pdf": "PDF не потрібен у Foundry (рішення автора)",
   "act:txt": "текстовий експорт не потрібен у Foundry (рішення автора)",
   "act:copy": "текстовий експорт не потрібен у Foundry (рішення автора)",
   "act:theme": "тема — налаштування Foundry",
-  "act:tab": "вкладки аркуша Foundry (pustTab)",
   "act:fold": "згортання блоків — немає в аркуші Foundry, блоки на вкладках",
   "act:fold-all": "згортання блоків — немає в аркуші Foundry, блоки на вкладках",
   "act:more": "меню «Ще» сторінки",
@@ -132,6 +140,7 @@ const SKIP = {
   "k:set.hand": "рукописний шрифт — лише для PDF, а PDF у Foundry не потрібен",
   "ui:q": "пошук у списку — є (data-ui=q)",
   "ui:cat": "каталог відкрито/закрито — uiToggle cat",
+  "r:fast-tab": "вкладки шухляди «Зробити перевірку» листа (макет Б): у Foundry «Кістка Долі» й «Кістки» — панель «Кістки» доку мапи, кидки — у чаті",
 };
 
 function covered(kind, feature) {
@@ -142,6 +151,8 @@ function covered(kind, feature) {
   if (same) {
     const [k2, f2] = same.split(":");
     if (k2 === "action") return new RegExp(`data-action="${f2}"|${f2}:`).test(foundry);
+    // a control of Foundry's check panel known by its class (check-panel.mjs draws it without data-r / data-action)
+    if (k2 === "class") return new RegExp(`class="(?:[^"]*\\s)?${f2}(?:\\s|")`).test(foundry);
     // a note's editor is drawn from the sheet's list of notes (U8, author 2026-11-21: `["bio", "Біографія"]` → data-note="{{k}}")
     if (k2 === "note") return foundry.includes(`data-note="${f2}"`) || (foundry.includes(`["${f2}", "`) && foundry.includes('data-note="{{k}}"'));
     return F[k2]?.has(f2);
@@ -199,7 +210,7 @@ function onHtml(st0, step, s) {
   sheet.run("chemSeq = 0;");
   seed = s;
   step.html(sheet);
-  sheet.run("syncAuto(st); adoptSources(); if(typeof chemKO==='function') chemKO();"); // what the page's render() does
+  sheet.run("syncAuto(st); adoptSources(); pruneConsRed(st); if(typeof chemKO==='function') chemKO();"); // what the page's render() does
   return { st: fromHtml(sheet.getState()), toasts: sheet.toasts.map((t) => fromHtml(t[1])) };
 }
 
@@ -218,6 +229,7 @@ function onFoundry(st0, step, s) {
   R.syncAuto(st);
   if (!st.set?.free) adoptGrants(st, R.compute(st)); // what character-actions.mjs does on save
   L.chemKO();
+  pruneConsRed(st); // character-actions.mjs normalize: a consequence gone takes its loss of max HP with it (A7)
   const plan = planSync(actor, st);
   const a = clone(actor);
   a.name = plan.name;
@@ -304,6 +316,39 @@ function skillSteps(st) {
   ];
 }
 
+/**
+ * The HTML sheet's own «Кінець сцени» / «Новий день» / «Кінець сесії» is the only end it has, so it does for its character what
+ * Foundry's group end does (HTML backport 6.4, 2026-11-25): the sheet's end (controller: the engine + sceneEndHealth), then
+ * clearAllStates' part for a character — every standard aspect of STATES and every cover «Прикритий: …» goes, the aspects typed
+ * by hand stay; the HTML sheet says it in its end message, «Аспекти зникли: «…».» (the line of Foundry's end card)
+ */
+function groupClear(st, L) {
+  const texts = (st.sit || []).map((a) => a.t);
+  const drop = Object.keys(STATES).filter((k) => texts.includes(STATES[k].aspect)).map((k) => STATES[k].aspect);
+  const covers = texts.filter(isCoverText);
+  if (!drop.length && !covers.length) return;
+  st.sit = dropCovers((st.sit || []).filter((a) => !drop.includes(a.t))).list;
+  const c = L.chem();
+  c.last = `${String(c.last || "").trim()} Аспекти зникли: ${[...drop, ...covers].map((t) => `«${t}»`).join(", ")}.`.trim();
+}
+/** A step on a prepared state: `prep` is merged into the state on both sides first */
+const withState = (prep, name, html, foundry) => ({
+  name,
+  html: (S) => { S.run(`Object.assign(st, ${JSON.stringify(prep)})`); html(S); },
+  foundry: (C, L, st) => { Object.assign(st, clone(prep)); foundry(C, L, st); },
+});
+// 6.4: free invokes made by actions go, the standard aspects and covers go, the typed ones stay; 19+ wakes at 0 HP; the doomed
+const SIT = [{ t: "Засідка", inv: 2 }, { t: "Збитий з ніг", inv: 0 }, { t: "Прикритий: Вася", inv: 1 }, { t: "Купи брухту", inv: 0 }, { t: "На прицілі", inv: 1 }, { t: "Притиснутий вогнем", inv: 0 }];
+const endSteps = () => ["chem-scene", "chem-day", "chem-session"].flatMap((a) => [
+  withState({ sit: SIT, ko: { wake: true }, hpCur: "0" }, `${a} (аспекти, 19+)`, (S) => S.act(a), (C, L, st) => { C.act(a); groupClear(st, L); }),
+  withState({ sit: SIT.slice(0, 2), ko: { doomed: true } }, `${a} (приречений)`, (S) => S.act(a), (C, L, st) => { C.act(a); groupClear(st, L); }),
+]);
+// 6.2: the max HP lost to a failed treatment lives on its consequence (consRed) and goes with it
+const consRedSteps = () => [
+  withState({ cons: { l: "", m: "Перелом", m2: "", h: "" }, consRed: { m: 3 }, hpRed: 4 }, "consRed: наслідок стерто", (S) => S.change("cons.m", ""), (C) => C.setField("cons.m", "")),
+  withState({ cons: { l: "", m: "Перелом", m2: "", h: "" }, consRed: { m: 3 }, hpRed: 4 }, "consRed: наслідок є", (S) => S.act("step", { k: "hpCur", d: "-1" }), (C) => C.act("step", { k: "hpCur", d: "-1" })),
+];
+
 function stepsFor(st) {
   const steps = [
     act("gender", { v: "f" }), act("roll-name"), act("roll-asp", { i: "1" }), act("roll-detail"), act("roll-species"),
@@ -330,7 +375,7 @@ function stepsFor(st) {
     },
   ];
   st.other.forEach((o, i) => { if (R.drugOf(o.n)) steps.push(act("chem-use", { i: String(i) })); });
-  steps.push(...skillSteps(st));
+  steps.push(...skillSteps(st), ...endSteps(), ...consRedSteps());
   // «Застосувати» of every perk use the character has (row 3.2): the state and the mark; the HTML sheet's toast and the
   // result on its card stand for Foundry's chat card, so the messages aren't compared
   for (const u of usesFor(st)) if (!u.show) steps.push({ ...act("perk-use", { id: u.id }), skipToasts: true }, act("perk-free", { id: u.id }));
