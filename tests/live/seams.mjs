@@ -187,14 +187,18 @@ export async function tourProbe({ timeout = 15000 } = {}) {
   const step = t.currentStep ?? t.steps?.[t.stepIndex ?? 0];
   // the tour's window is drawn a moment after start
   const box = await until(() => document.querySelector(".tour"), { timeout: 5000, what: "вікно туру" }).catch(() => null);
-  const target = step?.selector ? document.querySelector(step.selector) : null;
+  // the system's tour never breaks on a missing target: it shows the step in the middle with its fallback text and takes
+  // the selector off while it shows (tours/pust-tour.mjs) — so the target is read from the step as declared
+  const def = (await mod("tours/tour-data.mjs").catch(() => null))?.TOURS?.find((x) => x.id === t.id)?.steps?.find((x) => x.id === step?.id);
+  const selector = def?.selector ?? step?.selector ?? null;
+  const target = selector ? [...document.querySelectorAll(selector)].find((el) => el.getClientRects().length) ?? document.querySelector(selector) : null;
   const text = (box?.textContent ?? "").replace(/\s+/g, " ").trim();
   const problems = [];
   if (!box || !visible(box)) problems.push("вікна туру не видно");
-  if (step?.selector && !target) problems.push(`ціль «${step.selector}» не існує`);
-  else if (step?.selector && !visible(target)) problems.push(`ціль «${step.selector}» не видно`);
+  if (selector && !target) problems.push(`ціль «${selector}» не існує (тур показав крок без неї)`);
+  else if (selector && !visible(target)) problems.push(`ціль «${selector}» не видно`);
   if (text.length < 10) problems.push("текст кроку порожній");
-  return { ok: !problems.length, details: { problems, tour: t.id, namespace: t.namespace, step: step?.id ?? null, selector: step?.selector ?? null, text: text.slice(0, 80) } };
+  return { ok: !problems.length, details: { problems, tour: t.id, namespace: t.namespace, step: step?.id ?? null, selector, text: text.slice(0, 80) } };
 }
 
 /** Close the running tour (so the next steps click freely); does not change who has seen it */
