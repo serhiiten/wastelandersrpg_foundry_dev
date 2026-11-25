@@ -1,13 +1,13 @@
 // The stable check's pure parts (tools/stable-precheck.mjs; author, 2026-11-25). Run: node tests/stable-precheck.test.mjs
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { summarize, dataChanges, settingsChanges, testsMissing, idHits, verdict } from "../tools/stable-precheck.mjs";
+import { summarize, dataChanges, contentChanges, systemJsonChanges, settingsChanges, testsMissing, idHits, verdict } from "../tools/stable-precheck.mjs";
 
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
 
 const d = dataChanges(["module/data/enemy-data.mjs", "module/rules/core.mjs", "template.json", "lang/uk.json", "src/packs/rules/a.json", "packs/rules/000005.ldb", "module/database.mjs"]);
-ok(d.length === 4, `four data paths (got ${d.join(", ")})`);
+ok(d.length === 1 && d[0] === "module/data/enemy-data.mjs", `only module/data is the model (got ${d.join(", ")})`);
 ok(!d.includes("packs/rules/000005.ldb"), "the built packs/ are not data sources");
 ok(!d.includes("module/database.mjs"), "module/data/ is a folder, not a prefix of any name");
 
@@ -67,7 +67,15 @@ ok(ids.replaced.length === 1, "README is put back from stable");
 const none = { data: [], settings: [], missing: [], left: [], changelog: false };
 ok(verdict(none) === 0, "clean: 0");
 ok(verdict({ ...none, changelog: true }) === 1, "a changelog needs Fable");
-ok(verdict({ ...none, data: ["lang/uk.json"] }) === 1, "a data change needs Fable");
+ok(verdict({ ...none, data: ["module/data/actor.mjs"] }) === 1, "a data model change needs Fable");
+ok(verdict({ ...none, content: ["lang/uk.json"] }) === 2, "content alone: check it, no Fable");
+ok(dataChanges(["lang/uk.json", "src/packs/rules/a.json", "module/data/x.mjs", "template.json"]).join() === "module/data/x.mjs", "only module/data is the model");
+ok(contentChanges(["lang/uk.json", "src/packs/rules/a.json", "module/data/x.mjs"]).length === 2, "lang and packs are content");
+const sjA = JSON.stringify({ version: "1.1.0-dev.52", styles: ["a.css"], documentTypes: { Actor: { character: {} } }, packs: [{ name: "rules" }] });
+const sjB = JSON.stringify({ version: "1.1.0-dev.53", styles: ["a.css", "b.css"], documentTypes: { Actor: { character: {} } }, packs: [{ name: "rules" }] });
+ok(systemJsonChanges(sjA, sjB).length === 0, "version and styles of system.json are not the data model");
+const sjC = JSON.stringify({ ...JSON.parse(sjB), documentTypes: { Actor: { character: {}, npc: {} } } });
+ok(systemJsonChanges(sjA, sjC).join() === "system.json: documentTypes", "a new document type in system.json is");
 ok(verdict({ ...none, settings: ["x"] }) === 1, "a settings change needs Fable");
 ok(verdict({ ...none, missing: ["c.test.mjs"] }) === 2, "a missing test: fix, no Fable");
 ok(verdict({ ...none, left: ["x"], data: ["lang/uk.json"] }) === 1, "Fable wins over the fix list");

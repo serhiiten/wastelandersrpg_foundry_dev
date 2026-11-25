@@ -7,25 +7,38 @@
 //     --changelog  this promotion gets a CHANGELOG.md entry
 //
 // It says:
-//   1. what changed between the two commits in the data: module/data, template.json, lang,
-//      src/packs, and lines with game.settings.register;
+//   1. what changed between the two commits in the data model: module/data, system.json
+//      (documentTypes, packs, packFolders), and lines with game.settings.register; and in the content:
+//      lang, src/packs (author, 2026-11-25: content alone is checked by Opus, not Fable);
 //   2. which tests/*.test.mjs are not in `npm test` of package.json;
 //   3. where `wastelanders-dev` stays outside tools/ and tests/ in a place tools/set-system-id.mjs does not rewrite.
-// Exit: 0 — nothing found; 1 — Fable's verdict needed (a data change or a changelog), fix also what 2 / 3 list;
-//       2 — no Fable needed, but 2 / 3 found something to fix before the promotion; 3 — wrong arguments or git failed.
+// Exit: 0 — nothing found; 1 — Fable's verdict needed (a data model or settings change, or a changelog),
+//       fix also what 2 / 3 list; 2 — no Fable needed, but content changed (check it yourself) or 2 / 3 found
+//       something to fix before the promotion; 3 — wrong arguments or git failed.
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-export const DATA_PATHS = ["module/data/", "template.json", "lang/", "src/packs/"];
+export const DATA_PATHS = ["module/data/"];
+export const CONTENT_PATHS = ["lang/", "src/packs/"];
+// system.json keys that describe the data model (documents, their HTML fields, packs and their folders).
+export const MODEL_KEYS = ["documentTypes", "packs", "packFolders"];
 export const SETTINGS_RE = /game\.settings\.register\s*\(/;
 export const DEV_ID = "wastelanders-dev";
 // Files that the promotion replaces with the stable copy (tools-and-ports.md: «put back the stable README»).
 export const REPLACED_BY_STABLE = ["README.md", "CHANGELOG.md"];
 
-/** Changed paths that belong to the data. */
-export function dataChanges(names) {
-  return names.filter((n) => DATA_PATHS.some((p) => (p.endsWith("/") ? n.startsWith(p) : n === p)));
+const under = (paths) => (n) => paths.some((p) => (p.endsWith("/") ? n.startsWith(p) : n === p));
+/** Changed paths that belong to the data model. */
+export function dataChanges(names) { return names.filter(under(DATA_PATHS)); }
+/** Changed paths that belong to the content (texts of the packs, lang). */
+export function contentChanges(names) { return names.filter(under(CONTENT_PATHS)); }
+/** system.json keys of the data model that differ between two versions of the file (JSON texts). */
+export function systemJsonChanges(before, after) {
+  let a = {}, b = {};
+  try { a = JSON.parse(before || "{}"); } catch {}
+  try { b = JSON.parse(after || "{}"); } catch {}
+  return MODEL_KEYS.filter((k) => JSON.stringify(a[k] ?? null) !== JSON.stringify(b[k] ?? null)).map((k) => `system.json: ${k}`);
 }
 
 /** Compendium sources grouped by pack («src/packs/opponents/ (48 files)»), other paths as they are. */
@@ -99,10 +112,10 @@ export function idHits(grepLines) {
 }
 
 /** The exit code from what was found. */
-export function verdict({ data, settings, missing, left, changelog }) {
+export function verdict({ data, settings, missing, left, changelog, content = [] }) {
   const fable = data.length > 0 || settings.length > 0 || !!changelog;
   if (fable) return 1;
-  if (missing.length || left.length) return 2;
+  if (missing.length || left.length || content.length) return 2;
   return 0;
 }
 
@@ -122,11 +135,13 @@ function main(argv) {
   }
   const from = pos[0], to = pos[1] || "main";
   const cwd = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-  let names, diff, files, pkg, grep;
+  let names, diff, sysFrom, sysTo, files, pkg, grep;
   try {
     for (const r of [from, to]) git(["rev-parse", "--verify", "--quiet", `${r}^{commit}`], cwd);
     names = git(["diff", "--name-only", from, to], cwd).split("\n").filter(Boolean);
     diff = git(["diff", "-U0", from, to, "--", "module", "*.mjs", "*.js"], cwd);
+    sysFrom = git(["show", `${from}:system.json`], cwd);
+    sysTo = git(["show", `${to}:system.json`], cwd);
     files = git(["ls-tree", "-r", "--name-only", to, "--", "tests"], cwd).split("\n").filter(Boolean);
     pkg = JSON.parse(git(["show", `${to}:package.json`], cwd));
     try { grep = git(["grep", "-n", "-I", "-F", DEV_ID, to, "--"], cwd); } catch (e) { grep = e.status === 1 ? "" : (() => { throw e; })(); }
@@ -136,11 +151,12 @@ function main(argv) {
   }
   const grepLines = grep.split("\n").filter(Boolean).map((l) => l.slice(l.indexOf(":") + 1)); // drop «<to>:»
 
-  const data = dataChanges(names);
+  const data = [...dataChanges(names), ...systemJsonChanges(sysFrom, sysTo)];
+  const content = contentChanges(names);
   const settings = settingsChanges(diff);
   const missing = testsMissing(files, pkg.scripts?.test);
   const ids = idHits(grepLines);
-  const code = verdict({ data, settings, missing, left: ids.left, changelog });
+  const code = verdict({ data, settings, missing, left: ids.left, changelog, content });
 
   const list = (title, items, empty) => {
     console.log(`\n${items.length ? "✗" : "✓"} ${title}${items.length ? ` (${items.length})` : ""}`);
@@ -149,15 +165,16 @@ function main(argv) {
     if (items.length > 40) console.log(`  … and ${items.length - 40} more`);
   };
   console.log(`Stable check ${from} → ${to}: ${names.length} files changed`);
-  list("Data changed (module/data, template.json, lang, src/packs)", summarize(data), "no change");
+  list("Data model changed (module/data, system.json: documentTypes / packs / packFolders)", summarize(data), "no change");
   list("Settings registered / removed (game.settings.register)", settings, "no change");
+  list("Content changed (lang, src/packs): check it yourself, no Fable", summarize(content), "no change");
   list("Tests not in `npm test`", missing, `all ${files.filter((f) => f.endsWith(".test.mjs")).length} test files are in it`);
   list(`\`${DEV_ID}\` left after set-system-id (outside tools/, tests/)`, ids.left, `none; ${ids.covered} places set-system-id rewrites`);
   if (ids.replaced.length) console.log(`  note: ${ids.replaced.length} in ${REPLACED_BY_STABLE.join(" / ")}, put back from stable at promotion`);
   if (changelog) console.log("\n✗ A CHANGELOG.md entry goes out with this promotion");
   console.log(
-    code === 1 ? "\n→ Fable's verdict needed before the promotion (data changed or a changelog)." + (missing.length || ids.left.length ? " Fix the ✗ of tests / id too." : "") :
-    code === 2 ? "\n→ No Fable needed. Fix the ✗ above, then run again." :
+    code === 1 ? "\n→ Fable's verdict needed before the promotion (data model or settings changed, or a changelog)." + (missing.length || ids.left.length ? " Fix the ✗ of tests / id too." : "") :
+    code === 2 ? "\n→ No Fable needed. Check the content yourself and fix the other ✗ above, then run again." :
     "\n→ Nothing found: promote without Fable (steps: docs/decisions/tools-and-ports.md)."
   );
   return code;
