@@ -117,9 +117,10 @@ for (const f of files) {
     const around = text.slice(Math.max(0, m.index - 30), m.index + m[0].length + 10);
     if (!PLAYING_CARDS.test(around)) ok(false, `${where(rel, text, m.index)}: «${m[0]}» — write «мапа» (for playing cards, add the phrase to PLAYING_CARDS)`);
   }
-  // «кубик» in what Foundry shows (author, 2026-11-20, F8 of Fable's analysis): the wiki says «кістка». Only the system's own
-  // files and not their comments: the HTML tools keep their word, and the code's notes may name the HTML sheet's «Просто кубики»
-  if (!rel.startsWith("..") && !rel.startsWith("tests/")) {
+  // «кубик» in what Foundry shows (author, 2026-11-20, F8 of Fable's analysis): the wiki says «кістка». The system's own
+  // files and, since 2026-11-25 (author: «у HTML теж»), the HTML character sheet's sources, which Foundry's rules are made
+  // from; not comments. The caravan sheet and the terminal are not checked for it yet.
+  if ((!rel.startsWith("..") || rel.startsWith("../pustelnyky-character-generator/")) && !rel.startsWith("tests/")) {
     text.split("\n").forEach((line, i) => {
       if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;
       const code = line.replace(/\s\/\/\s.*$/, "");
