@@ -45,5 +45,16 @@ for (const d of dice) {
 ok(H.diceLabel(H.lowerDice("1d6", "кинь двічі, обери менший").dice) === "менша з 2d6", "civilians: «менша з 2d6»");
 ok(H.normDice("менша з 2d6") === "2d6kl1" && H.diceLabel(H.bumpExpr(H.normDice("менша з 2d6"), 1)) === "менша з 2d6+1", "«менша з 2d6» ↔ «2d6kl1», «+1»");
 
+// the tracker's DICE_RE (attack editor, a character's attacks) is battle.mjs's, «kl1» included (stage 4, part 2, 2026-11-25):
+// the editor takes «2d6kl1» and, through normDice, «менша з 2d6»; rollSum rolls both
+const trk = readFileSync(new URL("../../pustelnyky_src (1)/pustelnyky_src/tracker.js", import.meta.url), "utf8");
+const dre = /^export const DICE_RE = (.*);$/m.exec(mod)?.[1];
+ok(dre && trk.includes(`  const DICE_RE = ${dre}
+`), `tracker.js DICE_RE differs from battle.mjs ${dre}`);
+ok(trk.includes("const diceOk = d=>DICE_RE.test(normDice(d))"), "tracker.js: the editor checks the typed dice through normDice");
+const DRE = new RegExp(dre.slice(1, dre.lastIndexOf("/")), dre.slice(dre.lastIndexOf("/") + 1));
+for (const d of ["2d6kl1", "менша з 2d6", "2d6kl1+1", "1d10", "к6"]) ok(DRE.test(H.normDice(d)), `the editor takes «${d}»`);
+for (const d of ["2d6kx", "менша з", "abc"]) ok(!DRE.test(H.normDice(d)), `the editor refuses «${d}»`);
+
 if (failures) { console.log(`FAILS: ${failures} of ${checks}`); process.exit(1); }
 console.log(`tracker-dice-html: OK (${checks} checks)`);
