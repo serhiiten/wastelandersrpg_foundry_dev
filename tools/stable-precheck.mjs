@@ -39,13 +39,15 @@ export function summarize(paths) {
   return [...rest, ...[...packs].map(([k, n]) => `src/packs/${k}/ (${n} file${n === 1 ? "" : "s"})`)];
 }
 
-/** Added / removed lines of a unified diff (-U0) that hold game.settings.register, with their file. */
+/** Added / removed lines of a unified diff (-U0) that hold game.settings.register, with their file.
+ * tests/ and tools/ never register settings for real (their strings only mention the call), so they are skipped. */
 export function settingsChanges(diff) {
   const out = [];
   let file = "";
   for (const line of diff.split("\n")) {
     if (line.startsWith("+++ ")) { file = line.slice(4).replace(/^b\//, ""); continue; }
     if (line.startsWith("--- ")) continue;
+    if (/^(tests|tools)\//.test(file)) continue;
     if ((line.startsWith("+") || line.startsWith("-")) && SETTINGS_RE.test(line)) {
       out.push(`${file}: ${line[0]} ${line.slice(1).trim()}`);
     }
@@ -154,7 +156,7 @@ function main(argv) {
   if (ids.replaced.length) console.log(`  note: ${ids.replaced.length} in ${REPLACED_BY_STABLE.join(" / ")}, put back from stable at promotion`);
   if (changelog) console.log("\n✗ A CHANGELOG.md entry goes out with this promotion");
   console.log(
-    code === 1 ? "\n→ Fable's verdict needed before the promotion (data changed or a changelog). Fix the ✗ of tests / id too." :
+    code === 1 ? "\n→ Fable's verdict needed before the promotion (data changed or a changelog)." + (missing.length || ids.left.length ? " Fix the ✗ of tests / id too." : "") :
     code === 2 ? "\n→ No Fable needed. Fix the ✗ above, then run again." :
     "\n→ Nothing found: promote without Fable (steps: docs/decisions/tools-and-ports.md)."
   );

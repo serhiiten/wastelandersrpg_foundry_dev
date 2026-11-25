@@ -25,6 +25,19 @@ const diff = [
   "-game.settings.register (SYS, \"old\", {});",
 ].join("\n");
 const s = settingsChanges(diff);
+const selfDiff = [
+  "diff --git a/tests/stable-precheck.test.mjs b/tests/stable-precheck.test.mjs",
+  "--- a/tests/stable-precheck.test.mjs",
+  "+++ b/tests/stable-precheck.test.mjs",
+  "@@ -1,0 +2,1 @@",
+  "+  \"+  game.settings.register(SYS, \\\"autoXp\\\", {\",",
+  "diff --git a/tools/x.mjs b/tools/x.mjs",
+  "--- a/tools/x.mjs",
+  "+++ b/tools/x.mjs",
+  "@@ -1,0 +2,1 @@",
+  "+// game.settings.register(SYS, \"y\")",
+].join("\n");
+ok(settingsChanges(selfDiff).length === 0, "settings mentioned in tests/ and tools/ are not counted");
 ok(s.length === 2, `two register lines (got ${s.length})`);
 ok(s[0].startsWith("module/helpers/settings.mjs: +"), "added line keeps its file and sign");
 ok(s[1].startsWith("module/other.mjs: -"), "removed line in the next file");
