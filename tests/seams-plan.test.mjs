@@ -1,7 +1,7 @@
 // The seams test's pure part (tests/live/seams.mjs): the route's order, the choice of steps, the counters rule,
 // the console noise and the verdict. The live part needs Foundry (workspace tools/foundry-live/seams.py).
 // Run: node tests/seams-plan.test.mjs
-import { ROUTE, selectSteps, countsDiff, isNoise, redLines, verdict, NOISE } from "./live/seams.mjs";
+import { ROUTE, selectSteps, countsDiff, isNoise, redLines, verdict, NOISE, KNOWN, knownOf, doubleThumbs } from "./live/seams.mjs";
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; console.log("FAIL " + m); } };
@@ -34,6 +34,20 @@ ok(isNoise({ type: "warning", text: "Your web browser does not have hardware acc
 ok(!isNoise({ type: "error", text: "Your web browser does not have hardware acceleration enabled." }), "the same text as an error is not noise");
 const red = redLines({ A: [{ type: "warning", text: "x" }, { type: "error", text: "boom" }], A2: [{ type: "pageerror", text: "Cannot read properties of undefined (reading '_source')" }], B: [] });
 ok(Object.keys(red).join() === "A,A2" && red.A.length === 1, "errors and page errors are red, warnings are not");
+ok(red.A2[0].known === "source-undefined" && red.A[0].known === null, "an old bug's line stays red and is named; a new one is not");
+
+// the three old bugs (author, 2026-11-25: shown red, never hidden)
+ok(KNOWN.length === 3 && KNOWN.every((k) => k.id && k.title && (k.re instanceof RegExp || k.log)), "three old bugs, each named");
+ok(!NOISE.some((n) => KNOWN.some((k) => k.re && n.re.source === k.re.source)), "an old bug is never noise");
+ok(knownOf({ type: "pageerror", text: "You cannot begin the Welcome to Foundry Virtual Tabletop Tour because the Початок Tour is already in progress" }) === "tour-collision", "the tours' collision is recognised");
+ok(knownOf({ type: "error", text: "boom" }) === null, "anything else is not an old bug");
+const thumbs = doubleThumbs([
+  'Persisted base64 image to "C:\\W\\pustelnyky-seams\\assets\\scenes\\thumb-a.webp"',
+  'Persisted base64 image to "C:\\W\\pustelnyky-seams\\assets\\scenes\\thumb-b.webp"',
+  'Persisted base64 image to "C:\\W\\pustelnyky-seams\\assets\\scenes\\thumb-b.webp"',
+  "Something else",
+]);
+ok(thumbs.join() === "thumb-b.webp ×2", `a thumbnail written twice is found (${thumbs})`);
 
 // verdict
 ok(verdict([{ step: "1a", ok: true }, { step: "2", ok: true }]).ok, "all green: green");
