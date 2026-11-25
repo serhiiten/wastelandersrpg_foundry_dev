@@ -1125,13 +1125,13 @@ const SCENARIOS = {
    * аудитом»): in every row with «Купити за N(к)» the two buttons stand in one column, «Купити» over «Додати», one width
    * (shared left and right edges, author 2026-11-21), and the name and description keep the rest of the row; the catalogue's
    * layout rules (`layout`: nothing spills, overlaps or is cut). The full sheet's «Мотлох» at its narrowest and usual width,
-   * the compact sheet at 460 px. Only the sheet's own UI state (tab, compact, catalogue open) is changed and put back.
+   * the compact sheet at 460 px; the «Мотлох» pickers (weapons, armour, other) with `layout`. Only the sheet's own UI state (tab, compact, catalogue open) is changed and put back.
    */
   async catalog(a) {
     const actor = auditActor("character") ?? game.actors.find((x) => x.type === "character" && x.isOwner);
     if (!actor) { a.scenario = "каталог речей"; a.skip("каталог речей", "немає власного персонажа"); return; }
     const app = actor.sheet, was = app.rendered, pos = { ...app.position };
-    const keep = { tab: app.ui.tab, compact: app.ui.compact, cat: app.ui.cat, catQ: app.ui.catQ };
+    const keep = { tab: app.ui.tab, compact: app.ui.compact, cat: app.ui.cat, catQ: app.ui.catQ, addPick: app.ui.addPick };
     const check = (label) => {
       a.scenario = `${label}, ${Math.round(R(app.element).width)} px`;
       const cat = app.element.querySelector(".pust-catalog-big");
@@ -1160,7 +1160,19 @@ const SCENARIOS = {
         app.setPosition({ width: w }); await sleep(400);
         check(`каталог речей «${actor.name}», «Мотлох»`);
       }
-      app.ui.compact = true;
+      // the «Мотлох» pickers (weapons, armour, other) share the rows; their first heading once lay on «Інше»'s line (2026-11-25)
+      app.ui.cat = false;
+      for (const [p, label] of [["weapons", "зброя"], ["armor", "броня"], ["other", "інше"]]) {
+        app.ui.addPick = p;
+        await app.render({ force: true }); await sleep(900);
+        for (const w of [100, app.options?.position?.width ?? 900]) {
+          app.setPosition({ width: w }); await sleep(350);
+          a.scenario = `вибірка «${label}» «${actor.name}», ${Math.round(R(app.element).width)} px`;
+          const box = [...app.element.querySelectorAll(".pust-addcat:not(.pust-catalog-big)")].find(shown);
+          if (box) a.layout(box, `вибірка «${label}»`); else a.ok("вибірку відкрито", false, `немає .pust-addcat для ${p}`);
+        }
+      }
+      app.ui.compact = true; app.ui.cat = true;
       await app.render({ force: true }); await sleep(1100);
       app.setPosition({ width: 100 }); await sleep(400);
       check(`каталог речей «${actor.name}», компактний аркуш`);
