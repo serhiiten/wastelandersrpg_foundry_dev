@@ -484,7 +484,7 @@ class CheckPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       + (of.crit.length ? `<h5>Критичні</h5>${of.crit.map((e) => row(e, "crit")).join("")}` : "")
       + (of.normal.length ? `<h5>Звичайні</h5>${of.normal.map((e) => row(e, "normal")).join("")}` : "")
       + one + ally + applyFx + `</div>`;
-    return html.replace(/<details class="rfx"[^>]*>[\s\S]*?<\/details>/, block);
+    return html.replace(/<details class="rfx"[^>]*>[\s\S]*?<\/details>/, () => block);
   }
 
   /** A toggle pressed: the picks within the limits; «+2» / «+1d6» through the engine's own options */
