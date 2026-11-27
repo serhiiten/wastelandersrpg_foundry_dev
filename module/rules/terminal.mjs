@@ -2478,6 +2478,7 @@ function refreshTextExport(){
       fromTravel(spec) {
         const b = BT.travelBattle(spec); if (!b) return null;
         BT.renderBattle(b.factionKey, b.pickedCase, b.allocations);
+        BT.rollReward(); // a fresh reward for this battle's difficulty, not the previous battle's (author, 2026-11-27)
         BT.BT_SCENE.place = spec.place || ""; BT.BT_SCENE.hazard = "";
         return { ...this.state(), names: b.names };
       },

@@ -56,5 +56,12 @@ ok(app.includes('notify.warn("Не вдалося зібрати битву з �
 ok(app.includes("notify.info(`Битву зі справи перенесено на вкладку «Битви»: ${B.BT.kindName(kind)}, ${cs.f.enemyPower}.`)") && src.includes("trToast(`Битву зі справи перенесено на вкладку «Битви»: ${kindName(kind)}, ${cs.f.enemyPower}.`)"), "the notice as Foundry's");
 ok(/CBT\.caseBattle\(DB, ORDER, kind, CBT\.casePower\(cs\.f\.enemyPower\)\)/.test(src) && /CBT\.CASE_DIFF\[cs\.diff\] \|\| 'easy'/.test(src), "case_battle.js: the battle generator's DB / ORDER, the difficulty as Foundry's");
 
+// «Створити битву» from a case or a travel rolls a NEW reward for the battle's difficulty (author, 2026-11-27: the old one stayed
+// from the previous battle). Both sides: Foundry's #caseBattle and the travel's fromTravel, the page's caseToBattle and exportTravel.
+ok(/B\.BT\.renderBattle\(b\.factionKey, b\.pickedCase, b\.allocations\);\s*B\.BT\.rollReward\(\);/.test(app), "Foundry #caseBattle rolls the reward after renderBattle");
+ok(/renderBattle\(b\.factionKey, b\.pickedCase, b\.allocations\)[^\n]*\n\s*rollReward\(\)/.test(src), "case_battle.js: caseToBattle rolls the reward after renderBattle");
+ok(/BT\.renderBattle\(b\.factionKey, b\.pickedCase, b\.allocations\);\s*BT\.rollReward\(\);/.test(modSrc("module/rules/terminal.mjs")), "terminal.mjs fromTravel rolls the reward after renderBattle");
+ok(/renderBattle\(b\.factionKey, b\.pickedCase, b\.allocations\)[^\n]*\n\s*rollReward\(\)/.test(termSrc("travel_export.js")), "travel_export.js: exportTravel rolls the reward after renderBattle");
+
 if (failures) { console.log(`FAILS: ${failures} of ${checks}`); process.exit(1); }
 console.log(`case-battle-html: OK (${checks} checks)`);

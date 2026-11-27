@@ -274,6 +274,7 @@ class TerminalApp extends HandlebarsApplicationMixin(ApplicationV2) {
     B.BT.BT_SCENE.place = sharedGet("place") || "";
     B.BT.BT_SCENE.hazard = sharedGet("hazard") || "";
     B.BT.renderBattle(b.factionKey, b.pickedCase, b.allocations);
+    B.BT.rollReward(); // a fresh reward for the case's difficulty, not the previous battle's (author, 2026-11-27)
     const s = B.state();
     this.st.battle.difficulty = diff;
     this.st.battle.kinds = [kind];
