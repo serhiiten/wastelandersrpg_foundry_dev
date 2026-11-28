@@ -64,6 +64,9 @@ const SAME = {
   // HTML backport 5.1 (2026-11-25): «Повний / Компактний» (only the view: a variable and the device's storage, not S), and the
   // compact sheet's service icons, which press the full sheet's «Відремонтувати» / «Поповнити» (btnRepair / btnRefill above)
   "data-cmp-view": 'data-action="compactToggle"', "data-cmp-svc": 'data-act="repair"',
+  // Згортка «Налаштування» (HTML, 2026-11-28): у Foundry налаштування — окрема вкладка-шестерня, схована, доки її
+  // не відкрити; друга кнопка-згортка в ній додала б лише зайвий клік (Opus, 2026-11-28)
+  foldSettings: 'data-tab="settings"',
 };
 /** HTML controls Foundry leaves out on purpose */
 const SKIP = {
