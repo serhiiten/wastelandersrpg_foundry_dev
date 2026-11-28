@@ -5,6 +5,7 @@
 // When the wiki (F:\Claude\pustelnyky\wiki, the Notion export) is next to the repo, the expected table is checked against it too.
 // Run: node tests/opponents.test.mjs
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
+import { wikiPage } from "./wiki-source.mjs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { profileOf } from "../module/rules/enemy-model.mjs";
@@ -56,10 +57,8 @@ for (const [name, [rad, poison, psy, psyVuln]] of Object.entries(EXPECTED)) {
 }
 
 // the expected table against the wiki's page, when the wiki is there
-const WIKI = resolve(ROOT, "..", "wiki");
-const page = existsSync(WIKI) && readdirSync(WIKI).find((f) => f.startsWith("Супротивники роботи") && f.endsWith(".md"));
-if (page) {
-  const md = readFileSync(join(WIKI, page), "utf8");
+const md = wikiPage("Супротивники роботи");
+if (md) {
   ok(/Всі роботи невразливі до отрут, психічної шкоди та отримують лише половину шкоди від радіації/.test(md), "the wiki's note: robots immune to poisons and psychic damage, ½ from radiation");
   ok(/Всі роботи отримують додатково 1d6 шкоди, коли отримують \*{0,3}електричну/.test(md), "the wiki's note: robots +1d6 from electricity");
   const blocks = md.split(/^### /m).slice(1);

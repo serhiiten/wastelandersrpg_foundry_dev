@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import * as C from "../module/rules/core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const WIKI = path.resolve(ROOT, "..", "wiki");
+import { WIKI, wikiPage, wikiPages } from "./wiki-source.mjs";
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
 
@@ -20,11 +20,7 @@ const SKILLS = ["Атлетика", "Крадіж", "Стрільба", "Гер�
 const SPECIES = { human: "Людина", ghoul: "Гуль", mutant: "Супермутант", robot: "Робот", claw: "Розумний Пазур Смерті" };
 
 /* ---------- 1. the canonical lists agree with the wiki ---------- */
-const wikiFile = (prefix) => {
-  if (!fs.existsSync(WIKI)) return null;
-  const f = fs.readdirSync(WIKI).find((n) => n.startsWith(prefix) && n.endsWith(".md"));
-  return f ? fs.readFileSync(path.join(WIKI, f), "utf8") : null;
-};
+const wikiFile = (prefix) => wikiPage(prefix);
 const glossary = wikiFile("Глосарій ігрових термінів");
 if (glossary) {
   for (const [, [n, s]] of Object.entries(ATTRS)) ok(glossary.includes(`${n} (${s})`), `wiki glossary: «${n} (${s})»`);
@@ -149,8 +145,8 @@ for (const f of files) {
   // дамби Гувера»), checked by its stem
   const NOT_WIKI = new Set(["Міста гулів", "Сховища", "Фермерські містечка", "Руїни військових баз", "Військова база Сієрра"]);
   const STEM = { "Дамба Гувера": "дамб" };
-  if (fs.existsSync(WIKI)) {
-    const text = fs.readdirSync(WIKI).filter((n) => n.endsWith(".md")).map((n) => fs.readFileSync(path.join(WIKI, n), "utf8")).join(" ").toLowerCase();
+  if (WIKI) {
+    const text = wikiPages().map((p) => p.text).join(" ").toLowerCase();
     for (const b of TOWN_BACKGROUNDS) if (!NOT_WIKI.has(b.name)) ok(STEM[b.name] ? new RegExp(`${STEM[b.name]}[а-яії]* гувера`).test(text) : text.includes(b.name.toLowerCase()), `settlement «${b.name}» is in the wiki`);
   }
 }

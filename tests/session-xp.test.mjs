@@ -4,6 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { wikiPage } from "./wiki-source.mjs";
 import { CAMP, GROUP_QUESTIONS, OWN_QUESTIONS, endOptsNow, reconcileAutoXp, sessionXp, xpAutoGiven } from "../module/rules/session-xp.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -11,10 +12,8 @@ let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.log("FAIL " + msg); } };
 
 // the questions are the wiki's own (when the wiki is next to the repo)
-const WIKI = path.resolve(ROOT, "..", "wiki");
-const page = fs.existsSync(WIKI) ? fs.readdirSync(WIKI).find((f) => f.startsWith("Очки досвіду та покращення") && f.endsWith(".md")) : null;
-if (page) {
-  const w = fs.readFileSync(path.join(WIKI, page), "utf8");
+const w = wikiPage("Очки досвіду та покращення");
+if (w) {
   for (const q of GROUP_QUESTIONS) ok(w.includes(`*${q}*`), `group question from the wiki: ${q}`);
   for (const x of OWN_QUESTIONS) ok(w.includes(`*${x.q}*`), `personal question from the wiki: ${x.q}`);
   ok(/\*\*Привал під час подорожі\.\*\*/.test(w) && CAMP.q.startsWith("Привал під час подорожі"), "«Привал» is the wiki's way");
